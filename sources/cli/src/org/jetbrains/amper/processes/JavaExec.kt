@@ -9,7 +9,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.setMapAttribute
 import java.io.File
@@ -55,7 +55,7 @@ suspend fun Jdk.runJava(
             .setMapAttribute("env-vars", environment)
             .setAttribute("classpath", classpathStr)
             .setAttribute("main-class", mainClass)
-            .useWithScope { span ->
+            .use { span ->
                 BuildPrimitives.runProcessAndGetOutput(
                     workingDir = workingDir,
                     command = listOf(javaExecutable.pathString, "@${argFile.pathString}"),

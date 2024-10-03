@@ -20,7 +20,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Fragment
@@ -168,7 +168,7 @@ class MetadataCompileTask(
             .setListAttribute("source-dirs", sourceDirectories.map { it.pathString })
             .setAttribute("compiler-version", kotlinVersion)
             .setListAttribute("compiler-args", compilerArgs)
-            .useWithScope {
+            .use {
                 logger.info("Calling Kotlin metadata compiler...")
                 val result = jdk.runJava(
                     workingDir = Path("."),

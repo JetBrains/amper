@@ -11,7 +11,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.downloadAndExtractKotlinNative
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.PotatoModule
@@ -60,7 +60,7 @@ class KotlinNativeCompiler(
             .setAmperModule(module)
             .setListAttribute("args", args)
             .setAttribute("version", kotlinVersion)
-            .useWithScope { span ->
+            .use { span ->
                 logger.info("Calling konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->

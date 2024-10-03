@@ -12,7 +12,7 @@ import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Model
@@ -79,7 +79,7 @@ class CommonizeNativeDistributionTask(
             spanBuilder("kotlin-native-distribution-commonize")
                 .setAttribute("compiler-version", kotlinVersion)
                 .setListAttribute("commonizer-args", commonizerArgs)
-                .useWithScope {
+                .use {
                     logger.info("Calling Kotlin commonizer...")
                     val result = jdk.runJava(
                         workingDir = Path("."),

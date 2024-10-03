@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.core.use
+import org.jetbrains.amper.core.useWithoutCoroutines
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
@@ -37,7 +37,7 @@ class AmperBackend(val context: CliContext) {
         with(CliProblemReporterContext) {
             val model = spanBuilder("loading model")
                 .setAttribute("root", context.projectRoot.path.pathString)
-                .use {
+                .useWithoutCoroutines {
                     when (val result = SchemaBasedModelImport.getModel(context.projectContext)) {
                         is Result.Failure -> {
                             if (problemReporter.wereProblemsReported()) {

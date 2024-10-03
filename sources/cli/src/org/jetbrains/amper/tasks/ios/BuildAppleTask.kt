@@ -8,7 +8,7 @@ import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Platform
@@ -103,7 +103,7 @@ class BuildAppleTask(
                 spanBuilder("xcodebuild")
                     .setAmperModule(module)
                     .setListAttribute("args", xcodebuildArgs)
-                    .useWithScope { span ->
+                    .use { span ->
                         // TODO Maybe we dont need output here?
                         val result = BuildPrimitives.runProcessAndGetOutput(
                             workingDir = baseDir.toPath(),

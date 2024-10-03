@@ -24,7 +24,7 @@ import org.jetbrains.amper.core.extract.readEntireFileToByteArray
 import org.jetbrains.amper.core.extract.writeFully
 import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.setMapAttribute
 import org.slf4j.LoggerFactory
@@ -85,7 +85,7 @@ class ExecuteOnChangedInputs(
     ): ExecutionResult = spanBuilder("inc $id")
         .setMapAttribute("configuration", configuration)
         .setListAttribute("inputs", inputs.map { it.pathString }.sorted())
-        .useWithScope { span ->
+        .use { span ->
 
             stateRoot.createDirectories()
 

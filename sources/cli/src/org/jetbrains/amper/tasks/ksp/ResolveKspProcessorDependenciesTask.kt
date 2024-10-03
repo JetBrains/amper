@@ -6,7 +6,7 @@ package org.jetbrains.amper.tasks.ksp
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.toRepositories
@@ -67,7 +67,7 @@ internal class ResolveKspProcessorDependenciesTask(
                 .setFragments(fragments)
                 .setAttribute("platform", platform.pretty)
                 .setListAttribute("ksp-processor-dependencies", processorCoords)
-                .useWithScope {
+                .use {
                     mavenResolver.resolve(
                         coordinates = processorCoords,
                         repositories = repositories.toRepositories(),

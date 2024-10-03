@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,10 +16,10 @@ import kotlin.test.assertEquals
 class TestCollectorTest {
     @Test
     fun spans() = runTestWithCollector {
-        spanBuilder("span1").setAttribute("key1", "value1").useWithScope {
+        spanBuilder("span1").setAttribute("key1", "value1").use {
             coroutineScope {
                 launch(Dispatchers.IO) {
-                    spanBuilder("span2").setAttribute("key2", "value2").useWithScope {
+                    spanBuilder("span2").setAttribute("key2", "value2").use {
                         it.addEvent("x")
                     }
                 }

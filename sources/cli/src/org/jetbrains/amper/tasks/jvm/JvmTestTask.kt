@@ -14,7 +14,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Platform
@@ -117,7 +117,7 @@ class JvmTestTask(
                 .setListAttribute("tests-classpath", testClasspath.map { it.pathString })
                 .setListAttribute("jvm-args", jvmCommand)
                 .setListAttribute("junit-args", junitArgs)
-                .useWithScope { span ->
+                .use { span ->
                     DeadLockMonitor.disable()
 
                     val result = BuildPrimitives.runProcessAndGetOutput(

@@ -10,7 +10,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
+import org.jetbrains.amper.core.useWithoutCoroutines
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -64,11 +64,11 @@ class StandaloneAmperProjectContext(
         @UsedInIdePlugin
         fun find(start: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
-            val result = spanBuilder("Find Amper project: presearch").use {
+            val result = spanBuilder("Find Amper project: presearch").useWithoutCoroutines {
                 preSearchProjectRoot(frontendPathResolver.loadVirtualFile(start))
             } ?: return null
 
-            val potentialContext = spanBuilder("Find Amper project: create").use {
+            val potentialContext = spanBuilder("Find Amper project: create").useWithoutCoroutines {
                 create(result.potentialRoot, frontendPathResolver)
                     ?: error("potentialRoot should point to a valid project root")
             }
@@ -97,7 +97,7 @@ class StandaloneAmperProjectContext(
         context(ProblemReporterContext)
         fun create(rootDir: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
             val pathResolver = FrontendPathResolver(project = project)
-            return spanBuilder("Create Amper project").use {
+            return spanBuilder("Create Amper project").useWithoutCoroutines {
                 create(pathResolver.loadVirtualFile(rootDir), pathResolver)
             }
         }
@@ -116,13 +116,13 @@ class StandaloneAmperProjectContext(
         ): StandaloneAmperProjectContext? {
             val rootModuleFile = rootDir.findChildMatchingAnyOf(amperModuleFileNames)
 
-            val amperProject = spanBuilder("Create project context: parse amper project file").use {
+            val amperProject = spanBuilder("Create project context: parse amper project file").useWithoutCoroutines {
                 with(frontendPathResolver) { parseAmperProject(rootDir) }
             }
             if (rootModuleFile == null && amperProject == null) {
                 return null
             }
-            val explicitProjectModuleFiles = spanBuilder("Create project context: resolve module paths").use {
+            val explicitProjectModuleFiles = spanBuilder("Create project context: resolve module paths").useWithoutCoroutines {
                 amperProject?.modulePaths(rootDir) ?: emptyList()
             }
 

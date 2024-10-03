@@ -15,7 +15,7 @@ import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
 import org.slf4j.MDC
@@ -140,7 +140,7 @@ class TaskExecutor(
 
             withContext(tasksDispatcher) {
                 spanBuilder("task ${taskName.name}")
-                    .useWithScope {
+                    .use {
                         val result = runCatching {
                             runTask(taskName, results)
                         }

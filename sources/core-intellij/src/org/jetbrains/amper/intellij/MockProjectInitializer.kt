@@ -34,7 +34,7 @@ import com.jetbrains.cidr.xcode.xcspec.XcodeExtensionsManager
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.core.use
+import org.jetbrains.amper.core.useWithoutCoroutines
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage
@@ -83,7 +83,7 @@ object MockProjectInitializer {
             return ourProject
         }
 
-        return spanBuilder("Init mock IntelliJ project").use {
+        return spanBuilder("Init mock IntelliJ project").useWithoutCoroutines {
             System.setProperty("idea.home.path", "") // TODO: Is it correct?
 
             val disposable = Disposer.newDisposable()

@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
@@ -97,7 +97,7 @@ object BuildPrimitives {
         spanBuilder("copy")
             .setAttribute("from", from.pathString)
             .setAttribute("to", to.pathString)
-            .useWithScope {
+            .use {
                 // TODO is it really interruptible here?
                 runInterruptible {
                     from.copyToRecursively(to, overwrite = overwrite, followLinks = followLinks)

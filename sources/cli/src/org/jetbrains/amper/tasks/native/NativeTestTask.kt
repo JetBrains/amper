@@ -9,7 +9,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
@@ -36,7 +36,7 @@ class NativeTestTask(
 
         return spanBuilder("native-test")
             .setAttribute("executable", executable.pathString)
-            .useWithScope { span ->
+            .use { span ->
                 val workingDir = module.source.moduleDir ?: projectRoot.path
 
                 val result = BuildPrimitives.runProcessAndGetOutput(

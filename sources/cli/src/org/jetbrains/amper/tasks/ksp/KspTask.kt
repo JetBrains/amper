@@ -12,7 +12,7 @@ import org.jetbrains.amper.compilation.mergedCompilationSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
@@ -126,7 +126,7 @@ internal class KspTask(
         return executeOnChangedInputs.executeForFiles("download-ksp-cli-$kspVersion", kspDownloadConfiguration, emptyList()) {
             spanBuilder("download-ksp-cli")
                 .setAttribute("ksp-version", kspVersion)
-                .useWithScope {
+                .use {
                     mavenResolver.downloadKspJars(kspVersion)
                 }
         }

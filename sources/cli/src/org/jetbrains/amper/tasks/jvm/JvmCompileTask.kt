@@ -26,7 +26,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setFragments
 import org.jetbrains.amper.diagnostics.setListAttribute
@@ -275,7 +275,7 @@ class JvmCompileTask(
             .setListAttribute("source-dirs", sourceDirectories.map { it.pathString })
             .setListAttribute("compiler-args", compilerArgs)
             .setAttribute("compiler-version", compilerVersion)
-            .useWithScope {
+            .use {
                 logger.debug("Calling Kotlin compiler...")
                 // TODO capture compiler errors/warnings in span (currently stdout/stderr are only logged)
                 val projectId = projectRoot.toKotlinProjectId()
@@ -341,7 +341,7 @@ class JvmCompileTask(
                 .setListAttribute("args", javacArgs)
                 .setAttribute("jdk-home", jdk.homeDir.pathString)
                 .setAttribute("version", jdk.version)
-                .useWithScope { span ->
+                .use { span ->
                     BuildPrimitives.runProcessAndGetOutput(
                         workingDir = jdk.homeDir,
                         command = listOf(jdk.javacExecutable.pathString, "@${argsFile.pathString}"),

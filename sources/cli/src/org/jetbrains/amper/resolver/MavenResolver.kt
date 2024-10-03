@@ -7,7 +7,7 @@ package org.jetbrains.amper.resolver
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
@@ -43,7 +43,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         .setAttribute("scope", scope.name)
         .setAttribute("platform", platform.name)
         .also { builder -> platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) } }
-        .useWithScope {
+        .use {
             val context = Context {
                 this.cache = getCliDefaultFileCacheBuilder(userCacheRoot)
                 this.repositories = repositories
@@ -74,7 +74,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             builder.setAttribute("repositories", it.context.settings.repositories.joinToString(" "))
             it.context.settings.platforms.singleOrNull()?.nativeTarget?.let { builder.setAttribute("nativeTarget", it) }
         }}
-        .useWithScope { span ->
+        .use { span ->
             with(moduleDependenciesResolver) {
                 root.resolveDependencies(ResolutionDepth.GRAPH_FULL, downloadSources = false)
             }

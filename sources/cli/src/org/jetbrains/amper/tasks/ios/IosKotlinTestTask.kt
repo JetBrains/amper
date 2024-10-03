@@ -9,7 +9,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
@@ -38,7 +38,7 @@ class IosKotlinTestTask(
 
         return spanBuilder("ios-kotlin-test")
             .setAttribute("executable", executable.pathString)
-            .useWithScope { span ->
+            .use { span ->
                 bootAndWaitSimulator(chosenDevice.deviceId)
 
                 val spawnTestsCommand = listOf(

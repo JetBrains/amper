@@ -44,7 +44,6 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
-import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -197,7 +196,7 @@ internal suspend fun withBackend(
     //  and does not handle source class names from jul LogRecord
     // JulTinylogBridge.activate()
 
-    spanBuilder("CLI Setup: install coroutines debug probes").useWithScope {
+    spanBuilder("CLI Setup: install coroutines debug probes").use {
         CliEnvironmentInitializer.setup()
     }
 
@@ -206,7 +205,7 @@ internal suspend fun withBackend(
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
         commonOptions.terminal.println(AmperBuild.banner)
 
-        val cliContext = spanBuilder("CLI Setup: create CliContext").useWithScope {
+        val cliContext = spanBuilder("CLI Setup: create CliContext").use {
             CliContext.create(
                 explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
                 buildOutputRoot = commonOptions.buildOutputRoot?.let {
@@ -225,7 +224,7 @@ internal suspend fun withBackend(
         TelemetryEnvironment.setLogsRootDirectory(cliContext.buildLogsRoot)
 
         if (setupEnvironment) {
-            spanBuilder("CLI Setup: setup logging and monitoring").useWithScope {
+            spanBuilder("CLI Setup: setup logging and monitoring").use {
                 CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot, cliContext.terminal)
                 CliEnvironmentInitializer.setupFileLogging(cliContext.buildLogsRoot)
 
@@ -240,7 +239,7 @@ internal suspend fun withBackend(
             }
         }
 
-        spanBuilder("Execute backend").useWithScope {
+        spanBuilder("Execute backend").use {
             val backend = AmperBackend(context = cliContext)
             block(backend)
             cancelAndWaitForScope(backgroundScope)
@@ -506,7 +505,7 @@ private fun checkAndGetPlatform(value: String) =
 suspend fun main(args: Array<String>) {
     try {
         TelemetryEnvironment.setup()
-        spanBuilder("Root").useWithScope {
+        spanBuilder("Root").use {
             RootCommand().main(args)
         }
     } catch (t: Throwable) {

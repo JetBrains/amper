@@ -8,7 +8,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.TaskName
@@ -52,7 +52,7 @@ class NativeRunTask(
         return spanBuilder("native-run")
             .setAttribute("executable", executable.pathString)
             .setListAttribute("args", programArgs)
-            .useWithScope { span ->
+            .use { span ->
                 val workingDir = module.source.moduleDir ?: projectRoot.path
 
                 val result = BuildPrimitives.runProcessAndGetOutput(

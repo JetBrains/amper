@@ -8,7 +8,7 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
@@ -87,7 +87,7 @@ class ResolveExternalDependenciesTask(
             }
             .setAttribute("native-target", resolvedPlatform.type.value)
             .setAttribute("user-cache-root", userCacheRoot.path.pathString)
-            .useWithScope {
+            .use {
                 logger.debug(
                     "resolve dependencies ${module.userReadableName} -- " +
                             "${fragments.userReadableList()} -- " +

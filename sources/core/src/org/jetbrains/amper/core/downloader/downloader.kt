@@ -29,7 +29,7 @@ import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.core.use
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.nio.channels.FileChannel
@@ -78,7 +78,7 @@ object Downloader {
 
             logger.info("Downloading $url to ${target.pathString}")
 
-            return spanBuilder("download").setAttribute("url", url).setAttribute("target", targetPath).useWithScope {
+            return spanBuilder("download").setAttribute("url", url).setAttribute("target", targetPath).use {
                 suspendingRetryWithExponentialBackOff {
                     // save to the same disk to ensure that move will be atomic and not as a copy
                     val tempFile = target.parent
