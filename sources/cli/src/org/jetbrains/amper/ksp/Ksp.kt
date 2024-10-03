@@ -52,8 +52,5 @@ internal class Ksp(
         if (result.exitCode != 0) {
             userReadableError("KSP execution failed with exit code ${result.exitCode} (see errors above)")
         }
-        if (result.stdout.lineSequence().any { it.startsWith("e: ") }) {
-            userReadableError("KSP execution produced some errors:\n" + result.stdout.prependIndent("  "))
-        }
     }
 }
