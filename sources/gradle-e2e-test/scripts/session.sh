@@ -59,7 +59,7 @@ function create_session() {
 }
 
 function delete_session() {
-    FORCE="$1"
+    FORCE="${1-}"
     if [ -n "$(check_session)" -o -n "$FORCE" ]; then
         SESSION_ID=$(get_session_id)
 
