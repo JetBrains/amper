@@ -98,7 +98,7 @@ class AmperProjectStructureTest {
             "Modules list in ${amperCheckoutRoot.resolve("project.yaml")} (expected) and $settingsGradleFile (actual) differ")
     }
 
-    private fun createAmperProjectBackend(backgroundScope: CoroutineScope): AmperBackend {
+    private suspend fun createAmperProjectBackend(backgroundScope: CoroutineScope): AmperBackend {
         val context = CliContext.create(
             explicitProjectRoot = amperCheckoutRoot,
             userCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot),

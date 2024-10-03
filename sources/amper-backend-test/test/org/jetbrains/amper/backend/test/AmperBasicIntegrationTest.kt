@@ -21,9 +21,8 @@ class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
 
     private val exampleProjectsRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 
-    private fun TestCollector.setupExampleProject(testProjectName: String): CliContext {
-        return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
-    }
+    private suspend fun TestCollector.setupExampleProject(testProjectName: String): CliContext =
+        setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
 
     @Test
     fun `jvm-default-compiler-settings`() = runTestWithCollector {

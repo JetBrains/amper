@@ -22,7 +22,7 @@ class AmperKspTest : AmperIntegrationTestBase() {
 
     private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 
-    private fun TestCollector.setupTestDataProject(
+    private suspend fun TestCollector.setupTestDataProject(
         testProjectName: String,
         programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,

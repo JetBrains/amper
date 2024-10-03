@@ -65,7 +65,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @RegisterExtension
     private val errorCollectorExtension = ErrorCollectorExtension()
 
-    private fun TestCollector.setupTestDataProject(
+    private suspend fun TestCollector.setupTestDataProject(
         testProjectName: String,
         programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,

@@ -26,7 +26,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         .amperSourcesRoot
         .resolve("amper-backend-test/testData/projects/ios")
 
-    private fun TestCollector.setupIosTestProject(testProjectName: String): CliContext =
+    private suspend fun TestCollector.setupIosTestProject(testProjectName: String): CliContext =
         setupTestProject(iosTestDataRoot.resolve(testProjectName), copyToTemp = false)
 
     private val TestCollector.xcodebuildSpans: FilteredSpans

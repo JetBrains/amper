@@ -49,8 +49,14 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         .amperSourcesRoot
         .resolve("amper-backend-test/testData/projects/android")
 
-    private fun TestCollector.setupAndroidTestProject(testProjectName: String, useEmptyAndroidHome: Boolean = false): CliContext =
-        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false, useEmptyAndroidHome = useEmptyAndroidHome)
+    private suspend fun TestCollector.setupAndroidTestProject(
+        testProjectName: String,
+        useEmptyAndroidHome: Boolean = false,
+    ): CliContext = setupTestProject(
+        androidTestDataRoot.resolve(testProjectName),
+        copyToTemp = false,
+        useEmptyAndroidHome = useEmptyAndroidHome,
+    )
 
     /**
      * Not running this test in CI for a while, because there is no nested hardware virtualization on the agents.

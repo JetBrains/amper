@@ -20,9 +20,8 @@ import kotlin.test.Test
 class AmperExamples2Test : AmperIntegrationTestBase() {
     private val exampleProjectsRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
 
-    private fun TestCollector.setupExampleProject(testProjectName: String): CliContext {
-        return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
-    }
+    private suspend fun TestCollector.setupExampleProject(testProjectName: String): CliContext =
+        setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
 
     @Test
     fun jvm() = runTestWithCollector {

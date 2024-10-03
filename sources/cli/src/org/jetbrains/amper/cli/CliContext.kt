@@ -10,7 +10,7 @@ import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithoutCoroutines
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.project.AmperProjectContext
@@ -43,7 +43,7 @@ class CliContext private constructor(
     val projectRoot: AmperProjectRoot = AmperProjectRoot(projectContext.projectRootDir.toNioPath())
 
     companion object {
-        fun create(
+        suspend fun create(
             explicitProjectRoot: Path?,
             taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
             commonRunSettings: CommonRunSettings = CommonRunSettings(),
@@ -58,7 +58,7 @@ class CliContext private constructor(
                 "currentTopLevelCommand should not be blank"
             }
 
-            val amperProjectContext = spanBuilder("CLI Setup: create project context").useWithoutCoroutines {
+            val amperProjectContext = spanBuilder("CLI Setup: create project context").use {
                 with(CliProblemReporterContext) {
                     createProjectContext(explicitProjectRoot).also {
                         if (problemReporter.wereProblemsReported()) {

@@ -73,7 +73,7 @@ abstract class AmperIntegrationTestBase {
         CliEnvironmentInitializer.setup()
     }
 
-    protected fun TestCollector.setupTestProject(
+    protected suspend fun TestCollector.setupTestProject(
         testProjectPath: Path,
         copyToTemp: Boolean,
         programArgs: List<String> = emptyList(),
