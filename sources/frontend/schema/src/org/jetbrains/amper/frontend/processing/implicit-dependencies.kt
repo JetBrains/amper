@@ -29,7 +29,7 @@ private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
 )
 
 private fun kotlinxSerializationFormatDependency(format: String) = MavenDependency(
-    coordinates = "org.jetbrains.kotlinx:kotlinx-serialization-$format:1.5.1", // TODO extract version
+    coordinates = "org.jetbrains.kotlinx:kotlinx-serialization-$format:1.7.3", // TODO extract version
 )
 
 private fun composeRuntimeDependency(composeVersion: String) = MavenDependency(
