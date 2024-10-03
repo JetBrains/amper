@@ -45,7 +45,21 @@ class MappingEntry(override val sourceElement: PsiElement): AmperElementWrapper 
 
         fun byValue(valueElement: PsiElement): MappingEntry? {
             val parent = valueElement.parent
-            if (parent is YAMLKeyValue || parent is AmperProperty) {
+            if (parent is YAMLKeyValue && parent.value == valueElement) {
+                return MappingEntry(parent)
+            }
+            if (parent is AmperProperty && parent.value == valueElement) {
+                return MappingEntry(parent)
+            }
+            return null
+        }
+
+        fun byKey(valueElement: PsiElement): MappingEntry? {
+            val parent = valueElement.parent
+            if (parent is YAMLKeyValue && parent.key == valueElement) {
+                return MappingEntry(parent)
+            }
+            if (parent is AmperProperty && parent.nameElement == valueElement) {
                 return MappingEntry(parent)
             }
             return null

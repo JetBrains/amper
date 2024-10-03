@@ -64,20 +64,50 @@ internal fun PsiElement.readValueTable(): Map<KeyWithContext, AmperElementWrappe
     val table = mutableMapOf<KeyWithContext, AmperElementWrapper>()
     object : AmperPsiAdapterVisitor() {
         override fun visitScalar(node: Scalar) {
-            table[KeyWithContext(position, context)] = node
+            val parentEntry = MappingEntry.byKey(node.sourceElement)
+            if (parentEntry?.value == null) {
+                addNode(node)
+            }
             super.visitScalar(node)
         }
 
         override fun visitMappingEntry(node: MappingEntry) {
-            table[KeyWithContext(position, context)] = node
+            addNode(node)
             super.visitMappingEntry(node)
         }
 
         override fun visitSequenceItem(item: PsiElement, index: Int) {
-            if (table[KeyWithContext(position, context)] == null) {
-                table[KeyWithContext(position, context)] = UnknownElementWrapper(item)
+            if (!table.containsKey(KeyWithContext(position, context))) {
+                addNode(UnknownElementWrapper(item))
             }
             super.visitSequenceItem(item, index)
+        }
+
+        private fun addNode(node: AmperElementWrapper) {
+            if (node is UnknownElementWrapper
+                || node is Scalar && table[KeyWithContext(position, context)] is MappingEntry
+                ) {
+                table[KeyWithContext(position, context)] = node
+                return
+            }
+
+            var insertPosition = position
+            while (table.containsKey(KeyWithContext(insertPosition, context))) {
+                val prev = insertPosition.prev
+                val prevIndex = prev?.segmentName?.toIntOrNull()
+                insertPosition = if (prevIndex != null) {
+                    prev.prev!! + (prevIndex + 1).toString() + insertPosition.segmentName!!
+                } else {
+                    val oldValue = table[KeyWithContext(insertPosition, context)]
+                    table.remove(KeyWithContext(insertPosition, context))
+                    oldValue?.let {
+                        table[KeyWithContext(insertPosition.prev!! + "0" + insertPosition.segmentName!!, context)] =
+                            oldValue
+                        insertPosition.prev!! + "1" + insertPosition.segmentName!!
+                    } ?: (insertPosition.prev!! + "0" + insertPosition.segmentName!!)
+                }
+            }
+            table[KeyWithContext(insertPosition, context)] = node
         }
     }.visitElement(this)
     return table
