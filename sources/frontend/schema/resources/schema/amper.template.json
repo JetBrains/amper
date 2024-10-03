@@ -603,14 +603,19 @@
             "type": "string"
           }
         },
+        "parcelize": {
+          "x-intellij-html-description": "Configure [Kotlin parcelize](https://developer.android.com/kotlin/parcelize) for @Parcelize support",
+          "title": "Configure Kotlin parcelize for @Parcelize support",
+          "$ref": "#/$defs/ParcelizeSettings"
+        },
         "progressiveMode": {
           "x-intellij-html-description": "Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)",
           "title": "Enable the progressive mode for the compiler",
           "type": "boolean"
         },
         "serialization": {
-          "x-intellij-html-description": "Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)",
-          "title": "Configure the Kotlin serialization",
+          "x-intellij-html-description": "Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)",
+          "title": "Configure Kotlin serialization",
           "$ref": "#/$defs/SerializationSettings"
         },
         "suppressWarnings": {
@@ -625,6 +630,35 @@
         }
       },
       "additionalProperties": false
+    },
+    "ParcelizeSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "additionalAnnotations": {
+              "x-intellij-html-description": "Full-qualified name of additional annotations that should be considered as @Parcelize",
+              "title": "Full-qualified name of additional annotations that should be considered as @Parcelize",
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "enabled": {
+              "x-intellij-html-description": "Whether to enable Kotlin Parcelize",
+              "title": "Whether to enable Kotlin Parcelize",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
     },
     "SerializationSettings": {
       "anyOf": [

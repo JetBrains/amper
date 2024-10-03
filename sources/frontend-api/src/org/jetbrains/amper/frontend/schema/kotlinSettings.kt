@@ -70,6 +70,9 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name")
     var optIns by nullableValue<List<TraceableString>>()
 
-    @SchemaDoc("Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
+    @SchemaDoc("Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
     var serialization by nullableValue<SerializationSettings>()
+
+    @SchemaDoc("Configure [Kotlin parcelize](https://developer.android.com/kotlin/parcelize) for @Parcelize support")
+    var parcelize by value<ParcelizeSettings>(ParcelizeSettings())
 }

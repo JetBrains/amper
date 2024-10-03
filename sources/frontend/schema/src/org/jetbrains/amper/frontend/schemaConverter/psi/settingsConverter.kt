@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.ModuleKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.ParcelizeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
@@ -97,6 +98,7 @@ internal fun MappingNode.convertKotlinSettings() = KotlinSettings().apply {
     convertChildScalarCollection(::optIns) { asTraceableString() }
 
     convertChild(::serialization) { value?.convertSerializationSettings() }
+    convertChild(::parcelize) { value?.convertParcelizeSettings() }
 }
 
 context(Converter)
@@ -107,6 +109,18 @@ internal fun PsiElement.convertSerializationSettings() =
         }
         asScalarNode()?.apply {
             convertSelf(::format) { textValue }
+        }
+    }
+
+context(Converter)
+internal fun PsiElement.convertParcelizeSettings() =
+    ParcelizeSettings().apply {
+        asMappingNode()?.apply {
+            convertChildBoolean(::enabled)
+            convertChildScalarCollection(::additionalAnnotations) { asTraceableString() }
+        }
+        asScalarNode()?.apply {
+            convertSelf(::enabled) { (textValue == "enabled") }
         }
     }
 

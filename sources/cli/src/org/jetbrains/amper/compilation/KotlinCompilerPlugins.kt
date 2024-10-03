@@ -16,12 +16,20 @@ internal data class CompilerPlugin(
      */
     val id: String,
     val jarPath: Path,
-    val options: Map<String, String> = emptyMap(),
+    val options: List<Option> = emptyList(), // not a map because options can be repeated
 ) {
+    data class Option(val name: String, val value: String)
+
     companion object {
         fun serialization(jarPath: Path) = CompilerPlugin(
             id = "org.jetbrains.kotlinx.serialization",
             jarPath = jarPath,
+        )
+
+        fun parcelize(jarPath: Path, additionalAnnotations: List<String>) = CompilerPlugin(
+            id = "org.jetbrains.kotlin.parcelize",
+            jarPath = jarPath,
+            options = additionalAnnotations.map { Option(name = "additionalAnnotation", value = it) },
         )
 
         fun compose(jarPath: Path) = CompilerPlugin(
@@ -45,6 +53,15 @@ internal suspend fun KotlinArtifactsDownloader.downloadCompilerPlugins(
         if (kotlinUserSettings.composeEnabled) {
             val plugin = async {
                 CompilerPlugin.compose(downloadKotlinComposePlugin(kotlinVersion))
+            }
+            add(plugin)
+        }
+        if (kotlinUserSettings.parcelizeEnabled) {
+            val plugin = async {
+                CompilerPlugin.parcelize(
+                    jarPath = downloadKotlinParcelizePlugin(kotlinVersion),
+                    additionalAnnotations = kotlinUserSettings.parcelizeAdditionalAnnotations,
+                )
             }
             add(plugin)
         }

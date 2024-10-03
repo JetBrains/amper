@@ -31,6 +31,8 @@ internal data class KotlinUserSettings(
     val optIns: List<String>,
     val freeCompilerArgs: List<String>,
     val serializationEnabled: Boolean,
+    val parcelizeEnabled: Boolean,
+    val parcelizeAdditionalAnnotations: List<String>,
     val composeEnabled: Boolean,
 )
 
@@ -54,6 +56,9 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
     optIns = unanimousKotlinSetting("optIns") { it.optIns.orEmpty().map { it.value } },
     freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs?.map { it.value } }.orEmpty(),
     serializationEnabled = !unanimousOptionalKotlinSetting("serialization.format") { it.serialization?.format }.isNullOrBlank(),
+    parcelizeEnabled = unanimousOptionalKotlinSetting("parcelize.enabled") { it.parcelize.enabled } ?: false,
+    parcelizeAdditionalAnnotations = unanimousOptionalKotlinSetting("parcelize.additionalAnnotations") { it.parcelize.additionalAnnotations }
+        ?.map { it.value }.orEmpty(),
     composeEnabled = unanimousOptionalSetting("compose.enabled") { it.compose.enabled } ?: false,
 )
 

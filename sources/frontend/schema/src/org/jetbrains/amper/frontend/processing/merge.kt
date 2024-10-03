@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.KspSettings
 import org.jetbrains.amper.frontend.schema.NativeSettings
+import org.jetbrains.amper.frontend.schema.ParcelizeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
@@ -106,12 +107,18 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::Kot
     mergeNullableCollection(KotlinSettings::optIns)
 
     mergeNodeProperty(KotlinSettings::serialization, SerializationSettings::merge)
+    mergeNodeProperty(KotlinSettings::parcelize, ParcelizeSettings::merge)
 }
 
 fun ComposeSettings.merge(overwrite: ComposeSettings?) = mergeNode(overwrite, ::ComposeSettings) {
     mergeScalar(ComposeSettings::enabled)
     mergeScalar(ComposeSettings::version)
     mergeNodeProperty(ComposeSettings::resources, ComposeResourcesSettings::merge)
+}
+
+fun ParcelizeSettings.merge(overwrite: ParcelizeSettings?) = mergeNode(overwrite, ::ParcelizeSettings) {
+    mergeScalar(ParcelizeSettings::enabled)
+    mergeCollection(ParcelizeSettings::additionalAnnotations)
 }
 
 fun ComposeResourcesSettings.merge(overwrite: ComposeResourcesSettings?) =

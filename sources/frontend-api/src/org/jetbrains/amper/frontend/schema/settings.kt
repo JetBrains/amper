@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 
 
@@ -115,6 +116,24 @@ const val serializationSettingsShortForm = """
     "enum": [
       "json",
       "$serializationFormatNone"
+    ]
+  }
+"""
+
+@AdditionalSchemaDef(parcelizeSettingsShortForm)
+class ParcelizeSettings : SchemaNode() {
+
+    @SchemaDoc("Whether to enable Kotlin Parcelize")
+    var enabled by value(default = false)
+
+    @SchemaDoc("Full-qualified name of additional annotations that should be considered as @Parcelize")
+    var additionalAnnotations: List<TraceableString> by value(default = emptyList())
+}
+
+const val parcelizeSettingsShortForm = """
+  {
+    "enum": [
+      "enabled"
     ]
   }
 """

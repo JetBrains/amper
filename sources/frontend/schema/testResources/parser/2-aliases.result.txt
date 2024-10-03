@@ -52,6 +52,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -124,6 +129,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -192,6 +202,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -262,6 +277,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -330,6 +350,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -398,6 +423,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -469,6 +499,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -537,6 +572,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -606,6 +646,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -677,6 +722,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -748,6 +798,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -819,6 +874,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -887,6 +947,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -958,6 +1023,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false

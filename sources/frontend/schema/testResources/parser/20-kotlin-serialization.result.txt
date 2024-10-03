@@ -51,6 +51,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: {
           format: json
@@ -124,6 +129,11 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: {
           format: json

@@ -58,6 +58,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false
@@ -146,6 +151,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false
@@ -231,6 +241,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false
@@ -318,6 +333,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false
@@ -403,6 +423,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false
@@ -490,6 +515,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false
@@ -577,6 +607,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false
@@ -662,6 +697,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false
@@ -748,6 +788,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false
@@ -834,6 +879,11 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: false
         serialization: <default> null
         suppressWarnings: false

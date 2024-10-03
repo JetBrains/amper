@@ -53,6 +53,11 @@ Fragments:
         languageVersion: 1.9
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false
@@ -130,6 +135,11 @@ Fragments:
         languageVersion: 1.9
         linkerOpts: <default> null
         optIns: <default> null
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         progressiveMode: <default> false
         serialization: <default> null
         suppressWarnings: <default> false

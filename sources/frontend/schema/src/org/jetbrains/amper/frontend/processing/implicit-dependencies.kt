@@ -24,6 +24,8 @@ private val kotlinTestJUnit = kotlinDependencyOf("kotlin-test-junit")
 private val kotlinTestJUnit5 = kotlinDependencyOf("kotlin-test-junit5")
 private val kotlinTestTestNG = kotlinDependencyOf("kotlin-test-testng")
 
+private val kotlinParcelizeRuntime = kotlinDependencyOf("kotlin-parcelize-runtime")
+
 private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
     coordinates = "org.jetbrains.kotlin:$artifactId:${UsedVersions.kotlinVersion}",
 )
@@ -102,6 +104,9 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
             add(kotlinxSerializationFormatDependency(format))
         }
         // TODO we should probably provide a way to add the kotlinx-serialization-core dependency (without format)
+    }
+    if (settings.kotlin.parcelize.enabled) {
+        add(kotlinParcelizeRuntime)
     }
     if (settings.compose.enabled) {
         val composeVersion = checkNotNull(settings.compose.version)

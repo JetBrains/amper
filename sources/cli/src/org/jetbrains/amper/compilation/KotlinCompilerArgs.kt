@@ -77,9 +77,9 @@ private fun kotlinCommonCompilerArgs(
     // https://jetbrains.slack.com/archives/C942U8L4R/p1708709995859629
     compilerPlugins.forEach { plugin ->
         add("-Xplugin=${plugin.jarPath}")
-        plugin.options.forEach { (optName, value) ->
+        plugin.options.forEach { opt ->
             add("-P")
-            add("plugin:${plugin.id}:$optName=$value")
+            add("plugin:${plugin.id}:${opt.name}=${opt.value}")
         }
     }
     kotlinUserSettings.freeCompilerArgs.forEach {

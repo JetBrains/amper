@@ -12,6 +12,10 @@
       apiVersion: 2.0 [default]
       debug: true [default]
       languageVersion: 2.0 [default]
+      parcelize:
+         additionalAnnotations: (empty) [default]
+         enabled: false [default]
+
       progressiveMode: false [default]
       suppressWarnings: false [default]
       verbose: false [default]

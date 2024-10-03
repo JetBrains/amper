@@ -13,6 +13,7 @@ import org.jetbrains.amper.dependency.resolution.toRepositories
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
+import kotlin.io.path.name
 
 class KotlinArtifactsDownloader(
     val userCacheRoot: AmperUserCacheRoot,
@@ -65,6 +66,18 @@ class KotlinArtifactsDownloader(
         artifactId = "kotlin-serialization-compiler-plugin-embeddable",
         version = version,
     )
+
+    /**
+     * Downloads the Kotlin Parcelize compiler plugin for the given Kotlin [version].
+     *
+     * The [version] should match the Kotlin version requested by the user, the plugin will be added to
+     * the Kotlin compiler command line of version [version].
+     */
+    suspend fun downloadKotlinParcelizePlugin(version: String): Path = downloadMavenArtifact(
+        groupId = KOTLIN_GROUP_ID,
+        artifactId = "kotlin-parcelize-compiler",
+        version = version,
+    ).single { it.name == "kotlin-parcelize-compiler-$version.jar" } // this one is not a far jar, but we still need one jar
 
     /**
      * Downloads the Kotlin Compose compiler plugin for the given [kotlinVersion] (NOT the compose library version).
