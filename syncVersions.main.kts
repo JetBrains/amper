@@ -20,6 +20,7 @@ The source of truth is the list of versions at the top of this file.
 val bootstrapAmperVersion = "0.5.0-dev-1579" // AUTO-UPDATED BY THE CI - DO NOT RENAME
 
 val kotlinVersion = "2.0.20"
+val kotlinxSerializationVersion = "1.7.3"
 val kspVersion = "$kotlinVersion-1.0.25"
 val composeVersion = "1.6.10"
 
@@ -71,6 +72,7 @@ fun updateUsedVersionsKt() {
     usedVersionsKt.replaceFileText { text ->
         text
             .replaceBundledVersionVariable(variableName = "kotlinVersion", newValue = kotlinVersion)
+            .replaceBundledVersionVariable(variableName = "kotlinxSerializationVersion", newValue = kotlinxSerializationVersion)
             .replaceBundledVersionVariable(variableName = "composeVersion", newValue = composeVersion)
             .replaceBundledVersionVariable(variableName = "kspVersion", newValue = kspVersion)
     }
