@@ -380,6 +380,26 @@ class AmperCliTest: AmperCliTestBase() {
         )
     }
 
+    @Test
+    fun `parcelize android lib - build`() = runTestInfinitely {
+        runCli(backendTestProjectName = "parcelize-android-lib", "build")
+    }
+
+    @Test
+    fun `parcelize android lib - test`() = runTestInfinitely {
+        runCli(backendTestProjectName = "parcelize-android-lib", "test")
+    }
+
+    @Test
+    fun `parcelize android app - build`() = runTestInfinitely {
+        runCli(backendTestProjectName = "parcelize-android-app", "build")
+    }
+
+    @Test
+    fun `parcelize android app - test`() = runTestInfinitely {
+        runCli(backendTestProjectName = "parcelize-android-app", "test")
+    }
+
     private fun assertModulesList(modulesCommandResult: ProcessResult, expectedModules: List<String>) {
         val modules = modulesCommandResult.stdout.lines().dropWhile { it.isNotBlank() }.filter { it.isNotBlank() }
         return assertEquals(expectedModules, modules)

@@ -1,0 +1,8 @@
+product:
+  type: lib
+  platforms:
+    - android
+
+settings:
+  kotlin:
+    parcelize: enabled

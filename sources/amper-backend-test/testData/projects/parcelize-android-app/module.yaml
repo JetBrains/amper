@@ -1,0 +1,11 @@
+product: android/app
+
+settings:
+  kotlin:
+    parcelize:
+      enabled: true
+  android:
+    namespace: com.jetbrains.sample.app
+
+dependencies:
+  - androidx.appcompat:appcompat:1.6.1
