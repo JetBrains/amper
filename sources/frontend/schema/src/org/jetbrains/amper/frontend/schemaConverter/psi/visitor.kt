@@ -65,7 +65,8 @@ internal fun PsiElement.readValueTable(): Map<KeyWithContext, AmperElementWrappe
     object : AmperPsiAdapterVisitor() {
         override fun visitScalar(node: Scalar) {
             val parentEntry = MappingEntry.byKey(node.sourceElement)
-            if (parentEntry?.value == null) {
+            val value = parentEntry?.value
+            if (value == null || Scalar.from(value) == null) {
                 addNode(node)
             }
             super.visitScalar(node)
