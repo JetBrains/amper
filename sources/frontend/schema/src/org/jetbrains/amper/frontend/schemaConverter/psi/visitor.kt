@@ -235,15 +235,15 @@ internal fun readTypedValue(
                     ks
                 ) }
         }
+        val processedKeys = mutableSetOf<String>()
         return applicableKeys.mapNotNull {
-            val name = it.key.nextAfter(path)?.let {
+            val key = it.key.nextAfter(path)?.let {
                 // hack for yaml
                 if (it.segmentName?.toIntOrNull() != null) it.next else it
-            }?.segmentName
-            if (name == null || it.key.prev == null) null
-            else (name to readTypedValue(type.mapValueType, table, it.key.prev.takeIf {
-                it != path
-            } ?: it.key, contexts))
+            }
+            val name = key?.segmentName
+            if (name == null || it.key.prev == null || !processedKeys.add(name)) null
+            else (name to readTypedValue(type.mapValueType, table, key, contexts))
         }.toMap()
     }
     if (type.isCollection)  {
