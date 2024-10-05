@@ -15,7 +15,6 @@ dependencies:
   - $libs.xmlutil.serialization
   - $libs.maven.artifact
   - $libs.kotlinx.coroutines.core
-  - $libs.ktor.client.cio
   - $libs.ktor.client
 
 test-dependencies:
