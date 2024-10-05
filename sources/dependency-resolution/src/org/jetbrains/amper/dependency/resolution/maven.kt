@@ -10,6 +10,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import localRepository
 import org.jetbrains.amper.concurrency.computeHash
 import org.jetbrains.amper.concurrency.produceFileWithDoubleLockAndHash
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
@@ -28,9 +29,14 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
 import org.jetbrains.amper.dependency.resolution.metadata.xml.expandTemplates
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
+import parseSettings
+import java.nio.file.Path
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.io.path.name
+import kotlin.io.path.readText
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -1318,7 +1324,7 @@ internal fun <E> List<E>.asMutable(): MutableList<E> = this as MutableList<E>
 
 private fun Dependency.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
 
-// todo (AB) : This behaviour is applicable perhaps to ALL native platforms 
+// todo (AB) : This behaviour is applicable perhaps to ALL native platforms
 private val allIosPlatforms = ResolutionPlatform.entries.filter { it.name.startsWith("IOS_") }
 
 // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
@@ -1336,3 +1342,41 @@ private fun String.removeSquareBracketsForSingleValue() = when {
 // todo (AB) :
 // - interval are not implemented and we need to warn/show error to user about it
 // - now strictly is treated as requires, should be supported properly
+
+object LocalM2RepositoryFinder {
+    /**
+     *     Finds the path to the local .m2 repository as configured in Maven. <br> The location for the repository is determined in the same way as Gradle's mavenLocal() publications. It looks at the following locations, in order of precedence: <br>
+     *     The value of system property 'maven.repo.local' if set;
+     *     The value of element <localRepository> of ~/.m2/settings.xml if this file exists and element is set;
+     *     The value of element <localRepository> of $M2_HOME/conf/settings.xml (where $M2_HOME is the value of the environment variable with that name) if this file exists and element is set;
+     *     The path <user.home>/.m2/repository (where the user home is taken from the system property user.home)
+     */
+    fun findPath(): Path = Path(findLocalM2RepoPathString())
+
+    private fun findLocalM2RepoPathString() = readFromSystemProperty()
+        ?: parseFromUserHomeM2Settings()
+        ?: parseFromM2HomeConfSettings()
+        ?: "${System.getProperty("user.home")}/.m2/repository"
+
+    private fun readFromSystemProperty() = System.getProperty("maven.repo.local")?.takeIf { it.isNotBlank() }
+
+    private fun parseFromUserHomeM2Settings(): String? {
+        val userHome = System.getProperty("user.home") ?: return null
+        val userHomeSettingsXml = Path("$userHome/.m2/settings.xml")
+        return parseLocalRepoIfExists(userHomeSettingsXml)
+    }
+
+    private fun parseFromM2HomeConfSettings(): String? {
+        val m2Home = System.getenv("M2_HOME")?.takeIf { it.isNotBlank() } ?: return null
+        val m2HomeSettingsXml = Path("$m2Home/conf/settings.xml")
+        return parseLocalRepoIfExists(m2HomeSettingsXml)
+    }
+
+    private fun parseLocalRepoIfExists(settingsXml: Path): String? = resolveSafeOrNull {
+        settingsXml
+            .takeIf{ it.exists() }
+            ?.readText()
+            ?.parseSettings()
+            ?.localRepository()
+    }
+}

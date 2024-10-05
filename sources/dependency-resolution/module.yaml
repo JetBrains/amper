@@ -25,6 +25,7 @@ test-dependencies:
   - $libs.tinylog.impl
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
+  - uk.org.webcompere:system-stubs-jupiter:2.1.7
 
 settings:
   kotlin:

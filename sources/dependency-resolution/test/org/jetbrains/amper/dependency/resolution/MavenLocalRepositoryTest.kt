@@ -5,9 +5,17 @@
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
+import uk.org.webcompere.systemstubs.properties.SystemProperties
 import java.io.File
 import java.util.*
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
 import kotlin.io.path.relativeTo
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -43,6 +51,50 @@ class MavenLocalRepositoryTest {
             "org/jetbrains/kotlin/kotlin-test/1.9.10/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')
         )
+    }
+
+    @Test
+    fun mavenRepositoryPathDefault() {
+        val repo = MavenLocalRepository()
+        assertEquals(repo.repository, Path(System.getProperty("user.home")).resolve(".m2/repository"))
+    }
+
+    @Test
+    @ExtendWith(SystemStubsExtension::class)
+    fun mavenRepositoryPathFromSystemPropertyTest(systemProperties: SystemProperties) {
+        try {
+            systemProperties.set("maven.repo.local", "$temp/maven")
+            val repo = MavenLocalRepository()
+            assertEquals(repo.repository, temp.toPath().resolve("maven"))
+        } finally {
+            System.clearProperty("maven.repo.local")
+        }
+    }
+
+    @Test
+    @ExtendWith(SystemStubsExtension::class)
+    fun mavenRepositoryPathFromUserHomeM2SettingsTest(systemProperties: SystemProperties) {
+        val userHomeOverridden = temp.toPath()
+        val m2SettingsPath = userHomeOverridden.resolve(".m2")
+        m2SettingsPath.createDirectories()
+        Path("testData/metadata/xml/settings/settings.xml").copyTo(m2SettingsPath.resolve("settings.xml"))
+        systemProperties.set("user.home", userHomeOverridden.absolutePathString())
+
+        val repo = MavenLocalRepository()
+        assertEquals(repo.repository, Path("temp/rrr"))
+    }
+
+    @Test
+    @ExtendWith(SystemStubsExtension::class)
+    fun mavenRepositoryPathFromM2HomeSettingsTest(environmentVariables: EnvironmentVariables) {
+        val m2HomeOverridden = temp.toPath()
+        val m2SettingsPath = m2HomeOverridden.resolve("conf")
+        m2SettingsPath.createDirectories()
+        Path("testData/metadata/xml/settings/settings.xml").copyTo(m2SettingsPath.resolve("settings.xml"))
+        environmentVariables.set("M2_HOME", m2HomeOverridden.absolutePathString())
+
+        val repo = MavenLocalRepository()
+        assertEquals(repo.repository, Path("temp/rrr"))
     }
 
     private fun kotlinTest() = MavenDependency(

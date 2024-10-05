@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.CancellationException
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.resolveSafeOrNull
 import org.jetbrains.amper.frontend.MavenDependency
 import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
@@ -75,15 +75,5 @@ data class MavenCoordinates(
 ) {
     override fun toString(): String {
         return "$groupId:$artifactId:$version${if (classifier != null) ":$classifier" else ""}"
-    }
-}
-
-private fun <T> resolveSafeOrNull(block: () -> T?): T? {
-    return try {
-        block()
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Throwable) {
-        null
     }
 }

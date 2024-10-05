@@ -153,10 +153,10 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
  */
 class MavenLocalRepository(val repository: Path) : LocalRepository {
 
-    constructor() : this(getRootFromUserHome())
+    constructor() : this(findPath())
 
     companion object {
-        private fun getRootFromUserHome() = Path(System.getProperty("user.home"), ".m2/repository")
+        private fun findPath() = LocalM2RepositoryFinder.findPath()
     }
 
     override fun toString(): String = "[Maven] $repository"
@@ -814,6 +814,16 @@ private suspend fun ByteReadChannel.readTo(writers: Collection<Writer>): Long {
         data.clear()
     }
     return size
+}
+
+fun <T> resolveSafeOrNull(block: () -> T?): T? {
+    return try {
+        block()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Throwable) {
+        null
+    }
 }
 
 private val httpClientKey = Key<java.net.http.HttpClient>("httpClient")
