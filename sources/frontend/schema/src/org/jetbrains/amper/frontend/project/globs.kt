@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.project
 
+import org.jetbrains.amper.core.UsedInIdePlugin
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException
@@ -13,6 +14,7 @@ private val globChars = setOf('*', '?', '{', '}', '[', ']', ',')
 /**
  * Returns whether this string contains characters that have meaning in glob patterns.
  */
+@UsedInIdePlugin
 fun String.hasGlobCharacters() = any { it in globChars }
 
 /**
@@ -22,6 +24,7 @@ fun String.hasGlobCharacters() = any { it in globChars }
  *
  * @constructor Creates a new Glob from the given pattern, or throws [PatternSyntaxException] if the pattern is invalid.
  */
+@UsedInIdePlugin
 class Glob(pattern: String) {
 
     // We need to normalize glob paths, otherwise the matcher will miss non-exact matches like "./dir" != "dir".
