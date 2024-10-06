@@ -74,6 +74,8 @@ object Downloader {
             logger.info("Downloading $url to ${target.pathString}")
 
             return spanBuilder("download").setAttribute("url", url).setAttribute("target", targetPath).use {
+                // TODO check if this is redundant with Ktor's retry mechanism.
+                //  It might be necessary due to expectSuccess=false.
                 suspendingRetryWithExponentialBackOff {
                     // save to the same disk to ensure that move will be atomic and not as a copy
                     val tempFile = target.parent
