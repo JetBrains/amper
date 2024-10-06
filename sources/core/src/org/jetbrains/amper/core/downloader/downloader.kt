@@ -85,8 +85,6 @@ object Downloader {
                     try {
                         // TODO each HttpClient.config call creates a new client, do we really need this?
                         val effectiveClient = httpClient.config {
-                            expectSuccess = false // we have custom error handler
-
                             install(ContentEncoding) {
                                 // Any `Content-Encoding` will drop `Content-Length` header in nginx responses,
                                 // yet we rely on that header for file-length checks after download.
@@ -98,7 +96,10 @@ object Downloader {
                         }
 
                         val response = effectiveClient.use { client ->
-                            client.prepareGet(url).execute {
+                            client.prepareGet(url) {
+                                // we manually handle errors below
+                                expectSuccess = false
+                            }.execute {
                                 coroutineScope {
                                     it.bodyAsChannel().copyAndClose(writeChannel(tempFile))
                                 }
