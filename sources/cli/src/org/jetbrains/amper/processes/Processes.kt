@@ -139,8 +139,10 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
     contract {
         callsInPlace(cancellableBlock, kind = InvocationKind.EXACTLY_ONCE)
     }
-    // If the JVM is shut down directly (e.g. via Ctrl+C) while the process is running, we don't want to leak it
-    withShutdownHook(onJvmShudown = { destroy() }) {
+    // If the JVM is shut down directly (e.g. via Ctrl+C) while the process is running, we don't want to leak it.
+    // That said, we only call destroyHierarchy(), which is asynchronous, because we can't afford to wait for the
+    // process to actually terminate when the JVM is shutting down (we need to promptly terminate Amper).
+    withShutdownHook(onJvmShudown = { destroyHierarchy() }) {
         try {
             // jump straight to the catch block if the coroutine is already cancelled
             currentCoroutineContext().ensureActive()
