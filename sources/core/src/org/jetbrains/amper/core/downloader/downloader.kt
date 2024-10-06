@@ -4,9 +4,7 @@
 
 package org.jetbrains.amper.core.downloader
 
-import io.ktor.client.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.compression.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -49,9 +47,6 @@ object Downloader {
     suspend fun downloadFileToCacheLocation(
         url: String,
         userCacheRoot: AmperUserCacheRoot,
-        token: String? = null,
-        username: String? = null,
-        password: String? = null,
     ): Path {
         val target = getTargetFile(userCacheRoot, url)
         val targetPath = target.toString()
@@ -88,9 +83,8 @@ object Downloader {
                     tempFile.toFile().deleteOnExit()
                     target.parent.createDirectories()
                     try {
-                        // each io.ktor.client.HttpClient.config call creates a new client
-                        // extract common configuration to prevent excessive client creation
-                        val commonConfig: HttpClientConfig<*>.() -> Unit = {
+                        // TODO each HttpClient.config call creates a new client, do we really need this?
+                        val effectiveClient = httpClient.config {
                             expectSuccess = false // we have custom error handler
 
                             install(ContentEncoding) {
@@ -101,33 +95,6 @@ object Downloader {
                                 gzip(0.0F)
                                 identity() // tells the server that no compression is also acceptable
                             }
-                        }
-
-                        val effectiveClient = when {
-                            token != null -> httpClient.config {
-                                commonConfig()
-                                Auth {
-                                    bearer {
-                                        loadTokens {
-                                            BearerTokens(token, "")
-                                        }
-                                    }
-                                }
-                            }
-
-                            username != null && password != null -> httpClient.config {
-                                commonConfig()
-                                Auth {
-                                    basic {
-                                        credentials {
-                                            sendWithoutRequest { true }
-                                            BasicAuthCredentials(username, password)
-                                        }
-                                    }
-                                }
-                            }
-
-                            else -> httpClient.config(commonConfig)
                         }
 
                         val response = effectiveClient.use { client ->
