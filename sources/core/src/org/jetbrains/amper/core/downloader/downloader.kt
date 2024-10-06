@@ -222,12 +222,13 @@ object Downloader {
     private val logger = LoggerFactory.getLogger(javaClass)
 }
 
-val WRITE_NEW_OPERATION: EnumSet<StandardOpenOption> = EnumSet.of(
+private val WRITE_NEW_OPERATION: EnumSet<StandardOpenOption> = EnumSet.of(
     StandardOpenOption.WRITE,
     StandardOpenOption.CREATE,
     StandardOpenOption.TRUNCATE_EXISTING,
 )
-fun CoroutineScope.writeChannel(file: Path): ByteWriteChannel {
+
+private fun CoroutineScope.writeChannel(file: Path): ByteWriteChannel {
     return reader(CoroutineName("file-writer") + Dispatchers.IO, autoFlush = true) {
         FileChannel.open(file, WRITE_NEW_OPERATION).use { fileChannel ->
             channel.copyTo(fileChannel)
