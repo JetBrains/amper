@@ -130,12 +130,10 @@ object TestUtil {
 
             val androidSdkHome = fakeUserCacheRoot.path / "android-sdk"
 
-            val commandLineTools = suspendingRetryWithExponentialBackOff {
-                Downloader.downloadFileToCacheLocation(
-                    url = "https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip",
-                    userCacheRoot = fakeUserCacheRoot,
-                )
-            }
+            val commandLineTools = Downloader.downloadFileToCacheLocation(
+                url = "https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip",
+                userCacheRoot = fakeUserCacheRoot,
+            )
 
             val configuration = mapOf(
                 "androidSdkHomePath" to androidSdkHome.pathString,
