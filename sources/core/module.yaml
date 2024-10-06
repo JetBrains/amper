@@ -11,10 +11,9 @@ dependencies:
   - $libs.kotlinx.coroutines.core
   - $libs.apacheCommons.compress
   - $libs.slf4j.api
-  - $libs.ktor.client.cio
+  - $libs.ktor.client
   - $libs.ktor.client.encoding
   - $libs.ktor.client.auth
-  - $libs.ktor.client
   - $libs.opentelemetry.api
   - $libs.opentelemetry.sdk
   - $libs.opentelemetry.sdkTrace

@@ -5,7 +5,6 @@
 package org.jetbrains.amper.core.downloader
 
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.compression.*
 import kotlin.time.Duration.Companion.hours
@@ -13,12 +12,11 @@ import kotlin.time.Duration.Companion.hours
 // mostly based on intellij:community/platform/build-scripts/downloader/src/ktor.kt
 
 val httpClient: HttpClient by lazy {
-    // HttpTimeout is not used - CIO engine handles that
-    HttpClient(CIO) {
+    HttpClient {
         expectSuccess = true
 
-        engine {
-            requestTimeout = 2.hours.inWholeMilliseconds
+        install(HttpTimeout) {
+            requestTimeoutMillis = 2.hours.inWholeMilliseconds
         }
 
         install(ContentEncoding) {
