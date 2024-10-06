@@ -95,10 +95,11 @@ object Downloader {
 
                             install(ContentEncoding) {
                                 // Any `Content-Encoding` will drop `Content-Length` header in nginx responses,
-                                // yet we rely on that header in `downloadFileToCacheLocation`.
+                                // yet we rely on that header for file-length checks after download.
                                 // Hence, we override `ContentEncoding` plugin config from `httpClient` with zero weights.
                                 deflate(0.0F)
                                 gzip(0.0F)
+                                identity() // tells the server that no compression is also acceptable
                             }
                         }
 

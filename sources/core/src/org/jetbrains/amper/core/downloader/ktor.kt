@@ -24,6 +24,10 @@ val httpClient: HttpClient by lazy {
         install(ContentEncoding) {
             deflate(1.0F)
             gzip(0.9F)
+
+            // Tells the server that no compression is also acceptable.
+            // This is useful when a request is the download of a file that is already compressed.
+            identity()
         }
 
         install(HttpRequestRetry) {
