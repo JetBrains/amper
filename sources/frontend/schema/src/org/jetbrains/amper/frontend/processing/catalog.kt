@@ -113,7 +113,7 @@ class BuiltInCatalog(
     put("kotlin-test-junit5", "org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
     put("kotlin-test-junit", "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
     put("kotlin-test", "org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
-    put("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+    put("kotlin.reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     if (serializationVersion != null) {
         put("kotlinx.serialization.core", "org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
