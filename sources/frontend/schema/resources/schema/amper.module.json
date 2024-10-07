@@ -777,6 +777,11 @@
               "x-intellij-html-description": "Kotlin Serialization format",
               "title": "Kotlin Serialization format",
               "type": "string"
+            },
+            "version": {
+              "x-intellij-html-description": "The version of the Kotlinx Serialization core and format libraries to use",
+              "title": "The version of the Kotlinx Serialization core and format libraries to use",
+              "type": "string"
             }
           },
           "additionalProperties": false

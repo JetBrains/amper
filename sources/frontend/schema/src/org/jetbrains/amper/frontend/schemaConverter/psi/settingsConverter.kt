@@ -107,6 +107,7 @@ internal fun PsiElement.convertSerializationSettings() =
     SerializationSettings().apply {
         asMappingNode()?.apply {
             convertChildString(::format)
+            convertChildString(::version)
         }
         asScalarNode()?.apply {
             convertSelf(::format) { textValue }

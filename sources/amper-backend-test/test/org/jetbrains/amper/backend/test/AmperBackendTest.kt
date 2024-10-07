@@ -7,6 +7,7 @@ import com.sun.net.httpserver.Authenticator
 import com.sun.net.httpserver.BasicAuthenticator
 import com.sun.net.httpserver.HttpServer
 import io.opentelemetry.api.common.AttributeKey
+import org.jetbrains.amper.backend.test.assertions.assertHasAttribute
 import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.backend.test.extensions.ErrorCollectorExtension
 import org.jetbrains.amper.cli.AmperBackend
@@ -245,6 +246,22 @@ class AmperBackendTest : AmperIntegrationTestBase() {
                     "STDOUT:\n" +
                     "Hello, World!"
         )
+    }
+
+    @Test
+    fun `jvm kotlin serialization support with custom version`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("kotlin-serialization-custom-version")
+        AmperBackend(projectContext).runTask(TaskName(":kotlin-serialization-custom-version:resolveDependenciesJvm"))
+
+        spansNamed("resolve-dependencies")
+            .assertSingle()
+            .assertHasAttribute(
+                key = AttributeKey.stringArrayKey("dependencies"),
+                value = listOf(
+                    "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}",
+                    "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1",
+                ),
+            )
     }
 
     @Test

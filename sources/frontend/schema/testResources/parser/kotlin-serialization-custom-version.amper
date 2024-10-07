@@ -1,0 +1,16 @@
+product {
+  type = "app"
+  platforms {
+    "jvm"
+  }
+}
+
+settings {
+  kotlin {
+    version = 1.9
+    serialization {
+      format = "json"
+      version = "1.5.1"
+    }
+  }
+}

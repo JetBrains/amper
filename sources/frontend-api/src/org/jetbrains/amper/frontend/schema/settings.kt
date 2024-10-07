@@ -105,6 +105,9 @@ class SerializationSettings : SchemaNode() {
 
     @SchemaDoc("Kotlin Serialization format")
     var format by value("json")
+
+    @SchemaDoc("The version of the Kotlinx Serialization core and format libraries to use")
+    var version by value(UsedVersions.kotlinxSerializationVersion)
 }
 
 const val serializationFormatNone = "none"

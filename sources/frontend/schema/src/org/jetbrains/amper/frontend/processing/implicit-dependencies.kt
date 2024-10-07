@@ -30,8 +30,8 @@ private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
     coordinates = "org.jetbrains.kotlin:$artifactId:${UsedVersions.kotlinVersion}",
 )
 
-private fun kotlinxSerializationFormatDependency(format: String) = MavenDependency(
-    coordinates = "org.jetbrains.kotlinx:kotlinx-serialization-$format:${UsedVersions.kotlinxSerializationVersion}",
+private fun kotlinxSerializationFormatDependency(format: String, version: String) = MavenDependency(
+    coordinates = "org.jetbrains.kotlinx:kotlinx-serialization-$format:$version",
 )
 
 private fun composeRuntimeDependency(composeVersion: String) = MavenDependency(
@@ -99,9 +99,9 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
     if (isTest) {
         addAll(inferredTestDependencies())
     }
-    settings.kotlin.serialization?.format?.let { format ->
-        if (format != serializationFormatNone) {
-            add(kotlinxSerializationFormatDependency(format))
+    settings.kotlin.serialization?.let { serializationSettings ->
+        if (serializationSettings.format != serializationFormatNone) {
+            add(kotlinxSerializationFormatDependency(serializationSettings.format, serializationSettings.version))
         }
         // TODO we should probably provide a way to add the kotlinx-serialization-core dependency (without format)
     }
