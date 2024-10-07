@@ -360,8 +360,7 @@ class MavenDependency internal constructor(
                                 .forEach {
                                     add(getDependencyFile(this@MavenDependency, it))
                                     if (areSourcesMissing) {
-                                        val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
-                                        add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", "jar"))
+                                        add(getAutoAddedSourcesDependencyFile())
                                     }
                                 }
                         }
@@ -370,7 +369,7 @@ class MavenDependency internal constructor(
                         val extension = if (it == "bundle") "jar" else it
                         add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
                         if (extension == "jar" && withSources) {
-                            add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", extension))
+                            add(getAutoAddedSourcesDependencyFile())
                         }
                     }
                     sourceSetsFiles.let { addAll(it) }
@@ -553,13 +552,16 @@ class MavenDependency internal constructor(
             val sourcesDependencyFile = getKotlinMetadataSourcesVariant(moduleMetadata.variants, ResolutionPlatform.COMMON)
                 ?.let { getKotlinMetadataFile(it) }
                 ?.let { getDependencyFile(this, it) }
-                ?: getDependencyFile(this, "${this.moduleFile.nameWithoutExtension}-sources", "jar")
+                ?: getAutoAddedSourcesDependencyFile()
 
             sourceSetsFiles = sourceSetsFiles.toMutableList() + listOf(sourcesDependencyFile)
         }
 
         state = level.state
     }
+
+    fun getAutoAddedSourcesDependencyFile() =
+        getDependencyFile(this, "${this.moduleFile.nameWithoutExtension}-sources", "jar", isAutoAddedDocumentation = true)
 
     /**
      * Some pretty basic libraries that are used in KMP world mimic for a pure JVM libraries,

@@ -177,18 +177,20 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
 internal fun getDependencyFile(dependency: MavenDependency, file: File) = getDependencyFile(dependency,
     file.url.substringBeforeLast('.'), file.name.substringAfterLast('.'))
 
-fun getDependencyFile(dependency: MavenDependency, nameWithoutExtension: String, extension: String) =
+fun getDependencyFile(dependency: MavenDependency, nameWithoutExtension: String, extension: String, isAutoAddedDocumentation: Boolean = false) =
     if (dependency.version.endsWith("-SNAPSHOT")) {
-        SnapshotDependencyFile(dependency, nameWithoutExtension, extension)
+        SnapshotDependencyFile(dependency, nameWithoutExtension, extension, isAutoAddedDocumentation = isAutoAddedDocumentation)
     } else {
-        DependencyFile(dependency, nameWithoutExtension, extension)
+        DependencyFile(dependency, nameWithoutExtension, extension, isAutoAddedDocumentation = isAutoAddedDocumentation)
     }
+
 
 open class DependencyFile(
     val dependency: MavenDependency,
     val nameWithoutExtension: String,
     val extension: String,
     val kmpSourceSet: String? = null,
+    val isAutoAddedDocumentation: Boolean = false,
     private val fileCache: FileCache = dependency.settings.fileCache,
 ) {
 
@@ -309,7 +311,7 @@ open class DependencyFile(
                 dependency.messages.asMutable() += Message(
                     "Unable to download checksums of file $fileName for dependency $dependency",
                     repositories.joinToString(),
-                    Severity.ERROR,
+                    if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR
                 )
                 return false
             }
@@ -331,7 +333,7 @@ open class DependencyFile(
             dependency.messages.asMutable() += Message(
                 "Unable to download file $fileName for dependency $dependency",
                 repositories.joinToString(),
-                Severity.ERROR,
+                if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR
             )
         }
 
@@ -703,7 +705,8 @@ class SnapshotDependencyFile(
     name: String,
     extension: String,
     fileCache: FileCache = dependency.settings.fileCache,
-) : DependencyFile(dependency, name, extension, fileCache = fileCache) {
+    isAutoAddedDocumentation: Boolean = false,
+) : DependencyFile(dependency, name, extension, fileCache = fileCache, isAutoAddedDocumentation = isAutoAddedDocumentation) {
 
     private val mavenMetadata by lazy {
         SnapshotDependencyFile(dependency, "maven-metadata", "xml", FileCacheBuilder {

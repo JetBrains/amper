@@ -40,6 +40,29 @@ class BuildGraphTest: BaseDRTest() {
     }
 
     @Test
+    fun `com_google_guava listenablefuture 9999_0-empty-to-avoid-conflict-with-guava`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            repositories = listOf(
+                "https://repo1.maven.org/maven2",
+                "https://maven.google.com",
+                "https://maven.pkg.jetbrains.space/public/p/compose/dev"),
+            platform = setOf(ResolutionPlatform.JVM),
+            expected = """root
+                |\--- com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+            """.trimMargin()
+        )
+        runBlocking{
+            downloadAndAssertFiles(
+                """listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar""".trimMargin()
+                , root
+                , withSources = true
+                , checkAutoAddedDocumentation = false
+            )
+        }
+    }
+
+    @Test
     fun `org_jetbrains_kotlin kotlin-test-annotations-common 2_0_0`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,

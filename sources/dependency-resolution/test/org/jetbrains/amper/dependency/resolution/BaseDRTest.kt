@@ -115,12 +115,15 @@ abstract class BaseDRTest {
     }
 
     protected fun assertFiles(
-        files: String, root: DependencyNode, withSources: Boolean = false,
-        checkExistence: Boolean = false // could be set to true only in case dependency files were downloaded by caller already
+        files: String, root: DependencyNode,
+        withSources: Boolean = false,
+        checkExistence: Boolean = false,// could be set to true only in case dependency files were downloaded by caller already
+        checkAutoAddedDocumentation: Boolean = true // auto added documentation files are skipped fom check if this flag is false.
     ) {
         root.distinctBfsSequence()
             .filterIsInstance<MavenDependencyNode>()
             .flatMap { it.dependency.files(withSources) }
+            .filterNot { !checkAutoAddedDocumentation && it.isAutoAddedDocumentation }
             .mapNotNull { runBlocking { it.getPath() } }
             .sortedBy { it.name }
             .toSet()
@@ -136,9 +139,9 @@ abstract class BaseDRTest {
             }
     }
 
-    protected suspend fun downloadAndAssertFiles(files: String, root: DependencyNode, withSources: Boolean = false) {
+    protected suspend fun downloadAndAssertFiles(files: String, root: DependencyNode, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true) {
         Resolver().downloadDependencies(root, withSources)
-        assertFiles(files, root, withSources, checkExistence = true)
+        assertFiles(files, root, withSources, checkExistence = true, checkAutoAddedDocumentation = checkAutoAddedDocumentation)
     }
 
     companion object {
