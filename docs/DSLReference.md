@@ -332,9 +332,10 @@ the [module tests](Documentation.md#tests).
 
 `serialization:` attribute could an object or an enum corresponding to the `format:` attribute:
 
-| Attribute       | Description                                                                    | Default |
-|-----------------|--------------------------------------------------------------------------------|---------|
-| `format: enum ` | `none` to disable serialization, `JSON` to enable serialization in JSON format | `none`  |
+| Attribute         | Description                                                                        | Default |
+|-------------------|------------------------------------------------------------------------------------|---------|
+| `format: enum `   | `none` to disable serialization, `JSON` to enable serialization in JSON format     | `none`  |
+| `version: string` | the version to use for the core serialization library and the serialization format | `1.7.3` |
 
 Examples:
 
@@ -353,10 +354,12 @@ settings:
 ```
 
 ```yaml
-# Enabling Kotlin Serialization 
+# Enabling Kotlin Serialization with a specific version 
 settings:
   kotlin:
-    serialization: json
+    serialization: 
+      format: json
+      version: 1.5.1
 ```
 
 #### JVM
