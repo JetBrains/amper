@@ -6,18 +6,14 @@ package org.jetbrains.amper.frontend.processing
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.ModelInit
-import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 import org.jetbrains.amper.frontend.aomBuilder.tryGetCatalogFor
+import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 
 
 context(ProblemReporterContext)

@@ -38,12 +38,12 @@ class ConverterImpl(
 ) : Converter {
     internal fun convertProject(file: VirtualFile): Project? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convertProject()
+            it?.convert<Project>()
         }
 
     internal fun convertModule(file: VirtualFile): Module? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            val module = it?.convertModule()
+            val module = it?.convert<Module>()
             if (module == null) {
                 reportEmptyModule(file)
             }
@@ -52,17 +52,24 @@ class ConverterImpl(
 
     internal fun convertCustomTask(file: VirtualFile): CustomTaskNode? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convertCustomTask()
+            it?.convert<CustomTaskNode>()
         }
 
     internal fun convertTemplate(file: VirtualFile): Template? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convertTemplate()
+            it?.convert<Template>()
         }
 
     private fun <T: SchemaNode> PsiFile?.doConvertTopLevelValue(conversion: (PsiElement?) -> T?): T? {
         return ApplicationManager.getApplication().runReadAction(Computable {
             this?.let { conversion(it.topLevelValue) }
         })
+    }
+
+    private inline fun <reified T: Any> PsiElement.convert(): T {
+        val table = readValueTable()
+        val module: T = T::class.constructors.single().call()
+        readFromTable(module, table)
+        return module
     }
 }
