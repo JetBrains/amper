@@ -193,7 +193,7 @@ internal fun readTypedValue(
     if (type.isScalar) {
         val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
         val text = scalarValue?.textValue ?: return null
-        return convertScalarType(type, scalarValue, text, valueBase)
+        return readScalarType(type, scalarValue, text, valueBase)
     }
     if (type.isMap) {
         if (type.arguments[0].type?.isCollection == true) {
@@ -256,11 +256,11 @@ internal fun readTypedValue(
             if (param != null) {
                 return type.instantiateType().also {
                     val value = if (param.name == "enabled" && textValue == "enabled") "true" else textValue
-                    val convertedValue = convertScalarType(
+                    val transformedValue = readScalarType(
                         param.returnType, scalarValue,
                         value, param.valueBase(it)
                     )
-                    setPropertyValueSafe(param, it, convertedValue)
+                    setPropertyValueSafe(param, it, transformedValue)
                     if (it is Traceable) {
                         it.doApplyPsiTrace(scalarValue.sourceElement)
                     }
@@ -280,13 +280,12 @@ internal fun readTypedValue(
 }
 
 private fun setPropertyValueSafe(
-    param: KMutableProperty1<Any, Any?>,
+    prop: KMutableProperty1<Any, Any?>,
     target: Any,
-    convertedValue: Any?
+    value: Any?
 ) {
-    // todo maybe report this
-    if (convertedValue == null && !param.returnType.isMarkedNullable) return
-    param.set(target, convertedValue)
+    if (value == null && !prop.returnType.isMarkedNullable) return
+    prop.set(target, value)
 }
 
 context(Converter)
@@ -336,7 +335,7 @@ private fun instantiateTraceableScalar(
 }
 
 context(Converter)
-private fun convertScalarType(
+private fun readScalarType(
     type: KType,
     scalarValue: Scalar?,
     text: String,
@@ -347,7 +346,7 @@ private fun convertScalarType(
     }
     when {
         type.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
-            return convertEnum(type, scalarValue)
+            return readEnum(type, scalarValue)
         }
 
         type.isString -> return text
@@ -360,7 +359,7 @@ private fun convertScalarType(
 }
 
 context(Converter)
-private fun convertEnum(
+private fun readEnum(
     type: KType,
     scalarValue: Scalar?,
     reportMismatch: Boolean = true

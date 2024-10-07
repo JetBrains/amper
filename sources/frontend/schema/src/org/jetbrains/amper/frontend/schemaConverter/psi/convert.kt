@@ -19,8 +19,7 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
 
-// TODO Rethink.
-internal interface ConvertCtx {
+internal interface Converter: ProblemReporterContext {
     /**
      * The base directory against which relative paths should be resolved.
      * This is usually the containing directory of the file being resolved.
@@ -28,8 +27,6 @@ internal interface ConvertCtx {
     val baseFile: VirtualFile
     val pathResolver: FrontendPathResolver
 }
-
-internal interface Converter: ProblemReporterContext, ConvertCtx
 
 class ConverterImpl(
     override val baseFile: VirtualFile,
