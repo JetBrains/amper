@@ -34,7 +34,8 @@ fun <T: Base> T.replaceCatalogDependencies(
     `test-dependencies` = `test-dependencies`?.replaceCatalogDeps(catalog)
 
     settings.values.forEach { fragmentSettings ->
-        fragmentSettings.ksp.processors = fragmentSettings.ksp.processors.convertCatalogProcessors(catalog)
+        val kspSettings = fragmentSettings.kotlin.ksp
+        kspSettings.processors = kspSettings.processors.convertCatalogProcessors(catalog)
     }
 }
 

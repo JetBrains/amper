@@ -61,7 +61,6 @@ Settings
 	jvm: JvmSettings - JVM platform-specific settings
 	kotlin: KotlinSettings - Kotlin language and the compiler settings
 	kover: KoverSettings - Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
-	ksp: KspSettings - [KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.
 	native: NativeSettings - Native applications settings
 	publishing: PublishingSettings - Publishing settings
 
@@ -115,6 +114,7 @@ KotlinSettings
 	apiVersion: KotlinVersion - Allow using declarations only from the specified version of Kotlin bundled libraries
 	debug: Boolean, default: true - (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information
 	freeCompilerArgs: List<String> - Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly
+	ksp: KspSettings - [KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.
 	languageFeatures: List<String>
 	languageVersion: KotlinVersion, default: 2.0 - Source compatibility with the specified version of Kotlin
 	linkerOpts: List<String>
@@ -124,6 +124,12 @@ KotlinSettings
 	serialization: SerializationSettings - Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)
 	suppressWarnings: Boolean, default: false - Suppress the compiler from displaying warnings during compilation
 	verbose: Boolean, default: false - Enable verbose logging output which includes details of the compilation process
+
+KspSettings
+-----------
+	processorOptions: Map<String, String>, default: {} - Some options to pass to KSP processors. Refer to each processor documentation for details.
+	processors: List<KspProcessorDeclaration>, default: [] - The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates.
+	version: String, default: 2.0.20-1.0.25 - The version of KSP to use
 
 ParcelizeSettings
 -----------------
@@ -151,12 +157,6 @@ KoverXmlSettings
 ----------------
 	onCheck: Boolean
 	reportFile: Path
-
-KspSettings
------------
-	processorOptions: Map<String, String>, default: {} - Some options to pass to KSP processors. Refer to each processor documentation for details.
-	processors: List<KspProcessorDeclaration>, default: [] - The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates.
-	version: String, default: 2.0.20-1.0.25 - The version of KSP to use
 
 NativeSettings
 --------------

@@ -44,11 +44,21 @@ Fragments:
         mainClass: <default> null
         release: <default> VERSION_17
       }
-      kotlin: <default> {
+      kotlin: {
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: {
+          processorOptions: {
+            "room.schemaLocation": ./generated-db-schema
+            "room.generateKotlin": true
+          }
+          processors: [
+            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha06)
+          ]
+          version: 1.9.20-1.0.24
+        }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
         linkerOpts: <default> null
@@ -64,16 +74,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: {
-        processorOptions: {
-          "room.schemaLocation": ./generated-db-schema
-          "room.generateKotlin": true
-        }
-        processors: [
-          - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha06)
-        ]
-        version: 1.9.20-1.0.24
-      }
       native: <default> null
       publishing: <default> null
     }
@@ -123,11 +123,21 @@ Fragments:
         mainClass: <default> null
         release: <default> VERSION_17
       }
-      kotlin: <default> {
+      kotlin: {
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: {
+          processorOptions: {
+            "room.schemaLocation": ./generated-db-schema
+            "room.generateKotlin": true
+          }
+          processors: [
+            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha06)
+          ]
+          version: 1.9.20-1.0.24
+        }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
         linkerOpts: <default> null
@@ -143,16 +153,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: {
-        processorOptions: {
-          "room.schemaLocation": ./generated-db-schema
-          "room.generateKotlin": true
-        }
-        processors: [
-          - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha06)
-        ]
-        version: 1.9.20-1.0.24
-      }
       native: <default> null
       publishing: <default> null
     }

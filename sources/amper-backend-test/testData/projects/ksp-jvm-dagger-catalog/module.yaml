@@ -4,6 +4,7 @@ dependencies:
   - $libs.dagger
 
 settings:
-  ksp:
-    processors:
-      - $libs.dagger.ksp
+  kotlin:
+    ksp:
+      processors:
+        - $libs.dagger.ksp

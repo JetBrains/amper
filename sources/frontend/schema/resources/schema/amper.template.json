@@ -344,11 +344,6 @@
           "title": "Kover settings for code coverage. Read more about Kover",
           "$ref": "#/$defs/KoverSettings"
         },
-        "ksp": {
-          "x-intellij-html-description": "[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.",
-          "title": "KSP  settings",
-          "$ref": "#/$defs/KspSettings"
-        },
         "native": {
           "x-intellij-html-description": "Native applications settings",
           "title": "Native applications settings",
@@ -574,6 +569,11 @@
             "type": "string"
           }
         },
+        "ksp": {
+          "x-intellij-html-description": "[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.",
+          "title": "KSP  settings",
+          "$ref": "#/$defs/KspSettings"
+        },
         "languageFeatures": {
           "type": "array",
           "uniqueItems": true,
@@ -627,6 +627,38 @@
           "x-intellij-html-description": "Enable verbose logging output which includes details of the compilation process",
           "title": "Enable verbose logging output which includes details of the compilation process",
           "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "KspSettings": {
+      "type": "object",
+      "properties": {
+        "processorOptions": {
+          "x-intellij-html-description": "Some options to pass to KSP processors. Refer to each processor documentation for details.",
+          "title": "Some options to pass to KSP processors. Refer to each processor documentation for details",
+          "type": "object",
+          "items": {
+            "patternProperties": {
+              "^[^@+:]+$": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "processors": {
+          "x-intellij-html-description": "The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates.",
+          "title": "The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "version": {
+          "x-intellij-html-description": "The version of KSP to use",
+          "title": "The version of KSP to use",
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -732,38 +764,6 @@
           "type": "boolean"
         },
         "reportFile": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "KspSettings": {
-      "type": "object",
-      "properties": {
-        "processorOptions": {
-          "x-intellij-html-description": "Some options to pass to KSP processors. Refer to each processor documentation for details.",
-          "title": "Some options to pass to KSP processors. Refer to each processor documentation for details",
-          "type": "object",
-          "items": {
-            "patternProperties": {
-              "^[^@+:]+$": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "processors": {
-          "x-intellij-html-description": "The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates.",
-          "title": "The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates",
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          }
-        },
-        "version": {
-          "x-intellij-html-description": "The version of KSP to use",
-          "title": "The version of KSP to use",
           "type": "string"
         }
       },

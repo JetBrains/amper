@@ -49,6 +49,13 @@ Fragments:
         apiVersion: <default> 1.9
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.9
         linkerOpts: <default> null
@@ -64,13 +71,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
-      }
       native: <default> null
       publishing: {
         group: org.jetbrains.amper.frontend.without-fragments.yaml
@@ -131,6 +131,13 @@ Fragments:
         apiVersion: <default> 1.9
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.9
         linkerOpts: <default> null
@@ -146,13 +153,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
-      }
       native: <default> null
       publishing: {
         group: org.jetbrains.amper.frontend.without-fragments.yaml

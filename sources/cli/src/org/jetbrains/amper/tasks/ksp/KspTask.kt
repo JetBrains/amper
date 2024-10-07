@@ -71,7 +71,7 @@ internal class KspTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
-        val kspVersion = fragments.unanimousSetting("ksp.version") { it.ksp.version }
+        val kspVersion = fragments.unanimousSetting("ksp.version") { it.kotlin.ksp.version }
         val kspJars = downloadKspCli(kspVersion)
         val ksp = Ksp(kspVersion, jdk, kspJars)
 
@@ -151,7 +151,7 @@ internal class KspTask(
             }
 
             libraries = compileLibraries
-            processorOptions = fragments.flatMap { it.settings.ksp.processorOptions.entries }
+            processorOptions = fragments.flatMap { it.settings.kotlin.ksp.processorOptions.entries }
                 .associate { it.key.value to it.value.value }
         }
         val kspConfig = when (kspCompilationType) {

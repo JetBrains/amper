@@ -11,6 +11,11 @@
       allWarningsAsErrors: false [default]
       apiVersion: 2.0 [default]
       debug: true [default]
+      ksp:
+         processorOptions: {} [default]
+         processors: (empty) [default]
+         version: 2.0.20-1.0.25 [default]
+
       languageVersion: 2.0 [default]
       parcelize:
          additionalAnnotations: (empty) [default]
@@ -19,8 +24,3 @@
       progressiveMode: false [default]
       suppressWarnings: false [default]
       verbose: false [default]
-
-   ksp:
-      processorOptions: {} [default]
-      processors: (empty) [default]
-      version: 2.0.20-1.0.25 [default]

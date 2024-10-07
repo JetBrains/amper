@@ -42,7 +42,6 @@ internal fun MappingNode.doConvertSettings() = Settings().also {
     convertChildMapping(it::android) { convertAndroidSettings() }
     convertChildMapping(it::kotlin) { convertKotlinSettings() }
     convertChildValue(it::compose) { convertComposeSettings() }
-    convertChildMapping(it::ksp) { convertKspSettings() }
     convertChildMapping(it::ios) { convertIosSettings() }
     convertChildMapping(it::publishing) { convertPublishingSettings() }
     convertChildMapping(it::kover) { convertKoverSettings() }
@@ -96,6 +95,8 @@ internal fun MappingNode.convertKotlinSettings() = KotlinSettings().apply {
     convertChildScalarCollection(::linkerOpts) { asTraceableString() }
     convertChildScalarCollection(::languageFeatures) { asTraceableString() }
     convertChildScalarCollection(::optIns) { asTraceableString() }
+
+    convertChildMapping(::ksp) { convertKspSettings() }
 
     convertChild(::serialization) { value?.convertSerializationSettings() }
     convertChild(::parcelize) { value?.convertParcelizeSettings() }

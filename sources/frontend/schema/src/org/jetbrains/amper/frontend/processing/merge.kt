@@ -62,7 +62,6 @@ fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, ::Settings) {
     mergeNodeProperty(Settings::android, AndroidSettings::merge)
     mergeNodeProperty(Settings::kotlin, KotlinSettings::merge)
     mergeNodeProperty(Settings::compose, ComposeSettings::merge)
-    mergeNodeProperty(Settings::ksp, KspSettings::merge)
     mergeNodeProperty(Settings::kover, KoverSettings::merge)
     mergeNodeProperty(Settings::ios, IosSettings::merge)
     mergeNodeProperty(Settings::publishing, PublishingSettings::merge)
@@ -106,6 +105,7 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::Kot
     mergeNullableCollection(KotlinSettings::languageFeatures)
     mergeNullableCollection(KotlinSettings::optIns)
 
+    mergeNodeProperty(KotlinSettings::ksp, KspSettings::merge)
     mergeNodeProperty(KotlinSettings::serialization, SerializationSettings::merge)
     mergeNodeProperty(KotlinSettings::parcelize, ParcelizeSettings::merge)
 }

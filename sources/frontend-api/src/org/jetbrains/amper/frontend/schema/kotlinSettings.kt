@@ -70,6 +70,9 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name")
     var optIns by nullableValue<List<TraceableString>>()
 
+    @SchemaDoc("[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.")
+    var ksp by value<KspSettings>(::KspSettings)
+
     @SchemaDoc("Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
     var serialization by nullableValue<SerializationSettings>()
 

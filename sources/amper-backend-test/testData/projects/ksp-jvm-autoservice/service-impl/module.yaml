@@ -7,6 +7,7 @@ dependencies:
   - ../service-api
 
 settings:
-  ksp:
-    processors:
-      - dev.zacsweers.autoservice:auto-service-ksp:1.2.0
+  kotlin:
+    ksp:
+      processors:
+        - dev.zacsweers.autoservice:auto-service-ksp:1.2.0

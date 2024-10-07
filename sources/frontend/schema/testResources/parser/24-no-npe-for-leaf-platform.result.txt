@@ -52,6 +52,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -80,13 +87,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -145,6 +145,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -173,13 +180,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -235,6 +235,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -263,13 +270,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -327,6 +327,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -355,13 +362,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -417,6 +417,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -445,13 +452,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -509,6 +509,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -537,13 +544,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -601,6 +601,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -629,13 +636,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -691,6 +691,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -719,13 +726,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -782,6 +782,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -810,13 +817,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -873,6 +873,13 @@ Fragments:
         freeCompilerArgs: [
           - -Xinline-classes
         ]
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
@@ -901,13 +908,6 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
-      }
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null

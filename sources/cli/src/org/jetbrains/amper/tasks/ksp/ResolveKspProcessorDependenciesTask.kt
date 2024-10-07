@@ -43,7 +43,7 @@ internal class ResolveKspProcessorDependenciesTask(
         val repositories = module.mavenRepositories.filter { it.resolve }.map { it.url }.distinct()
 
         // catalog references have been handled in the frontend, so we don't need to resolve them here
-        val processorCoords = fragments.flatMap { it.settings.ksp.processors }
+        val processorCoords = fragments.flatMap { it.settings.kotlin.ksp.processors }
             .filterIsInstance<MavenKspProcessorDeclaration>()
             .map { it.coordinates.value }
 

@@ -48,6 +48,13 @@ Fragments:
         apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
         linkerOpts: <default> null
@@ -63,13 +70,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
-      }
       native: <default> null
       publishing: <default> null
     }
@@ -125,6 +125,13 @@ Fragments:
         apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
         linkerOpts: <default> null
@@ -140,13 +147,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
-      }
       native: <default> null
       publishing: <default> null
     }
@@ -197,6 +197,13 @@ Fragments:
         apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
         linkerOpts: <default> null
@@ -212,13 +219,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
-      }
       native: <default> null
       publishing: <default> null
     }
@@ -271,6 +271,13 @@ Fragments:
         apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
         linkerOpts: <default> null
@@ -286,13 +293,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
-      }
       native: <default> null
       publishing: <default> null
     }
@@ -344,6 +344,13 @@ Fragments:
         apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
         linkerOpts: <default> null
@@ -359,13 +366,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
-      }
       native: <default> null
       publishing: <default> null
     }
@@ -419,6 +419,13 @@ Fragments:
         apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.0.20-1.0.25
+        }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
         linkerOpts: <default> null
@@ -434,13 +441,6 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ksp: <default> {
-        processorOptions: <default> {
-        }
-        processors: <default> [
-        ]
-        version: <default> 2.0.20-1.0.25
-      }
       native: <default> null
       publishing: <default> null
     }

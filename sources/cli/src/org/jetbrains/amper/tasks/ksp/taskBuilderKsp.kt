@@ -14,8 +14,6 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.compilationTaskNamesFor
 import org.jetbrains.amper.tasks.forModuleDependency
-import org.jetbrains.amper.tasks.native.NativeTaskType
-import org.jetbrains.amper.util.BuildType
 
 fun ProjectTasksBuilder.setupKspTasks() {
     allModules()
@@ -23,7 +21,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
         .alsoTests()
         .withEach {
             val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
-            if (fragments.none { it.settings.ksp.enabled }) {
+            if (fragments.none { it.settings.kotlin.ksp.enabled }) {
                 return@withEach
             }
             val processorDRTaskName = CommonTaskType.KspProcessorDependencies.getTaskName(module, platform, isTest)
@@ -42,7 +40,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
             // we parse. We don't have PotatoSettings like we have PotatoModule, so we can't provide a
             // real PotatoModule instance in settings.ksp.processors yet.
             // TODO rework PotatoModule settings so we can use different types in parsing and processing
-            val processorModuleDepsPaths = fragments.flatMap { it.settings.ksp.processors }
+            val processorModuleDepsPaths = fragments.flatMap { it.settings.kotlin.ksp.processors }
                 .filterIsInstance<ModuleKspProcessorDeclaration>()
                 .map { it.path.value }
             val processorModuleDeps = model.modules.filter { it.source.moduleDir in processorModuleDepsPaths }

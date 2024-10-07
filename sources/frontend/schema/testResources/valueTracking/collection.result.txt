@@ -16,6 +16,11 @@
          foobar [collection.module-template.yaml],
          boobaz
       ]
+      ksp:
+         processorOptions: {} [default]
+         processors: (empty) [default]
+         version: 2.0.20-1.0.25 [default]
+
       languageFeatures: (empty)
       languageVersion: 2.0 [default]
       linkerOpts: (empty)
@@ -27,8 +32,3 @@
       progressiveMode: false [default]
       suppressWarnings: false [default]
       verbose: false [default]
-
-   ksp:
-      processorOptions: {} [default]
-      processors: (empty) [default]
-      version: 2.0.20-1.0.25 [default]
