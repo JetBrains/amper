@@ -259,6 +259,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
                 key = AttributeKey.stringArrayKey("dependencies"),
                 value = listOf(
                     "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}",
+                    "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1",
                     "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1",
                 ),
             )

@@ -5,3 +5,6 @@ settings:
     serialization:
       format: json
       version: 1.5.1
+
+dependencies:
+  - $kotlinx.serialization.cbor

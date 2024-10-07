@@ -104,6 +104,7 @@ class CompositeVersionCatalog(
 }
 
 class BuiltInCatalog(
+    serializationVersion: String?,
     composeVersion: String?,
     private val systemInfo: SystemInfo = DefaultSystemInfo,
 ) : PredefinedCatalog({
@@ -113,6 +114,16 @@ class BuiltInCatalog(
     put("kotlin-test-junit", "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
     put("kotlin-test", "org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     put("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+
+    if (serializationVersion != null) {
+        put("kotlinx.serialization.core", "org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+        put("kotlinx.serialization.cbor", "org.jetbrains.kotlinx:kotlinx-serialization-cbor:$serializationVersion")
+        put("kotlinx.serialization.hocon", "org.jetbrains.kotlinx:kotlinx-serialization-hocon:$serializationVersion")
+        put("kotlinx.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+        put("kotlinx.serialization.json-okio", "org.jetbrains.kotlinx:kotlinx-serialization-json-okio:$serializationVersion")
+        put("kotlinx.serialization.properties", "org.jetbrains.kotlinx:kotlinx-serialization-properties:$serializationVersion")
+        put("kotlinx.serialization.protobuf", "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serializationVersion")
+    }
 
     // Add compose.
     if (composeVersion != null) {
