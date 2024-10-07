@@ -11,16 +11,15 @@ import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.toTraceableString
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Modifiers
-import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
 
 /**
  * Replace all [CatalogDependency] with ones, that are from actual catalog.
@@ -51,7 +50,7 @@ private fun List<Dependency>.convertCatalogDeps(catalog: VersionCatalog) = mapNo
 context(ProblemReporterContext)
 private fun CatalogDependency.convertCatalogDep(catalog: VersionCatalog): Dependency? {
     val catalogDep = this
-    val catalogValue = catalog.findInCatalogWithReport(catalogDep::catalogKey.toTraceableString()) ?: return null
+    val catalogValue = catalog.findInCatalogWithReport(catalogDep.catalogKey) ?: return null
     return ExternalMavenDependency().apply {
         coordinates = catalogValue.value
         exported = catalogDep.exported

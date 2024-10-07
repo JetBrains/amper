@@ -30,7 +30,7 @@ data class MavenKspProcessorDeclaration(val coordinates: TraceableString) : KspP
 
 data class ModuleKspProcessorDeclaration(val path: TraceablePath) : KspProcessorDeclaration
 
-data class CatalogKspProcessorDeclaration(val catalogKey: TraceableString) : KspProcessorDeclaration
+data class CatalogKspProcessorDeclaration(val catalogKey: CatalogKey) : KspProcessorDeclaration
 
 /**
  * Whether KSP should be run.

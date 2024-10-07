@@ -43,7 +43,7 @@ interface Traceable {
 /**
  * A string value that can persist its trace.
  */
-class TraceableString(
+open class TraceableString(
     val value: String
 ) : Traceable {
     override var trace: Trace? = null

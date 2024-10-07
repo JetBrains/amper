@@ -46,6 +46,7 @@ import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.schema.CatalogDependency
+import org.jetbrains.amper.frontend.schema.CatalogKey
 import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.DependencyScope
@@ -183,10 +184,10 @@ class Pointer(val segmentName: String? = null,
 }
 
 context(Converter)
-private fun instantiateDependency(text: String): Dependency {
+private fun instantiateDependency(text: String, sourceElement: PsiElement?): Dependency {
     return when {
         text.startsWith(".") -> InternalDependency().also { it.path = text.asAbsolutePath() }
-        text.startsWith("$") -> CatalogDependency().also { it.catalogKey = text.substring(1) }
+        text.startsWith("$") -> CatalogDependency().also { it.catalogKey = CatalogKey(text.substring(1)).applyPsiTrace(sourceElement) }
         else -> ExternalMavenDependency().also { it.coordinates = text }
     }
 }
@@ -427,7 +428,7 @@ private fun instantiateKspProcessor(
 ): Any? {
     val text = scalarValue?.textValue ?: return null
     return when {
-        text.startsWith("$") -> CatalogKspProcessorDeclaration(TraceableString(text.substring(1)).applyPsiTrace(scalarValue.sourceElement))
+        text.startsWith("$") -> CatalogKspProcessorDeclaration(CatalogKey(text.substring(1)).applyPsiTrace(scalarValue.sourceElement))
         text.startsWith(".") -> ModuleKspProcessorDeclaration(text.asAbsolutePath().asTraceable().applyPsiTrace(scalarValue.sourceElement))
         else -> MavenKspProcessorDeclaration(TraceableString(text).applyPsiTrace(scalarValue.sourceElement))
     }
@@ -445,7 +446,7 @@ private fun instantiateDependency(
     if ((scalarValue?.sourceElement?.language is YAMLLanguage
                 || textValue == path.segmentName) && textValue != null) {
         val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
-        return instantiateDependency(textValue).also { dep ->
+        return instantiateDependency(textValue, scalarValue.sourceElement).also { dep ->
             sourceElement?.let { e ->
                 applyDependencyTrace(dep, e)
             }
@@ -461,7 +462,7 @@ private fun instantiateDependency(
             val specialValue = (table[key] as? Scalar)?.textValue
             val segmentName = key.key.segmentName
             if (specialValue != null && segmentName != null) {
-                instantiateDependency(segmentName).also { dep ->
+                instantiateDependency(segmentName, sourceElement).also { dep ->
                     sourceElement?.let {
                         applyDependencyTrace(dep, it)
                     }
@@ -500,8 +501,9 @@ private fun instantiateDependency(
                 }.distinct()
                 if (next.size == 1) {
                     val single = next.single()!!
-                    return instantiateDependency(single.segmentName!!).also { dep ->
-                        table[KeyWithContext(single, contexts)]?.sourceElement?.let {
+                    val sourceElement = table[KeyWithContext(single, contexts)]?.sourceElement
+                    return instantiateDependency(single.segmentName!!, sourceElement).also { dep ->
+                        sourceElement?.let {
                             applyDependencyTrace(dep, it)
                         }
                         readFromTable(dep, table, single, contexts)
@@ -509,8 +511,9 @@ private fun instantiateDependency(
                 }
             }
             else {
-                return instantiateDependency(path.segmentName!!).also { dep ->
-                    table[KeyWithContext(path, contexts)]?.sourceElement?.let {
+                val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
+                return instantiateDependency(path.segmentName!!, sourceElement).also { dep ->
+                    sourceElement?.let {
                         applyDependencyTrace(dep, it)
                     }
                     readFromTable(dep, table, path, contexts)

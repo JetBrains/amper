@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.ImplicitConstructor
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 
 enum class DependencyScope(
@@ -57,7 +58,13 @@ class CatalogDependency  : Dependency() {
 
     @ConstructorParameter
     @SchemaDoc("Dependency from [a dependency catalog](#dependencyversion-catalogs)")
-    var catalogKey by value<String>()
+    var catalogKey by value<CatalogKey>()
+}
+
+class CatalogKey(val key: String): TraceableString(key) {
+    override fun hashCode() = key.hashCode()
+    override fun equals(other: Any?) =
+        this === other || (other as? CatalogKey)?.key == key
 }
 
 const val dependencySchema = """

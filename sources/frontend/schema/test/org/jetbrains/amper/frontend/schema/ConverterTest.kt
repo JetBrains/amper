@@ -64,7 +64,7 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
                         exported = true
                     },
                     CatalogDependency().apply {
-                        catalogKey = "kotlin-stdlib"
+                        catalogKey = CatalogKey("kotlin-stdlib")
                         scope = DependencyScope.RUNTIME_ONLY
                         exported = true
                     }
@@ -90,7 +90,7 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
                         coordinates = "androidx.activity:activity-compose:1.6.3"
                     },
                     CatalogDependency().apply {
-                        catalogKey = "kotlin-test"
+                        catalogKey = CatalogKey("kotlin-test")
                     }
                 )
             )
