@@ -40,3 +40,15 @@ val PsiFile.topLevelValue get() = when (this) {
     else -> null
 }
 
+internal fun String.splitByCamelHumps(): String {
+    val parts = mutableListOf<String>()
+    var prevIndex = 0
+    for ((index, letter) in withIndex()) {
+        if (index > 0 && letter.isUpperCase()) {
+            parts.add(substring(prevIndex, index))
+            prevIndex = index
+        }
+    }
+    parts.add(substring(prevIndex)) // last part
+    return parts.joinToString(" ") { it.lowercase() }
+}

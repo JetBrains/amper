@@ -22,7 +22,6 @@ import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.applyPsiTrace
-import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.builders.collectionType
 import org.jetbrains.amper.frontend.builders.isBoolean
@@ -36,17 +35,8 @@ import org.jetbrains.amper.frontend.builders.mapValueType
 import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
-import org.jetbrains.amper.frontend.schema.CatalogDependency
-import org.jetbrains.amper.frontend.schema.CatalogKey
-import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
-import org.jetbrains.amper.frontend.schema.DependencyScope
-import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
-import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.ModuleKspProcessorDeclaration
-import org.jetbrains.yaml.YAMLLanguage
 import java.nio.file.Path
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KType
@@ -60,9 +50,10 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
 
+internal typealias ValueTable = Map<KeyWithContext, AmperElementWrapper>
 internal data class KeyWithContext(val key: Pointer, val contexts: Set<TraceableString>)
 
-internal fun PsiElement.readValueTable(): Map<KeyWithContext, AmperElementWrapper> {
+internal fun PsiElement.readValueTable(): ValueTable {
     val table = mutableMapOf<KeyWithContext, AmperElementWrapper>()
     object : AmperPsiAdapterVisitor() {
         override fun visitScalar(node: Scalar) {
@@ -93,87 +84,10 @@ internal fun PsiElement.readValueTable(): Map<KeyWithContext, AmperElementWrappe
     return table
 }
 
-class Pointer(val segmentName: String? = null,
-                       var prev: Pointer? = null,
-                       var next: Pointer? = null) {
-    private val firstSegment get() = run {
-        var p: Pointer = this
-        while (p.prev != null) p = p.prev!!
-        p
-    }
-
-    operator fun plus(value: String): Pointer {
-        if (segmentName == null && prev == null && next == null) {
-            return Pointer(value)
-        }
-
-        val copy = deepCopyWithPrev()
-        val newPointer = Pointer(value, copy)
-        copy.next = newPointer
-        return newPointer
-    }
-
-    private fun deepCopyWithPrev(): Pointer {
-        val prevCopy = prev?.deepCopyWithPrev()
-        val copy = Pointer(segmentName, prevCopy)
-        prevCopy?.next = copy
-        return copy
-    }
-
-    fun nextAfter(o: Pointer): Pointer? {
-        var own: Pointer? = firstSegment
-        var other: Pointer? = o.firstSegment
-        while (other != null) {
-            if (own == null || own.segmentName != other.segmentName) return null
-            if (own == this || other == o) break
-            own = own.next
-            other = other.next
-        }
-        return own?.next
-    }
-
-    fun startsWith(o: Pointer): Boolean {
-        var own: Pointer? = firstSegment
-        var other: Pointer? = o.firstSegment
-        while (other != null) {
-            if (own == null || own.segmentName != other.segmentName) return false
-            if (other == o) break
-            if (own == this) {
-                return other.next == null
-            }
-            own = own.next
-            other = other.next
-        }
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return toString().hashCode()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is Pointer || segmentName != other.segmentName) return false
-        return toString() == other.toString()
-    }
-
-    override fun toString(): String {
-        val builder = StringBuilder()
-        val firstSegment1 = firstSegment
-        var p: Pointer? = firstSegment1
-        while (p != null) {
-            if (p !== firstSegment1) builder.append(" :: ")
-            builder.append(p.segmentName)
-            if (p === this) break
-            p = p.next
-        }
-        return builder.toString()
-    }
-}
-
 context(Converter)
 internal fun readTypedValue(
     type: KType,
-    table: Map<KeyWithContext, AmperElementWrapper>,
+    table: ValueTable,
     path: Pointer,
     contexts: Set<TraceableString>,
     valueBase: ValueBase<Any?>? = null
@@ -190,8 +104,9 @@ internal fun readTypedValue(
     val applicableKeys = table.keys.filter { it.key.startsWith(path) && it.contexts.containsAll(contexts) }
     if (applicableKeys.isEmpty()) return null
 
+    val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
+
     if (type.isScalar) {
-        val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
         val text = scalarValue?.textValue ?: return null
         return readScalarType(type, scalarValue, text, valueBase)
     }
@@ -208,7 +123,7 @@ internal fun readTypedValue(
         val processedKeys = mutableSetOf<String>()
         return applicableKeys.mapNotNull {
             val key = it.key.nextAfter(path)?.let {
-                // hack for yaml
+                // hack for numbered items in a collection
                 if (it.segmentName?.toIntOrNull() != null) it.next else it
             }
             val name = key?.segmentName
@@ -216,7 +131,7 @@ internal fun readTypedValue(
             else (name to readTypedValue(type.mapValueType, table, key, contexts))
         }.toMap()
     }
-    if (type.isCollection)  {
+    if (type.isCollection) {
         val visitedKeys = hashSetOf<Pointer>()
         return applicableKeys.mapNotNull { keyWithContext ->
             val newKey = keyWithContext.key.nextAfter(path)
@@ -227,21 +142,21 @@ internal fun readTypedValue(
         }.let { if (type.isSubtypeOf(Set::class.starProjectedType)) it.toSet() else it }
     }
 
+    // ksp processor initialization depends on strings and thus no autowiring
     if (type.unwrapKClass == KspProcessorDeclaration::class) {
-        return instantiateKspProcessor(table[KeyWithContext(path, contexts)] as? Scalar)
+        return instantiateKspProcessor(scalarValue)
+    }
+
+    // dependencies are too complicated to wire automatically
+    if (type.unwrapKClass == Dependency::class) {
+        return instantiateDependency(scalarValue, applicableKeys, path, table, contexts)
     }
 
     if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
-        val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
         val textValue = scalarValue?.textValue
-
-        // hack for internal and catalog dependencies, need to rethink this
-        if (type.unwrapKClass == Dependency::class) {
-            return instantiateDependency(scalarValue, applicableKeys, path, table, contexts)
-        }
-
+        // handle shorthands - when a schema node is wired for a scalar
         if (textValue != null) {
-            // find the implicit constructor and invoke it
+            // find an implicit or explicit constructor and invoke it
             val constructedType = type.unwrapKClass.findAnnotation<ImplicitConstructor>()?.constructedType
                 ?: type.unwrapKClass
 
@@ -284,6 +199,7 @@ private fun setPropertyValueSafe(
     target: Any,
     value: Any?
 ) {
+    // we return here, as such situations must have been processed before we come to this point
     if (value == null && !prop.returnType.isMarkedNullable) return
     prop.set(target, value)
 }
@@ -291,7 +207,7 @@ private fun setPropertyValueSafe(
 context(Converter)
 private fun instantiateTraceableScalar(
     type: KType,
-    table: Map<KeyWithContext, AmperElementWrapper>,
+    table: ValueTable,
     path: Pointer,
     contexts: Set<TraceableString>,
     valueBase: ValueBase<Any?>?,
@@ -344,11 +260,11 @@ private fun readScalarType(
     scalarValue?.sourceElement?.let {
         valueBase?.doApplyPsiTrace(it)
     }
+
     when {
         type.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
             return readEnum(type, scalarValue)
         }
-
         type.isString -> return text
         type.isBoolean -> return text == "true"
         type.isInt -> return text.toInt()
@@ -386,147 +302,10 @@ private fun readEnum(
     return matchingEnumValue
 }
 
-private fun String.splitByCamelHumps(): String {
-    val parts = mutableListOf<String>()
-    var prevIndex = 0
-    for ((index, letter) in withIndex()) {
-        if (index > 0 && letter.isUpperCase()) {
-            parts.add(substring(prevIndex, index))
-            prevIndex = index
-        }
-    }
-    parts.add(substring(prevIndex)) // last part
-    return parts.joinToString(" ") { it.lowercase() }
-}
-
-context(Converter)
-private fun instantiateKspProcessor(
-    scalarValue: Scalar?
-): Any? {
-    val text = scalarValue?.textValue ?: return null
-    return when {
-        text.startsWith("$") -> CatalogKspProcessorDeclaration(CatalogKey(text.substring(1)).applyPsiTrace(scalarValue.sourceElement))
-        text.startsWith(".") -> ModuleKspProcessorDeclaration(text.asAbsolutePath().asTraceable().applyPsiTrace(scalarValue.sourceElement))
-        else -> MavenKspProcessorDeclaration(TraceableString(text).applyPsiTrace(scalarValue.sourceElement))
-    }
-}
-
-context(Converter)
-private fun instantiateDependency(
-    scalarValue: Scalar?,
-    applicableKeys: List<KeyWithContext>,
-    path: Pointer,
-    table: Map<KeyWithContext, AmperElementWrapper>,
-    contexts: Set<TraceableString>
-): Any? {
-    val textValue = scalarValue?.textValue
-    if ((scalarValue?.sourceElement?.language is YAMLLanguage
-                || textValue == path.segmentName) && textValue != null) {
-        val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
-        return instantiateDependency(textValue, scalarValue.sourceElement).also { dep ->
-            sourceElement?.let { e ->
-                applyDependencyTrace(dep, e)
-            }
-            readFromTable(dep, table, path, contexts)
-        }
-    } else {
-        val matchingKeys = applicableKeys.filter { it.key.startsWith(path) }.let {
-            if (it.size > 1) it.filter { it.key != path } else it
-        }
-        if (matchingKeys.size == 1) {
-            val key = matchingKeys.single()
-            val sourceElement = table[key]?.sourceElement
-            val specialValue = (table[key] as? Scalar)?.textValue
-            val segmentName = key.key.segmentName
-            if (specialValue != null && segmentName != null) {
-                instantiateDependency(segmentName, sourceElement).also { dep ->
-                    sourceElement?.let {
-                        applyDependencyTrace(dep, it)
-                    }
-                    when (specialValue) {
-                        "exported" -> {
-                            dep.exported = true
-                            dep::exported.valueBase?.doApplyPsiTrace(sourceElement)
-                            return dep
-                        }
-
-                        "compile-only" -> {
-                            dep.scope = DependencyScope.COMPILE_ONLY
-                            dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
-                            return dep
-                        }
-
-                        "runtime-only" -> {
-                            dep.scope = DependencyScope.RUNTIME_ONLY
-                            dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
-                            return dep
-                        }
-
-                        "all" -> {
-                            dep.scope = DependencyScope.ALL
-                            dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
-                            return dep
-                        }
-                    }
-                }
-            }
-        }
-        else {
-            if (path.segmentName?.toIntOrNull() != null) {
-                val next = matchingKeys.map {
-                    it.key.nextAfter(path)
-                }.distinct()
-                if (next.size == 1) {
-                    val single = next.single()!!
-                    val sourceElement = table[KeyWithContext(single, contexts)]?.sourceElement
-                    return instantiateDependency(single.segmentName!!, sourceElement).also { dep ->
-                        sourceElement?.let {
-                            applyDependencyTrace(dep, it)
-                        }
-                        readFromTable(dep, table, single, contexts)
-                    }
-                }
-            }
-            else {
-                val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
-                return instantiateDependency(path.segmentName!!, sourceElement).also { dep ->
-                    sourceElement?.let {
-                        applyDependencyTrace(dep, it)
-                    }
-                    readFromTable(dep, table, path, contexts)
-                }
-            }
-        }
-    }
-    return null
-}
-
-context(Converter)
-private fun instantiateDependency(text: String, sourceElement: PsiElement?): Dependency {
-    return when {
-        text.startsWith(".") -> InternalDependency().also { it.path = text.asAbsolutePath() }
-        text.startsWith("$") -> CatalogDependency().also { it.catalogKey = CatalogKey(text.substring(1)).applyPsiTrace(sourceElement) }
-        else -> ExternalMavenDependency().also { it.coordinates = text }
-    }
-}
-
-private fun applyDependencyTrace(dep: Dependency, e: PsiElement) {
-    dep.doApplyPsiTrace(e)
-    (dep as? ExternalMavenDependency)?.let {
-        it::coordinates.valueBase?.doApplyPsiTrace(e)
-    }
-    (dep as? CatalogDependency)?.let {
-        it::catalogKey.valueBase?.doApplyPsiTrace(e)
-    }
-    (dep as? InternalDependency)?.let {
-        it::path.valueBase?.doApplyPsiTrace(e)
-    }
-}
-
 context(Converter)
 internal fun <T : Any> readFromTable(
     obj: T,
-    table: Map<KeyWithContext, AmperElementWrapper>,
+    table: ValueTable,
     path: Pointer = Pointer(),
     contexts: Set<TraceableString> = emptySet()
 ) {
@@ -554,7 +333,7 @@ private fun KType.instantiateType(): Any {
         ?: kClass.createInstance()
 }
 
-private fun <T : Traceable> T.doApplyPsiTrace(element: PsiElement?): T {
+internal fun <T : Traceable> T.doApplyPsiTrace(element: PsiElement?): T {
     val adjustedElement =
         MappingEntry.from(element)?.sourceElement ?:
         element?.let { MappingEntry.byValue(it) }?.sourceElement ?:
