@@ -31,6 +31,7 @@ import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.applyPsiTrace
+import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.builders.collectionType
 import org.jetbrains.amper.frontend.builders.isBoolean
@@ -45,10 +46,14 @@ import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.schema.CatalogDependency
+import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.DependencyScope
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.ModuleKspProcessorDeclaration
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
@@ -243,6 +248,10 @@ internal fun readTypedValue(
         }.let { if (type.isSubtypeOf(Set::class.starProjectedType)) it.toSet() else it }
     }
 
+    if (type.unwrapKClass == KspProcessorDeclaration::class) {
+        return instantiateKspProcessor(table[KeyWithContext(path, contexts)] as? Scalar)
+    }
+
     if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
         val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
         val textValue = scalarValue?.textValue
@@ -410,6 +419,18 @@ private fun String.splitByCamelHumps(): String {
     }
     parts.add(substring(prevIndex)) // last part
     return parts.joinToString(" ") { it.lowercase() }
+}
+
+context(Converter)
+private fun instantiateKspProcessor(
+    scalarValue: Scalar?
+): Any? {
+    val text = scalarValue?.textValue ?: return null
+    return when {
+        text.startsWith("$") -> CatalogKspProcessorDeclaration(TraceableString(text.substring(1)).applyPsiTrace(scalarValue.sourceElement))
+        text.startsWith(".") -> ModuleKspProcessorDeclaration(text.asAbsolutePath().asTraceable().applyPsiTrace(scalarValue.sourceElement))
+        else -> MavenKspProcessorDeclaration(TraceableString(text).applyPsiTrace(scalarValue.sourceElement))
+    }
 }
 
 context(Converter)
