@@ -9,7 +9,8 @@ import org.jetbrains.amper.gradle.base.PluginPartCtx
 
 class SerializationPluginPart(ctx: PluginPartCtx) : BindingPluginPart by ctx {
     override val needToApply: Boolean by lazy {
-        module.leafFragments.any { it.settings.kotlin.serialization?.format == "json" }
+        // FIXME use a proper "enabled" property instead
+        module.leafFragments.any { it.settings.kotlin.serialization != null }
     }
 
     override fun applyBeforeEvaluate() {
