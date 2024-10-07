@@ -85,30 +85,7 @@ internal fun PsiElement.readValueTable(): Map<KeyWithContext, AmperElementWrappe
         }
 
         private fun addNode(node: AmperElementWrapper) {
-            if (node is UnknownElementWrapper
-                || node is Scalar && table[KeyWithContext(position, context)] is MappingEntry
-                ) {
-                table[KeyWithContext(position, context)] = node
-                return
-            }
-
-            var insertPosition = position
-            while (table.containsKey(KeyWithContext(insertPosition, context))) {
-                val prev = insertPosition.prev
-                val prevIndex = prev?.segmentName?.toIntOrNull()
-                insertPosition = if (prevIndex != null) {
-                    prev.prev!! + (prevIndex + 1).toString() + insertPosition.segmentName!!
-                } else {
-                    val oldValue = table[KeyWithContext(insertPosition, context)]
-                    table.remove(KeyWithContext(insertPosition, context))
-                    oldValue?.let {
-                        table[KeyWithContext(insertPosition.prev!! + "0" + insertPosition.segmentName!!, context)] =
-                            oldValue
-                        insertPosition.prev!! + "1" + insertPosition.segmentName!!
-                    } ?: (insertPosition.prev!! + "0" + insertPosition.segmentName!!)
-                }
-            }
-            table[KeyWithContext(insertPosition, context)] = node
+            table[KeyWithContext(position, context)] = node
         }
     }.visitElement(this)
     return table
