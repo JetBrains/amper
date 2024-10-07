@@ -30,6 +30,10 @@ private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
     coordinates = "org.jetbrains.kotlin:$artifactId:${UsedVersions.kotlinVersion}",
 )
 
+private fun kotlinxSerializationCoreDependency(version: String) = MavenDependency(
+    coordinates = "org.jetbrains.kotlinx:kotlinx-serialization-core:$version",
+)
+
 private fun kotlinxSerializationFormatDependency(format: String, version: String) = MavenDependency(
     coordinates = "org.jetbrains.kotlinx:kotlinx-serialization-$format:$version",
 )
@@ -100,10 +104,12 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
         addAll(inferredTestDependencies())
     }
     settings.kotlin.serialization?.let { serializationSettings ->
+        // if kotlinx.serialization plugin is enabled, we need the @Serializable annotation, which is in core
+        add(kotlinxSerializationCoreDependency(serializationSettings.version))
+
         if (serializationSettings.format != serializationFormatNone) {
             add(kotlinxSerializationFormatDependency(serializationSettings.format, serializationSettings.version))
         }
-        // TODO we should probably provide a way to add the kotlinx-serialization-core dependency (without format)
     }
     if (settings.kotlin.parcelize.enabled) {
         add(kotlinParcelizeRuntime)
