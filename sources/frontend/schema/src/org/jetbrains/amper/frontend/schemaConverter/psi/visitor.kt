@@ -22,8 +22,8 @@ import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.ConstructorParameter
 import org.jetbrains.amper.frontend.api.ImplicitConstructor
-import org.jetbrains.amper.frontend.api.ImplicitConstructorParameter
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableEnum
@@ -269,7 +269,7 @@ internal fun readTypedValue(
             val props = constructedType.schemaDeclaredMemberProperties()
                 .filterIsInstance<KMutableProperty1<Any, Any?>>()
             val param = props.singleOrNull {
-                    it.hasAnnotation<ImplicitConstructorParameter>()
+                    it.hasAnnotation<ConstructorParameter>()
                 } ?: props.singleOrNull()
                   // "enabled" shortcut
                   ?: props.singleOrNull { it.name == "enabled" }?.takeIf { textValue == "enabled" }

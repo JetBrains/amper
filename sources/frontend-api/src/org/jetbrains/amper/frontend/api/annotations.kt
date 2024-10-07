@@ -104,4 +104,4 @@ annotation class ImplicitConstructor(
 
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class ImplicitConstructorParameter
+annotation class ConstructorParameter

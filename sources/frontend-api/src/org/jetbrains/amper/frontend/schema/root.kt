@@ -8,7 +8,7 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
-import org.jetbrains.amper.frontend.api.ImplicitConstructorParameter
+import org.jetbrains.amper.frontend.api.ConstructorParameter
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -75,7 +75,7 @@ class Module : Base() {
 
 @AdditionalSchemaDef(repositoryShortForm, useOneOf = true)
 class Repository : SchemaNode() {
-    @ImplicitConstructorParameter
+    @ConstructorParameter
     @SchemaDoc("The url of the repository")
     var url by value<String>()
 

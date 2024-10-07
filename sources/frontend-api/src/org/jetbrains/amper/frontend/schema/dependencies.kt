@@ -6,9 +6,9 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.ConstructorParameter
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.ImplicitConstructor
-import org.jetbrains.amper.frontend.api.ImplicitConstructorParameter
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
@@ -39,7 +39,7 @@ sealed class Dependency : SchemaNode() {
 @CustomSchemaDef(dependencySchema)
 class ExternalMavenDependency : Dependency() {
 
-    @ImplicitConstructorParameter
+    @ConstructorParameter
     @SchemaDoc("Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
     var coordinates by value<String>()
 }
@@ -47,6 +47,7 @@ class ExternalMavenDependency : Dependency() {
 @CustomSchemaDef(dependencySchema)
 class InternalDependency  : Dependency() {
 
+    @ConstructorParameter
     @SchemaDoc("Dependency [on another module](#module-dependencies) in the codebase")
     var path by nullableValue<Path>()
 }
@@ -54,6 +55,7 @@ class InternalDependency  : Dependency() {
 @CustomSchemaDef(dependencySchema)
 class CatalogDependency  : Dependency() {
 
+    @ConstructorParameter
     @SchemaDoc("Dependency from [a dependency catalog](#dependencyversion-catalogs)")
     var catalogKey by value<String>()
 }

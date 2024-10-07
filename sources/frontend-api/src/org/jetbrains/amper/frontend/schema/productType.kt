@@ -8,9 +8,9 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
+import org.jetbrains.amper.frontend.api.ConstructorParameter
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
-import org.jetbrains.amper.frontend.api.ImplicitConstructorParameter
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
@@ -97,7 +97,7 @@ enum class ProductType(
 @AdditionalSchemaDef(productShortForm, useOneOf = true)
 class ModuleProduct : SchemaNode() {
 
-    @ImplicitConstructorParameter
+    @ConstructorParameter
     @SchemaDoc("What type of product to generate")
     var type by value<ProductType>()
 
