@@ -17,7 +17,7 @@ import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.exists
 
-context(ConvertCtx)
+context(Converter)
 fun String.asAbsolutePath(): Path =
     this
         .replace("/", File.separator)
