@@ -657,24 +657,7 @@ By convention a single `main.kt` file (case-insensitive) in the source folder is
 
 ##### Android
 
-Application entry point is specified in the AndroidManifest.xml file according to the [official Android documentation](https://developer.android.com/guide/topics/manifest/manifest-intro).
-```
-|-src/ 
-|  |-MyActivity.kt
-|  |-AndroidManifest.xml
-|  |-... 
-|-module.yaml
-```
-
-src/AndroidManifest.xml:
-```xml
-<manifest ... >
-  <application ... >
-    <activity android:name="com.example.myapp.MainActivity" ... >
-    </activity>
-  </application>
-</manifest>
-```
+See the [dedicated Android section](#entry-point)
 
 ##### iOS
 
@@ -695,7 +678,7 @@ struct iosApp: App {
 }
 ```
 
-#### Release configuration for Android apps
+#### Configuring Android
 
 With the standalone version of Amper, you can use the `./amper task bundleAndroid` command to create a release build.
 
@@ -703,6 +686,27 @@ In Gradle-based Amper projects, you can use the Gradle tasks provided with the r
 
 When creating a release build with Amper, R8 will be used automatically, with minification and shrinking enabled. You
 can create a `proguard-rules.pro` file in the module folder to add custom rules for R8.
+
+##### Entry point
+Application entry point is specified in the AndroidManifest.xml file according to the [official Android documentation](https://developer.android.com/guide/topics/manifest/manifest-intro).
+```
+|-src/ 
+|  |-MyActivity.kt
+|  |-AndroidManifest.xml
+|  |-... 
+|-module.yaml
+```
+
+src/AndroidManifest.xml:
+```xml
+<manifest ... >
+  <application ... >
+    <activity android:name="com.example.myapp.MainActivity" ... >
+    </activity>
+  </application>
+</manifest>
+```
+
 
 ##### Signing
 
