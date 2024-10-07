@@ -22,7 +22,7 @@ dependencies:
   - $libs.kotlin.compose.compiler.gradle.plugin
   - $libs.compose.gradle.plugin
   - $libs.google.services.gradle.plugin
-  - $libs.gradle.api: compile-only
+  - $libs.gradle.api.forGradleBased: compile-only
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4595-0.23.2
   - org.jetbrains.kotlinx:kover-gradle-plugin:0.7.4
 

@@ -59,7 +59,7 @@ fun updateVersionsCatalog() {
             .replaceCatalogVersionVariable(variableName = "android-forGradleBased", newValue = androidVersionForGradleBasedAmper)
             .replaceCatalogVersionVariable(variableName = "kotlin", newValue = kotlinVersion)
             .replaceCatalogVersionVariable(variableName = "compose", newValue = composeVersion)
-            .replaceCatalogVersionVariable(variableName = "gradle-api", newValue = gradleVersion)
+            .replaceCatalogVersionVariable(variableName = "gradle-api-forGradleBased", newValue = gradleVersion)
     }
 }
 

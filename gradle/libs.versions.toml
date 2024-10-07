@@ -9,7 +9,9 @@ apache-commons = "1.24.0"
 bouncycastle = "1.78.1"
 clikt = "5.0.0"
 compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
-gradle-api = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
+google-services = "4.4.2"
+gradle-api-forGradleBased = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
+gradle-api-forStandalone = "8.9"
 gradle-toolingApi = "8.9"
 intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
@@ -44,7 +46,9 @@ bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref 
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
-gradle-api = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api" }
+google-services-gradle-plugin =  { module = "com.google.gms:google-services", version.ref = "google-services" }
+gradle-api-forGradleBased = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forGradleBased" }
+gradle-api-forStandalone =  { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forStandalone" }
 gradle-toolingApi = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-toolingApi" }
 intellij-amper-xcodemodel = { module = "com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed", version.ref = "intellij-xcodemodel" }
 intellij-deps-asyncProfiler = { module = "org.jetbrains.intellij.deps:async-profiler", version.ref = "intellij-async-profiler" }
@@ -84,5 +88,3 @@ tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
 tinylog-jul = { module = "org.tinylog:jul-tinylog", version.ref = "tinylog" }
 tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
 xmlutil-serialization = { module = "io.github.pdvrieze.xmlutil:serialization", version.ref = "xmlutil-serialization" }
-gradle-api-forStandalone = "dev.gradleplugins:gradle-api:8.9"
-google-services-gradle-plugin = "com.google.gms:google-services:4.4.2"
