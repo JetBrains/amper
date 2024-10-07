@@ -6,6 +6,8 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.aomTest
+import org.jetbrains.amper.frontend.schema.helper.copyLocal
+import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
@@ -17,7 +19,7 @@ internal class RepositoriesTest : TestBase(Path("testResources") / "repositories
         aomTest("repositories-id-and-url")
     }
 
-    /*@Test
+    @Test
     fun `parsing credentials`() {
         copyLocal("repositories-credentials.local.properties", buildDir)
         aomTest("repositories-credentials")
@@ -32,5 +34,5 @@ internal class RepositoriesTest : TestBase(Path("testResources") / "repositories
     fun `repositories no credential key`() {
         copyLocal("repositories-credentials.local.properties", buildDir)
         diagnosticsTest("repositories-no-credentials-key")
-    }*/
+    }
 }

@@ -18,6 +18,9 @@ import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.parentsOfType
 import com.intellij.util.containers.Stack
+import org.jetbrains.amper.core.messages.BuildProblemImpl
+import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.ImplicitConstructor
 import org.jetbrains.amper.frontend.api.ImplicitConstructorParameter
@@ -40,6 +43,7 @@ import org.jetbrains.amper.frontend.builders.isString
 import org.jetbrains.amper.frontend.builders.mapValueType
 import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
+import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.DependencyScope
@@ -264,8 +268,11 @@ internal fun readTypedValue(
             if (param != null) {
                 return type.instantiateType().also {
                     val value = if (param.name == "enabled" && textValue == "enabled") "true" else textValue
-                    param.set(it, convertScalarType(param.returnType, scalarValue,
-                        value, param.valueBase(it)))
+                    val convertedValue = convertScalarType(
+                        param.returnType, scalarValue,
+                        value, param.valueBase(it)
+                    )
+                    setPropertyValueSafe(param, it, convertedValue)
                     if (it is Traceable) {
                         it.doApplyPsiTrace(scalarValue.sourceElement)
                     }
@@ -282,6 +289,16 @@ internal fun readTypedValue(
         }
         readFromTable(instance, table, path, contexts)
     }
+}
+
+private fun setPropertyValueSafe(
+    param: KMutableProperty1<Any, Any?>,
+    target: Any,
+    convertedValue: Any?
+) {
+    // todo maybe report this
+    if (convertedValue == null && !param.returnType.isMarkedNullable) return
+    param.set(target, convertedValue)
 }
 
 context(Converter)
@@ -342,12 +359,7 @@ private fun convertScalarType(
     }
     when {
         type.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
-            @Suppress("UNCHECKED_CAST")
-            (type.unwrapKClass.declaredFunctions.firstOrNull {
-                it.name == "values"
-            }?.call() as? Array<SchemaEnum>)?.firstOrNull { it.schemaValue == scalarValue?.textValue }?.let {
-                return it
-            }
+            return convertEnum(type, scalarValue)
         }
 
         type.isString -> return text
@@ -357,6 +369,47 @@ private fun convertScalarType(
     }
 
     return null
+}
+
+context(Converter)
+private fun convertEnum(
+    type: KType,
+    scalarValue: Scalar?,
+    reportMismatch: Boolean = true
+): SchemaEnum? {
+    @Suppress("UNCHECKED_CAST")
+    val allValues = type.unwrapKClass.declaredFunctions.firstOrNull {
+        it.name == "values"
+    }?.call() as? Array<SchemaEnum>
+
+    val matchingEnumValue = allValues?.firstOrNull { it.schemaValue == scalarValue?.textValue }
+    if (reportMismatch && matchingEnumValue == null && scalarValue != null) {
+        problemReporter.reportMessage(
+            BuildProblemImpl("product.unknown.enum.value",
+                PsiBuildProblemSource(scalarValue.sourceElement),
+                SchemaBundle.message(
+                    if (allValues.orEmpty().size > 10) "product.unknown.enum.value.short"
+                    else "product.unknown.enum.value",
+                    type.unwrapKClass.simpleName?.splitByCamelHumps(),
+                    scalarValue.textValue,
+                    allValues?.joinToString { it.schemaValue }),
+                Level.Error)
+        )
+    }
+    return matchingEnumValue
+}
+
+private fun String.splitByCamelHumps(): String {
+    val parts = mutableListOf<String>()
+    var prevIndex = 0
+    for ((index, letter) in withIndex()) {
+        if (index > 0 && letter.isUpperCase()) {
+            parts.add(substring(prevIndex, index))
+            prevIndex = index
+        }
+    }
+    parts.add(substring(prevIndex)) // last part
+    return parts.joinToString(" ") { it.lowercase() }
 }
 
 context(Converter)
@@ -471,7 +524,7 @@ internal fun <T : Any> readFromTable(
         .filterIsInstance<KMutableProperty1<Any, Any?>>()
         .forEach { prop ->
             readTypedValue(prop.returnType, table, path + prop.name, contexts, prop.valueBase(obj))?.let {
-                prop.set(obj, it)
+                setPropertyValueSafe(prop, obj, it)
                 table[KeyWithContext(path + prop.name, contexts)]?.let {
                     prop.valueBase(obj)?.doApplyPsiTrace(it.sourceElement)
                 }

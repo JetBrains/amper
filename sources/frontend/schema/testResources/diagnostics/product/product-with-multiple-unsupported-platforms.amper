@@ -1,4 +1,4 @@
 product {
   type = "lib"
-  platforms = { "jvm", <![Error] Unknown Platform: foo!>"foo"<!>, <![Error] Unknown Platform: bar!>"bar"<!> }
+  platforms = { "jvm", <![Error] Unknown platform: foo!>"foo"<!>, <![Error] Unknown platform: bar!>"bar"<!> }
 }
