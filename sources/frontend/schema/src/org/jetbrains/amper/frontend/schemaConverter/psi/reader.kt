@@ -111,14 +111,14 @@ internal fun readTypedValue(
         return readScalarType(type, scalarValue, text, valueBase)
     }
     if (type.isMap) {
-        if (type.arguments[0].type?.isCollection == true) {
+        if (type.arguments.getOrNull(0)?.type?.isCollection == true) {
             return applicableKeys.map { it.contexts }
                 .associate { ks -> ks.toSet() to readTypedValue(
                     type.mapValueType,
                     table,
                     path,
                     ks
-                ) }
+                ) }.filterValues { it != null }
         }
         val processedKeys = mutableSetOf<String>()
         return applicableKeys.mapNotNull {
