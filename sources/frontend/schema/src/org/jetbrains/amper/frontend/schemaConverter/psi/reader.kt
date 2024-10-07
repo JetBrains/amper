@@ -142,12 +142,12 @@ internal fun readTypedValue(
         }.let { if (type.isSubtypeOf(Set::class.starProjectedType)) it.toSet() else it }
     }
 
-    // ksp processor initialization depends on strings and thus no autowiring
+    // ksp processor initialization depends on string prefixes and thus no autowiring
     if (type.unwrapKClass == KspProcessorDeclaration::class) {
         return instantiateKspProcessor(scalarValue)
     }
 
-    // dependencies are too complicated to wire automatically
+    // dependencies are too complicated to wire them automatically (different shorthands and a full form)
     if (type.unwrapKClass == Dependency::class) {
         return instantiateDependency(scalarValue, applicableKeys, path, table, contexts)
     }
