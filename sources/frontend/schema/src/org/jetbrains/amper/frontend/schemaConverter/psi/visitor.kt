@@ -5,13 +5,18 @@
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import com.intellij.amper.lang.AmperContextBlock
+import com.intellij.amper.lang.AmperContextName
+import com.intellij.amper.lang.AmperContextualElement
 import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.amper.lang.AmperElementVisitor
 import com.intellij.amper.lang.AmperLanguage
 import com.intellij.amper.lang.AmperLiteral
+import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperProperty
+import com.intellij.amper.lang.impl.propertyList
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.parentsOfType
 import com.intellij.util.containers.Stack
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.ImplicitConstructor
@@ -503,13 +508,13 @@ open class AmperPsiAdapterVisitor {
         if (element.language is AmperLanguage) {
             object: AmperElementVisitor() {
                 override fun visitContextBlock(o: AmperContextBlock) {
-                    contextStack.push(o.contextNameList.mapNotNull { it.identifier?.text }.toSet())
+                    contextStack.push(o.contextNameList.contextNames)
                     super.visitContextBlock(o)
                     contextStack.pop()
                 }
 
                 override fun visitContextualStatement(o: AmperContextualStatement) {
-                    contextStack.push(o.contextNameList.mapNotNull { it.identifier?.text }.toSet())
+                    contextStack.push(o.contextNameList.contextNames)
                     super.visitContextualStatement(o)
                     contextStack.pop()
                 }
@@ -520,16 +525,36 @@ open class AmperPsiAdapterVisitor {
                 }
 
                 override fun visitProperty(o: AmperProperty) {
-                    positionStack.push(
-                        when (o.name) {
-                            "testSettings" -> "test-settings"
-                            "testDependencies" -> "test-dependencies"
-                            null -> "[unnamed]"
-                            else -> o.name
-                        })
+                    val parentObject = o.parent as? AmperObject
+                    val props = parentObject?.propertyList.orEmpty()
+                    if (props.isNotEmpty() && hasDuplicateProperties(props, o)) {
+                        positionStack.push(props.indexOf(o).toString())
+                    } else {
+                        positionStack.push(
+                            when (o.name) {
+                                "testSettings" -> "test-settings"
+                                "testDependencies" -> "test-dependencies"
+                                null -> "[unnamed]"
+                                else -> o.name
+                            }
+                        )
+                    }
                     visitMappingEntry(MappingEntry(o))
                     super.visitProperty(o)
                     positionStack.pop()
+                }
+
+                private fun hasDuplicateProperties(
+                    props: List<AmperProperty>,
+                    o: AmperProperty
+                ): Boolean {
+                    val namesakeProps = props.filter { it.name == o.name }
+                    val hadDuplicateProperties = namesakeProps.size > 1 && namesakeProps.map {
+                        it.parentsOfType<AmperContextualElement>().map {
+                            it.contexts
+                        }.flatten().toSet() to it
+                    }.groupBy({ it.first }) { it.second }.entries.any { it.value.size > 1 }
+                    return hadDuplicateProperties
                 }
 
                 override fun visitLiteral(o: AmperLiteral) {
@@ -590,3 +615,12 @@ private fun <T : Traceable> T.doApplyPsiTrace(element: PsiElement?): T {
         element
     return applyPsiTrace(adjustedElement)
 }
+
+private val AmperContextualElement.contexts get() =
+    when (this) {
+        is AmperContextBlock -> contextNameList.contextNames
+        is AmperContextualStatement -> contextNameList.contextNames
+        else -> emptyList()
+    }
+
+private val List<AmperContextName>.contextNames get() = mapNotNull { it.identifier?.text }.toSet()
