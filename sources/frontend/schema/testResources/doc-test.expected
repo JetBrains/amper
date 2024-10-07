@@ -138,7 +138,7 @@ ParcelizeSettings
 
 SerializationSettings
 ---------------------
-	format: String, default: json - Kotlin Serialization format
+	format: String, default: none - The Kotlin Serialization format to use, or 'none' if no format should be automatically added
 	version: String, default: 1.7.3 - The version of the Kotlinx Serialization core and format libraries to use
 
 KoverSettings

@@ -103,8 +103,8 @@ const val composeSettingsShortForm = """
 @AdditionalSchemaDef(serializationSettingsShortForm)
 class SerializationSettings : SchemaNode() {
 
-    @SchemaDoc("Kotlin Serialization format")
-    var format by value("json")
+    @SchemaDoc("The Kotlin Serialization format to use, or 'none' if no format should be automatically added")
+    var format by value("none")
 
     @SchemaDoc("The version of the Kotlinx Serialization core and format libraries to use")
     var version by value(UsedVersions.kotlinxSerializationVersion)

@@ -332,10 +332,10 @@ the [module tests](Documentation.md#tests).
 
 `serialization:` attribute could an object or an enum corresponding to the `format:` attribute:
 
-| Attribute         | Description                                                                        | Default |
-|-------------------|------------------------------------------------------------------------------------|---------|
-| `format: enum `   | `none` to disable serialization, `JSON` to enable serialization in JSON format     | `none`  |
-| `version: string` | the version to use for the core serialization library and the serialization format | `1.7.3` |
+| Attribute         | Description                                                                                                | Default |
+|-------------------|------------------------------------------------------------------------------------------------------------|---------|
+| `format: enum`    | `json` to enable serialization and add the JSON format, `none` to only enable serialization without format | `none`  |
+| `version: string` | the version to use for the core serialization library and the serialization format                         | `1.7.3` |
 
 Examples:
 

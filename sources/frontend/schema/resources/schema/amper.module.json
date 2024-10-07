@@ -774,8 +774,8 @@
           "type": "object",
           "properties": {
             "format": {
-              "x-intellij-html-description": "Kotlin Serialization format",
-              "title": "Kotlin Serialization format",
+              "x-intellij-html-description": "The Kotlin Serialization format to use, or 'none' if no format should be automatically added",
+              "title": "The Kotlin Serialization format to use, or 'none' if no format should be automatically added",
               "type": "string"
             },
             "version": {
