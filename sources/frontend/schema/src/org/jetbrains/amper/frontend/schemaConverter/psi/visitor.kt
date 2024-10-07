@@ -67,7 +67,7 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
 
-internal data class KeyWithContext(val key: Pointer, val contexts: Set<String>)
+internal data class KeyWithContext(val key: Pointer, val contexts: Set<TraceableString>)
 
 internal fun PsiElement.readValueTable(): Map<KeyWithContext, AmperElementWrapper> {
     val table = mutableMapOf<KeyWithContext, AmperElementWrapper>()
@@ -191,7 +191,7 @@ internal fun readTypedValue(
     type: KType,
     table: Map<KeyWithContext, AmperElementWrapper>,
     path: Pointer,
-    contexts: Set<String>,
+    contexts: Set<TraceableString>,
     valueBase: ValueBase<Any?>? = null
 ): Any? {
     if (type.withNullability(false) != type) {
@@ -214,7 +214,7 @@ internal fun readTypedValue(
     if (type.isMap) {
         if (type.arguments[0].type?.isCollection == true) {
             return applicableKeys.map { it.contexts }
-                .associate { ks -> ks.map { TraceableString(it) }.toSet() to readTypedValue(
+                .associate { ks -> ks.toSet() to readTypedValue(
                     type.mapValueType,
                     table,
                     path,
@@ -306,7 +306,7 @@ private fun instantiateTraceableScalar(
     type: KType,
     table: Map<KeyWithContext, AmperElementWrapper>,
     path: Pointer,
-    contexts: Set<String>,
+    contexts: Set<TraceableString>,
     valueBase: ValueBase<Any?>?,
     scalarValue: AmperElementWrapper?
 ): Traceable? {
@@ -418,7 +418,7 @@ private fun instantiateDependency(
     applicableKeys: List<KeyWithContext>,
     path: Pointer,
     table: Map<KeyWithContext, AmperElementWrapper>,
-    contexts: Set<String>
+    contexts: Set<TraceableString>
 ): Any? {
     val textValue = scalarValue?.textValue
     if ((scalarValue?.sourceElement?.language is YAMLLanguage
@@ -518,7 +518,7 @@ internal fun <T : Any> readFromTable(
     obj: T,
     table: Map<KeyWithContext, AmperElementWrapper>,
     path: Pointer = Pointer(),
-    contexts: Set<String> = emptySet()
+    contexts: Set<TraceableString> = emptySet()
 ) {
     obj::class.schemaDeclaredMemberProperties()
         .filterIsInstance<KMutableProperty1<Any, Any?>>()
@@ -546,7 +546,7 @@ private fun KType.instantiateType(): Any {
 
 open class AmperPsiAdapterVisitor {
     private val positionStack: Stack<String> = Stack()
-    private val contextStack: Stack<Set<String>> = Stack()
+    private val contextStack: Stack<Set<TraceableString>> = Stack()
 
     val position get() = positionStack.toList().let {
         var path = Pointer()
@@ -630,7 +630,8 @@ open class AmperPsiAdapterVisitor {
                     }
                     else {
                         positionStack.push(keyValue.keyText.substring(0, atSign))
-                        contextStack.push(keyValue.keyText.substring(atSign + 1).split('+').toSet())
+                        contextStack.push(keyValue.keyText.substring(atSign + 1).split('+')
+                            .map { TraceableString(it).applyPsiTrace(keyValue.key) }.toSet())
                     }
                     visitMappingEntry(MappingEntry(keyValue))
                     super.visitKeyValue(keyValue)
@@ -676,4 +677,5 @@ private val AmperContextualElement.contexts get() =
         else -> emptyList()
     }
 
-private val List<AmperContextName>.contextNames get() = mapNotNull { it.identifier?.text }.toSet()
+private val List<AmperContextName>.contextNames get()
+    = mapNotNull { c -> c.identifier?.let { TraceableString(it.text).applyPsiTrace(c) } }.toSet()
