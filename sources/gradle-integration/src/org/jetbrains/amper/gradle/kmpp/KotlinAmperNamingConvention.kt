@@ -74,6 +74,7 @@ object KotlinAmperNamingConvention {
         get() = when {
             !isTest && name == module.rootFragment?.name -> "commonMain"
             // TODO Add variants support.
+            !isTest && name == "android" -> "androidMain"
             isTest && name == "androidTest" -> "androidUnitTest"
             isTest && name == module.rootTestFragment?.name -> "commonTest"
             else -> name
