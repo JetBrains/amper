@@ -113,6 +113,7 @@ internal fun readTypedValue(
     if (type.isMap) {
         if (type.arguments.getOrNull(0)?.type?.isCollection == true) {
             return applicableKeys.map { it.contexts }
+                .distinct()
                 .associate { ks -> ks.toSet() to readTypedValue(
                     type.mapValueType,
                     table,
@@ -266,12 +267,33 @@ private fun readScalarType(
             return readEnum(type, scalarValue)
         }
         type.isString -> return text
-        type.isBoolean -> return text == "true"
-        type.isInt -> return text.toInt()
+        type.isBoolean -> return readBoolean(text, scalarValue)
+        type.isInt -> return readInteger(text, scalarValue)
         type.isPath -> return text.asAbsolutePath()
     }
 
     return null
+}
+
+context(Converter)
+private fun readInteger(text: String, scalarValue: Scalar?): Int? {
+    val value = text.toIntOrNull()
+    if (value == null) {
+        reportError("validation.expected.integer", scalarValue)
+    }
+    return text.toInt()
+}
+
+context(Converter)
+private fun readBoolean(text: String, scalarValue: Scalar?) = when (text) {
+    "true" -> true
+    "false" -> false
+    else -> {
+        if (scalarValue != null) {
+            reportError("validation.expected.boolean", scalarValue)
+        }
+        null
+    }
 }
 
 context(Converter)
@@ -286,20 +308,31 @@ private fun readEnum(
     }?.call() as? Array<SchemaEnum>
 
     val matchingEnumValue = allValues?.firstOrNull { it.schemaValue == scalarValue?.textValue }
-    if (reportMismatch && matchingEnumValue == null && scalarValue != null) {
-        problemReporter.reportMessage(
-            BuildProblemImpl("product.unknown.enum.value",
-                PsiBuildProblemSource(scalarValue.sourceElement),
-                SchemaBundle.message(
-                    if (allValues.orEmpty().size > 10) "product.unknown.enum.value.short"
-                    else "product.unknown.enum.value",
-                    type.unwrapKClass.simpleName?.splitByCamelHumps(),
-                    scalarValue.textValue,
-                    allValues?.joinToString { it.schemaValue }),
-                Level.Error)
+    if (reportMismatch && matchingEnumValue == null) {
+        reportError("validation.unknown.enum.value", scalarValue,
+            if (allValues.orEmpty().size > 10) "validation.unknown.enum.value.short"
+            else "validation.unknown.enum.value",
+            type.unwrapKClass.simpleName?.splitByCamelHumps(),
+            scalarValue?.textValue,
+            allValues?.joinToString { it.schemaValue }
         )
     }
     return matchingEnumValue
+}
+
+context(Converter)
+private fun reportError(problemId: String,
+                        source: AmperElementWrapper?,
+                        messageKey: String = problemId,
+                        vararg args: String?) {
+    source ?: return
+    problemReporter.reportMessage(
+        BuildProblemImpl("validation.unknown.enum.value",
+            PsiBuildProblemSource(source.sourceElement),
+            SchemaBundle.message(messageKey, *args),
+            Level.Error
+        )
+    )
 }
 
 context(Converter)
