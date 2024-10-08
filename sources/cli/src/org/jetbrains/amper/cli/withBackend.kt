@@ -40,7 +40,7 @@ internal suspend fun withBackend(
     // JulTinylogBridge.activate()
 
     spanBuilder("CLI Setup: install coroutines debug probes").use {
-        CliEnvironmentInitializer.setup()
+        CliEnvironmentInitializer.setupCoroutinesDebugProbes()
     }
 
     withContext(Dispatchers.Default) {

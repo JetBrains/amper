@@ -70,7 +70,7 @@ abstract class AmperIntegrationTestBase {
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
     init {
-        CliEnvironmentInitializer.setup()
+        CliEnvironmentInitializer.setupCoroutinesDebugProbes()
     }
 
     protected suspend fun TestCollector.setupTestProject(

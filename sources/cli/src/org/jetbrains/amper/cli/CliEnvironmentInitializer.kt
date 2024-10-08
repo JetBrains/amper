@@ -19,8 +19,9 @@ import java.util.*
 import kotlin.io.path.writeText
 
 object CliEnvironmentInitializer {
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val init by lazy {
+    fun setupCoroutinesDebugProbes() {
         // see https://github.com/Anamorphosee/stacktrace-decoroutinator#motivation
         // Temporary disabled due to unresolved issues with it AMPER-396 CLI: Provide coroutine stacktraces
         // DecoroutinatorRuntime.load()
@@ -29,8 +30,6 @@ object CliEnvironmentInitializer {
         DebugProbes.enableCreationStackTraces = false
         DebugProbes.install()
     }
-
-    fun setup() = init
 
     fun setupDeadLockMonitor(logsRoot: AmperBuildLogsRoot, terminal: Terminal) {
         DeadLockMonitor.install(logsRoot, terminal)

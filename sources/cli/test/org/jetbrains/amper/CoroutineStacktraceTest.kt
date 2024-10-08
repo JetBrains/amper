@@ -14,7 +14,7 @@ import kotlin.test.fail
 
 class CoroutineStacktraceTest {
     init {
-        CliEnvironmentInitializer.setup()
+        CliEnvironmentInitializer.setupCoroutinesDebugProbes()
     }
 
     @Test
