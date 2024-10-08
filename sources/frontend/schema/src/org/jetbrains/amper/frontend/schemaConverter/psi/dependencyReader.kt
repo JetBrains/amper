@@ -72,22 +72,15 @@ internal fun instantiateDependency(
             }
         }
         else {
-            if (path.segmentName?.toIntOrNull() != null) {
-                val next = matchingKeys.map {
+            val pointer = if (path.segmentName?.toIntOrNull() != null) {
+                matchingKeys.map {
                     it.key.nextAfter(path)
-                }.distinct()
-                if (next.size == 1) {
-                    val single = next.single()!!
-                    val sourceElement = table[KeyWithContext(single, contexts)]?.sourceElement
-                    return instantiateDependency(single.segmentName!!, sourceElement).also { dep ->
-                        readFromTable(dep, table, single, contexts)
-                    }
-                }
-            }
-            else {
-                val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
-                return instantiateDependency(path.segmentName!!, sourceElement).also { dep ->
-                    readFromTable(dep, table, path, contexts)
+                }.distinct().singleOrNull()
+            } else path
+            if (pointer != null) {
+                val sourceElement = table[KeyWithContext(pointer, contexts)]?.sourceElement
+                return instantiateDependency(pointer.segmentName!!, sourceElement).also { dep ->
+                    readFromTable(dep, table, pointer, contexts)
                 }
             }
         }
