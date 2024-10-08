@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tools
+package org.jetbrains.amper.cli.commands.tools
 
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
@@ -21,7 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.cli.RootCommand
+import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.extractFileToCacheLocation
@@ -39,6 +39,7 @@ import kotlin.io.path.name
 import kotlin.io.path.pathString
 
 class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
+
     private val openBrowser by option(
         "--open-browser",
         help = "Open Jaeger UI in browser if Jaeger successfully starts",

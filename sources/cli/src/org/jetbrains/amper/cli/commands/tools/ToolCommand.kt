@@ -2,23 +2,23 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tools
+package org.jetbrains.amper.cli.commands.tools
 
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 
-class JdkToolCommands: SuspendingCliktCommand(name = "jdk") {
+internal class ToolCommand : SuspendingCliktCommand(name = "tool") {
+
     init {
         subcommands(
-            JdkToolCommand("jstack"),
-            JdkToolCommand("jmap"),
-            JdkToolCommand("jps"),
-            JdkToolCommand("jcmd"),
+            JaegerToolCommand(),
+            JdkToolCommand(),
+            KeystoreToolCommand(),
         )
     }
 
-    override fun help(context: Context): String = "Run various tools from Amper default JDK"
+    override fun help(context: Context): String = "Run a tool"
 
     override suspend fun run() = Unit
 }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.job
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli
 
+import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.test.generateUnifiedDiff
 import kotlin.test.Test
 import kotlin.test.assertEquals
