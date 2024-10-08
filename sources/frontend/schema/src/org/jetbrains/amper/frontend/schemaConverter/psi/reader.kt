@@ -80,6 +80,8 @@ internal fun PsiElement.readValueTable(): ValueTable {
     return table
 }
 
+private val knownBooleanShorthands = setOf("enabled", "exported")
+
 context(Converter)
 internal fun readTypedValue(
     type: KType,
@@ -160,9 +162,9 @@ internal fun readTypedValue(
             val props = constructedType.schemaDeclaredMemberProperties()
                 .filterIsInstance<KMutableProperty1<Any, Any?>>()
             val param =
-                // "enabled" shortcut
-                props.singleOrNull { it.name == "enabled" }
-                    ?.takeIf { textValue == "enabled" } ?:
+                // known boolean shorthands like "enabled" and "exported"
+                props.firstOrNull { knownBooleanShorthands.contains(it.name) }
+                    ?.takeIf { textValue == it.name } ?:
                 // properly marked as a constructor parameter
                 props.singleOrNull {
                     it.hasAnnotation<ConstructorParameter>()
@@ -170,7 +172,7 @@ internal fun readTypedValue(
 
             if (param != null) {
                 return type.instantiateType().also {
-                    val value = if (param.name == "enabled" && textValue == "enabled") "true" else textValue
+                    val value = if (knownBooleanShorthands.contains(param.name) && textValue == param.name) "true" else textValue
                     val transformedValue = readScalarType(
                         param.returnType, scalarValue,
                         value, param.valueBase(it)

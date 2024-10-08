@@ -33,6 +33,7 @@ sealed class Dependency : SchemaNode() {
     @SchemaDoc("Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)")
     var exported by value(false)
 
+    @ConstructorParameter
     @SchemaDoc("When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)")
     var scope by value(DependencyScope.ALL)
 }
@@ -40,23 +41,20 @@ sealed class Dependency : SchemaNode() {
 @CustomSchemaDef(dependencySchema)
 class ExternalMavenDependency : Dependency() {
 
-    @ConstructorParameter
     @SchemaDoc("Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
     var coordinates by value<String>()
 }
 
 @CustomSchemaDef(dependencySchema)
-class InternalDependency  : Dependency() {
+class InternalDependency : Dependency() {
 
-    @ConstructorParameter
     @SchemaDoc("Dependency [on another module](#module-dependencies) in the codebase")
     var path by nullableValue<Path>()
 }
 
 @CustomSchemaDef(dependencySchema)
-class CatalogDependency  : Dependency() {
+class CatalogDependency : Dependency() {
 
-    @ConstructorParameter
     @SchemaDoc("Dependency from [a dependency catalog](#dependencyversion-catalogs)")
     var catalogKey by value<CatalogKey>()
 }
