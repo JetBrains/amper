@@ -20,14 +20,8 @@ import org.jetbrains.amper.util.BuildType
 
 internal class RunCommand : SuspendingCliktCommand(name = "run") {
 
-    val platform by option(
-        "-p",
-        "--platform",
-        help = "Run under specified platform",
-        completionCandidates = CompletionCandidates.Fixed(prettyLeafPlatforms.keys),
-    ).validate { value ->
-        checkAndGetPlatform(value)
-    }
+    val platform by leafPlatformOption(help = "Run the app on specified platform. This option is only necessary if " +
+            "the module has multiple main functions for different platforms")
 
     val buildType by option(
         "-b",
@@ -52,14 +46,13 @@ internal class RunCommand : SuspendingCliktCommand(name = "run") {
     override fun helpEpilog(context: Context): String = "Use -- to separate the application's arguments from Amper options"
 
     override suspend fun run() {
-        val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }
         withBackend(
             commonOptions,
             commandName,
             commonRunSettings = CommonRunSettings(programArgs = programArguments),
         ) { backend ->
             val buildType = buildType.let { BuildType.byValue(it) }
-            backend.runApplication(platform = platformToRun, moduleName = module, buildType = buildType)
+            backend.runApplication(platform = platform, moduleName = module, buildType = buildType)
         }
     }
 }

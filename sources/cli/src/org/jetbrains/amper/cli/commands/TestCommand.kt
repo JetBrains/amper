@@ -15,7 +15,8 @@ import org.jetbrains.amper.engine.TaskExecutor
 
 internal class TestCommand : SuspendingCliktCommand(name = "test") {
 
-    val platform by platformOption()
+    val platform by leafPlatformOption(help = "only run tests for the specified platform. The option can be repeated to test several platforms.")
+        .multiple()
 
     val filter by option("-f", "--filter", help = "wildcard filter to run only matching tests, the option could be repeated to run tests matching any filter")
 
