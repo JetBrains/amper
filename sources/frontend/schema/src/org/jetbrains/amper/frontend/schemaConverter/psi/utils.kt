@@ -15,7 +15,6 @@ import org.jetbrains.yaml.psi.YAMLFile
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolute
-import kotlin.io.path.exists
 
 context(Converter)
 fun String.asAbsolutePath(): Path =
@@ -26,12 +25,6 @@ fun String.asAbsolutePath(): Path =
                 .resolve(it)
                 .absolute()
                 .normalize()
-                .apply {
-                    // TODO Report non-existent paths.
-                    if (!exists()) {
-
-                    }
-                }
         }
 
 val PsiFile.topLevelValue get() = when (this) {

@@ -327,7 +327,7 @@ private fun reportError(problemId: String,
                         vararg args: String?) {
     source ?: return
     problemReporter.reportMessage(
-        BuildProblemImpl("validation.unknown.enum.value",
+        BuildProblemImpl(problemId,
             PsiBuildProblemSource(source.sourceElement),
             SchemaBundle.message(messageKey, *args),
             Level.Error
