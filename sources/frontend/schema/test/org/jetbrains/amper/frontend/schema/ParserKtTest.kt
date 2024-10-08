@@ -148,6 +148,21 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     }
 
     @Test
+    fun `check kotlin serialization settings with 'enabled' short form`() {
+        aomTest("kotlin-serialization-enabled")
+    }
+
+    @Test
+    fun `check kotlin serialization settings with 'none' short form`() {
+        aomTest("kotlin-serialization-none")
+    }
+
+    @Test
+    fun `check kotlin serialization settings with enabled and format`() {
+        aomTest("kotlin-serialization-enabled-and-format")
+    }
+
+    @Test
     fun `check android sdk version`() {
         aomTest("21-android-sdk-version")
     }

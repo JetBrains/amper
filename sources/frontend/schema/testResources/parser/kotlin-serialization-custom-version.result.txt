@@ -65,6 +65,7 @@ Fragments:
         }
         progressiveMode: <default> false
         serialization: {
+          enabled: <default> true
           format: json
           version: 1.5.1
         }
@@ -144,6 +145,7 @@ Fragments:
         }
         progressiveMode: <default> false
         serialization: {
+          enabled: <default> true
           format: json
           version: 1.5.1
         }

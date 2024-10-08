@@ -135,6 +135,7 @@ fun KspSettings.merge(overwrite: KspSettings?) = mergeNode(overwrite, ::KspSetti
 }
 
 fun SerializationSettings.merge(overwrite: SerializationSettings) = mergeNode(overwrite, ::SerializationSettings) {
+    mergeScalar(SerializationSettings::enabled)
     mergeScalar(SerializationSettings::format)
     mergeScalar(SerializationSettings::version)
 }

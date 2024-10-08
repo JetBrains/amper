@@ -1,0 +1,9 @@
+product:
+  type: app
+  platforms:
+    - jvm
+
+settings:
+  kotlin:
+    version: 1.9
+    serialization: none

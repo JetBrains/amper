@@ -71,7 +71,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }
@@ -164,7 +168,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }
@@ -254,7 +262,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }
@@ -346,7 +358,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }
@@ -436,7 +452,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }
@@ -528,7 +548,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }
@@ -620,7 +644,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }
@@ -710,7 +738,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }
@@ -801,7 +833,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }
@@ -892,7 +928,11 @@ Fragments:
           enabled: <default> false
         }
         progressiveMode: false
-        serialization: <default> null
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.7.3
+        }
         suppressWarnings: false
         verbose: true
       }

@@ -106,11 +106,16 @@ context(Converter)
 internal fun PsiElement.convertSerializationSettings() =
     SerializationSettings().apply {
         asMappingNode()?.apply {
+            convertChildBoolean(::enabled)
             convertChildString(::format)
             convertChildString(::version)
         }
         asScalarNode()?.apply {
-            convertSelf(::format) { textValue }
+            if (textValue == "enabled") {
+                convertSelf(::enabled) { true }
+            } else {
+                convertSelf(::format) { textValue }
+            }
         }
     }
 

@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.ancestralPath
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
 import org.jetbrains.amper.frontend.schema.JUnitVersion
-import org.jetbrains.amper.frontend.schema.serializationFormatNone
+import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 
 private val kotlinStdlib = kotlinDependencyOf("kotlin-stdlib")
 private val kotlinStdlibJdk8 = kotlinDependencyOf("kotlin-stdlib-jdk8")
@@ -103,12 +103,13 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
     if (isTest) {
         addAll(inferredTestDependencies())
     }
-    settings.kotlin.serialization?.let { serializationSettings ->
+    if (settings.kotlin.serialization.enabled) {
         // if kotlinx.serialization plugin is enabled, we need the @Serializable annotation, which is in core
-        add(kotlinxSerializationCoreDependency(serializationSettings.version))
+        add(kotlinxSerializationCoreDependency(settings.kotlin.serialization.version))
 
-        if (serializationSettings.format != serializationFormatNone) {
-            add(kotlinxSerializationFormatDependency(serializationSettings.format, serializationSettings.version))
+        val format = settings.kotlin.serialization.format
+        if (format != null && format != legacySerializationFormatNone) {
+            add(kotlinxSerializationFormatDependency(format, settings.kotlin.serialization.version))
         }
     }
     if (settings.kotlin.parcelize.enabled) {

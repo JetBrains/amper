@@ -9,8 +9,7 @@ import org.jetbrains.amper.gradle.base.PluginPartCtx
 
 class SerializationPluginPart(ctx: PluginPartCtx) : BindingPluginPart by ctx {
     override val needToApply: Boolean by lazy {
-        // FIXME use a proper "enabled" property instead
-        module.leafFragments.any { it.settings.kotlin.serialization != null }
+        module.leafFragments.any { it.settings.kotlin.serialization.enabled }
     }
 
     override fun applyBeforeEvaluate() {

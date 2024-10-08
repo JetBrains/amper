@@ -198,9 +198,9 @@ private fun addBuiltInCatalog(
 ): VersionCatalog {
     val commonSettings = nonProcessed.settings[noModifiers]
     val compose = commonSettings?.compose
+    val serialization = commonSettings?.kotlin?.serialization
     val builtInCatalog = BuiltInCatalog(
-        // resolve compose version only if compose is enabled
-        serializationVersion = commonSettings?.kotlin?.serialization?.version,
+        serializationVersion = serialization?.version?.takeIf { serialization.enabled },
         composeVersion = compose?.version?.takeIf { compose.enabled },
     )
     val catalogs = otherCatalog?.let { listOf(it) }.orEmpty() + builtInCatalog

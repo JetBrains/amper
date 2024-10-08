@@ -103,19 +103,30 @@ const val composeSettingsShortForm = """
 @AdditionalSchemaDef(serializationSettingsShortForm)
 class SerializationSettings : SchemaNode() {
 
-    @SchemaDoc("The Kotlin Serialization format to use, or 'none' if no format should be automatically added")
-    var format by value("none")
+    @SchemaDoc("Enables the kotlinx.serialization compiler plugin, which generates code based on " +
+            "@Serializable annotations. This also automatically adds the kotlinx-serialization-core library to " +
+            "provide the annotations and facilities for serialization, but no specific serialization format.")
+    // if a format is specified, we need to enable serialization (mostly to be backwards compatible)
+    var enabled by value(default = { format != null })
 
-    @SchemaDoc("The version of the Kotlinx Serialization core and format libraries to use")
-    var version by value(UsedVersions.kotlinxSerializationVersion)
+    @SchemaDoc("The [kotlinx.serialization format](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md) " +
+            "to use, such as `json`. When set, the corresponding `kotlinx-serialization-<format>` library is " +
+            "automatically added to dependencies. When null, no format dependency is automatically added. " +
+            "Prefer using the built-in catalog dependencies for this, as it gives control over the 'scope' and " +
+            "'exported' properties.")
+    var format by nullableValue<String>(default = null)
+
+    @SchemaDoc("The version of the kotlinx.serialization core and format libraries to use.")
+    var version by value(default = UsedVersions.kotlinxSerializationVersion)
 }
 
-const val serializationFormatNone = "none"
+const val legacySerializationFormatNone = "none"
 const val serializationSettingsShortForm = """
   {
     "enum": [
+      "enabled",
       "json",
-      "$serializationFormatNone"
+      "$legacySerializationFormatNone"
     ]
   }
 """

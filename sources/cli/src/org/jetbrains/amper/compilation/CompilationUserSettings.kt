@@ -55,7 +55,7 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
     languageFeatures = unanimousOptionalKotlinSetting("languageFeatures") { it.languageFeatures?.map { it.value } }.orEmpty(),
     optIns = unanimousKotlinSetting("optIns") { it.optIns.orEmpty().map { it.value } },
     freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs?.map { it.value } }.orEmpty(),
-    serializationEnabled = !unanimousOptionalKotlinSetting("serialization.format") { it.serialization?.format }.isNullOrBlank(),
+    serializationEnabled = unanimousKotlinSetting("serialization.enabled") { it.serialization.enabled },
     parcelizeEnabled = unanimousOptionalKotlinSetting("parcelize.enabled") { it.parcelize.enabled } ?: false,
     parcelizeAdditionalAnnotations = unanimousOptionalKotlinSetting("parcelize.additionalAnnotations") { it.parcelize.additionalAnnotations }
         ?.map { it.value }.orEmpty(),

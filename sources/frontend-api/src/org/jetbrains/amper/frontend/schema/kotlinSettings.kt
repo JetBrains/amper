@@ -74,7 +74,7 @@ class KotlinSettings : SchemaNode() {
     var ksp by value<KspSettings>(::KspSettings)
 
     @SchemaDoc("Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
-    var serialization by nullableValue<SerializationSettings>()
+    var serialization by value<SerializationSettings>(::SerializationSettings)
 
     @SchemaDoc("Configure [Kotlin parcelize](https://developer.android.com/kotlin/parcelize) for @Parcelize support")
     var parcelize by value<ParcelizeSettings>(ParcelizeSettings())

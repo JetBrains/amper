@@ -30,5 +30,11 @@
          enabled: false [default]
 
       progressiveMode: false [default]
+      serialization:
+         enabled: false [default]
+         format:
+
+         version: 1.7.3 [default]
+
       suppressWarnings: false [default]
       verbose: false [default]
