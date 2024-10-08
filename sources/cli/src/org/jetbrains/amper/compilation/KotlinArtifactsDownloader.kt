@@ -166,7 +166,7 @@ private fun legacyComposeCompilerVersionFor(kotlinVersion: String): String? = wh
     "1.9.20" -> "1.5.3"
     "1.9.21" -> "1.5.4"
     "1.9.22" -> "1.5.8.1"
-    "1.9.23" -> "1.5.12.5"
+    "1.9.23" -> "1.5.13.5"
     "1.9.24" -> "1.5.14"
     "2.0.0-Beta1" -> "1.5.4-dev1-kt2.0.0-Beta1"
     "2.0.0-Beta4" -> "1.5.9-kt-2.0.0-Beta4"
