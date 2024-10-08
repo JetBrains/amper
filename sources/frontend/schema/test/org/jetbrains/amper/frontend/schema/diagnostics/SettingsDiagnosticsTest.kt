@@ -18,6 +18,11 @@ class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") 
     }
 
     @Test
+    fun `serialization version when serialization disabled`() {
+        diagnosticsTest("serialization-version-disabled", levels = arrayOf(Level.Warning))
+    }
+
+    @Test
     fun `setting has default value`() {
         diagnosticsTest("setting-has-default-value", levels = arrayOf(Level.Redundancy))
     }
