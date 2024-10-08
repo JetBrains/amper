@@ -1,11 +1,14 @@
 product:
   type: lib
-  platforms: [ jvm, android ]
+  platforms: [ jvm, android, iosSimulatorArm64 ]
+
+aliases:
+  - nonAndroid: [ jvm, iosSimulatorArm64 ]
 
 settings:
   compose:
     enabled: true
-    version: 1.7.0-beta02
+    version: 1.7.0-rc01
     resources:
       enabled: true
       packageName: com.example.gen

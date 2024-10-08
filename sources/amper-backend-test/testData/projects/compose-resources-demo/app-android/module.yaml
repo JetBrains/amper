@@ -3,7 +3,7 @@ product: android/app
 settings:
   compose:
     enabled: true
-    version: 1.7.0-beta02
+    version: 1.7.0-rc01
     resources:
       enabled: true
   android:

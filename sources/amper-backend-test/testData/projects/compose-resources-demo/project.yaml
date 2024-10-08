@@ -2,3 +2,4 @@ modules:
   - shared
   - app-android
   - app-jvm
+  - app-ios

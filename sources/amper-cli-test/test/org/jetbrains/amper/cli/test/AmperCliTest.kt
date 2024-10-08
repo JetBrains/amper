@@ -381,6 +381,16 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
+    @MacOnly
+    fun `compose resources demo build (ios)`() = runTestInfinitely {
+        runCli(
+            backendTestProjectName = "compose-resources-demo",
+            "build", "--platform=iosSimulatorArm64",
+            assertEmptyStdErr = false,  // xcodebuild prints a bunch of warnings (unrelated to resources) for now :(
+        )
+    }
+
+    @Test
     fun `parcelize android lib - build`() = runTestInfinitely {
         runCli(backendTestProjectName = "parcelize-android-lib", "build")
     }
