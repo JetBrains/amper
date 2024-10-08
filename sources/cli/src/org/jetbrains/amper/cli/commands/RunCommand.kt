@@ -19,21 +19,21 @@ import org.jetbrains.amper.util.BuildType
 
 internal class RunCommand : SuspendingCliktCommand(name = "run") {
 
+    val module by option("-m", "--module", help = "Specific module to run (run the 'modules' command to get the modules list)")
+
     val platform by leafPlatformOption(help = "Run the app on specified platform. This option is only necessary if " +
             "the module has multiple main functions for different platforms")
 
     val buildType by option(
         "-b",
         "--build-type",
-        help = "Run under specified build type (${BuildType.buildTypeStrings.sorted().joinToString(", ")})",
+        help = "Run the app with the specified build type (${BuildType.buildTypeStrings.sorted().joinToString(", ")})",
         completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings),
     )
         .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
         .default(BuildType.Debug)
 
     val programArguments by argument(name = "program arguments").multiple()
-
-    val module by option("-m", "--module", help = "Specific module to run (run 'modules' command to get modules list)")
 
     val commonOptions by requireObject<RootCommand.CommonOptions>()
 
@@ -47,7 +47,7 @@ internal class RunCommand : SuspendingCliktCommand(name = "run") {
             commandName,
             commonRunSettings = CommonRunSettings(programArgs = programArguments),
         ) { backend ->
-            backend.runApplication(platform = platform, moduleName = module, buildType = buildType)
+            backend.runApplication(moduleName = module, platform = platform, buildType = buildType)
         }
     }
 }

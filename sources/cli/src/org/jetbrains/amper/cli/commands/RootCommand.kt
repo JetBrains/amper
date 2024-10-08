@@ -62,7 +62,7 @@ internal class RootCommand : SuspendingCliktCommand(name = System.getProperty("a
 
     private val consoleLogLevel by option(
         "--log-level",
-        help = "Set console logging level"
+        help = "Console logging level"
     ).choice(
         mapOf(
             "debug" to Level.DEBUG,
@@ -87,7 +87,7 @@ internal class RootCommand : SuspendingCliktCommand(name = System.getProperty("a
 
     val buildOutputRoot by option(
         "--build-output",
-        help = "Build output root. 'build' directory under project root by default"
+        help = "Root directory for build outputs. By default, this is the 'build' directory under the project root."
     ).path(mustExist = false, canBeFile = false, canBeDir = true)
 
     override suspend fun run() {
