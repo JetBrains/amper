@@ -281,7 +281,7 @@ private fun readInteger(text: String, scalarValue: Scalar?): Int? {
     if (value == null) {
         reportError("validation.expected.integer", scalarValue)
     }
-    return text.toInt()
+    return value
 }
 
 context(Converter)
