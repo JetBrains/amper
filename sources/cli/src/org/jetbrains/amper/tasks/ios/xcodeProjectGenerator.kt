@@ -278,8 +278,14 @@ private fun createPlist(
 ): Plist {
     val plist = Plist()
     when (platform) {
-        Platform.IOS, Platform.IOS_X64, Platform.IOS_ARM64, Platform.IOS_SIMULATOR_ARM64 ->
+        Platform.IOS, Platform.IOS_X64, Platform.IOS_ARM64, Platform.IOS_SIMULATOR_ARM64 -> {
             plist["UILaunchScreen"] = mapOf<String, Any>().toPlist()
+
+            // Needed for https://github.com/JetBrains/compose-multiplatform/issues/3634
+            // TODO: Maybe don't force it here
+            //  when we migrate to the external user-maintained xcode project way.
+            plist["CADisableMinimumFrameDurationOnPhone"] = true
+        }
 
         else -> Unit
     }
