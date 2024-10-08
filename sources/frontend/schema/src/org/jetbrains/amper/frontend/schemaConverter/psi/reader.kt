@@ -159,11 +159,14 @@ internal fun readTypedValue(
 
             val props = constructedType.schemaDeclaredMemberProperties()
                 .filterIsInstance<KMutableProperty1<Any, Any?>>()
-            val param = props.singleOrNull {
+            val param =
+                // "enabled" shortcut
+                props.singleOrNull { it.name == "enabled" }
+                    ?.takeIf { textValue == "enabled" } ?:
+                // properly marked as a constructor parameter
+                props.singleOrNull {
                     it.hasAnnotation<ConstructorParameter>()
-                } ?: props.singleOrNull()
-                  // "enabled" shortcut
-                  ?: props.singleOrNull { it.name == "enabled" }?.takeIf { textValue == "enabled" }
+                } ?: props.singleOrNull() // otherwise, if there is just one properly, set it
 
             if (param != null) {
                 return type.instantiateType().also {
