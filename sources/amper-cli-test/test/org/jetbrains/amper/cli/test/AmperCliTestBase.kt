@@ -5,8 +5,8 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult

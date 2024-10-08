@@ -5,7 +5,6 @@
 package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.downloadNativeCompiler
@@ -17,6 +16,7 @@ import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.EmptyTaskResult

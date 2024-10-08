@@ -5,8 +5,6 @@
 package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.cli.Jdk
-import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.downloadAndExtractKotlinNative
@@ -15,6 +13,8 @@ import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.jvm.Jdk
+import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.processes.setProcessResultAttributes

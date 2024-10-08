@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli
+package org.jetbrains.amper.jvm
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

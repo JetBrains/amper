@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.ksp
 
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.compilation.kotlinModuleName
 import org.jetbrains.amper.compilation.mergedCompilationSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -22,6 +21,7 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedClassesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedJavaSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
+import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.ksp.Ksp
 import org.jetbrains.amper.ksp.KspCommonConfig
 import org.jetbrains.amper.ksp.KspCompilationType

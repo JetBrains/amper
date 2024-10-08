@@ -5,10 +5,10 @@
 package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput

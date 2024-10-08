@@ -11,14 +11,14 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.cli.Jdk
-import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.suspendingRetryWithExponentialBackOff
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.extract.extractZip
+import org.jetbrains.amper.jvm.Jdk
+import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.io.ByteArrayInputStream
 import java.nio.file.Path

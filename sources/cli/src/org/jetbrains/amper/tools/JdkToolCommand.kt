@@ -10,11 +10,11 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.intellij.util.io.awaitExit
-import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.RootCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.intellij.CommandLineUtils
+import org.jetbrains.amper.jvm.JdkDownloader
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 

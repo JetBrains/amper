@@ -5,8 +5,8 @@
 package org.jetbrains.amper.ksp
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.slf4j.LoggerFactory
