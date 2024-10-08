@@ -43,11 +43,7 @@ internal fun instantiateDependency(
     val textValue = scalarValue?.textValue
     if ((scalarValue?.sourceElement?.language is YAMLLanguage
                 || textValue == path.segmentName) && textValue != null) {
-        val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
         return instantiateDependency(textValue, scalarValue.sourceElement).also { dep ->
-            sourceElement?.let { e ->
-                applyDependencyTrace(dep, e)
-            }
             readFromTable(dep, table, path, contexts)
         }
     } else {
@@ -61,9 +57,6 @@ internal fun instantiateDependency(
             val segmentName = key.key.segmentName
             if (specialValue != null && segmentName != null) {
                 instantiateDependency(segmentName, sourceElement).also { dep ->
-                    sourceElement?.let {
-                        applyDependencyTrace(dep, it)
-                    }
                     when (specialValue) {
                         "exported" -> {
                             dep.exported = true
@@ -101,9 +94,6 @@ internal fun instantiateDependency(
                     val single = next.single()!!
                     val sourceElement = table[KeyWithContext(single, contexts)]?.sourceElement
                     return instantiateDependency(single.segmentName!!, sourceElement).also { dep ->
-                        sourceElement?.let {
-                            applyDependencyTrace(dep, it)
-                        }
                         readFromTable(dep, table, single, contexts)
                     }
                 }
@@ -111,9 +101,6 @@ internal fun instantiateDependency(
             else {
                 val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
                 return instantiateDependency(path.segmentName!!, sourceElement).also { dep ->
-                    sourceElement?.let {
-                        applyDependencyTrace(dep, it)
-                    }
                     readFromTable(dep, table, path, contexts)
                 }
             }
@@ -125,21 +112,17 @@ internal fun instantiateDependency(
 context(Converter)
 internal fun instantiateDependency(text: String, sourceElement: PsiElement?): Dependency {
     return when {
-        text.startsWith(".") -> InternalDependency().also { it.path = text.asAbsolutePath() }
-        text.startsWith("$") -> CatalogDependency().also { it.catalogKey = CatalogKey(text.substring(1)).applyPsiTrace(sourceElement) }
-        else -> ExternalMavenDependency().also { it.coordinates = text }
-    }
-}
-
-internal fun applyDependencyTrace(dep: Dependency, e: PsiElement) {
-    dep.doApplyPsiTrace(e)
-    (dep as? ExternalMavenDependency)?.let {
-        it::coordinates.valueBase?.doApplyPsiTrace(e)
-    }
-    (dep as? CatalogDependency)?.let {
-        it::catalogKey.valueBase?.doApplyPsiTrace(e)
-    }
-    (dep as? InternalDependency)?.let {
-        it::path.valueBase?.doApplyPsiTrace(e)
-    }
+        text.startsWith(".") -> InternalDependency().also {
+            it.path = text.asAbsolutePath()
+            it::path.valueBase?.doApplyPsiTrace(sourceElement)
+        }
+        text.startsWith("$") -> CatalogDependency().also {
+            it.catalogKey = CatalogKey(text.substring(1)).applyPsiTrace(sourceElement)
+            it::catalogKey.valueBase?.doApplyPsiTrace(sourceElement)
+        }
+        else -> ExternalMavenDependency().also {
+            it.coordinates = text
+            it::coordinates.valueBase?.doApplyPsiTrace(sourceElement)
+        }
+    }.also { it.doApplyPsiTrace(sourceElement) }
 }
