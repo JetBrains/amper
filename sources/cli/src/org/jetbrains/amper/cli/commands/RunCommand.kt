@@ -10,10 +10,9 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
+import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.validate
-import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.util.BuildType
@@ -28,12 +27,9 @@ internal class RunCommand : SuspendingCliktCommand(name = "run") {
         "--build-type",
         help = "Run under specified build type (${BuildType.buildTypeStrings.sorted().joinToString(", ")})",
         completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings),
-    ).default(BuildType.Debug.value).validate { value -> checkBuildType(value) }
-
-    private fun checkBuildType(value: String) {
-        BuildType.byValue(value)
-            ?: userReadableError("Unsupported build type '$value'.\n\nPossible values: ${BuildType.buildTypeStrings}")
-    }
+    )
+        .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
+        .default(BuildType.Debug)
 
     val programArguments by argument(name = "program arguments").multiple()
 
@@ -51,7 +47,6 @@ internal class RunCommand : SuspendingCliktCommand(name = "run") {
             commandName,
             commonRunSettings = CommonRunSettings(programArgs = programArguments),
         ) { backend ->
-            val buildType = buildType.let { BuildType.byValue(it) }
             backend.runApplication(platform = platform, moduleName = module, buildType = buildType)
         }
     }
