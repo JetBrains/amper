@@ -40,9 +40,9 @@ Fragments:
         teamId: <default> null
       }
       junit: <default> JUNIT4
-      jvm: <default> {
+      jvm: {
         mainClass: <default> null
-        release: <default> VERSION_17
+        release: VERSION_21
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -56,7 +56,9 @@ Fragments:
           ]
           version: <default> 2.0.20-1.0.25
         }
-        languageFeatures: <default> null
+        languageFeatures: [
+          - contextReceivers
+        ]
         languageVersion: 1.9
         linkerOpts: <default> null
         optIns: <default> null
@@ -142,7 +144,9 @@ Fragments:
           ]
           version: <default> 2.0.20-1.0.25
         }
-        languageFeatures: <default> null
+        languageFeatures: [
+          - contextReceivers
+        ]
         languageVersion: 1.9
         linkerOpts: <default> null
         optIns: <default> null

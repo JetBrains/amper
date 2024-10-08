@@ -70,7 +70,11 @@ Fragments:
         suppressWarnings: <default> false
         verbose: <default> false
       }
-      kover: <default> null
+      kover: {
+        enabled: true
+        html: <default> null
+        xml: <default> null
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -148,7 +152,11 @@ Fragments:
         suppressWarnings: <default> false
         verbose: <default> false
       }
-      kover: <default> null
+      kover: {
+        enabled: true
+        html: <default> null
+        xml: <default> null
+      }
       native: <default> null
       publishing: <default> null
     }
