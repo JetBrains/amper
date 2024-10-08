@@ -47,7 +47,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
         val shouldSeparateExpectActual = rootFragment.platforms.size > 1
 
         // Configure "global" tasks that generate common code (into rootFragment).
-        CommonGlobalTaskType.ComposeResourcesGenerateResClass.getTaskName(module).let { taskName ->
+        ComposeGlobalTaskType.ComposeResourcesGenerateResClass.getTaskName(module).let { taskName ->
             tasks.registerTask(
                 task = GenerateResClassTask(
                     taskName = taskName,
@@ -62,7 +62,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             addCodegenTaskForRegistering(rootFragment, taskName)
         }
         if (shouldSeparateExpectActual) {
-            CommonGlobalTaskType.ComposeResourcesGenerateExpect.getTaskName(module).let { taskName ->
+            ComposeGlobalTaskType.ComposeResourcesGenerateExpect.getTaskName(module).let { taskName ->
                 tasks.registerTask(
                     task = GenerateExpectResourceCollectorsTask(
                         taskName = taskName,
@@ -175,7 +175,7 @@ internal enum class ComposeFragmentTaskType(override val prefix: String) : Fragm
     ComposeResourcesGenerateActual("generateActualComposeResourceCollectorsFor"),
 }
 
-internal enum class CommonGlobalTaskType(
+internal enum class ComposeGlobalTaskType(
     private val keywordName: String,
 ) {
     // compose resources
