@@ -16,7 +16,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
 import org.jetbrains.amper.tasks.compose.isComposeResourcesEnabledFor
-import org.jetbrains.amper.tasks.forModuleDependency
+import org.jetbrains.amper.tasks.getModuleDependencies
 
 fun ProjectTasksBuilder.setupJvmTasks() {
     allModules()
@@ -44,9 +44,10 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         add(CommonTaskType.Compile.getTaskName(module, platform, isTest = false))
                     }
 
-                    module.forModuleDependency(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot) {
-                        add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
-                    }
+                    module.getModuleDependencies(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot)
+                        .forEach {
+                            add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
+                        }
                 }
             )
 
@@ -65,9 +66,10 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     add(CommonTaskType.Jar.getTaskName(module, platform, isTest = false))
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
 
-                    module.forModuleDependency(isTest, platform, ResolutionScope.RUNTIME, context.userCacheRoot) {
-                        add(CommonTaskType.Jar.getTaskName(it, platform, isTest = false))
-                    }
+                    module.getModuleDependencies(isTest, platform, ResolutionScope.RUNTIME, context.userCacheRoot)
+                        .forEach {
+                            add(CommonTaskType.Jar.getTaskName(it, platform, isTest = false))
+                        }
                 }
             )
 

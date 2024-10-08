@@ -82,7 +82,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
     allModules()
         .alsoPlatforms(Platform.NATIVE)
         .alsoTests()
-        .selectModuleDependencies(ResolutionScope.RUNTIME) {
+        .selectModuleDependencies(ResolutionScope.RUNTIME).withEach {
             tasks.registerDependency(
                 NativeTaskType.CompileKLib.getTaskName(module, platform, isTest),
                 NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)

@@ -14,23 +14,19 @@ import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.resolver.getCliDefaultFileCacheBuilder
 
-
 /**
- * Execute the block for each dependency of the selected module in resolution scope
- * of given [platform], [isTest] and [dependencyReason].
+ * Returns a dependencies sequence of the given module in the resolution scope
+ * of the given [platform], [isTest] and [dependencyReason].
  */
-internal fun PotatoModule.forModuleDependency(
+internal fun PotatoModule.getModuleDependencies(
     isTest: Boolean,
     platform: Platform,
     dependencyReason: ResolutionScope,
     userCacheRoot: AmperUserCacheRoot,
-    block: (dependency: PotatoModule) -> Unit
-) {
+) : Sequence<PotatoModule> {
     val fragmentsModuleDependencies =
         buildDependenciesGraph(isTest, platform, dependencyReason, userCacheRoot)
-    for (moduleDependency in fragmentsModuleDependencies.getModuleDependencies()) {
-        block(moduleDependency)
-    }
+    return fragmentsModuleDependencies.getModuleDependencies()
 }
 
 internal fun PotatoModule.buildDependenciesGraph(
@@ -50,10 +46,9 @@ internal fun PotatoModule.buildDependenciesGraph(
     }
 }
 
-private fun ModuleDependencyNodeWithModule.getModuleDependencies(): List<PotatoModule> {
+private fun ModuleDependencyNodeWithModule.getModuleDependencies(): Sequence<PotatoModule> {
     return distinctBfsSequence { it is ModuleDependencyNodeWithModule }
         .drop(1)
         .filterIsInstance<ModuleDependencyNodeWithModule>()
         .map { it.module }
-        .toList()
 }

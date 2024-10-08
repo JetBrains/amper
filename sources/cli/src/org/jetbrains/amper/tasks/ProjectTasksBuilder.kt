@@ -118,23 +118,20 @@ class ProjectTasksBuilder(
 
     fun Sequence<ModuleSequenceCtx>.selectModuleDependencies(
         dependencyReason: ResolutionScope,
-        block: ModuleDependencySequenceCtx.() -> Unit,
-    ) = forEach { ctx ->
-        ctx.module.forModuleDependency(
+    ): Sequence<ModuleDependencySequenceCtx> = flatMap { ctx ->
+        ctx.module.getModuleDependencies(
             ctx.isTest,
             ctx.platform,
             dependencyReason,
             context.userCacheRoot
-        ) {
-            block(
-                ModuleDependencySequenceCtx(
-                    module = ctx.module,
-                    dependencyReason = dependencyReason,
-                    dependsOn = it,
-                    platform = ctx.platform,
-                    isTest = ctx.isTest,
-                    buildType = ctx.buildType,
-                )
+        ).map {
+            ModuleDependencySequenceCtx(
+                module = ctx.module,
+                dependencyReason = dependencyReason,
+                dependsOn = it,
+                platform = ctx.platform,
+                isTest = ctx.isTest,
+                buildType = ctx.buildType,
             )
         }
     }

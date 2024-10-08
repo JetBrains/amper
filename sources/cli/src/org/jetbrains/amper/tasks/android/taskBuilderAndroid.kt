@@ -238,7 +238,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
         .alsoPlatforms(Platform.ANDROID)
         .alsoTests()
         .alsoBuildTypes()
-        .selectModuleDependencies(ResolutionScope.COMPILE) {
+        .selectModuleDependencies(ResolutionScope.COMPILE).withEach {
             for (buildType in BuildType.entries) {
                 tasks.registerDependency(
                     CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType),
@@ -251,7 +251,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
         .alsoPlatforms(Platform.ANDROID)
         .alsoTests()
         .alsoBuildTypes()
-        .selectModuleDependencies(ResolutionScope.RUNTIME) {
+        .selectModuleDependencies(ResolutionScope.RUNTIME).withEach {
             for (buildType in BuildType.entries) {
                 val archiveTask = if (!isTest) {
                     // Non-test always depends on AAR for android module dependency
