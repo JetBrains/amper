@@ -57,27 +57,13 @@ internal fun instantiateDependency(
             val segmentName = key.key.segmentName
             if (specialValue != null && segmentName != null) {
                 instantiateDependency(segmentName, sourceElement).also { dep ->
-                    when (specialValue) {
-                        "exported" -> {
-                            dep.exported = true
-                            dep::exported.valueBase?.doApplyPsiTrace(sourceElement)
-                            return dep
-                        }
-
-                        "compile-only" -> {
-                            dep.scope = DependencyScope.COMPILE_ONLY
-                            dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
-                            return dep
-                        }
-
-                        "runtime-only" -> {
-                            dep.scope = DependencyScope.RUNTIME_ONLY
-                            dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
-                            return dep
-                        }
-
-                        "all" -> {
-                            dep.scope = DependencyScope.ALL
+                    if (specialValue == "exported") {
+                        dep.exported = true
+                        dep::exported.valueBase?.doApplyPsiTrace(sourceElement)
+                        return dep
+                    } else {
+                        DependencyScope[specialValue]?.let {
+                            dep.scope = it
                             dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
                             return dep
                         }
