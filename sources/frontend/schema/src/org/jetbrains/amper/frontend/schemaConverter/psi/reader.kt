@@ -9,9 +9,6 @@ import com.intellij.amper.lang.AmperContextName
 import com.intellij.amper.lang.AmperContextualElement
 import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.BuildProblemImpl
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.ConstructorParameter
 import org.jetbrains.amper.frontend.api.ImplicitConstructor
@@ -34,7 +31,6 @@ import org.jetbrains.amper.frontend.builders.isString
 import org.jetbrains.amper.frontend.builders.mapValueType
 import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
-import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
 import java.nio.file.Path
@@ -318,36 +314,6 @@ private fun readEnum(
         )
     }
     return matchingEnumValue
-}
-
-context(Converter)
-private fun reportError(problemId: String,
-                        source: AmperElementWrapper?,
-                        messageKey: String = problemId,
-                        vararg args: String?) {
-    source ?: return
-    problemReporter.reportMessage(
-        BuildProblemImpl(problemId,
-            PsiBuildProblemSource(source.sourceElement),
-            SchemaBundle.message(messageKey, *args),
-            Level.Error
-        )
-    )
-}
-
-context(Converter)
-private fun reportWarning(problemId: String,
-                        source: AmperElementWrapper?,
-                        messageKey: String = problemId,
-                        vararg args: String?) {
-    source ?: return
-    problemReporter.reportMessage(
-        BuildProblemImpl(problemId,
-            PsiBuildProblemSource(source.sourceElement),
-            SchemaBundle.message(messageKey, *args),
-            Level.Warning
-        )
-    )
 }
 
 context(Converter)
