@@ -21,12 +21,15 @@ import com.jetbrains.cidr.xcode.plist.Plist
 import com.jetbrains.cidr.xcode.plist.XMLPlistDriver
 import com.jetbrains.cidr.xcode.util.XcodeUserDataHolder
 import fleet.com.intellij.openapi.util.UserDataHolderEx
+import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.tasks.compose.isComposeResourcesEnabledFor
 import org.jetbrains.amper.util.BuildType
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.pathString
 
 
 class XcodeProject : XcodeProjectId, UserDataHolderEx by XcodeUserDataHolder()
@@ -34,6 +37,7 @@ class XcodeProject : XcodeProjectId, UserDataHolderEx by XcodeUserDataHolder()
 fun FileConventions.doGenerateBuildableXcodeproj(
     module: PotatoModule,
     fragment: LeafFragment,
+    buildOutputRoot: AmperBuildOutputRoot,
     targetName: String,
     productName: String,
     productBundleIdentifier: String,
@@ -118,7 +122,6 @@ fun FileConventions.doGenerateBuildableXcodeproj(
         }
         addConfiguration(buildType.variantName, variantSettings, pbxTarget)
 
-        // Add framework stages.
         addFrameworksStages(
             this,
             frameworkDependencies,
@@ -128,11 +131,51 @@ fun FileConventions.doGenerateBuildableXcodeproj(
             targetMemberships,
             pbxProjectFile
         )
+
+        addResourcesStages(
+            module = module,
+            leafFragment = fragment,
+            outputRoot = buildOutputRoot,
+            manipulator = this,
+            pbxTarget = pbxTarget,
+        )
     }
 
     pbxProjectFile.save()
 
     return pbxProjectFile.xcodeProjFile
+}
+
+private fun addResourcesStages(
+    module: PotatoModule,
+    leafFragment: LeafFragment,
+    outputRoot: AmperBuildOutputRoot,
+    manipulator: PBXProjectFileManipulator,
+    pbxTarget: PBXTarget,
+) {
+    if (isComposeResourcesEnabledFor(module)) {
+        val resourcesConventionDir = IosComposeResourcesTask.resourcesConventionDirectory(outputRoot, leafFragment)
+        // `compose-resources/` is a content path where the "resources" library expects to find the files.
+        val destination = "\$BUILT_PRODUCTS_DIR/\$CONTENTS_FOLDER_PATH/compose-resources"
+        val copyResourcesScript = buildString {
+            appendLine("#!/bin/sh/")
+            // TODO: check arch, conf, platform?
+            // TODO: Maybe replace with directory symlink
+            //  or a tree of links depending on whether xcode follows symlinks while traversing the directory
+            appendLine("mkdir -p \"$destination\"")
+            appendLine("cp -r \"${resourcesConventionDir.pathString}\"/* \"$destination\"")
+        }
+        manipulator.addBuildPhase(
+            PBXBuildPhase.Type.SHELL_SCRIPT,
+            mapOf(
+                "name" to "Stage Resources",
+                "shellPath" to "/bin/sh",
+                "shellScript" to copyResourcesScript,
+                "alwaysOutOfDate" to "1",
+            ),
+            pbxTarget,
+        ).setAttribute("outputPaths", listOf(destination))
+    }
 }
 
 /**
@@ -145,8 +188,8 @@ private fun FileConventions.addFrameworksStages(
     fragment: LeafFragment,
     pbxTarget: PBXTarget,
     targetMemberships: Array<PBXTarget>,
-    pbxProjectFile: PBXProjectFile
-): PBXBuildPhase? {
+    pbxProjectFile: PBXProjectFile,
+) {
     val frameworksGroup = manipulator.addGroup(PBXReference.SOURCE_TREE_GROUP, "frameworks", null)
     val embeddedFrameworks = mutableSetOf<String>()
     val buildPhaseOutputPaths = mutableSetOf<String>()
@@ -199,7 +242,7 @@ private fun FileConventions.addFrameworksStages(
     }
 
     //TODO: seems to work, but feels hacky! Is there a better way to convince Xcode that we'll provide the correct framework?
-    return manipulator.addBuildPhase(
+    manipulator.addBuildPhase(
         PBXBuildPhase.Type.SHELL_SCRIPT, mapOf(
             "name" to "Cleanup Staged Frameworks",
             "shellPath" to "/bin/sh",

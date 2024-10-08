@@ -4,12 +4,18 @@
 
 package org.jetbrains.amper.tasks.ios
 
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
+import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
+import org.jetbrains.amper.tasks.compose.isComposeResourcesEnabledFor
+import org.jetbrains.amper.tasks.fragmentsTargeting
+import org.jetbrains.amper.tasks.getModuleDependencies
 import org.jetbrains.amper.tasks.native.NativeTaskType
 import org.jetbrains.amper.util.BuildType
 
@@ -25,6 +31,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
             val ctx = this@setupIosTasks.context
 
             fun configureTestTasks() {
+                // TODO: compose resources for iOS tests?
                 tasks.registerTask(
                     task = IosKotlinTestTask(
                         taskName = CommonTaskType.Test.getTaskName(module, platform),
@@ -38,6 +45,21 @@ fun ProjectTasksBuilder.setupIosTasks() {
             }
 
             fun configureMainTasks() {
+                val composeResourcesTaskName = IosTaskType.PrepareComposeResources.getTaskName(module, platform)
+                        .takeIf { isComposeResourcesEnabledFor(module) }
+                        ?.also { taskName ->
+                            tasks.registerTask(
+                                task = IosComposeResourcesTask(
+                                    taskName = taskName,
+                                    leafFragment = module.leafFragments.single {
+                                        it.platform == platform && !it.isTest
+                                    },
+                                    buildOutputRoot = ctx.buildOutputRoot,
+                                    executeOnChangedInputs = executeOnChangedInputs,
+                                ),
+                            )
+                        }
+
                 val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)
                 tasks.registerTask(
                     task = BuildAppleTask(
@@ -45,12 +67,14 @@ fun ProjectTasksBuilder.setupIosTasks() {
                         module = module,
                         buildType = BuildType.Debug,
                         executeOnChangedInputs = executeOnChangedInputs,
+                        buildOutputRoot = ctx.buildOutputRoot,
                         taskOutputPath = ctx.getTaskOutputPath(buildTaskName),
                         taskName = buildTaskName,
                         isTest = false,
                     ),
-                    dependsOn = listOf(
-                        IosTaskType.Framework.getTaskName(module, platform, false, BuildType.Debug)
+                    dependsOn = listOfNotNull(
+                        IosTaskType.Framework.getTaskName(module, platform, false, BuildType.Debug),
+                        composeResourcesTaskName,
                     )
                 )
 
@@ -64,10 +88,55 @@ fun ProjectTasksBuilder.setupIosTasks() {
             if (isTest) configureTestTasks()
             else configureMainTasks()
         }
+
+    allModules()
+        .alsoPlatforms(Platform.IOS)
+        .alsoTests()
+        .filterModuleType { it == ProductType.IOS_APP }
+        .filter { isComposeResourcesEnabledFor(it.module) }
+        .withEach {
+            // include local resources (self)
+            includeComposeResources(
+                from = module,
+                into = module,
+                forPlatform = platform,
+            )
+
+            // include resources from dependencies
+            module.getModuleDependencies(
+                isTest = isTest,
+                platform = platform,
+                dependencyReason = ResolutionScope.RUNTIME,
+                userCacheRoot = context.userCacheRoot,
+            ).filter(::isComposeResourcesEnabledFor).forEach { dependencyModule ->
+                includeComposeResources(
+                    from = dependencyModule,
+                    into = module,
+                    forPlatform = platform,
+                )
+            }
+        }
+}
+
+private fun ProjectTasksBuilder.includeComposeResources(
+    from: PotatoModule,
+    into: PotatoModule,
+    forPlatform: Platform,
+) {
+    from.fragmentsTargeting(
+        platform = forPlatform,
+        includeTestFragments = false,
+    ).forEach { fragment ->
+        tasks.registerDependency(
+            taskName = IosTaskType.PrepareComposeResources.getTaskName(into, forPlatform),
+            dependsOn = ComposeFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment),
+        )
+    }
 }
 
 internal enum class IosTaskType(override val prefix: String) : PlatformTaskType {
     Framework("framework"),
     BuildIosApp("buildIosApp"),
     RunIosApp("runIosApp"),
+    PrepareComposeResources("prepareComposeResourcesForIos"),
 }

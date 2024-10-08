@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.ios
 
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
@@ -33,6 +34,7 @@ class BuildAppleTask(
     override val module: PotatoModule,
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val buildOutputRoot: AmperBuildOutputRoot,
     private val taskOutputPath: TaskOutputRoot,
     override val taskName: TaskName,
     override val isTest: Boolean,
@@ -77,14 +79,15 @@ class BuildAppleTask(
             ) {
                 logger.info("Generating xcode project")
                 doGenerateBuildableXcodeproj(
-                    module,
-                    leafAppleFragment,
-                    targetName,
-                    productName,
-                    productBundleIdentifier,
-                    buildType,
-                    appleSources,
-                    nativeCompileTasksResults.map { it.toFile() },
+                    module = module,
+                    fragment = leafAppleFragment,
+                    buildOutputRoot = buildOutputRoot,
+                    targetName = targetName,
+                    productName = productName,
+                    productBundleIdentifier = productBundleIdentifier,
+                    buildType = buildType,
+                    appleSources = appleSources,
+                    frameworkDependencies = nativeCompileTasksResults.map { it.toFile() },
                 )
 
                 val xcodebuildArgs = buildList {
