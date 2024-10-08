@@ -28,7 +28,7 @@ class AndroidDiagnosticsTest : TestBase(Path("testResources") / "diagnostics" / 
     }
 
     @Test
-    fun `test keystore properties does not exist`() {
-        diagnosticsTest("keystore-properties-does-not-exist", levels = arrayOf(Level.Warning))
+    fun `test setting cannot be applied to android library`() {
+        diagnosticsTest("signing-in-libraries", levels = arrayOf(Level.Warning))
     }
 }

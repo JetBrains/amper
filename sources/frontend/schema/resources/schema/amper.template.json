@@ -364,6 +364,7 @@
         "applicationId": {
           "x-intellij-html-description": "The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)",
           "title": "The ID for the application on a device and in the Google Play Store",
+          "x-intellij-metadata": {"productTypes": ["android/app"]},
           "type": "string"
         },
         "compileSdk": {
@@ -392,6 +393,7 @@
         "signing": {
           "x-intellij-html-description": "Application signing settings. [Read more](https://developer.android.com/studio/publish/app-signing)",
           "title": "Application signing settings",
+          "x-intellij-metadata": {"productTypes": ["android/app"]},
           "$ref": "#/$defs/AndroidSigningSettings"
         },
         "targetSdk": {
@@ -403,11 +405,13 @@
         "versionCode": {
           "x-intellij-html-description": "Version code. [Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)",
           "title": "Version code",
+          "x-intellij-metadata": {"productTypes": ["android/app"]},
           "type": "integer"
         },
         "versionName": {
           "x-intellij-html-description": "Version name. [Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)",
           "title": "Version name",
+          "x-intellij-metadata": {"productTypes": ["android/app"]},
           "type": "string"
         }
       },

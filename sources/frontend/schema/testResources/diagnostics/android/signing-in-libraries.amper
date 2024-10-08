@@ -1,0 +1,14 @@
+product {
+  type = "lib"
+  platforms {
+    "android"
+    "jvm"
+  }
+}
+
+
+settings {
+  android {
+    <![Warning] This setting cannot be applied to a product type lib. Supported product types are: android/app!>signing<!> = "enabled"
+  }
+}

@@ -6,4 +6,4 @@ settings:
   ios:
     teamId: aaa
   <![Warning] This setting cannot be applied to platforms iosX64, jvm. Supported platforms are: android!>android<!>:
-    applicationId: aaa
+    <![Warning] This setting cannot be applied to a product type lib. Supported product types are: android/app!>applicationId<!>: aaa

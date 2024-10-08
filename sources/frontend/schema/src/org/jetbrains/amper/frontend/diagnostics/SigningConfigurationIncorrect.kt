@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.KeystoreProperty
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.storeFile
 import java.nio.file.Path
 import java.util.*
@@ -29,12 +30,14 @@ import kotlin.reflect.KProperty0
 abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory {
     context(ProblemReporterContext)
     override fun PotatoModule.analyze() {
-        this.source.moduleDir?.let { moduleDir ->
-            fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->
-                val android = fragment.settings.android
-                val signing = android.signing
-                if (signing.enabled) {
-                    analyze(moduleDir, android)
+        if (type == ProductType.ANDROID_APP) {
+            source.moduleDir?.let { moduleDir ->
+                fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->
+                    val android = fragment.settings.android
+                    val signing = android.signing
+                    if (signing.enabled) {
+                        analyze(moduleDir, android)
+                    }
                 }
             }
         }

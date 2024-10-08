@@ -7,12 +7,12 @@ product:
 
 settings:
   android:
-    applicationId: aaa
+    <![Warning] This setting cannot be applied to a product type lib. Supported product types are: android/app!>applicationId<!>: aaa
 
 settings@android:
   android:
-    applicationId: aaa
+    <![Warning] This setting cannot be applied to a product type lib. Supported product types are: android/app!>applicationId<!>: aaa
 
 settings@jvm:
   <![Warning] This setting cannot be applied to platforms jvm. Supported platforms are: android!>android<!>:
-    applicationId: aaa
+    <![Warning] This setting cannot be applied to a product type lib. Supported product types are: android/app!>applicationId<!>: aaa

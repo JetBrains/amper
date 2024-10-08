@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
+import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
@@ -84,18 +85,22 @@ class AndroidSettings : SchemaNode() {
 
     @SchemaDoc("The ID for the application on a device and in the Google Play Store. " +
             "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
+    @ProductTypeSpecific(ProductType.ANDROID_APP)
     var applicationId by value { namespace }
 
     @SchemaDoc("Application signing settings. " +
     "[Read more](https://developer.android.com/studio/publish/app-signing)")
+    @ProductTypeSpecific(ProductType.ANDROID_APP)
     var signing by value(::AndroidSigningSettings)
 
     @SchemaDoc("Version code. " +
             "[Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)")
+    @ProductTypeSpecific(ProductType.ANDROID_APP)
     var versionCode by value(1)
 
     @SchemaDoc("Version name. " +
             "[Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)")
+    @ProductTypeSpecific(ProductType.ANDROID_APP)
     var versionName by value("unspecified")
 }
 
