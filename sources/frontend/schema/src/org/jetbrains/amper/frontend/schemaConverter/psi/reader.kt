@@ -336,14 +336,30 @@ private fun reportError(problemId: String,
 }
 
 context(Converter)
+private fun reportWarning(problemId: String,
+                        source: AmperElementWrapper?,
+                        messageKey: String = problemId,
+                        vararg args: String?) {
+    source ?: return
+    problemReporter.reportMessage(
+        BuildProblemImpl(problemId,
+            PsiBuildProblemSource(source.sourceElement),
+            SchemaBundle.message(messageKey, *args),
+            Level.Warning
+        )
+    )
+}
+
+context(Converter)
 internal fun <T : Any> readFromTable(
     obj: T,
     table: ValueTable,
     path: Pointer = Pointer(),
     contexts: Set<TraceableString> = emptySet()
 ) {
-    obj::class.schemaDeclaredMemberProperties()
+    val knownProperties = obj::class.schemaDeclaredMemberProperties()
         .filterIsInstance<KMutableProperty1<Any, Any?>>()
+    knownProperties
         .forEach { prop ->
             readTypedValue(prop.returnType, table, path + prop.name, contexts, prop.valueBase(obj))?.let {
                 setPropertyValueSafe(prop, obj, it)
@@ -351,6 +367,30 @@ internal fun <T : Any> readFromTable(
                     prop.valueBase(obj)?.doApplyPsiTrace(it.sourceElement)
                 }
             }
+    }
+    reportUnknownProperties(table, path, knownProperties)
+}
+
+context(Converter)
+private fun reportUnknownProperties(
+    table: ValueTable,
+    path: Pointer,
+    knownProperties: Sequence<KMutableProperty1<Any, Any?>>
+) {
+    val unknownProperties =
+        table.keys.filter { k -> k.key.startsWith(path) && !knownProperties.any { k.key.startsWith(path + it.name) } }
+            .mapNotNull { it.key.nextAfter(path)?.let { v -> KeyWithContext(v, it.contexts) } }.distinct()
+    unknownProperties.forEach { prop ->
+        table[prop]?.let {
+            reportWarning("validation.unexpected.property",
+                    UnknownElementWrapper(
+                        MappingEntry.from(it.sourceElement)?.key
+                            ?: MappingEntry.byValue(it.sourceElement)?.key
+                            ?: it.sourceElement
+                    ),
+                    "validation.unexpected.property",
+                    prop.key.segmentName)
+        }
     }
 }
 

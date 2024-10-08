@@ -11,5 +11,5 @@ product:
 
 settings:
   kotlin:
-    version: 1.9
+    languageVersion: 1.9
     serialization: json

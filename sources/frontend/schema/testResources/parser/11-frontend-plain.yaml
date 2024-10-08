@@ -8,14 +8,12 @@ settings:
     version: 42-SNAPSHOT
 
   kotlin:
-    sdk:
-      version: 1.8.21
     languageVersion: 1.9
-    features:
+    languageFeatures:
       - contextReceivers
 
-  java:
-    packagePrefix: org.jetbrains.amper.frontend
+  jvm:
+    release: 21
 
 dependencies:
   - ../frontend-api

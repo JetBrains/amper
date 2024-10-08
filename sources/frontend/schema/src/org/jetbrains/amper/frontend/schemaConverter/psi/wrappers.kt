@@ -66,6 +66,12 @@ class MappingEntry(override val sourceElement: PsiElement): AmperElementWrapper 
         }
     }
 
+    val key get() = when (sourceElement) {
+        is YAMLKeyValue -> sourceElement.key
+        is AmperProperty -> sourceElement.nameElement
+        else -> null
+    }
+
     val value get() = when (sourceElement) {
         is YAMLKeyValue -> sourceElement.value
         is AmperProperty -> sourceElement.value

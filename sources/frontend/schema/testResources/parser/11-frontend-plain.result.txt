@@ -126,9 +126,9 @@ Fragments:
         teamId: <default> null
       }
       junit: <default> JUNIT4
-      jvm: <default> {
+      jvm: {
         mainClass: <default> null
-        release: <default> VERSION_17
+        release: VERSION_21
       }
       kotlin: {
         allWarningsAsErrors: <default> false

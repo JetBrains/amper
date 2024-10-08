@@ -4,5 +4,5 @@ product:
     - jvm
 
 settings:
-  java:
+  jvm:
     mainClass: MainKt

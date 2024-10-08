@@ -46,7 +46,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
@@ -143,7 +143,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
@@ -237,7 +237,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
@@ -333,7 +333,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
@@ -427,7 +427,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
@@ -523,7 +523,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
@@ -619,7 +619,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
@@ -713,7 +713,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
@@ -808,7 +808,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
@@ -903,7 +903,7 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
-        allWarningsAsErrors: <default> false
+        allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [

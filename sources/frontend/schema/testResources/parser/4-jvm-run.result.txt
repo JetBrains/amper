@@ -36,8 +36,8 @@ Fragments:
         teamId: <default> null
       }
       junit: <default> JUNIT4
-      jvm: <default> {
-        mainClass: <default> null
+      jvm: {
+        mainClass: MainKt
         release: <default> VERSION_17
       }
       kotlin: <default> {
@@ -114,8 +114,8 @@ Fragments:
         teamId: <default> null
       }
       junit: <default> JUNIT4
-      jvm: <default> {
-        mainClass: <default> null
+      jvm: {
+        mainClass: MainKt
         release: <default> VERSION_17
       }
       kotlin: <default> {

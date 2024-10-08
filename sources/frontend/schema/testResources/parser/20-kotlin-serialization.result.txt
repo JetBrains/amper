@@ -45,7 +45,7 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.0
+        apiVersion: <default> 1.9
         debug: <default> true
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -56,7 +56,7 @@ Fragments:
           version: <default> 2.0.20-1.0.25
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.0
+        languageVersion: 1.9
         linkerOpts: <default> null
         optIns: <default> null
         parcelize: <default> {
@@ -126,7 +126,7 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.0
+        apiVersion: <default> 1.9
         debug: <default> true
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -137,7 +137,7 @@ Fragments:
           version: <default> 2.0.20-1.0.25
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.0
+        languageVersion: 1.9
         linkerOpts: <default> null
         optIns: <default> null
         parcelize: <default> {

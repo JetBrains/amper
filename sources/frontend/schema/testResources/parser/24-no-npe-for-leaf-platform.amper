@@ -56,7 +56,7 @@ settings {
   kotlin {
     apiVersion = 1.8
     languageVersion = 1.8
-    allWarningsAsError = false
+    allWarningsAsErrors = false
     debug = false
     progressiveMode = false
     suppressWarnings = false
