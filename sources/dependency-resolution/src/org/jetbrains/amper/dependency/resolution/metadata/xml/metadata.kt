@@ -35,7 +35,7 @@ internal data class Versioning(
     @XmlElement(true)
     val lastUpdated: String,
     @XmlElement(true)
-    val snapshotVersions: SnapshotVersions
+    val snapshotVersions: SnapshotVersions? = null, // absent when User-Agent is not sent in the request
 )
 
 @Serializable

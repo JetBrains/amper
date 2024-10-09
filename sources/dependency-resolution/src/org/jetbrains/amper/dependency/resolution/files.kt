@@ -620,6 +620,9 @@ open class DependencyFile(
             ) {
                 val request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
+                    // Without user agent header, we don't get snapshot versions in maven-metadata.xml.
+                    // I hope this blows your mind.
+                    .header(HttpHeaders.UserAgent, "JetBrains Amper")
                     .withBasicAuth(repository)
                     .timeout(Duration.ofMinutes(2))
                     .GET()
@@ -728,7 +731,7 @@ class SnapshotDependencyFile(
             mutex.withLock {
                 if (snapshotVersion == null) {
                     val metadata = mavenMetadata.readText().parseMetadata()
-                    snapshotVersion = metadata.versioning.snapshotVersions.snapshotVersions.find {
+                    snapshotVersion = metadata.versioning.snapshotVersions?.snapshotVersions?.find {
                         it.extension == extension.substringBefore('.') // pom.sha512 -> pom
                     }?.value ?: ""
                 }

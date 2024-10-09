@@ -16,6 +16,9 @@ class MetadataTest {
     @Test
     fun `packagesearch-plugin-gradle-core-shadow-233_13000-SNAPSHOT`(testInfo: TestInfo) = doTest(testInfo)
 
+    @Test
+    fun `symbol-processing-api-2_0_20-1_0_26-SNAPSHOT`(testInfo: TestInfo) = doTest(testInfo)
+
     private fun doTest(testInfo: TestInfo) {
         val text = Path("testData/metadata/xml/metadata/${testInfo.nameToDependency()}.xml").readText()
         val metadata = text.parseMetadata()
@@ -28,4 +31,5 @@ class MetadataTest {
             .replace(">\\s+".toRegex(), ">")
             .replace("\"\\s+".toRegex(), "\"")
             .replace("\\s+".toRegex(), " ")
+            .replace("""<\?xml [\S\s]*?\?>""".toRegex(), "")
 }
