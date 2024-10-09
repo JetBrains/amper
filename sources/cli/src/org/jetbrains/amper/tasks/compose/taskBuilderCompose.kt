@@ -5,9 +5,9 @@
 package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -122,10 +122,9 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                         useActualModifier = shouldSeparateExpectActual,
                         executeOnChangedInputs = executeOnChangedInputs,
                     ),
-                    // FIXME: Maybe a bug here, if fragmentDependencies are not transitive
-                    dependsOn = fragment.fragmentDependencies
-                        .filter { it.type == FragmentDependencyType.REFINE }
-                        .map { ComposeFragmentTaskType.ComposeResourcesGenerateAccessors.getTaskName(it.target) },
+                    dependsOn = fragment.allFragmentDependencies()
+                        .map { ComposeFragmentTaskType.ComposeResourcesGenerateAccessors.getTaskName(it) }
+                        .toList(),
                 )
                 addCodegenTaskForRegistering(fragment, taskName)
             }

@@ -15,7 +15,7 @@ import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.forClosure
+import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.tasks.BuildTask
@@ -54,7 +54,9 @@ class BuildAppleTask(
         // Define required apple sources.
         val currentPlatformFamily = platform.parent?.let { it.leaves + it } ?: emptySet()
         val appleSources = buildSet {
-            leafAppleFragment.forClosure {
+            leafAppleFragment.allFragmentDependencies(
+                includeSelf = true,
+            ).forEach {
                 if (currentPlatformFamily.containsAll(it.platforms)) add(it.src.toFile().normalize())
             }
         }

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend
 
+import java.util.*
 import kotlin.collections.AbstractMap
 import kotlin.collections.ArrayDeque
 import kotlin.reflect.KMutableProperty0
@@ -15,39 +16,36 @@ val PotatoModule.mavenRepositories: List<RepositoriesModulePart.Repository>
 
 /**
  * Simple approach to do some action for fragment closure.
+ *
+ * TODO: maybe generalize [ancestralPath] to use instead of this?
  */
-fun Fragment.forClosure(
-    includeSelf: Boolean = true,
-    traverseTypes: Set<FragmentDependencyType> = setOf(FragmentDependencyType.REFINE),
-    block: (Fragment) -> Unit
-) {
-    if (includeSelf) block(this)
-    traverseDependencies(traverseTypes) { block(it.target) }
+fun Fragment.allFragmentDependencies(
+    includeSelf: Boolean = false,
+    traverseType: FragmentDependencyType = FragmentDependencyType.REFINE,
+): Sequence<Fragment> {
+    val allDependencies = allFragmentDependencies(
+        traverseTypes = EnumSet.of(traverseType),
+    ).map { it.target }
+    return if (includeSelf) sequenceOf(this) + allDependencies else allDependencies
 }
 
 /**
  * Simple approach to traverse dependencies transitively.
+ *
+ * TODO: maybe generalize [ancestralPath] to use instead of this?
  */
-fun Fragment.traverseDependencies(
-    traverseTypes: Set<FragmentDependencyType> = setOf(FragmentDependencyType.REFINE),
-    block: (FragmentLink) -> Unit,
-) {
-    val traversed = mutableSetOf<FragmentLink>()
-    val blockPlusCheck: (FragmentLink) -> Unit = {
-        if (!traversed.add(it)) error("Cyclic dependency!")
-        block(it)
-    }
-    doTraverseDependencies(traverseTypes, blockPlusCheck)
-}
-
-private fun Fragment.doTraverseDependencies(
+fun Fragment.allFragmentDependencies(
     traverseTypes: Set<FragmentDependencyType>,
-    block: (FragmentLink) -> Unit,
-) {
-    fragmentDependencies.forEach(block)
-    fragmentDependencies
-        .filter { it.type in traverseTypes }
-        .map { it.target.doTraverseDependencies(traverseTypes, block) }
+): Sequence<FragmentLink> = sequence {
+    val traversed = hashSetOf<FragmentLink>()
+    val stack = ArrayList<FragmentLink>(fragmentDependencies)
+    while(stack.isNotEmpty()) {
+        val link = stack.removeLast()
+        if (link.type !in traverseTypes) continue
+        check(traversed.add(link)) { "Cyclic dependency!" }
+        yield(link)
+        stack.addAll(link.target.fragmentDependencies)
+    }
 }
 
 /**
