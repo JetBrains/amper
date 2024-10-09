@@ -171,9 +171,10 @@ class AndroidBindingPluginPart(
 
         val signing = firstAndroidFragment.settings.android.signing
         if (signing.enabled) {
-            if (signing.propertiesFile.exists()) {
+            val propertiesFile = module.moduleDir / signing.propertiesFile
+            if (propertiesFile.exists()) {
                 val keystoreProperties = Properties().apply {
-                    signing.propertiesFile.reader().use { reader ->
+                    propertiesFile.reader().use { reader ->
                         load(reader)
                     }
                 }
@@ -181,7 +182,7 @@ class AndroidBindingPluginPart(
                     signingConfigs {
                         it.create(SIGNING_CONFIG_NAME) {
                             keystoreProperties.storeFile?.let { storeFile ->
-                                it.storeFile = Path(storeFile).toFile()
+                                it.storeFile = (module.moduleDir / storeFile).toFile()
                             }
                             keystoreProperties.storePassword?.let { storePassword ->
                                 it.storePassword = storePassword
@@ -196,10 +197,7 @@ class AndroidBindingPluginPart(
                     }
                 }
             } else {
-                val path = (project.projectDir.toPath() / signing.propertiesFile.pathString)
-                    .normalize()
-                    .absolutePathString()
-
+                val path = propertiesFile.normalize().absolutePathString()
                 project.logger.warn("Properties file $path not found. Signing will not be configured")
             }
         }

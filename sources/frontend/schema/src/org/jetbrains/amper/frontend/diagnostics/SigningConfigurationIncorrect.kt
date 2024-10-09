@@ -139,11 +139,12 @@ object KeystoreMustExistFactory : SigningConfigurationIncorrect() {
         if (propertiesFile.exists()) {
             val properties = Properties()
             propertiesFile.reader().use { properties.load(it) }
-            val storeFile = properties.storeFile ?: return
-            if (Path(storeFile).notExists()) {
+            val storeFilePath = properties.storeFile ?: return
+            val storeFile = (moduleDir / storeFilePath).normalize().toAbsolutePath()
+            if (storeFile.notExists()) {
                 problemReporter.reportMessage(
                     KeystoreFileDoesNotExist(
-                        android.targetProperty, Path(storeFile)
+                        android.targetProperty, Path(storeFilePath)
                     )
                 )
             }

@@ -87,7 +87,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
                 .withArguments(*buildArguments, "--stacktrace", "--no-build-cache")
                 .setStandardOutput(TeeOutputStream(System.out, stdout))
                 .setStandardError(TeeOutputStream(System.err, stderr))
-//            .addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
+//                .addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
                 .run()
         } catch (t: Throwable) {
             if (shouldSucceed) {

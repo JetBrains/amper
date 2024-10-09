@@ -7,12 +7,16 @@ import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.tasks.android.AndroidDelegatedGradleTask
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
+import java.util.jar.JarFile
 import kotlin.test.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 // TODO: review and merged with AmperExamples1Test test suite
 // This test was initially testing Gradle-based example projects.
@@ -100,6 +104,21 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
         assertKotlinJvmCompilationSpan {
             hasCompilerArgumentStartingWith("-Xplugin=")
         }
+    }
+
+    @Test
+    fun composeAndroidSigning() = runTestWithCollector {
+        val backend = AmperBackend(setupExampleProject("compose-android"))
+
+        val archive = (backend.runTask("compose-android", "bundleAndroid")
+            ?.getOrNull() as? AndroidDelegatedGradleTask.Result)
+            ?.artifacts
+            ?.getOrNull(0)
+            ?.toFile()
+
+        assertNotNull(archive)
+        // Verify the signature is in the archive
+        assertTrue(JarFile(archive).getEntry("META-INF/KEYALIAS.RSA").size > 0)
     }
 }
 

@@ -3,12 +3,17 @@
  */
 
 import org.junit.jupiter.api.Test
+import java.util.jar.JarFile
 import kotlin.io.path.Path
+import kotlin.io.path.div
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
 import kotlin.reflect.full.declaredFunctions
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import kotlin.test.fail
+
 
 class GradleExamplesTest : GradleE2ETestFixture(
     pathToProjects = "../../examples-gradle/",
@@ -144,4 +149,18 @@ class GradleExamplesTest : GradleE2ETestFixture(
             "/report/coverage-report/index.html\n"
         )
     )
+
+    @Test
+    fun `android-signing`() =
+        test(
+            projectName = "compose-android",
+            "bundle",
+            expectOutputToHave = "BUILD SUCCESSFUL",
+            additionalCheck = {
+                val aabPath = projectDir / "build" / "outputs" / "bundle" / "release"
+                val aab = aabPath.walk().filter { it.name.endsWith(".aab") }.firstOrNull()
+                assertNotNull(aab)
+                assertTrue(JarFile(aab.toFile()).getEntry("META-INF/KEYALIAS.RSA").size > 0)
+            }
+        )
 }
