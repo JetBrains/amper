@@ -9,11 +9,11 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
-import org.jetbrains.amper.frontend.api.ConstructorParameter
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 
@@ -104,7 +104,7 @@ const val composeSettingsShortForm = """
 @AdditionalSchemaDef(serializationSettingsShortForm)
 class SerializationSettings : SchemaNode() {
 
-    @ConstructorParameter
+    @Shorthand
     @SchemaDoc("The Kotlin Serialization format to use, or 'none' if no format should be automatically added")
     var format by value("none")
 

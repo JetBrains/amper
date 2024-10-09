@@ -10,9 +10,8 @@ import com.intellij.amper.lang.AmperContextualElement
 import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.ConstructorParameter
-import org.jetbrains.amper.frontend.api.ImplicitConstructor
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
@@ -38,7 +37,6 @@ import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.declaredFunctions
-import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSubtypeOf
@@ -155,11 +153,7 @@ internal fun readTypedValue(
         val textValue = scalarValue?.textValue
         // handle shorthands - when a schema node is wired for a scalar
         if (textValue != null) {
-            // find an implicit or explicit constructor and invoke it
-            val constructedType = type.unwrapKClass.findAnnotation<ImplicitConstructor>()?.constructedType
-                ?: type.unwrapKClass
-
-            val props = constructedType.schemaDeclaredMemberProperties()
+            val props = type.unwrapKClass.schemaDeclaredMemberProperties()
                 .filterIsInstance<KMutableProperty1<Any, Any?>>()
             val param =
                 // known boolean shorthands like "enabled" and "exported"
@@ -167,7 +161,7 @@ internal fun readTypedValue(
                     ?.takeIf { textValue == it.name } ?:
                 // properly marked as a constructor parameter
                 props.singleOrNull {
-                    it.hasAnnotation<ConstructorParameter>()
+                    it.hasAnnotation<Shorthand>()
                 } ?: props.singleOrNull() // otherwise, if there is just one properly, set it
 
             if (param != null) {
@@ -373,8 +367,7 @@ private fun KType.instantiateType(): Any {
     if (kClass.isSubclassOf(List::class)) {
         return ArrayList<Any>()
     }
-    return kClass.findAnnotation<ImplicitConstructor>()?.constructedType?.createInstance()
-        ?: kClass.createInstance()
+    return kClass.createInstance()
 }
 
 internal fun <T : Traceable> T.doApplyPsiTrace(element: PsiElement?): T {

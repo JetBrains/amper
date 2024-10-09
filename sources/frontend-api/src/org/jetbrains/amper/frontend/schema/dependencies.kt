@@ -6,11 +6,10 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.ConstructorParameter
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
-import org.jetbrains.amper.frontend.api.ImplicitConstructor
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 
@@ -26,14 +25,13 @@ enum class DependencyScope(
     companion object : EnumMap<DependencyScope, String>(DependencyScope::values, DependencyScope::schemaValue)
 }
 
-@ImplicitConstructor(ExternalMavenDependency::class)
 sealed class Dependency : SchemaNode() {
 
     // TODO Replace exported flag by new scope (rethink scopes).
     @SchemaDoc("Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)")
     var exported by value(false)
 
-    @ConstructorParameter
+    @Shorthand
     @SchemaDoc("When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)")
     var scope by value(DependencyScope.ALL)
 }

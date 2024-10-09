@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.api
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
-import kotlin.reflect.KClass
 
 /**
  * An annotation to specify documentation bundle entry.
@@ -96,12 +95,10 @@ annotation class ProductTypeSpecific(
     vararg val productTypes: ProductType
 )
 
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ImplicitConstructor(
-    val constructedType: KClass<*>
-)
-
+/**
+ * This annotation should be applied to properties
+ *  which represent shorthand values for their parent object construction
+ */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class ConstructorParameter
+annotation class Shorthand
