@@ -120,13 +120,13 @@ class BuiltInCatalog(
     put("kotlin.reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     if (serializationVersion != null) {
-        put("kotlinx.serialization.core", "org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-        put("kotlinx.serialization.cbor", "org.jetbrains.kotlinx:kotlinx-serialization-cbor:$serializationVersion")
-        put("kotlinx.serialization.hocon", "org.jetbrains.kotlinx:kotlinx-serialization-hocon:$serializationVersion")
-        put("kotlinx.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
-        put("kotlinx.serialization.json-okio", "org.jetbrains.kotlinx:kotlinx-serialization-json-okio:$serializationVersion")
-        put("kotlinx.serialization.properties", "org.jetbrains.kotlinx:kotlinx-serialization-properties:$serializationVersion")
-        put("kotlinx.serialization.protobuf", "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serializationVersion")
+        put("kotlin.serialization.core", "org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+        put("kotlin.serialization.cbor", "org.jetbrains.kotlinx:kotlinx-serialization-cbor:$serializationVersion")
+        put("kotlin.serialization.hocon", "org.jetbrains.kotlinx:kotlinx-serialization-hocon:$serializationVersion")
+        put("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+        put("kotlin.serialization.json-okio", "org.jetbrains.kotlinx:kotlinx-serialization-json-okio:$serializationVersion")
+        put("kotlin.serialization.properties", "org.jetbrains.kotlinx:kotlinx-serialization-properties:$serializationVersion")
+        put("kotlin.serialization.protobuf", "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serializationVersion")
     }
 
     // Add compose.

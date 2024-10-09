@@ -7,4 +7,4 @@ settings:
       version: 1.5.1
 
 dependencies:
-  - $kotlinx.serialization.cbor
+  - $kotlin.serialization.cbor
