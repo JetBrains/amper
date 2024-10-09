@@ -40,7 +40,8 @@ internal class RootCommand : SuspendingCliktCommand(name = System.getProperty("a
             TaskCommand(),
             TasksCommand(),
             TestCommand(),
-            ToolCommand()
+            ToolCommand(),
+            UpdateCommand(),
         )
         context {
             helpFormatter = { context ->
