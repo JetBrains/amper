@@ -10,6 +10,7 @@ import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
@@ -34,11 +35,16 @@ internal class Ksp(
     ) {
         val workingDir = config.projectBaseDir
 
-        // We relativize paths to avoid issues with absolute windows paths split on ':'
-        // See: https://github.com/google/ksp/issues/2046
-        // TODO stop doing that when the issue is fixed, because there is no guarantee that these paths are on the same drive
-        val processorClasspathStr = processorClasspath.joinToString(":") { it.relativeTo(workingDir).pathString }
-        val args = config.toCommandLineOptions(workingDir) + processorClasspathStr
+        // TODO stop doing that when KSP 1.0.26 is released and our default version is bumped
+        val legacyListMode = KspConfig.needsLegacyListMode(kspVersion)
+        val processorClasspathStr = if (legacyListMode) {
+            // We relativize paths to avoid issues with absolute windows paths split on ':'
+            // See: https://github.com/google/ksp/issues/2046
+            processorClasspath.joinToString(":") { it.relativeTo(workingDir).pathString }
+        } else {
+            processorClasspath.joinToString(File.pathSeparator)
+        }
+        val args = config.toCommandLineOptions(workingDir, legacyListMode) + processorClasspathStr
 
         logger.info("ksp $args")
         val result = jdk.runJava(

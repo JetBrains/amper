@@ -6,6 +6,7 @@ package org.jetbrains.amper.ksp
 
 import org.jetbrains.amper.compilation.CompilationUserSettings
 import org.jetbrains.amper.frontend.schema.JavaVersion
+import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
@@ -76,13 +77,13 @@ internal sealed interface KspConfig {
     /** The output directory for generated resources. */
     val resourceOutputDir: Path
 
-    fun toCommandLineOptions(workDir: Path) = buildList {
+    fun toCommandLineOptions(workDir: Path, legacyListMode: Boolean) = buildList {
         add("-module-name=$moduleName")
-        addPaths("-source-roots", sourceRoots, workDir)
-        addPaths("-common-source-roots", commonSourceRoots, workDir)
-        addPaths("-libraries", libraries, workDir)
+        addPaths("-source-roots", sourceRoots, workDir, legacyListMode)
+        addPaths("-common-source-roots", commonSourceRoots, workDir, legacyListMode)
+        addPaths("-libraries", libraries, workDir, legacyListMode)
 
-        addList("-processor-options", processorOptions.map { "${it.key}=${it.value}" })
+        addList("-processor-options", processorOptions.map { "${it.key}=${it.value}" }, legacyListMode)
         add("-language-version=$languageVersion")
         add("-api-version=$apiVersion")
         add("-all-warnings-as-errors=$allWarningsAsErrors")
@@ -90,9 +91,9 @@ internal sealed interface KspConfig {
 
         add("-incremental=$incremental")
         add("-incremental-log=$incrementalLog")
-        addPaths("-modified-sources", modifiedSources, workDir)
-        addPaths("-removed-sources", removedSources, workDir)
-        addList("-changed-classes", changedClasses)
+        addPaths("-modified-sources", modifiedSources, workDir, legacyListMode)
+        addPaths("-removed-sources", removedSources, workDir, legacyListMode)
+        addList("-changed-classes", changedClasses, legacyListMode)
 
         add("-project-base-dir=${projectBaseDir.pathString}")
         add("-output-base-dir=${outputBaseDir.pathString}")
@@ -134,19 +135,29 @@ internal sealed interface KspConfig {
         override var kotlinOutputDir: Path = kspOutputPaths.kotlinSourcesDir
         override var resourceOutputDir: Path = kspOutputPaths.resourcesDir
     }
-}
 
-private fun MutableList<String>.addList(argName: String, values: List<String>) {
-    if (values.isNotEmpty()) {
-        add("$argName=${values.joinToString(":")}")
+    companion object {
+        fun needsLegacyListMode(kspVersion: String) = kspVersion.endsWith("1.0.25")
     }
 }
 
-private fun MutableList<String>.addPaths(argName: String, paths: List<Path>, workDir: Path) {
-    // We relativize paths to avoid issues with absolute windows paths split on ':'
-    // See: https://github.com/google/ksp/issues/2046
-    // TODO stop doing that when the issue is fixed, because there is no guarantee that these paths are on the same drive
-    addList(argName, paths.map { it.relativeTo(workDir).pathString })
+private fun MutableList<String>.addList(argName: String, values: List<String>, legacyListMode: Boolean) {
+    if (values.isNotEmpty()) {
+        val sep = if (legacyListMode) ":" else File.pathSeparator
+        add("$argName=${values.joinToString(sep)}")
+    }
+}
+
+private fun MutableList<String>.addPaths(argName: String, paths: List<Path>, workDir: Path, legacyListMode: Boolean) {
+    // TODO stop doing that when KSP 1.0.26 is released and our default version is bumped
+    val effectivePaths = if (legacyListMode) {
+        // We relativize paths to avoid issues with absolute windows paths split on ':'
+        // See: https://github.com/google/ksp/issues/2046
+        paths.map { it.relativeTo(workDir).pathString }
+    } else {
+        paths.map { it.pathString }
+    }
+    addList(argName, effectivePaths, legacyListMode)
 }
 
 internal interface KspJvmConfig : KspConfig {
@@ -175,9 +186,9 @@ internal interface KspJvmConfig : KspConfig {
     val jvmTarget: String
     val jvmDefaultMode: String
 
-    override fun toCommandLineOptions(workDir: Path) = buildList {
-        addAll(super.toCommandLineOptions(workDir))
-        addPaths("-java-source-roots", javaSourceRoots, workDir)
+    override fun toCommandLineOptions(workDir: Path, legacyListMode: Boolean) = buildList {
+        addAll(super.toCommandLineOptions(workDir, legacyListMode))
+        addPaths("-java-source-roots", javaSourceRoots, workDir, legacyListMode)
         add("-java-output-dir=${javaOutputDir.pathString}")
         add("-jdk-home=$jdkHome")
         add("-jvm-target=$jvmTarget")
@@ -209,8 +220,8 @@ internal interface KspJvmConfig : KspConfig {
 internal interface KspNativeConfig : KspConfig {
     val targetName: String
 
-    override fun toCommandLineOptions(workDir: Path) = buildList {
-        addAll(super.toCommandLineOptions(workDir))
+    override fun toCommandLineOptions(workDir: Path, legacyListMode: Boolean) = buildList {
+        addAll(super.toCommandLineOptions(workDir, legacyListMode))
         add("-target=$targetName")
     }
 
@@ -225,8 +236,8 @@ internal interface KspNativeConfig : KspConfig {
 internal interface KspJsConfig : KspConfig {
     val backend: WebBackend
 
-    override fun toCommandLineOptions(workDir: Path) = buildList {
-        addAll(super.toCommandLineOptions(workDir))
+    override fun toCommandLineOptions(workDir: Path, legacyListMode: Boolean) = buildList {
+        addAll(super.toCommandLineOptions(workDir, legacyListMode))
         add("-backend=${backend.argValue}")
     }
 
@@ -249,9 +260,9 @@ internal interface KspCommonConfig : KspConfig {
      */
     val targets: List<String>
 
-    override fun toCommandLineOptions(workDir: Path) = buildList {
-        addAll(super.toCommandLineOptions(workDir))
-        addList("-targets", targets)
+    override fun toCommandLineOptions(workDir: Path, legacyListMode: Boolean) = buildList {
+        addAll(super.toCommandLineOptions(workDir, legacyListMode))
+        addList("-targets", targets, legacyListMode)
     }
 
     class Builder(

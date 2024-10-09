@@ -182,11 +182,12 @@ internal class KspTask(
                 // https://github.com/google/ksp/blob/e1b8468309aeff7912420a202300751783d0b2c9/gradle-plugin/src/main/kotlin/com/google/devtools/ksp/gradle/KspAATask.kt#L474-L486
             }
         }
+        val legacyListMode = KspConfig.needsLegacyListMode(kspVersion)
         val configuration = mapOf(
             "kspVersion" to this.kspVersion,
             "kspCompilationType" to kspCompilationType.name,
             "kspProcessorClasspath" to kspProcessorClasspath.joinToString("|"),
-            "kspConfig" to kspConfig.toCommandLineOptions(kspConfig.projectBaseDir).joinToString(" "),
+            "kspConfig" to kspConfig.toCommandLineOptions(kspConfig.projectBaseDir, legacyListMode).joinToString(" "),
         )
         val inputFiles = kspProcessorClasspath + sources + compileLibraries
 
