@@ -730,7 +730,11 @@ class SnapshotDependencyFile(
         if (snapshotVersion == null) {
             mutex.withLock {
                 if (snapshotVersion == null) {
-                    val metadata = mavenMetadata.readText().parseMetadata()
+                    val metadata = try {
+                        mavenMetadata.readText().parseMetadata()
+                    } catch (e: Exception) {
+                        throw AmperDependencyResolutionException("Couldn't parse metadata for ${mavenMetadata.dependency}. XML content:\n\n${mavenMetadata.readText()}", e)
+                    }
                     snapshotVersion = metadata.versioning.snapshotVersions?.snapshotVersions?.find {
                         it.extension == extension.substringBefore('.') // pom.sha512 -> pom
                     }?.value ?: ""

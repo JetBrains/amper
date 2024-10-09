@@ -511,4 +511,4 @@ enum class ResolutionLevel(val state: ResolutionState) {
 
 class Progress
 
-class AmperDependencyResolutionException(message: String) : RuntimeException(message)
+class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
