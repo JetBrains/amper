@@ -19,6 +19,11 @@ class RunAndroidExamplesOnEmulatorsTestsStandalone : AndroidBaseTest() {
         projectName = "appcompat",
     )
 
+    @Test
+    fun parcelizeAndroidApp() = testRunnerStandalone(
+        projectName = "parcelize",
+    )
+
     @AfterEach
     fun cleanup() {
         val projectFolder = File("${System.getProperty("user.dir")}/tempProjects")
