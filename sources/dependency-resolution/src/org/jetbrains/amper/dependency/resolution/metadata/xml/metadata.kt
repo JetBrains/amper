@@ -5,12 +5,18 @@
 package org.jetbrains.amper.dependency.resolution.metadata.xml
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import org.jetbrains.amper.dependency.resolution.AmperDependencyResolutionException
 
-internal fun String.parseMetadata(): Metadata = xml.decodeFromString(this)
+internal fun String.parseMetadata(): Metadata = try {
+    xml.decodeFromString(this)
+} catch (e: SerializationException) {
+    throw AmperDependencyResolutionException("Couldn't parse XML metadata. Invalid content:\n\n${this}", e)
+}
 
 internal fun Metadata.serialize(): String = xml.encodeToString(this)
 
