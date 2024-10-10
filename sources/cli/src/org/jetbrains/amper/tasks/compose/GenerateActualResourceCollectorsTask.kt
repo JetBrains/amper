@@ -14,6 +14,7 @@ import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.generateActualResourceCollectors
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.pathString
 
 /**
@@ -33,11 +34,12 @@ class GenerateActualResourceCollectorsTask(
             .filterIsInstance<GenerateResourceAccessorsTask.Result>()
             .flatMap { result -> result.sourceRoots.map { it.path } }
 
+        val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
+
         if (resourceAccessorDirs.isEmpty()) {
+            codeDir.deleteRecursively()
             return Result(emptyList())
         }
-
-        val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
 
         val config = mapOf(
             "packageName" to packageName,

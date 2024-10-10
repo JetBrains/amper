@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesTask
+import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesResult
 import org.jetbrains.amper.tasks.ios.IosComposeResourcesTask.Companion.resourcesConventionDirectory
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
@@ -34,20 +34,19 @@ class IosComposeResourcesTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val outputPath = resourcesConventionDirectory(buildOutputRoot, leafFragment)
 
-        val preparedComposeResourcesTaskResults = dependenciesResult
-            .filterIsInstance<PrepareComposeResourcesTask.Result>()
+        val results = dependenciesResult.filterIsInstance<PrepareComposeResourcesResult.Prepared>()
 
         val config = mapOf(
-            "paths" to Json.encodeToString(preparedComposeResourcesTaskResults.map { it.relativePackagingPath }),
+            "paths" to Json.encodeToString(results.map { it.relativePackagingPath }),
         )
 
         executeOnChangedInputs.execute(
             id = taskName.name,
             configuration = config,
-            inputs = preparedComposeResourcesTaskResults.map { it.outputDir },
+            inputs = results.map { it.outputDir },
         ) {
             cleanDirectory(outputPath)
-            preparedComposeResourcesTaskResults.forEach { result ->
+            results.forEach { result ->
                 val targetDir = outputPath / result.relativePackagingPath
                 BuildPrimitives.copy(
                     from = result.outputDir,

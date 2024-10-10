@@ -99,6 +99,7 @@ open class MockFragment(
     override val src = Path(name, "src")
     override val resourcesPath = Path(name, "resources")
     override val composeResourcesPath = Path(name, "composeResources")
+    override val hasAnyComposeResources: Boolean get() = false
     override val generatedSrcRelativeDirs = mutableListOf<Path>()
     override val generatedResourcesRelativeDirs = mutableListOf<Path>()
     override val generatedClassesRelativeDirs = mutableListOf<Path>()

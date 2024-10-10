@@ -4,12 +4,10 @@
 
 package org.jetbrains.amper.frontend
 
-import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
-import kotlin.io.path.div
 
 
 /**
@@ -78,6 +76,11 @@ interface Fragment {
      * Path to compose resources' directory.
      */
     val composeResourcesPath: Path
+
+    /**
+     * Whether any processable files are present in [composeResourcesPath].
+     */
+    val hasAnyComposeResources: Boolean
 
     /**
      * Paths to the generated source roots, relative to the build directory.

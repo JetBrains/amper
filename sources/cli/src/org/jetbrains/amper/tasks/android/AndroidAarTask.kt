@@ -17,7 +17,6 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.RuntimeClasspathElementProvider
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
@@ -100,9 +99,7 @@ class AndroidAarTask(
                             asset.assetsRoots.forEach { assetsRoot ->
                                 this += ZipInput(
                                     path = assetsRoot.path,
-                                    destPathInArchive = assetsDir / Path(
-                                        assetsRoot.relativePackagingPath.replace("/", File.separator)
-                                    ),
+                                    destPathInArchive = assetsDir / assetsRoot.relativePackagingPath,
                                 )
                             }
                         }

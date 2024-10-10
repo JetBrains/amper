@@ -15,6 +15,7 @@ import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.generateResourceAccessors
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.pathString
 
 /**
@@ -31,8 +32,13 @@ class GenerateResourceAccessorsTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val codeDir = fragment.composeResourcesGeneratedAccessorsPath(buildOutputRoot.path)
 
-        val prepareResult = dependenciesResult
-            .requireSingleDependency<PrepareComposeResourcesTask.Result>()
+        val prepareResult = when (val r = dependenciesResult.requireSingleDependency<PrepareComposeResourcesResult>()) {
+            PrepareComposeResourcesResult.NoResources -> {
+                codeDir.deleteRecursively()
+                return Result(emptyList())
+            }
+            is PrepareComposeResourcesResult.Prepared -> r
+        }
 
         val config = mapOf(
             "packageName" to packageName,

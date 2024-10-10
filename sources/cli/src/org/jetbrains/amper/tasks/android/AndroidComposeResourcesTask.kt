@@ -8,13 +8,13 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesTask
+import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesResult
 
 /**
  * Just passes through the prepared Compose Resources to be packaged as assets for Android.
  *
  * **Inputs**:
- * - [PrepareComposeResourcesTask.Result]
+ * - [PrepareComposeResourcesResult]
  *
  * **Output**: [AdditionalAndroidAssetsProvider].
  *
@@ -24,17 +24,18 @@ class AndroidComposeResourcesTask(
     override val taskName: TaskName,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val prepareResources = dependenciesResult.requireSingleDependency<PrepareComposeResourcesTask.Result>()
+        val prepareResources = dependenciesResult.requireSingleDependency<PrepareComposeResourcesResult>()
 
-        // NOTE: If needed to support split packaging (jvm resources/assets) for before 1.7.0-beta02 -
-        //  is the good place to do so.
         return Result(
-            assetsRoots = listOf(
-                AdditionalAndroidAssetsProvider.AssetsRoot(
-                    path = prepareResources.outputDir,
-                    relativePackagingPath = prepareResources.relativePackagingPath,
-                ),
-            ),
+            assetsRoots = when(prepareResources) {
+                PrepareComposeResourcesResult.NoResources -> emptyList()
+                is PrepareComposeResourcesResult.Prepared -> listOf(
+                    AdditionalAndroidAssetsProvider.AssetsRoot(
+                        path = prepareResources.outputDir,
+                        relativePackagingPath = prepareResources.relativePackagingPath,
+                    ),
+                )
+            }
         )
     }
 

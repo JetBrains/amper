@@ -13,15 +13,16 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.AdditionalResourcesProvider
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesTask
+import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesResult
 import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 
 /**
  * Provides prepared Compose Resources as java resources to be placed into the classpath.
  *
  * **Inputs**:
- * - [PrepareComposeResourcesTask.Result]
+ * - [PrepareComposeResourcesResult]
  *
  * **Output**: [AdditionalResourcesProvider]
  */
@@ -31,15 +32,22 @@ class JvmComposeResourcesTask(
     private val taskOutputRoot: TaskOutputRoot,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val prepareResources = dependenciesResult.requireSingleDependency<PrepareComposeResourcesTask.Result>()
-
         val outputRoot = taskOutputRoot.path.apply(::cleanDirectory)
-        val finalOutputDir = outputRoot / prepareResources.relativePackagingPath.replace("/", outputRoot.fileSystem.separator)
+
+        val result = when(val r = dependenciesResult.requireSingleDependency<PrepareComposeResourcesResult>()) {
+            PrepareComposeResourcesResult.NoResources -> {
+                outputRoot.deleteRecursively()
+                return Result(emptyList())
+            }
+            is PrepareComposeResourcesResult.Prepared -> r
+        }
+
+        val finalOutputDir = outputRoot / result.relativePackagingPath
 
         // FIXME: Maybe don't copy the files,
         //  but introduce a `relativePackagingPath` for the `AdditionalResourcesProvider`?
         BuildPrimitives.copy(
-            from = prepareResources.outputDir,
+            from = result.outputDir,
             to = finalOutputDir.createDirectories(),
         )
 

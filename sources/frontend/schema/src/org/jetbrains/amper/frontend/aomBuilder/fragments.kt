@@ -19,6 +19,9 @@ import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
+import kotlin.io.path.isDirectory
+import kotlin.io.path.isHidden
+import kotlin.io.path.walk
 
 class DefaultLeafFragment(
     seed: FragmentSeed,
@@ -96,6 +99,10 @@ open class DefaultFragment(
             if (srcOnlyOwner) resourcesStringPrefix
             else "$resourcesStringPrefix$modifier"
         moduleFile.parent.toNioPath().resolve(resourcesPathString)
+    }
+
+    override val hasAnyComposeResources: Boolean by lazy {
+        composeResourcesPath.isDirectory() && composeResourcesPath.walk().any { !it.isHidden() }
     }
 
     private val generatedFilesRelativeRoot: Path = Path("generated/${module.userReadableName}/$name")

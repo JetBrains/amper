@@ -93,6 +93,7 @@ class FragmentBuilder(var name: String) {
             override val src: Path get() = Path(name).resolve("main")
             override val resourcesPath get() = Path(name).resolve("resources")
             override val composeResourcesPath get() = Path(name).resolve("composeResources")
+            override val hasAnyComposeResources: Boolean get() = false
             override val generatedResourcesRelativeDirs: List<Path> = emptyList()
             override val generatedSrcRelativeDirs: List<Path> = emptyList()
             override val generatedClassesRelativeDirs: List<Path> = emptyList()

@@ -13,6 +13,7 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.prepareResources
 import java.nio.file.Path
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.pathString
 
 /**
@@ -29,6 +30,11 @@ class PrepareComposeResourcesTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val outputDir = taskOutputRoot.path
 
+        if (!fragment.hasAnyComposeResources) {
+            outputDir.deleteRecursively()
+            return PrepareComposeResourcesResult.NoResources
+        }
+
         val config = mapOf(
             // "qualifier" - doesn't change
             // "originalResourcesDir" - inputs
@@ -43,14 +49,9 @@ class PrepareComposeResourcesTask(
             )
             ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(outputDir))
         }
-        return Result(
+        return PrepareComposeResourcesResult.Prepared(
             outputDir = outputDir,
             relativePackagingPath = packagingDir,
         )
     }
-
-    class Result(
-        val outputDir: Path,
-        val relativePackagingPath: String,
-    ) : TaskResult
 }

@@ -14,6 +14,7 @@ import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.generateExpectResourceCollectors
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.pathString
 
 /**
@@ -21,6 +22,7 @@ import kotlin.io.path.pathString
  */
 class GenerateExpectResourceCollectorsTask(
     override val taskName: TaskName,
+    private val shouldGenerateCode: () -> Boolean,
     private val fragment: Fragment,
     private val packageName: String,
     private val makeAccessorsPublic: Boolean,
@@ -29,6 +31,11 @@ class GenerateExpectResourceCollectorsTask(
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
+
+        if (!shouldGenerateCode()) {
+            codeDir.deleteRecursively()
+            return Result(emptyList())
+        }
 
         val config = mapOf(
             "packageName" to packageName,

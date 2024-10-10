@@ -46,12 +46,24 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
         //  do not separate `expect`/`actual` if the module only contains a single fragment.
         val shouldSeparateExpectActual = rootFragment.platforms.size > 1
 
+        val shouldGenerateCode = {
+            /*
+              The tasks generate code (collectors and Res) if either is true:
+               - The project has some actual resources in any of the fragments.
+               - The user explicitly requested to make the resources API public.
+                 We generate public code to make API not depend on the actual presence of the resources,
+                 because the user already opted-in to their usage.
+            */
+            makeAccessorsPublic || rootFragment.module.fragments.any { it.hasAnyComposeResources }
+        }
+
         // Configure "global" tasks that generate common code (into rootFragment).
         ComposeGlobalTaskType.ComposeResourcesGenerateResClass.getTaskName(module).let { taskName ->
             tasks.registerTask(
                 task = GenerateResClassTask(
                     taskName = taskName,
-                    fragment = rootFragment,
+                    shouldGenerateCode = shouldGenerateCode,
+                    rootFragment = rootFragment,
                     packageName = packageName,
                     makeAccessorsPublic = makeAccessorsPublic,
                     packagingDir = packagingDir,
@@ -66,6 +78,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                 tasks.registerTask(
                     task = GenerateExpectResourceCollectorsTask(
                         taskName = taskName,
+                        shouldGenerateCode = shouldGenerateCode,
                         fragment = rootFragment,
                         packageName = packageName,
                         makeAccessorsPublic = makeAccessorsPublic,

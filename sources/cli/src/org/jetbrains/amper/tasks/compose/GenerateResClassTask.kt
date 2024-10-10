@@ -14,6 +14,7 @@ import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.generateResClass
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.pathString
 
 /**
@@ -21,7 +22,8 @@ import kotlin.io.path.pathString
  */
 class GenerateResClassTask(
     override val taskName: TaskName,
-    private val fragment: Fragment,
+    private val rootFragment: Fragment,
+    private val shouldGenerateCode: () -> Boolean,
     private val packageName: String,
     private val makeAccessorsPublic: Boolean,
     private val packagingDir: String,
@@ -29,7 +31,12 @@ class GenerateResClassTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val codeDir = fragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot.path)
+        val codeDir = rootFragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot.path)
+
+        if (!shouldGenerateCode()) {
+            codeDir.deleteRecursively()
+            return Result(emptyList())
+        }
 
         val config = mapOf(
             "packageName" to packageName,
@@ -51,7 +58,7 @@ class GenerateResClassTask(
 
         return Result(
             sourceRoots = listOf(
-                AdditionalSourcesProvider.SourceRoot(fragment.name, codeDir),
+                AdditionalSourcesProvider.SourceRoot(rootFragment.name, codeDir),
             ),
         )
     }
