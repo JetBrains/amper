@@ -14,10 +14,16 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.reportEmptyModule
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.builders.isMap
+import org.jetbrains.amper.frontend.builders.schemaDeclaredMutableProperties
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
+import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.full.starProjectedType
 
 internal interface Converter: ProblemReporterContext {
     /**
@@ -65,8 +71,26 @@ class ConverterImpl(
 
     private inline fun <reified T: Any> PsiElement.convert(): T {
         val table = readValueTable()
-        val module: T = T::class.constructors.single().call()
-        readFromTable(module, table)
+        val contextToModule = mutableMapOf<Set<TraceableString>, T>()
+        val contexts = (table.keys.map { it.contexts } + listOf(emptySet())).distinct()
+        contexts.forEach {
+            val module: T = T::class.constructors.single().call()
+            readFromTable(module, table, contexts = it)
+            contextToModule[it] = module
+        }
+        val module = contextToModule[emptySet()]!!
+        for (prop in module::class.schemaDeclaredMutableProperties()) {
+            if (prop.returnType.isMap && prop.returnType.arguments.getOrNull(0)?.type?.isSubtypeOf(Set::class.starProjectedType) == true) {
+                for (key in contexts.filter { it.isNotEmpty() }) {
+                    val moduleToMergeIn = contextToModule[key] ?: continue
+                    val mergedValue = prop.valueBase(moduleToMergeIn)?.withoutDefault as? Map<*, *> ?: continue
+                    val currentValue = prop.get(module) as? Map<*, *>
+                    val initialTrace = if (currentValue != null) prop.valueBase(module)?.trace else prop.valueBase(moduleToMergeIn)?.trace
+                    prop.set(module, currentValue.orEmpty() + mergedValue)
+                    prop.valueBase(module)?.trace = initialTrace
+                }
+            }
+        }
         return module
     }
 }

@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
 import java.nio.file.Path
 import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
@@ -130,6 +131,8 @@ fun KClass<*>.schemaDeclaredMemberProperties(): Sequence<KProperty1<Any, ValueBa
         .flatMap { it.declaredMemberProperties }
         .filterIsInstance<KProperty1<Any, ValueBase<*>>>()
 }
+
+fun KClass<*>.schemaDeclaredMutableProperties() = schemaDeclaredMemberProperties().filterIsInstance<KMutableProperty1<Any, Any?>>()
 
 /**
  * The effective type of this property.

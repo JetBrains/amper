@@ -97,7 +97,7 @@ internal fun readTypedValue(
         val scalarValue = table[KeyWithContext(path, contexts)]
         return instantiateTraceableScalar(type, table, path, contexts, valueBase, scalarValue)
     }
-    val applicableKeys = table.keys.filter { it.key.startsWith(path) && it.contexts.containsAll(contexts) }
+    val applicableKeys = table.keys.filter { it.key.startsWith(path) && it.contexts == contexts }
     if (applicableKeys.isEmpty()) return null
 
     val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
@@ -108,14 +108,16 @@ internal fun readTypedValue(
     }
     if (type.isMap) {
         if (type.arguments.getOrNull(0)?.type?.isCollection == true) {
-            return applicableKeys.map { it.contexts }
-                .distinct()
-                .associate { ks -> ks.toSet() to readTypedValue(
-                    type.mapValueType,
-                    table,
-                    path,
-                    ks
-                ) }.filterValues { it != null }
+            // we need to do this to preserve traces
+            val contextsFromTable = applicableKeys.map { it.contexts }
+                .filter { it == contexts }.firstOrNull() ?: contexts
+            return mapOf(contextsFromTable to
+                    readTypedValue(
+                        type.mapValueType,
+                        table,
+                        path,
+                        contexts
+                    ))
         }
         val processedKeys = mutableSetOf<String>()
         return applicableKeys.mapNotNull {
