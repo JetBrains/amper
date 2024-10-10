@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import java.util.jar.JarFile
 import kotlin.io.path.Path
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
@@ -161,6 +162,17 @@ class GradleExamplesTest : GradleE2ETestFixture(
                 val aab = aabPath.walk().filter { it.name.endsWith(".aab") }.firstOrNull()
                 assertNotNull(aab)
                 assertTrue(JarFile(aab.toFile()).getEntry("META-INF/KEYALIAS.RSA").size > 0)
+            }
+        )
+    
+    @Test
+    fun `compose-multiplatform R8 configuration`() =
+        test(
+            projectName = "compose-multiplatform",
+            "bundle",
+            expectOutputToHave = "BUILD SUCCESSFUL",
+            additionalCheck =  {
+                assertTrue((projectDir / "build" / "tmp" / "full-r8-config.txt").exists())
             }
         )
 }

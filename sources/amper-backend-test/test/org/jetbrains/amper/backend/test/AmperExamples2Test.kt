@@ -17,6 +17,8 @@ import java.util.jar.JarFile
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.io.path.div
+import kotlin.io.path.exists
 
 // TODO: review and merged with AmperExamples1Test test suite
 // This test was initially testing Gradle-based example projects.
@@ -119,6 +121,13 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
         assertNotNull(archive)
         // Verify the signature is in the archive
         assertTrue(JarFile(archive).getEntry("META-INF/KEYALIAS.RSA").size > 0)
+    }
+    
+    @Test
+    fun composeMultiplatformR8() = runTestWithCollector {
+        val backend = AmperBackend(setupExampleProject("compose-multiplatform"))
+        backend.runTask("android-app", "bundleAndroid")
+        assertTrue((backend.context.projectRoot.path / "build" / "temp" / "full-r8-config.txt").exists())
     }
 }
 
