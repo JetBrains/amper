@@ -56,8 +56,8 @@ class CommonizeNativeDistributionTask(
             .filterNot { it.singleOrNull()?.isLeaf == true }
             .toSet()
 
-        val sharedPlatforms = sharedPlatformSets.map {
-            it.joinToString(prefix = "(", separator = ",", postfix = ")") { it.name.lowercase() }
+        val sharedPlatforms = sharedPlatformSets.map { set ->
+            set.joinToString(prefix = "(", separator = ",", postfix = ")") { it.nameForCompiler }
         }.toSet()
 
         // TODO Maybe this should be separated into something more than a suspend function.

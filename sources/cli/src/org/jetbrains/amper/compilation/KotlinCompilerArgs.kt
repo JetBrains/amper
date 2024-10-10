@@ -183,7 +183,7 @@ internal fun kotlinNativeCompilerArgs(
     add(compilationType.moduleName(module, isTest))
 
     add("-target")
-    add(platform.name.lowercase())
+    add(platform.nameForCompiler)
 
     if (compilationType != KotlinCompilationType.LIBRARY) {
         if (isTest) {

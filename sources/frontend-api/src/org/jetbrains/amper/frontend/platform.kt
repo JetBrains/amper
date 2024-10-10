@@ -69,6 +69,15 @@ enum class Platform(
     override val schemaValue: String = pretty
 
     /**
+     * The name of this target platform as defined by the Kotlin compiler.
+     *
+     * * It should match the values of the `-target` argument of the Kotlin/Native compiler.
+     * * It should match the names of the platforms in the .konan directory.
+     */
+    val nameForCompiler: String
+        get() = name.lowercase()
+
+    /**
      * Get leaf children of this parent if it is a parent; List of self otherwise.
      */
     override val leaves: Set<Platform> by lazy {
