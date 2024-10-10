@@ -27,7 +27,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -108,7 +107,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -187,7 +185,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -266,7 +263,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -344,7 +340,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -421,7 +416,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -500,7 +494,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -577,7 +570,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -656,7 +648,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -735,7 +726,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -812,7 +802,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -891,7 +880,6 @@ Fragments:
       compose: <default> {
         enabled: <default> false
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }

@@ -27,7 +27,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -124,7 +123,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -218,7 +216,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -314,7 +311,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -408,7 +404,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -504,7 +499,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -600,7 +594,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -694,7 +687,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -789,7 +781,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -884,7 +875,6 @@ Fragments:
       compose: {
         enabled: true
         resources: <default> {
-          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }

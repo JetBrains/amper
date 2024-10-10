@@ -1,7 +1,6 @@
    compose:
       enabled: true
       resources:
-         enabled: false [default]
          exposedAccessors: false [default]
          packageName:  [default]
 

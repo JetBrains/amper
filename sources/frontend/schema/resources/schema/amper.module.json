@@ -551,11 +551,6 @@
     "ComposeResourcesSettings": {
       "type": "object",
       "properties": {
-        "enabled": {
-          "x-intellij-html-description": "Whether to enable Compose resources packaging and accessor code generation.",
-          "title": "Whether to enable Compose resources packaging and accessor code generation",
-          "type": "boolean"
-        },
         "exposedAccessors": {
           "x-intellij-html-description": "Whether the generated resources accessors should be exposed to other modules (public) or internal.",
           "title": "Whether the generated resources accessors should be exposed to other modules  or internal",
