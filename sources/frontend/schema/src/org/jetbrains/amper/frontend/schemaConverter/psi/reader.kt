@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.builders.isMap
 import org.jetbrains.amper.frontend.builders.isPath
 import org.jetbrains.amper.frontend.builders.isScalar
 import org.jetbrains.amper.frontend.builders.isString
+import org.jetbrains.amper.frontend.builders.isTraceableString
 import org.jetbrains.amper.frontend.builders.mapValueType
 import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
@@ -107,7 +108,8 @@ internal fun readTypedValue(
         return readScalarType(type, scalarValue, text, valueBase)
     }
     if (type.isMap) {
-        if (type.arguments.getOrNull(0)?.type?.isCollection == true) {
+        val keyType = type.arguments.getOrNull(0)?.type ?: return null
+        if (keyType.isCollection) {
             // we need to do this to preserve traces
             val contextsFromTable = applicableKeys.map { it.contexts }
                 .filter { it == contexts }.firstOrNull() ?: contexts
@@ -120,14 +122,20 @@ internal fun readTypedValue(
                     ))
         }
         val processedKeys = mutableSetOf<String>()
-        return applicableKeys.mapNotNull {
-            val key = it.key.nextAfter(path)?.let {
+        return applicableKeys.mapNotNull { keyWithContext ->
+            val key = keyWithContext.key.nextAfter(path)?.let {
                 // hack for numbered items in a collection
                 if (it.segmentName?.toIntOrNull() != null) it.next else it
             }
             val name = key?.segmentName
-            if (name == null || it.key.prev == null || !processedKeys.add(name)) null
-            else (name to readTypedValue(type.mapValueType, table, key, contexts))
+            if (name == null || keyWithContext.key.prev == null || !processedKeys.add(name)) null
+            else (name.let {
+                if (keyType.isTraceableString) TraceableString(it).applyPsiTrace(
+                    table[keyWithContext]?.sourceElement?.let {
+                        MappingEntry.from(it)?.key ?: it
+                    }
+                ) else it
+            } to readTypedValue(type.mapValueType, table, key, contexts))
         }.toMap()
     }
     if (type.isCollection) {
