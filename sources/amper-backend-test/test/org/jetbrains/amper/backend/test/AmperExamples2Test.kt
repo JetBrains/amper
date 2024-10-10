@@ -120,7 +120,9 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
 
         assertNotNull(archive)
         // Verify the signature is in the archive
-        assertTrue(JarFile(archive).getEntry("META-INF/KEYALIAS.RSA").size > 0)
+        JarFile(archive).use { jarFile ->
+            assertTrue(jarFile.getEntry("META-INF/KEYALIAS.RSA").size > 0)
+        }
     }
     
     @Test
