@@ -6,4 +6,6 @@ dependencies:
   - androidx.activity:activity-compose:1.7.2 # integration compose with activities
 
 settings:
+  android:
+    signing: enabled
   compose: enabled
