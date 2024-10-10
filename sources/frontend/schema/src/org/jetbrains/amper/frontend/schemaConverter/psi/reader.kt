@@ -343,17 +343,18 @@ internal fun <T : Any> readFromTable(
                 }
             }
     }
-    reportUnknownProperties(table, path, knownProperties)
+    reportUnknownProperties(table, path, knownProperties, contexts)
 }
 
 context(Converter)
 private fun reportUnknownProperties(
     table: ValueTable,
     path: Pointer,
-    knownProperties: Sequence<KMutableProperty1<Any, Any?>>
+    knownProperties: Sequence<KMutableProperty1<Any, Any?>>,
+    contexts: Set<TraceableString>
 ) {
     val unknownProperties =
-        table.keys.filter { k -> k.key.startsWith(path) && !knownProperties.any { k.key.startsWith(path + it.name) } }
+        table.keys.filter { k -> k.contexts == contexts && k.key.startsWith(path) && !knownProperties.any { k.key.startsWith(path + it.name) } }
             .mapNotNull { it.key.nextAfter(path)?.let { v -> KeyWithContext(v, it.contexts) } }.distinct()
     unknownProperties.forEach { prop ->
         table[prop]?.let {

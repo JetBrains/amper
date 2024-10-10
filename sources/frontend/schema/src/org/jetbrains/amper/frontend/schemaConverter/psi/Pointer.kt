@@ -32,6 +32,7 @@ class Pointer(val segmentName: String? = null,
     }
 
     fun nextAfter(o: Pointer): Pointer? {
+        if (o.segmentName == null && o.prev == null && o.next == null) return this
         var own: Pointer? = firstSegment
         var other: Pointer? = o.firstSegment
         while (other != null) {
@@ -44,6 +45,7 @@ class Pointer(val segmentName: String? = null,
     }
 
     fun startsWith(o: Pointer): Boolean {
+        if (o.segmentName == null && o.prev == null && o.next == null) return true
         var own: Pointer? = firstSegment
         var other: Pointer? = o.firstSegment
         while (other != null) {
