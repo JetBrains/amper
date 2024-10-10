@@ -19,6 +19,7 @@ import org.jetbrains.amper.tasks.ios.IosComposeResourcesTask.Companion.resources
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 
 /**
@@ -35,6 +36,10 @@ class IosComposeResourcesTask(
         val outputPath = resourcesConventionDirectory(buildOutputRoot, leafFragment)
 
         val results = dependenciesResult.filterIsInstance<PrepareComposeResourcesResult.Prepared>()
+        if (results.isEmpty()) {
+            outputPath.deleteRecursively()
+            return EmptyTaskResult
+        }
 
         val config = mapOf(
             "paths" to Json.encodeToString(results.map { it.relativePackagingPath }),

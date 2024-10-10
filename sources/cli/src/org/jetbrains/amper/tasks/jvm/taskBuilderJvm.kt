@@ -15,7 +15,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
-import org.jetbrains.amper.tasks.compose.isComposeResourcesEnabledFor
+import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.tasks.getModuleDependencies
 
 fun ProjectTasksBuilder.setupJvmTasks() {
@@ -87,7 +87,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
                 )
 
-                if (isComposeResourcesEnabledFor(module)) {
+                if (isComposeEnabledFor(module)) {
                     fragments.forEach { fragment ->
                         tasks.registerDependency(
                             taskName = CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
@@ -108,7 +108,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
         }
 
     allModules().alsoPlatforms(Platform.JVM).withEach {
-        if (isComposeResourcesEnabledFor(module)) {
+        if (isComposeEnabledFor(module)) {
             module.fragments.filter { Platform.JVM in it.platforms }.forEach { fragment ->
                 val prepareTaskName = ComposeFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment)
                 val prepareForJvm = JvmFragmentTaskType.PrepareComposeResources.getTaskName(fragment)

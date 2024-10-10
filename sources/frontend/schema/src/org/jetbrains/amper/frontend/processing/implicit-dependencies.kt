@@ -119,7 +119,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
         val composeVersion = checkNotNull(settings.compose.version)
         add(composeRuntimeDependency(composeVersion))
 
-        if (settings.compose.resources.enabled) {
+        if (hasAnyComposeResources) {
             add(composeResourcesDependency(composeVersion))
         }
     }

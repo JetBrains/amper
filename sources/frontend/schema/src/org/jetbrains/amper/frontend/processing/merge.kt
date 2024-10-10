@@ -124,7 +124,6 @@ fun ComposeResourcesSettings.merge(overwrite: ComposeResourcesSettings?) =
     mergeNode(overwrite, ::ComposeResourcesSettings) {
         mergeScalar(ComposeResourcesSettings::exposedAccessors)
         mergeScalar(ComposeResourcesSettings::packageName)
-        mergeScalar(ComposeResourcesSettings::enabled)
     }
 
 fun KspSettings.merge(overwrite: KspSettings?) = mergeNode(overwrite, ::KspSettings) {

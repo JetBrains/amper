@@ -11,8 +11,3 @@ import org.jetbrains.amper.frontend.schema.commonSettings
 internal fun isComposeEnabledFor(module: PotatoModule): Boolean {
     return module.origin.commonSettings.compose.enabled
 }
-
-internal fun isComposeResourcesEnabledFor(module: PotatoModule): Boolean {
-    // TODO: `!compose.enabled && compose.resources.enabled` => invalid config, report it
-    return isComposeEnabledFor(module) && module.origin.commonSettings.compose.resources.enabled
-}

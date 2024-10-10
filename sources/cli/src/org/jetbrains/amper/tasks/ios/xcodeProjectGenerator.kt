@@ -25,7 +25,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.tasks.compose.isComposeResourcesEnabledFor
+import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.util.BuildType
 import java.io.File
 import java.nio.file.Path
@@ -153,7 +153,7 @@ private fun addResourcesStages(
     manipulator: PBXProjectFileManipulator,
     pbxTarget: PBXTarget,
 ) {
-    if (isComposeResourcesEnabledFor(module)) {
+    if (isComposeEnabledFor(module)) {
         val resourcesConventionDir = IosComposeResourcesTask.resourcesConventionDirectory(outputRoot, leafFragment)
         // `compose-resources/` is a content path where the "resources" library expects to find the files.
         val destination = "\$BUILT_PRODUCTS_DIR/\$CONTENTS_FOLDER_PATH/compose-resources"
@@ -162,8 +162,10 @@ private fun addResourcesStages(
             // TODO: check arch, conf, platform?
             // TODO: Maybe replace with directory symlink
             //  or a tree of links depending on whether xcode follows symlinks while traversing the directory
-            appendLine("mkdir -p \"$destination\"")
-            appendLine("cp -r \"${resourcesConventionDir.pathString}\"/* \"$destination\"")
+            appendLine("if [[ -d \"${resourcesConventionDir.pathString}\" ]]; then")
+            appendLine("  mkdir -p \"$destination\"")
+            appendLine("  cp -r \"${resourcesConventionDir.pathString}\"/* \"$destination\"")
+            appendLine("fi")
         }
         manipulator.addBuildPhase(
             PBXBuildPhase.Type.SHELL_SCRIPT,

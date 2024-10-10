@@ -25,10 +25,6 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             return@configureModule
         }
 
-        if (!isComposeResourcesEnabledFor(module)) {
-            return@configureModule
-        }
-
         val codegenTasksByLeafFragment = mutableMapOf<Fragment, MutableList<TaskName>>()
         fun addCodegenTaskForRegistering(fragment: Fragment, codeGenTaskName: TaskName) {
             refinedLeafFragmentsDependingOn(fragment).forEach { leafFragment ->

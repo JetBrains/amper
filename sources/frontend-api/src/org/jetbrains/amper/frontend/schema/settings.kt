@@ -77,9 +77,6 @@ class ComposeSettings : SchemaNode() {
 }
 
 class ComposeResourcesSettings : SchemaNode() {
-    @SchemaDoc("Whether to enable Compose resources packaging and accessor code generation.")
-    var enabled by value(default = false)
-
     @SchemaDoc(
         "A unique identifier for the resources in the current module.<br>" +
                 "Used as package for the generated Res class and for isolating resources in the final artifact."

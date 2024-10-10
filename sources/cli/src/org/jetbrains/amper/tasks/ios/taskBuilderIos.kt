@@ -13,7 +13,7 @@ import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
-import org.jetbrains.amper.tasks.compose.isComposeResourcesEnabledFor
+import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.tasks.fragmentsTargeting
 import org.jetbrains.amper.tasks.getModuleDependencies
 import org.jetbrains.amper.tasks.native.NativeTaskType
@@ -46,7 +46,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
 
             fun configureMainTasks() {
                 val composeResourcesTaskName = IosTaskType.PrepareComposeResources.getTaskName(module, platform)
-                        .takeIf { isComposeResourcesEnabledFor(module) }
+                        .takeIf { isComposeEnabledFor(module) }
                         ?.also { taskName ->
                             tasks.registerTask(
                                 task = IosComposeResourcesTask(
@@ -93,7 +93,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
         .alsoPlatforms(Platform.IOS)
         .alsoTests()
         .filterModuleType { it == ProductType.IOS_APP }
-        .filter { isComposeResourcesEnabledFor(it.module) }
+        .filter { isComposeEnabledFor(it.module) }
         .withEach {
             // include local resources (self)
             includeComposeResources(
@@ -108,7 +108,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                 platform = platform,
                 dependencyReason = ResolutionScope.RUNTIME,
                 userCacheRoot = context.userCacheRoot,
-            ).filter(::isComposeResourcesEnabledFor).forEach { dependencyModule ->
+            ).filter(::isComposeEnabledFor).forEach { dependencyModule ->
                 includeComposeResources(
                     from = dependencyModule,
                     into = module,

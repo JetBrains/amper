@@ -9,5 +9,3 @@ settings:
   compose:
     enabled: true
     version: 1.7.0-rc01
-    resources:
-      enabled: true
