@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 plugins {
     // Apply any plugins as usual.
     // Note: The following plugins are preconfigured and their versions can't be changed:
@@ -46,8 +50,7 @@ kotlin {
             dependencies {
                 implementation(compose.foundation)
                 implementation(compose.material3)
-                implementation("androidx.activity:activity-compose:1.7.2")
-                implementation("androidx.appcompat:appcompat:1.6.1")
+                implementation(libs.activity.compose)
             }
         }
     }

@@ -2,9 +2,7 @@
     <application>
         <activity
                 android:name="hello.world.MainActivity"
-                android:theme="@style/Theme.AppCompat.Light"
-                android:exported="true"
-        >
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
