@@ -46,7 +46,7 @@ internal class Ksp(
         }
         val args = config.toCommandLineOptions(workingDir, legacyListMode) + processorClasspathStr
 
-        logger.info("ksp $args")
+        logger.info("ksp {} {}", compilationType, args)
         val result = jdk.runJava(
             workingDir = workingDir,
             mainClass = compilationType.kspMainClassFqn,
