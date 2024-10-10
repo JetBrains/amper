@@ -375,14 +375,28 @@ settings:
 
 `settings:android:` configures the Android toolchain and platform.
 
-| Attribute               | Description                                                                                                                                                                                                                   | Default |
-|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| `applicationId: string` | The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                                     |         |
-| `namespace: string`     | A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                           |         |
-| `compileSdk: int`       | The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). |         |
-| `targetSdk: int`        | The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             |         |
-| `minSdk: int`           | Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                      |         |
-| `maxSdk: int`           | Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                   |         |
+| Attribute               | Description                                                                                                                                                                                                                   | Default               |
+|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
+| `applicationId: string` | The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                                     | (namespace)           |
+| `namespace: string`     | A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                           | org.example.namespace |
+| `compileSdk: int`       | The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). | (targetSdk)           |
+| `targetSdk: int`        | The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             | 35                    |
+| `minSdk: int`           | Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                      | 21                    |
+| `maxSdk: int`           | Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                   |                       |
+| `signing: object`       | Android signing settings. [Read more](https://developer.android.com/studio/publish/app-signing).                                                                                                                              |                       |
+| `versionCode: int`      | Version code. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | 1                     |
+| `versionName: string`   | Version name. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | unspecified           |
+
+##### Android signing
+
+`settings:android:signing:` configures signing of Android apps [Read more](https://developer.android.com/studio/publish/app-signing)
+
+
+| Attribute              | Description                                                                                            | Default               |
+|------------------------|--------------------------------------------------------------------------------------------------------|-----------------------|
+| `enabled: boolean`     | Whether signing enabled or not. [Read more](https://developer.android.com/studio/publish/app-signing). | false                 |
+| `propertiesFile: path` | Location of properties file. [Read more](https://developer.android.com/studio/publish/app-signing).    | ./keystore.properties |
+
 
 #### iOS
 
