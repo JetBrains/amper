@@ -1,7 +1,7 @@
 Fragments:
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.7.3, compile=true, runtime=true, exported=false)
     Src folder: src
@@ -51,7 +51,7 @@ Fragments:
           }
           processors: [
           ]
-          version: <default> 2.0.20-1.0.25
+          version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
@@ -78,8 +78,8 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.21, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.7.3, compile=true, runtime=true, exported=false)
     Src folder: test
@@ -130,7 +130,7 @@ Fragments:
           }
           processors: [
           ]
-          version: <default> 2.0.20-1.0.25
+          version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.0

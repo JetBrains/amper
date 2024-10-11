@@ -3,7 +3,7 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -52,7 +52,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.0.20-1.0.25
+          version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
@@ -79,9 +79,9 @@ Fragments:
 
   iosTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.21, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.21, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       ios (FRIEND)
@@ -130,7 +130,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.0.20-1.0.25
+          version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.0

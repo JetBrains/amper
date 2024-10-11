@@ -1,7 +1,7 @@
 Fragments:
   ios
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -49,7 +49,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.0.20-1.0.25
+          version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.0
@@ -76,9 +76,9 @@ Fragments:
 
   iosTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.21, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.21, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       ios (FRIEND)
@@ -127,7 +127,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.0.20-1.0.25
+          version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.0

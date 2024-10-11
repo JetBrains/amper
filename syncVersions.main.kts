@@ -19,7 +19,7 @@ The source of truth is the list of versions at the top of this file.
 
 val bootstrapAmperVersion = "0.5.0-dev-1696" // AUTO-UPDATED BY THE CI - DO NOT RENAME
 
-val kotlinVersion = "2.0.20"
+val kotlinVersion = "2.0.21"
 val kotlinxSerializationVersion = "1.7.3"
 val kspVersion = "$kotlinVersion-1.0.25"
 val composeVersion = "1.6.10"
