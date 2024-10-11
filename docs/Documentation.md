@@ -684,9 +684,6 @@ With the standalone version of Amper, you can use the `./amper task bundleAndroi
 
 In Gradle-based Amper projects, you can use the Gradle tasks provided with the release build type.
 
-When creating a release build with Amper, R8 will be used automatically, with minification and shrinking enabled. You
-can create a `proguard-rules.pro` file in the module folder to add custom rules for R8.
-
 ##### Entry point
 
 The application's entry point is specified in the AndroidManifest.xml file according to the 
@@ -773,6 +770,33 @@ settings:
       enabled: true
       additionalAnnotations: [ com.example.MyParcelize ]
 ```
+
+#### Code shrinking
+
+When creating a release build with Amper, R8 will be used automatically, with minification and shrinking enabled.
+This is an equivalent of:
+
+```kotlin
+// in Gradle
+isMinifyEnabled = true
+isShrinkResources = true
+proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+```
+
+You can create a `proguard-rules.pro` file in the module folder to add custom rules for R8.
+
+```
+|-src/
+|  ...      
+|-test/
+|  ...
+|-proguard-rules.pro
+|-module.yaml
+```
+
+It is automatically used by Amper if found.
+
+The example of how to add custom R8 rules could be found at `compose-multiplatform` example in `android-app` module.
 
 ### Tests
 
