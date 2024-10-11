@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands.tools
 
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
+import com.github.ajalt.clikt.command.SuspendingNoOpCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.subcommands
@@ -19,7 +20,7 @@ import org.jetbrains.amper.jvm.JdkDownloader
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 
-class JdkToolCommand: SuspendingCliktCommand(name = "jdk") {
+class JdkToolCommand: SuspendingNoOpCliktCommand(name = "jdk") {
     init {
         subcommands(
             JdkToolSubcommand("jstack"),
@@ -30,8 +31,6 @@ class JdkToolCommand: SuspendingCliktCommand(name = "jdk") {
     }
 
     override fun help(context: Context): String = "Run various tools from Amper default JDK"
-
-    override suspend fun run() = Unit
 }
 
 private class JdkToolSubcommand(private val name: String) : SuspendingCliktCommand(name = name) {

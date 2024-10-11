@@ -4,11 +4,11 @@
 
 package org.jetbrains.amper.cli.commands.tools
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
+import com.github.ajalt.clikt.command.SuspendingNoOpCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 
-internal class ToolCommand : SuspendingCliktCommand(name = "tool") {
+internal class ToolCommand : SuspendingNoOpCliktCommand(name = "tool") {
 
     init {
         subcommands(
