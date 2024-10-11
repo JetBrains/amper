@@ -4,18 +4,14 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.TaskName
 
-internal class TaskCommand : SuspendingCliktCommand(name = "task") {
+internal class TaskCommand : AmperSubcommand(name = "task") {
 
-    val name by argument(help = "task name to execute")
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    private val name by argument(help = "task name to execute")
 
     override fun help(context: Context): String = "Execute any task from the task graph"
 

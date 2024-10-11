@@ -4,9 +4,7 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -20,9 +18,8 @@ import kotlin.io.path.Path
 import kotlin.io.path.notExists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
-import kotlin.random.Random
 
-internal class UpdateCommand : SuspendingCliktCommand(name = "update") {
+internal class UpdateCommand : AmperSubcommand(name = "update") {
 
     private val repository by option(
         "-r", "--repository",
@@ -38,8 +35,6 @@ internal class UpdateCommand : SuspendingCliktCommand(name = "update") {
         "--target-version", // avoid --version to avoid confusion with the "./amper --version" command
         help = "The specific version to update to. By default, the latest version is used.",
     )
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
 
     override fun help(context: Context): String = "Update Amper to the latest version"
 

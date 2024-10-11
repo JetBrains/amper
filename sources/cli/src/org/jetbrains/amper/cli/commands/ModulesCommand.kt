@@ -4,14 +4,10 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import org.jetbrains.amper.cli.withBackend
 
-internal class ModulesCommand : SuspendingCliktCommand(name = "modules") {
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
+internal class ModulesCommand : AmperSubcommand(name = "modules") {
 
     override fun help(context: Context): String = "List all modules in the project"
 

@@ -4,13 +4,11 @@
 
 package org.jetbrains.amper.cli.commands.tools
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
-import org.jetbrains.amper.cli.commands.RootCommand
+import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.keystore.KeystoreGenerationException
@@ -18,9 +16,7 @@ import org.jetbrains.amper.keystore.KeystoreGenerator
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
-class KeystoreToolCommand : SuspendingCliktCommand(name = "generate-keystore") {
-
-    private val commonOptions by requireObject<RootCommand.CommonOptions>()
+internal class KeystoreToolCommand : AmperSubcommand(name = "generate-keystore") {
 
     private val propertiesFile by option(
         "--properties-file",

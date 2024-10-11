@@ -4,9 +4,7 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.mordant.rendering.TextAlign
 import com.github.ajalt.mordant.rendering.Whitespace
 import com.github.ajalt.mordant.terminal.info
@@ -18,9 +16,7 @@ import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.valueTracking.TracesPresentation
 import org.jetbrains.amper.frontend.valueTracking.compositeValueTracesInfo
 
-internal class SettingsCommand: SuspendingCliktCommand(name = "settings") {
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
+internal class SettingsCommand: AmperSubcommand(name = "settings") {
 
     override fun help(context: Context): String = "Print the effective Amper settings of each module"
 

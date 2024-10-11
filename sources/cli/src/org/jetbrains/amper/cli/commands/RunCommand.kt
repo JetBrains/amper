@@ -4,10 +4,8 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.convert
@@ -17,14 +15,14 @@ import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.util.BuildType
 
-internal class RunCommand : SuspendingCliktCommand(name = "run") {
+internal class RunCommand : AmperSubcommand(name = "run") {
 
-    val module by option("-m", "--module", help = "Specific module to run (run the 'modules' command to get the modules list)")
+    private val module by option("-m", "--module", help = "Specific module to run (run the 'modules' command to get the modules list)")
 
-    val platform by leafPlatformOption(help = "Run the app on specified platform. This option is only necessary if " +
+    private val platform by leafPlatformOption(help = "Run the app on specified platform. This option is only necessary if " +
             "the module has multiple main functions for different platforms")
 
-    val buildType by option(
+    private val buildType by option(
         "-b",
         "--build-type",
         help = "Run the app with the specified build type (${BuildType.buildTypeStrings.sorted().joinToString(", ")})",
@@ -33,9 +31,7 @@ internal class RunCommand : SuspendingCliktCommand(name = "run") {
         .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
         .default(BuildType.Debug)
 
-    val programArguments by argument(name = "program arguments").multiple()
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    private val programArguments by argument(name = "program arguments").multiple()
 
     override fun help(context: Context): String = "Run your application"
 

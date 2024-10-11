@@ -4,27 +4,23 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.TaskExecutor
 
-internal class TestCommand : SuspendingCliktCommand(name = "test") {
+internal class TestCommand : AmperSubcommand(name = "test") {
 
-    val platform by leafPlatformOption(help = "only run tests for the specified platform. The option can be repeated to test several platforms.")
+    private val platform by leafPlatformOption(help = "only run tests for the specified platform. The option can be repeated to test several platforms.")
         .multiple()
 
-    val filter by option("-f", "--filter", help = "wildcard filter to run only matching tests, the option could be repeated to run tests matching any filter")
+    private val filter by option("-f", "--filter", help = "wildcard filter to run only matching tests, the option could be repeated to run tests matching any filter")
 
-    val includeModules by option("-m", "--include-module", help = "specific module to check, the option could be repeated to check several modules").multiple()
+    private val includeModules by option("-m", "--include-module", help = "specific module to check, the option could be repeated to check several modules").multiple()
 
-    val excludeModules by option("--exclude-module", help = "specific module to exclude, the option could be repeated to exclude several modules").multiple()
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    private val excludeModules by option("--exclude-module", help = "specific module to exclude, the option could be repeated to exclude several modules").multiple()
 
     override fun help(context: Context): String = "Run tests in the project"
 

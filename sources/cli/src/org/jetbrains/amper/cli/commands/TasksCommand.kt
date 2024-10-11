@@ -4,14 +4,10 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import org.jetbrains.amper.cli.withBackend
 
-internal class TasksCommand : SuspendingCliktCommand(name = "tasks") {
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
+internal class TasksCommand : AmperSubcommand(name = "tasks") {
 
     override fun help(context: Context): String = "List all tasks in the project and their dependencies"
 

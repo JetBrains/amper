@@ -58,7 +58,7 @@ internal class RootCommand : SuspendingCliktCommand(name = System.getProperty("a
         }
     }
 
-    val root by option(help = "Amper project root")
+    private val root by option(help = "Amper project root")
         .path(mustExist = true, canBeFile = false, canBeDir = true)
 
     private val consoleLogLevel by option(
@@ -86,7 +86,7 @@ internal class RootCommand : SuspendingCliktCommand(name = System.getProperty("a
 
     private val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)
 
-    val buildOutputRoot by option(
+    private val buildOutputRoot by option(
         "--build-output",
         help = "Root directory for build outputs. By default, this is the 'build' directory under the project root."
     ).path(mustExist = false, canBeFile = false, canBeDir = true)

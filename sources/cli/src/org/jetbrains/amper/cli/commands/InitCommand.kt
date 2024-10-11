@@ -4,20 +4,16 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.generator.ProjectGenerator
 import kotlin.io.path.Path
 
-internal class InitCommand : SuspendingCliktCommand(name = "init") {
+internal class InitCommand : AmperSubcommand(name = "init") {
 
-    val template by argument(help = "project template name substring, e.g., 'jvm-cli'").optional()
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    private val template by argument(help = "project template name substring, e.g., 'jvm-cli'").optional()
 
     override fun help(context: Context): String = "Initialize a new Amper project based on a template"
 

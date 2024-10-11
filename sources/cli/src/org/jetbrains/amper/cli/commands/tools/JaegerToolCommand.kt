@@ -4,9 +4,7 @@
 
 package org.jetbrains.amper.cli.commands.tools
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.default
@@ -21,7 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.cli.commands.RootCommand
+import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.extractFileToCacheLocation
@@ -38,7 +36,7 @@ import java.net.Socket
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 
-class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
+internal class JaegerToolCommand: AmperSubcommand(name = "jaeger") {
 
     private val openBrowser by option(
         "--open-browser",
@@ -52,8 +50,6 @@ class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
         .default("1.61.0")
 
     private val jaegerArguments by argument(name = "jaeger arguments").multiple()
-
-    private val commonOptions by requireObject<RootCommand.CommonOptions>()
 
     override fun help(context: Context): String = "Download and run Jaeger server https://www.jaegertracing.io"
 

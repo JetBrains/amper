@@ -4,16 +4,12 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import org.jetbrains.amper.cli.withBackend
 import org.slf4j.LoggerFactory
 import kotlin.io.path.deleteRecursively
 
-internal class CleanSharedCachesCommand : SuspendingCliktCommand(name = "clean-shared-caches") {
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
+internal class CleanSharedCachesCommand : AmperSubcommand(name = "clean-shared-caches") {
 
     override fun help(context: Context): String = "Remove the Amper caches that are shared between projects"
 

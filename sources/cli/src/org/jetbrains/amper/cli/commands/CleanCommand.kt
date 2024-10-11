@@ -4,16 +4,12 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import org.jetbrains.amper.cli.withBackend
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 
-internal class CleanCommand : SuspendingCliktCommand(name = "clean") {
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
+internal class CleanCommand : AmperSubcommand(name = "clean") {
 
     override fun help(context: Context): String = "Remove the project's build output and caches"
 

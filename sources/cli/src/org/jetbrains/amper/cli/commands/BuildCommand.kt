@@ -4,18 +4,14 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.multiple
 import org.jetbrains.amper.cli.withBackend
 
-internal class BuildCommand : SuspendingCliktCommand(name = "build") {
+internal class BuildCommand : AmperSubcommand(name = "build") {
 
-    val platform by leafPlatformOption(help = "Only build for the specified platform. The option can be repeated to build several platforms.")
+    private val platform by leafPlatformOption(help = "Only build for the specified platform. The option can be repeated to build several platforms.")
         .multiple()
-
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
 
     override fun help(context: Context): String = "Compile and link all code in the project"
 

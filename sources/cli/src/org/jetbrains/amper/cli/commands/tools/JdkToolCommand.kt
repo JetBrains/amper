@@ -4,15 +4,12 @@
 
 package org.jetbrains.amper.cli.commands.tools
 
-import com.github.ajalt.clikt.command.SuspendingCliktCommand
-import com.github.ajalt.clikt.command.SuspendingNoOpCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.intellij.util.io.awaitExit
-import org.jetbrains.amper.cli.commands.RootCommand
+import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.intellij.CommandLineUtils
@@ -20,7 +17,7 @@ import org.jetbrains.amper.jvm.JdkDownloader
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 
-class JdkToolCommand: SuspendingNoOpCliktCommand(name = "jdk") {
+internal class JdkToolCommand: AmperSubcommand(name = "jdk") {
     init {
         subcommands(
             JdkToolSubcommand("jstack"),
@@ -31,13 +28,13 @@ class JdkToolCommand: SuspendingNoOpCliktCommand(name = "jdk") {
     }
 
     override fun help(context: Context): String = "Run various tools from Amper default JDK"
+
+    override suspend fun run() = Unit
 }
 
-private class JdkToolSubcommand(private val name: String) : SuspendingCliktCommand(name = name) {
+private class JdkToolSubcommand(private val name: String) : AmperSubcommand(name = name) {
 
     private val toolArguments by argument(name = "tool arguments").multiple()
-
-    private val commonOptions by requireObject<RootCommand.CommonOptions>()
 
     override fun helpEpilog(context: Context): String = "Use -- to separate $name's arguments from Amper options"
 
