@@ -4,6 +4,7 @@
 
 @file:OptIn(ExperimentalPathApi::class)
 
+import java.io.File
 import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -166,5 +167,5 @@ fun Path.replaceFileText(transform: (text: String) -> String) {
         return
     }
     writeText(newTest)
-    println("Updated file ./${relativeTo(amperRootDir)}")
+    println("Updated file .${File.separator}${relativeTo(amperRootDir)}")
 }
