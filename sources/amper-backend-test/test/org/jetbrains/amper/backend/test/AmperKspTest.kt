@@ -128,11 +128,8 @@ class AmperKspTest : AmperIntegrationTestBase() {
         )
     }
 
-    // TODO [KSP2_ISSUE] Koin fails even on JVM with the following error:
-    // KaInvalidLifetimeOwnerAccessException: Access to invalid ksp.org.jetbrains.kotlin.analysis.api.platform.lifetime.KotlinAlwaysAccessibleLifetimeToken@8f09a02: PSI has changed since creation
-    // https://github.com/google/ksp/issues/1854
-    // Still there in KSP 2.0.20-1.0.26-SNAPSHOT
-    @Disabled("Koin bug with KSP2")
+    // TODO Enable when Koin supports KSP2
+    @Disabled("Koin doesn't support KSP2 yet: https://github.com/InsertKoinIO/koin-annotations/issues/132")
     @Test
     fun `ksp jvm koin`() = runTestWithCollector {
         val projectContext = setupTestDataProject("ksp-jvm-koin")
@@ -152,11 +149,8 @@ class AmperKspTest : AmperIntegrationTestBase() {
         assertStdoutContains("CoffeeMaker: brewing...")
     }
 
-    // TODO [KSP2_ISSUE] Koin fails even on JVM with the following error:
-    // KaInvalidLifetimeOwnerAccessException: Access to invalid ksp.org.jetbrains.kotlin.analysis.api.platform.lifetime.KotlinAlwaysAccessibleLifetimeToken@8f09a02: PSI has changed since creation
-    // https://github.com/google/ksp/issues/1854
-    // Still there in KSP 2.0.20-1.0.26-SNAPSHOT
-    @Disabled("Koin bug with KSP2")
+    // TODO Enable when Koin supports KSP2
+    @Disabled("Koin doesn't support KSP2 yet: https://github.com/InsertKoinIO/koin-annotations/issues/132")
     @Test
     fun `ksp multiplatform koin`() = runTestWithCollector {
         val projectContext = setupTestDataProject("ksp-kmp-koin")
