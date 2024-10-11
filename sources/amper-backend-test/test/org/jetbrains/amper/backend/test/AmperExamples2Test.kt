@@ -130,6 +130,7 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
         val backend = AmperBackend(setupExampleProject("compose-multiplatform"))
         backend.runTask("android-app", "bundleAndroid")
         assertTrue((backend.context.projectRoot.path / "build" / "temp" / "full-r8-config.txt").exists())
+        ConnectorServices.reset()
     }
 }
 
