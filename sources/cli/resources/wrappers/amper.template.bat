@@ -61,7 +61,7 @@ REM ********** Download and extract JVM **********
 if defined AMPER_JAVA_HOME goto continue_with_jvm
 
 set jvm_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%%jvm_file_name%\
-call :download_and_extract "%jvm_url%" "%jvm_target_dir%" "%jvm_sha256%"
+call :download_and_extract "A runtime for Amper" "%jvm_url%" "%jvm_target_dir%" "%jvm_sha256%"
 if errorlevel 1 goto fail
 
 set AMPER_JAVA_HOME=
@@ -77,7 +77,7 @@ REM ********** Download and extract Amper **********
 
 set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%amper-cli-%amper_version%\
 
-call :download_and_extract "%amper_url%" "%amper_target_dir%" "%amper_sha256%"
+call :download_and_extract "The Amper %amper_version% distribution" "%amper_url%" "%amper_target_dir%" "%amper_sha256%"
 if errorlevel 1 goto fail
 
 REM ********** Run Amper **********
@@ -90,9 +90,10 @@ REM ********** Download And Extract Any Zip Archive **********
 :download_and_extract
 setlocal
 
-set url=%~1
-set target_dir=%~2
-set sha256=%~3
+set moniker=%~1
+set url=%~2
+set target_dir=%~3
+set sha256=%~4
 
 if not exist "%target_dir%.flag" goto download_and_extract_always
 
@@ -116,6 +117,7 @@ try { ^
     if ((Get-Content '%target_dir%.flag' -ErrorAction Ignore) -ne '%url%') { ^
         $temp_file = '%AMPER_BOOTSTRAP_CACHE_DIR%' + [System.IO.Path]::GetRandomFileName(); ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
+        Write-Host '%moniker% will now be provisioned because this is the first run. Subsequent runs will skip this step and be faster.'; ^
         Write-Host 'Downloading %url%'; ^
         [void](New-Item '%target_dir%' -ItemType Directory -Force); ^
         (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
@@ -134,6 +136,7 @@ try { ^
         Remove-Item $temp_file; ^
  ^
         Set-Content '%target_dir%.flag' -Value '%url%'; ^
+        Write-Host ''; ^
     } ^
 } ^
 finally { ^

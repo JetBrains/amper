@@ -37,10 +37,11 @@ die () {
 }
 
 download_and_extract() {
-  file_url="$1"
-  file_sha256="$2"
-  cache_dir="$3"
-  extract_dir="$4"
+  moniker="$1"
+  file_url="$2"
+  file_sha256="$3"
+  cache_dir="$4"
+  extract_dir="$5"
 
   if [ -e "$extract_dir/.flag" ] && [ -n "$(ls "$extract_dir")" ] && [ "x$(cat "$extract_dir/.flag")" = "x${file_url}" ]; then
     # Everything is up-to-date in $extract_dir, do nothing
@@ -49,6 +50,7 @@ download_and_extract() {
     mkdir -p "$cache_dir"
     temp_file="$cache_dir/download-file-$$.bin"
 
+    echo "$moniker will now be provisioned because this is the first run. Subsequent runs will skip this step and be faster."
     echo "Downloading $file_url"
 
     rm -f "$temp_file"
@@ -77,6 +79,7 @@ download_and_extract() {
     rm -f "$temp_file"
 
     echo "$file_url" >"$extract_dir/.flag"
+    echo
   fi
 }
 
@@ -181,7 +184,7 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
       ;;
   esac
 
-  download_and_extract "$jvm_url" "$jvm_sha256" "$amper_cache_dir" "$jvm_target_dir"
+  download_and_extract "A runtime for Amper" "$jvm_url" "$jvm_sha256" "$amper_cache_dir" "$jvm_target_dir"
 
   AMPER_JAVA_HOME=
   for d in "$jvm_target_dir" "$jvm_target_dir"/* "$jvm_target_dir"/Contents/Home "$jvm_target_dir"/*/Contents/Home; do
@@ -202,7 +205,7 @@ fi
 
 ### AMPER
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
-download_and_extract "$amper_url" "$amper_sha256" "$amper_cache_dir" "$amper_target_dir"
+download_and_extract "The Amper $amper_version distribution" "$amper_url" "$amper_sha256" "$amper_cache_dir" "$amper_target_dir"
 
 if [ "$simpleOs" = "windows" ]; then
   # Can't cygpath the *
