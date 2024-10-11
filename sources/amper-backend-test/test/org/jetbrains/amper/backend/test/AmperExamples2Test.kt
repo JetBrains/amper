@@ -123,6 +123,7 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
         JarFile(archive).use { jarFile ->
             assertTrue(jarFile.getEntry("META-INF/KEYALIAS.RSA").size > 0)
         }
+        ConnectorServices.reset()
     }
     
     @Test
