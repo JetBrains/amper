@@ -4,12 +4,6 @@
     <option name="ignoredModules">
       <list>
         <option value="migrated-projects/KaMPKit/shared" />
-        <option value="sources/examples-standalone/compose-android" />
-        <option value="sources/examples-standalone/compose-desktop" />
-        <option value="sources/examples-standalone/compose-ios" />
-        <option value="sources/examples-standalone/compose-multiplatform" />
-        <option value="sources/examples-standalone/jvm" />
-        <option value="sources/examples-standalone/new-project-template" />
         <option value="sources/amper-backend-test/testData/projects/android/appcompat" />
         <option value="sources/amper-backend-test/testData/projects/android/signed" />
         <option value="sources/amper-backend-test/testData/projects/android/simple" />
@@ -37,6 +31,12 @@
         <option value="sources/amper-backend-test/testData/projects/parcelize-android-app" />
         <option value="sources/amper-backend-test/testData/projects/parcelize-android-lib" />
         <option value="sources/amper-backend-test/testData/projects/shell-scripts" />
+        <option value="sources/examples-standalone/compose-android" />
+        <option value="sources/examples-standalone/compose-desktop" />
+        <option value="sources/examples-standalone/compose-ios" />
+        <option value="sources/examples-standalone/compose-multiplatform" />
+        <option value="sources/examples-standalone/jvm" />
+        <option value="sources/examples-standalone/new-project-template" />
       </list>
     </option>
   </component>
