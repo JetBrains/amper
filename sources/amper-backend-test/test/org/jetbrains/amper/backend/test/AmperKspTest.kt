@@ -162,31 +162,30 @@ class AmperKspTest : AmperIntegrationTestBase() {
             "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
         )
 
-        // TODO enable when KSP native bugs are fixed
-//        val os = DefaultSystemInfo.detect()
-//        if (os.family.isWindows) {
-//            projectContext.generatedFilesDir(module = "shared", fragment = "mingwX64").assertContainsRelativeFiles(
-//                "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
-//                "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
-//            )
-//        }
+        val os = DefaultSystemInfo.detect()
+        if (os.family.isWindows) {
+            projectContext.generatedFilesDir(module = "shared", fragment = "mingwX64").assertContainsRelativeFiles(
+                "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
+                "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
+            )
+        }
 
-//        if (os.family.isMac) {
-//            if (os.arch == Arch.Arm64) {
-//                projectContext.generatedFilesDir(module = "shared", fragment = "macosArm64")
-//                    .assertContainsRelativeFiles(
-//                        "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
-//                        "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
-//                    )
-//            }
-//            if (os.arch == Arch.X64) {
-//                projectContext.generatedFilesDir(module = "shared", fragment = "macosX64")
-//                    .assertContainsRelativeFiles(
-//                        "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
-//                        "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
-//                    )
-//            }
-//        }
+        if (os.family.isMac) {
+            if (os.arch == Arch.Arm64) {
+                projectContext.generatedFilesDir(module = "shared", fragment = "macosArm64")
+                    .assertContainsRelativeFiles(
+                        "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
+                        "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
+                    )
+            }
+            if (os.arch == Arch.X64) {
+                projectContext.generatedFilesDir(module = "shared", fragment = "macosX64")
+                    .assertContainsRelativeFiles(
+                        "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
+                        "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
+                    )
+            }
+        }
     }
 
     @Test

@@ -6,14 +6,9 @@ dependencies:
   - io.insert-koin:koin-annotations:1.4.0-RC4
   - io.insert-koin:koin-core:4.0.0
 
-repositories:
-  - id: sonatype-snapshots # for KSP snapshot
-    url: https://oss.sonatype.org/content/repositories/snapshots
-
 settings:
   kotlin:
     ksp:
-      version: 2.0.20-1.0.26-SNAPSHOT # for KMP fixes
       processors:
         - io.insert-koin:koin-ksp-compiler:1.4.0-RC4
       processorOptions:
