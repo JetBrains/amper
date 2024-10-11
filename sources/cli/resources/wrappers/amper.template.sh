@@ -70,7 +70,7 @@ download_and_extract() {
     mkdir -p "$extract_dir"
 
     case "$file_url" in
-      *".zip") unzip "$temp_file" -d "$extract_dir" ;;
+      *".zip") unzip -q "$temp_file" -d "$extract_dir" ;;
       *) tar -x -f "$temp_file" -C "$extract_dir" ;;
     esac
 
