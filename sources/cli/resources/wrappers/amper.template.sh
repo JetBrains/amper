@@ -70,7 +70,7 @@ download_and_extract() {
     mkdir -p "$extract_dir"
 
     case "$file_url" in
-      *".zip") (cd "$extract_dir" && "$AMPER_JAVA_HOME/bin/jar" --extract --file "$temp_file") ;;
+      *".zip") unzip "$temp_file" -d "$extract_dir" ;;
       *) tar -x -f "$temp_file" -C "$extract_dir" ;;
     esac
 
@@ -110,20 +110,39 @@ check_sha256() {
 }
 
 ### System detection
-sys=$(uname -s)
+kernelName=$(uname -s)
+case "$kernelName" in
+  Darwin* )
+    simpleOs="macos"
+    default_amper_cache_dir="$HOME/Library/Caches/Amper"
+    ;;
+  Linux* )
+    simpleOs="linux"
+    default_amper_cache_dir="$HOME/.cache/Amper"
+    ;;
+  CYGWIN* | MSYS* | MINGW* )
+    simpleOs="windows"
+    if command -v cygpath >/dev/null 2>&1; then
+      default_amper_cache_dir=$(cygpath -u "$LOCALAPPDATA\Amper")
+    else
+      die "The 'cypath' command is not available, but Amper needs it. Use amper.bat instead, or try a Cygwin or MSYS environment."
+    fi
+    ;;
+  *)
+    die "Unsupported platform $kernelName"
+    ;;
+esac
 
-if [ "$sys" = "Darwin" ]; then
-  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/Library/Caches/Amper}"
-else
-  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/.cache/Amper}"
-fi
+# TODO should we respect --shared-caches-root instead of (or in addition to) this env var?
+amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 
 ### JVM
 # links from https://github.com/corretto/corretto-17/releases
 if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   corretto_version=17.0.9.8.1
+  microsoft_jdk_version=17.0.6
   jvm_arch=$(uname -m)
-  if [ "$sys" = "Darwin" ]; then
+  if [ "$simpleOs" = "macos" ]; then
     case $jvm_arch in
     x86_64)
       jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-x64.tar.gz"
@@ -139,10 +158,7 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
       die "Unknown architecture $jvm_arch"
       ;;
     esac
-  elif [ "$sys" = "cygwin" ] || [ "$sys" = "mingw" ]; then
-    # cygwin/mingw should use windows distribution
-    die "$sys is not supported yet"
-  elif [ "$sys" = "Linux" ]; then
+  elif [ "$simpleOs" = "linux" ]; then
     # shellcheck disable=SC2046
     jvm_arch=$(linux$(getconf LONG_BIT) uname -m)
     case $jvm_arch in
@@ -160,8 +176,24 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
         die "Unknown architecture $jvm_arch"
         ;;
     esac
+  elif [ "$simpleOs" = "windows" ]; then
+    case $jvm_arch in
+    x86_64)
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-windows-x64-jdk.zip"
+      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-windows-x64"
+      jvm_sha256=bef1845cbfc5dfc39240d794a31770b0f3f4b7aa179b49536f7b37a4f09985ae
+      ;;
+    arm64)
+      jvm_url="$amper_jre_download_root/aka.ms/download-jdk/microsoft-jdk-$microsoft_jdk_version-windows-aarch64.zip"
+      jvm_target_dir="$amper_cache_dir/microsoft-jdk-$microsoft_jdk_version-windows-aarch64"
+      jvm_sha256=0a24e2382841387bad274ff70f0c3537e3eb3ceb47bc8bc5dc22626b2cb6a87c
+      ;;
+    *)
+      die "Unknown architecture $jvm_arch"
+      ;;
+    esac
   else
-    die "Unsupported platform $sys"
+    die "Unsupported platform $kernelName"
   fi
 
   download_and_extract "$jvm_url" "$jvm_sha256" "$amper_cache_dir" "$jvm_target_dir"
@@ -187,4 +219,10 @@ fi
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
 download_and_extract "$amper_url" "$amper_sha256" "$amper_cache_dir" "$amper_target_dir"
 
-exec "$java_exe" -ea "-Damper.wrapper.dist.sha256=$amper_sha256" "-Damper.wrapper.process.name=$0" -cp "$amper_target_dir/lib/*" org.jetbrains.amper.cli.MainKt "$@"
+if [ "$simpleOs" = "windows" ]; then
+  # Can't cygpath the *
+  classpath="$(cygpath -w "$amper_target_dir")\lib\*"
+else
+  classpath="$amper_target_dir/lib/*"
+fi
+exec "$java_exe" -ea "-Damper.wrapper.dist.sha256=$amper_sha256" "-Damper.wrapper.process.name=$0" -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
