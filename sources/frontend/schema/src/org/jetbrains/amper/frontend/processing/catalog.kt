@@ -138,6 +138,7 @@ class BuiltInCatalog(
         put("compose.runtime", "org.jetbrains.compose.runtime:runtime:$composeVersion")
         put("compose.runtimeSaveable", "org.jetbrains.compose.runtime:runtime-saveable:$composeVersion")
         put("compose.ui", "org.jetbrains.compose.ui:ui:$composeVersion")
+        put("compose.uiTest", "org.jetbrains.compose.ui:ui-test:$composeVersion")
         put("compose.uiTooling", "org.jetbrains.compose.ui:ui-tooling:$composeVersion")
         put("compose.preview", "org.jetbrains.compose.ui:ui-tooling-preview:$composeVersion")
         put("compose.materialIconsExtended", "org.jetbrains.compose.material:material-icons-extended:$composeVersion")

@@ -373,10 +373,10 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose resources demo build (jvm)`() = runTestInfinitely {
+    fun `compose resources demo build and run (jvm)`() = runTestInfinitely {
         runCli(
             backendTestProjectName = "compose-resources-demo",
-            "build", "--platform=jvm",
+            "test", "--platform=jvm",
         )
     }
 
