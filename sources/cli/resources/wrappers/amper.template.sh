@@ -111,6 +111,7 @@ check_sha256() {
 
 ### System detection
 kernelName=$(uname -s)
+arch=$(uname -m)
 case "$kernelName" in
   Darwin* )
     simpleOs="macos"
@@ -119,6 +120,8 @@ case "$kernelName" in
   Linux* )
     simpleOs="linux"
     default_amper_cache_dir="$HOME/.cache/Amper"
+    # shellcheck disable=SC2046
+    arch=$(linux$(getconf LONG_BIT) uname -m)
     ;;
   CYGWIN* | MSYS* | MINGW* )
     simpleOs="windows"
@@ -141,60 +144,42 @@ amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   corretto_version=17.0.9.8.1
   microsoft_jdk_version=17.0.6
-  jvm_arch=$(uname -m)
-  if [ "$simpleOs" = "macos" ]; then
-    case $jvm_arch in
-    x86_64)
+  platform="$simpleOs $arch"
+  case $platform in
+    "macos x86_64")
       jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-x64.tar.gz"
       jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-macosx-x64"
       jvm_sha256=7eed832eb25b6bb9fed5172a02931804ed0bf65dc86a2ddc751aa7648bb35c43
       ;;
-    arm64)
+    "macos arm64")
       jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-aarch64.tar.gz"
       jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-macosx-aarch64"
       jvm_sha256=8a0c542e78e47cb5de1db40763692d55b977f1d0b31c5f0ebf2dd426fa33a2f4
       ;;
-    *)
-      die "Unknown architecture $jvm_arch"
+    "linux x86_64")
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-x64.tar.gz"
+      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-x64"
+      jvm_sha256=0cf11d8e41d7b28a3dbb95cbdd90c398c310a9ea870e5a06dac65a004612aa62
       ;;
-    esac
-  elif [ "$simpleOs" = "linux" ]; then
-    # shellcheck disable=SC2046
-    jvm_arch=$(linux$(getconf LONG_BIT) uname -m)
-    case $jvm_arch in
-      x86_64)
-        jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-x64.tar.gz"
-        jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-x64"
-        jvm_sha256=0cf11d8e41d7b28a3dbb95cbdd90c398c310a9ea870e5a06dac65a004612aa62
-        ;;
-      aarch64)
-        jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-aarch64.tar.gz"
-        jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-aarch64"
-        jvm_sha256=8141bc6ea84ce103a040128040c2f527418a6aa3849353dcfa3cf77488524499
-        ;;
-      *)
-        die "Unknown architecture $jvm_arch"
-        ;;
-    esac
-  elif [ "$simpleOs" = "windows" ]; then
-    case $jvm_arch in
-    x86_64)
+    "linux aarch64")
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-aarch64.tar.gz"
+      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-aarch64"
+      jvm_sha256=8141bc6ea84ce103a040128040c2f527418a6aa3849353dcfa3cf77488524499
+      ;;
+    "windows x86_64")
       jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-windows-x64-jdk.zip"
       jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-windows-x64"
       jvm_sha256=bef1845cbfc5dfc39240d794a31770b0f3f4b7aa179b49536f7b37a4f09985ae
       ;;
-    arm64)
+    "windows arm64")
       jvm_url="$amper_jre_download_root/aka.ms/download-jdk/microsoft-jdk-$microsoft_jdk_version-windows-aarch64.zip"
       jvm_target_dir="$amper_cache_dir/microsoft-jdk-$microsoft_jdk_version-windows-aarch64"
       jvm_sha256=0a24e2382841387bad274ff70f0c3537e3eb3ceb47bc8bc5dc22626b2cb6a87c
       ;;
     *)
-      die "Unknown architecture $jvm_arch"
+      die "Unsupported platform $platform"
       ;;
-    esac
-  else
-    die "Unsupported platform $kernelName"
-  fi
+  esac
 
   download_and_extract "$jvm_url" "$jvm_sha256" "$amper_cache_dir" "$jvm_target_dir"
 
