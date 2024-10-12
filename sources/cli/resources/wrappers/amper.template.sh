@@ -20,11 +20,11 @@
 set -e -u
 
 amper_version=@AMPER_VERSION@
-amper_url="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.zip"
-amper_jre_download_root="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
-
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
 amper_sha256=@AMPER_DIST_SHA256@
+amper_url="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.zip"
+
+amper_jre_download_root="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
 
 script_dir="$(dirname -- "$0")"
 script_dir="$(cd -- "$script_dir" && pwd)"
@@ -208,7 +208,7 @@ amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
 download_and_extract "The Amper $amper_version distribution" "$amper_url" "$amper_sha256" "$amper_cache_dir" "$amper_target_dir"
 
 if [ "$simpleOs" = "windows" ]; then
-  # Can't cygpath the *
+  # Can't cygpath the '*' so it has to be outside
   classpath="$(cygpath -w "$amper_target_dir")\lib\*"
 else
   classpath="$amper_target_dir/lib/*"

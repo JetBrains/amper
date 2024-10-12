@@ -8,6 +8,9 @@
 
 set -e -u -o pipefail
 
+#### COPIED FROM REAL WRAPPER (start)
+amper_jre_download_root="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
+
 script_dir="$(dirname -- "$0")"
 script_dir="$(cd -- "$script_dir" && pwd)"
 
@@ -19,10 +22,11 @@ die () {
 }
 
 download_and_extract() {
-  file_url="$1"
-  file_sha256="$2"
-  cache_dir="$3"
-  extract_dir="$4"
+  moniker="$1"
+  file_url="$2"
+  file_sha256="$3"
+  cache_dir="$4"
+  extract_dir="$5"
 
   if [ -e "$extract_dir/.flag" ] && [ -n "$(ls "$extract_dir")" ] && [ "x$(cat "$extract_dir/.flag")" = "x${file_url}" ]; then
     # Everything is up-to-date in $extract_dir, do nothing
@@ -31,6 +35,7 @@ download_and_extract() {
     mkdir -p "$cache_dir"
     temp_file="$cache_dir/download-file-$$.bin"
 
+    echo "$moniker will now be provisioned because this is the first run. Subsequent runs will skip this step and be faster."
     echo "Downloading $file_url"
 
     rm -f "$temp_file"
@@ -52,13 +57,14 @@ download_and_extract() {
     mkdir -p "$extract_dir"
 
     case "$file_url" in
-      *".zip") (cd "$extract_dir" && "$AMPER_JAVA_HOME/bin/jar" --extract --file "$temp_file") ;;
+      *".zip") unzip -q "$temp_file" -d "$extract_dir" ;;
       *) tar -x -f "$temp_file" -C "$extract_dir" ;;
     esac
 
     rm -f "$temp_file"
 
     echo "$file_url" >"$extract_dir/.flag"
+    echo
   fi
 }
 
@@ -92,61 +98,78 @@ check_sha256() {
 }
 
 ### System detection
-sys=$(uname -s)
+kernelName=$(uname -s)
+arch=$(uname -m)
+case "$kernelName" in
+  Darwin* )
+    simpleOs="macos"
+    default_amper_cache_dir="$HOME/Library/Caches/Amper"
+    ;;
+  Linux* )
+    simpleOs="linux"
+    default_amper_cache_dir="$HOME/.cache/Amper"
+    # shellcheck disable=SC2046
+    arch=$(linux$(getconf LONG_BIT) uname -m)
+    ;;
+  CYGWIN* | MSYS* | MINGW* )
+    simpleOs="windows"
+    if command -v cygpath >/dev/null 2>&1; then
+      default_amper_cache_dir=$(cygpath -u "$LOCALAPPDATA\Amper")
+    else
+      die "The 'cypath' command is not available, but Amper needs it. Use amper.bat instead, or try a Cygwin or MSYS environment."
+    fi
+    ;;
+  *)
+    die "Unsupported platform $kernelName"
+    ;;
+esac
 
-if [ "$sys" = "Darwin" ]; then
-  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/Library/Caches/Amper}"
-else
-  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/.cache/Amper}"
-fi
+# TODO should we respect --shared-caches-root instead of (or in addition to) this env var?
+amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 
 ### JVM
 # links from https://github.com/corretto/corretto-17/releases
 if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   corretto_version=17.0.9.8.1
-  jvm_arch=$(uname -m)
-  if [ "$sys" = "Darwin" ]; then
-    case $jvm_arch in
-    x86_64)
-      jvm_url="https://corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-x64.tar.gz"
+  microsoft_jdk_version=17.0.6
+  platform="$simpleOs $arch"
+  case $platform in
+    "macos x86_64")
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-x64.tar.gz"
       jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-macosx-x64"
       jvm_sha256=7eed832eb25b6bb9fed5172a02931804ed0bf65dc86a2ddc751aa7648bb35c43
       ;;
-    arm64)
-      jvm_url="https://corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-aarch64.tar.gz"
+    "macos arm64")
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-aarch64.tar.gz"
       jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-macosx-aarch64"
       jvm_sha256=8a0c542e78e47cb5de1db40763692d55b977f1d0b31c5f0ebf2dd426fa33a2f4
       ;;
-    *)
-      die "Unknown architecture $jvm_arch"
+    "linux x86_64")
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-x64.tar.gz"
+      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-x64"
+      jvm_sha256=0cf11d8e41d7b28a3dbb95cbdd90c398c310a9ea870e5a06dac65a004612aa62
       ;;
-    esac
-  elif [ "$sys" = "cygwin" ] || [ "$sys" = "mingw" ]; then
-    # cygwin/mingw should use windows distribution
-    die "$sys is not supported yet"
-  elif [ "$sys" = "Linux" ]; then
-    # shellcheck disable=SC2046
-    jvm_arch=$(linux$(getconf LONG_BIT) uname -m)
-    case $jvm_arch in
-      x86_64)
-        jvm_url="https://corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-x64.tar.gz"
-        jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-x64"
-        jvm_sha256=0cf11d8e41d7b28a3dbb95cbdd90c398c310a9ea870e5a06dac65a004612aa62
-        ;;
-      aarch64)
-        jvm_url="https://corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-aarch64.tar.gz"
-        jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-aarch64"
-        jvm_sha256=8141bc6ea84ce103a040128040c2f527418a6aa3849353dcfa3cf77488524499
-        ;;
-      *)
-        die "Unknown architecture $jvm_arch"
-        ;;
-    esac
-  else
-    die "Unsupported platform $sys"
-  fi
+    "linux aarch64")
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-aarch64.tar.gz"
+      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-aarch64"
+      jvm_sha256=8141bc6ea84ce103a040128040c2f527418a6aa3849353dcfa3cf77488524499
+      ;;
+    "windows x86_64")
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-windows-x64-jdk.zip"
+      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-windows-x64"
+      jvm_sha256=bef1845cbfc5dfc39240d794a31770b0f3f4b7aa179b49536f7b37a4f09985ae
+      ;;
+    "windows arm64")
+      jvm_url="$amper_jre_download_root/aka.ms/download-jdk/microsoft-jdk-$microsoft_jdk_version-windows-aarch64.zip"
+      jvm_target_dir="$amper_cache_dir/microsoft-jdk-$microsoft_jdk_version-windows-aarch64"
+      jvm_sha256=0a24e2382841387bad274ff70f0c3537e3eb3ceb47bc8bc5dc22626b2cb6a87c
+      ;;
+    *)
+      die "Unsupported platform $platform"
+      ;;
+  esac
 
-  download_and_extract "$jvm_url" "$jvm_sha256" "$amper_cache_dir" "$jvm_target_dir"
+  download_and_extract "A runtime for Amper" "$jvm_url" "$jvm_sha256" "$amper_cache_dir" "$jvm_target_dir"
 
   AMPER_JAVA_HOME=
   for d in "$jvm_target_dir" "$jvm_target_dir"/* "$jvm_target_dir"/Contents/Home "$jvm_target_dir"/*/Contents/Home; do
@@ -165,6 +188,8 @@ if [ '!' -x "$java_exe" ]; then
   die "Unable to find bin/java executable at $java_exe"
 fi
 
+#### COPIED FROM REAL WRAPPER (end)
+
 case "$(uname)" in
   # man stat on Mac OS X
   # N       The name of the file.
@@ -175,11 +200,11 @@ case "$(uname)" in
   #         (st_atime, st_mtime, st_ctime, st_birthtime).
   Darwin*) stat_format=(-f '%N %m %z') ;;
 
-  # man stat on Ubuntu
+  # man stat on Ubuntu and Windows (Git Bash)
   # %n     file name
   # %s     total size, in bytes
   # %Y     time of last data modification, seconds since Epoch
-  Linux*) stat_format=(--format='%n %s %Y') ;;
+  Linux* | CYGWIN* | MSYS* | MINGW*) stat_format=(--format='%n %s %Y') ;;
 
   *)
     echo "Unsupported system: $(uname)"
@@ -202,4 +227,10 @@ if [ ! -f "$up_to_date_file" ] || [ "$(cat "$up_to_date_file")" != "$current" ];
   current_state >"$up_to_date_file"
 fi
 
-time "$java_exe" -ea "-Damper.wrapper.process.name=$0" -cp "$script_dir/build/unpackedDistribution/lib/*" org.jetbrains.amper.cli.MainKt "$@"
+if [ "$simpleOs" = "windows" ]; then
+  # Can't cygpath the *
+  classpath="$(cygpath -w "$script_dir/build/unpackedDistribution/lib")\*"
+else
+  classpath="$script_dir/build/unpackedDistribution/lib/*"
+fi
+time "$java_exe" -ea "-Damper.wrapper.process.name=$0" -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
