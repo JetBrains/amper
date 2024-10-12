@@ -26,11 +26,11 @@ if defined AMPER_JRE_DOWNLOAD_ROOT (
   set amper_jre_download_root_defined=https:/
 )
 
-set amper_version=0.5.0-dev-1736
+set amper_version=0.5.0-dev-1745
 set amper_url=%amper_download_root_defined%/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
 
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=2c12bcbf813b66a4a4dcfd8308b1e7a07bc5d4a47c2cd4e24a3a4b0bf80c6302
+set amper_sha256=32d509f503077dfcb5e4244d36f462d351191906c1b41a535eb9841ff31556ce
 
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     set jvm_url=%amper_jre_download_root_defined%/aka.ms/download-jdk/microsoft-jdk-17.0.6-windows-aarch64.zip
@@ -61,7 +61,7 @@ REM ********** Download and extract JVM **********
 if defined AMPER_JAVA_HOME goto continue_with_jvm
 
 set jvm_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%%jvm_file_name%\
-call :download_and_extract "%jvm_url%" "%jvm_target_dir%" "%jvm_sha256%"
+call :download_and_extract "A runtime for Amper" "%jvm_url%" "%jvm_target_dir%" "%jvm_sha256%"
 if errorlevel 1 goto fail
 
 set AMPER_JAVA_HOME=
@@ -77,7 +77,7 @@ REM ********** Download and extract Amper **********
 
 set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%amper-cli-%amper_version%\
 
-call :download_and_extract "%amper_url%" "%amper_target_dir%" "%amper_sha256%"
+call :download_and_extract "The Amper %amper_version% distribution" "%amper_url%" "%amper_target_dir%" "%amper_sha256%"
 if errorlevel 1 goto fail
 
 REM ********** Run Amper **********
@@ -90,9 +90,10 @@ REM ********** Download And Extract Any Zip Archive **********
 :download_and_extract
 setlocal
 
-set url=%~1
-set target_dir=%~2
-set sha256=%~3
+set moniker=%~1
+set url=%~2
+set target_dir=%~3
+set sha256=%~4
 
 if not exist "%target_dir%.flag" goto download_and_extract_always
 
@@ -116,6 +117,7 @@ try { ^
     if ((Get-Content '%target_dir%.flag' -ErrorAction Ignore) -ne '%url%') { ^
         $temp_file = '%AMPER_BOOTSTRAP_CACHE_DIR%' + [System.IO.Path]::GetRandomFileName(); ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
+        Write-Host '%moniker% will now be provisioned because this is the first run. Subsequent runs will skip this step and be faster.'; ^
         Write-Host 'Downloading %url%'; ^
         [void](New-Item '%target_dir%' -ItemType Directory -Force); ^
         (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
@@ -134,6 +136,7 @@ try { ^
         Remove-Item $temp_file; ^
  ^
         Set-Content '%target_dir%.flag' -Value '%url%'; ^
+        Write-Host ''; ^
     } ^
 } ^
 finally { ^

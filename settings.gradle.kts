@@ -31,7 +31,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.amper.settings.plugin").version("0.5.0-dev-1736")
+    id("org.jetbrains.amper.settings.plugin").version("0.5.0-dev-1745")
     id("com.gradle.enterprise").version("3.16.2")
     id("com.gradle.common-custom-user-data-gradle-plugin").version("2.0.2")
 }
