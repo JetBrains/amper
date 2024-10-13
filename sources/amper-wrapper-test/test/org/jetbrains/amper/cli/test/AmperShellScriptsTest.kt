@@ -29,7 +29,9 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isExecutable
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
+import kotlin.io.path.notExists
 import kotlin.io.path.pathString
 import kotlin.io.path.readBytes
 import kotlin.io.path.readLines
@@ -47,20 +49,20 @@ class AmperShellScriptsTest {
 
     @RegisterExtension
     private val httpServer = HttpServerExtension(m2repository)
-    private val cliDir = m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.mavenVersion}")
-    private val cliDist = cliDir.resolve("cli-${AmperBuild.mavenVersion}-dist.zip")
+    private val publishedCliDir = m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.mavenVersion}")
+    private val cliDistZip = publishedCliDir.resolve("cli-${AmperBuild.mavenVersion}-dist.zip")
         .also { check(it.exists()) }
 
     private val shellScriptExampleProject = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/shell-scripts")
 
     @BeforeEach
     fun prepareScript() {
-        val wrapperBat = cliDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")
+        val wrapperBat = publishedCliDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")
         wrapperBat.copyTo(tempDir.resolve("amper.bat"))
         assertTrue(wrapperBat.readText().count { it == '\r' } > 10,
             "Windows wrapper must have \\r in line separators: $wrapperBat")
 
-        val wrapperSh = cliDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper")
+        val wrapperSh = publishedCliDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper")
         val targetSh = tempDir.resolve("amper")
         wrapperSh.copyTo(targetSh)
         targetSh.toFile().setExecutable(true)
@@ -128,8 +130,46 @@ class AmperShellScriptsTest {
             }
         }
 
-        check(httpServer.requestedFiles.single() == cliDist) {
-            "Only one file should be requested '$cliDist'. Files requested: ${httpServer.requestedFiles}"
+        check(httpServer.requestedFiles.single() == cliDistZip) {
+            "Only one file should be requested '$cliDistZip'. Files requested: ${httpServer.requestedFiles}"
+        }
+    }
+
+    @Test
+    fun `custom boostrap cache`() {
+        val templatePath = shellScriptExampleProject
+        assertTrue { templatePath.isDirectory() }
+
+        templatePath.copyToRecursively(tempDir, followLinks = false, overwrite = false)
+
+        val bootstrapCacheDir = tempDir.resolve("my bootstrap cache")
+        assertTrue("Bootstrap cache dir should start empty") {
+            bootstrapCacheDir.notExists() || bootstrapCacheDir.listDirectoryEntries().isEmpty()
+        }
+
+        runAmperVersion(bootstrapCacheDir = bootstrapCacheDir) { output ->
+            assertTrue("Process output must have 'will now be provisioned' line twice. Output:\n$output") {
+                output.lines().count { it.contains("will now be provisioned") } == 2
+            }
+
+            assertTrue("Process output must have 'Downloading ' line twice. Output:\n$output") {
+                output.lines().count { it.startsWith("Downloading ") } == 2
+            }
+
+            assertTrue("Process output must have 'Extracting to $bootstrapCacheDir' line twice. Output:\n$output") {
+                output.lines().count { it.startsWith("Extracting to $bootstrapCacheDir") } == 2
+            }
+        }
+        assertTrue("Bootstrap cache dir should now exist") {
+            bootstrapCacheDir.exists()
+        }
+        assertTrue("Bootstrap cache dir should now have the CLI distribution, but got:\n" +
+                bootstrapCacheDir.listDirectoryEntries().joinToString("\n")) {
+            bootstrapCacheDir.listDirectoryEntries("amper-cli-*").size == 2 // also the flag file
+        }
+        assertTrue("Bootstrap cache dir should now have the JRE, but got:\n" +
+                bootstrapCacheDir.listDirectoryEntries().joinToString("\n")) {
+            bootstrapCacheDir.listDirectoryEntries("amazon-corretto-*").size == 2 // also the flag file
         }
     }
 
@@ -276,7 +316,7 @@ class AmperShellScriptsTest {
 
     private fun runBuild(
         workingDir: Path,
-        bootstrapCacheDir: Path?,
+        bootstrapCacheDir: Path = tempDir.resolve("boot strap"),
         args: List<String>,
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
@@ -287,10 +327,7 @@ class AmperShellScriptsTest {
             .redirectInput(ProcessBuilder.Redirect.PIPE)
             .redirectOutput(ProcessBuilder.Redirect.PIPE)
             .also {
-                if (bootstrapCacheDir != null) {
-                    it.environment()["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
-                }
-
+                it.environment()["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
                 it.environment()["AMPER_JRE_DOWNLOAD_ROOT"] = httpServer.cacheRootUrl
                 it.environment()["AMPER_DOWNLOAD_ROOT"] = httpServer.wwwRootUrl
             }
@@ -324,9 +361,9 @@ class AmperShellScriptsTest {
         customJavaHome: Path? = null,
         customScript: Path? = null,
         expectedExitCode: Int = 0,
+        bootstrapCacheDir: Path = tempDir.resolve("boot strap"),
         outputAssertions: (String) -> Unit,
     ) {
-        val bootstrapDir = tempDir.resolve("boot strap")
 
         val process = ProcessBuilder()
             .directory(tempDir.toFile())
@@ -334,7 +371,7 @@ class AmperShellScriptsTest {
             .redirectOutput(ProcessBuilder.Redirect.PIPE)
             .redirectErrorStream(true)
             .also {
-                it.environment()["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapDir.pathString
+                it.environment()["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
                 if (customJavaHome != null) {
                     it.environment()["AMPER_JAVA_HOME"] = customJavaHome.pathString
                 }
