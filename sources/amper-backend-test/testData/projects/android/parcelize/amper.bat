@@ -26,11 +26,11 @@ if defined AMPER_JRE_DOWNLOAD_ROOT (
   set amper_jre_download_root_defined=https:/
 )
 
-set amper_version=0.5.0-dev-1745
+set amper_version=0.5.0-dev-1751
 set amper_url=%amper_download_root_defined%/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
 
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=32d509f503077dfcb5e4244d36f462d351191906c1b41a535eb9841ff31556ce
+set amper_sha256=5914fa770dbbddfda30c3bd9a6bd76bce2c20d6712fa10d47675442e424a47dd
 
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     set jvm_url=%amper_jre_download_root_defined%/aka.ms/download-jdk/microsoft-jdk-17.0.6-windows-aarch64.zip
