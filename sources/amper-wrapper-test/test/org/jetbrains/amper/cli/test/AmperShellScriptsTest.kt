@@ -5,13 +5,13 @@
 package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
+import org.jetbrains.amper.test.LocalAmperCli
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.m2repository
@@ -49,25 +49,17 @@ class AmperShellScriptsTest {
 
     @RegisterExtension
     private val httpServer = HttpServerExtension(m2repository)
-    private val publishedCliDir = m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.mavenVersion}")
-    private val cliDistZip = publishedCliDir.resolve("cli-${AmperBuild.mavenVersion}-dist.zip")
-        .also { check(it.exists()) }
 
     private val shellScriptExampleProject = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/shell-scripts")
 
     @BeforeEach
     fun prepareScript() {
-        val wrapperBat = publishedCliDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")
-        wrapperBat.copyTo(tempDir.resolve("amper.bat"))
-        assertTrue(wrapperBat.readText().count { it == '\r' } > 10,
-            "Windows wrapper must have \\r in line separators: $wrapperBat")
+        LocalAmperCli.checkPublicationIntegrity()
+        LocalAmperCli.wrapperBat.copyTo(tempDir.resolve("amper.bat"))
 
-        val wrapperSh = publishedCliDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper")
         val targetSh = tempDir.resolve("amper")
-        wrapperSh.copyTo(targetSh)
+        LocalAmperCli.wrapperSh.copyTo(targetSh)
         targetSh.toFile().setExecutable(true)
-        assertTrue(wrapperSh.readText().count { it == '\r' } == 0,
-            "Unix wrapper must not have \\r in line separators: $wrapperSh")
     }
 
     /**
@@ -130,6 +122,7 @@ class AmperShellScriptsTest {
             }
         }
 
+        val cliDistZip = LocalAmperCli.distZip
         check(httpServer.requestedFiles.single() == cliDistZip) {
             "Only one file should be requested '$cliDistZip'. Files requested: ${httpServer.requestedFiles}"
         }
