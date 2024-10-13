@@ -165,11 +165,11 @@ class AmperShellScriptsTest {
         }
         assertTrue("Bootstrap cache dir should now have the CLI distribution, but got:\n" +
                 bootstrapCacheDir.listDirectoryEntries().joinToString("\n")) {
-            bootstrapCacheDir.listDirectoryEntries("amper-cli-*").size == 2 // also the flag file
+            bootstrapCacheDir.listDirectoryEntries("amper-cli-*").isNotEmpty()
         }
         assertTrue("Bootstrap cache dir should now have the JRE, but got:\n" +
                 bootstrapCacheDir.listDirectoryEntries().joinToString("\n")) {
-            bootstrapCacheDir.listDirectoryEntries("amazon-corretto-*").size == 2 // also the flag file
+            bootstrapCacheDir.listDirectoryEntries("amazon-corretto-*").isNotEmpty()
         }
     }
 

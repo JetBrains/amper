@@ -48,11 +48,11 @@ if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
 )
 
 if defined AMPER_BOOTSTRAP_CACHE_DIR goto continue_with_cache_dir
-set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper\
+set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper
 :continue_with_cache_dir
 
-rem add \ to the end if not present
-if not [%AMPER_BOOTSTRAP_CACHE_DIR:~-1%] EQU [\] set AMPER_BOOTSTRAP_CACHE_DIR=%AMPER_BOOTSTRAP_CACHE_DIR%\
+rem remove \ from the end if present
+if [%AMPER_BOOTSTRAP_CACHE_DIR:~-1%] EQU [\] set AMPER_BOOTSTRAP_CACHE_DIR=%AMPER_BOOTSTRAP_CACHE_DIR:~0,-1%
 
 set powershell=%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
 
@@ -60,12 +60,12 @@ REM ********** Download and extract JVM **********
 
 if defined AMPER_JAVA_HOME goto continue_with_jvm
 
-set jvm_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%%jvm_file_name%\
+set jvm_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\%jvm_file_name%
 call :download_and_extract "A runtime for Amper" "%jvm_url%" "%jvm_target_dir%" "%jvm_sha256%"
 if errorlevel 1 goto fail
 
 set AMPER_JAVA_HOME=
-for /d %%d in ("%jvm_target_dir%"*) do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
+for /d %%d in ("%jvm_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
 if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
   echo Unable to find java.exe under %jvm_target_dir%
   goto fail
@@ -75,14 +75,13 @@ if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
 
 REM ********** Download and extract Amper **********
 
-set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%amper-cli-%amper_version%\
-
+set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\amper-cli-%amper_version%
 call :download_and_extract "The Amper %amper_version% distribution" "%amper_url%" "%amper_target_dir%" "%amper_sha256%"
 if errorlevel 1 goto fail
 
 REM ********** Run Amper **********
 
-"%AMPER_JAVA_HOME%\bin\java.exe" -ea "-Damper.wrapper.dist.sha256=%amper_sha256%" "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%lib\*" org.jetbrains.amper.cli.MainKt %*
+"%AMPER_JAVA_HOME%\bin\java.exe" -ea "-Damper.wrapper.dist.sha256=%amper_sha256%" "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%\lib\*" org.jetbrains.amper.cli.MainKt %*
 exit /B %ERRORLEVEL%
 
 REM ********** Download And Extract Any Zip Archive **********
@@ -95,12 +94,11 @@ set url=%~2
 set target_dir=%~3
 set sha256=%~4
 
-if not exist "%target_dir%.flag" goto download_and_extract_always
-
-set /p current_flag=<"%target_dir%.flag"
-if "%current_flag%" == "%url%" exit /b
-
-:download_and_extract_always
+set flag_file=%target_dir%\.flag
+if exist "%flag_file%" (
+    set /p current_flag=<"%flag_file%"
+    if "%current_flag%" == "%url%" exit /b
+)
 
 set download_and_extract_ps1= ^
 Set-StrictMode -Version 3.0; ^
@@ -114,12 +112,12 @@ if (-not $createdNew) { ^
 } ^
  ^
 try { ^
-    if ((Get-Content '%target_dir%.flag' -ErrorAction Ignore) -ne '%url%') { ^
+    if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%url%') { ^
         $temp_file = '%AMPER_BOOTSTRAP_CACHE_DIR%' + [System.IO.Path]::GetRandomFileName(); ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
         Write-Host '%moniker% will now be provisioned because this is the first run. Subsequent runs will skip this step and be faster.'; ^
         Write-Host 'Downloading %url%'; ^
-        [void](New-Item '%target_dir%' -ItemType Directory -Force); ^
+        [void](New-Item '%AMPER_BOOTSTRAP_CACHE_DIR%' -ItemType Directory -Force); ^
         (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
  ^
         $actualSha256 = (Get-FileHash -Algorithm SHA256 -Path $temp_file).Hash.ToString(); ^
@@ -135,7 +133,7 @@ try { ^
         [IO.Compression.ZipFile]::ExtractToDirectory($temp_file, '%target_dir%'); ^
         Remove-Item $temp_file; ^
  ^
-        Set-Content '%target_dir%.flag' -Value '%url%'; ^
+        Set-Content '%flag_file%' -Value '%url%'; ^
         Write-Host ''; ^
     } ^
 } ^
