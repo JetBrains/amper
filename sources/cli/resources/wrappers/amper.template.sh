@@ -6,8 +6,6 @@
 
 # TODO gradlew also tries to set ulimit -n (max files), probably we should too
 # TODO Script could be run in parallel for the first time, so download/extract code should not fail in that case
-# TODO Use slim versions of JetBrains Runtime instead
-#  We don't need full JDK here since we don't reuse this runtime for compilation/toolchain
 
 # Possible environment variables:
 #   AMPER_DOWNLOAD_ROOT        Maven repository to download Amper dist from.
@@ -39,9 +37,10 @@ die () {
 download_and_extract() {
   moniker="$1"
   file_url="$2"
-  file_sha256="$3"
-  cache_dir="$4"
-  extract_dir="$5"
+  file_sha="$3"
+  sha_size="$4"
+  cache_dir="$5"
+  extract_dir="$6"
 
   if [ -e "$extract_dir/.flag" ] && [ -n "$(ls "$extract_dir")" ] && [ "x$(cat "$extract_dir/.flag")" = "x${file_url}" ]; then
     # Everything is up-to-date in $extract_dir, do nothing
@@ -65,7 +64,7 @@ download_and_extract() {
       die "ERROR: Please install wget or curl"
     fi
 
-    check_sha256 "$file_url" "$temp_file" "$file_sha256"
+    check_sha "$file_url" "$temp_file" "$file_sha" "$sha_size"
 
     echo "Extracting to $extract_dir"
     rm -rf "$extract_dir"
@@ -83,32 +82,35 @@ download_and_extract() {
   fi
 }
 
-# usage: check_sha256 SOURCE_MONIKER FILE SHA256CHECKSUM
+# usage: check_sha SOURCE_MONIKER FILE SHA_CHECKSUM SHA_SIZE
 # $1 SOURCE_MONIKER (e.g. url)
 # $2 FILE
-# $3 SHA256 hex string
-check_sha256() {
+# $3 SHA hex string
+# $4 SHA size in bits (256, 512, ...)
+check_sha() {
+  sha_size=$4
   if command -v shasum >/dev/null 2>&1; then
-    echo "$3 *$2" | shasum -a 256 --status -c || {
+    echo "$3 *$2" | shasum -a "$sha_size" --status -c || {
       echo "$2 (downloaded from $1):" >&2
-      echo "expected checksum $3 but got: $(shasum --binary -a 256 "$2" | awk '{print $1}')" >&2
+      echo "expected checksum $3 but got: $(shasum --binary -a "$sha_size" "$2" | awk '{print $1}')" >&2
 
       die "ERROR: Checksum mismatch for $1"
     }
     return 0
   fi
 
-  if command -v sha256sum >/dev/null 2>&1; then
-    echo "$3 *$2" | sha256sum -w -c || {
+  shaNsumCommand="sha${sha_size}sum"
+  if command -v "$shaNsumCommand" >/dev/null 2>&1; then
+    echo "$3 *$2" | $shaNsumCommand -w -c || {
       echo "$2 (downloaded from $1):" >&2
-      echo "expected checksum $3 but got: $(sha256sum "$2" | awk '{print $1}')" >&2
+      echo "expected checksum $3 but got: $($shaNsumCommand "$2" | awk '{print $1}')" >&2
 
       die "ERROR: Checksum mismatch for $1"
     }
     return 0
   fi
 
-  echo "Both 'shasum' and 'sha256sum' utilities are missing. Please install one of them"
+  echo "Both 'shasum' and 'sha${sha_size}sum' utilities are missing. Please install one of them"
   return 1
 }
 
@@ -118,16 +120,21 @@ arch=$(uname -m)
 case "$kernelName" in
   Darwin* )
     simpleOs="macos"
+    jbr_os="osx"
     default_amper_cache_dir="$HOME/Library/Caches/Amper"
     ;;
   Linux* )
     simpleOs="linux"
+    jbr_os="linux"
     default_amper_cache_dir="$HOME/.cache/Amper"
+    # If linux runs in 32-bit mode, we want the "fake" 32-bit architecture, not the real hardware,
+    # because in this mode linux cannot run 64-bit binaries.
     # shellcheck disable=SC2046
     arch=$(linux$(getconf LONG_BIT) uname -m)
     ;;
   CYGWIN* | MSYS* | MINGW* )
     simpleOs="windows"
+    jbr_os="windows"
     if command -v cygpath >/dev/null 2>&1; then
       default_amper_cache_dir=$(cygpath -u "$LOCALAPPDATA\Amper")
     else
@@ -142,59 +149,43 @@ esac
 # TODO should we respect --shared-caches-root instead of (or in addition to) this env var?
 amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 
-### JVM
-# links from https://github.com/corretto/corretto-17/releases
+### JVM provisioning
 if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
-  corretto_version=17.0.9.8.1
-  microsoft_jdk_version=17.0.6
-  platform="$simpleOs $arch"
-  case $platform in
-    "macos x86_64")
-      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-x64.tar.gz"
-      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-macosx-x64"
-      jvm_sha256=7eed832eb25b6bb9fed5172a02931804ed0bf65dc86a2ddc751aa7648bb35c43
-      ;;
-    "macos arm64")
-      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-aarch64.tar.gz"
-      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-macosx-aarch64"
-      jvm_sha256=8a0c542e78e47cb5de1db40763692d55b977f1d0b31c5f0ebf2dd426fa33a2f4
-      ;;
-    "linux x86_64")
-      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-x64.tar.gz"
-      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-x64"
-      jvm_sha256=0cf11d8e41d7b28a3dbb95cbdd90c398c310a9ea870e5a06dac65a004612aa62
-      ;;
-    "linux aarch64")
-      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-aarch64.tar.gz"
-      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-aarch64"
-      jvm_sha256=8141bc6ea84ce103a040128040c2f527418a6aa3849353dcfa3cf77488524499
-      ;;
-    "windows x86_64")
-      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-windows-x64-jdk.zip"
-      jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-windows-x64"
-      jvm_sha256=bef1845cbfc5dfc39240d794a31770b0f3f4b7aa179b49536f7b37a4f09985ae
-      ;;
-    "windows arm64")
-      jvm_url="$amper_jre_download_root/aka.ms/download-jdk/microsoft-jdk-$microsoft_jdk_version-windows-aarch64.zip"
-      jvm_target_dir="$amper_cache_dir/microsoft-jdk-$microsoft_jdk_version-windows-aarch64"
-      jvm_sha256=0a24e2382841387bad274ff70f0c3537e3eb3ceb47bc8bc5dc22626b2cb6a87c
-      ;;
-    *)
-      die "Unsupported platform $platform"
-      ;;
+  case $arch in
+    x86_64 | x64)    jbr_arch="x64" ;;
+    aarch64 | arm64) jbr_arch="aarch64" ;;
+    *) die "Unsupported architecture $arch" ;;
   esac
 
-  download_and_extract "A runtime for Amper" "$jvm_url" "$jvm_sha256" "$amper_cache_dir" "$jvm_target_dir"
+  jbr_version=17.0.12
+  jbr_build=b1000.54
+
+  # URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
+  jbr_url="$amper_jre_download_root/cache-redirector.jetbrains.com/intellij-jbr/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build.tar.gz"
+  jbr_target_dir="$amper_cache_dir/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build"
+
+  platform="$jbr_os $jbr_arch"
+  case $platform in
+    "osx x64")         jbr_sha512=3dd1cbcc2e9c3e4999e561024282e4f07b3fd1eb282ff7bf617bf36f51b0b4a060c51c5742e61dbbeea11abaebf93d0e362c48f75ed73b791c9d85beafe213ee ;;
+    "osx aarch64")     jbr_sha512=ccaf19536f5fde9e99b905bb0b8a51ce40f7e3d98b088914fcb2554e013e720488a97b9b59fd14e741c439f5113c391376fd7f7008c7012574d047cd5049d758 ;;
+    "linux x64")       jbr_sha512=4b2e40ac6b54d0c6d0fe23e29b005fb3e25e1edda3f45e34c273599e2e4c9239b637bd2b7c57f76348111305e43463190b02334a9a815f97bf1b4fb7552dd0c9 ;;
+    "linux aarch64")   jbr_sha512=a7f473f735e4363294456c2f246bdc52c3056eaa9ff1f231df01ae233f761ea71e6bdacc3ed2fea0d36dcdc0e1249f19904dde9fad9ae4af8523640b93bc6dd2 ;;
+    "windows x64")     jbr_sha512=81e440181b30d6c587763eeb818dd933cced0c250a156773669d1652d3e848066db639c1ebec9a85792ac97286eaf111f35d6e8262758f220bc5581a159cccb2 ;;
+    "windows aarch64") jbr_sha512=9c54639b0d56235165639cf1ff75d7640d3787103819d640d18229360c3222eccc2b0f7a04faed2ee28293fa22be1080af03efc18cb78bd0380cc2de172fa8c6 ;;
+    *) die "Unsupported platform $platform" ;;
+  esac
+
+  download_and_extract "A runtime for Amper" "$jbr_url" "$jbr_sha512" 512 "$amper_cache_dir" "$jbr_target_dir"
 
   AMPER_JAVA_HOME=
-  for d in "$jvm_target_dir" "$jvm_target_dir"/* "$jvm_target_dir"/Contents/Home "$jvm_target_dir"/*/Contents/Home; do
+  for d in "$jbr_target_dir" "$jbr_target_dir"/* "$jbr_target_dir"/Contents/Home "$jbr_target_dir"/*/Contents/Home; do
     if [ -e "$d/bin/java" ]; then
       AMPER_JAVA_HOME="$d"
     fi
   done
 
   if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
-    die "Unable to find bin/java under $jvm_target_dir"
+    die "Unable to find bin/java under $jbr_target_dir"
   fi
 fi
 
@@ -203,10 +194,11 @@ if [ '!' -x "$java_exe" ]; then
   die "Unable to find bin/java executable at $java_exe"
 fi
 
-### AMPER
+### Amper provisioning
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
-download_and_extract "The Amper $amper_version distribution" "$amper_url" "$amper_sha256" "$amper_cache_dir" "$amper_target_dir"
+download_and_extract "The Amper $amper_version distribution" "$amper_url" "$amper_sha256" 256 "$amper_cache_dir" "$amper_target_dir"
 
+### Launch Amper
 if [ "$simpleOs" = "windows" ]; then
   # Can't cygpath the '*' so it has to be outside
   classpath="$(cygpath -w "$amper_target_dir")\lib\*"

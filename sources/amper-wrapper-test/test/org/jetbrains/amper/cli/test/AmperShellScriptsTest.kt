@@ -160,9 +160,9 @@ class AmperShellScriptsTest {
                 bootstrapCacheDir.listDirectoryEntries().joinToString("\n")) {
             bootstrapCacheDir.listDirectoryEntries("amper-cli-*").isNotEmpty()
         }
-        assertTrue("Bootstrap cache dir should now have the JRE, but got:\n" +
+        assertTrue("Bootstrap cache dir should now have the JBR, but got:\n" +
                 bootstrapCacheDir.listDirectoryEntries().joinToString("\n")) {
-            bootstrapCacheDir.listDirectoryEntries("amazon-corretto-*").isNotEmpty()
+            bootstrapCacheDir.listDirectoryEntries("jbr-*").isNotEmpty()
         }
     }
 
@@ -278,12 +278,12 @@ class AmperShellScriptsTest {
 
     @Test
     fun `fails on wrong amper distribution checksum`() {
-        assertWrongChecksum(Regex("^(\\s*(set )?amper_sha256=)[0-9a-fA-F]+"))
+        assertWrongChecksum(Regex("\\b(amper_sha256=)[0-9a-fA-F]+"))
     }
 
     @Test
     fun `fails on wrong jre distribution checksum`() {
-        assertWrongChecksum(Regex("^(\\s*(set )?jvm_sha256=)[0-9a-fA-F]+"))
+        assertWrongChecksum(Regex("\\b(jbr_sha512=)[0-9a-fA-F]+"))
     }
 
     private fun assertWrongChecksum(checksumRegex: Regex) {
