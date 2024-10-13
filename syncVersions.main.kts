@@ -19,6 +19,7 @@ The source of truth is the list of versions at the top of this file.
  */
 
 val bootstrapAmperVersion = "0.5.0-dev-1751" // AUTO-UPDATED BY THE CI - DO NOT RENAME
+val amperInternalJbrVersion = "17.0.12b1000.54"
 
 val kotlinVersion = "2.0.21"
 val kotlinxSerializationVersion = "1.7.3"
@@ -37,6 +38,7 @@ val amperRootDir: Path = __FILE__.toPath().absolute().parent // __FILE__ is this
 val examplesStandaloneDir = amperRootDir / "examples-standalone"
 val examplesGradleDir = amperRootDir / "examples-gradle"
 val migratedProjectsDir = amperRootDir / "migrated-projects"
+val cliResourcesDir = amperRootDir / "sources/cli/resources"
 val testDataProjectsDir = amperRootDir / "sources/amper-backend-test/testData"
 val docsDir = amperRootDir / "docs"
 val versionsCatalogToml = amperRootDir / "gradle/libs.versions.toml"
@@ -52,6 +54,7 @@ fun syncVersions() {
     updateDocs()
     updateAmperWrappers()
     updateGradleFiles()
+    updateWrapperTemplates()
 }
 
 fun updateVersionsCatalog() {
@@ -121,7 +124,45 @@ fun updateAmperWrappers() {
     }
 }
 
-fun fetchContent(url: String) = URI(url).toURL().readText()
+fun updateWrapperTemplates() {
+    val jvmVersion = amperInternalJbrVersion.substringBefore('b')
+    val jbrBuild = amperInternalJbrVersion.removePrefix(jvmVersion)
+    val jbrs = getJbrChecksums(jvmVersion, jbrBuild)
+
+    (cliResourcesDir / "wrappers/amper.template.sh").replaceFileText { initialText ->
+        val textWithVersion = initialText
+            .replaceRegexGroup1(Regex("""\bjbr_version=(\S+)"""), jvmVersion)
+            .replaceRegexGroup1(Regex("""\bjbr_build=(\S+)"""), jbrBuild)
+        jbrs.fold(textWithVersion) { text, (os, arch, checksum) ->
+            text.replaceRegexGroup1(Regex(""""$os $arch"\)\s+jbr_sha512=(\S+)\s*;;"""), checksum)
+        }
+    }
+
+    (cliResourcesDir / "wrappers/amper.template.bat").replaceFileText { initialText ->
+        val textWithVersion = initialText
+            .replaceRegexGroup1(Regex("""\bset\s+jbr_version=(\S+)"""), jvmVersion)
+            .replaceRegexGroup1(Regex("""\bset\s+jbr_build=(\S+)"""), jbrBuild)
+        jbrs.filter { it.os == "windows" }.fold(textWithVersion) { text, (_, arch, checksum) ->
+            println("Updating $arch $checksum")
+            text.replaceRegexGroup1(Regex("""set jbr_arch=$arch\s+set jbr_sha512=(\S+)""", RegexOption.MULTILINE), checksum)
+        }
+    }
+}
+
+data class Jbr(val os: String, val arch: String, val sha512: String)
+
+fun getJbrChecksums(jvmVersion: String, jbrBuild: String): List<Jbr> = listOf("windows", "linux", "osx").flatMap { os ->
+    listOf("aarch64", "x64").map { arch ->
+        Jbr(
+            os = os,
+            arch = arch,
+            sha512 = fetchContent("https://cache-redirector.jetbrains.com/intellij-jbr/jbr-$jvmVersion-$os-$arch-$jbrBuild.tar.gz.checksum")
+                .trim()
+                .split(" ")
+                .first()
+        )
+    }
+}
 
 fun updateGradleFiles() {
     (amperRootDir / "settings.gradle.kts").replaceFileText { it.replaceAmperGradlePluginVersion() }
@@ -145,10 +186,13 @@ fun String.replaceGradleDistributionUrl() = replaceRegexGroup1(
     replacement = gradleVersion,
 )
 
+fun fetchContent(url: String) = URI(url).toURL().readText()
+
 /**
  * Finds all matches for the given [regex] in this string, and replaces the matched group 1 with the given replacement.
  */
 fun String.replaceRegexGroup1(regex: Regex, replacement: String) = replace(regex) {
+    println("Replacing ${it.value} with replacement '$replacement'")
     it.value.replace(it.groupValues[1], replacement)
 }
 
