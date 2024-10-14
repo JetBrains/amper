@@ -36,6 +36,7 @@ REM ********** Provision JRE for Amper **********
 
 if defined AMPER_JAVA_HOME goto jre_provisioned
 
+rem Auto-updated from syncVersions.main.kts, do not modify directly here
 set jbr_version=17.0.12
 set jbr_build=b1000.54
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (

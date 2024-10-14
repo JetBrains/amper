@@ -19,7 +19,9 @@ The source of truth is the list of versions at the top of this file.
  */
 
 val bootstrapAmperVersion = "0.5.0-dev-1751" // AUTO-UPDATED BY THE CI - DO NOT RENAME
-val amperInternalJbrVersion = "17.0.12b1000.54"
+
+/** This is the version of the JetBrains Runtime that Amper wrappers use to run the Amper dist. */
+val amperInternalJbrVersion = "17.0.12b1000.54" // from https://github.com/JetBrains/JetBrainsRuntime/releases
 
 val kotlinVersion = "2.0.21"
 val kotlinxSerializationVersion = "1.7.3"
@@ -38,7 +40,7 @@ val amperRootDir: Path = __FILE__.toPath().absolute().parent // __FILE__ is this
 val examplesStandaloneDir = amperRootDir / "examples-standalone"
 val examplesGradleDir = amperRootDir / "examples-gradle"
 val migratedProjectsDir = amperRootDir / "migrated-projects"
-val cliResourcesDir = amperRootDir / "sources/cli/resources"
+val cliDir = amperRootDir / "sources/cli"
 val testDataProjectsDir = amperRootDir / "sources/amper-backend-test/testData"
 val docsDir = amperRootDir / "docs"
 val versionsCatalogToml = amperRootDir / "gradle/libs.versions.toml"
@@ -129,7 +131,10 @@ fun updateWrapperTemplates() {
     val jbrBuild = amperInternalJbrVersion.removePrefix(jvmVersion)
     val jbrs = getJbrChecksums(jvmVersion, jbrBuild)
 
-    (cliResourcesDir / "wrappers/amper.template.sh").replaceFileText { initialText ->
+    sequenceOf(
+        cliDir / "resources/wrappers/amper.template.sh",
+        cliDir / "amper-from-sources.sh",
+    ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
             .replaceRegexGroup1(Regex("""\bjbr_version=(\S+)"""), jvmVersion)
             .replaceRegexGroup1(Regex("""\bjbr_build=(\S+)"""), jbrBuild)
@@ -138,12 +143,14 @@ fun updateWrapperTemplates() {
         }
     }
 
-    (cliResourcesDir / "wrappers/amper.template.bat").replaceFileText { initialText ->
+    sequenceOf(
+        cliDir / "resources/wrappers/amper.template.bat",
+        cliDir / "amper-from-sources.bat",
+    ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
             .replaceRegexGroup1(Regex("""\bset\s+jbr_version=(\S+)"""), jvmVersion)
             .replaceRegexGroup1(Regex("""\bset\s+jbr_build=(\S+)"""), jbrBuild)
         jbrs.filter { it.os == "windows" }.fold(textWithVersion) { text, (_, arch, checksum) ->
-            println("Updating $arch $checksum")
             text.replaceRegexGroup1(Regex("""set jbr_arch=$arch\s+set jbr_sha512=(\S+)""", RegexOption.MULTILINE), checksum)
         }
     }
@@ -192,7 +199,6 @@ fun fetchContent(url: String) = URI(url).toURL().readText()
  * Finds all matches for the given [regex] in this string, and replaces the matched group 1 with the given replacement.
  */
 fun String.replaceRegexGroup1(regex: Regex, replacement: String) = replace(regex) {
-    println("Replacing ${it.value} with replacement '$replacement'")
     it.value.replace(it.groupValues[1], replacement)
 }
 

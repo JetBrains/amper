@@ -146,6 +146,7 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
     *) die "Unsupported architecture $arch" ;;
   esac
 
+  # Auto-updated from syncVersions.main.kts, do not modify directly here
   jbr_version=17.0.12
   jbr_build=b1000.54
 
