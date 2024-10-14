@@ -224,7 +224,8 @@ class AmperKspTest : AmperIntegrationTestBase() {
 //        }
 
         generatedSchemaPath.assertContainsRelativeFiles(
-            "AppDatabase/1.json",
+            "android/AppDatabase/1.json",
+            "jvm/AppDatabase/1.json",
         )
     }
 

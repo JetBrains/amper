@@ -13,6 +13,16 @@ settings:
     ksp:
       processors:
         - androidx.room:room-compiler:2.7.0-alpha09
-      processorOptions:
-        room.schemaLocation: ./generated-db-schema
   compose: enabled
+
+# we want separate schema locations for each platform, otherwise there might be concurrency issues
+settings@jvm:
+  kotlin:
+    ksp:
+      processorOptions:
+        room.schemaLocation: ./generated-db-schema/jvm
+settings@android:
+  kotlin:
+    ksp:
+      processorOptions:
+        room.schemaLocation: ./generated-db-schema/android
