@@ -9,28 +9,32 @@
 @rem                              default: https://packages.jetbrains.team/maven/p/amper/amper
 @rem   AMPER_JRE_DOWNLOAD_ROOT    Url prefix to download Amper JRE from.
 @rem                              default: https:/
-@rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution, must end with \
+@rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution
 @rem   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
 
 setlocal
 
-if defined AMPER_DOWNLOAD_ROOT (
-  set amper_download_root_defined=%AMPER_DOWNLOAD_ROOT%
-) else (
-  set amper_download_root_defined=https://packages.jetbrains.team/maven/p/amper/amper
-)
-
-if defined AMPER_JRE_DOWNLOAD_ROOT (
-  set amper_jre_download_root_defined=%AMPER_JRE_DOWNLOAD_ROOT%
-) else (
-  set amper_jre_download_root_defined=https:/
-)
-
+rem The version of the Amper distribution to provision and use
 set amper_version=@AMPER_VERSION@
-set amper_url=%amper_download_root_defined%/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
-
-@rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
+rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
 set amper_sha256=@AMPER_DIST_SHA256@
+
+if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
+if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
+if not defined AMPER_BOOTSTRAP_CACHE_DIR set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper
+rem remove trailing \ if present
+if [%AMPER_BOOTSTRAP_CACHE_DIR:~-1%] EQU [\] set AMPER_BOOTSTRAP_CACHE_DIR=%AMPER_BOOTSTRAP_CACHE_DIR:~0,-1%
+
+REM ********** Provision Amper distribution **********
+
+set amper_url=%AMPER_DOWNLOAD_ROOT%/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
+set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\amper-cli-%amper_version%
+call :download_and_extract "Amper distribution v%amper_version%" "%amper_url%" "%amper_target_dir%" "%amper_sha256%" "256"
+if errorlevel 1 goto fail
+
+REM ********** Provision JRE for Amper **********
+
+if defined AMPER_JAVA_HOME goto jre_provisioned
 
 set jbr_version=17.0.12
 set jbr_build=b1000.54
@@ -45,24 +49,10 @@ if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     goto fail
 )
 
-set jbr_url=%amper_jre_download_root_defined%/cache-redirector.jetbrains.com/intellij-jbr/jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%.tar.gz
-set jbr_file_name=jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%
-
-if defined AMPER_BOOTSTRAP_CACHE_DIR goto continue_with_cache_dir
-set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper
-:continue_with_cache_dir
-
-rem remove \ from the end if present
-if [%AMPER_BOOTSTRAP_CACHE_DIR:~-1%] EQU [\] set AMPER_BOOTSTRAP_CACHE_DIR=%AMPER_BOOTSTRAP_CACHE_DIR:~0,-1%
-
-set powershell=%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
-
-REM ********** Download and extract JBR **********
-
-if defined AMPER_JAVA_HOME goto continue_with_jbr
-
-set jbr_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\%jbr_file_name%
-call :download_and_extract "A runtime for Amper" "%jbr_url%" "%jbr_target_dir%" "%jbr_sha512%" "512"
+rem URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
+set jbr_url=%AMPER_JRE_DOWNLOAD_ROOT%/cache-redirector.jetbrains.com/intellij-jbr/jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%.tar.gz
+set jbr_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%
+call :download_and_extract "JetBrains Runtime v%jbr_version%%jbr_build%" "%jbr_url%" "%jbr_target_dir%" "%jbr_sha512%" "512"
 if errorlevel 1 goto fail
 
 set AMPER_JAVA_HOME=
@@ -71,16 +61,9 @@ if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
   echo Unable to find java.exe under %jbr_target_dir%
   goto fail
 )
+:jre_provisioned
 
-:continue_with_jbr
-
-REM ********** Download and extract Amper **********
-
-set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\amper-cli-%amper_version%
-call :download_and_extract "The Amper %amper_version% distribution" "%amper_url%" "%amper_target_dir%" "%amper_sha256%" "256"
-if errorlevel 1 goto fail
-
-REM ********** Run Amper **********
+REM ********** Launch Amper **********
 
 "%AMPER_JAVA_HOME%\bin\java.exe" -ea "-Damper.wrapper.dist.sha256=%amper_sha256%" "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%\lib\*" org.jetbrains.amper.cli.MainKt %*
 exit /B %ERRORLEVEL%
@@ -123,7 +106,7 @@ try { ^
     if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%url%') { ^
         $temp_file = '%AMPER_BOOTSTRAP_CACHE_DIR%' + [System.IO.Path]::GetRandomFileName(); ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
-        Write-Host '%moniker% will now be provisioned because this is the first run. Subsequent runs will skip this step and be faster.'; ^
+        Write-Host '%moniker% will now be provisioned because this is the first run with this version. Subsequent runs will skip this step and be faster.'; ^
         Write-Host 'Downloading %url%'; ^
         [void](New-Item '%AMPER_BOOTSTRAP_CACHE_DIR%' -ItemType Directory -Force); ^
         (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
@@ -154,9 +137,9 @@ finally { ^
     $lock.ReleaseMutex(); ^
 }
 
+set powershell=%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
 "%powershell%" -NonInteractive -NoProfile -NoLogo -Command %download_and_extract_ps1%
 if errorlevel 1 exit /b 1
-
 exit /b 0
 
 :fail

@@ -8,14 +8,13 @@
 
 set -e -u -o pipefail
 
-#### COPIED FROM REAL WRAPPER (start)
-
-amper_jre_download_root="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
+#region COPIED FROM REAL WRAPPER
+AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
 
 script_dir="$(dirname -- "$0")"
 script_dir="$(cd -- "$script_dir" && pwd)"
 
-die () {
+die() {
   echo >&2
   echo "$@" >&2
   echo >&2
@@ -37,7 +36,7 @@ download_and_extract() {
     mkdir -p "$cache_dir"
     temp_file="$cache_dir/download-file-$$.bin"
 
-    echo "$moniker will now be provisioned because this is the first run. Subsequent runs will skip this step and be faster."
+    echo "$moniker will now be provisioned because this is the first run with this version. Subsequent runs will skip this step and be faster."
     echo "Downloading $file_url"
 
     rm -f "$temp_file"
@@ -102,7 +101,8 @@ check_sha() {
   return 1
 }
 
-### System detection
+# ********** System detection **********
+
 kernelName=$(uname -s)
 arch=$(uname -m)
 case "$kernelName" in
@@ -137,7 +137,8 @@ esac
 # TODO should we respect --shared-caches-root instead of (or in addition to) this env var?
 amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 
-### JVM provisioning
+# ********** Provision JRE for Amper **********
+
 if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   case $arch in
     x86_64 | x64)    jbr_arch="x64" ;;
@@ -149,7 +150,7 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   jbr_build=b1000.54
 
   # URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
-  jbr_url="$amper_jre_download_root/cache-redirector.jetbrains.com/intellij-jbr/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build.tar.gz"
+  jbr_url="$AMPER_JRE_DOWNLOAD_ROOT/cache-redirector.jetbrains.com/intellij-jbr/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build.tar.gz"
   jbr_target_dir="$amper_cache_dir/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build"
 
   platform="$jbr_os $jbr_arch"
@@ -163,7 +164,7 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
     *) die "Unsupported platform $platform" ;;
   esac
 
-  download_and_extract "A runtime for Amper" "$jbr_url" "$jbr_sha512" 512 "$amper_cache_dir" "$jbr_target_dir"
+  download_and_extract "JetBrains Runtime v$jbr_version$jbr_build" "$jbr_url" "$jbr_sha512" 512 "$amper_cache_dir" "$jbr_target_dir"
 
   AMPER_JAVA_HOME=
   for d in "$jbr_target_dir" "$jbr_target_dir"/* "$jbr_target_dir"/Contents/Home "$jbr_target_dir"/*/Contents/Home; do
@@ -182,7 +183,7 @@ if [ '!' -x "$java_exe" ]; then
   die "Unable to find bin/java executable at $java_exe"
 fi
 
-#### COPIED FROM REAL WRAPPER (end)
+# ********** Build Amper distribution **********
 
 case "$(uname)" in
   # man stat on Mac OS X
@@ -220,6 +221,8 @@ if [ ! -f "$up_to_date_file" ] || [ "$(cat "$up_to_date_file")" != "$current" ];
   (cd "$script_dir/../.." && ./gradlew --stacktrace --quiet :sources:cli:prepareForLocalRun)
   current_state >"$up_to_date_file"
 fi
+
+# ********** Launch Amper **********
 
 if [ "$simpleOs" = "windows" ]; then
   # Can't cygpath the *
