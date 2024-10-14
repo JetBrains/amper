@@ -796,7 +796,7 @@ You can create a `proguard-rules.pro` file in the module folder to add custom ru
 
 It is automatically used by Amper if found.
 
-The example of how to add custom R8 rules could be found at `compose-multiplatform` example in `android-app` module.
+The example of how to add custom R8 rules could be found at [compose-multiplatform](../examples-standalone/compose-multiplatform/android-app/proguard-rules.pro) example in `android-app` module.
 
 ### Tests
 
