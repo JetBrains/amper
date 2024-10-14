@@ -167,8 +167,8 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   esac
 
   # Auto-updated from syncVersions.main.kts, do not modify directly here
-  jbr_version=17.0.12
-  jbr_build=b1000.54
+  jbr_version=21.0.4
+  jbr_build=b620.4
 
   # URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
   jbr_url="$AMPER_JRE_DOWNLOAD_ROOT/cache-redirector.jetbrains.com/intellij-jbr/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build.tar.gz"
@@ -176,12 +176,12 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
 
   platform="$jbr_os $jbr_arch"
   case $platform in
-    "osx x64")         jbr_sha512=3dd1cbcc2e9c3e4999e561024282e4f07b3fd1eb282ff7bf617bf36f51b0b4a060c51c5742e61dbbeea11abaebf93d0e362c48f75ed73b791c9d85beafe213ee ;;
-    "osx aarch64")     jbr_sha512=ccaf19536f5fde9e99b905bb0b8a51ce40f7e3d98b088914fcb2554e013e720488a97b9b59fd14e741c439f5113c391376fd7f7008c7012574d047cd5049d758 ;;
-    "linux x64")       jbr_sha512=4b2e40ac6b54d0c6d0fe23e29b005fb3e25e1edda3f45e34c273599e2e4c9239b637bd2b7c57f76348111305e43463190b02334a9a815f97bf1b4fb7552dd0c9 ;;
-    "linux aarch64")   jbr_sha512=a7f473f735e4363294456c2f246bdc52c3056eaa9ff1f231df01ae233f761ea71e6bdacc3ed2fea0d36dcdc0e1249f19904dde9fad9ae4af8523640b93bc6dd2 ;;
-    "windows x64")     jbr_sha512=81e440181b30d6c587763eeb818dd933cced0c250a156773669d1652d3e848066db639c1ebec9a85792ac97286eaf111f35d6e8262758f220bc5581a159cccb2 ;;
-    "windows aarch64") jbr_sha512=9c54639b0d56235165639cf1ff75d7640d3787103819d640d18229360c3222eccc2b0f7a04faed2ee28293fa22be1080af03efc18cb78bd0380cc2de172fa8c6 ;;
+    "osx x64")         jbr_sha512=639f1aea921c81562f3b6ed719bb28c801efba6c3c62058d3fa5bea8f598cb5ad829f76e67d3a7dda03da4dd96fb60e8f288c0035a707326e7c3c6028cda3278 ;;
+    "osx aarch64")     jbr_sha512=60594a6ca2560f8fd396343ca21cbba0bd5d207cbc082d2720b3ccee8928f1115a19c4bf737390e224be4b3613e0aca6cd8ab15ccb1f493a9d15cfae13934934 ;;
+    "linux x64")       jbr_sha512=a633ad234d51390b147884ba86d58f00cddf4fdd23fc398021c3f3298355f2203dd64415d29bb6b83566e962b0cc8755ea8d397554e56e6ed0fc36d070541b7c ;;
+    "linux aarch64")   jbr_sha512=759aebca9d32ab02c6fa2fee60fbc233db3aa365e29ef0d8f199ca72b598ecff18fb6ae115d2f14d2fcb15a9e0ced23705fd917501a2787940cf263eab6167ae ;;
+    "windows x64")     jbr_sha512=efd631caad56b0c8c5439f4b275b564e827e40638194eb2e8754d849559edc363f13a9ea5f4a13e7dbd2b7f980524ed7efdb674c2f04e90045df988beb2527ee ;;
+    "windows aarch64") jbr_sha512=cbad6f07fd8392ad96745e9cd37712485bc8cc876d101b3a2551e53c005e5e06449695c184e5670e1d9bcbc58a659219893930c082ca800666f3264c7b982032 ;;
     *) die "Unsupported platform $platform" ;;
   esac
 
@@ -212,4 +212,4 @@ if [ "$simpleOs" = "windows" ]; then
 else
   classpath="$amper_target_dir/lib/*"
 fi
-exec "$java_exe" -ea "-Damper.wrapper.dist.sha256=$amper_sha256" "-Damper.wrapper.process.name=$0" -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+exec "$java_exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.dist.sha256=$amper_sha256" "-Damper.wrapper.process.name=$0" -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"

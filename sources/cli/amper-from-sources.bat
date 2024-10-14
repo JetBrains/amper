@@ -21,14 +21,14 @@ REM ********** Provision JRE for Amper **********
 if defined AMPER_JAVA_HOME goto jre_provisioned
 
 rem Auto-updated from syncVersions.main.kts, do not modify directly here
-set jbr_version=17.0.12
-set jbr_build=b1000.54
+set jbr_version=21.0.4
+set jbr_build=b620.4
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     set jbr_arch=aarch64
-    set jbr_sha512=9c54639b0d56235165639cf1ff75d7640d3787103819d640d18229360c3222eccc2b0f7a04faed2ee28293fa22be1080af03efc18cb78bd0380cc2de172fa8c6
+    set jbr_sha512=cbad6f07fd8392ad96745e9cd37712485bc8cc876d101b3a2551e53c005e5e06449695c184e5670e1d9bcbc58a659219893930c082ca800666f3264c7b982032
 ) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
     set jbr_arch=x64
-    set jbr_sha512=81e440181b30d6c587763eeb818dd933cced0c250a156773669d1652d3e848066db639c1ebec9a85792ac97286eaf111f35d6e8262758f220bc5581a159cccb2
+    set jbr_sha512=efd631caad56b0c8c5439f4b275b564e827e40638194eb2e8754d849559edc363f13a9ea5f4a13e7dbd2b7f980524ed7efdb674c2f04e90045df988beb2527ee
 ) else (
     echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
     goto fail
@@ -59,10 +59,7 @@ if errorlevel 1 goto fail
 
 REM ********** Launch Amper **********
 
-@REM set AMPER_JAVA_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
-set AMPER_JAVA_OPTIONS=
-
-"%AMPER_JAVA_HOME%\bin\java.exe" %AMPER_JAVA_OPTIONS% -ea "-Damper.wrapper.process.name=%~nx0" -cp "%~dp0build\unpackedDistribution\lib\*" org.jetbrains.amper.cli.MainKt %*
+"%AMPER_JAVA_HOME%\bin\java.exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.process.name=%~nx0" -cp "%~dp0build\unpackedDistribution\lib\*" org.jetbrains.amper.cli.MainKt %*
 exit /b %ERRORLEVEL%
 
 REM ********** Download and extract any zip or .tar.gz archive **********
