@@ -36,8 +36,7 @@ download_and_extract() {
     mkdir -p "$cache_dir"
     temp_file="$cache_dir/download-file-$$.bin"
 
-    echo "$moniker will now be provisioned because this is the first run with this version. Subsequent runs will skip this step and be faster."
-    echo "Downloading $file_url"
+    echo "Downloading $moniker... (only happens on the first run of this version)"
 
     rm -f "$temp_file"
     if command -v curl >/dev/null 2>&1; then
@@ -53,7 +52,6 @@ download_and_extract() {
 
     check_sha "$file_url" "$temp_file" "$file_sha" "$sha_size"
 
-    echo "Extracting to $extract_dir"
     rm -rf "$extract_dir"
     mkdir -p "$extract_dir"
 
@@ -65,6 +63,7 @@ download_and_extract() {
     rm -f "$temp_file"
 
     echo "$file_url" >"$extract_dir/.flag"
+    echo "Downloaded to $extract_dir"
     echo
   fi
 }

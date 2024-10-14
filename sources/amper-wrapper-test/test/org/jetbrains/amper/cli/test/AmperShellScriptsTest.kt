@@ -85,16 +85,8 @@ class AmperShellScriptsTest {
                 output.contains("Hello for Shell Scripts Test")
             }
 
-            assertTrue("Process output must have 'will now be provisioned' line twice. Output:\n$output") {
-                output.lines().count { it.contains("will now be provisioned") } == 2
-            }
-
             assertTrue("Process output must have 'Downloading ' line twice. Output:\n$output") {
                 output.lines().count { it.startsWith("Downloading ") } == 2
-            }
-
-            assertTrue("Process output must have 'Extracting to $bootstrapCacheDir' line twice. Output:\n$output") {
-                output.lines().count { it.startsWith("Extracting to $bootstrapCacheDir") } == 2
             }
         }
 
@@ -109,16 +101,8 @@ class AmperShellScriptsTest {
                 output.contains("Hello for Shell Scripts Test")
             }
 
-            assertTrue("Process output must not have 'will now be provisioned' lines. Output:\n$output") {
-                output.lines().none { it.contains("will now be provisioned") }
-            }
-
             assertTrue("Process output must not have 'Downloading ' lines. Output:\n$output") {
                 output.lines().none { it.startsWith("Downloading ") }
-            }
-
-            assertTrue("Process output must not have 'Extracting ' lines. Output:\n$output") {
-                output.lines().none { it.startsWith("Extracting ") }
             }
         }
 
@@ -141,16 +125,8 @@ class AmperShellScriptsTest {
         }
 
         runAmperVersion(bootstrapCacheDir = bootstrapCacheDir) { output ->
-            assertTrue("Process output must have 'will now be provisioned' line twice. Output:\n$output") {
-                output.lines().count { it.contains("will now be provisioned") } == 2
-            }
-
             assertTrue("Process output must have 'Downloading ' line twice. Output:\n$output") {
                 output.lines().count { it.startsWith("Downloading ") } == 2
-            }
-
-            assertTrue("Process output must have 'Extracting to $bootstrapCacheDir' line twice. Output:\n$output") {
-                output.lines().count { it.startsWith("Extracting to $bootstrapCacheDir") } == 2
             }
         }
         assertTrue("Bootstrap cache dir should now exist") {
@@ -262,10 +238,6 @@ class AmperShellScriptsTest {
 
             assertTrue("Process output must contain '${expectedVersionString.pattern}' or '$expectedVersionStringOld'. Output:\n$output") {
                 output.lines().any { it == expectedVersionStringOld || expectedVersionString.matches(it) }
-            }
-
-            assertTrue("Process output must have 'will now be provisioned' line only once (for Amper itself). Output:\n$output") {
-                output.lines().count { it.contains("will now be provisioned") } == 1
             }
 
             assertTrue("Process output must have 'Downloading ' line only once (for Amper itself). Output:\n$output") {

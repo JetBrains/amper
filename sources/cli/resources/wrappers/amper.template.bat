@@ -107,8 +107,7 @@ try { ^
     if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%url%') { ^
         $temp_file = '%AMPER_BOOTSTRAP_CACHE_DIR%' + [System.IO.Path]::GetRandomFileName(); ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
-        Write-Host '%moniker% will now be provisioned because this is the first run with this version. Subsequent runs will skip this step and be faster.'; ^
-        Write-Host 'Downloading %url%'; ^
+        Write-Host 'Downloading %moniker%... (only happens on the first run of this version)'; ^
         [void](New-Item '%AMPER_BOOTSTRAP_CACHE_DIR%' -ItemType Directory -Force); ^
         (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
  ^
@@ -117,7 +116,6 @@ try { ^
           throw ('Checksum mismatch for ' + $temp_file + ' (downloaded from %url%): expected checksum %sha% but got ' + $actualSha); ^
         } ^
  ^
-        Write-Host 'Extracting to %target_dir%'; ^
         if (Test-Path '%target_dir%') { ^
             Remove-Item '%target_dir%' -Recurse; ^
         } ^
@@ -131,6 +129,7 @@ try { ^
         Remove-Item $temp_file; ^
  ^
         Set-Content '%flag_file%' -Value '%url%'; ^
+        Write-Host 'Downloaded to %target_dir%'; ^
         Write-Host ''; ^
     } ^
 } ^
