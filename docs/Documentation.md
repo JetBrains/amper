@@ -1094,9 +1094,14 @@ From the user's point of view, the joint compilation is transparent; they could 
 Use the `@platform`-qualifier to mark platform-specific source folders and sections in the `module.yaml` files. 
 You can use Kotlin Multiplatform [platform names](https://kotlinlang.org/docs/native-target-support.html) and families as `@platform`-qualifier.
 ```yaml
-dependencies:                   # common dependencies for all platforms
-dependencies@ios:               # ios is a platform family name  
-dependencies@iosArm64:          # iosArm64 is a KMP platform name
+dependencies:               # common dependencies for all platforms
+dependencies@ios:           # ios is a platform family name  
+dependencies@iosArm64:      # iosArm64 is a KMP platform name
+```
+```yaml
+settings:                   # common settings for all platforms
+settings@ios:               # ios is a platform family name  
+settings@iosArm64:          # iosArm64 is a KMP platform name
 ```
 ```
 |-src/                      # common code for all platforms
@@ -1115,17 +1120,20 @@ product:
   platforms: [iosArm64, android, jvm]
 ```
 
+### Platforms hierarchy
 
-Here is the partial list of platform and families:
+Some target platforms belong to the same family and share some common APIs.
+They form a hierarchy as follows:
 ```yaml
-  jvm  
+common  # corresponds to src directories or configuration sections without @platform suffix
+  jvm
   android  
   native
     linux
       linuxX64
       linuxArm64
     mingw
-      mingwX64  
+      mingwX64
     apple
       macos
         macosX64
@@ -1134,10 +1142,23 @@ Here is the partial list of platform and families:
         iosArm64
         iosSimulatorArm64
         iosX64            # iOS Simulator for Intel Mac
+      watchos
+        watchosArm32
+        watchosArm64
+        watchosDeviceArm64
+        watchosSimulatorArm64
+        watchosX64
+      tvos
+        tvosArm64
+        tvosSimulatorArm64
+        tvosX64
   ...
 ```
 
-Common code is visible from `@platform`-specific code, but not vice versa:
+> Note: not all platforms listed here are equally supported or tested.
+> Additional platforms may also exist in addition to the ones listed here, but are also untested/highly experimental. 
+
+Based on this hierarchy, common code is visible from more `@platform`-specific code, but not vice versa:
 ```
 |-src/             
 |  |-...      
@@ -1152,11 +1173,19 @@ Common code is visible from `@platform`-specific code, but not vice versa:
 |-module.yaml
 ```
 
+You can therefore share code between platforms by placing it in a common ancestor in the hierarchy:
+code placed in `src@ios` is shared between `iosArm64` and `iosSimulatorArm64`, for instance.
+
 For [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html), put your `expected` declarations into the `src/` folder, and `actual` declarations into the corresponding `src@<platform>/` folders. 
+
+This hierarchy applies to `@platform`-qualified sections in the configuration files as well.
+We'll see how this works more precisely in the [Multiplatform Dependencies](#multiplatform-dependencies) and
+[Multiplatform Settings](#multiplatform-settings) sections.
 
 #### Aliases
 
-Also, you can share code between several platforms by using custom `aliases:`
+If the default hierarchy is not enough, you can create custom `aliases`, each corresponding to a group of target platforms.
+You can then use the alias in places where `@platform` suffixes usually appear to share code or configuration:
 
 ```yaml
 product:
@@ -1164,7 +1193,7 @@ product:
   platforms: [iosArm64, android, jvm]
 
 aliases:
-  - jvmAndAndroid: [jvm, android]
+  - jvmAndAndroid: [jvm, android] # defines a custom alias for this group of platforms
 
 # these dependencies will be visible in jvm and android code
 dependencies@jvmAndAndroid:
@@ -1344,8 +1373,9 @@ settings@iosSimulatorArm64:
 ```
 
 ### Dependency/Settings propagation
+
 Common `dependencies:` and `settings:` are automatically propagated to the platform families and platforms in `@platform`-sections, using the following rules:
-- Scalar values (strings,  numbers etc.) are overridden by more specialized `@platform`-sections.
+- Scalar values (strings, numbers etc.) are overridden by more specialized `@platform`-sections.
 - Mappings and lists are appended.
 
 Think of the rules like adding merging Java/Kotlin Maps.
