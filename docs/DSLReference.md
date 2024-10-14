@@ -325,17 +325,25 @@ the [module tests](Documentation.md#tests).
 | `suppressWarnings: boolean`     | Suppress the compiler from displaying warnings during compilation.                                                                                                   | `false`           |
 | `verbose: boolean`              | Enable verbose logging output which includes details of the compilation process.                                                                                     | `false`           |
 | `progressiveMode: boolean`      | Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive).                                                     | `false`           |
-| `optIns: enum list`             | Enable usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name. |                   |
+| `optIns: enum list`             | Enable usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name. | (empty)           |
 | `freeCompilerArgs: string list` | Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly.                                                           |                   |
 | `debug: boolean`                | (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information.                                               | `true`            |
 | `serialization: object \| enum` | Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization).                                                                               |                   |
+| `parcelize: object \| string`   | Configure the [Parcelize](https://developer.android.com/kotlin/parcelize) compiler plugin.                                                                           |                   |
 
-`serialization:` attribute could an object or an enum corresponding to the `format:` attribute:
+The `serialization:` attribute can be an object or an enum corresponding to the `format:` attribute:
 
 | Attribute         | Description                                                                                                | Default |
 |-------------------|------------------------------------------------------------------------------------------------------------|---------|
 | `format: enum`    | `json` to enable serialization and add the JSON format, `none` to only enable serialization without format | `none`  |
 | `version: string` | the version to use for the core serialization library and the serialization format                         | `1.7.3` |
+
+The `parcelize:` attribute can be the simple `enabled` string, or an object with the following attributes:
+
+| Attribute                            | Description                                                                                                                                                                                                                                                              | Default |
+|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `enabled: boolean`                   | Whether to enable the [Parcelize](https://developer.android.com/kotlin/parcelize) compiler plugin.                                                                                                                                                                       |         |
+| `additionalAnnotations: string list` | The list of additional annotations that the Parcelize plugin should process the same way as `@Parcelize`. This is necessary in KMP projects using a [custom common annotation](https://developer.android.com/kotlin/parcelize#setup_parcelize_for_kotlin_multiplatform). | (empty) |
 
 Examples:
 
@@ -360,6 +368,22 @@ settings:
     serialization: 
       format: json
       version: 1.5.1
+```
+
+```yaml
+# Enabling the Parcelize plugin (short form)
+settings:
+  kotlin:
+    parcelize: enabled
+```
+
+```yaml
+# Enabling the Parcelize plugin with a custom annotation 
+settings:
+  kotlin:
+    parcelize:
+      enabled: true
+      additionalAnnotations: [ com.example.MyCommonParcelize ]
 ```
 
 #### JVM

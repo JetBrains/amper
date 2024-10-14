@@ -688,7 +688,9 @@ When creating a release build with Amper, R8 will be used automatically, with mi
 can create a `proguard-rules.pro` file in the module folder to add custom rules for R8.
 
 ##### Entry point
-Application entry point is specified in the AndroidManifest.xml file according to the [official Android documentation](https://developer.android.com/guide/topics/manifest/manifest-intro).
+
+The application's entry point is specified in the AndroidManifest.xml file according to the 
+[official Android documentation](https://developer.android.com/guide/topics/manifest/manifest-intro).
 ```
 |-src/ 
 |  |-MyActivity.kt
@@ -697,7 +699,7 @@ Application entry point is specified in the AndroidManifest.xml file according t
 |-module.yaml
 ```
 
-src/AndroidManifest.xml:
+`src/AndroidManifest.xml`:
 ```xml
 <manifest ... >
   <application ... >
@@ -745,6 +747,32 @@ don't have one yet. This will create a new self-signed certificate, using the de
 
 > You can also pass in these details to `generate-keystore` as command line arguments. Invoke the tool with `--help`
 > to learn more.
+ 
+##### Parcelize
+
+If you need to automatically generate your `Parcelable` implementations, you can enable the 
+[Parcelize](https://developer.android.com/kotlin/parcelize) compiler plugin as follows:
+
+```yaml
+settings:
+  kotlin:
+    parcelize: enabled
+```
+
+Setting up parcelize for multiplatform projects is also possible, and requires defining your own multiplatform 
+`@Parcelize` equivalent, such as `@MyParcelize`.
+Follow the [official documentation](https://developer.android.com/kotlin/parcelize#setup_parcelize_for_kotlin_multiplatform)
+for more details about the code in a multiplatform setup.
+
+To tell the Parcelize plugin to use your own annotation, add your annotation in the settings as follows:
+
+```yaml
+settings:
+  kotlin:
+    parcelize:
+      enabled: true
+      additionalAnnotations: [ com.example.MyParcelize ]
+```
 
 ### Tests
 
