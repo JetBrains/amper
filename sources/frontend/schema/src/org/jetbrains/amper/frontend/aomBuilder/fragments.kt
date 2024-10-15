@@ -176,7 +176,7 @@ fun Fragment.kspGeneratedResourcesPath(buildOutputRoot: Path): Path =
  * The path to the root of the KSP-generated classes for this [Fragment].
  */
 fun Fragment.kspGeneratedClassesPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedResourcesRelativeDirs, KspPathConventions.Classes)
+    findConventionalPath(buildOutputRoot, generatedClassesRelativeDirs, KspPathConventions.Classes)
 
 fun Fragment.composeResourcesGeneratedAccessorsPath(buildOutputRoot: Path): Path =
     findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, ComposeResourcesPathConventions.Accessors)
