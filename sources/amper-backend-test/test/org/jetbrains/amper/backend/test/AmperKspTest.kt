@@ -81,9 +81,61 @@ class AmperKspTest : AmperIntegrationTestBase() {
         val backend = AmperBackend(projectContext)
         backend.build()
 
+        projectContext.generatedFilesDir(module = "consumer", fragment = "jvm").assertContainsRelativeFiles(
+            "classes/ksp/com/sample/myprocessor/gen/MyGeneratedClass.class",
+            "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
+            "src/ksp/java/com/sample/myprocessor/gen/MyCommonClassGeneratedJava.java",
+            "src/ksp/java/com/sample/myprocessor/gen/MyJvmClassGeneratedJava.java",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyJvmClassGenerated.kt",
+        )
+
+        projectContext.generatedFilesDir(module = "consumer", fragment = "android").assertContainsRelativeFiles(
+            "classes/ksp/com/sample/myprocessor/gen/MyGeneratedClass.class",
+            "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
+            "src/ksp/java/com/sample/myprocessor/gen/MyAndroidClassGeneratedJava.java",
+            "src/ksp/java/com/sample/myprocessor/gen/MyCommonClassGeneratedJava.java",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyAndroidClassGenerated.kt",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
+        )
+
+        projectContext.generatedFilesDir(module = "consumer", fragment = "mingw").assertContainsRelativeFiles(
+            "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyMingwClassGenerated.kt",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyMingwX64ClassGenerated.kt",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyNativeClassGenerated.kt",
+        )
+
+        projectContext.generatedFilesDir(module = "consumer", fragment = "linuxX64").assertContainsRelativeFiles(
+            "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyLinuxX64ClassGenerated.kt",
+            "src/ksp/kotlin/com/sample/myprocessor/gen/MyNativeClassGenerated.kt",
+        )
+
+        if (DefaultSystemInfo.detect().family.isMac) {
+            projectContext.generatedFilesDir(module = "consumer", fragment = "iosArm64").assertContainsRelativeFiles(
+                "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyAppleClassGenerated.kt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyIosArm64ClassGenerated.kt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyIosClassGenerated.kt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyNativeClassGenerated.kt",
+            )
+            projectContext.generatedFilesDir(module = "consumer", fragment = "iosSimulatorArm64").assertContainsRelativeFiles(
+                "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyAppleClassGenerated.kt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyIosClassGenerated.kt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyIosSimulatorArm64ClassGenerated.kt",
+                "src/ksp/kotlin/com/sample/myprocessor/gen/MyNativeClassGenerated.kt",
+            )
+        }
+
         fun generatedResourceFor(fragment: String) =
             projectContext.generatedFilesDir(module = "consumer", fragment = fragment)
-                .resolve("resources/ksp/com/sample/generated/annotated-classes.txt")
+                .resolve("resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt")
 
         generatedResourceFor(fragment = "jvm").assertContentEquals("""
             com.sample.ksp.localprocessor.consumer.MyJvmClass
@@ -291,8 +343,8 @@ class AmperKspTest : AmperIntegrationTestBase() {
  * Asserts that the directory at this [Path] contains all the files at the given [expectedRelativePaths].
  */
 private fun Path.assertContainsRelativeFiles(vararg expectedRelativePaths: String) {
-    val actualFiles = walk().map { it.relativeTo(this) }.toSet()
-    val expectedFiles = expectedRelativePaths.map { Path(it) }.toSet()
+    val actualFiles = walk().map { it.relativeTo(this) }.sorted().toList()
+    val expectedFiles = expectedRelativePaths.map { Path(it) }
     assertEquals(expectedFiles, actualFiles)
 }
 

@@ -11,6 +11,7 @@ class MySymbolProcessor(environment: SymbolProcessorEnvironment) : SymbolProcess
     private val logger = environment.logger
     private val codeGenerator = environment.codeGenerator
     private val options = environment.options
+    private val platforms = environment.platforms
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         println("Running my local symbol processor!")
@@ -37,10 +38,31 @@ class MySymbolProcessor(environment: SymbolProcessorEnvironment) : SymbolProcess
             *resolver.getAllFiles().toList().toTypedArray() // tells KSP we have looked at all files - don't rerun if nothing changes
         )
 
+        // generate Kotlin source files
+        annotatedClasses.forEach { c ->
+            val generatedClassName = "${c.simpleName?.asString()}Generated"
+            codeGenerator.createNewFile(
+                dependencies = allFilesInModuleDependencies,
+                packageName = "com.sample.myprocessor.gen",
+                fileName = generatedClassName,
+                extensionName = "kt",
+            ).bufferedWriter().use { out ->
+                out.write("""
+                    package com.sample.myprocessor.gen
+                    
+                    class $generatedClassName {
+                        fun generatedHello() {
+                            println("Hello from generated class $generatedClassName")
+                        }
+                    }
+                """.trimIndent())
+            }
+        }
+
         // generate a resource file
         codeGenerator.createNewFile(
             dependencies = allFilesInModuleDependencies,
-            packageName = "com.sample.generated",
+            packageName = "com.sample.myprocessor.gen",
             fileName = "annotated-classes",
             extensionName = "txt",
         ).bufferedWriter().use { out ->
@@ -50,6 +72,45 @@ class MySymbolProcessor(environment: SymbolProcessorEnvironment) : SymbolProcess
                 .reversedIf(options["${MySymbolProcessor::class.java.packageName}.reverseOrder"] == "true")
                 .joinToString("\n")
             out.write(annotatedClassNames)
+        }
+
+        if (platforms.all { it is JvmPlatformInfo }) {
+            // generate Java source files only for JVM targets
+            annotatedClasses.forEach { c ->
+                val generatedClassName = "${c.simpleName?.asString()}GeneratedJava"
+                codeGenerator.createNewFile(
+                    dependencies = allFilesInModuleDependencies,
+                    packageName = "com.sample.myprocessor.gen",
+                    fileName = generatedClassName,
+                    extensionName = "java",
+                ).bufferedWriter().use { out ->
+                    out.write("""
+                    package com.sample.myprocessor.gen;
+                    
+                    public class $generatedClassName {
+                        public void generatedHelloJava() {
+                            System.out.println("Hello from generated Java class $generatedClassName");
+                        }
+                    }
+                """.trimIndent())
+                }
+            }
+
+            // generate a class file only for JVM targets
+            codeGenerator.createNewFile(
+                dependencies = allFilesInModuleDependencies,
+                packageName = "com.sample.myprocessor.gen",
+                fileName = "MyGeneratedClass",
+                extensionName = "class",
+            ).use { out ->
+                val classResourcePath = "/classes-to-generate/com/sample/myprocessor/gen/MyGeneratedClass.class"
+                val generatedClassContentsStream = MySymbolProcessor::class.java.getResourceAsStream(classResourcePath)
+                    ?: error("Missing resource $classResourcePath")
+                generatedClassContentsStream
+                    .use { classContentsStream ->
+                        classContentsStream.copyTo(out)
+                    }
+            }
         }
         return invalidClasses
     }
