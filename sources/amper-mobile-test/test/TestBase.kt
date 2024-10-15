@@ -16,11 +16,10 @@ import kotlin.io.path.exists
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
-val destinationBasePath = Path("tempProjects")
 
 open class TestBase {
 
-    val destinationBasePath: Path = Paths.get("tempProjects")
+    val destinationBasePath: Path = Path("tempProjects")
     val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
 
 
