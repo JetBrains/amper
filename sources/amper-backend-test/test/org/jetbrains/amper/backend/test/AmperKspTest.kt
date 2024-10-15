@@ -17,10 +17,15 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
+import kotlin.io.path.exists
+import kotlin.io.path.isRegularFile
+import kotlin.io.path.pathString
+import kotlin.io.path.readText
 import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class AmperKspTest : AmperIntegrationTestBase() {
 
@@ -68,6 +73,55 @@ class AmperKspTest : AmperIntegrationTestBase() {
             org.sample.ksp.localprocessor.consumer.B
             org.sample.ksp.localprocessor.consumer.A
         """.trimIndent())
+    }
+
+    @Test
+    fun `ksp kmp local processor`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("ksp-kmp-local-processor")
+        val backend = AmperBackend(projectContext)
+        backend.build()
+
+        fun generatedResourceFor(fragment: String) =
+            projectContext.generatedFilesDir(module = "consumer", fragment = fragment)
+                .resolve("resources/ksp/com/sample/generated/annotated-classes.txt")
+
+        generatedResourceFor(fragment = "jvm").assertContentEquals("""
+            com.sample.ksp.localprocessor.consumer.MyJvmClass
+            com.sample.ksp.localprocessor.consumer.MyCommonClass
+        """.trimIndent())
+        generatedResourceFor(fragment = "android").assertContentEquals("""
+            com.sample.ksp.localprocessor.consumer.MyCommonClass
+            com.sample.ksp.localprocessor.consumer.MyAndroidClass
+        """.trimIndent())
+        // mingw (and not mingwX64) because of how we collapse fragments right now
+        generatedResourceFor(fragment = "mingw").assertContentEquals("""
+            com.sample.ksp.localprocessor.consumer.MyNativeClass
+            com.sample.ksp.localprocessor.consumer.MyMingwX64Class
+            com.sample.ksp.localprocessor.consumer.MyMingwClass
+            com.sample.ksp.localprocessor.consumer.MyCommonClass
+        """.trimIndent())
+        generatedResourceFor(fragment = "linuxX64").assertContentEquals("""
+            com.sample.ksp.localprocessor.consumer.MyNativeClass
+            com.sample.ksp.localprocessor.consumer.MyLinuxX64Class
+            com.sample.ksp.localprocessor.consumer.MyCommonClass
+        """.trimIndent())
+
+        if (DefaultSystemInfo.detect().family.isMac) {
+            generatedResourceFor(fragment = "iosArm64").assertContentEquals("""
+                com.sample.ksp.localprocessor.consumer.MyNativeClass
+                com.sample.ksp.localprocessor.consumer.MyIosClass
+                com.sample.ksp.localprocessor.consumer.MyIosArm64Class
+                com.sample.ksp.localprocessor.consumer.MyCommonClass
+                com.sample.ksp.localprocessor.consumer.MyAppleClass
+            """.trimIndent())
+            generatedResourceFor(fragment = "iosSimulatorArm64").assertContentEquals("""
+                com.sample.ksp.localprocessor.consumer.MyNativeClass
+                com.sample.ksp.localprocessor.consumer.MyIosSimulatorArm64Class
+                com.sample.ksp.localprocessor.consumer.MyIosClass
+                com.sample.ksp.localprocessor.consumer.MyCommonClass
+                com.sample.ksp.localprocessor.consumer.MyAppleClass
+            """.trimIndent())
+        }
     }
 
     @Test
@@ -240,4 +294,10 @@ private fun Path.assertContainsRelativeFiles(vararg expectedRelativePaths: Strin
     val actualFiles = walk().map { it.relativeTo(this) }.toSet()
     val expectedFiles = expectedRelativePaths.map { Path(it) }.toSet()
     assertEquals(expectedFiles, actualFiles)
+}
+
+private fun Path.assertContentEquals(expectedContents: String) {
+    assertTrue(exists(), "Expected file $pathString to exist")
+    assertTrue(isRegularFile(), "Expected a file but got a directory: $pathString")
+    assertEquals(expectedContents, readText())
 }

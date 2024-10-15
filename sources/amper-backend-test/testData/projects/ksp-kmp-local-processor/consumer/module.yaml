@@ -1,0 +1,14 @@
+product:
+  type: lib
+  platforms: [ jvm, android, mingwX64, linuxX64, macosArm64, iosArm64, iosSimulatorArm64 ]
+
+dependencies:
+  - ../my-processor-annotation
+
+settings:
+  kotlin:
+    ksp:
+      processors:
+        - ../my-processor
+      processorOptions:
+        com.sample.ksp.localprocessor.processor.reverseOrder: true
