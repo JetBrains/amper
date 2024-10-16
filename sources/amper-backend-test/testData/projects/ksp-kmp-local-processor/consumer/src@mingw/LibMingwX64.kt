@@ -11,3 +11,7 @@ fun useGeneratedMingwX64Stuff() {
     MyCommonClassGenerated()
     MyMingwX64ClassGenerated()
 }
+
+fun useNativeStdlibMingwX64() {
+    println("Hello from Native!")
+}
