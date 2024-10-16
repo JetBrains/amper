@@ -25,9 +25,6 @@ amper_sha256=@AMPER_DIST_SHA256@
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
 
-script_dir="$(dirname -- "$0")"
-script_dir="$(cd -- "$script_dir" && pwd)"
-
 die() {
   echo >&2
   echo "$@" >&2
