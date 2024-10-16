@@ -14,60 +14,18 @@
 
 setlocal
 
-rem The version of the Amper distribution to provision and use
+@rem The version of the Amper distribution to provision and use
 set amper_version=@AMPER_VERSION@
-rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
+@rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
 set amper_sha256=@AMPER_DIST_SHA256@
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
 if not defined AMPER_BOOTSTRAP_CACHE_DIR set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper
-rem remove trailing \ if present
+@rem remove trailing \ if present
 if [%AMPER_BOOTSTRAP_CACHE_DIR:~-1%] EQU [\] set AMPER_BOOTSTRAP_CACHE_DIR=%AMPER_BOOTSTRAP_CACHE_DIR:~0,-1%
 
-REM ********** Provision Amper distribution **********
-
-set amper_url=%AMPER_DOWNLOAD_ROOT%/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
-set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\amper-cli-%amper_version%
-call :download_and_extract "Amper distribution v%amper_version%" "%amper_url%" "%amper_target_dir%" "%amper_sha256%" "256"
-if errorlevel 1 goto fail
-
-REM ********** Provision JRE for Amper **********
-
-if defined AMPER_JAVA_HOME goto jre_provisioned
-
-rem Auto-updated from syncVersions.main.kts, do not modify directly here
-set jbr_version=21.0.4
-set jbr_build=b620.4
-if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
-    set jbr_arch=aarch64
-    set jbr_sha512=cbad6f07fd8392ad96745e9cd37712485bc8cc876d101b3a2551e53c005e5e06449695c184e5670e1d9bcbc58a659219893930c082ca800666f3264c7b982032
-) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
-    set jbr_arch=x64
-    set jbr_sha512=efd631caad56b0c8c5439f4b275b564e827e40638194eb2e8754d849559edc363f13a9ea5f4a13e7dbd2b7f980524ed7efdb674c2f04e90045df988beb2527ee
-) else (
-    echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
-    goto fail
-)
-
-rem URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
-set jbr_url=%AMPER_JRE_DOWNLOAD_ROOT%/cache-redirector.jetbrains.com/intellij-jbr/jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%.tar.gz
-set jbr_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%
-call :download_and_extract "JetBrains Runtime v%jbr_version%%jbr_build%" "%jbr_url%" "%jbr_target_dir%" "%jbr_sha512%" "512"
-if errorlevel 1 goto fail
-
-set AMPER_JAVA_HOME=
-for /d %%d in ("%jbr_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
-if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
-  echo Unable to find java.exe under %jbr_target_dir%
-  goto fail
-)
-:jre_provisioned
-
-REM ********** Launch Amper **********
-
-"%AMPER_JAVA_HOME%\bin\java.exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.dist.sha256=%amper_sha256%" "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%\lib\*" org.jetbrains.amper.cli.MainKt %*
-exit /B %ERRORLEVEL%
+goto :after_function_declarations
 
 REM ********** Download and extract any zip or .tar.gz archive **********
 
@@ -145,3 +103,49 @@ exit /b 0
 :fail
 echo ERROR: Amper bootstrap failed, see errors above
 exit /b 1
+
+:after_function_declarations
+
+REM ********** Provision Amper distribution **********
+
+set amper_url=%AMPER_DOWNLOAD_ROOT%/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
+set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\amper-cli-%amper_version%
+call :download_and_extract "Amper distribution v%amper_version%" "%amper_url%" "%amper_target_dir%" "%amper_sha256%" "256"
+if errorlevel 1 goto fail
+
+REM ********** Provision JRE for Amper **********
+
+if defined AMPER_JAVA_HOME goto jre_provisioned
+
+@rem Auto-updated from syncVersions.main.kts, do not modify directly here
+set jbr_version=21.0.4
+set jbr_build=b620.4
+if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
+    set jbr_arch=aarch64
+    set jbr_sha512=cbad6f07fd8392ad96745e9cd37712485bc8cc876d101b3a2551e53c005e5e06449695c184e5670e1d9bcbc58a659219893930c082ca800666f3264c7b982032
+) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+    set jbr_arch=x64
+    set jbr_sha512=efd631caad56b0c8c5439f4b275b564e827e40638194eb2e8754d849559edc363f13a9ea5f4a13e7dbd2b7f980524ed7efdb674c2f04e90045df988beb2527ee
+) else (
+    echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
+    goto fail
+)
+
+@rem URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
+set jbr_url=%AMPER_JRE_DOWNLOAD_ROOT%/cache-redirector.jetbrains.com/intellij-jbr/jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%.tar.gz
+set jbr_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%
+call :download_and_extract "JetBrains Runtime v%jbr_version%%jbr_build%" "%jbr_url%" "%jbr_target_dir%" "%jbr_sha512%" "512"
+if errorlevel 1 goto fail
+
+set AMPER_JAVA_HOME=
+for /d %%d in ("%jbr_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
+if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
+  echo Unable to find java.exe under %jbr_target_dir%
+  goto fail
+)
+:jre_provisioned
+
+REM ********** Launch Amper **********
+
+"%AMPER_JAVA_HOME%\bin\java.exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.dist.sha256=%amper_sha256%" "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%\lib\*" org.jetbrains.amper.cli.MainKt %*
+exit /B %ERRORLEVEL%
