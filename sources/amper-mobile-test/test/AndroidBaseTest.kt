@@ -1,6 +1,10 @@
-import org.junit.jupiter.api.condition.OS
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.div
+import kotlin.io.path.exists
+import kotlin.io.path.pathString
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -69,10 +73,9 @@ open class AndroidBaseTest : TestBase() {
         val stdout = ByteArrayOutputStream()
         executeCommand(
             command = listOf(
-                "./scripts/espressoSession.sh",
-                "-s",
-                sessionInfoPath,
-                "port"
+                "bash",
+                "-c",
+                "./scripts/espressoSession.sh -s $sessionInfoPath port"
             ),
             standardOut = stdout
         )
@@ -146,12 +149,9 @@ open class AndroidBaseTest : TestBase() {
         val stdout = ByteArrayOutputStream()
         executeCommand(
             command = listOf(
-                "./scripts/espressoSession.sh",
-                "-s",
-                sessionInfoPath,
-                "-n",
-                "Amper UI Tests",
-                "delete"
+                "bash",
+                "-c",
+                "./scripts/espressoSession.sh -s $sessionInfoPath -n \"Amper UI Tests\" delete"
             ),
             standardOut = stdout
         )
@@ -186,7 +186,7 @@ open class AndroidBaseTest : TestBase() {
         }
 
         val stdout = ByteArrayOutputStream()
-        val gradlewPath = if (OS.current() == OS.WINDOWS) "../../gradlew.bat" else "../../gradlew"
+        val gradlewPath = if (isWindows) "../../gradlew.bat" else "../../gradlew"
 
         // Run the APK build command
         executeCommand(
@@ -281,11 +281,17 @@ open class AndroidBaseTest : TestBase() {
         val stdout = ByteArrayOutputStream()
 
         executeCommand(
-            command = listOf(
-                "./amper",
-                "task",
-                ":$projectName:buildAndroidDebug"
-            ),
+            command = buildList {
+                if (isWindows) {
+                    add("cmd")
+                    add("/c")
+                    add("amper.bat")
+                } else {
+                    add("./amper")
+                }
+                add("task")
+                add(":$projectName:buildAndroidDebug")
+            },
             workingDirectory = projectDirectory,
             standardOut = stdout
         )
@@ -311,12 +317,9 @@ open class AndroidBaseTest : TestBase() {
 
     private fun getAvailableAvds(): List<String> {
         val avdManagerPath = getAvdManagerPath()
-        if (!File(avdManagerPath).exists()) {
-            error("avdmanager not found at path: $avdManagerPath")
-        }
         val stdout = ByteArrayOutputStream()
         executeCommand(
-            command = listOf(avdManagerPath, "list", "avd"),
+            command = listOf(avdManagerPath.pathString, "list", "avd"),
             standardOut = stdout
         )
 
@@ -326,20 +329,19 @@ open class AndroidBaseTest : TestBase() {
             .map { it.split("Name:")[1].trim() }
     }
 
-    private fun getAvdManagerPath(): String {
-        val androidHome = System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME is not set")
-        val osName = System.getProperty("os.name").toLowerCase()
+    private fun getAvdManagerPath(): Path {
+        val androidHome = System.getenv("ANDROID_HOME")?.let(::Path) ?: error("ANDROID_HOME is not set")
 
+        val avdManagerBinFilename = if (isWindows) "avdmanager.bat" else "avdmanager"
         val possiblePaths = listOf(
-            "$androidHome/cmdline-tools/latest/bin/avdmanager",
-            "$androidHome/cmdline-tools/bin/avdmanager",
-            "$androidHome/tools/bin/avdmanager"
+            androidHome / "cmdline-tools/latest/bin/$avdManagerBinFilename",
+            androidHome / "cmdline-tools/bin/$avdManagerBinFilename",
+            androidHome / "tools/bin/$avdManagerBinFilename"
         )
 
-        val avdManagerPath = possiblePaths.firstOrNull { File(it).exists() }
-            ?: error("avdmanager not found in any of the possible locations")
-
-        return if (osName.contains("win")) "$avdManagerPath.bat" else avdManagerPath
+        return possiblePaths.firstOrNull { it.exists() }
+            ?: error("$avdManagerBinFilename not found in any of the possible locations:\n" +
+                    possiblePaths.joinToString("\n"))
     }
 
     private fun startEmulator() {
@@ -377,7 +379,7 @@ open class AndroidBaseTest : TestBase() {
 
     private fun getAdbPath(): String {
         val androidHome = System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME is not set")
-        return if (System.getProperty("os.name").toLowerCase().contains("win")) {
+        return if (isWindows) {
             "$androidHome\\platform-tools\\adb.exe"
         } else {
             "$androidHome/platform-tools/adb"
@@ -386,7 +388,7 @@ open class AndroidBaseTest : TestBase() {
 
     private fun getEmulatorPath(): String {
         val androidHome = System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME is not set")
-        return if (System.getProperty("os.name").toLowerCase().contains("win")) {
+        return if (isWindows) {
             "$androidHome\\emulator\\emulator.exe"
         } else {
             "$androidHome/emulator/emulator"

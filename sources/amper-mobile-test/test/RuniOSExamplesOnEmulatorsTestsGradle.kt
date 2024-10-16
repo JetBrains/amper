@@ -3,17 +3,20 @@
  */
 
 
+import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.io.File
 
 class RuniOSExamplesOnEmulatorsTestsGradle : iOSBaseTest() {
 
+    @MacOnly
     @Test
     fun composeiOSAppGradle() = testRunnerGradle(
         projectName = "compose-ios",
     )
 
+    @MacOnly
     @Test
     fun composeAndroidMultiplatformAppGradle() = testRunnerGradle(
         projectName = "compose-multiplatform",

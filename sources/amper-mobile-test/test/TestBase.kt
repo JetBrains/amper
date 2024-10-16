@@ -20,6 +20,9 @@ open class TestBase {
     val destinationBasePath: Path = Path("tempProjects")
     val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
 
+    private val currentOsName = System.getProperty("os.name")
+    val isWindows = currentOsName.lowercase().contains("win")
+    val isMacOS = currentOsName.lowercase().contains("mac")
 
     // Copies the project either from local path or Git if not found locally
     fun copyProject(projectName: String, sourceDirectory: String) {
@@ -146,8 +149,7 @@ open class TestBase {
 
     fun assembleTargetApp(projectDir: File) {
         val tasks = listOf("assemble")
-        val osName = System.getProperty("os.name").toLowerCase()
-        val gradlewFileName = if (osName.contains("win")) "gradlew.bat" else "gradlew"
+        val gradlewFileName = if (isWindows) "gradlew.bat" else "gradlew"
         val gradlewPath = File(projectDir, "../../../../$gradlewFileName")
 
         if (!gradlewPath.exists()) {
@@ -162,8 +164,7 @@ open class TestBase {
                     .directory(projectDir)
                     .redirectErrorStream(true)
 
-                val osName = System.getProperty("os.name").toLowerCase()
-                if (osName.contains("mac") && isRunningInTeamCity()) {
+                if (isMacOS && isRunningInTeamCity()) {
                     println("Running on macOS and in TeamCity. Setting environment variables.")
                     processBuilder.environment()["ANDROID_HOME"] = System.getenv("ANDROID_HOME") ?: "/Users/admin/android-sdk/"
                     processBuilder.environment()["PATH"] = System.getenv("PATH")
