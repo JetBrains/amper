@@ -2,12 +2,10 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import kotlin.io.path.Path
-import kotlin.io.path.absolute
+import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
@@ -281,7 +279,7 @@ open class TestBase {
     fun copyFilesAfterGitClone(sourceDir: Path) {
         val sourcesDir = sourceDir.resolve("../../../").normalize()
 
-        if (!Files.exists(sourcesDir)) {
+        if (!sourcesDir.exists()) {
             throw RuntimeException("Dir 'sources' not found: ${sourcesDir.toAbsolutePath()}")
         }
 
@@ -292,15 +290,15 @@ open class TestBase {
         val targetFile2 = sourceDir.resolve("amper")
 
         try {
-            if (Files.exists(sourceFile1)) {
-                Files.copy(sourceFile1, targetFile1, StandardCopyOption.REPLACE_EXISTING)
+            if (sourceFile1.exists()) {
+                sourceFile1.copyTo(targetFile1, StandardCopyOption.REPLACE_EXISTING)
                 println("Successfully copied amper.bat to $targetFile1")
             } else {
                 throw RuntimeException("File amper.bat not found at $sourceFile1")
             }
 
-            if (Files.exists(sourceFile2)) {
-                Files.copy(sourceFile2, targetFile2, StandardCopyOption.REPLACE_EXISTING)
+            if (sourceFile2.exists()) {
+                sourceFile2.copyTo(targetFile2, StandardCopyOption.REPLACE_EXISTING)
                 println("Successfully copied amper to $targetFile2")
             } else {
                 println("File amper not found at $sourceFile2")
