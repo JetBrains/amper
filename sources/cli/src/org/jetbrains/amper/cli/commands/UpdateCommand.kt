@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.mordant.terminal.prompt
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import org.apache.maven.artifact.versioning.ComparableVersion
@@ -15,9 +16,13 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.httpClient
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.notExists
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+import kotlin.system.exitProcess
 
 internal class UpdateCommand : AmperSubcommand(name = "update") {
 
@@ -46,8 +51,8 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         val targetDir = commonOptions.explicitRoot ?: Path(".")
         val amperBashPath = targetDir.resolve("amper")
         val amperBatPath = targetDir.resolve("amper.bat")
-        checkWrapperExists(amperBashPath)
-        checkWrapperExists(amperBatPath)
+        checkDirectories(amperBashPath, amperBatPath)
+        confirmUpdateOnMissingWrappers(amperBashPath, amperBatPath)
 
         val version = targetVersion ?: getLatestVersion()
 
@@ -56,7 +61,8 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         val bashWrapper = fetchWrapperContent(version = version, extension = "")
         val batWrapper = fetchWrapperContent(version = version, extension = ".bat")
 
-        if (bashWrapper == amperBashPath.readText() && batWrapper == amperBatPath.readText()) {
+        if (amperBashPath.exists() && bashWrapper == amperBashPath.readText() &&
+            amperBatPath.exists() && batWrapper == amperBatPath.readText()) {
             commonOptions.terminal.println("Amper is already in version $version, nothing to update")
             return
         }
@@ -68,10 +74,36 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         commonOptions.terminal.println("Updated Amper scripts to version $version")
     }
 
-    private fun checkWrapperExists(amperBashPath: Path) {
-        if (amperBashPath.notExists()) {
-            userReadableError("Couldn't find Amper wrapper script at ${amperBashPath.toAbsolutePath().normalize()}.\n" +
-                    "Use --root to update Amper wrappers outside the current directory.")
+    private fun checkDirectories(vararg amperScriptPaths: Path) {
+        val clashingDirs = amperScriptPaths.filter { it.exists() && it.isDirectory() }
+        if (clashingDirs.isNotEmpty()) {
+            userReadableError("Amper scripts cannot be updated because a directory with a conflicting name exists: " +
+                    clashingDirs.first().normalize().absolutePathString()
+            )
+        }
+    }
+
+    private fun confirmUpdateOnMissingWrappers(vararg amperScriptPaths: Path) {
+        val missingScripts = amperScriptPaths.filterNot { it.exists() }
+        if (missingScripts.isEmpty()) {
+            return
+        }
+        val targetDirRef = commonOptions.explicitRoot?.pathString ?: "the current directory"
+        val prompt = if (missingScripts.size == amperScriptPaths.size) {
+            "Amper scripts were not found in $targetDirRef.\nWould you like to generate them from scratch? (Y/n)"
+        } else {
+            "An Amper script is missing: ${missingScripts.first().normalize().absolutePathString()}.\nUpdating will generate it. Would you like to continue? (Y/n)"
+        }
+        val answer = commonOptions.terminal.prompt(
+            prompt = prompt,
+            default = "y",
+            showChoices = false,
+            showDefault = false,
+            choices = listOf("y", "Y", "n", "N"),
+        )
+        if (answer?.lowercase() != "y") {
+            commonOptions.terminal.println("Update aborted.")
+            exitProcess(0)
         }
     }
 
