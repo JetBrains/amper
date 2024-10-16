@@ -6,6 +6,16 @@
       <scope name="Production" level="WARNING" enabled="true" />
     </inspection_tool>
     <inspection_tool class="SSBasedInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <replaceConfiguration name="java.nio.file.Files -&gt; Kotlin extensions" uuid="94630e41-a312-3464-8268-d894f3573e8a" description="Usages of java.nio.file.Files utility can be replaced with more idiomatic Kotlin extensions." suppressId="REPLACE_JAVA_NIO_FILES_WITH_KOTLIN_EXTENSION" problemDescriptor="java.nio.file.Files can be replaced with Kotlin extension" text="Files.exists($path$)" recursive="false" caseInsensitive="true" type="Kotlin" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="$path$.exists()">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="path" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="java.nio.file.Files -&gt; Kotlin extensions" uuid="94630e41-a312-3464-8268-d894f3573e8a" text="Files.copy($source$, $dest$, $options$)" recursive="false" caseInsensitive="true" type="Kotlin" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="$source$.copyTo($dest$, $options$)">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="source" nameOfExprType="java\.nio\.Path" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="dest" within="" contains="" />
+        <constraint name="options" minCount="0" maxCount="2147483647" within="" contains="" />
+      </replaceConfiguration>
       <replaceConfiguration name="Java APIs can be replaced with Kotlin's Path() factory function" uuid="e88dcf87-da60-3e00-87c8-fed9137c289b" description="The Java Path-related APIs can be replaced with more idiomatic Kotlin APIs" suppressId="JAVA_PATH_CAN_BE_KOTLIN" text="Path.of($paths$)" recursive="false" caseInsensitive="true" type="Kotlin" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="kotlin.io.path.Path($paths$)">
         <constraint name="__context__" within="" contains="" />
         <constraint name="paths" maxCount="2147483647" within="" contains="" />
@@ -19,6 +29,5 @@
       <scope name="Production" level="WARNING" enabled="true" />
     </inspection_tool>
     <inspection_tool class="TestOnlyProblems" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="e88dcf87-da60-3e00-87c8-fed9137c289b" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
   </profile>
 </component>
