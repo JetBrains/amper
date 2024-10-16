@@ -5,7 +5,6 @@
 package org.jetbrains.amper.generator
 
 import com.github.ajalt.mordant.terminal.Terminal
-import com.google.common.io.Files
 import io.github.classgraph.ClassGraph
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperBuild
@@ -18,6 +17,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
+import kotlin.io.path.outputStream
 import kotlin.io.path.pathString
 
 internal class ProjectGenerator(private val terminal: Terminal) {
@@ -87,7 +87,9 @@ internal class ProjectGenerator(private val terminal: Terminal) {
             val path = directory.resolve(relativeName)
             path.parent.createDirectories()
             javaClass.classLoader.getResourceAsStream(resourceName)!!.use { stream ->
-                Files.asByteSink(path.toFile()).writeFrom(stream)
+                path.outputStream().use { out ->
+                    stream.copyTo(out)
+                }
             }
         }
         writeWrappers(directory)
