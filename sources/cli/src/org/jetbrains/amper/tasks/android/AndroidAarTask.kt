@@ -54,7 +54,7 @@ class AndroidAarTask(
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val jarResult = dependenciesResult.filterIsInstance<JvmClassesJarTask.Result>().singleOrNull()
-            ?: throw IllegalStateException("No input classes jar")
+            ?: error("No input classes jar")
 
         // TODO: Implement picking up actual user-provided assets?
         // TODO: Implement overriding (refining) assets?

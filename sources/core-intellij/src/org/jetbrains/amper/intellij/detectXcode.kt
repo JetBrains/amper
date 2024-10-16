@@ -17,7 +17,7 @@ fun detectXcodeInstallation(): String {
         .buffered()
         .readLine()
 
-    return xcodeSelectOut ?: throw RuntimeException(
+    return xcodeSelectOut ?: error(
         "Failed to detect Xcode. Make sure Xcode is installed.\n" +
                 "Consider specifying it manually via the `xcode.base` property."
     )

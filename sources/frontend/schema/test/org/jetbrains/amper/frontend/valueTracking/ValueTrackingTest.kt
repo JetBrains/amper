@@ -71,7 +71,7 @@ private class TrackingTestRun(
         )
         val buildDirFile = readCtx.loadVirtualFile(buildDir)
         val inputFile = readCtx.loadVirtualFile(inputPath)
-        val psiFile = readCtx.toPsiFile(inputFile) ?: throw IllegalStateException("no psi file")
+        val psiFile = readCtx.toPsiFile(inputFile) ?: error("no psi file")
 
         with(ctx) { doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), DefaultSystemInfo) }
         val queriedNode = psiFile.descendants().filterIsInstance<PsiNamedElement>().firstOrNull { it.name == propertyName }!!

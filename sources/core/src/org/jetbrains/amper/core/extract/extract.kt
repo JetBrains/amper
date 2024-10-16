@@ -100,7 +100,7 @@ suspend fun extractFileWithFlag(
     } else if (start[0] == 0x42.toByte() && start[1] == 0x5A.toByte()) {
         extractTarBz2(archiveFile, targetDirectory, stripRoot)
     } else {
-        throw IllegalStateException(
+        error(
             "Unknown archive format at ${archiveFile}." +
                     " Magic number (little endian hex): ${Integer.toHexString(magicNumber)}." +
                     " Currently only .tar.gz/.zip/.bz2 are supported"
@@ -194,7 +194,7 @@ private fun extractTarBasedArchive(
                                 entry.isSymbolicLink -> Entry.Type.SYMLINK
                                 entry.isDirectory -> Entry.Type.DIR
                                 entry.isFile -> Entry.Type.FILE
-                                else -> throw IllegalStateException("${archiveFile}: unknown entry type at '${entry.name}")
+                                else -> error("${archiveFile}: unknown entry type at '${entry.name}")
                             }
                         override val name: String
                             get() = entry.name
@@ -302,7 +302,7 @@ private fun genericExtract(archiveFile: Path, archive: ArchiveContent, target: P
                     entryPath.setPosixFilePermissions(PosixFilePermissions.fromString("rwxr-xr-x"))
                 }
             } else {
-                throw IllegalStateException("Unknown entry type: $type")
+                error("Unknown entry type: $type")
             }
         }
     }

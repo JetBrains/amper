@@ -2,6 +2,58 @@
   <profile version="1.0">
     <option name="myName" value="Project Default" />
     <inspection_tool class="ConvertCallChainIntoSequence" enabled="true" level="INFORMATION" enabled_by_default="true" />
+    <inspection_tool class="CustomRegExpInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myConfigurations">
+        <list>
+          <RegExpInspectionConfiguration>
+            <option name="description" value="IllegalStateException without cause can be replaced with error()" />
+            <option name="name" value="IllegalStateException without cause -&gt; error()" />
+            <option name="problemDescriptor" value="IllegalStateException without cause can be replaced with error()" />
+            <option name="suppressId" value="ILLEGAL_STATE_EXCEPTION_CAN_BE_ERROR" />
+            <option name="uuid" value="39ea8e89-0aa2-3d34-a8dc-7b8245f623ac" />
+            <option name="patterns">
+              <list>
+                <InspectionPattern>
+                  <option name="regExp" value="throw IllegalStateException\((?&lt;message&gt;[^,)]+)\)(?!\.)" />
+                  <option name="_fileType" value="Kotlin" />
+                  <option name="searchContext" value="ANY" />
+                  <option name="replacement" value="error($1)" />
+                </InspectionPattern>
+                <InspectionPattern>
+                  <option name="regExp" value="throw IllegalStateException\(&quot;(?&lt;message&gt;[^&quot;]+)&quot;\)(?!\.)" />
+                  <option name="_fileType" value="Kotlin" />
+                  <option name="searchContext" value="ANY" />
+                  <option name="replacement" value="error(&quot;$1&quot;)" />
+                </InspectionPattern>
+              </list>
+            </option>
+          </RegExpInspectionConfiguration>
+          <RegExpInspectionConfiguration>
+            <option name="description" value="RuntimeException without cause can be replaced with error()" />
+            <option name="name" value="RuntimeException without cause -&gt; error()" />
+            <option name="problemDescriptor" value="RuntimeException without cause can be replaced with error()" />
+            <option name="suppressId" value="RUNTIME_EXCEPTION_CAN_BE_ERROR" />
+            <option name="uuid" value="c11d3014-9e7b-361c-9aed-f6052acd198c" />
+            <option name="patterns">
+              <list>
+                <InspectionPattern>
+                  <option name="regExp" value="throw RuntimeException\((?&lt;message&gt;[^,)]+)\)(?!\.)" />
+                  <option name="_fileType" value="Kotlin" />
+                  <option name="searchContext" value="ANY" />
+                  <option name="replacement" value="error($1)" />
+                </InspectionPattern>
+                <InspectionPattern>
+                  <option name="regExp" value="throw RuntimeException\(&quot;(?&lt;message&gt;[^&quot;]+)&quot;\)(?!\.)" />
+                  <option name="_fileType" value="Kotlin" />
+                  <option name="searchContext" value="ANY" />
+                  <option name="replacement" value="error(&quot;$1&quot;)" />
+                </InspectionPattern>
+              </list>
+            </option>
+          </RegExpInspectionConfiguration>
+        </list>
+      </option>
+    </inspection_tool>
     <inspection_tool class="ReplacePrintlnWithLogging" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES">
       <scope name="Production" level="WARNING" enabled="true" />
     </inspection_tool>

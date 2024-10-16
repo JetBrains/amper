@@ -25,12 +25,12 @@ object TeamCityHelper {
             val name = "teamcity.build.checkoutDir"
             val value = systemProperties[name]
             if (value.isNullOrEmpty()) {
-                throw RuntimeException("TeamCity system property " + name + "was not found while running under TeamCity")
+                error("TeamCity system property " + name + "was not found while running under TeamCity")
             }
 
             val file = Path(value)
             if (!file.isDirectory()) {
-                throw RuntimeException("TeamCity system property $name contains non existent directory: $file")
+                error("TeamCity system property $name contains non existent directory: $file")
             }
 
             return file
@@ -41,7 +41,7 @@ object TeamCityHelper {
             requireRunUnderTeamcity()
             val propertyName = "teamcity.build.tempDir"
             val tempPath = systemProperties[propertyName]
-                ?: throw IllegalStateException("TeamCity must provide system property $propertyName")
+                ?: error("TeamCity must provide system property $propertyName")
             return Path(tempPath)
         }
 
@@ -51,11 +51,11 @@ object TeamCityHelper {
         val systemPropertiesEnvName = "TEAMCITY_BUILD_PROPERTIES_FILE"
         val systemPropertiesFile = System.getenv(systemPropertiesEnvName)
         if (systemPropertiesFile == null || systemPropertiesFile.isEmpty()) {
-            throw RuntimeException("TeamCity environment variable $systemPropertiesEnvName was not found while running under TeamCity")
+            error("TeamCity environment variable $systemPropertiesEnvName was not found while running under TeamCity")
         }
         val file = Path(systemPropertiesFile)
         if (!file.exists()) {
-            throw RuntimeException("TeamCity system properties file is not found: $file")
+            error("TeamCity system properties file is not found: $file")
         }
         loadPropertiesFile(file)
     }
@@ -70,11 +70,11 @@ object TeamCityHelper {
         val propertyName = "teamcity.configuration.properties.file"
         val value = systemProperties[propertyName]
         if (value.isNullOrEmpty()) {
-            throw RuntimeException("TeamCity system property '$propertyName is not found")
+            error("TeamCity system property '$propertyName is not found")
         }
         val file = Path(value)
         if (!file.exists()) {
-            throw RuntimeException("TeamCity configuration properties file was not found: $file")
+            error("TeamCity configuration properties file was not found: $file")
         }
         loadPropertiesFile(file)
     }

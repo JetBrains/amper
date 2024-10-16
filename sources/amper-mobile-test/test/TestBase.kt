@@ -59,7 +59,7 @@ open class TestBase {
                 if (exitCode != 0) {
                     // Log output for debugging
                     val errorOutput = process.inputStream.bufferedReader().use { it.readText() }
-                    throw RuntimeException("Git clone failed with exit code $exitCode. Output: $errorOutput")
+                    error("Git clone failed with exit code $exitCode. Output: $errorOutput")
                 }
 
                 println("Git clone successful. Temp directory: $tempDir")
@@ -67,7 +67,7 @@ open class TestBase {
                 // Verify if the repo has been cloned by checking the .git folder
                 val gitFolder = tempDir.resolve(".git")
                 if (!gitFolder.exists()) {
-                    throw RuntimeException("Git clone completed but .git folder is missing. Something went wrong.")
+                    error("Git clone completed but .git folder is missing. Something went wrong.")
                 }
                 println("Git repository successfully cloned.")
 
@@ -78,7 +78,7 @@ open class TestBase {
                 println("Project path being copied from: $sourceDir")
 
                 if (!sourceDir.exists()) {
-                    throw RuntimeException("Project directory does not exist in the cloned repository at $sourceDir")
+                    error("Project directory does not exist in the cloned repository at $sourceDir")
                 }
             } catch (ex: IOException) {
                 throw RuntimeException("Failed to clone Git repository", ex)
@@ -183,7 +183,7 @@ open class TestBase {
                 println("Finished './gradlew $task' with exit code: $exitCode in ${projectDir.name}")
                 if (exitCode != 0) {
                     println("Error executing './gradlew $task' in ${projectDir.name}")
-                    throw RuntimeException("Execution of './gradlew $task' failed in ${projectDir.name}")
+                    error("Execution of './gradlew $task' failed in ${projectDir.name}")
                 }
             } catch (e: IOException) {
                 println("IOException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
@@ -280,7 +280,7 @@ open class TestBase {
         val sourcesDir = sourceDir.resolve("../../../").normalize()
 
         if (!sourcesDir.exists()) {
-            throw RuntimeException("Dir 'sources' not found: ${sourcesDir.toAbsolutePath()}")
+            error("Dir 'sources' not found: ${sourcesDir.toAbsolutePath()}")
         }
 
         val sourceFile1 = sourcesDir.resolve("amper-backend-test/testData/projects/android/simple/amper.bat")
@@ -294,7 +294,7 @@ open class TestBase {
                 sourceFile1.copyTo(targetFile1, StandardCopyOption.REPLACE_EXISTING)
                 println("Successfully copied amper.bat to $targetFile1")
             } else {
-                throw RuntimeException("File amper.bat not found at $sourceFile1")
+                error("File amper.bat not found at $sourceFile1")
             }
 
             if (sourceFile2.exists()) {

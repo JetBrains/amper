@@ -48,7 +48,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
     val platform = fragment.platform
     val productModuleName = "iosApp"
     val applePlatform = AppleSdkManager.getInstance().findPlatformByType(fragment.platform)
-        ?: throw RuntimeException("Could not find SDK.")
+        ?: error("Could not find SDK.")
 
     val commonSourceDir = appleSources.minBy { it.path.length }
 

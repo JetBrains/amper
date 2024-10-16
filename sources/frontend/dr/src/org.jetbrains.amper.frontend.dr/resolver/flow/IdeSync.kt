@@ -157,4 +157,4 @@ private val Fragment.resolutionPlatforms: Set<ResolutionPlatform>
             null
         }
     }.takeIf { it.isNotEmpty() }?.toSet()
-        ?: throw IllegalStateException("Can't start resolution for the fragment with platforms ${platforms.toSet()}"))
+        ?: error("Can't start resolution for the fragment with platforms ${platforms.toSet()}"))

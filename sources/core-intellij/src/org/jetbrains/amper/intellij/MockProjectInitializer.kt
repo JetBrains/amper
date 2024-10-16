@@ -175,9 +175,8 @@ private class StandaloneXcodeComponentManager(private val xcodePath: String, pri
                 XcodeSettingsBase::class.java.isAssignableFrom(clazz) -> XcodeSettingsBase().also { settings ->
                     settings.setSelectedXcodeBasePath(xcodePath)
                 }
-
                 XcodeBase::class.java.isAssignableFrom(clazz) -> XcodeBase()
-                else -> throw RuntimeException("Unknown clazz: ${clazz.name}")
+                else -> throw IllegalArgumentException("Unknown clazz: ${clazz.name}")
             }
         } as T
     }

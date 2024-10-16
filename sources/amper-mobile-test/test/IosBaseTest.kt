@@ -271,7 +271,7 @@ open class iOSBaseTest(): TestBase() {
         )
 
         if (!output.contains("iosAppUITests.iosAppUITests/testExample | Status: passed") || output.contains("Error")) {
-            throw RuntimeException("Test failed with output:\n$output")
+            error("Test failed with output:\n$output")
         }
 
         println("Uninstalling $appBundleId")

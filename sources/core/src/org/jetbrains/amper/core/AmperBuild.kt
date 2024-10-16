@@ -61,7 +61,7 @@ object AmperBuild {
             fun getProperty(property: String): String {
                 val value: String? = props.getProperty(property)
                 if (value.isNullOrBlank()) {
-                    throw IllegalStateException("Property '$property' is not present in build.properties")
+                    error("Property '$property' is not present in build.properties")
                 }
                 return value
             }

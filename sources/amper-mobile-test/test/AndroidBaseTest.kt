@@ -79,7 +79,7 @@ open class AndroidBaseTest : TestBase() {
 
         val output = stdout.toString().trim()
         if (output.isEmpty()) {
-            throw RuntimeException("Session wasn't created!")
+            error("Session wasn't created!")
         }
         return output
     }
@@ -271,7 +271,7 @@ open class AndroidBaseTest : TestBase() {
 
         // Check the output for success or errors
         if (!output.contains("OK (1 test)") || output.contains("Error")) {
-            throw RuntimeException("Test failed with output:\n$output")
+            error("Test failed with output:\n$output")
         }
     }
 
@@ -312,7 +312,7 @@ open class AndroidBaseTest : TestBase() {
     private fun getAvailableAvds(): List<String> {
         val avdManagerPath = getAvdManagerPath()
         if (!File(avdManagerPath).exists()) {
-            throw RuntimeException("avdmanager not found at path: $avdManagerPath")
+            error("avdmanager not found at path: $avdManagerPath")
         }
         val stdout = ByteArrayOutputStream()
         executeCommand(
@@ -327,7 +327,7 @@ open class AndroidBaseTest : TestBase() {
     }
 
     private fun getAvdManagerPath(): String {
-        val androidHome = System.getenv("ANDROID_HOME") ?: throw RuntimeException("ANDROID_HOME is not set")
+        val androidHome = System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME is not set")
         val osName = System.getProperty("os.name").toLowerCase()
 
         val possiblePaths = listOf(
@@ -337,7 +337,7 @@ open class AndroidBaseTest : TestBase() {
         )
 
         val avdManagerPath = possiblePaths.firstOrNull { File(it).exists() }
-            ?: throw RuntimeException("avdmanager not found in any of the possible locations")
+            ?: error("avdmanager not found in any of the possible locations")
 
         return if (osName.contains("win")) "$avdManagerPath.bat" else avdManagerPath
     }
@@ -347,7 +347,7 @@ open class AndroidBaseTest : TestBase() {
         val availableAvds = getAvailableAvds()
 
         if (availableAvds.isEmpty()) {
-            throw RuntimeException("No AVDs available. Please create at least one AVD.")
+            error("No AVDs available. Please create at least one AVD.")
         }
 
         val avdName = availableAvds[0]
@@ -376,7 +376,7 @@ open class AndroidBaseTest : TestBase() {
     }
 
     private fun getAdbPath(): String {
-        val androidHome = System.getenv("ANDROID_HOME") ?: throw RuntimeException("ANDROID_HOME is not set")
+        val androidHome = System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME is not set")
         return if (System.getProperty("os.name").toLowerCase().contains("win")) {
             "$androidHome\\platform-tools\\adb.exe"
         } else {
@@ -385,7 +385,7 @@ open class AndroidBaseTest : TestBase() {
     }
 
     private fun getEmulatorPath(): String {
-        val androidHome = System.getenv("ANDROID_HOME") ?: throw RuntimeException("ANDROID_HOME is not set")
+        val androidHome = System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME is not set")
         return if (System.getProperty("os.name").toLowerCase().contains("win")) {
             "$androidHome\\emulator\\emulator.exe"
         } else {

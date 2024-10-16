@@ -513,7 +513,7 @@ open class DependencyFile(
         val algorithm = hasher.algorithm
         val actualHash = hasher.hash
         if (expectedHash.algorithm != algorithm) {
-            throw IllegalStateException("Expected hash type is ${expectedHash.hash}, but $algorithm was calculated")
+            error("Expected hash type is ${expectedHash.hash}, but $algorithm was calculated")
         } else if (!expectedHash.hash.equals(actualHash,true)) {
             dependency.messages.asMutable() += Message(
                 "Hashes don't match for $algorithm",
