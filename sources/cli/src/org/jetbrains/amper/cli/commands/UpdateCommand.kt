@@ -23,7 +23,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
 
     private val repository by option(
         "-r", "--repository",
-        help = "URL of the maven repository to download the Amper wrapper from",
+        help = "URL of the maven repository to download the Amper scripts from",
     ).default("https://packages.jetbrains.team/maven/p/amper/amper")
 
     private val useDevVersion by option(
@@ -39,8 +39,6 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     override fun help(context: Context): String = "Update Amper to the latest version"
 
     override suspend fun run() {
-        val version = targetVersion ?: getLatestVersion()
-
         // We could in theory find the parent dir of the actual script that launched Amper (even without project root
         // discovery, by passing more info from the wrapper to Amper), but the benefit would be marginal, and it would
         // break amper-from-sources.
@@ -51,6 +49,9 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         checkWrapperExists(amperBashPath)
         checkWrapperExists(amperBatPath)
 
+        val version = targetVersion ?: getLatestVersion()
+
+        commonOptions.terminal.println("Downloading Amper scripts...")
         // it's ok to load the whole wrapper content in memory (it's quite small)
         val bashWrapper = fetchWrapperContent(version = version, extension = "")
         val batWrapper = fetchWrapperContent(version = version, extension = ".bat")
@@ -70,16 +71,21 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     private fun checkWrapperExists(amperBashPath: Path) {
         if (amperBashPath.notExists()) {
             userReadableError("Couldn't find Amper wrapper script at ${amperBashPath.toAbsolutePath().normalize()}.\n" +
-                    "Use --root to update Amper wrappers outside the current director.")
+                    "Use --root to update Amper wrappers outside the current directory.")
         }
     }
 
     private suspend fun getLatestVersion(): String {
+        commonOptions.terminal.println("Fetching latest Amper version info...")
         val metadataXml = fetchMavenMetadataXml()
         return versionRegex.findAll(metadataXml)
             .map { it.groupValues[1] }
             .filter { useDevVersion || "dev" !in it }
             .maxByOrNull { ComparableVersion(it) }
+            ?.also {
+                val versionMoniker = if (useDevVersion) "dev version of Amper" else "Amper version"
+                commonOptions.terminal.println("Latest $versionMoniker is $it")
+            }
             ?: userReadableError("Couldn't read Amper latest version from maven-metadata.xml:\n\n$metadataXml")
     }
 
