@@ -3,6 +3,7 @@ import java.io.File
 import java.nio.file.Path
 import kotlin.concurrent.thread
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
@@ -190,26 +191,22 @@ open class AndroidBaseTest : TestBase() {
     }
 
     private fun installTargetAPK(projectName: String) {
-        val gradleApkPath = "./tempProjects/$projectName/build/outputs/apk/debug/$projectName-debug.apk"
-        val standaloneApkPath =
-            "./tempProjects/$projectName/build/tasks/_${projectName}_buildAndroidDebug/gradle-project-debug.apk"
-        val gradleApkPathMultiplatform = "./tempProjects/$projectName/android-app/build/outputs/apk/debug/android-app-debug.apk"
+        val gradleApkPath = Path("tempProjects/$projectName/build/outputs/apk/debug/$projectName-debug.apk")
+        val standaloneApkPath = Path("tempProjects/$projectName/build/tasks/_${projectName}_buildAndroidDebug/gradle-project-debug.apk")
+        val gradleApkPathMultiplatform = Path("tempProjects/$projectName/android-app/build/outputs/apk/debug/android-app-debug.apk")
 
-
-        val primaryApkFile = File(gradleApkPath)
-        val standaloneApkFile = File(standaloneApkPath)
-        val gradleApkPathMultiplatformFile = File(gradleApkPathMultiplatform)
-
-
-        if (primaryApkFile.exists()) {
-            adb("install", gradleApkPath)
-        } else if (standaloneApkFile.exists()) {
-            adb("install", standaloneApkPath)
-        } else if (gradleApkPathMultiplatformFile.exists()) {
-            adb("install", gradleApkPathMultiplatform)
-        }
-        else {
-            throw APKNotFoundException("APK file does not exist at paths: $gradleApkPath or $standaloneApkPath or $gradleApkPathMultiplatform")
+        if (gradleApkPath.exists()) {
+            adb("install", gradleApkPath.pathString)
+        } else if (standaloneApkPath.exists()) {
+            adb("install", standaloneApkPath.pathString)
+        } else if (gradleApkPathMultiplatform.exists()) {
+            adb("install", gradleApkPathMultiplatform.pathString)
+        } else {
+            throw APKNotFoundException("APK file does not exist at any of those paths:\n" +
+                    "${gradleApkPath.absolutePathString()}\n" +
+                    "${standaloneApkPath.absolutePathString()}\n" +
+                    gradleApkPathMultiplatform.absolutePathString()
+            )
         }
     }
 
