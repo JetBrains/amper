@@ -24,14 +24,8 @@ open class iOSBaseTest(): TestBase() {
     @Throws(InterruptedException::class, IOException::class)
     private fun installTestBundleForUITests() {
         val absolutePath = "iOSTestsAssets/iosAppUITests-Runner.app"
-        idb(null, "install", absolutePath)
-
-        idb(
-            null,
-            "xctest",
-            "install",
-            "$absolutePath/Plugins/iosAppUITests.xctest"
-        )
+        idb("install", absolutePath)
+        idb("xctest", "install", "$absolutePath/Plugins/iosAppUITests.xctest")
     }
 
     private fun prepareProjectsiOSforGradle(projectDir: String) {
@@ -57,14 +51,11 @@ open class iOSBaseTest(): TestBase() {
         require(assetsDir.exists() && assetsDir.isDirectory) { "Assets directory not found at $assetsPath" }
     }
 
-
-
-    private fun idb(outputStream: OutputStream? = null, vararg params: String): String {
-        val standardOut = outputStream ?: ByteArrayOutputStream()
+    private fun idb(vararg params: String): String {
+        val standardOut = ByteArrayOutputStream()
         val standardErr = ByteArrayOutputStream()
         val idbCompanion = getOrCreateRemoteSession()
         val command = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
-        //val command = listOf("idb", *params)
 
         println("Executing IDB: $command")
         executeCommand(command, standardOut, standardErr, mapOf("IDB_COMPANION" to idbCompanion))
@@ -73,10 +64,6 @@ open class iOSBaseTest(): TestBase() {
         val cmdError = standardErr.toString()
         println(cmdOutput)
         println(cmdError)
-
-        if (outputStream == null) {
-            print(cmdOutput)
-        }
 
         return cmdOutput
     }
@@ -258,9 +245,8 @@ open class iOSBaseTest(): TestBase() {
         val testHostAppBundleId = "iosApp.iosAppUITests.xctrunner"
         val xctestBundleId = "iosApp.iosAppUITests"
 
-        idb(null, "install", appFile.absolutePath)
+        idb("install", appFile.absolutePath)
         val output = idb(
-            null,
             "--log", "ERROR",
             "xctest",
             "run",
@@ -275,7 +261,7 @@ open class iOSBaseTest(): TestBase() {
         }
 
         println("Uninstalling $appBundleId")
-        idb(null, "uninstall", appBundleId)
+        idb("uninstall", appBundleId)
     }
 
     private fun configureXcodeProjectForStandalone(projectDir: File) {
