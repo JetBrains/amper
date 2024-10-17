@@ -71,10 +71,16 @@ AndroidSettings
 	maxSdk: AndroidVersion - Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
 	minSdk: AndroidVersion, default: 21 - Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
 	namespace: String, default: org.example.namespace - A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)
+	parcelize: ParcelizeSettings - Configure [Kotlin Parcelize](https://developer.android.com/kotlin/parcelize) to automatically implement the `Parcelable` interface for classes annotated with `@Parcelize`.
 	signing: AndroidSigningSettings - Application signing settings. [Read more](https://developer.android.com/studio/publish/app-signing)
 	targetSdk: AndroidVersion, default: 35 - The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
 	versionCode: Int, default: 1 - Version code. [Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)
 	versionName: String, default: unspecified - Version name. [Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)
+
+ParcelizeSettings
+-----------------
+	additionalAnnotations: List<String>, default: [] - The full-qualified name of additional annotations that should be considered as `@Parcelize`. This is useful if you need to annotate classes in common code shared between different platforms, where the real `@Parcelize` annotation is not available. In that case, create your own common annotation and add its fully-qualified name here so that Parcelize recognizes it.
+	enabled: Boolean, default: false - Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an implementation of the `Parcelable` interface is automatically generated for classes annotated with `@Parcelize`.
 
 AndroidSigningSettings
 ----------------------
@@ -118,7 +124,6 @@ KotlinSettings
 	languageVersion: KotlinVersion, default: 2.0 - Source compatibility with the specified version of Kotlin
 	linkerOpts: List<String>
 	optIns: List<String> - Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name
-	parcelize: ParcelizeSettings - Configure [Kotlin parcelize](https://developer.android.com/kotlin/parcelize) for @Parcelize support
 	progressiveMode: Boolean, default: false - Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)
 	serialization: SerializationSettings - Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)
 	suppressWarnings: Boolean, default: false - Suppress the compiler from displaying warnings during compilation
@@ -129,11 +134,6 @@ KspSettings
 	processorOptions: Map<String, String>, default: {} - Some options to pass to KSP processors. Refer to each processor documentation for details.
 	processors: List<KspProcessorDeclaration>, default: [] - The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates.
 	version: String, default: 2.0.21-1.0.25 - The version of KSP to use
-
-ParcelizeSettings
------------------
-	additionalAnnotations: List<String>, default: [] - Full-qualified name of additional annotations that should be considered as @Parcelize
-	enabled: Boolean, default: false - Whether to enable Kotlin Parcelize
 
 SerializationSettings
 ---------------------

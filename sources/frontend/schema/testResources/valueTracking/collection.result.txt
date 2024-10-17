@@ -24,10 +24,6 @@
       languageVersion: 2.0 [default]
       linkerOpts: (empty)
       optIns: (empty)
-      parcelize:
-         additionalAnnotations: (empty) [default]
-         enabled: false [default]
-
       progressiveMode: false [default]
       serialization:
          enabled: false [default]

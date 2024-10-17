@@ -112,7 +112,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
             add(kotlinxSerializationFormatDependency(format, settings.kotlin.serialization.version))
         }
     }
-    if (settings.kotlin.parcelize.enabled) {
+    if (settings.android.parcelize.enabled) {
         add(kotlinParcelizeRuntime)
     }
     if (settings.compose.enabled) {

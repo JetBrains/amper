@@ -4,5 +4,5 @@ product:
     - android
 
 settings:
-  kotlin:
+  android:
     parcelize: enabled

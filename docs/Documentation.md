@@ -747,25 +747,60 @@ don't have one yet. This will create a new self-signed certificate, using the de
  
 ##### Parcelize
 
-If you need to automatically generate your `Parcelable` implementations, you can enable the 
-[Parcelize](https://developer.android.com/kotlin/parcelize) compiler plugin as follows:
+If you want to automatically generate your `Parcelable` implementations, you can enable 
+[Parcelize](https://developer.android.com/kotlin/parcelize) as follows:
 
 ```yaml
 settings:
-  kotlin:
+  android:
     parcelize: enabled
 ```
 
-Setting up parcelize for multiplatform projects is also possible, and requires defining your own multiplatform 
-`@Parcelize` equivalent, such as `@MyParcelize`.
-Follow the [official documentation](https://developer.android.com/kotlin/parcelize#setup_parcelize_for_kotlin_multiplatform)
-for more details about the code in a multiplatform setup.
+With this simple toggle, the following class gets its `Parcelable` implementation automatically without spelling it out
+in the code, just thanks to the `@Parcelize` annotation:
+```kotlin
+import kotlinx.parcelize.Parcelize
 
-To tell the Parcelize plugin to use your own annotation, add your annotation in the settings as follows:
+@Parcelize
+class User(val firstName: String, val lastName: String, val age: Int): Parcelable
+```
+
+While this is only relevant on Android, sometimes you need to share your data model between multiple platforms.
+However, the `Parcelable` interface and `@Parcelize` annotation are only present on Android.
+But fear not, there is a solution described in the
+[official documentation](https://developer.android.com/kotlin/parcelize#setup_parcelize_for_kotlin_multiplatform).
+In short:
+
+* For `android.os.Parcelable`, you can use the `expect`/`actual` mechanism to define your own interface as typealias of 
+`android.os.Parcelable` (for Android), and as an empty interface for other platforms.
+* For `@Parcelize`, you can simply define your own annotation instead, and then tell Parcelize about it (see below).
+
+For example, in common code:
+```kotlin
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+annotation class MyParcelize
+
+expect interface MyParcelable
+```
+Then in Android code:
+```kotlin
+actual typealias MyParcelable = android.os.Parcelable
+```
+And in other platforms:
+```kotlin
+// empty because nothing is generated on non-Android platforms
+actual interface MyParcelable
+```
+
+You can then make Parcelize recognize this custom annotation using the `additionalAnnotations` option:
 
 ```yaml
 settings:
   kotlin:
+    # for the expect/actual MyParcelable interface
+    freeCompilerArgs: [ -Xexpect-actual-classes ]
+  android:
     parcelize:
       enabled: true
       additionalAnnotations: [ com.example.MyParcelize ]

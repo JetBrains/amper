@@ -56,10 +56,10 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
     optIns = unanimousKotlinSetting("optIns") { it.optIns.orEmpty().map { it.value } },
     freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs?.map { it.value } }.orEmpty(),
     serializationEnabled = unanimousKotlinSetting("serialization.enabled") { it.serialization.enabled },
-    parcelizeEnabled = unanimousOptionalKotlinSetting("parcelize.enabled") { it.parcelize.enabled } ?: false,
-    parcelizeAdditionalAnnotations = unanimousOptionalKotlinSetting("parcelize.additionalAnnotations") { it.parcelize.additionalAnnotations }
+    parcelizeEnabled = unanimousOptionalSetting("android.parcelize.enabled") { it.android.parcelize.enabled } == true,
+    parcelizeAdditionalAnnotations = unanimousOptionalSetting("android.parcelize.additionalAnnotations") { it.android.parcelize.additionalAnnotations }
         ?.map { it.value }.orEmpty(),
-    composeEnabled = unanimousOptionalSetting("compose.enabled") { it.compose.enabled } ?: false,
+    composeEnabled = unanimousOptionalSetting("compose.enabled") { it.compose.enabled } == true,
 )
 
 private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T?): T? =

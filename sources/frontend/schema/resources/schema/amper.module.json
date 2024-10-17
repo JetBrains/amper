@@ -466,6 +466,11 @@
           "title": "A Kotlin or Java package name for the generated `R` and `BuildConfig` classes",
           "type": "string"
         },
+        "parcelize": {
+          "x-intellij-html-description": "Configure [Kotlin Parcelize](https://developer.android.com/kotlin/parcelize) to automatically implement the `Parcelable` interface for classes annotated with `@Parcelize`.",
+          "title": "Configure Kotlin Parcelize to automatically implement the `Parcelable` interface for classes annotated with `@Parcelize`",
+          "$ref": "#/$defs/ParcelizeSettings"
+        },
         "signing": {
           "x-intellij-html-description": "Application signing settings. [Read more](https://developer.android.com/studio/publish/app-signing)",
           "title": "Application signing settings",
@@ -492,6 +497,35 @@
         }
       },
       "additionalProperties": false
+    },
+    "ParcelizeSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "additionalAnnotations": {
+              "x-intellij-html-description": "The full-qualified name of additional annotations that should be considered as `@Parcelize`. This is useful if you need to annotate classes in common code shared between different platforms, where the real `@Parcelize` annotation is not available. In that case, create your own common annotation and add its fully-qualified name here so that Parcelize recognizes it.",
+              "title": "The full-qualified name of additional annotations that should be considered as `@Parcelize`. This is useful if you need to annotate classes in common code shared between different platforms, where the real `@Parcelize` annotation is not available. In that case, create your own common annotation and add its fully-qualified name here so that Parcelize recognizes it",
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "enabled": {
+              "x-intellij-html-description": "Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an implementation of the `Parcelable` interface is automatically generated for classes annotated with `@Parcelize`.",
+              "title": "Whether to enable Parcelize. When enabled, an implementation of the `Parcelable` interface is automatically generated for classes annotated with `@Parcelize`",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
     },
     "AndroidSigningSettings": {
       "anyOf": [
@@ -678,11 +712,6 @@
             "type": "string"
           }
         },
-        "parcelize": {
-          "x-intellij-html-description": "Configure [Kotlin parcelize](https://developer.android.com/kotlin/parcelize) for @Parcelize support",
-          "title": "Configure Kotlin parcelize for @Parcelize support",
-          "$ref": "#/$defs/ParcelizeSettings"
-        },
         "progressiveMode": {
           "x-intellij-html-description": "Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)",
           "title": "Enable the progressive mode for the compiler",
@@ -737,35 +766,6 @@
         }
       },
       "additionalProperties": false
-    },
-    "ParcelizeSettings": {
-      "anyOf": [
-        {
-          "type": "object",
-          "properties": {
-            "additionalAnnotations": {
-              "x-intellij-html-description": "Full-qualified name of additional annotations that should be considered as @Parcelize",
-              "title": "Full-qualified name of additional annotations that should be considered as @Parcelize",
-              "type": "array",
-              "uniqueItems": true,
-              "items": {
-                "type": "string"
-              }
-            },
-            "enabled": {
-              "x-intellij-html-description": "Whether to enable Kotlin Parcelize",
-              "title": "Whether to enable Kotlin Parcelize",
-              "type": "boolean"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "enum": [
-            "enabled"
-          ]
-        }
-      ]
     },
     "SerializationSettings": {
       "anyOf": [

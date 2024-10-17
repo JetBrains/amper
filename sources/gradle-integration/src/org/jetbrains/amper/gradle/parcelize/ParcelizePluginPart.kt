@@ -9,7 +9,7 @@ import org.jetbrains.amper.gradle.base.PluginPartCtx
 
 class ParcelizePluginPart(ctx: PluginPartCtx) : BindingPluginPart by ctx {
     override val needToApply: Boolean by lazy {
-        module.leafFragments.any { it.settings.kotlin.parcelize.enabled }
+        module.leafFragments.any { it.settings.android.parcelize.enabled }
     }
 
     override fun applyBeforeEvaluate() {

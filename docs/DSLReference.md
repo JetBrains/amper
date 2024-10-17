@@ -329,7 +329,6 @@ the [module tests](Documentation.md#tests).
 | `freeCompilerArgs: string list` | Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly.                                                           |                   |
 | `debug: boolean`                | (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information.                                               | `true`            |
 | `serialization: object \| enum` | Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization).                                                                               |                   |
-| `parcelize: object \| string`   | Configure the [Parcelize](https://developer.android.com/kotlin/parcelize) compiler plugin.                                                                           |                   |
 
 The `serialization:` attribute can be an object or an enum corresponding to the `format:` attribute:
 
@@ -337,13 +336,6 @@ The `serialization:` attribute can be an object or an enum corresponding to the 
 |-------------------|------------------------------------------------------------------------------------------------------------|---------|
 | `format: enum`    | `json` to enable serialization and add the JSON format, `none` to only enable serialization without format | `none`  |
 | `version: string` | the version to use for the core serialization library and the serialization format                         | `1.7.3` |
-
-The `parcelize:` attribute can be the simple `enabled` string, or an object with the following attributes:
-
-| Attribute                            | Description                                                                                                                                                                                                                                                              | Default |
-|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| `enabled: boolean`                   | Whether to enable the [Parcelize](https://developer.android.com/kotlin/parcelize) compiler plugin.                                                                                                                                                                       |         |
-| `additionalAnnotations: string list` | The list of additional annotations that the Parcelize plugin should process the same way as `@Parcelize`. This is necessary in KMP projects using a [custom common annotation](https://developer.android.com/kotlin/parcelize#setup_parcelize_for_kotlin_multiplatform). | (empty) |
 
 Examples:
 
@@ -370,22 +362,6 @@ settings:
       version: 1.5.1
 ```
 
-```yaml
-# Enabling the Parcelize plugin (short form)
-settings:
-  kotlin:
-    parcelize: enabled
-```
-
-```yaml
-# Enabling the Parcelize plugin with a custom annotation 
-settings:
-  kotlin:
-    parcelize:
-      enabled: true
-      additionalAnnotations: [ com.example.MyCommonParcelize ]
-```
-
 #### JVM
 
 `settings:jvm:` configures the JVM platform-specific settings.
@@ -399,17 +375,18 @@ settings:
 
 `settings:android:` configures the Android toolchain and platform.
 
-| Attribute               | Description                                                                                                                                                                                                                   | Default               |
-|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
-| `applicationId: string` | The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                                     | (namespace)           |
-| `namespace: string`     | A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                           | org.example.namespace |
-| `compileSdk: int`       | The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). | (targetSdk)           |
-| `targetSdk: int`        | The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             | 35                    |
-| `minSdk: int`           | Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                      | 21                    |
-| `maxSdk: int`           | Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                   |                       |
-| `signing: object`       | Android signing settings. [Read more](https://developer.android.com/studio/publish/app-signing).                                                                                                                              |                       |
-| `versionCode: int`      | Version code. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | 1                     |
-| `versionName: string`   | Version name. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | unspecified           |
+| Attribute                     | Description                                                                                                                                                                                                                   | Default               |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
+| `applicationId: string`       | The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                                     | (namespace)           |
+| `namespace: string`           | A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                           | org.example.namespace |
+| `compileSdk: int`             | The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). | (targetSdk)           |
+| `targetSdk: int`              | The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             | 35                    |
+| `minSdk: int`                 | Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                      | 21                    |
+| `maxSdk: int`                 | Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                   |                       |
+| `signing: object`             | Android signing settings. [Read more](https://developer.android.com/studio/publish/app-signing).                                                                                                                              |                       |
+| `versionCode: int`            | Version code. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | 1                     |
+| `versionName: string`         | Version name. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | unspecified           |
+| `parcelize: object \| string` | Configure [Parcelize](https://developer.android.com/kotlin/parcelize).                                                                                                                                                        |                       |
 
 ##### Android signing
 
@@ -421,6 +398,31 @@ settings:
 | `enabled: boolean`     | Whether signing enabled or not. [Read more](https://developer.android.com/studio/publish/app-signing). | false                 |
 | `propertiesFile: path` | Location of properties file. [Read more](https://developer.android.com/studio/publish/app-signing).    | ./keystore.properties |
 
+##### Parcelize
+
+`settings:android:parcelize` configures [Parcelize](https://developer.android.com/kotlin/parcelize) for the Android
+platform in the module. The value can be the simple `enabled` string, or an object with the following attributes:
+
+| Attribute                            | Description                                                                                                                                                                                                                                                                                                                                                                | Default |
+|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `enabled: boolean`                   | Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an implementation of the `Parcelable` interface is automatically generated for classes annotated with `@Parcelize`.                                                                                                                                                           |         |
+| `additionalAnnotations: string list` | The full-qualified names of additional annotations that should be considered as `@Parcelize`. This is useful if you need to annotate classes in common code shared between different platforms, where the real `@Parcelize` annotation is not available. In that case, create your own common annotation and add its fully-qualified name so that Parcelize recognizes it. | (empty) |
+
+```yaml
+# Enables Parcelize to process @Parcelize-annotated classes (short form)
+settings:
+  android:
+    parcelize: enabled
+```
+
+```yaml
+# Enables Parcelize, and configures it to process a custom @com.example.MyCommonParcelize annotation
+settings:
+  android:
+    parcelize:
+      enabled: true
+      additionalAnnotations: [ com.example.MyCommonParcelize ]
+```
 
 #### iOS
 

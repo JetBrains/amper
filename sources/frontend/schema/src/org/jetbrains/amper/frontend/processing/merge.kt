@@ -84,6 +84,7 @@ fun AndroidSettings.merge(overwrite: AndroidSettings) = mergeNode(overwrite, ::A
     mergeNodeProperty(AndroidSettings::signing, AndroidSigningSettings::merge)
     mergeScalar(AndroidSettings::versionCode)
     mergeScalar(AndroidSettings::versionName)
+    mergeNodeProperty(AndroidSettings::parcelize, ParcelizeSettings::merge)
 }
 
 fun AndroidSigningSettings.merge(overwrite: AndroidSigningSettings) = mergeNode(overwrite, ::AndroidSigningSettings) {
@@ -106,7 +107,6 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::Kot
 
     mergeNodeProperty(KotlinSettings::ksp, KspSettings::merge)
     mergeNodeProperty(KotlinSettings::serialization, SerializationSettings::merge)
-    mergeNodeProperty(KotlinSettings::parcelize, ParcelizeSettings::merge)
 }
 
 fun ComposeSettings.merge(overwrite: ComposeSettings?) = mergeNode(overwrite, ::ComposeSettings) {

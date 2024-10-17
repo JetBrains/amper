@@ -75,7 +75,4 @@ class KotlinSettings : SchemaNode() {
 
     @SchemaDoc("Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
     var serialization by value<SerializationSettings>(::SerializationSettings)
-
-    @SchemaDoc("Configure [Kotlin parcelize](https://developer.android.com/kotlin/parcelize) for @Parcelize support")
-    var parcelize by value<ParcelizeSettings>(ParcelizeSettings())
 }

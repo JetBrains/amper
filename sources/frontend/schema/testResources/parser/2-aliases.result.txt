@@ -14,6 +14,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -58,11 +63,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -94,6 +94,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -138,11 +143,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -170,6 +170,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -214,11 +219,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -248,6 +248,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -292,11 +297,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -324,6 +324,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -368,11 +373,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -400,6 +400,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -444,11 +449,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -479,6 +479,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -523,11 +528,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -555,6 +555,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -599,11 +604,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -632,6 +632,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -676,11 +681,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -711,6 +711,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -755,11 +760,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -790,6 +790,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -834,11 +839,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -869,6 +869,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -913,11 +918,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -945,6 +945,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -989,11 +994,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -1024,6 +1024,11 @@ Fragments:
         maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -1068,11 +1073,6 @@ Fragments:
         languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false

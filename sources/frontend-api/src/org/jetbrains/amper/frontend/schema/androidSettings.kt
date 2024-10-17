@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
@@ -102,6 +103,10 @@ class AndroidSettings : SchemaNode() {
             "[Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)")
     @ProductTypeSpecific(ProductType.ANDROID_APP)
     var versionName by value("unspecified")
+
+    @SchemaDoc("Configure [Kotlin Parcelize](https://developer.android.com/kotlin/parcelize) to automatically " +
+            "implement the `Parcelable` interface for classes annotated with `@Parcelize`.")
+    var parcelize by value<ParcelizeSettings>(ParcelizeSettings())
 }
 
 @AdditionalSchemaDef(ANDROID_SIGNING_SETTINGS_SHORT_FORM)
@@ -132,3 +137,26 @@ val Properties.storeFile: String? get() = getProperty(KeystoreProperty.StoreFile
 val Properties.storePassword: String? get() = getProperty(KeystoreProperty.StorePassword.key)
 val Properties.keyAlias: String? get() = getProperty(KeystoreProperty.KeyAlias.key)
 val Properties.keyPassword: String? get() = getProperty(KeystoreProperty.KeyPassword.key)
+
+@AdditionalSchemaDef(parcelizeSettingsShortForm)
+class ParcelizeSettings : SchemaNode() {
+
+    @SchemaDoc("Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an " +
+            "implementation of the `Parcelable` interface is automatically generated for classes annotated with " +
+            "`@Parcelize`.")
+    var enabled by value(default = false)
+
+    @SchemaDoc("The full-qualified name of additional annotations that should be considered as `@Parcelize`. " +
+            "This is useful if you need to annotate classes in common code shared between different platforms, where " +
+            "the real `@Parcelize` annotation is not available. In that case, create your own common annotation and " +
+            "add its fully-qualified name here so that Parcelize recognizes it.")
+    var additionalAnnotations: List<TraceableString> by value(default = emptyList())
+}
+
+const val parcelizeSettingsShortForm = """
+  {
+    "enum": [
+      "enabled"
+    ]
+  }
+"""

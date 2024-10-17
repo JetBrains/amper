@@ -130,24 +130,6 @@ const val serializationSettingsShortForm = """
   }
 """
 
-@AdditionalSchemaDef(parcelizeSettingsShortForm)
-class ParcelizeSettings : SchemaNode() {
-
-    @SchemaDoc("Whether to enable Kotlin Parcelize")
-    var enabled by value(default = false)
-
-    @SchemaDoc("Full-qualified name of additional annotations that should be considered as @Parcelize")
-    var additionalAnnotations: List<TraceableString> by value(default = emptyList())
-}
-
-const val parcelizeSettingsShortForm = """
-  {
-    "enum": [
-      "enabled"
-    ]
-  }
-"""
-
 class IosSettings : SchemaNode() {
 
     @SchemaDoc("A Team ID is a unique string assigned to your team by Apple.<br>" +

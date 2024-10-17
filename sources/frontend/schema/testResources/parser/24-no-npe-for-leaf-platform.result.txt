@@ -16,6 +16,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -54,8 +59,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -64,11 +68,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -112,6 +111,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -150,8 +154,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -160,11 +163,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -205,6 +203,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -243,8 +246,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -253,11 +255,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -300,6 +297,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -338,8 +340,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -348,11 +349,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -393,6 +389,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -431,8 +432,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -441,11 +441,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -488,6 +483,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -526,8 +526,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -536,11 +535,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -583,6 +577,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -621,8 +620,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -631,11 +629,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -676,6 +669,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -714,8 +712,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -724,11 +721,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -770,6 +762,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -808,8 +805,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -818,11 +814,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -864,6 +855,11 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -902,8 +898,7 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: [
-          ]
+          processors: <cycle>
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -912,11 +907,6 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false

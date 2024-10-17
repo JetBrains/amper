@@ -16,10 +16,6 @@
          version: 2.0.21-1.0.25 [default]
 
       languageVersion: 2.0 [default]
-      parcelize:
-         additionalAnnotations: (empty) [default]
-         enabled: false [default]
-
       progressiveMode: false [default]
       serialization:
          enabled: false [default]

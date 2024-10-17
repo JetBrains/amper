@@ -1,11 +1,10 @@
 product: android/app
 
 settings:
-  kotlin:
-    parcelize:
-      enabled: true
   android:
     namespace: com.jetbrains.sample.app
+    parcelize:
+      enabled: true
 
 dependencies:
   - androidx.appcompat:appcompat:1.6.1
