@@ -196,4 +196,14 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     fun ksp() {
         aomTest("ksp")
     }
+
+    @Test
+    fun `parcelize enabled`() {
+        aomTest("parcelize-enabled")
+    }
+
+    @Test
+    fun `parcelize options`() {
+        aomTest("parcelize-options")
+    }
 }

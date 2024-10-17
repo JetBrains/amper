@@ -1,0 +1,10 @@
+product = "android/app"
+
+settings {
+  android {
+    namespace = "com.jetbrains.sample.app"
+    parcelize {
+      enabled = true
+    }
+  }
+}
