@@ -1,0 +1,17 @@
+product:
+  type: lib
+  platforms:
+    - android
+    - linuxX64
+    - mingwX64
+    - iosArm64
+    - iosSimulatorArm64
+
+settings:
+  kotlin:
+    # to allow the "expect interface MyParcelable" in common code
+    freeCompilerArgs: [ -Xexpect-actual-classes ]
+  android:
+    parcelize:
+      enabled: true
+      additionalAnnotations: [ com.jetbrains.sample.lib.MyParcelize ]

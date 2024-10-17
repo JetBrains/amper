@@ -6,6 +6,7 @@ package org.jetbrains.amper.compilation
 
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KotlinVersion
@@ -56,11 +57,15 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
     optIns = unanimousKotlinSetting("optIns") { it.optIns.orEmpty().map { it.value } },
     freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs?.map { it.value } }.orEmpty(),
     serializationEnabled = unanimousKotlinSetting("serialization.enabled") { it.serialization.enabled },
-    parcelizeEnabled = unanimousOptionalSetting("android.parcelize.enabled") { it.android.parcelize.enabled } == true,
+    // we disable Parcelize on any code that doesn't compile to Android, because it fails on missing Parcelable
+    parcelizeEnabled = all { it.hasAndroidTarget() }
+            && unanimousOptionalSetting("android.parcelize.enabled") { it.android.parcelize.enabled } == true,
     parcelizeAdditionalAnnotations = unanimousOptionalSetting("android.parcelize.additionalAnnotations") { it.android.parcelize.additionalAnnotations }
         ?.map { it.value }.orEmpty(),
     composeEnabled = unanimousOptionalSetting("compose.enabled") { it.compose.enabled } == true,
 )
+
+private fun Fragment.hasAndroidTarget(): Boolean = platforms.contains(Platform.ANDROID)
 
 private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T?): T? =
     unanimousOptionalSetting("kotlin.$settingFqn") { selector(it.kotlin) }

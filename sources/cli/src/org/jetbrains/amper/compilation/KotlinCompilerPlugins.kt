@@ -26,6 +26,7 @@ internal data class CompilerPlugin(
             jarPath = jarPath,
         )
 
+        // https://github.com/JetBrains/kotlin/blob/master/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/android/internal/ParcelizeSubplugin.kt
         fun parcelize(jarPath: Path, additionalAnnotations: List<String>) = CompilerPlugin(
             id = "org.jetbrains.kotlin.parcelize",
             jarPath = jarPath,

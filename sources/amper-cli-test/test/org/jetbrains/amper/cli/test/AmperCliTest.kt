@@ -406,8 +406,8 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `parcelize android app - test`() = runTestInfinitely {
-        runCli(backendTestProjectName = "parcelize-android-app", "test")
+    fun `parcelize with shared kmp model`() = runTestInfinitely {
+        runCli(backendTestProjectName = "parcelize-shared-kmp-model", "build")
     }
 
     private fun assertModulesList(modulesCommandResult: ProcessResult, expectedModules: List<String>) {
