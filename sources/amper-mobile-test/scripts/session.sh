@@ -47,7 +47,7 @@ function check_session() {
 function create_session() {
     if [ -n "$(check_session 2>/dev/null)" ]; then
         print_session_info
-        return 1
+        return 0
     fi
 
     [ -f "$SESSION_INFO_FILE" ] && rm "$SESSION_INFO_FILE"

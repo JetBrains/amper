@@ -58,7 +58,7 @@ open class iOSBaseTest(): TestBase() {
         val command = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
 
         println("Executing IDB: $command")
-        executeCommand(command, standardOut, standardErr, mapOf("IDB_COMPANION" to idbCompanion))
+        executeCommand(command, standardOut, standardErr, env = mapOf("IDB_COMPANION" to idbCompanion))
 
         val cmdOutput = standardOut.toString()
         val cmdError = standardErr.toString()

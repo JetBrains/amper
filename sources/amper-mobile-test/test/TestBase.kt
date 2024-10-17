@@ -11,6 +11,7 @@ import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.exists
+import kotlin.test.fail
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -200,7 +201,8 @@ open class TestBase {
     fun executeCommand(
         command: List<String>,
         workingDirectory: Path? = null,
-        env: Map<String, String> = emptyMap()
+        expectExitCodeZero: Boolean = true,
+        env: Map<String, String> = emptyMap(),
     ): String {
         val process = ProcessBuilder()
             .command(command)
@@ -219,7 +221,10 @@ open class TestBase {
             }
         }
 
-        process.waitFor()
+        val exitCode = process.waitFor()
+        if (expectExitCodeZero && exitCode != 0) {
+            fail("Execution failed with exit code $exitCode for command: $command\nOutput (merged stdout/stderr):\n$output")
+        }
         return output.toString().trim()
     }
 
@@ -227,6 +232,7 @@ open class TestBase {
         command: List<String>,
         standardOut: OutputStream,
         standardErr: OutputStream,
+        expectExitCodeZero: Boolean = true,
         env: Map<String, String> = emptyMap()
     ) {
         val process = ProcessBuilder()
@@ -251,7 +257,10 @@ open class TestBase {
             }
         }
 
-        process.waitFor()
+        val exitCode = process.waitFor()
+        if (expectExitCodeZero && exitCode != 0) {
+            fail("Execution failed with exit code $exitCode for command: $command\nStderr:\n$standardErr")
+        }
     }
 
     fun copyFilesAfterGitClone(sourceDir: Path) {
