@@ -1,6 +1,7 @@
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.file.Path
+import kotlin.concurrent.thread
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -13,54 +14,32 @@ import kotlin.io.path.pathString
 open class AndroidBaseTest : TestBase() {
     val sessionInfoPath = "./scripts/device.session.json"
 
-    // Overloaded method with applicationId
     private fun prepareExecution(
         projectName: String,
         projectPath: String,
+        applicationId: String? = null,
         projectAction: (String) -> Unit,
-        applicationId: String? = null
     ) {
         copyProject(projectName, projectPath)
         projectAction(projectName)
-        assembleTestApp(applicationId) // Pass applicationId if provided
+        assembleTestApp(applicationId)
         if (isRunningInTeamCity()) {
             createAdbRemoteSession()
         }
         installAndroidTestAPK()
         installTargetAPK(projectName)
-        runTestsViaAdb(applicationId) // Pass applicationId to runTestsViaAdb
-    }
-
-    // Original method without applicationId
-    private fun prepareExecution(
-        projectName: String,
-        projectPath: String,
-        projectAction: (String) -> Unit
-    ) {
-        copyProject(projectName, projectPath)
-        projectAction(projectName)
-        assembleTestApp() // No applicationId passed
-        if (isRunningInTeamCity()) {
-            createAdbRemoteSession()
-        }
-        installAndroidTestAPK()
-        installTargetAPK(projectName)
-        runTestsViaAdb()
+        runTestsViaAdb(applicationId)
     }
 
     internal fun testRunnerStandalone(projectName: String, applicationId: String? = null) =
-        prepareExecution(projectName, "../../sources/amper-backend-test/testData/projects/android", {
+        prepareExecution(projectName, "../../sources/amper-backend-test/testData/projects/android", applicationId) {
             assembleTargetAppStandalone(it)
-        }, applicationId)
+        }
 
     internal fun testRunnerGradle(projectName: String) =
         prepareExecution(projectName, "../../sources/gradle-e2e-test/testData/projects") {
             prepareProjectsAndroidForGradle(it)
         }
-
-
-
-
 
     private fun prepareProjectsAndroidForGradle(projectName: String) {
         val projectDirectory = File("tempProjects" + File.separator + projectName)
