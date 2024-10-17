@@ -29,7 +29,11 @@ internal fun ProgressEvent.handle(stdoutPath: Path, stderrPath: Path) {
             ERROR -> logger::error
             else -> logger::info
         }
-        loggingFunc(this.details.details)
+        // TODO: BasePlugin.archiveBaseName will be deprecated in 9.0; however, agp now is using this field
+        // eventually, after agp upgrade it should be deleted
+        if (this.definition.id.name != "the-basepluginextension-archivesbasename-property-has-been-deprecated") {
+            loggingFunc(this.details.details)
+        }
     }
     if (descriptor.name == "Run build") {
         when (this) {
