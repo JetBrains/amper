@@ -311,6 +311,13 @@ open class AndroidBaseTest : TestBase() {
         processBuilder.redirectErrorStream(true)
         val process = processBuilder.start()
 
+        // we need to consume the output of the process otherwise it may be stuck on full buffer
+        thread {
+            process.inputStream.bufferedReader(Charsets.UTF_8).useLines { sequence ->
+                sequence.forEach {}
+            }
+        }
+
         var isBootComplete = false
         while (!isBootComplete) {
             val output = executeCommand(command = listOf(getAdbPath(), "shell", "getprop", "sys.boot_completed"))
