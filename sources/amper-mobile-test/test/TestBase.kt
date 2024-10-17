@@ -1,3 +1,4 @@
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -198,53 +199,29 @@ open class TestBase {
 
     fun executeCommand(
         command: List<String>,
-        standardOut: OutputStream,
+        workingDirectory: Path? = null,
         env: Map<String, String> = emptyMap()
-    ) {
+    ): String {
         val process = ProcessBuilder()
             .command(command)
+            .directory(workingDirectory?.toFile())
             .redirectErrorStream(true)
             .apply {
                 environment().putAll(env)
             }
             .start()
 
+        val output = ByteArrayOutputStream()
         process.inputStream.use { input ->
             input.bufferedReader().forEachLine { line ->
-                standardOut.write((line + "\n").toByteArray())
-                standardOut.flush()
+                output.write((line + "\n").toByteArray())
+                output.flush()
             }
         }
 
         process.waitFor()
+        return output.toString().trim()
     }
-
-
-    fun executeCommand(
-        command: List<String>,
-        standardOut: OutputStream,
-        workingDirectory: File,
-        env: Map<String, String> = emptyMap()
-    ) {
-        val process = ProcessBuilder()
-            .command(command)
-            .directory(workingDirectory)
-            .redirectErrorStream(true)
-            .apply {
-                environment().putAll(env)
-            }
-            .start()
-
-        process.inputStream.use { input ->
-            input.bufferedReader().forEachLine { line ->
-                standardOut.write((line + "\n").toByteArray())
-                standardOut.flush()
-            }
-        }
-
-        process.waitFor()
-    }
-
 
     fun executeCommand(
         command: List<String>,

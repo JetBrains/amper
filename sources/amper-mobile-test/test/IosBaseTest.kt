@@ -72,13 +72,11 @@ open class iOSBaseTest(): TestBase() {
         var idbCompanion = ""
 
         if (idbCompanion.isEmpty()) {
-            val standardOut = ByteArrayOutputStream()
-            executeCommand(
+            val output = executeCommand(
                 listOf("./scripts/session.sh", "-s", "sessionInfoPath", "-n", "Amper UI Test", "create"),
-                standardOut
             )
 
-            standardOut.toString().lines().forEach {
+            output.lines().forEach {
                 println(it)
                 if (it.startsWith("IDB_COMPANION")) {
                     idbCompanion = it.split('=')[1]
@@ -93,13 +91,11 @@ open class iOSBaseTest(): TestBase() {
         var idbCompanion = ""
 
         if (idbCompanion.isEmpty()) {
-            val standardOut = ByteArrayOutputStream()
-            executeCommand(
+            val output = executeCommand(
                 listOf("./scripts/session.sh", "-s", "sessionInfoPath", "-n", "Amper UI Test", "delete"),
-                standardOut
             )
 
-            standardOut.toString().lines().forEach {
+            output.lines().forEach {
                 println(it)
                 if (it.startsWith("IDB_COMPANION")) {
                     idbCompanion = it.split('=')[1]

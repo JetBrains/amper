@@ -49,17 +49,10 @@ open class AndroidBaseTest : TestBase() {
     }
 
     private fun getAdbRemoteSession(): String {
-        val stdout = ByteArrayOutputStream()
-        executeCommand(
-            command = listOf(
-                "bash",
-                "-c",
-                "./scripts/espressoSession.sh -s $sessionInfoPath port"
-            ),
-            standardOut = stdout
+        val output = executeCommand(
+            command = listOf("bash", "-c", "./scripts/espressoSession.sh -s $sessionInfoPath port"),
         )
 
-        val output = stdout.toString().trim()
         if (output.isEmpty()) {
             error("Session wasn't created!")
         }
@@ -109,8 +102,7 @@ open class AndroidBaseTest : TestBase() {
     }
 
     private fun createAdbRemoteSession() {
-        val stdout = ByteArrayOutputStream()
-        executeCommand(
+        val stdout = executeCommand(
             command = listOf(
                 "./scripts/espressoSession.sh",
                 "-s",
@@ -119,20 +111,17 @@ open class AndroidBaseTest : TestBase() {
                 "Amper UI Tests",
                 "create"
             ),
-            standardOut = stdout
         )
         println(stdout)
     }
 
     fun deleteAdbRemoteSession() {
-        val stdout = ByteArrayOutputStream()
-        executeCommand(
+        val stdout = executeCommand(
             command = listOf(
                 "bash",
                 "-c",
                 "./scripts/espressoSession.sh -s $sessionInfoPath -n \"Amper UI Tests\" delete"
             ),
-            standardOut = stdout
         )
         println(stdout)
     }
@@ -164,21 +153,19 @@ open class AndroidBaseTest : TestBase() {
             File(buildFilePath).writeText(updatedBuildFileContent ?: "")
         }
 
-        val stdout = ByteArrayOutputStream()
         val gradlewPath = if (isWindows) "../../gradlew.bat" else "../../gradlew"
 
         // Run the APK build command
-        executeCommand(
+        val stdout = executeCommand(
             command = listOf(
                 gradlewPath,
                 "-p",
                 "../gradle-e2e-test/testData/projects/test-apk",
                 "createDebugAndroidTestApk"
             ),
-            standardOut = stdout
         )
 
-        println(stdout.toString().trim())
+        println(stdout)
 
         // Step 3: Restore the original content of the test file and build.gradle.kts
         originalTestFileContent?.let {
@@ -255,11 +242,9 @@ open class AndroidBaseTest : TestBase() {
     }
 
     private fun assembleTargetAppStandalone(projectName: String) {
-        val projectDirectory = File("tempProjects" + File.separator + projectName)
+        val projectDirectory = Path("tempProjects/$projectName")
 
-        val stdout = ByteArrayOutputStream()
-
-        executeCommand(
+        val output = executeCommand(
             command = buildList {
                 if (isWindows) {
                     add("cmd")
@@ -272,10 +257,9 @@ open class AndroidBaseTest : TestBase() {
                 add(":$projectName:buildAndroidDebug")
             },
             workingDirectory = projectDirectory,
-            standardOut = stdout
         )
 
-        println(stdout.toString().trim())
+        println(output)
     }
 
     class APKNotFoundException(message: String) : Exception(message)
@@ -283,26 +267,15 @@ open class AndroidBaseTest : TestBase() {
 
 
     private fun isEmulatorRunning(): Boolean {
-        val stdout = ByteArrayOutputStream()
-        executeCommand(
-            command = listOf(getAdbPath(), "devices"),
-            standardOut = stdout
-        )
-
-        val output = stdout.toString().trim()
+        val output = executeCommand(command = listOf(getAdbPath(), "devices"))
         return output.contains("emulator")
     }
 
 
     private fun getAvailableAvds(): List<String> {
         val avdManagerPath = getAvdManagerPath()
-        val stdout = ByteArrayOutputStream()
-        executeCommand(
-            command = listOf(avdManagerPath.pathString, "list", "avd"),
-            standardOut = stdout
-        )
+        val output = executeCommand(command = listOf(avdManagerPath.pathString, "list", "avd"))
 
-        val output = stdout.toString().trim()
         return output.lines()
             .filter { it.contains("Name:") }
             .map { it.split("Name:")[1].trim() }
@@ -340,13 +313,8 @@ open class AndroidBaseTest : TestBase() {
 
         var isBootComplete = false
         while (!isBootComplete) {
-            val stdout = ByteArrayOutputStream()
-            executeCommand(
-                command = listOf(getAdbPath(), "shell", "getprop", "sys.boot_completed"),
-                standardOut = stdout
-            )
+            val output = executeCommand(command = listOf(getAdbPath(), "shell", "getprop", "sys.boot_completed"))
 
-            val output = stdout.toString().trim()
             if (output == "1") {
                 isBootComplete = true
             } else {
