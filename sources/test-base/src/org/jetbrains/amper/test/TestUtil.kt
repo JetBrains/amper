@@ -73,8 +73,8 @@ object TestUtil {
 
     val amperSourcesRoot = amperCheckoutRoot / "sources"
 
-    val m2 = Path(System.getProperty("user.home"), ".m2")
-    val m2repository = m2.resolve("repository")
+    // TODO this is technically incorrect. We should use LocalM2RepositoryFinder from DR
+    val m2repository = Path(System.getProperty("user.home")) / ".m2/repository"
 
     // Shared between different runs of testing
     // on developer's machine: some place under working copy, assuming it won't be cleared after every test run
