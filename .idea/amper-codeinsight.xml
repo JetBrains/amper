@@ -5,6 +5,7 @@
       <list>
         <option value="migrated-projects/KaMPKit/shared" />
         <option value="sources/amper-backend-test/testData/projects/android/appcompat" />
+        <option value="sources/amper-backend-test/testData/projects/android/parcelize" />
         <option value="sources/amper-backend-test/testData/projects/android/signed" />
         <option value="sources/amper-backend-test/testData/projects/android/simple" />
         <option value="sources/amper-backend-test/testData/projects/ios/compose" />
