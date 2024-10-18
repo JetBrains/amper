@@ -258,7 +258,11 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         )
         val expectedContains = "expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got"
         assertTrue("Process output must contain '$expectedContains' line. Output:\n${result.stderr}") {
-            result.stderr.contains(expectedContains)
+            // cmd.exe breaks lines unpredictably when calling powershell (it depends on its own buffer)
+            result.stderr
+                .replace("\r", "")
+                .replace("\n", "")
+                .contains(expectedContains)
         }
     }
 
