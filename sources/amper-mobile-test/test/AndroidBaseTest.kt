@@ -185,7 +185,7 @@ open class AndroidBaseTest : TestBase() {
             "../gradle-e2e-test/testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
         val apkFile = File(apkPath)
         if (apkFile.exists()) {
-            adb("install", apkPath)
+            adb("install", "-r", apkPath)
         } else {
             throw APKNotFoundException("APK file does not exist at path: $apkPath")
         }
@@ -197,11 +197,11 @@ open class AndroidBaseTest : TestBase() {
         val gradleApkPathMultiplatform = Path("tempProjects/$projectName/android-app/build/outputs/apk/debug/android-app-debug.apk")
 
         if (gradleApkPath.exists()) {
-            adb("install", gradleApkPath.pathString)
+            adb("install", "-r", gradleApkPath.pathString)
         } else if (standaloneApkPath.exists()) {
-            adb("install", standaloneApkPath.pathString)
+            adb("install", "-r", standaloneApkPath.pathString)
         } else if (gradleApkPathMultiplatform.exists()) {
-            adb("install", gradleApkPathMultiplatform.pathString)
+            adb("install", "-r", gradleApkPathMultiplatform.pathString)
         } else {
             throw APKNotFoundException("APK file does not exist at any of those paths:\n" +
                     "${gradleApkPath.absolutePathString()}\n" +
