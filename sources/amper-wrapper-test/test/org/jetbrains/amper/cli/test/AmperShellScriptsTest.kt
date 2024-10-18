@@ -106,7 +106,6 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         val result = runAmper(
             workingDir = tempDir,
             args = listOf("--version"),
-            redirectErrorStream = true,
             bootstrapCacheDir = bootstrapCacheDir,
         )
         assertTrue("Process output must have 'Downloading ' line twice. Output:\n${result.stdout}") {
@@ -212,7 +211,6 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             workingDir = tempDir,
             args = listOf("--version"),
             customJavaHome = jdkHome,
-            redirectErrorStream = true,
             bootstrapCacheDir = tempDir.resolve("boot strap"),
         )
         val expectedVersionStringOld = "amper version $expectedAmperVersion"
@@ -255,13 +253,12 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             args = listOf("--version"),
             expectedExitCode = 1,
             assertEmptyStdErr = false,
-            redirectErrorStream = true,
             bootstrapCacheDir = tempDir.resolve("boot strap"),
             customAmperScriptPath = customScript,
         )
         val expectedContains = "expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got"
-        assertTrue("Process output must contain '$expectedContains' line. Output:\n${result.stdout}") {
-            result.stdout.contains(expectedContains)
+        assertTrue("Process output must contain '$expectedContains' line. Output:\n${result.stderr}") {
+            result.stderr.contains(expectedContains)
         }
     }
 
