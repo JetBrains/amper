@@ -147,7 +147,7 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
 
   # Auto-updated from syncVersions.main.kts, do not modify directly here
   jbr_version=21.0.4
-  jbr_build=b620.4
+  jbr_build=b509.26
 
   # URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
   jbr_url="$AMPER_JRE_DOWNLOAD_ROOT/cache-redirector.jetbrains.com/intellij-jbr/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build.tar.gz"
@@ -155,12 +155,12 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
 
   platform="$jbr_os $jbr_arch"
   case $platform in
-    "osx x64")         jbr_sha512=639f1aea921c81562f3b6ed719bb28c801efba6c3c62058d3fa5bea8f598cb5ad829f76e67d3a7dda03da4dd96fb60e8f288c0035a707326e7c3c6028cda3278 ;;
-    "osx aarch64")     jbr_sha512=60594a6ca2560f8fd396343ca21cbba0bd5d207cbc082d2720b3ccee8928f1115a19c4bf737390e224be4b3613e0aca6cd8ab15ccb1f493a9d15cfae13934934 ;;
-    "linux x64")       jbr_sha512=a633ad234d51390b147884ba86d58f00cddf4fdd23fc398021c3f3298355f2203dd64415d29bb6b83566e962b0cc8755ea8d397554e56e6ed0fc36d070541b7c ;;
-    "linux aarch64")   jbr_sha512=759aebca9d32ab02c6fa2fee60fbc233db3aa365e29ef0d8f199ca72b598ecff18fb6ae115d2f14d2fcb15a9e0ced23705fd917501a2787940cf263eab6167ae ;;
-    "windows x64")     jbr_sha512=efd631caad56b0c8c5439f4b275b564e827e40638194eb2e8754d849559edc363f13a9ea5f4a13e7dbd2b7f980524ed7efdb674c2f04e90045df988beb2527ee ;;
-    "windows aarch64") jbr_sha512=cbad6f07fd8392ad96745e9cd37712485bc8cc876d101b3a2551e53c005e5e06449695c184e5670e1d9bcbc58a659219893930c082ca800666f3264c7b982032 ;;
+    "osx x64")         jbr_sha512=04ef2e808e691451c62b557e8f151aedbffca1a9d9c93d8eddff8f47f8cd3a1ad06dabb6ea908ae8a97616fc34d96a352319efd480bcfd7d024e80b5050e1343 ;;
+    "osx aarch64")     jbr_sha512=fe7f85ed23a0cd47384e80ce99e5bb746fd0303ee197a0076ea026e5d7898c7e91a7189e0d23fbb18b26edd693e13507d29b5ffdfd08d4712e96c2303cf2ed70 ;;
+    "linux x64")       jbr_sha512=b631092e911d84b6d2d116e3668a05b884e7a9696d2c67b842bfabc93bad9773671605934c4262ea647bcf3bbfaa2eb535d56d458510b9bc924471dd88296912 ;;
+    "linux aarch64")   jbr_sha512=9136bf6b8bc2f10d750848dceacb25baeded3a05e4bc694a63602386738a72e81c578d5146d99a68fbb2cde04852a23e843539869bbbb6fb8794038a5e4a5061 ;;
+    "windows x64")     jbr_sha512=6a639d23039b83cf1b0ed57d082bb48a9bff6acae8964192a1899e8a1c0915453199b501b498e5874bc57c9996d871d49f438054b3c86f643f1c1c4f178026a3 ;;
+    "windows aarch64") jbr_sha512=9fd2333f3d55f0d40649435fc27e5ab97ad44962f54c1c6513e66f89224a183cd0569b9a3994d840b253060d664630610f82a02f45697e5e6c0b4ee250dd1857 ;;
     *) die "Unsupported platform $platform" ;;
   esac
 

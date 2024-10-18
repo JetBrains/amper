@@ -119,13 +119,13 @@ if defined AMPER_JAVA_HOME goto jre_provisioned
 
 @rem Auto-updated from syncVersions.main.kts, do not modify directly here
 set jbr_version=21.0.4
-set jbr_build=b620.4
+set jbr_build=b509.26
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     set jbr_arch=aarch64
-    set jbr_sha512=cbad6f07fd8392ad96745e9cd37712485bc8cc876d101b3a2551e53c005e5e06449695c184e5670e1d9bcbc58a659219893930c082ca800666f3264c7b982032
+    set jbr_sha512=9fd2333f3d55f0d40649435fc27e5ab97ad44962f54c1c6513e66f89224a183cd0569b9a3994d840b253060d664630610f82a02f45697e5e6c0b4ee250dd1857
 ) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
     set jbr_arch=x64
-    set jbr_sha512=efd631caad56b0c8c5439f4b275b564e827e40638194eb2e8754d849559edc363f13a9ea5f4a13e7dbd2b7f980524ed7efdb674c2f04e90045df988beb2527ee
+    set jbr_sha512=6a639d23039b83cf1b0ed57d082bb48a9bff6acae8964192a1899e8a1c0915453199b501b498e5874bc57c9996d871d49f438054b3c86f643f1c1c4f178026a3
 ) else (
     echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
     goto fail

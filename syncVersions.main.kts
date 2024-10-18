@@ -6,6 +6,9 @@
 
 import java.io.File
 import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -20,8 +23,14 @@ The source of truth is the list of versions at the top of this file.
 
 val bootstrapAmperVersion = "0.5.0-dev-1751" // AUTO-UPDATED BY THE CI - DO NOT RENAME
 
-/** This is the version of the JetBrains Runtime that Amper wrappers use to run the Amper dist. */
-val amperInternalJbrVersion = "21.0.4b620.4" // from https://github.com/JetBrains/JetBrainsRuntime/releases
+/**
+ * This is the version of the JetBrains Runtime that Amper wrappers use to run the Amper dist.
+ *
+ * See glibc compatibility: https://youtrack.jetbrains.com/issue/JBR-7511/Centos-7-support-is-over
+ * We need the JBR for 2024.2 to be compatible with glibc 2.17.
+ * Check https://github.com/JetBrains/JetBrainsRuntime?tab=readme-ov-file#releases-based-on-jdk-21
+ */
+val amperInternalJbrVersion = "21.0.4b509.26"
 
 val kotlinVersion = "2.0.21"
 val kotlinxSerializationVersion = "1.7.3"
@@ -127,8 +136,11 @@ fun updateAmperWrappers() {
 }
 
 fun updateWrapperTemplates() {
-    val jvmVersion = amperInternalJbrVersion.substringBefore('b')
-    val jbrBuild = amperInternalJbrVersion.removePrefix(jvmVersion)
+    val jbrVersionRegex = Regex("""(?<version>\d+\.\d+\.\d+)-?(?<build>b.*)""")
+    val match = jbrVersionRegex.matchEntire(amperInternalJbrVersion) ?: error("Invalid JBR version '$jbrVersionRegex'")
+    val jvmVersion = match.groups["version"]!!.value
+    val jbrBuild = match.groups["build"]!!.value
+
     val jbrs = getJbrChecksums(jvmVersion, jbrBuild)
 
     sequenceOf(
@@ -193,7 +205,11 @@ fun String.replaceGradleDistributionUrl() = replaceRegexGroup1(
     replacement = gradleVersion,
 )
 
-fun fetchContent(url: String) = URI(url).toURL().readText()
+fun fetchContent(url: String): String {
+    val client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()
+    val request = HttpRequest.newBuilder().uri(URI.create(url)).build()
+    return client.send(request, HttpResponse.BodyHandlers.ofString()).body()
+}
 
 /**
  * Finds all matches for the given [regex] in this string, and replaces the matched group 1 with the given replacement.
