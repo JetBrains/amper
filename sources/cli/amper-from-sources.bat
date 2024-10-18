@@ -12,54 +12,10 @@ setlocal
 
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
 if not defined AMPER_BOOTSTRAP_CACHE_DIR set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper
-rem remove trailing \ if present
+@rem remove trailing \ if present
 if [%AMPER_BOOTSTRAP_CACHE_DIR:~-1%] EQU [\] set AMPER_BOOTSTRAP_CACHE_DIR=%AMPER_BOOTSTRAP_CACHE_DIR:~0,-1%
 
-REM ********** Provision JRE for Amper **********
-
-if defined AMPER_JAVA_HOME goto jre_provisioned
-
-rem Auto-updated from syncVersions.main.kts, do not modify directly here
-set jbr_version=21.0.4
-set jbr_build=b509.26
-if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
-    set jbr_arch=aarch64
-    set jbr_sha512=9fd2333f3d55f0d40649435fc27e5ab97ad44962f54c1c6513e66f89224a183cd0569b9a3994d840b253060d664630610f82a02f45697e5e6c0b4ee250dd1857
-) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
-    set jbr_arch=x64
-    set jbr_sha512=6a639d23039b83cf1b0ed57d082bb48a9bff6acae8964192a1899e8a1c0915453199b501b498e5874bc57c9996d871d49f438054b3c86f643f1c1c4f178026a3
-) else (
-    echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
-    goto fail
-)
-
-rem URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
-set jbr_url=%AMPER_JRE_DOWNLOAD_ROOT%/cache-redirector.jetbrains.com/intellij-jbr/jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%.tar.gz
-set jbr_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%
-call :download_and_extract "JetBrains Runtime v%jbr_version%%jbr_build%" "%jbr_url%" "%jbr_target_dir%" "%jbr_sha512%" "512"
-if errorlevel 1 goto fail
-
-set AMPER_JAVA_HOME=
-for /d %%d in ("%jbr_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
-if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
-  echo Unable to find java.exe under %jbr_target_dir%
-  goto fail
-)
-:jre_provisioned
-
-REM ********** Build Amper **********
-
-pushd "%~dp0..\.."
-if errorlevel 1 goto fail
-call gradlew.bat --stacktrace --quiet :sources:cli:prepareForLocalRun
-if errorlevel 1 goto fail
-popd
-if errorlevel 1 goto fail
-
-REM ********** Launch Amper **********
-
-"%AMPER_JAVA_HOME%\bin\java.exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.process.name=%~nx0" -cp "%~dp0build\unpackedDistribution\lib\*" org.jetbrains.amper.cli.MainKt %*
-exit /b %ERRORLEVEL%
+goto :after_function_declarations
 
 REM ********** Download and extract any zip or .tar.gz archive **********
 
@@ -137,3 +93,51 @@ exit /b 0
 :fail
 echo ERROR: Amper bootstrap failed, see errors above
 exit /b 1
+
+:after_function_declarations
+
+REM ********** Provision JRE for Amper **********
+
+if defined AMPER_JAVA_HOME goto jre_provisioned
+
+@rem Auto-updated from syncVersions.main.kts, do not modify directly here
+set jbr_version=21.0.4
+set jbr_build=b509.26
+if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
+    set jbr_arch=aarch64
+    set jbr_sha512=9fd2333f3d55f0d40649435fc27e5ab97ad44962f54c1c6513e66f89224a183cd0569b9a3994d840b253060d664630610f82a02f45697e5e6c0b4ee250dd1857
+) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+    set jbr_arch=x64
+    set jbr_sha512=6a639d23039b83cf1b0ed57d082bb48a9bff6acae8964192a1899e8a1c0915453199b501b498e5874bc57c9996d871d49f438054b3c86f643f1c1c4f178026a3
+) else (
+    echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
+    goto fail
+)
+
+@rem URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
+set jbr_url=%AMPER_JRE_DOWNLOAD_ROOT%/cache-redirector.jetbrains.com/intellij-jbr/jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%.tar.gz
+set jbr_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%
+call :download_and_extract "JetBrains Runtime v%jbr_version%%jbr_build%" "%jbr_url%" "%jbr_target_dir%" "%jbr_sha512%" "512"
+if errorlevel 1 goto fail
+
+set AMPER_JAVA_HOME=
+for /d %%d in ("%jbr_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
+if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
+  echo Unable to find java.exe under %jbr_target_dir%
+  goto fail
+)
+:jre_provisioned
+
+REM ********** Build Amper **********
+
+pushd "%~dp0..\.."
+if errorlevel 1 goto fail
+call gradlew.bat --stacktrace --quiet :sources:cli:prepareForLocalRun
+if errorlevel 1 goto fail
+popd
+if errorlevel 1 goto fail
+
+REM ********** Launch Amper **********
+
+"%AMPER_JAVA_HOME%\bin\java.exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.dist.sha256=%amper_sha256%" "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%\lib\*" org.jetbrains.amper.cli.MainKt %*
+exit /B %ERRORLEVEL%
