@@ -8,7 +8,6 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.jvm.JdkDownloader
-import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
@@ -60,34 +59,30 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
 
         templatePath.copyToRecursively(tempDir, followLinks = false, overwrite = false)
 
-        runBuild(
+        val bootstrapCacheDir = tempDir.resolve("boot strap")
+
+        val result1 = runAmper(
             workingDir = tempDir,
             args = listOf("task", ":${tempDir.name}:runJvm"),
-        ) { result ->
-            val output = result.stdout
-
-            assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n$output") {
-                output.contains("Hello for Shell Scripts Test")
-            }
-
-            assertTrue("Process output must have 'Downloading ' line twice. Output:\n$output") {
-                output.lines().count { it.startsWith("Downloading ") } == 2
-            }
+            bootstrapCacheDir = bootstrapCacheDir,
+        )
+        assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n${result1.stdout}") {
+            result1.stdout.contains("Hello for Shell Scripts Test")
+        }
+        assertTrue("Process output must have 'Downloading ' line twice. Output:\n${result1.stdout}") {
+            result1.stdout.lines().count { it.startsWith("Downloading ") } == 2
         }
 
-        runBuild(
+        val result2 = runAmper(
             workingDir = tempDir,
             args = listOf("task", ":${tempDir.name}:runJvm"),
-        ) { result ->
-            val output = result.stdout
-
-            assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n$output") {
-                output.contains("Hello for Shell Scripts Test")
-            }
-
-            assertTrue("Process output must not have 'Downloading ' lines. Output:\n$output") {
-                output.lines().none { it.startsWith("Downloading ") }
-            }
+            bootstrapCacheDir = bootstrapCacheDir,
+        )
+        assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n${result2.stdout}") {
+            result2.stdout.contains("Hello for Shell Scripts Test")
+        }
+        assertTrue("Process output must not have 'Downloading ' lines. Output:\n${result2.stdout}") {
+            result2.stdout.lines().none { it.startsWith("Downloading ") }
         }
 
         val cliDistZip = LocalAmperPublication.distZip
@@ -108,10 +103,14 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             bootstrapCacheDir.notExists() || bootstrapCacheDir.listDirectoryEntries().isEmpty()
         }
 
-        runAmperVersion(bootstrapCacheDir = bootstrapCacheDir) { output ->
-            assertTrue("Process output must have 'Downloading ' line twice. Output:\n$output") {
-                output.lines().count { it.startsWith("Downloading ") } == 2
-            }
+        val result = runAmper(
+            workingDir = tempDir,
+            args = listOf("--version"),
+            redirectErrorStream = true,
+            bootstrapCacheDir = bootstrapCacheDir,
+        )
+        assertTrue("Process output must have 'Downloading ' line twice. Output:\n${result.stdout}") {
+            result.stdout.lines().count { it.startsWith("Downloading ") } == 2
         }
         assertTrue("Bootstrap cache dir should now exist") {
             bootstrapCacheDir.exists()
@@ -138,9 +137,10 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         tempProjectRoot.resolve("amper").writeText("w1")
         tempProjectRoot.resolve("amper.bat").writeText("w2")
 
-        runBuild(
+        runAmper(
             workingDir = tempProjectRoot,
             args = listOf("init", "multiplatform-cli"),
+            bootstrapCacheDir = tempDir.resolve("boot strap"),
             customAmperScriptPath = cliScript,
         )
 
@@ -182,25 +182,20 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         tempProjectRoot.resolve("jvm-cli").createDirectories()
         tempProjectRoot.resolve("jvm-cli/module.yaml").writeText("w2")
 
-        runBuild(
+        val result = runAmper(
             workingDir = tempProjectRoot,
             args = listOf("init", "multiplatform-cli"),
             expectedExitCode = 1,
+            bootstrapCacheDir = tempDir.resolve("boot strap"),
             assertEmptyStdErr = false,
             customAmperScriptPath = cliScript,
-        ) { result ->
-            assertEquals("""
-                ERROR: Files already exist in the project root:
-                  jvm-cli/module.yaml
-                  project.yaml
-            """.trimIndent(),
-                result.stderr
-                    .replace("\r", "")
-                    .lines()
-                    .filter { it.isNotBlank() }
-                    .joinToString("\n")
-            )
-        }
+        )
+        val expectedStderr = """
+            ERROR: Files already exist in the project root:
+              jvm-cli/module.yaml
+              project.yaml
+        """.trimIndent()
+        assertEquals(expectedStderr, result.stderr.trim())
     }
 
     @Test
@@ -213,22 +208,27 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             .first { it.startsWith("set amper_version=") || it.startsWith("amper_version=") }
             .substringAfterLast('=')
 
-        runAmperVersion(customJavaHome = jdkHome) { output ->
-            val expectedVersionStringOld = "amper version $expectedAmperVersion"
-            val expectedVersionString = Regex(
-                Regex.escape("JetBrains Amper version $expectedAmperVersion+") +
-                        "[A-Fa-f0-9]+\\+[A-Fa-f0-9]+")
+        val result = runAmper(
+            workingDir = tempDir,
+            args = listOf("--version"),
+            customJavaHome = jdkHome,
+            redirectErrorStream = true,
+            bootstrapCacheDir = tempDir.resolve("boot strap"),
+        )
+        val expectedVersionStringOld = "amper version $expectedAmperVersion"
+        val expectedVersionString = Regex(
+            Regex.escape("JetBrains Amper version $expectedAmperVersion+") +
+                    "[A-Fa-f0-9]+\\+[A-Fa-f0-9]+")
 
-            assertTrue("Process output must contain '${expectedVersionString.pattern}' or '$expectedVersionStringOld'. Output:\n$output") {
-                output.lines().any { it == expectedVersionStringOld || expectedVersionString.matches(it) }
-            }
-
-            assertTrue("Process output must have 'Downloading ' line only once (for Amper itself). Output:\n$output") {
-                output.lines().count { it.startsWith("Downloading ") } == 1
-            }
-
-            // TODO Somehow assert that exactly this JRE is used by amper bootstrap
+        assertTrue("Process output must contain '${expectedVersionString.pattern}' or '$expectedVersionStringOld'. Output:\n${result.stdout}") {
+            result.stdout.lines().any { it == expectedVersionStringOld || expectedVersionString.matches(it) }
         }
+
+        assertTrue("Process output must have 'Downloading ' line only once (for Amper itself). Output:\n${result.stdout}") {
+            result.stdout.lines().count { it.startsWith("Downloading ") } == 1
+        }
+
+        // TODO Somehow assert that exactly this JRE is used by amper bootstrap
     }
 
     @Test
@@ -250,57 +250,19 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         customScript.toFile().setExecutable(true)
         assertTrue(customScript.isExecutable())
 
-        runAmperVersion(customScript = customScript, expectedExitCode = 1, assertEmptyStdErr = false) { output ->
-            val expectedContains = "expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got"
-            assertTrue("Process output must contain '$expectedContains' line. Output:\n$output") {
-                // cmd break lines at whatever position
-                output
-                    .replace("\r", "")
-                    .replace("\n", "")
-                    .contains(expectedContains)
-            }
-        }
-    }
-
-    private fun runBuild(
-        workingDir: Path,
-        bootstrapCacheDir: Path = tempDir.resolve("boot strap"),
-        args: List<String>,
-        expectedExitCode: Int = 0,
-        assertEmptyStdErr: Boolean = true,
-        customAmperScriptPath: Path? = null,
-        outputAssertions: (ProcessResult) -> Unit = {},
-    ) {
-        val result = runAmper(
-            workingDir = workingDir,
-            args = args,
-            expectedExitCode = expectedExitCode,
-            bootstrapCacheDir = bootstrapCacheDir,
-            assertEmptyStdErr = assertEmptyStdErr,
-            customAmperScriptPath = customAmperScriptPath,
-        )
-        outputAssertions(result)
-    }
-
-    private fun runAmperVersion(
-        customJavaHome: Path? = null,
-        customScript: Path? = null,
-        expectedExitCode: Int = 0,
-        assertEmptyStdErr: Boolean = true,
-        bootstrapCacheDir: Path = tempDir.resolve("boot strap"),
-        outputAssertions: (String) -> Unit,
-    ) {
         val result = runAmper(
             workingDir = tempDir,
             args = listOf("--version"),
-            customJavaHome = customJavaHome,
-            expectedExitCode = expectedExitCode,
-            assertEmptyStdErr = assertEmptyStdErr,
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
             redirectErrorStream = true,
-            bootstrapCacheDir = bootstrapCacheDir,
+            bootstrapCacheDir = tempDir.resolve("boot strap"),
             customAmperScriptPath = customScript,
         )
-        outputAssertions(result.stdout)
+        val expectedContains = "expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got"
+        assertTrue("Process output must contain '$expectedContains' line. Output:\n${result.stdout}") {
+            result.stdout.contains(expectedContains)
+        }
     }
 
     private val cliScriptExtension = if (OsFamily.current.isWindows) ".bat" else ""
