@@ -16,15 +16,16 @@ object ProductPlatformIsUnsupported : IsmDiagnosticFactory {
 
     context(ProblemReporterContext) override fun Module.analyze() {
         val product = productIfDefined ?: return
+        val productPlatforms = product::type.unsafe?.supportedPlatforms ?: return
         product::platforms.unsafe?.forEach { platform ->
             val platformValue = platform.value
-            if (platformValue !in product.type.supportedPlatforms) {
+            if (platformValue !in productPlatforms) {
                 SchemaBundle.reportBundleError(
                     value = platform,
                     messageKey = diagnosticId,
                     product.type.schemaValue,
                     platformValue.pretty,
-                    product.type.supportedPlatforms.joinToString { it.pretty },
+                    productPlatforms.joinToString { it.pretty },
                 )
             }
         }
