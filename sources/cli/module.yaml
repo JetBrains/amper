@@ -16,6 +16,7 @@ dependencies:
   - ../frontend/dr
   - ../android-integration/android-sdk-detector
   - ../android-integration/runner
+  - ../async-processes
   - ../compose-resources
   - $libs.bouncycastle.bcprov # for keystore generation
   - $libs.bouncycastle.bcpkix # for keystore generation

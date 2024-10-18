@@ -10,6 +10,7 @@ import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.sdk.trace.data.SpanData
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.processes.ProcessResult
 
 val amperModuleKey: AttributeKey<String> = AttributeKey.stringKey("amper-module")
 
@@ -30,6 +31,15 @@ fun SpanBuilder.setMapAttribute(key: String, map: Map<String, String>): SpanBuil
 
 fun Span.setMapAttribute(key: String, map: Map<String, String>): Span =
     setListAttribute(key, map.map { "${it.key}=${it.value}" }.sorted())
+
+/**
+ * Sets attributes on this [Span] describing the given [result].
+ */
+fun Span.setProcessResultAttributes(result: ProcessResult) {
+    setAttribute("exit-code", result.exitCode.toLong())
+    setAttribute("stdout", result.stdout)
+    setAttribute("stderr", result.stderr)
+}
 
 /**
  * Returns the value of the attribute [key], or throws [NoSuchElementException] if no such attribute exists in this span.

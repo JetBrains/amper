@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.processes
 
-import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -32,15 +31,6 @@ class ProcessResult(
     /** The whole standard error stream of the process, decoded as UTF-8 text. */
     val stderr: String,
 )
-
-/**
- * Sets attributes on this [Span] describing the given [result].
- */
-fun Span.setProcessResultAttributes(result: ProcessResult) {
-    setAttribute("exit-code", result.exitCode.toLong())
-    setAttribute("stdout", result.stdout)
-    setAttribute("stderr", result.stderr)
-}
 
 /**
  * Awaits the termination of this [Process] in a suspending and cancellable way.

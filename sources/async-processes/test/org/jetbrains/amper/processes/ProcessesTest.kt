@@ -2,8 +2,6 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("SameParameterValue")
-
 package org.jetbrains.amper.processes
 
 import kotlinx.coroutines.CompletableDeferred
@@ -181,5 +179,5 @@ private fun cmd(command: String) = listOf("cmd", "/c", command)
 
 private fun assertZeroExitCode(result: ProcessResult) {
     assertEquals(0, result.exitCode, "Process terminated with non-zero exit code ${result.exitCode}, " +
-        "\n stdOut = ${result.stdout}")
+            "\n stdOut = ${result.stdout}")
 }

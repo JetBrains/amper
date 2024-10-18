@@ -16,6 +16,7 @@ dependencies:
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
   - $kotlin.test.junit5
+  - ../async-processes: exported # for ProcessResult in the API
   - ../core
   - ../cli: compile-only # todo (Anton Prokhorov): think splitting cli to submodules
 

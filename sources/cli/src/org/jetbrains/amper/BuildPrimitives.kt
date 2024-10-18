@@ -10,12 +10,12 @@ import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
+import org.jetbrains.amper.diagnostics.setProcessResultAttributes
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
-import org.jetbrains.amper.processes.setProcessResultAttributes
 import org.jetbrains.amper.processes.withGuaranteedTermination
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.Logger

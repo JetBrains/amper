@@ -1,0 +1,7 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - ../core
+  - $libs.kotlinx.coroutines.core

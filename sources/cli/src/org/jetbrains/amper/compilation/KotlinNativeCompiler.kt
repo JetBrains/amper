@@ -17,7 +17,7 @@ import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
-import org.jetbrains.amper.processes.setProcessResultAttributes
+import org.jetbrains.amper.diagnostics.setProcessResultAttributes
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.net.URLEncoder
