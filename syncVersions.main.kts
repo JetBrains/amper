@@ -21,7 +21,7 @@ This script is meant to be used to update several user-facing versions in:
 The source of truth is the list of versions at the top of this file.
  */
 
-val bootstrapAmperVersion = "0.5.0-dev-1751" // AUTO-UPDATED BY THE CI - DO NOT RENAME
+val bootstrapAmperVersion = "0.5.0-dev-1866" // AUTO-UPDATED BY THE CI - DO NOT RENAME
 
 /**
  * This is the version of the JetBrains Runtime that Amper wrappers use to run the Amper dist.
