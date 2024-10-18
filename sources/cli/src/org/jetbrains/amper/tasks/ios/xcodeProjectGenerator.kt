@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import com.intellij.openapi.util.io.findOrCreateFile
 import com.jetbrains.cidr.xcode.XcodeProjectId
 import com.jetbrains.cidr.xcode.frameworks.ApplePlatform
 import com.jetbrains.cidr.xcode.frameworks.AppleProductType
@@ -29,6 +28,9 @@ import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.util.BuildType
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.createFile
+import kotlin.io.path.createParentDirectories
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.pathString
 
 
@@ -52,10 +54,17 @@ fun FileConventions.doGenerateBuildableXcodeproj(
 
     val commonSourceDir = appleSources.minBy { it.path.length }
 
+    val projectFile = projectDir.resolve("project.pbxproj").toPath()
+        .createParentDirectories().run {
+            // FIXME: We clean the old project, otherwise we have issues with consecutive builds.
+            //  Investigate why that happens.
+            deleteIfExists()
+            createFile()
+        }
     val pbxProjectFile = PBXProjectFileManipulator.createNewProject(
         XcodeProject(),
         baseDir.toPath(),
-        projectDir.resolve("project.pbxproj").toPath().apply { this.findOrCreateFile() },
+        projectFile,
         null,
         null
     )
