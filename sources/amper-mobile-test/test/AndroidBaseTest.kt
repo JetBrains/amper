@@ -121,7 +121,7 @@ open class AndroidBaseTest : TestBase() {
             command = listOf(
                 "bash",
                 "-c",
-                "./scripts/espressoSession.sh -s $sessionInfoPath -n \"Amper UI Tests\" delete"
+                """./scripts/espressoSession.sh -s $sessionInfoPath -n \"Amper UI Tests\" delete"""
             ),
         )
         println(stdout)
