@@ -356,8 +356,8 @@ class KMPPBindingPluginPart(
                                     !compile && runtime && !exported -> KotlinDependencyHandler::runtimeOnly
                                     compile && !runtime && !exported -> KotlinDependencyHandler::compileOnly
                                     compile && runtime && exported -> KotlinDependencyHandler::api
-                                    compile && !runtime && exported -> error("Not supported")
-                                    !compile && runtime && exported -> error("Not supported")
+                                    compile && !runtime && exported -> error("Exporting a compile-only dependency is not supported")
+                                    !compile && runtime && exported -> error("Cannot export a runtime-only dependency to the consumer's compile classpath")
                                     !compile && !runtime -> error("At least one scope of (compile, runtime) must be declared")
                                     else -> KotlinDependencyHandler::implementation
                                 }
