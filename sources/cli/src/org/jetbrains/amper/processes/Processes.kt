@@ -132,7 +132,7 @@ private suspend inline fun InputStream.readAllAndDoOnEachLine(onEachLine: (Strin
  * function also hangs instead of returning and leaking this zombie process.
  */
 @OptIn(ExperimentalContracts::class)
-internal suspend inline fun <T> Process.withGuaranteedTermination(
+suspend inline fun <T> Process.withGuaranteedTermination(
     gracePeriod: Duration = 1.seconds,
     cancellableBlock: (Process) -> T,
 ): T {
@@ -159,7 +159,8 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
     }
 }
 
-private inline fun <T> withShutdownHook(crossinline onJvmShudown: () -> Unit, block: () -> T): T {
+@PublishedApi
+internal inline fun <T> withShutdownHook(crossinline onJvmShudown: () -> Unit, block: () -> T): T {
     val hookThread = Thread { onJvmShudown() }
     val runtime = Runtime.getRuntime()
     try {
@@ -185,6 +186,7 @@ private inline fun <T> withShutdownHook(crossinline onJvmShudown: () -> Unit, bl
  * @throws InterruptedException if the current thread is interrupted while waiting for the process to terminate
  */
 // TODO maybe turn this into non-blocking AND keep it non-cancellable with withContext(NonCancellable) on the call site
+@PublishedApi
 internal fun Process.killAndAwaitTermination(gracePeriod: Duration = 1.seconds): Int {
     destroyHierarchy()
     // the destroy operation is asynchronous, we need to give this process a chance to complete gracefully
@@ -207,7 +209,8 @@ internal fun Process.killAndAwaitTermination(gracePeriod: Duration = 1.seconds):
  * Forcible process destruction is defined as the immediate termination of the process, whereas normal
  * termination allows the process to shut down cleanly. If the process is not alive, no action is taken.
  */
-private fun Process.destroyHierarchy() {
+@PublishedApi
+internal fun Process.destroyHierarchy() {
     descendants().forEach { it.destroy() }
     destroy()
 }

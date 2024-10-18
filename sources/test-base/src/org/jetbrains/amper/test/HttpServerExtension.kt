@@ -2,13 +2,12 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli.test
+package org.jetbrains.amper.test
 
 import com.sun.net.httpserver.HttpServer
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
-import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
@@ -22,6 +21,13 @@ import kotlin.io.path.fileSize
 import kotlin.io.path.inputStream
 import kotlin.io.path.isRegularFile
 
+/**
+ * A JUnit Jupiter extension that provides an HTTP server to serve files from the given [wwwRoot] directory, and to
+ * provide an HTTP cache for other types of URLs.
+ *
+ * * Use [wwwRootUrl] to access files from [wwwRoot].
+ * * Use [cacheRootUrl] to use the actual network initially, and cache responses for the future.
+ */
 class HttpServerExtension(private val wwwRoot: Path) : Extension, BeforeEachCallback, AfterEachCallback {
     private val serverRef = AtomicReference<HttpServer>(null)
     private val requestedFilesRef = CopyOnWriteArrayList<Path>()
@@ -29,12 +35,25 @@ class HttpServerExtension(private val wwwRoot: Path) : Extension, BeforeEachCall
     private val port: Int
         get() = serverRef.get()?.address?.port ?: error("Port is null")
 
+    /**
+     * The URL to expose the files from [wwwRoot].
+     * Calling `HTTP GET <wwwRootUrl>/some/file.zip` returns the contents of the file located at
+     * `<wwwRoot>/some/file.zip`.
+     */
     val wwwRootUrl: String
         get() = "http://127.0.0.1:$port/www"
 
+    /**
+     * The URL to access the internet via this proxy that adds caching.
+     * Calling `HTTP GET <cacheRootUrl>/some/url/path` returns the contents of the file located at
+     * `https://some/url/path`; first from the internet, then from the local cache.
+     */
     val cacheRootUrl: String
         get() = "http://127.0.0.1:$port/cache"
 
+    /**
+     * Contains the list of files from [wwwRoot] that were requested so far in the current test.
+     */
     val requestedFiles: List<Path>
         get() = requestedFilesRef.toList()
 

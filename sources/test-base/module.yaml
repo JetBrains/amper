@@ -15,6 +15,7 @@ dependencies:
   - $libs.mordant: exported
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
+  - $kotlin.test.junit5
   - ../core
   - ../cli: compile-only # todo (Anton Prokhorov): think splitting cli to submodules
 
