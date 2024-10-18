@@ -317,7 +317,10 @@ open class AndroidBaseTest : TestBase() {
 
         var isBootComplete = false
         while (!isBootComplete) {
-            val output = executeCommand(command = listOf(getAdbPath(), "shell", "getprop", "sys.boot_completed"))
+            val output = executeCommand(
+                command = listOf(getAdbPath(), "shell", "getprop", "sys.boot_completed"),
+                expectExitCodeZero = false, // sometimes we get "no devices/emulators found" before the emulator starts
+            )
 
             if (output == "1") {
                 isBootComplete = true
