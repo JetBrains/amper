@@ -77,7 +77,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
             BuildSettingNames.ASSETCATALOG_COMPILER_APPICON_NAME to "AppIcon",
             // TODO Maybe add conditions?
             BuildSettingNames.TARGETED_DEVICE_FAMILY to listOf("1", "2"),
-            BuildSettingNames.SDKROOT to ApplePlatform.Type.IOS.platformName,
+            BuildSettingNames.SDKROOT to applePlatform.type.platformName,
             BuildSettingNames.PRODUCT_NAME to productName,
             BuildSettingNames.PRODUCT_MODULE_NAME to productModuleName,
             BuildSettingNames.LD_RUNPATH_SEARCH_PATHS to "$(inherited) @executable_path/Frameworks @loader_path/Frameworks",
