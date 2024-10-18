@@ -18,17 +18,26 @@ import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.emptyContext
+import org.jetbrains.amper.frontend.dr.resolver.getDefaultAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.logger
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
 import java.util.concurrent.ConcurrentHashMap
 
 interface DependenciesFlow<T: DependenciesFlowType> {
-    fun directDependenciesGraph(module: PotatoModule, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule
+    fun directDependenciesGraph(
+        module: PotatoModule,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder()
+    ): ModuleDependencyNodeWithModule
 
-    fun directDependenciesGraph(modules: List<PotatoModule>, fileCacheBuilder: FileCacheBuilder.() -> Unit): DependencyNodeHolder {
+    fun directDependenciesGraph(
+        modules: List<PotatoModule>,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder()
+    ): DependencyNodeHolder {
         val node = DependencyNodeHolder(
             name = "root",
-            children = modules.map { directDependenciesGraph(it, fileCacheBuilder) }
+            children = modules.map { directDependenciesGraph(it, fileCacheBuilder) },
+            emptyContext(fileCacheBuilder)
         )
         return node
     }

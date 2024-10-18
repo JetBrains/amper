@@ -11,8 +11,8 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
+import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
-import org.jetbrains.amper.resolver.getCliDefaultFileCacheBuilder
 
 /**
  * Returns a dependencies sequence of the given module in the resolution scope
@@ -41,7 +41,7 @@ internal fun PotatoModule.buildDependenciesGraph(
     return with(moduleDependenciesResolver) {
         resolveDependenciesGraph(
             DependenciesFlowType.ClassPathType(dependencyReason, resolutionPlatform, isTest),
-            getCliDefaultFileCacheBuilder(userCacheRoot)
+            getAmperFileCacheBuilder(userCacheRoot)
         )
     }
 }

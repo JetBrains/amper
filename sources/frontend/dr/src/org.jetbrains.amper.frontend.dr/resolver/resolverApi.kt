@@ -28,7 +28,7 @@ data class ResolutionInput(
     val resolutionDepth: ResolutionDepth,
     val resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
     val downloadSources: Boolean = false,
-    val fileCacheBuilder: FileCacheBuilder.() -> Unit = {},
+    val fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder(),
 )
 
 sealed interface DependenciesFlowType {
@@ -37,7 +37,10 @@ sealed interface DependenciesFlowType {
 }
 
 interface ModuleDependenciesResolver {
-    fun PotatoModule.resolveDependenciesGraph(dependenciesFlowType: DependenciesFlowType, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule
+    fun PotatoModule.resolveDependenciesGraph(
+        dependenciesFlowType: DependenciesFlowType,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder()
+    ): ModuleDependencyNodeWithModule
 
     suspend fun DependencyNodeHolder.resolveDependencies(
         resolutionDepth: ResolutionDepth,
@@ -53,9 +56,9 @@ interface ModuleDependenciesResolver {
 open class DependencyNodeHolderWithNotation(
     name: String,
     children: List<DependencyNode>,
+    templateContext: Context,
     @Suppress("UNUSED") // used in Idea Plugin
     val notation: DefaultScopedNotation? = null,
-    templateContext: Context = Context(),
     parentNodes: List<DependencyNode> = emptyList(),
 ): DependencyNodeHolder(name, children, templateContext, parentNodes)
 
@@ -63,16 +66,16 @@ class ModuleDependencyNodeWithModule(
     val module: PotatoModule,
     name: String,
     children: List<DependencyNode>,
+    templateContext: Context,
     notation: DefaultScopedNotation? = null,
-    templateContext: Context = Context(),
     parentNodes: List<DependencyNode> = emptyList(),
-) : DependencyNodeHolderWithNotation(name, children, notation, templateContext, parentNodes = parentNodes)
+) : DependencyNodeHolderWithNotation(name, children, templateContext, notation, parentNodes = parentNodes)
 
 class DirectFragmentDependencyNodeHolder(
     name: String,
     val dependencyNode: DependencyNode,
     val fragment: Fragment,
+    templateContext: Context,
     notation: DefaultScopedNotation,
-    templateContext: Context = Context(),
     parentNodes: List<DependencyNode> = emptyList(),
-) : DependencyNodeHolderWithNotation(name, listOf(dependencyNode), notation, templateContext, parentNodes = parentNodes)
+) : DependencyNodeHolderWithNotation(name, listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes)

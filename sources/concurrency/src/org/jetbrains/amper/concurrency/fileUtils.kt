@@ -7,6 +7,7 @@ package org.jetbrains.amper.concurrency
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -118,4 +119,10 @@ fun ReadableByteChannel.readTo(writers: Collection<Writer>): Long {
         data.clear()
     }
     return size
+}
+
+fun FileChannel.copyFrom(source: Path) {
+    FileInputStream(source.toFile()).use {
+        this.transferFrom(it.channel, 0, it.channel.size());
+    }
 }

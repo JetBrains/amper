@@ -11,17 +11,18 @@ import org.junit.jupiter.api.TestInfo
 class ResolverTest: BaseDRTest() {
 
     @Test
-    fun `junit-jupiter-params resolved in two contexts (COMPILE, RUNTIME`() {
+    fun `junit-jupiter-params resolved in two contexts (COMPILE, RUNTIME)`() {
         val jupiterParamsCoordinates = "org.junit.jupiter:junit-jupiter-params:5.7.2"
 
         val nodeInCompileContext = jupiterParamsCoordinates.toMavenNode(context(ResolutionScope.COMPILE))
         val nodeInRuntimeContext = jupiterParamsCoordinates.toMavenNode(context(ResolutionScope.RUNTIME))
 
-        val root = DependencyNodeHolder("root", listOf(nodeInCompileContext, nodeInRuntimeContext))
+        val root = DependencyNodeHolder("root", listOf(nodeInCompileContext, nodeInRuntimeContext), context())
 
-        doTest(
-            root,
-            expected = """root
+        runBlocking {
+            doTest(
+                root,
+                expected = """root
                 |+--- org.junit.jupiter:junit-jupiter-params:5.7.2
                 ||    +--- org.junit:junit-bom:5.7.2
                 ||    +--- org.apiguardian:apiguardian-api:1.1.0
@@ -43,10 +44,9 @@ class ResolverTest: BaseDRTest() {
                 |               +--- org.junit:junit-bom:5.7.2
                 |               \--- org.apiguardian:apiguardian-api:1.1.0
             """.trimMargin(),
-            verifyMessages = false
-        )
+                verifyMessages = false
+            )
 
-       runBlocking {
             downloadAndAssertFiles(
                 """apiguardian-api-1.1.0.jar
                 |junit-jupiter-api-5.7.2.jar

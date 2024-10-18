@@ -16,7 +16,7 @@ package org.jetbrains.amper.dependency.resolution
 open class DependencyNodeHolder(
     val name: String,
     final override val children: List<DependencyNode>,
-    templateContext: Context = Context(),
+    templateContext: Context,
     parentNodes: List<DependencyNode> = emptyList(),
 ) : DependencyNode {
 

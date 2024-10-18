@@ -80,7 +80,7 @@ class GradleLocalRepositoryTest {
     fun `get path`() {
         val bytes = randomString().toByteArray()
         val sha1 = computeHash("sha1", bytes)
-        val path = runBlocking { gradleLocalRepository.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", sha1) }
+        val path = gradleLocalRepository.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", sha1)
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')
@@ -89,7 +89,9 @@ class GradleLocalRepositoryTest {
 
     private fun kotlinTest() = MavenDependency(
         SettingsBuilder {
-            cache = { localRepositories = listOf(gradleLocalRepository) }
+            cache = {
+                localRepository = gradleLocalRepository
+            }
         }.settings
         ,
         "org.jetbrains.kotlin", "kotlin-test", "1.9.10"

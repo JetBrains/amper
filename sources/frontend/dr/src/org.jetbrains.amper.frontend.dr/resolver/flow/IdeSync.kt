@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.logger
 import java.util.concurrent.ConcurrentHashMap
 
@@ -68,7 +69,8 @@ internal class IdeSync(
         val node = ModuleDependencyNodeWithModule(
             name = "module:${userReadableName}",
             children = fragments.flatMap { it.toGraph(repositories, fileCacheBuilder) },
-            module = this
+            module = this,
+            templateContext = emptyContext(fileCacheBuilder)
         )
         return node
     }

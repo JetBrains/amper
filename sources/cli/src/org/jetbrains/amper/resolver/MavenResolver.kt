@@ -11,9 +11,7 @@ import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
-import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -22,6 +20,7 @@ import org.jetbrains.amper.dependency.resolution.message
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
+import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.slf4j.LoggerFactory
@@ -45,7 +44,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         .also { builder -> platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) } }
         .use {
             val context = Context {
-                this.cache = getCliDefaultFileCacheBuilder(userCacheRoot)
+                this.cache = getAmperFileCacheBuilder(userCacheRoot)
                 this.repositories = repositories
                 this.scope = scope
                 this.platforms = setOf(platform)
@@ -56,7 +55,8 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 children = coordinates.map {
                     val (group, module, version) = it.split(":")
                     MavenDependencyNode(context, group, module, version)
-                }
+                },
+                context
             )
 
             resolve(root, resolveSourceMoniker)
@@ -126,9 +126,3 @@ private fun DependencyNode.fillExternalDependencies(
         }
     }
 }
-
-fun getCliDefaultFileCacheBuilder(userCacheRoot: AmperUserCacheRoot):  FileCacheBuilder.() -> Unit = {
-    amperCache = userCacheRoot.path.resolve(".amper")
-    localRepositories = listOf(MavenLocalRepository(userCacheRoot.path.resolve(".m2.cache")))
-}
-

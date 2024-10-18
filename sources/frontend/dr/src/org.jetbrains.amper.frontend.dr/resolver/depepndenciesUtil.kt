@@ -4,8 +4,12 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.resolveSafeOrNull
 import org.jetbrains.amper.frontend.MavenDependency
 import org.slf4j.LoggerFactory
@@ -76,4 +80,22 @@ data class MavenCoordinates(
     override fun toString(): String {
         return "$groupId:$artifactId:$version${if (classifier != null) ":$classifier" else ""}"
     }
+}
+
+fun getDefaultAmperFileCacheBuilder(): FileCacheBuilder.() -> Unit = getAmperFileCacheBuilder(AmperUserCacheRoot.fromCurrentUser())
+
+fun getAmperFileCacheBuilder(userCacheRoot: AmperUserCacheRoot): FileCacheBuilder.() -> Unit = getDefaultFileCacheBuilder(userCacheRoot.path)
+
+/**
+ * Creates empty DR Context.
+ * It might be used for initializing supplementary node holders in a resolution graph only.
+ */
+fun emptyContext(userCacheRoot: AmperUserCacheRoot): Context = emptyContext(getAmperFileCacheBuilder(userCacheRoot))
+
+/**
+ * Creates empty DR Context.
+ * It might be used for initializing supplementary node holders in a resolution graph only.
+ */
+fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit): Context = Context {
+    cache = fileCacheBuilder
 }

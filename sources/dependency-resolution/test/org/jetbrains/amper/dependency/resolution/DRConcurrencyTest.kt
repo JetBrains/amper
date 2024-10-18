@@ -61,7 +61,7 @@ class DRConcurrencyTest : BaseDRTest() {
         doConcurrencyTest(testInfo) {
             val context = context(
                 repositories = (REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com").toRepositories(),
-                cacheRoot = cacheRoot)
+                cacheBuilder = cacheBuilder(cacheRoot))
             annotationJvmCoordinates.toMavenNode(context).dependency.moduleFile.readText()
         }
 
@@ -82,7 +82,7 @@ class DRConcurrencyTest : BaseDRTest() {
                             testInfo = testInfo,
                             dependency = annotationJvmCoordinates,
                             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
-                            cacheRoot = cacheRoot,
+                            cacheBuilder = cacheBuilder(cacheRoot),
                             filterMessages = {
                                 filter { "Downloaded from" !in it.text && "Hashes don't match for" !in it.text }
                             }

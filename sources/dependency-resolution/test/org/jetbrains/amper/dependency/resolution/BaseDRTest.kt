@@ -16,14 +16,14 @@ import kotlin.test.assertTrue
 
 abstract class BaseDRTest {
 
-    protected fun doTest(
+    protected suspend fun doTest(
         root: DependencyNodeHolder,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        filterMessages: List<Message>.() -> List<Message> = { filter { "Downloaded from" !in it.text } }
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNode {
         val resolver = Resolver()
-        runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
+        resolver.buildGraph(root, ResolutionLevel.NETWORK)
         root.verifyGraphConnectivity()
         if (verifyMessages) {
             root.distinctBfsSequence().forEach {
@@ -43,13 +43,15 @@ abstract class BaseDRTest {
         repositories: List<Repository> = REDIRECTOR_MAVEN2.toRepositories(),
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        cacheRoot: Path = TestUtil.userCacheRoot,
-        filterMessages: List<Message>.() -> List<Message> = { filter { "Downloaded from" !in it.text } }
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNode =
-        context(scope, platform, repositories, cacheRoot)
+        context(scope, platform, repositories, cacheBuilder)
             .use { context ->
                 val root = dependency.toRootNode(context)
-                doTest(root, verifyMessages, expected, filterMessages)
+                runBlocking {
+                    doTest(root, verifyMessages, expected, filterMessages)
+                }
             }
 
     protected fun doTest(
@@ -60,9 +62,10 @@ abstract class BaseDRTest {
         repositories: List<String> = REDIRECTOR_MAVEN2,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        cacheRoot: Path = TestUtil.userCacheRoot,
-        filterMessages: List<Message>.() -> List<Message> = { filter { "Downloaded from" !in it.text } }
-    ): DependencyNode = doTest(testInfo, listOf(dependency), scope, platform, repositories, verifyMessages, expected, cacheRoot, filterMessages)
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+    ): DependencyNode = doTest(testInfo, listOf(dependency), scope, platform, repositories, verifyMessages, expected, cacheBuilder, filterMessages)
+
 
     protected fun doTest(
         testInfo: TestInfo,
@@ -72,24 +75,26 @@ abstract class BaseDRTest {
         repositories: List<String> = REDIRECTOR_MAVEN2,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        cacheRoot: Path = TestUtil.userCacheRoot,
-        filterMessages: List<Message>.() -> List<Message> = { filter { "Downloaded from" !in it.text } }
-    ): DependencyNode = doTestImpl(testInfo, dependency, scope, platform, repositories.toRepositories(), verifyMessages, expected, cacheRoot, filterMessages)
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+    ): DependencyNode = doTestImpl(testInfo, dependency, scope, platform, repositories.toRepositories(), verifyMessages, expected, cacheBuilder, filterMessages)
 
 
     protected fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         repositories: List<Repository> = REDIRECTOR_MAVEN2.toRepositories(),
-        cacheRoot: Path = TestUtil.userCacheRoot
-    ) = Context{
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
+    ) = Context {
         this.scope = scope
         this.platforms = platform
         this.repositories = repositories
-        this.cache = {
-            amperCache = cacheRoot.resolve(".amper")
-            localRepositories = listOf(MavenLocalRepository(cacheRoot.resolve(".m2.cache")))
-        }
+        this.cache = cacheBuilder
+    }
+
+    protected fun cacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {
+        getDefaultFileCacheBuilder(cacheRoot).invoke(this)
+        readOnlyExternalRepositories = emptyList()
     }
 
     protected fun DependencyNode.verifyGraphConnectivity() {
@@ -107,7 +112,7 @@ abstract class BaseDRTest {
         kotlin.test.assertEquals(expected, root.prettyPrint().trimEnd())
 
     protected fun List<String>.toRootNode(context: Context) =
-        DependencyNodeHolder(name ="root", children = map { it.toMavenNode(context) })
+        DependencyNodeHolder(name ="root", children = map { it.toMavenNode(context) }, context)
 
     private fun String.toMavenNode(context: Context): MavenDependencyNode {
         val (group, module, version) = split(":")
@@ -146,5 +151,8 @@ abstract class BaseDRTest {
 
     companion object {
         internal val REDIRECTOR_MAVEN2 = listOf("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
+
+        fun List<Message>.defaultFilterMessages(): List<Message> =
+            filter { "Downloaded from" !in it.text && "Resolved from local repository" != it.text }
     }
 }

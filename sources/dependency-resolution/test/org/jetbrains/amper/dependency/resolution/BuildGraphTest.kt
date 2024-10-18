@@ -1316,7 +1316,8 @@ class BuildGraphTest: BaseDRTest() {
 
         val root = DependencyNodeHolder(
             "root",
-            contexts.map { "androidx.appcompat:appcompat:1.6.1".toMavenNode(it) }
+            contexts.map { "androidx.appcompat:appcompat:1.6.1".toMavenNode(it) },
+            context()
         )
 
         val resolver = Resolver()
@@ -2385,9 +2386,10 @@ class BuildGraphTest: BaseDRTest() {
         val root = DependencyNodeHolder(
             "root",
             listOf(
-                DependencyNodeHolder("module1", listOf("androidx.appcompat:appcompat:1.6.1".toMavenNode(context))),
-                DependencyNodeHolder("module2", listOf("androidx.appcompat:appcompat:1.6.1".toMavenNode(context))),
-            )
+                DependencyNodeHolder("module1", listOf("androidx.appcompat:appcompat:1.6.1".toMavenNode(context)), context),
+                DependencyNodeHolder("module2", listOf("androidx.appcompat:appcompat:1.6.1".toMavenNode(context)), context),
+            ),
+            context
         )
 
         val resolver = Resolver()

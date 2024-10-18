@@ -47,7 +47,8 @@ class DependencyFileTest {
         Context {
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(gradleLocalRepository)
+                localRepository = gradleLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
             val dependency = MavenDependency(context.settings, "org.jetbrains.kotlin", "kotlin-test", "1.9.20")
@@ -73,7 +74,8 @@ class DependencyFileTest {
         Context {
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(mavenLocalRepository())
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -94,8 +96,8 @@ class DependencyFileTest {
         Context {
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(mavenLocalRepository())
-
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
             repositories = listOf(
                 "https://repo1.maven.org/maven2",
@@ -126,7 +128,8 @@ class DependencyFileTest {
         Context {
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(mavenLocalRepository())
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
             repositories = listOf(
                 "https://repo1.maven.org/maven2",
@@ -158,7 +161,8 @@ class DependencyFileTest {
         Context {
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(MavenLocalRepository(mavenLocalPath.resolve(UUID.randomUUID().toString())))
+                localRepository = MavenLocalRepository(mavenLocalPath.resolve(UUID.randomUUID().toString()))
+                readOnlyExternalRepositories = emptyList()
             }
             repositories = listOf(
                 "https://repo1.maven.org/maven2",
@@ -207,7 +211,8 @@ class DependencyFileTest {
             Context {
                 cache = {
                     amperCache = amperPath
-                    localRepositories = listOf(mavenLocalRepository())
+                    localRepository = mavenLocalRepository()
+                    readOnlyExternalRepositories = emptyList()
                 }
                 repositories = listOf(
                     "https://repo1.maven.org/maven2",
@@ -242,7 +247,8 @@ class DependencyFileTest {
             repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(mavenLocalRepository())
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -264,7 +270,8 @@ class DependencyFileTest {
             repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(mavenLocalRepository())
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -296,7 +303,8 @@ class DependencyFileTest {
             repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(mavenLocalRepository())
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -327,7 +335,8 @@ class DependencyFileTest {
             repositories = listOf("https://fake-repository/").toRepositories()
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(mavenLocalRepository())
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -363,7 +372,8 @@ class DependencyFileTest {
             repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(mavenLocalRepository())
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -486,7 +496,8 @@ class DependencyFileTest {
                 "https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(mavenLocalRepository())
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
             val dependency = MavenDependency(

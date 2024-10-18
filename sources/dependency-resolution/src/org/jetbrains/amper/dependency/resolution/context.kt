@@ -30,7 +30,7 @@ import kotlin.io.path.Path
  * @see [SettingsBuilder]
  * @see [Cache]
  */
-class Context(
+class Context internal constructor(
     val settings: Settings,
     val resolutionCache: Cache = Cache(),
     /**
@@ -123,26 +123,34 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
 
 /**
  * Helps to build [FileCache].
- * When [fallbackLocalRepository] is not specified, the first location from [localRepositories] is used as a fallback.
  *
  * @see [SettingsBuilder]
  * @see [GradleLocalRepository]
  * @see [MavenLocalRepository]
  */
 class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
-
     var amperCache: Path = Path(System.getProperty("user.home"), ".amper")
-    var localRepositories: List<LocalRepository> = listOf(GradleLocalRepository(), MavenLocalRepository())
-    var fallbackLocalRepository: LocalRepository? = null
+    var readOnlyExternalRepositories: List<LocalRepository> = defaultReadOnlyExternalRepositories()
+    var localRepository: LocalRepository = defaultLocalRepository(amperCache)
 
     init {
         apply(init)
     }
 
-    fun build(): FileCache = FileCache(
-        amperCache, localRepositories, fallbackLocalRepository ?: localRepositories.first()
+    internal fun build(): FileCache = FileCache(
+        amperCache, readOnlyExternalRepositories, localRepository
     )
 }
+
+fun getDefaultFileCacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {
+    amperCache = cacheRoot
+    localRepository = defaultLocalRepository(cacheRoot)
+    readOnlyExternalRepositories = defaultReadOnlyExternalRepositories()
+}
+
+// todo (AB) : Should it be emptyList by default?
+private fun FileCacheBuilder.defaultReadOnlyExternalRepositories() = listOf(GradleLocalRepository(), MavenLocalRepository())
+private fun FileCacheBuilder.defaultLocalRepository(cacheRoot: Path) = MavenLocalRepository(cacheRoot.resolve(".m2.cache"))
 
 /**
  * Intended to define a resolution session.
@@ -170,8 +178,8 @@ data class Settings(
  */
 data class FileCache(
     val amperCache: Path,
-    val localRepositories: List<LocalRepository>,
-    val fallbackLocalRepository: LocalRepository,
+    val readOnlyExternalRepositories: List<LocalRepository>,
+    val localRepository: LocalRepository,
 )
 
 data class Message(
