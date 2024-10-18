@@ -11,7 +11,6 @@ set -e -u -o pipefail
 script_dir="$(dirname -- "$0")"
 script_dir="$(cd -- "$script_dir" && pwd)"
 
-#region COPIED FROM REAL WRAPPER
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
 
 die() {
