@@ -309,7 +309,7 @@ open class AndroidBaseTest : TestBase() {
         val process = processBuilder.start()
 
         // we need to consume the output of the process otherwise it may be stuck on full buffer
-        thread {
+        thread(isDaemon = true) {
             process.inputStream.bufferedReader(Charsets.UTF_8).useLines { sequence ->
                 sequence.forEach {}
             }
