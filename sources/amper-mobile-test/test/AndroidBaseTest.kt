@@ -112,6 +112,7 @@ open class AndroidBaseTest : TestBase() {
                 "Amper UI Tests",
                 "create"
             ),
+            expectExitCodeZero = false, // when a session is already created, the script returns exit code 1
         )
         println(stdout)
     }
