@@ -13,8 +13,12 @@ import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.processes.withGuaranteedTermination
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
 import kotlin.io.path.isExecutable
+import kotlin.io.path.isRegularFile
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -51,19 +55,20 @@ abstract class AmperCliWithWrapperTestBase {
         customJavaHome: Path? = null,
         customAmperScriptPath: Path? = null,
     ): ProcessResult = runBlocking(Dispatchers.IO) { // TODO just make runAmper() suspend?
+        check(workingDir.exists()) { "Cannot run Amper: the specified working directory $workingDir does not exist." }
+        check(workingDir.isDirectory()) { "Cannot run Amper: the specified working directory $workingDir is not a directory." }
 
-        val amperScriptPath = customAmperScriptPath ?: workingDir.resolve(if (OsFamily.current.isWindows) "amper.bat" else "amper")
-        check(amperScriptPath.exists()) {
-            "Amper script not found at $amperScriptPath\n" +
+        val amperScript = customAmperScriptPath ?: workingDir.resolve(if (OsFamily.current.isWindows) "amper.bat" else "amper")
+        check(amperScript.exists()) {
+            "Amper script not found at $amperScript\n" +
                     "You can use LocalAmperPublication.setupWrappersIn(dir) to copy wrappers into the test project dir."
         }
-        check(amperScriptPath.isExecutable()) {
-            "Cannot run Amper script because it is not executable: $amperScriptPath"
-        }
+        check(amperScript.isExecutable()) { "Cannot run Amper script because it is not executable: $amperScript" }
+        check(amperScript.isRegularFile()) { "Cannot run Amper script because it is not a file: $amperScript" }
 
         val result = ProcessBuilder()
             .directory(workingDir.toFile())
-            .command(amperScriptPath.pathString, *args.toTypedArray())
+            .command(amperScript.absolutePathString(), *args.toTypedArray())
             .redirectErrorStream(redirectErrorStream)
             .also {
                 val env = it.environment()
