@@ -58,7 +58,15 @@ val zipDistribution by tasks.creating(Zip::class) {
     archiveClassifier = "dist"
 }
 
-val amperDist: Provider<RegularFile> = zipDistribution.archiveFile
+val tarGzDistribution by tasks.creating(Tar::class) {
+    dependsOn(unpackedDistribution)
+
+    from(unpackedDistribution.destinationDir)
+    archiveClassifier = "dist"
+    compression = Compression.GZIP
+}
+
+val amperDistZip: Provider<RegularFile> = zipDistribution.archiveFile
 
 abstract class ProcessAmperScriptTask : DefaultTask() {
     @get:Incremental
@@ -67,7 +75,11 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
 
     @get:Incremental
     @get:InputFile
-    abstract val amperDistFile: RegularFileProperty
+    abstract val amperDistZipFile: RegularFileProperty
+
+    @get:Incremental
+    @get:InputFile
+    abstract val amperDistTarGzFile: RegularFileProperty
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
@@ -139,7 +151,8 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
             placeholder = "@",
             values = listOf(
                 "AMPER_VERSION" to amperDistVersion.get(),
-                "AMPER_DIST_SHA256" to sha256Hex(amperDistFile.get().asFile.toPath()),
+                "AMPER_DIST_ZIP_SHA256" to sha256Hex(amperDistZipFile.get().asFile.toPath()),
+                // "AMPER_DIST_TAR_GZ_SHA256" to sha256Hex(amperDistTarGzFile.get().asFile.toPath()), // TODO
             ),
             outputWindowsLineEndings = outputWindowsLineEndings.get(),
         )
@@ -151,7 +164,8 @@ val amperShellScript = tasks.register<ProcessAmperScriptTask>("amperShellScript"
     outputFile = projectDir.resolve("build/amper")
 
     amperDistVersion = project.version.toString()
-    amperDistFile = amperDist
+    amperDistZipFile = amperDistZip
+    amperDistTarGzFile = tarGzDistribution.archiveFile
 
     outputWindowsLineEndings = false
 }
@@ -161,17 +175,24 @@ val amperBatScript = tasks.register<ProcessAmperScriptTask>("amperBatScript") {
     outputFile = projectDir.resolve("build/amper.bat")
 
     amperDistVersion = project.version.toString()
-    amperDistFile = amperDist
+    amperDistZipFile = amperDistZip
+    amperDistTarGzFile = tarGzDistribution.archiveFile
 
     outputWindowsLineEndings = true
 }
 
 configurations.create("dist")
 
-val distArtifact = artifacts.add("dist", amperDist) {
+val distZipArtifact = artifacts.add("dist", amperDistZip) {
     type = "zip"
     classifier = "dist"
     builtBy(zipDistribution)
+}
+
+val distTarGzArtifact = artifacts.add("dist", tarGzDistribution.archiveFile) {
+    type = "tar.gz"
+    classifier = "dist"
+    builtBy(tarGzDistribution)
 }
 
 val shellScriptArtifact = artifacts.add("dist", amperShellScript.get().outputFile) {
@@ -186,7 +207,8 @@ val batScriptArtifact = artifacts.add("dist", amperBatScript.get().outputFile) {
 
 publishing {
     publications.getByName<MavenPublication>("kotlinMultiplatform") {
-        artifact(distArtifact)
+        artifact(distZipArtifact)
+        artifact(distTarGzArtifact)
         artifact(shellScriptArtifact)
         artifact(batScriptArtifact)
     }

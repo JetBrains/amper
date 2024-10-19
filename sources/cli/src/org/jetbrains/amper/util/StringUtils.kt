@@ -1,5 +1,6 @@
 package org.jetbrains.amper.util
 
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.regex.Pattern
 import kotlin.io.path.createDirectories
@@ -7,6 +8,8 @@ import kotlin.io.path.writeText
 
 fun String.ensureEndsWith(suffix: String) =
     if (!endsWith(suffix)) (this + suffix) else this
+
+private val logger = LoggerFactory.getLogger("TemplateSubstitution")
 
 @Suppress("SameParameterValue")
 fun substituteTemplatePlaceholders(
@@ -32,8 +35,8 @@ fun substituteTemplatePlaceholders(
         result = result.replace(s, value)
     }
 
-    check(missingPlaceholders.isEmpty()) {
-        "Missing placeholders [${missingPlaceholders.joinToString(" ")}] in template"
+    missingPlaceholders.forEach {
+        logger.warn("Placeholder '$it' is not used in $outputFile")
     }
 
     val escapedPlaceHolder = Pattern.quote(placeholder)

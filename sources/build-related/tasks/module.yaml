@@ -6,6 +6,8 @@ dependencies:
   - ../../cli
   - ../../core
   - $libs.kotlinx.coroutines.core
+  - $libs.apacheCommons.compress
+  - $libs.slf4j.api
 
 apply:
   - ../../common.module-template.yaml

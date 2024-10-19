@@ -4,7 +4,6 @@ import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.util.substituteTemplatePlaceholders
 import java.nio.file.Path
 import java.security.MessageDigest
-import kotlin.io.path.Path
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
@@ -14,8 +13,15 @@ import kotlin.io.path.readText
 
 @OptIn(ExperimentalStdlibApi::class)
 object AmperWrappers {
-    fun generateWrappers(targetDir: Path, cliZip: Path, unixTemplate: Path, windowsTemplate: Path): List<Path> {
+    fun generateWrappers(
+        targetDir: Path,
+        cliZip: Path,
+        cliTgz: Path,
+        unixTemplate: Path,
+        windowsTemplate: Path,
+    ): List<Path> {
         val cliZipSha256 = sha256hex(cliZip)
+        val cliTarGzSha256 = sha256hex(cliTgz)
 
         return buildList {
             val unixWrapper = targetDir.resolve("amper")
@@ -24,6 +30,7 @@ object AmperWrappers {
                 inputFile = unixTemplate,
                 outputFile = unixWrapper,
                 cliZipSha256 = cliZipSha256,
+                cliTgzSha256 = cliTarGzSha256,
                 outputWindowsLineEndings = false,
             )
 
@@ -33,6 +40,7 @@ object AmperWrappers {
                 inputFile = windowsTemplate,
                 outputFile = windowsWrapper,
                 cliZipSha256 = cliZipSha256,
+                cliTgzSha256 = cliTarGzSha256,
                 outputWindowsLineEndings = true,
             )
         }
@@ -44,14 +52,21 @@ object AmperWrappers {
         return hash.toHexString()
     }
 
-    private fun processTemplate(inputFile: Path, outputFile: Path, cliZipSha256: String, outputWindowsLineEndings: Boolean) {
+    private fun processTemplate(
+        inputFile: Path,
+        outputFile: Path,
+        cliZipSha256: String,
+        cliTgzSha256: String,
+        outputWindowsLineEndings: Boolean,
+    ) {
         substituteTemplatePlaceholders(
             input = inputFile.readText(),
             outputFile = outputFile,
             placeholder = "@",
             values = listOf(
                 "AMPER_VERSION" to AmperBuild.mavenVersion,
-                "AMPER_DIST_SHA256" to cliZipSha256,
+                "AMPER_DIST_ZIP_SHA256" to cliZipSha256,
+                "AMPER_DIST_TGZ_SHA256" to cliTgzSha256,
             ),
             outputWindowsLineEndings = outputWindowsLineEndings,
         )
