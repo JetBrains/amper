@@ -8,4 +8,10 @@ tasks.withType<Test>().configureEach {
         }
         directInvocation || hasTestsOption
     }
+
+    // To build&publish the :android-integration:gradle-plugin and deps for gradle-backed Android builds
+    // To build&publish the CLI distribution and scripts required for wrapper-based tests
+    for (task in rootProject.getTasksByName("publishToMavenLocal", true)) {
+        dependsOn(task)
+    }
 }

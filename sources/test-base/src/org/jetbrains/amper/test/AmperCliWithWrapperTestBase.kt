@@ -94,7 +94,7 @@ abstract class AmperCliWithWrapperTestBase {
                     if (redirectErrorStream) "Process output (stdout+stderr):\n${result.stdout}" else "Process stderr:\n${result.stderr}"
         )
         if (assertEmptyStdErr) {
-            assertTrue(result.stderr.isBlank(), "Process stderr must be empty, but got:\n${result.stderr}")
+            assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call: $amperScript ${args.joinToString(" ")}\nStderr was:\n${result.stderr}")
         }
         result
     }

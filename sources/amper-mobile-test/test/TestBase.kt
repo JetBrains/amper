@@ -1,12 +1,12 @@
+import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
+import org.jetbrains.amper.test.LocalAmperPublication
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 import kotlin.io.path.Path
-import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
@@ -17,7 +17,7 @@ import kotlin.test.fail
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-open class TestBase {
+open class TestBase : AmperCliWithWrapperTestBase() {
 
     val destinationBasePath: Path = Path("tempProjects")
     val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
@@ -100,7 +100,7 @@ open class TestBase {
             // Copy the project files from source to destination
             println("Copying project from $sourceDir to $destinationProjectPath")
             sourceDir.copyToRecursively(target = destinationProjectPath, followLinks = false, overwrite = true)
-            copyFilesAfterGitClone(destinationProjectPath)
+            LocalAmperPublication.setupWrappersIn(destinationProjectPath)
         } catch (ex: IOException) {
             throw RuntimeException("Failed to copy files from $sourceDir to $destinationProjectPath", ex)
         }
@@ -262,39 +262,8 @@ open class TestBase {
             fail("Execution failed with exit code $exitCode for command: $command\nStderr:\n$standardErr")
         }
     }
-
-    fun copyFilesAfterGitClone(sourceDir: Path) {
-        val sourcesDir = sourceDir.resolve("../../../").normalize()
-
-        if (!sourcesDir.exists()) {
-            error("Dir 'sources' not found: ${sourcesDir.toAbsolutePath()}")
-        }
-
-        val sourceFile1 = sourcesDir.resolve("amper-backend-test/testData/projects/android/simple/amper.bat")
-        val sourceFile2 = sourcesDir.resolve("amper-backend-test/testData/projects/android/simple/amper")
-
-        val targetFile1 = sourceDir.resolve("amper.bat")
-        val targetFile2 = sourceDir.resolve("amper")
-
-        try {
-            if (sourceFile1.exists()) {
-                sourceFile1.copyTo(targetFile1, StandardCopyOption.REPLACE_EXISTING)
-                println("Successfully copied amper.bat to $targetFile1")
-            } else {
-                error("File amper.bat not found at $sourceFile1")
-            }
-
-            if (sourceFile2.exists()) {
-                sourceFile2.copyTo(targetFile2, StandardCopyOption.REPLACE_EXISTING)
-                println("Successfully copied amper to $targetFile2")
-            } else {
-                println("File amper not found at $sourceFile2")
-            }
-        } catch (ex: IOException) {
-            throw RuntimeException("Failed to copy files", ex)
-        }
-    }
 }
+
 private fun isRunningInTeamCity(): Boolean {
     return System.getenv("TEAMCITY_VERSION") != null
 }

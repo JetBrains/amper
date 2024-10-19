@@ -1,4 +1,5 @@
 import java.io.*
+import kotlin.io.path.*
 
 open class iOSBaseTest(): TestBase() {
 
@@ -330,12 +331,14 @@ open class iOSBaseTest(): TestBase() {
 
 
     private fun prepareProjectiOSForStandalone(projectDir: String) {
-        val projectDir = File("tempProjects" + File.separator + projectDir)
-        if (projectDir.exists() && projectDir.isDirectory) {
-            val command = " ./amper task :${projectDir.name}:buildIosAppIosSimulatorArm64"
-
-            executeCommandInDirectory(command, projectDir)
-            configureXcodeProjectForStandalone(projectDir)
+        val projectDir = Path("tempProjects") / projectDir
+        if (projectDir.exists() && projectDir.isDirectory()) {
+            runAmper(
+                workingDir = projectDir,
+                args = listOf("task", ":${projectDir.name}:buildIosAppIosSimulatorArm64"),
+                assertEmptyStdErr = false, // warn
+            )
+            configureXcodeProjectForStandalone(projectDir.toFile())
         } else {
             println("The path '$projectDir' does not exist or is not a directory.")
         }

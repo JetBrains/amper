@@ -34,7 +34,10 @@ open class AndroidBaseTest : TestBase() {
 
     internal fun testRunnerStandalone(projectName: String, applicationId: String? = null) =
         prepareExecution(projectName, "../../sources/amper-backend-test/testData/projects/android", applicationId) {
-            assembleTargetAppStandalone(it)
+            runAmper(
+                workingDir = destinationBasePath.resolve(it),
+                args = listOf("task", ":$it:buildAndroidDebug"),
+            )
         }
 
     internal fun testRunnerGradle(projectName: String) =
@@ -239,30 +242,7 @@ open class AndroidBaseTest : TestBase() {
         }
     }
 
-    private fun assembleTargetAppStandalone(projectName: String) {
-        val projectDirectory = Path("tempProjects/$projectName")
-
-        val output = executeCommand(
-            command = buildList {
-                if (isWindows) {
-                    add("cmd")
-                    add("/c")
-                    add("amper.bat")
-                } else {
-                    add("./amper")
-                }
-                add("task")
-                add(":$projectName:buildAndroidDebug")
-            },
-            workingDirectory = projectDirectory,
-        )
-
-        println(output)
-    }
-
     class APKNotFoundException(message: String) : Exception(message)
-
-
 
     private fun isEmulatorRunning(): Boolean {
         val output = executeCommand(command = listOf(getAdbPath(), "devices"))
