@@ -18,7 +18,6 @@ import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isExecutable
 import kotlin.io.path.isRegularFile
-import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
