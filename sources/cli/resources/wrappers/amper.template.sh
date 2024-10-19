@@ -40,7 +40,7 @@ download_and_extract() {
   cache_dir="$5"
   extract_dir="$6"
 
-  if [ -e "$extract_dir/.flag" ] && [ -n "$(ls "$extract_dir")" ] && [ "x$(cat "$extract_dir/.flag")" = "x${file_url}" ]; then
+  if [ -e "$extract_dir/.flag" ] && [ -n "$(ls "$extract_dir")" ] && [ "x$(cat "$extract_dir/.flag")" = "x${file_sha}" ]; then
     # Everything is up-to-date in $extract_dir, do nothing
     true
   else
@@ -73,8 +73,8 @@ download_and_extract() {
 
     rm -f "$temp_file"
 
-    echo "$file_url" >"$extract_dir/.flag"
-    echo "Downloaded to $extract_dir"
+    echo "$file_sha" >"$extract_dir/.flag"
+    echo "Download complete."
     echo
   fi
 }

@@ -41,7 +41,7 @@ set sha_size=%~5
 set flag_file=%target_dir%\.flag
 if exist "%flag_file%" (
     set /p current_flag=<"%flag_file%"
-    if "%current_flag%" == "%url%" exit /b
+    if "%current_flag%" == "%sha%" exit /b
 )
 
 @rem This multiline string is actually passed as a single line to powershell, meaning #-comments are not possible.
@@ -62,7 +62,7 @@ if (-not $createdNew) { ^
 } ^
  ^
 try { ^
-    if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%url%') { ^
+    if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%sha%') { ^
         $temp_file = '%AMPER_BOOTSTRAP_CACHE_DIR%\' + [System.IO.Path]::GetRandomFileName(); ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
         Write-Host 'Downloading %moniker%... (only happens on the first run of this version)'; ^
@@ -86,8 +86,8 @@ try { ^
         } ^
         Remove-Item $temp_file; ^
  ^
-        Set-Content '%flag_file%' -Value '%url%'; ^
-        Write-Host 'Downloaded to %target_dir%'; ^
+        Set-Content '%flag_file%' -Value '%sha%'; ^
+        Write-Host 'Download complete.'; ^
         Write-Host ''; ^
     } ^
 } ^
