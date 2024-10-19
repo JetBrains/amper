@@ -37,9 +37,7 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
 
     companion object {
         fun deleteWithDiagnostics(path: Path) {
-            // On Windows a directory may be freed only after a some time,
-            // so allow some slack
-
+            // On Windows, directory locks might not be released instantly, so we allow some extra time
             repeat(20) {
                 try {
                     path.deleteRecursively()
@@ -52,14 +50,15 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
 
             val exceptions = mutableListOf<Throwable>()
 
+            @Suppress("ReplacePrintlnWithLogging") // we're in a test context
             fun log(s: String) = println("TempDirExtension.deleteWithRetries: $s")
 
             path.visitFileTree(object : FileVisitor<Path> {
-                override fun preVisitDirectory(dir: Path?, attrs: BasicFileAttributes?): FileVisitResult {
+                override fun preVisitDirectory(dir: Path?, attrs: BasicFileAttributes): FileVisitResult {
                     return FileVisitResult.CONTINUE
                 }
 
-                override fun visitFile(file: Path, attrs: BasicFileAttributes?): FileVisitResult {
+                override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
                     try {
                         log("Removing file $file")
                         file.deleteIfExists()
@@ -95,7 +94,7 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
 
             if (exceptions.isEmpty()) {
                 error(
-                    "After a full second of retires, second method of deleting (visitFileTree) succeeded without exceptions. " +
+                    "After a full second of retries, the second method of deleting (visitFileTree) succeeded without exceptions. " +
                             "This is very suspicious and should not generally happen. Probably a bug in visitFileTree-based deletion?" +
                             "path.exists=${path.exists()}"
                 )
