@@ -7,6 +7,7 @@ package org.jetbrains.amper.test
 import org.jetbrains.amper.core.AmperBuild
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import kotlin.io.path.copyTo
 import kotlin.io.path.exists
 import kotlin.io.path.readText
@@ -41,10 +42,10 @@ object LocalAmperPublication {
     fun setupWrappersIn(targetDir: Path) {
         checkPublicationIntegrity()
 
-        wrapperBat.copyTo(targetDir.resolve("amper.bat"))
+        wrapperBat.copyTo(targetDir.resolve("amper.bat"), REPLACE_EXISTING)
 
         val targetSh = targetDir.resolve("amper")
-        wrapperSh.copyTo(targetSh)
+        wrapperSh.copyTo(targetSh, REPLACE_EXISTING)
         targetSh.toFile().setExecutable(true)
     }
 }
