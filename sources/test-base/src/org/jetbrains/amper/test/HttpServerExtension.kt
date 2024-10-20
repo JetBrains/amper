@@ -5,6 +5,7 @@
 package org.jetbrains.amper.test
 
 import com.sun.net.httpserver.HttpServer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.slf4j.LoggerFactory
+import java.io.OutputStream
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.nio.file.Path
@@ -31,6 +34,7 @@ import kotlin.io.path.isRegularFile
 class HttpServerExtension(private val wwwRoot: Path) : Extension, BeforeEachCallback, AfterEachCallback {
     private val serverRef = AtomicReference<HttpServer>(null)
     private val requestedFilesRef = CopyOnWriteArrayList<Path>()
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     private val port: Int
         get() = serverRef.get()?.address?.port ?: error("Port is null")
@@ -74,23 +78,36 @@ class HttpServerExtension(private val wwwRoot: Path) : Extension, BeforeEachCall
             }
 
             httpExchange.sendResponseHeaders(200, filePath.fileSize())
-            filePath.inputStream().use { input -> input.copyTo(httpExchange.responseBody) }
+            httpExchange.responseBody.writeFileContents(filePath)
         }
         server.createContext("/cache") { httpExchange ->
             if (httpExchange.requestMethod != "GET") {
+                logger.error("HTTP ${httpExchange.requestMethod} method is not supported in test server, expected GET")
                 httpExchange.sendResponseHeaders(400, -1)
+                httpExchange.responseBody.close()
                 return@createContext
             }
 
             val filePath = httpExchange.requestURI.path.removePrefix("/cache/")
             val url = "https://$filePath"
 
-            val fakeUserCacheRoot = AmperUserCacheRoot(TestUtil.sharedTestCaches)
-            println("Requested $url to $fakeUserCacheRoot")
-            val cachedFile = runBlocking { Downloader.downloadFileToCacheLocation(url, fakeUserCacheRoot) }
-
-            httpExchange.sendResponseHeaders(200, cachedFile.fileSize())
-            cachedFile.inputStream().use { input -> input.copyTo(httpExchange.responseBody) }
+            try {
+                runBlocking(Dispatchers.IO) {
+                    val cachedFile = Downloader.downloadFileToCacheLocation(url, AmperUserCacheRoot(TestUtil.sharedTestCaches))
+                    httpExchange.sendResponseHeaders(200, cachedFile.fileSize())
+                    httpExchange.responseBody.writeFileContents(cachedFile)
+                }
+            } catch (e: Throwable) {
+                // Throwable ^^ is not used lightly here, it catches ExceptionInInitializerError for uninitialized Ktor engine
+                // Those exceptions don't seem to propagate anywhere otherwise.
+                logger.error("Exception when downloading from $url", e)
+                val errorResponseBody = "The test proxy server failed to download from $url:\n$e".encodeToByteArray()
+                httpExchange.sendResponseHeaders(500, errorResponseBody.size.toLong())
+                httpExchange.responseBody.buffered().use {
+                    it.write(errorResponseBody)
+                }
+                throw e
+            }
         }
         server.start()
         serverRef.set(server)
@@ -100,4 +117,10 @@ class HttpServerExtension(private val wwwRoot: Path) : Extension, BeforeEachCall
         val current = serverRef.getAndSet(null)!!
         current.stop(0)
     }
+}
+
+private fun OutputStream.writeFileContents(cachedFile: Path) {
+    cachedFile.inputStream().use { input -> input.copyTo(this) }
+    flush()
+    close()
 }
