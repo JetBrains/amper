@@ -174,7 +174,8 @@ class UnresolvedMavenDependencyNode(
         fun trimPrefixAndSuffixOrNull(coordinates: String, prefix: String, suffix: String): String? =
             coordinates
                 .takeIf { it.startsWith(prefix) && it.endsWith(suffix) }
-                ?.let { it.substringAfter(prefix).substringBefore(suffix)}
+                ?.substringAfter(prefix)
+                ?.substringBefore(suffix)
     }
 }
 
@@ -1051,15 +1052,6 @@ class MavenDependency internal constructor(
             .filterMultipleVariantsByUnusedAttributes()
 
         return validVariants
-    }
-
-    private fun reportDependencyVersionResolutionFailure(dependency: Dependency, module: Module) {
-        messages.asMutable() += Message(
-            "Module ${module.component.group}:${module.component.module}:${module.component.version} " +
-                    "depends on ${dependency.group}:${dependency.module}, but version of the dependency could not be resolved: " +
-                    "neither 'requires' nor 'prefers' nor 'strictly' attributes are defined",
-            severity = Severity.ERROR
-        )
     }
 
     private fun Variant.isOneOfExceptions() = isKotlinException() || isGuavaException()

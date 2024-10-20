@@ -300,21 +300,10 @@ open class DependencyFile(
                 }
             ) { tempFilePath, fileChannel ->
                 expectedHash
-                    // First, try to resolve artifact from external local storage if actual hash is known
+                      // First, try to resolve artifact from external local storage if actual hash is known
                     ?.let { resolveFromExternalLocalRepository(tempFilePath, fileChannel, expectedHash, cache) }
-                    ?: run { // Download artifact from external remote storage if it has not been resolved from local cache
-                        try {
-                            downloadAndVerifyHash(fileChannel, tempFilePath, repositories, progress, cache, expectedHash)
-                        } catch (e: IOException) {
-                            dependency.messages.asMutable() += Message(
-                                "Unable to save downloaded file",
-                                e.toString(),
-                                Severity.ERROR,
-                                e,
-                            )
-                            return@produceResultWithDoubleLock null
-                        }
-                    }
+                      // Download artifact from external remote storage if it has not been resolved from local cache
+                    ?: downloadAndVerifyHash(fileChannel, tempFilePath, repositories, progress, cache, expectedHash)
             }
         }
     }
@@ -375,6 +364,7 @@ open class DependencyFile(
             downloadUnderFileLock(repositories, progress, cache, null)
         }
 
+        // todo (AB) : This should be the only place where message is added to the dependency?
         if (path == null && verify) {
             dependency.messages.asMutable() += Message(
                 "Unable to download file $fileName for dependency $dependency",
@@ -427,7 +417,7 @@ open class DependencyFile(
 
             return storeToTargetLocation(temp, hasher, cache, repository) {
                 hashers.find { it.algorithm == "sha1" }?.hash
-                    ?: throw AmperDependencyResolutionException("sha1 must be present among hashers")
+                    ?: error("sha1 must be present among hashers") // should never happen
             }
         }
 
@@ -442,23 +432,31 @@ open class DependencyFile(
         cache: Cache,
         repository: Repository?,
         sha1: suspend () -> String,
-    ): Path {
+    ): Path? {
         val target = getCacheDirectory().getPath(dependency, fileName, sha1)
 
         target.parent.createDirectories()
         try {
             temp.moveTo(target)
         } catch (_: FileAlreadyExistsException) {
-            logger.debug("### $target already exists")
+            logger.debug("### {} already exists", target)
             if (actualHash != null && shouldOverwrite(cache, actualHash, computeHash(target, actualHash.algorithm))) {
                 try {
-                    logger.debug("### $target will be replaced with new one")
+                    logger.debug("### {} will be replaced with new one", target)
                     withRetryOnAccessDenied {
                         temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (t: Throwable) {
-                    logger.debug("### $target was not replaced with new one", t)
-                    throw t
+                    logger.debug("### {} was not replaced with new one", target, t)
+                    dependency.messages.asMutable() += Message(
+                        "Unable to save downloaded file",
+                        t.toString(),
+                        Severity.ERROR,
+                        t,
+                    )
+                    return null
                 }
             } else {
                 temp.deleteIfExists()
@@ -484,9 +482,9 @@ open class DependencyFile(
 
     protected open suspend fun shouldOverwrite(
         cache: Cache,
-        expectedHash: Hash?,
+        expectedHash: Hash,
         actualHash : Hasher
-    ): Boolean = expectedHash != null && checkHash(actualHash, expectedHash) > VerificationResult.PASSED
+    ): Boolean = checkHash(actualHash, expectedHash) > VerificationResult.PASSED
 
     private suspend fun verify(
         hashers: Collection<Hasher>,
@@ -570,7 +568,7 @@ open class DependencyFile(
         val algorithm = hasher.algorithm
         val actualHash = hasher.hash
         if (expectedHash.algorithm != algorithm) {
-            error("Expected hash type is ${expectedHash.hash}, but $algorithm was calculated")
+            error("Expected hash type is ${expectedHash.hash}, but $algorithm was calculated") // should never happen
         } else if (!expectedHash.hash.equals(actualHash,true)) {
             if (reportFailure) {
                 dependency.messages.asMutable() += Message(
@@ -652,7 +650,7 @@ open class DependencyFile(
         progress: Progress,
         cache: Cache
     ): Boolean {
-        logger.trace("Trying to download $nameWithoutExtension from $repository")
+        logger.trace("Trying to download {} from {}", nameWithoutExtension, repository)
 
         val client = cache.computeIfAbsent(httpClientKey) {
             java.net.http.HttpClient.newBuilder()
@@ -727,7 +725,7 @@ open class DependencyFile(
         } catch (e: Exception) {
             logger.warn("$repository: Failed to download $url", e)
             dependency.messages.asMutable() += Message(
-                "Unable to reach $url (${client.hashCode()})",
+                "Unable to reach $url",
                 e.toString(),
                 Severity.ERROR,
                 e,
@@ -842,7 +840,7 @@ class SnapshotDependencyFile(
         return super.getNamePart(repository, name, extension, progress, cache)
     }
 
-    override suspend fun shouldOverwrite(cache: Cache, expectedHash: Hash?, actualHash: Hasher): Boolean =
+    override suspend fun shouldOverwrite(cache: Cache, expectedHash: Hash, actualHash: Hasher): Boolean =
         nameWithoutExtension == "maven-metadata"
                 || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
 
