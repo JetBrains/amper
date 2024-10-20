@@ -15,13 +15,11 @@ import kotlin.io.path.readText
 object AmperWrappers {
     fun generateWrappers(
         targetDir: Path,
-        cliZip: Path,
-        cliTgz: Path,
+        cliDistTgz: Path,
         unixTemplate: Path,
         windowsTemplate: Path,
     ): List<Path> {
-        val cliZipSha256 = sha256hex(cliZip)
-        val cliTarGzSha256 = sha256hex(cliTgz)
+        val cliDistSha256 = sha256hex(cliDistTgz)
 
         return buildList {
             val unixWrapper = targetDir.resolve("amper")
@@ -29,8 +27,7 @@ object AmperWrappers {
             processTemplate(
                 inputFile = unixTemplate,
                 outputFile = unixWrapper,
-                cliZipSha256 = cliZipSha256,
-                cliTgzSha256 = cliTarGzSha256,
+                cliTgzSha256 = cliDistSha256,
                 outputWindowsLineEndings = false,
             )
 
@@ -39,8 +36,7 @@ object AmperWrappers {
             processTemplate(
                 inputFile = windowsTemplate,
                 outputFile = windowsWrapper,
-                cliZipSha256 = cliZipSha256,
-                cliTgzSha256 = cliTarGzSha256,
+                cliTgzSha256 = cliDistSha256,
                 outputWindowsLineEndings = true,
             )
         }
@@ -55,7 +51,6 @@ object AmperWrappers {
     private fun processTemplate(
         inputFile: Path,
         outputFile: Path,
-        cliZipSha256: String,
         cliTgzSha256: String,
         outputWindowsLineEndings: Boolean,
     ) {
@@ -65,7 +60,6 @@ object AmperWrappers {
             placeholder = "@",
             values = listOf(
                 "AMPER_VERSION" to AmperBuild.mavenVersion,
-                "AMPER_DIST_ZIP_SHA256" to cliZipSha256,
                 "AMPER_DIST_TGZ_SHA256" to cliTgzSha256,
             ),
             outputWindowsLineEndings = outputWindowsLineEndings,

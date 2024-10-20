@@ -18,14 +18,14 @@ import kotlin.io.path.readText
 object LocalAmperPublication {
     private val rootPublicationDir = TestUtil.m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.mavenVersion}")
 
-    val distZip: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-dist.zip")
-    val wrapperBat: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")
-    val wrapperSh: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper")
+    val distTgz: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-dist.tgz")
+    private val wrapperBat: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")
+    private val wrapperSh: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper")
 
     private fun checkPublicationIntegrity() {
         val explanation = "This test requires the locally-published Amper CLI distribution and wrappers.\n" +
                 "Make sure you have setup this test task to depend on the publication tasks to ensure that."
-        check(distZip.exists()) { "Amper distribution is missing in maven local: $distZip not found.\n$explanation" }
+        check(distTgz.exists()) { "Amper distribution is missing in maven local: $distTgz not found.\n$explanation" }
         check(wrapperBat.exists()) { "Amper wrapper.bat is missing in maven local: $wrapperBat not found.\n$explanation" }
         check(wrapperSh.exists()) { "Amper wrapper (sh) is missing in maven local: $wrapperSh not found.\n$explanation" }
 

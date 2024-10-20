@@ -85,10 +85,11 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             result2.stdout.lines().none { it.startsWith("Downloading ") }
         }
 
-        val cliDistZip = LocalAmperPublication.distZip
-        check(requestedFiles.single() == cliDistZip) {
-            "Only one file should be requested '$cliDistZip'. Files requested: $requestedFiles"
-        }
+        assertEquals(
+            expected = requestedFiles,
+            actual = listOf(LocalAmperPublication.distTgz),
+            message = "The Amper script run should request the Amper distribution (and only this)",
+        )
     }
 
     @Test

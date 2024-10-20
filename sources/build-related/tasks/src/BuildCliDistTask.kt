@@ -53,8 +53,7 @@ object BuildCliDistTask {
 
                 val wrappers = AmperWrappers.generateWrappers(
                     targetDir = taskOutputDirectory,
-                    cliZip = cliZip,
-                    cliTgz = cliTgz,
+                    cliDistTgz = cliTgz,
                     unixTemplate = unixWrapperTemplate,
                     windowsTemplate = windowsWrapperTemplate,
                 )
