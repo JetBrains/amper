@@ -9,6 +9,7 @@ dependencies:
   - $libs.kotlinx.coroutines.core: exported
   - $libs.kotlinx.coroutines.test: exported
   - $libs.kotlinx.coroutines.slf4j: exported
+  - $libs.ktor.client.cio: runtime-only # engine for tests that download stuff (e.g. HttpServerExtension)
   - $libs.opentelemetry.sdk: exported
   - $libs.slf4j.api: exported
   - $libs.tinylog.impl: exported
