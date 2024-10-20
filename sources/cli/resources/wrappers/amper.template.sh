@@ -58,7 +58,7 @@ download_and_extract() {
       if [ -t 1 ]; then WGET_PROGRESS=""; else WGET_PROGRESS="-nv"; fi
       wget $WGET_PROGRESS -O "${temp_file}" "$file_url" 2>&1
     else
-      die "ERROR: Please install wget or curl"
+      die "ERROR: Please install 'wget' or 'curl', as Amper needs one of them to download $moniker"
     fi
 
     check_sha "$file_url" "$temp_file" "$file_sha" "$sha_size"
@@ -67,8 +67,18 @@ download_and_extract() {
     mkdir -p "$extract_dir"
 
     case "$file_url" in
-      *".zip") unzip -q "$temp_file" -d "$extract_dir" ;;
-      *) tar -x -f "$temp_file" -C "$extract_dir" ;;
+      *".zip")
+        if command -v unzip >/dev/null 2>&1; then
+          unzip -q "$temp_file" -d "$extract_dir"
+        else
+          die "ERROR: Please install 'unzip', as Amper needs it to extract $moniker"
+        fi ;;
+      *)
+        if command -v tar >/dev/null 2>&1; then
+          tar -x -f "$temp_file" -C "$extract_dir"
+        else
+          die "ERROR: Please install 'tar', as Amper needs it to extract $moniker"
+        fi ;;
     esac
 
     rm -f "$temp_file"
