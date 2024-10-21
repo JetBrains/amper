@@ -113,6 +113,8 @@ private suspend inline fun InputStream.readAllAndDoOnEachLine(onEachLine: (Strin
  *   This is true whether the current coroutine is already cancelled when calling this function, or cancelled during the
  *   execution of [cancellableBlock], or cancelled after the successful completion of [cancellableBlock] (while waiting
  *   for the process to terminate).
+ * * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **requests the process destruction** but
+ *   doesn't wait for its completion (we mustn't block the JVM shutdown).
  *
  * The process destruction is done as described in [killAndAwaitTermination]: first, a normal destruction is requested,
  * and if this process doesn't terminate within the given [gracePeriod], it is then forcibly killed.
@@ -151,6 +153,9 @@ suspend inline fun <T> Process.withGuaranteedTermination(
 
 @PublishedApi
 internal inline fun <T> withShutdownHook(crossinline onJvmShudown: () -> Unit, block: () -> T): T {
+    contract {
+        callsInPlace(block, kind = InvocationKind.EXACTLY_ONCE)
+    }
     val hookThread = Thread { onJvmShudown() }
     val runtime = Runtime.getRuntime()
     try {
