@@ -18,9 +18,9 @@
 set -e -u
 
 # The version of the Amper distribution to provision and use
-amper_version=0.5.0-dev-1866
+amper_version=0.5.0-dev-1927
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=cd5ce4a4a6a1107cedf4c06dc45d4f879e86d6d80bc57884ffa34f76c21239ff
+amper_sha256=c3b07f6457b0a15e762088c0cb9482b6d5342197413281a51f853918df15e59f
 
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
@@ -40,7 +40,7 @@ download_and_extract() {
   cache_dir="$5"
   extract_dir="$6"
 
-  if [ -e "$extract_dir/.flag" ] && [ -n "$(ls "$extract_dir")" ] && [ "x$(cat "$extract_dir/.flag")" = "x${file_url}" ]; then
+  if [ -e "$extract_dir/.flag" ] && [ -n "$(ls "$extract_dir")" ] && [ "x$(cat "$extract_dir/.flag")" = "x${file_sha}" ]; then
     # Everything is up-to-date in $extract_dir, do nothing
     true
   else
@@ -58,7 +58,7 @@ download_and_extract() {
       if [ -t 1 ]; then WGET_PROGRESS=""; else WGET_PROGRESS="-nv"; fi
       wget $WGET_PROGRESS -O "${temp_file}" "$file_url" 2>&1
     else
-      die "ERROR: Please install wget or curl"
+      die "ERROR: Please install 'wget' or 'curl', as Amper needs one of them to download $moniker"
     fi
 
     check_sha "$file_url" "$temp_file" "$file_sha" "$sha_size"
@@ -67,14 +67,24 @@ download_and_extract() {
     mkdir -p "$extract_dir"
 
     case "$file_url" in
-      *".zip") unzip -q "$temp_file" -d "$extract_dir" ;;
-      *) tar -x -f "$temp_file" -C "$extract_dir" ;;
+      *".zip")
+        if command -v unzip >/dev/null 2>&1; then
+          unzip -q "$temp_file" -d "$extract_dir"
+        else
+          die "ERROR: Please install 'unzip', as Amper needs it to extract $moniker"
+        fi ;;
+      *)
+        if command -v tar >/dev/null 2>&1; then
+          tar -x -f "$temp_file" -C "$extract_dir"
+        else
+          die "ERROR: Please install 'tar', as Amper needs it to extract $moniker"
+        fi ;;
     esac
 
     rm -f "$temp_file"
 
-    echo "$file_url" >"$extract_dir/.flag"
-    echo "Downloaded to $extract_dir"
+    echo "$file_sha" >"$extract_dir/.flag"
+    echo "Download complete."
     echo
   fi
 }
@@ -149,7 +159,7 @@ amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 
 # ********** Provision Amper distribution **********
 
-amper_url="$AMPER_DOWNLOAD_ROOT/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.zip"
+amper_url="$AMPER_DOWNLOAD_ROOT/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.tgz"
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
 download_and_extract "Amper distribution v$amper_version" "$amper_url" "$amper_sha256" 256 "$amper_cache_dir" "$amper_target_dir"
 

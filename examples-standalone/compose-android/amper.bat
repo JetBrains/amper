@@ -15,9 +15,9 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.5.0-dev-1866
+set amper_version=0.5.0-dev-1927
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=cd5ce4a4a6a1107cedf4c06dc45d4f879e86d6d80bc57884ffa34f76c21239ff
+set amper_sha256=c3b07f6457b0a15e762088c0cb9482b6d5342197413281a51f853918df15e59f
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -41,7 +41,7 @@ set sha_size=%~5
 set flag_file=%target_dir%\.flag
 if exist "%flag_file%" (
     set /p current_flag=<"%flag_file%"
-    if "%current_flag%" == "%url%" exit /b
+    if "%current_flag%" == "%sha%" exit /b
 )
 
 @rem This multiline string is actually passed as a single line to powershell, meaning #-comments are not possible.
@@ -62,8 +62,8 @@ if (-not $createdNew) { ^
 } ^
  ^
 try { ^
-    if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%url%') { ^
-        $temp_file = '%AMPER_BOOTSTRAP_CACHE_DIR%' + [System.IO.Path]::GetRandomFileName(); ^
+    if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%sha%') { ^
+        $temp_file = '%AMPER_BOOTSTRAP_CACHE_DIR%\' + [System.IO.Path]::GetRandomFileName(); ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
         Write-Host 'Downloading %moniker%... (only happens on the first run of this version)'; ^
         [void](New-Item '%AMPER_BOOTSTRAP_CACHE_DIR%' -ItemType Directory -Force); ^
@@ -86,8 +86,8 @@ try { ^
         } ^
         Remove-Item $temp_file; ^
  ^
-        Set-Content '%flag_file%' -Value '%url%'; ^
-        Write-Host 'Downloaded to %target_dir%'; ^
+        Set-Content '%flag_file%' -Value '%sha%'; ^
+        Write-Host 'Download complete.'; ^
         Write-Host ''; ^
     } ^
 } ^
@@ -108,7 +108,7 @@ exit /b 1
 
 REM ********** Provision Amper distribution **********
 
-set amper_url=%AMPER_DOWNLOAD_ROOT%/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
+set amper_url=%AMPER_DOWNLOAD_ROOT%/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.tgz
 set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\amper-cli-%amper_version%
 call :download_and_extract "Amper distribution v%amper_version%" "%amper_url%" "%amper_target_dir%" "%amper_sha256%" "256"
 if errorlevel 1 goto fail
