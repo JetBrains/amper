@@ -2,10 +2,6 @@ product: android/app
 
 settings:
   compose: enabled
-  kotlin:
-    # Kept only temporarily for mobile tests because they don't run from sources and still expect this
-    # TODO remove after Amper bump or when mobile tests run from sources
-    parcelize: enabled
   android:
     namespace: com.jetbrains.sample.app
     parcelize: enabled
