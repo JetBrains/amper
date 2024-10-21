@@ -182,7 +182,7 @@ if [ '!' -x "$java_exe" ]; then
   die "Unable to find bin/java executable at $java_exe"
 fi
 
-# ********** Build Amper distribution **********
+# ********** Build Amper from sources **********
 
 case "$(uname)" in
   # man stat on Mac OS X
@@ -221,7 +221,7 @@ if [ ! -f "$up_to_date_file" ] || [ "$(cat "$up_to_date_file")" != "$current" ];
   current_state >"$up_to_date_file"
 fi
 
-# ********** Launch Amper **********
+# ********** Launch Amper from unpacked dist **********
 
 if [ "$simpleOs" = "windows" ]; then
   # Can't cygpath the *
