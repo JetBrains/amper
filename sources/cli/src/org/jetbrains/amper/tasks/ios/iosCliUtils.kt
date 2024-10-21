@@ -10,7 +10,6 @@ import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
@@ -20,6 +19,8 @@ private const val AVAILABLE_DEVICES_FILTER = "available"
 const val AWAIT_ATTEMPTS = 10
 const val AWAIT_TIME: Long = 1000
 const val XCRUN_EXECUTABLE = "/usr/bin/xcrun"
+
+private const val DEVICE_STATUS_BOOTED = "booted"
 
 suspend fun installAppOnDevice(deviceId: String, appPath: Path) =
     xcrun("simctl", "install", deviceId, appPath.pathString)
@@ -64,12 +65,7 @@ suspend fun bootAndWaitSimulator(
     val command = if (headless) listOf("xcrun", "simctl", "boot", deviceId)
     else listOf("open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", deviceId)
 
-    BuildPrimitives.runProcessAndGetOutput(
-        workingDir = Path("."),
-        command = command,
-        logCall = true,
-        outputListener = LoggingProcessOutputListener(logger),
-    )
+    var bootLaunched = false
 
     // Wait for booting.
     for (i in 0..AWAIT_ATTEMPTS) {
@@ -77,8 +73,19 @@ suspend fun bootAndWaitSimulator(
             .firstOrNull()
             ?.apply { assert(deviceId == deviceId) }
             ?.status
-            ?: error("Launched device not available: $deviceId")
-        if (deviceStatus == "booted") break
+            ?: error("Device is not available: $deviceId")
+        if (deviceStatus == DEVICE_STATUS_BOOTED) break
+
+        if (!bootLaunched) {
+            BuildPrimitives.runProcessAndGetOutput(
+                workingDir = Path("."),
+                command = command,
+                logCall = true,
+                outputListener = LoggingProcessOutputListener(logger),
+            )
+            bootLaunched = true
+        }
+
         else if (i >= AWAIT_ATTEMPTS) error("Max boot await attempts exceeded for device: $deviceId")
         else delay(AWAIT_TIME)
     }
