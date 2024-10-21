@@ -160,10 +160,10 @@ class AmperBackend(val context: CliContext) {
 
     suspend fun test(
         includeModules: Set<String>? = null,
-        platforms: Set<Platform>? = null,
+        requestedPlatforms: Set<Platform>? = null,
         excludeModules: Set<String> = emptySet(),
     ) {
-        require(platforms == null || platforms.isNotEmpty())
+        require(requestedPlatforms == null || requestedPlatforms.isNotEmpty())
 
         val moduleNamesToCheck = (includeModules ?: emptySet()) + excludeModules
         for (moduleName in moduleNamesToCheck) {
@@ -173,17 +173,20 @@ class AmperBackend(val context: CliContext) {
             }
         }
 
-        if (platforms != null) {
-            for (platform in platforms) {
-                if (!PlatformUtil.platformsMayRunOnCurrentSystem.contains(platform)) {
-                    userReadableError(
-                        "Unable to run platform '$platform' on current system.\n\n" +
-                                "Available platforms on current system: " +
-                                PlatformUtil.platformsMayRunOnCurrentSystem.map { it.name }.sorted().joinToString(" ")
-                    )
-                }
+        requestedPlatforms
+            ?.filter { it !in PlatformUtil.platformsMayRunOnCurrentSystem }
+            ?.takeIf { it.isNotEmpty() }
+            ?.let { unsupportedPlatforms ->
+                fun format(platforms: Collection<Platform>) =
+                    platforms.map { it.pretty }.sorted().joinToString(" ")
+                val message = """
+                    Unable to run requested platform(s) on the current system.
+                    
+                    Requested unsupported platforms: ${format(unsupportedPlatforms)}
+                    Runnable platforms on the current system: ${format(PlatformUtil.platformsMayRunOnCurrentSystem)}
+                """.trimIndent()
+                userReadableError(message)
             }
-        }
 
         val allTestTasks = taskGraph.tasks.filterIsInstance<TestTask>()
         if (allTestTasks.isEmpty()) {
@@ -191,10 +194,12 @@ class AmperBackend(val context: CliContext) {
         }
 
         val platformTestTasks = allTestTasks
-            .filter { platforms == null || platforms.contains(it.platform) }
-        if (platforms != null && platformTestTasks.isEmpty()) {
+            .filter { it.platform in (requestedPlatforms ?: PlatformUtil.platformsMayRunOnCurrentSystem) }
+        requestedPlatforms?.filter { requestedPlatform ->
+            platformTestTasks.none { it.platform == requestedPlatform }
+        }?.takeIf { it.isNotEmpty() }?.let { platformsWithMissingTests ->
             userReadableError("No test tasks were found for platforms: " +
-                    platforms.map { it.name }.sorted().joinToString(" ")
+                    platformsWithMissingTests.map { it.name }.sorted().joinToString(" ")
             )
         }
 

@@ -144,6 +144,35 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    @MacOnly
+    fun `missing platform to test`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("jvm-kotlin-test-no-tests")
+        val exception = assertFailsWith<UserReadableError> {
+            AmperBackend(projectContext).test(
+                requestedPlatforms = setOf(Platform.IOS_SIMULATOR_ARM64),
+            )
+        }
+        assertEquals("No test tasks were found for platforms: IOS_SIMULATOR_ARM64", exception.message)
+    }
+
+    @Test
+    @MacOnly
+    fun `unsupported platform to test`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
+        val exception = assertFailsWith<UserReadableError> {
+            AmperBackend(projectContext).test(
+                requestedPlatforms = setOf(Platform.MINGW_X64),
+            )
+        }
+        assertEquals("""
+            Unable to run requested platform(s) on the current system.
+
+            Requested unsupported platforms: mingwX64
+            Runnable platforms on the current system: android iosSimulatorArm64 jvm macosArm64 tvosSimulatorArm64 watchosSimulatorArm64
+        """.trimIndent(), exception.message)
+    }
+
+    @Test
     @WindowsOnly
     @Ignore("AMPER-474")
     fun `native test no tests`() = runTestWithCollector {

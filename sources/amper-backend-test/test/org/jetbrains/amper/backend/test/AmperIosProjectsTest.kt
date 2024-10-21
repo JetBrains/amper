@@ -126,9 +126,8 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     @MacOnly
     fun `run kotlin tests in simulator`() = runTestWithCollector {
         val projectName = "simpleTests"
-        val task = "testIosSimulatorArm64"
         val projectContext = setupIosTestProject(projectName)
-        AmperBackend(projectContext).runTask(projectName, task)
+        AmperBackend(projectContext).test()
         val testsStdOut = iosKotlinTests.assertZeroExitCode().getAttribute(AttributeKey.stringKey("stdout"))
         assertTrue(testsStdOut.contains("##teamcity[testSuiteFinished name='SimpleTestsKt']"))
     }

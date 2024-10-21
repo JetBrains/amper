@@ -36,7 +36,7 @@ internal class TestCommand : AmperSubcommand(name = "test") {
             taskExecutionMode = TaskExecutor.Mode.GREEDY,
         ) { backend ->
             backend.test(
-                platforms = platform.ifEmpty { null }?.toSet(),
+                requestedPlatforms = platform.ifEmpty { null }?.toSet(),
                 includeModules = if (includeModules.isNotEmpty()) includeModules.toSet() else null,
                 excludeModules = excludeModules.toSet(),
             )

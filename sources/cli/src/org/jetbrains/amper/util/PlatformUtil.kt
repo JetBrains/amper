@@ -30,8 +30,19 @@ object PlatformUtil {
                     }
                 }
                 OsFamily.MacOs -> when (DefaultSystemInfo.detect().arch) {
-                    Arch.X64 -> add(Platform.MACOS_X64)
-                    Arch.Arm64 -> add(Platform.MACOS_ARM64)
+                    Arch.X64 -> {
+                        add(Platform.MACOS_X64)
+                        // Simulator targets:
+                        add(Platform.IOS_X64)
+                        add(Platform.TVOS_X64)
+                    }
+                    Arch.Arm64 -> {
+                        add(Platform.MACOS_ARM64)
+                        // Simulator targets:
+                        add(Platform.IOS_SIMULATOR_ARM64)
+                        add(Platform.TVOS_SIMULATOR_ARM64)
+                        add(Platform.WATCHOS_SIMULATOR_ARM64)
+                    }
                 }
             }
         }
