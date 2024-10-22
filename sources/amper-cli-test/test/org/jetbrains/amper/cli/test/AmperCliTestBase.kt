@@ -65,7 +65,7 @@ abstract class AmperCliTestBase {
         vararg args: String,
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
-        stdin: ProcessInput? = null,
+        stdin: ProcessInput = ProcessInput.Empty,
     ): ProcessResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
         check(projectRoot.isDirectory()) {
@@ -86,7 +86,7 @@ abstract class AmperCliTestBase {
         vararg args: String,
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
-        stdin: ProcessInput? = null,
+        stdin: ProcessInput = ProcessInput.Empty,
     ): ProcessResult {
         println("Running Amper CLI with '${args.toList()}' on $projectRoot")
 

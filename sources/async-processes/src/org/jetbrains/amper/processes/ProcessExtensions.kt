@@ -4,11 +4,7 @@
 
 package org.jetbrains.amper.processes
 
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
 import java.io.IOException
 import java.io.InputStream
@@ -21,23 +17,10 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * The result of a completed process.
- */
-class ProcessResult(
-    /** The exit code of the process. */
-    val exitCode: Int,
-    /** The whole standard output of the process, decoded as UTF-8 text. */
-    val stdout: String,
-    /** The whole standard error stream of the process, decoded as UTF-8 text. */
-    val stderr: String,
-)
-
-/**
  * Awaits the termination of this [Process] in a suspending and cancellable way.
  *
- * The standard IO streams of this process are entirely collected in memory and returned as part of the [ProcessResult].
- * [outputListener] can be used to handle lines of output on the fly while the process
- * is running (for instance to print them to the console).
+ * The given [outputListener] is used to handle lines of output from stdout/stderr while the process is running (for
+ * instance to print them to the console).
  *
  * **Important:** the stream collection is performed on the current coroutine context, the dispatcher of which must
  * provide **at least 2 threads** (to perform blocking reads of stdout and stderr in parallel). It is the responsibility
@@ -53,37 +36,32 @@ class ProcessResult(
  * readers are made partially cooperative by allowing cancellation between each line read, so they don't have to keep
  * reading the whole stream if the result is meant to be discarded anyway.
  */
-// TODO sometimes capturing the entire stdout/stderr in memory won't work, we most likely will need to provide overloads
-//  that don't collect the result but allow stream processing.
-suspend fun Process.awaitAndGetAllOutput(outputListener: ProcessOutputListener): ProcessResult = coroutineScope {
-    val deferredStdout = async {
-        inputStream.readAllAndDoOnEachLine {
+// NOT PUBLIC ON PURPOSE, please check the KDoc - the caller is responsible for too many things
+internal suspend fun Process.awaitListening(outputListener: ProcessOutputListener): Int = coroutineScope {
+    launch {
+        inputStream.consumeLinesCancellable {
             outputListener.onStdoutLine(it)
         }
     }
-
-    val deferredStderr = async {
-        errorStream.readAllAndDoOnEachLine {
+    launch {
+        errorStream.consumeLinesCancellable {
             outputListener.onStderrLine(it)
         }
     }
 
     // This is async: onExit() runs on the ForkJoinPool so it doesn't hold the current thread.
     // This is why we only really need 2 threads in the current dispatcher (to consume stdout and stderr).
-    val exitCode = onExit().await().exitValue()
-
-    val stdout = deferredStdout.await()
-    val stderr = deferredStderr.await()
-    ProcessResult(exitCode = exitCode, stdout = stdout, stderr = stderr)
+    onExit().await().exitValue()
 }
 
 // not using Dispatchers.IO on purpose here, the caller decides the thread pool
-private suspend inline fun InputStream.readAllAndDoOnEachLine(onEachLine: (String) -> Unit): String {
-    val sb = StringBuilder()
+private suspend inline fun InputStream.consumeLinesCancellable(onEachLine: (String) -> Unit) {
     bufferedReader().useLines { lines ->
         try {
+            // TODO should we actually yield here to avoid requiring 2 threads?
+            // TODO should we check for cancellation (or yield) after more lines (e.g. every 10-20)?
+            //   Note: that requires checking whether the absence of new output can just block the coroutine entirely.
             lines.forEach {
-                sb.appendLine(it)
                 onEachLine(it)
                 coroutineContext.ensureActive() // cooperates with cancellation between lines
             }
@@ -94,12 +72,11 @@ private suspend inline fun InputStream.readAllAndDoOnEachLine(onEachLine: (Strin
             // This check is brittle, but it's kind of the only way to account for this situation
             // by considering this exception as the end of the process output instead of crashing.
             if (e.message.equals("Stream closed", ignoreCase = true)) {
-                return sb.toString()
+                return
             }
             throw e
         }
     }
-    return sb.toString()
 }
 
 /**
@@ -124,17 +101,14 @@ private suspend inline fun InputStream.readAllAndDoOnEachLine(onEachLine: (Strin
  * function also hangs instead of returning and leaking this zombie process.
  */
 @OptIn(ExperimentalContracts::class)
-suspend inline fun <T> Process.withGuaranteedTermination(
+internal suspend inline fun <T> Process.withGuaranteedTermination(
     gracePeriod: Duration = 1.seconds,
     cancellableBlock: (Process) -> T,
 ): T {
     contract {
         callsInPlace(cancellableBlock, kind = InvocationKind.EXACTLY_ONCE)
     }
-    // If the JVM is shut down directly (e.g. via Ctrl+C) while the process is running, we don't want to leak it.
-    // That said, we only call destroyHierarchy(), which is asynchronous, because we can't afford to wait for the
-    // process to actually terminate when the JVM is shutting down (we need to promptly terminate Amper).
-    withShutdownHook(onJvmShudown = { destroyHierarchy() }) {
+    withDestructionHook {
         try {
             // jump straight to the catch block if the coroutine is already cancelled
             currentCoroutineContext().ensureActive()
@@ -151,6 +125,28 @@ suspend inline fun <T> Process.withGuaranteedTermination(
     }
 }
 
+/**
+ * Executes the given [block], but also ensures that the process is destroyed in case the JVM is killed (e.g. Ctrl+C)
+ * during the execution.
+ *
+ * A shutdown hook is registered before running [block], and unregistered when the given [block] completes (normally or
+ * exceptionally).
+ */
+@OptIn(ExperimentalContracts::class)
+@PublishedApi
+internal inline fun <T> Process.withDestructionHook(block: (Process) -> T): T {
+    contract {
+        callsInPlace(block, kind = InvocationKind.EXACTLY_ONCE)
+    }
+    // If the JVM is shut down (e.g. via Ctrl+C) while this child process is running, we don't want to leak the process.
+    // That said, we only call destroyHierarchy(), which is asynchronous, because we can't afford to wait for the
+    // process to actually terminate when the JVM is shutting down (we need to promptly terminate Amper).
+    return withShutdownHook(onJvmShudown = { destroyHierarchy() }) {
+        block(this)
+    }
+}
+
+@OptIn(ExperimentalContracts::class)
 @PublishedApi
 internal inline fun <T> withShutdownHook(crossinline onJvmShudown: () -> Unit, block: () -> T): T {
     contract {

@@ -12,12 +12,10 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.mordant.rendering.TextColors.green
-import com.intellij.util.io.awaitExit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
@@ -30,8 +28,8 @@ import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
-import org.jetbrains.amper.processes.awaitAndGetAllOutput
-import org.jetbrains.amper.processes.withGuaranteedTermination
+import org.jetbrains.amper.processes.runProcess
+import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import java.net.Socket
 import kotlin.io.path.name
 import kotlin.io.path.pathString
@@ -85,22 +83,17 @@ internal class JaegerToolCommand: AmperSubcommand(name = "jaeger") {
 
             DeadLockMonitor.disable()
 
-            val result = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(cmd))
-                .start()
-                .withGuaranteedTermination { process ->
-                    coroutineScope {
-                        val autoOpenJob = if (shouldAutoOpenBrowser) {
-                            launch { autoOpenBrowserWhenReady() }
-                        } else {
-                            null
-                        }
-                        process.awaitAndGetAllOutput(PrintToTerminalProcessOutputListener(terminal)).also {
-                            autoOpenJob?.cancel()
-                        }
-                    }
+            coroutineScope {
+                if (shouldAutoOpenBrowser) {
+                    launch { autoOpenBrowserWhenReady() }
                 }
-            if (result.exitCode != 0) {
-                userReadableError("${executable.name} exited with code ${result.exitCode}")
+                val exitCode = runProcess(
+                    command = CommandLineUtils.quoteCommandLineForCurrentPlatform(cmd),
+                    outputListener = PrintToTerminalProcessOutputListener(terminal),
+                )
+                if (exitCode != 0) {
+                    userReadableError("${executable.name} exited with code $exitCode")
+                }
             }
         }
     }
@@ -122,11 +115,7 @@ internal class JaegerToolCommand: AmperSubcommand(name = "jaeger") {
 
         terminal.println("Starting $cmd")
 
-        val process = runInterruptible {
-            ProcessBuilder(cmd).inheritIO().start()
-        }
-
-        val exitCode = process.awaitExit()
+        val exitCode = runProcessWithInheritedIO(command = cmd)
         if (exitCode != 0) {
             terminal.println("$cmd failed with exit code $exitCode")
         }

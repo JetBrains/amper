@@ -19,6 +19,7 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
@@ -219,15 +220,9 @@ object TestUtil {
         )
         println("  running ${cmd.joinToString("|")}")
 
-        runInterruptible {
-            val pb = ProcessBuilder()
-                .command(*cmd.toTypedArray())
-                .inheritIO()
-                .start()
-            val rc = pb.waitFor()
-            if (rc != 0) {
-                error("Android SdkManager failed with exit code $rc while executing: ${cmd.joinToString("|")}")
-            }
+        val rc = runProcessWithInheritedIO(command = cmd)
+        if (rc != 0) {
+            error("Android SdkManager failed with exit code $rc while executing: ${cmd.joinToString("|")}")
         }
     }
 

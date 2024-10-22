@@ -9,8 +9,7 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
-import org.jetbrains.amper.processes.awaitAndGetAllOutput
-import org.jetbrains.amper.processes.withGuaranteedTermination
+import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -65,27 +64,23 @@ abstract class AmperCliWithWrapperTestBase {
         check(amperScript.isExecutable()) { "Cannot run Amper script because it is not executable: $amperScript" }
         check(amperScript.isRegularFile()) { "Cannot run Amper script because it is not a file: $amperScript" }
 
-        val result = ProcessBuilder()
-            .directory(workingDir.toFile())
-            .command(amperScript.absolutePathString(), *args.toTypedArray())
-            .redirectErrorStream(redirectErrorStream)
-            .also {
-                val env = it.environment()
+        val result = runProcessAndCaptureOutput(
+            workingDir = workingDir,
+            command = listOf(amperScript.absolutePathString()) + args,
+            redirectErrorStream = redirectErrorStream,
+            environment = buildMap {
                 // tells the wrapper to download the distribution and JRE through our local HTTP server
-                env["AMPER_DOWNLOAD_ROOT"] = httpServer.wwwRootUrl
-                env["AMPER_JRE_DOWNLOAD_ROOT"] = httpServer.cacheRootUrl
+                this["AMPER_DOWNLOAD_ROOT"] = httpServer.wwwRootUrl
+                this["AMPER_JRE_DOWNLOAD_ROOT"] = httpServer.cacheRootUrl
 
-                env["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
+                this["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
 
                 if (customJavaHome != null) {
-                    env["AMPER_JAVA_HOME"] = customJavaHome.pathString
+                    this["AMPER_JAVA_HOME"] = customJavaHome.pathString
                 }
-            }
-            .start()
-            .withGuaranteedTermination { process ->
-                process.outputStream.close()
-                process.awaitAndGetAllOutput(SimplePrintOutputListener)
-            }
+            },
+            outputListener = SimplePrintOutputListener,
+        )
 
         assertEquals(
             expected = expectedExitCode,

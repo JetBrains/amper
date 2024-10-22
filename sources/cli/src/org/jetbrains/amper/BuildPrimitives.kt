@@ -15,12 +15,10 @@ import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
-import org.jetbrains.amper.processes.awaitAndGetAllOutput
-import org.jetbrains.amper.processes.withGuaranteedTermination
+import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.pathString
@@ -57,10 +55,8 @@ object BuildPrimitives {
         logCall: Boolean = false,
         environment: Map<String, String> = emptyMap(),
         outputListener: ProcessOutputListener,
-        input: ProcessInput? = null,
+        input: ProcessInput = ProcessInput.Empty,
     ): ProcessResult {
-        require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
-
         if (logCall) logger.logProcessCall(command.toList())
 
         val result = withContext(Dispatchers.IO) {
@@ -69,22 +65,13 @@ object BuildPrimitives {
             // generally, JDK developers do not think that executed command should receive the same arguments as passed to ProcessBuilder
             // see, e.g., https://bugs.openjdk.org/browse/JDK-8131908
             // this code is mostly tested by AmperBackendTest.simple multiplatform cli on jvm
-            ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(command))
-                .directory(workingDir.toFile())
-                .also { it.environment().putAll(environment) }
-                .configureInput(input)
-                .start()
-                .withGuaranteedTermination { process ->
-                    process.provideInputIfNecessary(input)
-
-                    try {
-                        process.outputStream.close()
-                    } catch (t: IOException) {
-                        // we are not interested whether this operation fails
-                        logger.warn("Unable to close process stdin: ${t.message}", t)
-                    }
-                    process.awaitAndGetAllOutput(outputListener)
-                }
+            runProcessAndCaptureOutput(
+                workingDir = workingDir,
+                command = CommandLineUtils.quoteCommandLineForCurrentPlatform(command),
+                environment = environment,
+                input = input,
+                outputListener = outputListener,
+            )
         }
         span?.setProcessResultAttributes(result)
         return result
@@ -106,19 +93,6 @@ object BuildPrimitives {
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private fun ProcessBuilder.configureInput(input: ProcessInput?): ProcessBuilder = when(input) {
-        null -> this
-        ProcessInput.Inherit -> redirectInput(ProcessBuilder.Redirect.INHERIT)
-        is ProcessInput.SimpleInput -> redirectInput(ProcessBuilder.Redirect.PIPE)
-    }
-
-    private fun Process.provideInputIfNecessary(input: ProcessInput?) = when(input) {
-        is ProcessInput.SimpleInput -> {
-            outputStream.write(input.input.toByteArray())
-        }
-        ProcessInput.Inherit, null -> Unit
-    }
 
     private fun Logger.logProcessCall(command: List<String>) =
         this.info("Calling: ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")

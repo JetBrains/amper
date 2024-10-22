@@ -346,7 +346,7 @@ class AmperCliTest: AmperCliTestBase() {
         val r = runCli(
             backendTestProjectName = "multiplatform-input",
             "run", "--module", "jvm-app",
-            stdin = ProcessInput.SimpleInput("Hello World!\nBye World."),
+            stdin = ProcessInput.Text("Hello World!\nBye World."),
         )
 
         assertContains(r.stdout, "Input: 'Hello World!'")
@@ -358,7 +358,7 @@ class AmperCliTest: AmperCliTestBase() {
         val r = runCli(
             backendTestProjectName = "multiplatform-input",
             "run", "--module", "macos-app",
-            stdin = ProcessInput.SimpleInput("Hello World!\nBye World."),
+            stdin = ProcessInput.Text("Hello World!\nBye World."),
         )
 
         assertContains(r.stdout, "Input: 'Hello World!'")

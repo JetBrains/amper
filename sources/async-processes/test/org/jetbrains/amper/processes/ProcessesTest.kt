@@ -29,28 +29,26 @@ class ProcessesTest {
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nibh odio, auctor non tincidunt eu, posuere vitae nisl. Sed lobortis gravida sapien, eget feugiat purus feugiat et. Fusce ullamcorper risus ac diam varius, ullamcorper molestie est aliquam. Ut dictum, tellus sit amet efficitur hendrerit, est dolor bibendum nunc, et lacinia sem erat nec lectus. Donec orci elit, feugiat in arcu vel, dictum ultricies diam. Nullam ut ultricies tortor. Sed a finibus tortor. Vestibulum et diam vitae orci hendrerit faucibus ac posuere leo. Nunc laoreet interdum euismod. Pellentesque ac porttitor enim. In malesuada pharetra orci in euismod. Quisque sit amet rutrum enim. Morbi ultrices blandit augue, non tincidunt sapien sagittis sit amet. Mauris id tempus tortor, vitae ullamcorper orci. Phasellus efficitur dolor mollis, mattis lacus quis, convallis elit. Phasellus dignissim, nibh a aliquam commodo, ipsum risus suscipit massa, et porta lacus eros nec felis. Nulla ante augue, elementum cras amet."
 
     @Test
-    fun `awaitAndGetAllOutput should capture stdout and stderr`() = runBlocking(Dispatchers.IO) {
+    fun `runProcessAndCaptureOutput should capture stdout and stderr`() = runBlocking(Dispatchers.IO) {
         val command = when (OsFamily.current) {
             // there doesn't seem to be a way to have a line break in the middle of a single echo in Windows batch,
             // so we don't really test it here (https://stackoverflow.com/questions/132799)
             OsFamily.Windows -> cmd("@echo line1&& @echo line2&& @echo break&& @echo hello stderr 1>&2")
             else -> binSh("printf 'line1\n'; printf 'line2\nbreak'; printf 'hello stderr' 1>&2")
         }
-        val process = ProcessBuilder(command).start()
-        val result = process.awaitAndGetAllOutput(ProcessOutputListener.NOOP)
+        val result = runProcessAndCaptureOutput(command = command)
         assertZeroExitCode(result)
         assertEquals(listOf("line1", "line2", "break"), result.stdout.trim().lines())
         assertEquals("hello stderr", result.stderr.trim())
     }
 
     @Test
-    fun `awaitAndGetAllOutput should capture stderr in case of wrong nested command`() = runBlocking(Dispatchers.IO) {
+    fun `runProcessAndCaptureOutput should capture stderr in case of wrong nested command`() = runBlocking(Dispatchers.IO) {
         val command = when (OsFamily.current) {
             OsFamily.Windows -> cmd("@echo line1 && not-a-command")
             else -> binSh("echo line1; not-a-command")
         }
-        val process = ProcessBuilder(command).start()
-        val result = process.awaitAndGetAllOutput(ProcessOutputListener.NOOP)
+        val result = runProcessAndCaptureOutput(command = command)
         assertEquals(unknownCommandExitCode, result.exitCode)
         assertEquals("line1", result.stdout.trim())
         assertContains(result.stderr, "not-a-command")
@@ -65,13 +63,15 @@ class ProcessesTest {
     // We don't want to crash if the process is killed externally, we want to read its exit code and stdout/stderr,
     // and possibly report errors as we want.
     @Test
-    fun `awaitAndGetAllOutput should terminate normally if the process is killed externally`() = runBlocking(Dispatchers.IO) {
+    fun `awaitListening should terminate normally if the process is killed externally`() = runBlocking(Dispatchers.IO) {
         val process = ProcessBuilder(echoLoop(n = 100000, message = loremIpsum1000)).start()
 
         val firstOutputEvent = CompletableDeferred<Unit>()
-        val deferredResult = async {
-            process.awaitAndGetAllOutput(
-                object : ProcessOutputListener {
+        val capture = ProcessOutputListener.InMemoryCapture()
+
+        val deferredExitCode = async {
+            process.awaitListening(
+                outputListener = capture + object : ProcessOutputListener {
                     override fun onStdoutLine(line: String) {
                         firstOutputEvent.complete(Unit)
                     }
@@ -91,22 +91,22 @@ class ProcessesTest {
         process.waitFor(1, TimeUnit.SECONDS)
         assertTerminated(process, "The process should have terminated by now, because it was explicitly killed")
 
-        val result = withTimeoutOrNull(200.milliseconds) { deferredResult.await() }
-        assertNotNull(result, "The result should be returned quickly after the destruction of the process")
+        val exitCode = withTimeoutOrNull(200.milliseconds) { deferredExitCode.await() }
+        assertNotNull(exitCode, "The result should be returned quickly after the destruction of the process")
 
         // We don't assert anything on stderr, because the way the process is killed may lead to unpredictable stderr.
         // For example, on Windows, there seems to be races between the cleanup of the standard streams pipes and the
         // death of the process, leading to errors like: "The process tried to write to a nonexistent pipe".
-        assertTrue(result.stdout.startsWith(loremIpsum1000), "At least the first line of output should have been captured, but got: ${result.stdout}")
-        assertEquals(cancelledExitCode, result.exitCode, "The exit code should be the cancellation exit code $cancelledExitCode")
+        assertTrue(capture.stdout.startsWith(loremIpsum1000), "At least the first line of output should have been captured, but got: ${capture.stdout}")
+        assertEquals(cancelledExitCode, exitCode, "The exit code should be the cancellation exit code $cancelledExitCode")
     }
 
     @Test
     fun `should transfer custom env`() = runBlocking(Dispatchers.IO) {
-        val process = ProcessBuilder(echoEnv("MY_ENV"))
-            .apply { environment().putAll(from = mapOf("MY_ENV" to "env_value")) }
-            .start()
-        val result = process.awaitAndGetAllOutput(ProcessOutputListener.NOOP)
+        val result = runProcessAndCaptureOutput(
+            command = echoEnv("MY_ENV"),
+            environment = mapOf("MY_ENV" to "env_value"),
+        )
         assertZeroExitCode(result)
         assertEquals("env_value", result.stdout.trim())
         assertEquals("", result.stderr)
@@ -178,6 +178,9 @@ private fun echoLoop(n: Int, message: String) = when (OsFamily.current) {
 private fun cmd(command: String) = listOf("cmd", "/c", command)
 
 private fun assertZeroExitCode(result: ProcessResult) {
-    assertEquals(0, result.exitCode, "Process terminated with non-zero exit code ${result.exitCode}, " +
-            "\n stdOut = ${result.stdout}")
+    assertEquals(0, result.exitCode,
+        "Process terminated with non-zero exit code ${result.exitCode}. Output:\n" +
+                "${result.stdout.prependIndent("stdout>")}\n" +
+                "${result.stderr.prependIndent("stderr>")}\n"
+    )
 }

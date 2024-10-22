@@ -8,12 +8,12 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
-import com.intellij.util.io.awaitExit
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 
@@ -47,10 +47,7 @@ private class JdkToolSubcommand(private val name: String) : AmperSubcommand(name
         }
 
         val cmd = listOf(toolPath.pathString) + toolArguments
-        val exitCode = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(cmd))
-            .inheritIO()
-            .start()
-            .awaitExit()
+        val exitCode = runProcessWithInheritedIO(command = CommandLineUtils.quoteCommandLineForCurrentPlatform(cmd))
         if (exitCode != 0) {
             userReadableError("$name exited with exit code $exitCode")
         }
