@@ -305,6 +305,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     taskName = testTaskName,
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
+                    platform = Platform.ANDROID,
                 ),
                 listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true, buildType),

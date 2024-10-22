@@ -42,11 +42,16 @@ class JvmTestTask(
     private val terminal: Terminal,
     override val module: PotatoModule,
     override val taskName: TaskName,
+    override val platform: Platform = Platform.JVM,
 ): TestTask {
 
-    private val logger = LoggerFactory.getLogger(javaClass)
+    init {
+        require(platform == Platform.JVM || platform == Platform.ANDROID) {
+            "Illegal platform for JvmTestTask: $platform"
+        }
+    }
 
-    override val platform: Platform = Platform.JVM
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun run(dependenciesResult: List<TaskResult>): Result {
         // https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.1/junit-platform-console-standalone-1.10.1.jar

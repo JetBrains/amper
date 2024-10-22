@@ -25,8 +25,7 @@ class AmperExamples1Test: AmperCliTestBase() {
         // that are treated like errors.
         runCli(projectName, "build", assertEmptyStdErr = false)
         // Apple tests cannot run on all machines, so we don't run them in this test
-        // TODO: Add "-p", "android" when android tests are supported.
-        runCli(projectName, "test", "-p", "jvm")
+        runCli(projectName, "test", "-p", "jvm", "-p", "android")
     }
 
     @Test
