@@ -1,7 +1,8 @@
 import java.io.ByteArrayOutputStream
+import org.jetbrains.amper.processes.ProcessLeak
+import org.jetbrains.amper.processes.startLongLivedProcess
 import java.io.File
 import java.nio.file.Path
-import kotlin.concurrent.thread
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
@@ -274,6 +275,7 @@ open class AndroidBaseTest : TestBase() {
                     possiblePaths.joinToString("\n"))
     }
 
+    @OptIn(ProcessLeak::class) // TODO can we somehow shutdown the emulator after all tests?
     private fun startEmulator() {
         val emulatorPath = getEmulatorPath()
         val availableAvds = getAvailableAvds()
@@ -285,16 +287,7 @@ open class AndroidBaseTest : TestBase() {
         val avdName = availableAvds[0]
         println("Run emulator $avdName...")
 
-        val processBuilder = ProcessBuilder(emulatorPath, "-avd", avdName)
-        processBuilder.redirectErrorStream(true)
-        val process = processBuilder.start()
-
-        // we need to consume the output of the process otherwise it may be stuck on full buffer
-        thread(isDaemon = true) {
-            process.inputStream.bufferedReader(Charsets.UTF_8).useLines { sequence ->
-                sequence.forEach {}
-            }
-        }
+        startLongLivedProcess(command = listOf(emulatorPath, "-avd", avdName))
 
         var isBootComplete = false
         while (!isBootComplete) {
