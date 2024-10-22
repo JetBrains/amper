@@ -60,12 +60,28 @@ suspend fun queryDevices(
 
 suspend fun bootAndWaitSimulator(
     deviceId: String,
-    headless: Boolean = true,
+    forceShowWindow: Boolean = false,
 ) {
-    val command = if (headless) listOf("xcrun", "simctl", "boot", deviceId)
-    else listOf("open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", deviceId)
+    var bootCommandIssued = false
+    suspend fun ensureBootCommandIssued() {
+        if (bootCommandIssued) return
+        BuildPrimitives.runProcessAndGetOutput(
+            workingDir = Path("."),
+            command = if (forceShowWindow)
+                listOf("open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", deviceId)
+            else
+                listOf("xcrun", "simctl", "boot", deviceId),
+            logCall = true,
+            outputListener = LoggingProcessOutputListener(logger),
+        )
+        bootCommandIssued = true
+    }
 
-    var bootLaunched = false
+    if (forceShowWindow) {
+        // The `open` command works without any errors/warnings regardless of the simulator boot status.
+        // It boots the simulator on demand and brings its window forward.
+        ensureBootCommandIssued()
+    }
 
     // Wait for booting.
     for (i in 0..AWAIT_ATTEMPTS) {
@@ -76,17 +92,9 @@ suspend fun bootAndWaitSimulator(
             ?: error("Device is not available: $deviceId")
         if (deviceStatus == DEVICE_STATUS_BOOTED) break
 
-        if (!bootLaunched) {
-            BuildPrimitives.runProcessAndGetOutput(
-                workingDir = Path("."),
-                command = command,
-                logCall = true,
-                outputListener = LoggingProcessOutputListener(logger),
-            )
-            bootLaunched = true
-        }
+        ensureBootCommandIssued()
 
-        else if (i >= AWAIT_ATTEMPTS) error("Max boot await attempts exceeded for device: $deviceId")
+        if (i >= AWAIT_ATTEMPTS) error("Max boot await attempts exceeded for device: $deviceId")
         else delay(AWAIT_TIME)
     }
 }

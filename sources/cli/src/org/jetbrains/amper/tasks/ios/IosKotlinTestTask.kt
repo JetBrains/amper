@@ -8,14 +8,16 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.concurrency.StripedMutex
+import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
+import org.jetbrains.amper.diagnostics.setProcessResultAttributes
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
-import org.jetbrains.amper.diagnostics.setProcessResultAttributes
 import org.jetbrains.amper.tasks.BaseTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
@@ -36,35 +38,45 @@ class IosKotlinTestTask(
         val executable = compileTaskResult.linkedBinary
         val chosenDevice = queryDevices().firstOrNull() ?: error("No available device")
 
-        return spanBuilder("ios-kotlin-test")
-            .setAttribute("executable", executable.pathString)
-            .use { span ->
-                bootAndWaitSimulator(chosenDevice.deviceId)
+        DeviceLock.withLock(hash = chosenDevice.deviceId.hashCode()) {
+            return spanBuilder("ios-kotlin-test")
+                .setAttribute("executable", executable.pathString)
+                .use { span ->
+                    bootAndWaitSimulator(chosenDevice.deviceId)
 
-                val spawnTestsCommand = listOf(
-                    XCRUN_EXECUTABLE,
-                    "simctl",
-                    "spawn",
-                    chosenDevice.deviceId,
-                    executable.absolutePathString(),
-                    "--",
-                    "--ktest_logger=TEAMCITY",
-                )
+                    val spawnTestsCommand = listOf(
+                        XCRUN_EXECUTABLE,
+                        "simctl",
+                        "spawn",
+                        chosenDevice.deviceId,
+                        executable.absolutePathString(),
+                        "--",
+                        "--ktest_logger=TEAMCITY",
+                    )
 
-                val result = BuildPrimitives.runProcessAndGetOutput(
-                    workingDir = workingDir,
-                    command = spawnTestsCommand,
-                    logCall = true,
-                    span = span,
-                    outputListener = PrintToTerminalProcessOutputListener(terminal),
-                )
-                span.setProcessResultAttributes(result)
-                if (result.exitCode != 0) {
-                    userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' with exit code ${result.exitCode} (see errors above)")
+                    val result = BuildPrimitives.runProcessAndGetOutput(
+                        workingDir = workingDir,
+                        command = spawnTestsCommand,
+                        logCall = true,
+                        span = span,
+                        outputListener = PrintToTerminalProcessOutputListener(terminal),
+                    )
+                    span.setProcessResultAttributes(result)
+                    if (result.exitCode != 0) {
+                        userReadableError(
+                            "Kotlin/Native $platform tests failed for module " +
+                                    "'${module.userReadableName}' with exit code ${result.exitCode} (see errors above)"
+                        )
+                    }
+                    shutdownDevice(chosenDevice.deviceId)
+                    BaseTaskResult()
                 }
+        }
+    }
 
-                shutdownDevice(chosenDevice.deviceId)
-                BaseTaskResult()
-            }
+    private companion object {
+        // Need to lock the device to avoid racy situations
+        // when a parallel task shuts the simulator down while we still use it.
+        val DeviceLock = StripedMutex()
     }
 }

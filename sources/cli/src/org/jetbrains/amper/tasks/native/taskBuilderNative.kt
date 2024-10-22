@@ -98,39 +98,35 @@ fun ProjectTasksBuilder.setupNativeTasks() {
 
     allModules()
         .alsoPlatforms(Platform.NATIVE)
-        .withEach {
+        .filter {
             // Skip running of ios/app modules, since it is handled in taskBuilderIos.kt
-            if (isIosApp(platform, module)) return@withEach
-
-            if (module.type.isApplication()) {
-                val runTaskName = CommonTaskType.Run.getTaskName(module, platform)
-                tasks.registerTask(
-                    NativeRunTask(
-                        module = module,
-                        projectRoot = context.projectRoot,
-                        taskName = runTaskName,
-                        platform = platform,
-                        commonRunSettings = context.commonRunSettings,
-                        terminal = context.terminal,
-                    ),
-                    NativeTaskType.Link.getTaskName(module, platform, isTest = false)
-                )
-            }
+            it.module.type.isApplication() && !it.platform.isDescendantOf(Platform.IOS)
+        }.withEach {
+            val runTaskName = CommonTaskType.Run.getTaskName(module, platform)
+            tasks.registerTask(
+                NativeRunTask(
+                    module = module,
+                    projectRoot = context.projectRoot,
+                    taskName = runTaskName,
+                    platform = platform,
+                    commonRunSettings = context.commonRunSettings,
+                    terminal = context.terminal,
+                ),
+                NativeTaskType.Link.getTaskName(module, platform, isTest = false)
+            )
         }
 
     allModules()
         .alsoPlatforms(Platform.NATIVE)
-        .withEach {
-            // Skip testing of ios/app modules, since it is handled in taskBuilderIos.kt
-            if (isIosApp(platform, module)) return@withEach
-
-            val testTaskName = CommonTaskType.Test.getTaskName(module, platform)
-
+        .filterNot {
+            // Skip testing of ios modules, since it is handled in taskBuilderIos.kt
+            it.platform.isDescendantOf(Platform.IOS)
+        }.withEach {
             tasks.registerTask(
                 NativeTestTask(
                     module = module,
                     projectRoot = context.projectRoot,
-                    taskName = testTaskName,
+                    taskName = CommonTaskType.Test.getTaskName(module, platform),
                     platform = platform,
                     terminal = context.terminal,
                 ),

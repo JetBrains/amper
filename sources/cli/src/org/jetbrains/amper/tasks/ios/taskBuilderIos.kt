@@ -25,68 +25,62 @@ import org.jetbrains.amper.util.BuildType
 fun ProjectTasksBuilder.setupIosTasks() {
     allModules()
         .alsoPlatforms(Platform.IOS)
-        .alsoTests()
+        .withEach {
+            // TODO: compose resources for iOS tests?
+            tasks.registerTask(
+                task = IosKotlinTestTask(
+                    taskName = CommonTaskType.Test.getTaskName(module, platform),
+                    module = module,
+                    projectRoot = context.projectRoot,
+                    terminal = context.terminal,
+                    platform = platform,
+                ),
+                dependsOn = NativeTaskType.Link.getTaskName(module, platform, isTest = true)
+            )
+        }
+
+    allModules()
+        .alsoPlatforms(Platform.IOS)
         .filterModuleType { it == ProductType.IOS_APP }
         .withEach {
-            val ctx = this@setupIosTasks.context
+            val composeResourcesTaskName = IosTaskType.PrepareComposeResources.getTaskName(module, platform)
+                    .takeIf { isComposeEnabledFor(module) }
+                    ?.also { taskName ->
+                        tasks.registerTask(
+                            task = IosComposeResourcesTask(
+                                taskName = taskName,
+                                leafFragment = module.leafFragments.single {
+                                    it.platform == platform && !it.isTest
+                                },
+                                buildOutputRoot = context.buildOutputRoot,
+                                executeOnChangedInputs = executeOnChangedInputs,
+                            ),
+                        )
+                    }
 
-            fun configureTestTasks() {
-                // TODO: compose resources for iOS tests?
-                tasks.registerTask(
-                    task = IosKotlinTestTask(
-                        taskName = CommonTaskType.Test.getTaskName(module, platform),
-                        module = module,
-                        projectRoot = ctx.projectRoot,
-                        terminal = ctx.terminal,
-                        platform = platform,
-                    ),
-                    dependsOn = NativeTaskType.Link.getTaskName(module, platform, isTest = true)
+            val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)
+            tasks.registerTask(
+                task = BuildAppleTask(
+                    platform = platform,
+                    module = module,
+                    buildType = BuildType.Debug,
+                    executeOnChangedInputs = executeOnChangedInputs,
+                    buildOutputRoot = context.buildOutputRoot,
+                    taskOutputPath = context.getTaskOutputPath(buildTaskName),
+                    taskName = buildTaskName,
+                    isTest = false,
+                ),
+                dependsOn = listOfNotNull(
+                    IosTaskType.Framework.getTaskName(module, platform, false, BuildType.Debug),
+                    composeResourcesTaskName,
                 )
-            }
+            )
 
-            fun configureMainTasks() {
-                val composeResourcesTaskName = IosTaskType.PrepareComposeResources.getTaskName(module, platform)
-                        .takeIf { isComposeEnabledFor(module) }
-                        ?.also { taskName ->
-                            tasks.registerTask(
-                                task = IosComposeResourcesTask(
-                                    taskName = taskName,
-                                    leafFragment = module.leafFragments.single {
-                                        it.platform == platform && !it.isTest
-                                    },
-                                    buildOutputRoot = ctx.buildOutputRoot,
-                                    executeOnChangedInputs = executeOnChangedInputs,
-                                ),
-                            )
-                        }
-
-                val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)
-                tasks.registerTask(
-                    task = BuildAppleTask(
-                        platform = platform,
-                        module = module,
-                        buildType = BuildType.Debug,
-                        executeOnChangedInputs = executeOnChangedInputs,
-                        buildOutputRoot = ctx.buildOutputRoot,
-                        taskOutputPath = ctx.getTaskOutputPath(buildTaskName),
-                        taskName = buildTaskName,
-                        isTest = false,
-                    ),
-                    dependsOn = listOfNotNull(
-                        IosTaskType.Framework.getTaskName(module, platform, false, BuildType.Debug),
-                        composeResourcesTaskName,
-                    )
-                )
-
-                val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
-                tasks.registerTask(
-                    task = RunAppleTask(runTaskName, ctx.getTaskOutputPath(runTaskName)),
-                    dependsOn = listOf(buildTaskName)
-                )
-            }
-
-            if (isTest) configureTestTasks()
-            else configureMainTasks()
+            val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
+            tasks.registerTask(
+                task = RunAppleTask(runTaskName, context.getTaskOutputPath(runTaskName)),
+                dependsOn = listOf(buildTaskName)
+            )
         }
 
     allModules()

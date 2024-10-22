@@ -31,8 +31,7 @@ class AmperExamples1Test: AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-multiplatform_apple-tests`() = runTestInfinitely {
-        // TODO run ios simulator tests.
-        // runCli(projectName, "test")
+         runCli(projectName, "test", "-p", "iosSimulatorArm64")
     }
 
     @Test
