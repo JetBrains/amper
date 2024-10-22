@@ -284,48 +284,56 @@ open class iOSBaseTest(): TestBase() {
     private fun updateAppTargetPure(xcodeprojPath: File, newDeploymentTarget: String, newBundleIdentifier: String) {
         // Read the content of the file
         val content = xcodeprojPath.readText()
-        println("Processing file: " + xcodeprojPath)
+        println("Processing file: ${xcodeprojPath.name}")
 
-        // Regular expression to find the application target blocks
-        val appTargetRegex = Regex("(INFOPLIST_FILE = \"Info-iosSimulatorArm64\\.plist\";[\\s\\S]*?SDKROOT = iphoneos;)")
+        // Regular expression to find the build settings blocks
+        val buildSettingsRegex = Regex("buildSettings = \\{[\\s\\S]*?\\};")
 
         // Find all matches instead of just the first
-        val matches = appTargetRegex.findAll(content).toList()
+        val matches = buildSettingsRegex.findAll(content).toList()
+
+        // Logging the number of matches found
+        println("Found ${matches.size} build settings block(s).")
 
         if (matches.isNotEmpty()) {
             var updatedContent = content
 
             // Process each match
-            for (matchResult in matches) {
-                val appTargetSection = matchResult.value
+            for ((index, matchResult) in matches.withIndex()) {
+                val buildSettingsSection = matchResult.value
+                println("Processing build settings block $index:\n$buildSettingsSection")
 
                 // Define the regular expressions to check for existing properties
                 val deploymentTargetRegex = Regex("IPHONEOS_DEPLOYMENT_TARGET = \\d+\\.\\d+;")
                 val bundleIdentifierRegex = Regex("PRODUCT_BUNDLE_IDENTIFIER = \".*?\";")
 
                 // Modify or add the deployment target
-                var updatedAppTarget = if (deploymentTargetRegex.containsMatchIn(appTargetSection)) {
-                    appTargetSection.replace(deploymentTargetRegex, "IPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;")
+                var updatedBuildSettings = if (deploymentTargetRegex.containsMatchIn(buildSettingsSection)) {
+                    println("IPHONEOS_DEPLOYMENT_TARGET found, updating value.")
+                    buildSettingsSection.replace(deploymentTargetRegex, "IPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;")
                 } else {
-                    appTargetSection.replaceFirst("SDKROOT = iphoneos;", "SDKROOT = iphoneos;\n\t\t\tIPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;")
+                    println("IPHONEOS_DEPLOYMENT_TARGET not found, adding it.")
+                    buildSettingsSection.replaceFirst("SDKROOT = iphonesimulator;", "SDKROOT = iphonesimulator;\n\t\t\tIPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;")
                 }
 
                 // Modify or add the bundle identifier
-                updatedAppTarget = if (bundleIdentifierRegex.containsMatchIn(appTargetSection)) {
-                    updatedAppTarget.replace(bundleIdentifierRegex, "PRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";")
+                updatedBuildSettings = if (bundleIdentifierRegex.containsMatchIn(buildSettingsSection)) {
+                    println("PRODUCT_BUNDLE_IDENTIFIER found, updating value.")
+                    updatedBuildSettings.replace(bundleIdentifierRegex, "PRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";")
                 } else {
-                    updatedAppTarget + "\n\t\tPRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
+                    println("PRODUCT_BUNDLE_IDENTIFIER not found, adding it.")
+                    updatedBuildSettings + "\n\t\tPRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
                 }
 
-                // Replace the old app target section with the updated one in the file's content
-                updatedContent = updatedContent.replace(appTargetSection, updatedAppTarget)
+                // Replace the old build settings section with the updated one in the file's content
+                updatedContent = updatedContent.replace(buildSettingsSection, updatedBuildSettings)
             }
 
             // Write the updated content back to the file
             xcodeprojPath.writeText(updatedContent)
-            println("Updated app target with new deployment target and bundle identifier for all configurations.")
+            println("Updated build settings with new deployment target and bundle identifier for all configurations.")
         } else {
-            println("App target sections not found.")
+            println("No build settings sections found.")
         }
     }
 
