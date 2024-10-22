@@ -33,6 +33,7 @@ import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KType
@@ -60,6 +61,41 @@ internal fun PsiElement.readValueTable(): ValueTable {
             super.visitScalar(node)
         }
 
+        override fun visitAssignmentToVariable(reference: Reference) {
+            if (position == Pointer.from("product")) {
+                for (productType in ProductType.values) {
+                    val value = productType.value
+                    if (value.endsWith("/app")) {
+                        addAppShortcut(reference, value.replace("/app", "App"), value)
+                    }
+                }
+            }
+            super.visitAssignmentToVariable(reference)
+        }
+
+        private fun addAppShortcut(reference: Reference, name: String, text: String) {
+            if (reference.referenceName == name) {
+                addNode(Scalar(reference.sourceElement, text), Pointer.from("product", "type"))
+            }
+        }
+
+        override fun visitConstructorRef(node: Reference) {
+            // this mush be changed when we fully implement Amper lang
+            if (position == Pointer.from("product")) {
+                if (node.referenceName == "lib") {
+                    addNode(Scalar(node.sourceElement), Pointer.from("product", "type"))
+                } else if (node.referenceName.endsWith("App")) {
+                    for (productType in ProductType.values) {
+                        val value = productType.value
+                        if (value.endsWith("/app")) {
+                            addAppShortcut(node, value.replace("/app", "App"), value)
+                        }
+                    }
+                }
+            }
+            super.visitConstructorRef(node)
+        }
+
         override fun visitMappingEntry(node: MappingEntry) {
             addNode(node)
             super.visitMappingEntry(node)
@@ -72,8 +108,8 @@ internal fun PsiElement.readValueTable(): ValueTable {
             super.visitSequenceItem(item, index)
         }
 
-        private fun addNode(node: AmperElementWrapper) {
-            table[KeyWithContext(position, context)] = node
+        private fun addNode(node: AmperElementWrapper, customPosition: Pointer? = null) {
+            table[KeyWithContext(customPosition ?: position, context)] = node
         }
     }.visitElement(this)
     return table

@@ -7,6 +7,17 @@ package org.jetbrains.amper.frontend.schemaConverter.psi
 class Pointer(val segmentName: String? = null,
               var prev: Pointer? = null,
               var next: Pointer? = null) {
+
+    companion object {
+        fun from(vararg parts: String): Pointer {
+            var pointer = Pointer()
+            for (part in parts) {
+                pointer += part
+            }
+            return pointer
+        }
+    }
+
     private val firstSegment get() = run {
         var p: Pointer = this
         while (p.prev != null) p = p.prev!!

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
+import com.intellij.amper.lang.AmperConstructorReference
 import com.intellij.amper.lang.AmperContextBlock
 import com.intellij.amper.lang.AmperContextualElement
 import com.intellij.amper.lang.AmperContextualStatement
@@ -12,11 +13,13 @@ import com.intellij.amper.lang.AmperLanguage
 import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperProperty
+import com.intellij.amper.lang.AmperReferenceExpression
 import com.intellij.amper.lang.impl.propertyList
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.parentsOfType
 import com.intellij.util.containers.Stack
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.yaml.psi.YAMLKeyValue
@@ -94,6 +97,20 @@ open class AmperPsiAdapterVisitor {
                     Scalar.from(o)?.let { visitScalar(it) }
                     super.visitLiteral(o)
                 }
+
+                override fun visitReferenceExpression(o: AmperReferenceExpression) {
+                    val parent = o.parent
+                    if (parent is AmperConstructorReference) {
+                        visitConstructorRef(Reference(o))
+                    }
+                    if (parent is AmperProperty && parent.value == o) {
+                        visitAssignmentToVariable(Reference(o))
+                    }
+                    if (position.startsWith(Pointer.from("product", "platforms")) && Platform[o.text] != null) {
+                        visitScalar(Scalar(o))
+                    }
+                    super.visitReferenceExpression(o)
+                }
             }.visitElement(element)
         }
         else {
@@ -140,4 +157,6 @@ open class AmperPsiAdapterVisitor {
     open fun visitSequenceItem(item: PsiElement, index: Int) {}
     open fun visitMappingEntry(node: MappingEntry) {}
     open fun visitScalar(node: Scalar) {}
+    open fun visitConstructorRef(node: Reference) {}
+    open fun visitAssignmentToVariable(reference: Reference) {}
 }

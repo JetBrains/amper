@@ -15,7 +15,11 @@ interface AmperElementWrapper {
     val sourceElement: PsiElement
 }
 
-class Scalar(override val sourceElement: PsiElement): AmperElementWrapper {
+class Reference(override val sourceElement: PsiElement): AmperElementWrapper {
+    val referenceName: String get() = sourceElement.text
+}
+
+class Scalar(override val sourceElement: PsiElement, private val customText: String? = null): AmperElementWrapper {
     companion object {
         fun from(element: PsiElement?) =
             when (element) {
@@ -25,7 +29,7 @@ class Scalar(override val sourceElement: PsiElement): AmperElementWrapper {
     }
 
     val textValue get() =
-        when (sourceElement) {
+        customText ?: when (sourceElement) {
             is YAMLScalar -> sourceElement.textValue
             else -> StringUtil.unquoteString(sourceElement.text)
         }
