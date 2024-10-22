@@ -137,6 +137,44 @@ suspend fun runProcessWithInheritedIO(
     return exitCode
 }
 
+@RequiresOptIn("Using this API causes the child process to leak and outlive the execution of the current JVM. " +
+        "Make sure you understand the consequences before opting in. " +
+        "Please consider limiting the life of the process to at most that of the current JVM by using coroutines.")
+annotation class ProcessLeak
+
+/**
+ * Starts a new process with the given [command] in [workingDir], detached from the execution of the current JVM.
+ *
+ * **WARNING:** this new process will not be stopped or awaited by this function call. Only use this function if the
+ * intention is to start a long-lived process that survives across executions of this program.
+ * In any other case, please prefer other functions that handle coroutines and process lifecycle.
+ *
+ * @return the started process's PID. This function doesn't return the [Process] object intentionally, because there
+ * should be another way to interact with a long-lived process (some kind of IPC).
+ */
+@ProcessLeak
+fun startLongLivedProcess(
+    workingDir: Path? = null,
+    command: List<String>,
+    environment: Map<String, String> = emptyMap(),
+    redirectErrorStream: Boolean = false,
+): Long { // NOT the Process, intentionally, because there must be some other way to interact with long-lived processes
+    return process(
+        workingDir = workingDir,
+        command = command,
+        environment = environment,
+        redirectErrorStream = redirectErrorStream
+    )
+        .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+        .redirectError(ProcessBuilder.Redirect.DISCARD)
+        // no shutdown hook on purpose - we want to keep the process alive after Amper completes
+        .start()
+        .apply {
+            outputStream.close()
+        }
+        .pid()
+}
+
 private fun process(
     workingDir: Path? = null,
     command: List<String>,

@@ -30,10 +30,11 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.processes.ProcessLeak
+import org.jetbrains.amper.processes.startLongLivedProcess
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
-import org.jetbrains.amper.util.fireProcessAndForget
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -155,9 +156,10 @@ class AndroidRunTask(
         }
     }
 
+    @OptIn(ProcessLeak::class)
     private fun runEmulator(emulatorExecutable: Path, avdName: String) {
-        fireProcessAndForget(
-            buildList {
+        startLongLivedProcess(
+            command = buildList {
                 add(emulatorExecutable.pathString)
                 val headlessMode: String? = System.getProperty(headlessEmulatorModePropertyName)
                 if (headlessMode == "true") {
@@ -166,7 +168,7 @@ class AndroidRunTask(
                 add("-avd")
                 add(avdName)
             },
-            emulatorExecutable.parent,
+            workingDir = emulatorExecutable.parent,
             environment = mapOf(
                 "ANDROID_AVD_HOME" to avdPath.toString(),
                 "ANDROID_HOME" to androidSdkPath.toString(),
