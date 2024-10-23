@@ -1,6 +1,7 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="42f05b18-4baf-36db-9e61-eb192afd03a9" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ConvertCallChainIntoSequence" enabled="true" level="INFORMATION" enabled_by_default="true" />
     <inspection_tool class="CustomRegExpInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myConfigurations">
@@ -76,6 +77,51 @@
         <constraint name="__context__" within="" contains="" />
         <constraint name="paths" maxCount="2147483647" within="" contains="" />
       </replaceConfiguration>
+      <searchConfiguration name="ProcessBuilder.start() is likely uncontrolled" suppressId="PROCESS_BUILDER_START_LEAK" problemDescriptor="Chances are this doesn't handle coroutine cancellation or JVM termination properly. Please use our helpers from the async-processes module to launch processes." text="$Instance$.$MethodCall$()" recursive="true" caseInsensitive="true" type="Kotlin" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="MethodCall" regexp="start" target="true" within="" contains="" />
+        <constraint name="Instance" nameOfExprType="java\.lang\.ProcessBuilder" exprTypeWithinHierarchy="true" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="ProcessBuilder.start() is likely uncontrolled" text="$Instance$.$Setup1$.$MethodCall$()" recursive="true" caseInsensitive="true" type="Kotlin" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="MethodCall" regexp="start" target="true" within="" contains="" />
+        <constraint name="Instance" nameOfExprType="java\.lang\.ProcessBuilder" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="Setup1" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="ProcessBuilder.start() is likely uncontrolled" text="$Instance$.$Setup1$.$Setup2$.$MethodCall$()" recursive="true" caseInsensitive="true" type="Kotlin" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="MethodCall" regexp="start" target="true" within="" contains="" />
+        <constraint name="Instance" nameOfExprType="java\.lang\.ProcessBuilder" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="Setup1" within="" contains="" />
+        <constraint name="Setup2" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="ProcessBuilder.start() is likely uncontrolled" text="$Instance$.$Setup1$.$Setup2$.$Setup3$.$MethodCall$()" recursive="true" caseInsensitive="true" type="Kotlin" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="MethodCall" regexp="start" target="true" within="" contains="" />
+        <constraint name="Instance" nameOfExprType="java\.lang\.ProcessBuilder" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="Setup1" within="" contains="" />
+        <constraint name="Setup2" within="" contains="" />
+        <constraint name="Setup3" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="ProcessBuilder.start() is likely uncontrolled" text="$Instance$.$Setup1$.$Setup2$.$Setup3$.$Setup4$.$MethodCall$()" recursive="true" caseInsensitive="true" type="Kotlin" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="MethodCall" regexp="start" target="true" within="" contains="" />
+        <constraint name="Instance" nameOfExprType="java\.lang\.ProcessBuilder" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="Setup1" within="" contains="" />
+        <constraint name="Setup2" within="" contains="" />
+        <constraint name="Setup3" within="" contains="" />
+        <constraint name="Setup4" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="ProcessBuilder.start() is likely uncontrolled" text="$Instance$.$Setup1$.$Setup2$.$Setup3$.$Setup4$.$Setup5$.$MethodCall$()" recursive="true" caseInsensitive="true" type="Kotlin" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="MethodCall" regexp="start" target="true" within="" contains="" />
+        <constraint name="Instance" nameOfExprType="java\.lang\.ProcessBuilder" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="Setup1" within="" contains="" />
+        <constraint name="Setup2" within="" contains="" />
+        <constraint name="Setup3" within="" contains="" />
+        <constraint name="Setup4" within="" contains="" />
+        <constraint name="Setup5" within="" contains="" />
+      </searchConfiguration>
     </inspection_tool>
     <inspection_tool class="SystemOutErr" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES">
       <scope name="Production" level="WARNING" enabled="true" />
