@@ -79,7 +79,7 @@ abstract class AmperCliWithWrapperTestBase {
                     this["AMPER_JAVA_HOME"] = customJavaHome.pathString
                 }
             },
-            outputListener = SimplePrintOutputListener,
+            outputListener = SimplePrintOutputListener(stdoutPrefix = "[amper out] ", stderrPrefix = "[amper err] "),
         )
 
         assertEquals(
@@ -92,16 +92,5 @@ abstract class AmperCliWithWrapperTestBase {
             assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call: $amperScript ${args.joinToString(" ")}\nStderr was:\n${result.stderr}")
         }
         result
-    }
-}
-
-@Suppress("ReplacePrintlnWithLogging") // this println is for test outputs and are OK here
-private object SimplePrintOutputListener : ProcessOutputListener {
-    override fun onStdoutLine(line: String) {
-        println("[amper out] $line")
-    }
-
-    override fun onStderrLine(line: String) {
-        println("[amper err] $line")
     }
 }
