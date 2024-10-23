@@ -1,4 +1,5 @@
 import java.io.ByteArrayOutputStream
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.startLongLivedProcess
 import java.io.File
@@ -20,8 +21,8 @@ open class AndroidBaseTest : TestBase() {
         projectName: String,
         projectPath: String,
         applicationId: String? = null,
-        projectAction: (String) -> Unit,
-    ) {
+        projectAction: suspend (String) -> Unit,
+    ) = runBlocking {
         copyProject(projectName, projectPath)
         projectAction(projectName)
         assembleTestApp(applicationId)

@@ -43,7 +43,7 @@ abstract class AmperCliWithWrapperTestBase {
      * The [customJavaHome] path points to the home directory of the Java distribution to use for Amper.
      * If null, the script handles the download of a suitable JRE.
      */
-    protected fun runAmper(
+    protected suspend fun runAmper(
         workingDir: Path,
         args: List<String>,
         expectedExitCode: Int = 0,
@@ -52,7 +52,7 @@ abstract class AmperCliWithWrapperTestBase {
         bootstrapCacheDir: Path = TestUtil.sharedTestCaches,
         customJavaHome: Path? = null,
         customAmperScriptPath: Path? = null,
-    ): ProcessResult = runBlocking(Dispatchers.IO) { // TODO just make runAmper() suspend?
+    ): ProcessResult {
         check(workingDir.exists()) { "Cannot run Amper: the specified working directory $workingDir does not exist." }
         check(workingDir.isDirectory()) { "Cannot run Amper: the specified working directory $workingDir is not a directory." }
 
@@ -91,6 +91,6 @@ abstract class AmperCliWithWrapperTestBase {
         if (assertEmptyStdErr) {
             assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call: $amperScript ${args.joinToString(" ")}\nStderr was:\n${result.stderr}")
         }
-        result
+        return result
     }
 }

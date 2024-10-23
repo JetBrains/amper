@@ -53,7 +53,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
      * It's expected on the start that wrappers and cli dist are published to maven local
      */
     @Test
-    fun `shell script does not download or extract on subsequent run`() {
+    fun `shell script does not download or extract on subsequent run`() = runBlocking {
         val templatePath = shellScriptExampleProject
         assertTrue { templatePath.isDirectory() }
 
@@ -93,7 +93,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     }
 
     @Test
-    fun `custom boostrap cache`() {
+    fun `custom boostrap cache`() = runBlocking {
         val templatePath = shellScriptExampleProject
         assertTrue { templatePath.isDirectory() }
 
@@ -126,7 +126,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     }
 
     @Test
-    fun `init command writes the same wrappers as published`() {
+    fun `init command writes the same wrappers as published`() = runBlocking {
         val projectPath = shellScriptExampleProject
         assertTrue { projectPath.isDirectory() }
 
@@ -171,7 +171,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     }
 
     @Test
-    fun `init command should stop before overwriting files from template`() {
+    fun `init command should stop before overwriting files from template`() = runBlocking {
         val projectPath = shellScriptExampleProject
         assertTrue { projectPath.isDirectory() }
 
@@ -199,9 +199,9 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     }
 
     @Test
-    fun `custom java home`() {
+    fun `custom java home`() = runBlocking {
         val fakeUserCacheRoot = AmperUserCacheRoot(TestUtil.sharedTestCaches)
-        val jdkHome = runBlocking { JdkDownloader.getJdk(fakeUserCacheRoot).homeDir }
+        val jdkHome = JdkDownloader.getJdk(fakeUserCacheRoot).homeDir
 
         val expectedAmperVersion = cliScript
             .readLines()
@@ -231,16 +231,16 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     }
 
     @Test
-    fun `fails on wrong amper distribution checksum`() {
+    fun `fails on wrong amper distribution checksum`() = runBlocking {
         assertWrongChecksum(Regex("\\b(amper_sha256=)[0-9a-fA-F]+"))
     }
 
     @Test
-    fun `fails on wrong jre distribution checksum`() {
+    fun `fails on wrong jre distribution checksum`() = runBlocking {
         assertWrongChecksum(Regex("\\b(jbr_sha512=)[0-9a-fA-F]+"))
     }
 
-    private fun assertWrongChecksum(checksumRegex: Regex) {
+    private suspend fun assertWrongChecksum(checksumRegex: Regex) {
         val customScript = tempDir.resolve("script$cliScriptExtension")
 
         cliScript.readLines()

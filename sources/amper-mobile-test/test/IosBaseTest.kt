@@ -1,9 +1,14 @@
+import kotlinx.coroutines.runBlocking
 import java.io.*
 import kotlin.io.path.*
 
 open class iOSBaseTest(): TestBase() {
 
-    private fun prepareExecution(projectName: String, projectPath: String, projectAction: (String) -> Unit) {
+    private fun prepareExecution(
+        projectName: String,
+        projectPath: String,
+        projectAction: suspend (String) -> Unit,
+    ) = runBlocking {
         val appFile = File("iOSTestsAssets/app/Debug-iphonesimulator/iosApp.app")
 
         getOrCreateRemoteSession()
@@ -338,7 +343,7 @@ open class iOSBaseTest(): TestBase() {
     }
 
 
-    private fun prepareProjectiOSForStandalone(projectDir: String) {
+    private suspend fun prepareProjectiOSForStandalone(projectDir: String) {
         val projectDir = Path("tempProjects") / projectDir
         if (projectDir.exists() && projectDir.isDirectory()) {
             runAmper(
