@@ -63,21 +63,35 @@ open class AmperPsiAdapterVisitor {
                 override fun visitProperty(o: AmperProperty) {
                     val parentObject = o.parent as? AmperObject
                     val props = parentObject?.propertyList.orEmpty()
+                    var popCount = 1
                     if (props.isNotEmpty() && hasDuplicateProperties(props, o)) {
                         positionStack.push(props.indexOf(o).toString())
                     } else {
-                        positionStack.push(
-                            when (o.name) {
-                                "testSettings" -> "test-settings"
-                                "testDependencies" -> "test-dependencies"
-                                null -> "[unnamed]"
-                                else -> o.name
+                        val refExp = o.nameElement as? AmperReferenceExpression
+                        if (refExp != null
+                            && refExp.parent !is AmperReferenceExpression
+                            && (o.value is AmperLiteral || o.value is AmperReferenceExpression)) {
+                            // a bit hacky handling of qualified references, for now
+                            val strings = refExp.text.split('.')
+                            popCount = strings.size
+                            strings.forEach {
+                                positionStack.push(adjustPropertyName(it.trim()))
                             }
-                        )
+                        }
+                        else {
+                            positionStack.push(adjustPropertyName(o.name))
+                        }
                     }
                     visitMappingEntry(MappingEntry(o))
                     super.visitProperty(o)
-                    positionStack.pop()
+                    repeat(popCount) { positionStack.pop() }
+                }
+
+                private fun adjustPropertyName(name: String?) = when (name) {
+                    "testSettings" -> "test-settings"
+                    "testDependencies" -> "test-dependencies"
+                    null -> "[unnamed]"
+                    else -> name
                 }
 
                 private fun hasDuplicateProperties(
