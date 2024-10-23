@@ -87,6 +87,7 @@ suspend fun runProcess(
     redirectErrorStream: Boolean = false,
     outputListener: ProcessOutputListener,
     input: ProcessInput = ProcessInput.Empty,
+    onStart: (pid: Long) -> Unit = {},
 ): Int {
     require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
 
@@ -97,6 +98,7 @@ suspend fun runProcess(
             .withGuaranteedTermination { process ->
                 input.writeTo(process.outputStream)
                 process.outputStream.close()
+                onStart(process.pid())
                 process.awaitListening(outputListener)
             }
     }
