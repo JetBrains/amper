@@ -109,6 +109,9 @@ open class AmperPsiAdapterVisitor {
                     if (position.startsWith(Pointer.from("product", "platforms")) && Platform[o.text] != null) {
                         visitScalar(Scalar(o))
                     }
+                    if (o.text.startsWith("$") && o.parent !is AmperReferenceExpression) {
+                        visitScalar(Scalar(o))
+                    }
                     super.visitReferenceExpression(o)
                 }
             }.visitElement(element)
