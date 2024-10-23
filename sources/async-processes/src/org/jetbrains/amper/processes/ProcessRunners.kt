@@ -31,7 +31,7 @@ class ProcessResult(
  * The given [input] is used to send data to the standard input of the started process.
  *
  * If the current coroutine is cancelled before the process has terminated, the process is killed (first normally then
- * forcibly), and cleans the stream readers. If the process is not killable and hangs, this function will also hang
+ * forcibly), and the stream readers cleaned up. If the process is not killable and hangs, this function will also hang
  * instead of returning (otherwise the zombie process could leak).
  *
  * **Note:** since the blocking reads of standard streams are not cancellable, this function may have to wait for the
