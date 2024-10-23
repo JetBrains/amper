@@ -131,7 +131,6 @@ suspend fun runProcessWithInheritedIO(
             .inheritIO()
             .start()
             .withGuaranteedTermination { process ->
-                process.outputStream.close()
                 onStart(process.pid())
                 process.onExit().await().exitValue()
             }
