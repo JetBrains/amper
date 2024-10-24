@@ -39,12 +39,12 @@ import kotlin.time.Duration.Companion.seconds
 // NOT PUBLIC ON PURPOSE, please check the KDoc - the caller is responsible for too many things
 internal suspend fun Process.awaitListening(outputListener: ProcessOutputListener): Int = coroutineScope {
     launch {
-        inputStream.consumeLinesCancellable {
+        inputStream.consumeLinesBlockingCancellable {
             outputListener.onStdoutLine(it)
         }
     }
     launch {
-        errorStream.consumeLinesCancellable {
+        errorStream.consumeLinesBlockingCancellable {
             outputListener.onStderrLine(it)
         }
     }
@@ -54,16 +54,25 @@ internal suspend fun Process.awaitListening(outputListener: ProcessOutputListene
     onExit().await().exitValue()
 }
 
-// not using Dispatchers.IO on purpose here, the caller decides the thread pool
-private suspend inline fun InputStream.consumeLinesCancellable(onEachLine: (String) -> Unit) {
+/**
+ * Consumes this input stream by reading the data as UTF-8 text line-by-line, and calls [onEachLine] on each line.
+ *
+ * **WARNING:** this suspending function blocks the thread despite the suspend keyword!
+ *
+ * This function complies with coroutine cancellation by checking for cancellation between each line read. However, a
+ * single line read blocks the thread and cannot be cancelled until it returns (interruption doesn't work on them).
+ */
+// We're not using Dispatchers.IO on purpose here, so the caller can decide on the thread pool.
+private suspend inline fun InputStream.consumeLinesBlockingCancellable(onEachLine: (String) -> Unit) {
     bufferedReader().useLines { lines ->
         try {
-            // TODO should we actually yield here to avoid requiring 2 threads?
-            // TODO should we check for cancellation (or yield) after more lines (e.g. every 10-20)?
-            //   Note: that requires checking whether the absence of new output can just block the coroutine entirely.
             lines.forEach {
                 onEachLine(it)
-                coroutineContext.ensureActive() // cooperates with cancellation between lines
+
+                // We cooperate with cancellation by checking for it between each line read.
+                // Using yield() instead of ensureActive() between reads could hurt performance, and wouldn't solve
+                // the problem, because we could still block indefinitely on a read that never comes.
+                coroutineContext.ensureActive()
             }
         } catch (e: IOException) {
             // If the process is killed externally on unix systems, the stream is eagerly closed,
@@ -198,7 +207,7 @@ internal fun Process.killAndAwaitTermination(gracePeriod: Duration = 1.seconds):
  *
  * Whether the process represented by this [Process] object is normally terminated or not is implementation-dependent.
  * Forcible process destruction is defined as the immediate termination of the process, whereas normal
- * termination allows the process to shut down cleanly. If the process is not alive, no action is taken.
+ * termination allows the process to shut down cleanly.
  */
 @PublishedApi
 internal fun Process.destroyHierarchy() {
