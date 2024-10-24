@@ -17,7 +17,7 @@ object UsedVersions {
 
     /*magic_replacement*/ val composeVersion = "1.6.10"
 
-    /*magic_replacement*/ val kspVersion = "2.0.21-1.0.25"
+    /*magic_replacement*/ val kspVersion = "2.0.21-1.0.28"
 
     /*magic_replacement*/ val hotReloadVersion = "1.0.0-dev.31.9"
 }

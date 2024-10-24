@@ -35,7 +35,7 @@ val amperInternalJbrVersion = "21.0.4b509.26"
 
 val kotlinVersion = "2.0.21"
 val kotlinxSerializationVersion = "1.7.3"
-val kspVersion = "$kotlinVersion-1.0.25"
+val kspVersion = "$kotlinVersion-1.0.28"
 val composeVersion = "1.6.10"
 val hotReloadVersion = "1.0.0-dev.31.9"
 
