@@ -107,7 +107,7 @@ class AmperKspTest : AmperIntegrationTestBase() {
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyNativeClassGenerated.kt",
         )
 
-        projectContext.generatedFilesDir(module = "consumer", fragment = "linuxX64").assertContainsRelativeFiles(
+        projectContext.generatedFilesDir(module = "consumer", fragment = "linux").assertContainsRelativeFiles(
             "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyLinuxX64ClassGenerated.kt",
@@ -152,7 +152,7 @@ class AmperKspTest : AmperIntegrationTestBase() {
             com.sample.ksp.localprocessor.consumer.MyMingwClass
             com.sample.ksp.localprocessor.consumer.MyCommonClass
         """.trimIndent())
-        generatedResourceFor(fragment = "linuxX64").assertContentEquals("""
+        generatedResourceFor(fragment = "linux").assertContentEquals("""
             com.sample.ksp.localprocessor.consumer.MyNativeClass
             com.sample.ksp.localprocessor.consumer.MyLinuxX64Class
             com.sample.ksp.localprocessor.consumer.MyCommonClass

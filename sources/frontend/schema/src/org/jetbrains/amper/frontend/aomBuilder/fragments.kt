@@ -63,9 +63,7 @@ open class DefaultFragment(
         .joinToString() +
             if (isTest) "Test" else ""
 
-    // FIXME remove this workaround once https://youtrack.jetbrains.com/issue/AMPER-462 is fixed
-    private val actualModulePlatforms = module.origin.product.platforms.map { it.value }.toSet()
-    final override val platforms = seed.platforms.filter { it in actualModulePlatforms }.toSet()
+    final override val platforms = seed.platforms
 
     override val variants = emptyList<String>()
 

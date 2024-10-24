@@ -48,12 +48,12 @@ data class FragmentSeed(
 }
 
 /**
- * All seed generation is combined into steps:
+ * Seed generation is combined into steps:
  * 1. Determining applicable natural hierarchy sub-forest
  * 2. Reducing this hierarchy to the minimal matching one
  * 3. Replacing single leaf fragments by their closest parents (or aliases) if possible.
  * 4. Adding other aliases if needed.
- * 5. Adding common fragment if there is no common natural hierarchy root between generated seeds.
+ * 5. Adding a common fragment if there is no common natural hierarchy root between generated seeds.
  * 6. Determining dependencies between fragments, based on their platforms.
  *
  * So, with declared platforms:
@@ -109,34 +109,34 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
                 .minByOrNull { it.value.size }
                 ?.key
                 ?: error("Should not be here: Platform hierarchy tree must contain at least one matching root")
-            // Traverse the tree until closest root and add all entries to the reduced hierarchy.
+            // Traverse the tree until the closest root and add all entries to the reduced hierarchy.
             tree.sortedBy { it.value.size }.takeWhile { it.key != closestRoot }.forEach { add(it.key) }
             add(closestRoot)
         }
     }
 
-    // Threat applicable hierarchy as aliases.
-    // Replace single leaves (without common parent) with aliases or parents.
+    // Treat applicable hierarchy as aliases.
+    // Replace single leaves (without a common parent) with aliases or parents.
     val combinedAliases = buildMap {
         applicableHierarchy.forEach { put(it.key.pretty, it.value) }
         putAll(aliases2leafPlatforms)
     }
 
-    // Initial seeds, that are computed from the hierarchy and aliases.
+    // Initial seeds that are computed from the hierarchy and aliases.
     val aliasesLeft = aliases2leafPlatforms.toMutableMap()
     val initialSeeds = buildSet {
         reduced.forEach { platform ->
-            // Check if the platform is candidate for replacement by alias.
-            if (platform.isLeaf && platform.parentNoCommon !in reduced) {
+            // Check if the platform is a candidate for replacement by alias.
+            if (platform.isLeaf && (platform.parentNoCommon !in reduced || (platform.parentNoCommon?.leaves?.intersect(declaredLeafPlatforms))?.size == 1) ) {
                 val matchingClosestAlias = combinedAliases.entries
                     .filter { platform in it.value }
                     .sortedBy { it.key }
-                    // Take alias only if it has only single platform present in module.
+                    // Take alias only if it has only a single platform present in module.
                     .filter { alias -> alias.value.filter { it in declaredLeafPlatforms }.size == 1 }
                     .minByOrNull { it.value.size }
 
                 if (matchingClosestAlias != null) {
-                    // Mark alias as used. Also mark aliases with same platforms as used.
+                    // Mark alias as used. Also mark aliases with the same platforms as used.
                     aliasesLeft.remove(matchingClosestAlias.key)
                     combinedAliases.entries
                         .filter { matchingClosestAlias.value == it.value }
@@ -154,7 +154,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
                 }
             } else {
                 this += FragmentSeed(
-                    platforms = platform.leaves,
+                    platforms = platform.leaves.intersect(declaredLeafPlatforms),
                     setOf(platform.pretty),
                 )
             }
@@ -171,7 +171,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
 
     // Get a list of leaf platforms, denoted by modifiers.
     fun Modifiers.convertToLeafPlatforms() =
-        // If modifiers are empty, then treat them  like common platform modifiers.
+        // If modifiers are empty, then treat them like common platform modifiers.
         if (isEmpty()) declaredLeafPlatforms
         // Otherwise, parse every modifier individually.
         else map { it.value }.mapNotNull {
