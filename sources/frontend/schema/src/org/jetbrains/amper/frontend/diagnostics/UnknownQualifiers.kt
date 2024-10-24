@@ -39,6 +39,7 @@ object UnknownQualifiers : IsmDiagnosticFactory {
         val unknownModifiers = this
             .filter { modifier -> modifier.value !in knownAliases }
             .filter { modifier -> modifier.value !in knownPlatforms }
+            .filter { modifier -> modifier.value != "test" || (modifier.trace as? PsiTrace)?.psiElement?.language?.id != "Amper" }
 
         if (unknownModifiers.isNotEmpty()) {
             val firstModifier = unknownModifiers.first()

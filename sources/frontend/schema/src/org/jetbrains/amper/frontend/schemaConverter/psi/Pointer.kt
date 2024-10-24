@@ -24,6 +24,15 @@ class Pointer(val segmentName: String? = null,
         p
     }
 
+    fun replaceWithTestSpecific(): Pointer {
+        val initial = firstSegment
+        if (initial.segmentName != "settings" && initial.segmentName != "dependencies") return this
+        val next = initial.next?.deepCopyWithPrev()
+        val pointer = Pointer("test-${initial.segmentName}", null, next)
+        next?.prev = pointer
+        return pointer
+    }
+
     operator fun plus(value: String): Pointer {
         if (segmentName == null && prev == null && next == null) {
             return Pointer(value)

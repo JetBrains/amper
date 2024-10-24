@@ -9,6 +9,7 @@ import com.intellij.amper.lang.AmperContextName
 import com.intellij.amper.lang.AmperContextualElement
 import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.psi.PsiElement
+import kotlinx.collections.immutable.toImmutableMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
@@ -112,7 +113,20 @@ internal fun PsiElement.readValueTable(): ValueTable {
             table[KeyWithContext(customPosition ?: position, context)] = node
         }
     }.visitElement(this)
-    return table
+    return adjustTestSpecific(table)
+}
+
+private fun adjustTestSpecific(table: ValueTable): ValueTable {
+    val result = table.toMutableMap()
+    val testKeys = result.keys.filter { it.contexts.any { it.value == "test" } }
+    for (testKey in testKeys) {
+        if (!testKey.key.startsWith(Pointer.from("settings"))
+            && !testKey.key.startsWith(Pointer.from("dependencies"))) continue
+        val oldEntry = result.remove(testKey)
+        result.put(KeyWithContext(testKey.key.replaceWithTestSpecific(),
+            testKey.contexts.filter { it.value != "test" }.toSet()), oldEntry!!)
+    }
+    return result.toImmutableMap()
 }
 
 private val knownBooleanShorthands = setOf("enabled", "exported")
