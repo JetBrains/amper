@@ -8,7 +8,7 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
@@ -137,23 +137,23 @@ enum class KotlinCompilationType(val argName: String) {
     BINARY("program"),
     IOS_FRAMEWORK("framework");
 
-    fun outputFilename(module: PotatoModule, platform: Platform, isTest: Boolean): String = when {
+    fun outputFilename(module: AmperModule, platform: Platform, isTest: Boolean): String = when {
         this == LIBRARY -> "${moduleName(module, isTest)}.klib"
         this == IOS_FRAMEWORK -> "${moduleName(module, isTest)}Kotlin.framework"
         this == BINARY && platform.isDescendantOf(Platform.MINGW) -> "${moduleName(module, isTest)}.exe"
         else -> "${moduleName(module, isTest)}.kexe"
     }
 
-    fun moduleName(module: PotatoModule, isTest: Boolean): String = when(this) {
+    fun moduleName(module: AmperModule, isTest: Boolean): String = when(this) {
         IOS_FRAMEWORK -> if (isTest) module.nameWithoutDashes + "Test" else module.nameWithoutDashes
         else -> module.kotlinModuleName(isTest)
     }
 
-    private val PotatoModule.nameWithoutDashes get() = userReadableName.replace("-", "").replace("_", "")
+    private val AmperModule.nameWithoutDashes get() = userReadableName.replace("-", "").replace("_", "")
 }
 
 // TODO should we make it unique by using the full path?
-internal fun PotatoModule.kotlinModuleName(isTest: Boolean) =
+internal fun AmperModule.kotlinModuleName(isTest: Boolean) =
     if (isTest) userReadableName + "_test" else userReadableName
 
 context(BuildTask)

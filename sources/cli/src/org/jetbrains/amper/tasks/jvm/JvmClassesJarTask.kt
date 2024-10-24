@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks.jvm
 
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jar.ZipInput
@@ -22,7 +22,7 @@ import kotlin.io.path.div
  */
 class JvmClassesJarTask(
     override val taskName: TaskName,
-    private val module: PotatoModule,
+    private val module: AmperModule,
     private val isTest: Boolean,
     private val taskOutputRoot: TaskOutputRoot,
     executeOnChangedInputs: ExecuteOnChangedInputs,

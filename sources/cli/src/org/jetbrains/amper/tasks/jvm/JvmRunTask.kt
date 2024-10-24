@@ -11,7 +11,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
 
 class JvmRunTask(
     override val taskName: TaskName,
-    override val module: PotatoModule,
+    override val module: AmperModule,
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
     private val tempRoot: AmperProjectTempRoot,

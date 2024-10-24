@@ -9,7 +9,14 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 
-sealed interface PotatoModuleSource {
+@Deprecated(
+    message = "PotatoModuleSource was renamed to AmperModuleSource",
+    replaceWith = ReplaceWith("AmperModuleSource", imports = [ "org.jetbrains.amper.frontend.AmperModuleSource" ]),
+)
+@UsedInIdePlugin
+typealias PotatoModuleSource = AmperModuleSource
+
+sealed interface AmperModuleSource {
     /**
      * The directory containing the `module.yaml` or Gradle build file of the module.
      * May be null for unresolved modules or programmatically generated modules.
@@ -17,11 +24,28 @@ sealed interface PotatoModuleSource {
     val moduleDir: Path?
 }
 
-data object PotatoModuleProgrammaticSource : PotatoModuleSource {
+@Deprecated(
+    message = "PotatoModuleProgrammaticSource was renamed to AmperModuleProgrammaticSource",
+    replaceWith = ReplaceWith("AmperModuleProgrammaticSource", imports = [ "org.jetbrains.amper.frontend.AmperModuleProgrammaticSource" ]),
+)
+@UsedInIdePlugin
+typealias PotatoModuleProgrammaticSource = AmperModuleProgrammaticSource
+
+data object AmperModuleProgrammaticSource : AmperModuleSource {
     override val moduleDir: Nothing? = null
 }
 
-data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource {
+@Deprecated(
+    message = "PotatoModuleFileSource was renamed to AmperModuleFileSource",
+    replaceWith = ReplaceWith(
+        expression = "AmperModuleFileSource",
+        imports = ["org.jetbrains.amper.frontend.AmperModuleFileSource"]
+    ),
+)
+@UsedInIdePlugin
+typealias PotatoModuleFileSource = AmperModuleFileSource
+
+data class AmperModuleFileSource(val buildFile: Path) : AmperModuleSource {
     /**
      * The directory containing the `module.yaml` or Gradle build file of the module.
      */
@@ -75,10 +99,17 @@ data class MetaModulePart(
     val layout: Layout = Layout.AMPER
 ) : ModulePart<MetaModulePart>
 
+@Deprecated(
+    message = "PotatoModule was renamed to AmperModule",
+    replaceWith = ReplaceWith("AmperModule", imports = [ "org.jetbrains.amper.frontend.AmperModule" ]),
+)
+@UsedInIdePlugin
+typealias PotatoModule = AmperModule
+
 /**
  * Just an aggregator for fragments and artifacts.
  */
-interface PotatoModule {
+interface AmperModule {
     /**
      * To reference module somehow in output.
      */
@@ -86,7 +117,7 @@ interface PotatoModule {
 
     val type: ProductType
 
-    val source: PotatoModuleSource
+    val source: AmperModuleSource
 
     /**
      * Original schema values, that this module came from.

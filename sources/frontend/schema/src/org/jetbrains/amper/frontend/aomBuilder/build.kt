@@ -22,9 +22,9 @@ import org.jetbrains.amper.frontend.KnownCurrentTaskProperty
 import org.jetbrains.amper.frontend.KnownModuleProperty
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.LocalModuleDependency
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.VersionCatalog
@@ -76,7 +76,7 @@ context(ProblemReporterContext)
 internal fun doBuild(
     projectContext: AmperProjectContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
-): List<PotatoModule>? {
+): List<AmperModule>? {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
     val path2SchemaModule = projectContext.amperModuleFiles
         .mapNotNull { moduleFile ->
@@ -212,8 +212,8 @@ context(ProblemReporterContext)
 private fun buildCustomTask(
     virtualFile: VirtualFile,
     node: CustomTaskNode,
-    module: PotatoModule,
-    moduleResolver: (String) -> PotatoModule?,
+    module: AmperModule,
+    moduleResolver: (String) -> AmperModule?,
 ): CustomTaskDescription? {
     val buildProblemSource = object : FileBuildProblemSource {
         override val file: Path
@@ -285,7 +285,7 @@ context(ProblemReporterContext)
 internal fun parseStringWithReferences(
     value: String,
     source: BuildProblemSource,
-    moduleResolver: (String) -> PotatoModule?,
+    moduleResolver: (String) -> AmperModule?,
 ): CompositeString {
     var pos = 0
     val result = mutableListOf<CompositeStringPart>()
@@ -406,7 +406,7 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGrad
             module = DefaultModule(
                 userReadableName = mPath.parent.name,
                 type = holder.module.product.type,
-                source = PotatoModuleFileSource(mPath.toNioPath()),
+                source = AmperModuleFileSource(mPath.toNioPath()),
                 origin = holder.module,
                 usedCatalog = holder.chosenCatalog,
             )
@@ -455,13 +455,13 @@ private fun createArtifacts(
     else -> fragments.map { DefaultArtifact(it.name, listOf(it), isTest) }
 }
 
-class DefaultPotatoModuleDependency(
-    override val module: PotatoModule,
+class DefaultLocalModuleDependency(
+    override val module: AmperModule,
     val path: Path,
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
-) : PotatoModuleDependency, DefaultScopedNotation {
+) : LocalModuleDependency, DefaultScopedNotation {
     override var trace: Trace? = null
 
     override fun toString(): String {
@@ -473,7 +473,7 @@ class DefaultPotatoModuleDependency(
  * Resolve internal modules against known ones by path.
  */
 context(ProblemReporterContext)
-private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, PotatoModule>): DefaultScopedNotation? =
+private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): DefaultScopedNotation? =
     when (this) {
         is ExternalMavenDependency -> MavenDependency(
             // TODO Report absence of coordinates.
@@ -484,7 +484,7 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Pot
         )
 
         is InternalDependency -> path?.let { path ->
-            DefaultPotatoModuleDependency(
+            DefaultLocalModuleDependency(
                 // TODO Report to error module.
                 moduleDir2module[path] ?: run {
                     NotResolvedModule(path.name)

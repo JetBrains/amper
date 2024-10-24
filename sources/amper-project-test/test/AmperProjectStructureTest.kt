@@ -4,7 +4,7 @@ import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.amperCheckoutRoot
@@ -14,7 +14,6 @@ import java.io.IOException
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.name
 import kotlin.io.path.readLines
@@ -82,7 +81,7 @@ class AmperProjectStructureTest {
     fun `list of modules is the same for gradle and standalone amper`() = runTestInfinitely {
         val backend = createAmperProjectBackend(backgroundScope)
         val standaloneModulesList = backend.modules()
-            .map { (it.source as PotatoModuleFileSource).moduleDir.relativeTo(amperCheckoutRoot) }
+            .map { (it.source as AmperModuleFileSource).moduleDir.relativeTo(amperCheckoutRoot) }
             .map { it.toString().replace('\\', '/') }
             .sorted()
             .joinToString("\n")

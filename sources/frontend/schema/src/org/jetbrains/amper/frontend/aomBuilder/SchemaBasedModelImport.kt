@@ -14,7 +14,7 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.readTemplate
@@ -64,7 +64,7 @@ object SchemaBasedModelImport : ModelInit {
         ),
     )
     @UsedInIdePlugin
-    fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> {
+    fun getModule(modulePsiFile: PsiFile, project: Project): Result<AmperModule> {
         val pathResolver = FrontendPathResolver(project = project)
         val projectContext = SingleModuleProjectContextForIde(modulePsiFile.virtualFile, pathResolver)
         val resultModules = doBuild(projectContext)

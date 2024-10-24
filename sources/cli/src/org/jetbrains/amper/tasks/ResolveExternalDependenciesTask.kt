@@ -18,7 +18,7 @@ import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
@@ -37,7 +37,7 @@ import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 
 class ResolveExternalDependenciesTask(
-    private val module: PotatoModule,
+    private val module: AmperModule,
     private val userCacheRoot: AmperUserCacheRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val platform: Platform,

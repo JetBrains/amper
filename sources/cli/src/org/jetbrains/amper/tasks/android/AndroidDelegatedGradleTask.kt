@@ -12,7 +12,7 @@ import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -32,7 +32,7 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 
 abstract class AndroidDelegatedGradleTask(
-    private val module: PotatoModule,
+    private val module: AmperModule,
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val androidSdkPath: Path,

@@ -16,7 +16,7 @@ import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
@@ -31,7 +31,7 @@ import kotlin.io.path.pathString
 //  Problem: this is just for JVM, but the regular DR is done for each platform
 internal class ResolveKspProcessorDependenciesTask(
     override val taskName: TaskName,
-    private val module: PotatoModule,
+    private val module: AmperModule,
     private val fragments: List<Fragment>,
     private val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,

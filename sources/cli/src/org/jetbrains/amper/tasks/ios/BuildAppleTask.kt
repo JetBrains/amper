@@ -13,7 +13,7 @@ import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.schema.Settings
@@ -31,7 +31,7 @@ import kotlin.io.path.pathString
 
 class BuildAppleTask(
     override val platform: Platform,
-    override val module: PotatoModule,
+    override val module: AmperModule,
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val buildOutputRoot: AmperBuildOutputRoot,

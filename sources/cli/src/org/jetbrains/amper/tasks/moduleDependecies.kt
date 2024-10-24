@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
@@ -18,18 +18,18 @@ import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
  * Returns a dependencies sequence of the given module in the resolution scope
  * of the given [platform], [isTest] and [dependencyReason].
  */
-internal fun PotatoModule.getModuleDependencies(
+internal fun AmperModule.getModuleDependencies(
     isTest: Boolean,
     platform: Platform,
     dependencyReason: ResolutionScope,
     userCacheRoot: AmperUserCacheRoot,
-) : Sequence<PotatoModule> {
+) : Sequence<AmperModule> {
     val fragmentsModuleDependencies =
         buildDependenciesGraph(isTest, platform, dependencyReason, userCacheRoot)
     return fragmentsModuleDependencies.getModuleDependencies()
 }
 
-internal fun PotatoModule.buildDependenciesGraph(
+internal fun AmperModule.buildDependenciesGraph(
     isTest: Boolean,
     platform: Platform,
     dependencyReason: ResolutionScope,
@@ -46,7 +46,7 @@ internal fun PotatoModule.buildDependenciesGraph(
     }
 }
 
-private fun ModuleDependencyNodeWithModule.getModuleDependencies(): Sequence<PotatoModule> {
+private fun ModuleDependencyNodeWithModule.getModuleDependencies(): Sequence<AmperModule> {
     return distinctBfsSequence { it is ModuleDependencyNodeWithModule }
         .drop(1)
         .filterIsInstance<ModuleDependencyNodeWithModule>()

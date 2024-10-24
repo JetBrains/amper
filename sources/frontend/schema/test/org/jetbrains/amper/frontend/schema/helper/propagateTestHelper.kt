@@ -14,9 +14,9 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
-import org.jetbrains.amper.frontend.PotatoModuleSource
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleProgrammaticSource
+import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.AndroidSettings
@@ -28,8 +28,8 @@ import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 import kotlin.io.path.Path
 
-fun potatoModule(name: String, init: PotatoModuleBuilder.() -> Unit): PotatoModule {
-    val builder = PotatoModuleBuilder(name)
+fun amperModule(name: String, init: AmperModuleBuilder.() -> Unit): AmperModule {
+    val builder = AmperModuleBuilder(name)
     builder.init()
     return builder.build()
 }
@@ -43,11 +43,11 @@ class FragmentBuilder(var name: String) {
 
     private val variants: MutableList<String> = mutableListOf()
 
-    fun PotatoModuleBuilder.dependsOn(to: String) {
+    fun AmperModuleBuilder.dependsOn(to: String) {
         fragmentDependencies.add(NamedFragmentLink(targetName = to, type = FragmentDependencyType.REFINE))
     }
 
-    fun PotatoModuleBuilder.dependant(to: String) {
+    fun AmperModuleBuilder.dependant(to: String) {
         fragmentDependants.add(NamedFragmentLink(targetName = to, type = FragmentDependencyType.REFINE))
     }
 
@@ -66,13 +66,13 @@ class FragmentBuilder(var name: String) {
         settings.android = AndroidSettings().apply(init)
     }
 
-    fun build(module: PotatoModule): LeafFragment {
+    fun build(module: AmperModule): LeafFragment {
         return object : LeafFragment {
             override val platform: Platform
                 get() = this@FragmentBuilder.platforms.single()
             override val name: String
                 get() = this@FragmentBuilder.name
-            override val module: PotatoModule
+            override val module: AmperModule
                 get() = module
             override val fragmentDependencies: List<FragmentLink> by lazy {
                 this@FragmentBuilder.fragmentDependencies.resolveIn(module)
@@ -108,10 +108,10 @@ private data class NamedFragmentLink(
     val type: FragmentDependencyType,
 )
 
-private fun List<NamedFragmentLink>.resolveIn(module: PotatoModule) =
+private fun List<NamedFragmentLink>.resolveIn(module: AmperModule) =
     map { namedLink -> namedLink.resolveIn(module) }
 
-private fun NamedFragmentLink.resolveIn(module: PotatoModule) =
+private fun NamedFragmentLink.resolveIn(module: AmperModule) =
     FragmentLink(module.fragments.first { it.name == targetName }, type)
 
 private fun FragmentLink(target: Fragment, type: FragmentDependencyType) = object : FragmentLink {
@@ -119,9 +119,9 @@ private fun FragmentLink(target: Fragment, type: FragmentDependencyType) = objec
     override val type: FragmentDependencyType = type
 }
 
-class PotatoModuleBuilder(var name: String) {
+class AmperModuleBuilder(var name: String) {
     var type: ProductType = ProductType.JVM_APP
-    var source: PotatoModuleSource = PotatoModuleProgrammaticSource
+    var source: AmperModuleSource = AmperModuleProgrammaticSource
     val fragments: MutableList<FragmentBuilder> = mutableListOf()
     private val artifacts = emptyList<Artifact>()
     private val parts = classBasedSet<ModulePart<*>>()
@@ -133,22 +133,22 @@ class PotatoModuleBuilder(var name: String) {
         return builder
     }
 
-    fun build(): PotatoModule {
-        return object : PotatoModule {
+    fun build(): AmperModule {
+        return object : AmperModule {
             override val userReadableName: String
-                get() = this@PotatoModuleBuilder.name
+                get() = this@AmperModuleBuilder.name
             override val type: ProductType
-                get() = this@PotatoModuleBuilder.type
-            override val source: PotatoModuleSource
-                get() = this@PotatoModuleBuilder.source
+                get() = this@AmperModuleBuilder.type
+            override val source: AmperModuleSource
+                get() = this@AmperModuleBuilder.source
             override val origin: Module
                 get() = Module()
             override val fragments: List<Fragment>
-                get() = this@PotatoModuleBuilder.fragments.map { it.build(this) }
+                get() = this@AmperModuleBuilder.fragments.map { it.build(this) }
             override val artifacts: List<Artifact>
-                get() = this@PotatoModuleBuilder.artifacts
+                get() = this@AmperModuleBuilder.artifacts
             override val parts: ClassBasedSet<ModulePart<*>>
-                get() = this@PotatoModuleBuilder.parts
+                get() = this@AmperModuleBuilder.parts
             override val usedCatalog: VersionCatalog?
                 get() = null
             override val customTasks: List<CustomTaskDescription>

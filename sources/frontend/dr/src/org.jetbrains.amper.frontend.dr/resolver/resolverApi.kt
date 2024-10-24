@@ -13,7 +13,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 
 val moduleDependenciesResolver: ModuleDependenciesResolver = ModuleDependenciesResolverImpl()
 
@@ -37,7 +37,7 @@ sealed interface DependenciesFlowType {
 }
 
 interface ModuleDependenciesResolver {
-    fun PotatoModule.resolveDependenciesGraph(
+    fun AmperModule.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder()
     ): ModuleDependencyNodeWithModule
@@ -48,9 +48,9 @@ interface ModuleDependenciesResolver {
         downloadSources: Boolean = false
     )
 
-    suspend fun PotatoModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNodeWithModule
+    suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNodeWithModule
 
-    suspend fun List<PotatoModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder
+    suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder
 }
 
 open class DependencyNodeHolderWithNotation(
@@ -63,7 +63,7 @@ open class DependencyNodeHolderWithNotation(
 ): DependencyNodeHolder(name, children, templateContext, parentNodes)
 
 class ModuleDependencyNodeWithModule(
-    val module: PotatoModule,
+    val module: AmperModule,
     name: String,
     children: List<DependencyNode>,
     templateContext: Context,

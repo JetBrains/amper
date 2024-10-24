@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import java.io.File
 
 
@@ -12,7 +12,7 @@ import java.io.File
  * Class to aggregate file naming conventions.
  */
 class FileConventions(
-    module: PotatoModule,
+    module: AmperModule,
     taskDir: File,
 ) {
     val baseDir: File = taskDir.resolve("build")

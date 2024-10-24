@@ -77,14 +77,14 @@ class BindingProjectPlugin : Plugin<Project> {
     }
 
     private fun applyRepositoryAttributes(
-        module: PotatoModuleWrapper,
+        module: AmperModuleWrapper,
         project: Project
     ) {
         project.repositories.configure(module.parts.find<RepositoriesModulePart>())
     }
 
     private fun applyPublicationAttributes(
-        module: PotatoModuleWrapper,
+        module: AmperModuleWrapper,
         project: Project
     ) {
         project.plugins.apply("maven-publish")
@@ -135,7 +135,7 @@ class BindingProjectPlugin : Plugin<Project> {
         }
     }
 
-    private fun applyTest(linkedModule: PotatoModuleWrapper, project: Project) {
+    private fun applyTest(linkedModule: AmperModuleWrapper, project: Project) {
         if (linkedModule.leafTestFragments.any { it.settings.junit == JUnitVersion.JUNIT5 }) {
             project.tasks.withType(Test::class.java) {
                 // TODO Add more comprehensive support - only enable for those tasks,

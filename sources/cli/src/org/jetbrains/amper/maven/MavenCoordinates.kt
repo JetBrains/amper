@@ -6,28 +6,28 @@ package org.jetbrains.amper.maven
 
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 import org.jetbrains.amper.util.targetLeafPlatforms
 
-internal fun PotatoModule.publicationCoordinates(platform: Platform): MavenCoordinates = when {
+internal fun AmperModule.publicationCoordinates(platform: Platform): MavenCoordinates = when {
     // for JVM-only libraries, we use the root publication format (without -jvm suffix)
     platform == Platform.COMMON || platform == Platform.JVM && isJvmOnly -> rootPublicationCoordinates()
     platform.isLeaf -> kmpLeafPlatformPublicationCoordinates(platform)
     else -> error("Cannot generate Maven coordinates for $platform: only COMMON and leaf platforms are supported")
 }
 
-private val PotatoModule.isJvmOnly
+private val AmperModule.isJvmOnly
     get() = targetLeafPlatforms == setOf(Platform.JVM)
 
-private fun PotatoModule.rootPublicationCoordinates(): MavenCoordinates {
+private fun AmperModule.rootPublicationCoordinates(): MavenCoordinates {
     val commonFragment = fragments.find { !it.isTest && it.fragmentDependencies.isEmpty() }
         ?: error("Cannot generate root Maven coordinates for module '$userReadableName': no root fragment")
 
     return commonFragment.mavenCoordinates(artifactIdSuffix = "")
 }
 
-private fun PotatoModule.kmpLeafPlatformPublicationCoordinates(platform: Platform): MavenCoordinates {
+private fun AmperModule.kmpLeafPlatformPublicationCoordinates(platform: Platform): MavenCoordinates {
     val fragment = leafFragments.singleOrNull { !it.isTest && platform in it.platforms }
         ?: error("Cannot generate Maven coordinates for module '$userReadableName' with platform $platform: expected " +
                 "a single leaf fragment supporting this platform, but got " +

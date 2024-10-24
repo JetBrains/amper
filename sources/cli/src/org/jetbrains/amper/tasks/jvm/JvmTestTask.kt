@@ -17,7 +17,7 @@ import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
@@ -40,7 +40,7 @@ class JvmTestTask(
     private val tempRoot: AmperProjectTempRoot,
     private val projectRoot: AmperProjectRoot,
     private val terminal: Terminal,
-    override val module: PotatoModule,
+    override val module: AmperModule,
     override val taskName: TaskName,
     override val platform: Platform = Platform.JVM,
 ): TestTask {

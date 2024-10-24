@@ -30,7 +30,7 @@ import org.jetbrains.amper.diagnostics.setFragments
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.jvm.JdkDownloader
@@ -64,7 +64,7 @@ import kotlin.io.path.walk
 
 @OptIn(ExperimentalBuildToolsApi::class)
 class JvmCompileTask(
-    override val module: PotatoModule,
+    override val module: AmperModule,
     override val isTest: Boolean,
     private val fragments: List<Fragment>,
     private val userCacheRoot: AmperUserCacheRoot,
@@ -355,7 +355,7 @@ class JvmCompileTask(
 
     class Result(
         val classesOutputRoot: Path,
-        val module: PotatoModule,
+        val module: AmperModule,
         val isTest: Boolean,
     ) : TaskResult, RuntimeClasspathElementProvider {
         override val paths: List<Path>

@@ -8,7 +8,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.native.NativeTaskType
@@ -22,7 +22,7 @@ internal fun compilationTaskNamesFor(fragment: Fragment): List<TaskName> {
 }
 
 internal fun compilationTaskNamesFor(
-    module: PotatoModule,
+    module: AmperModule,
     platform: Platform,
     isTest: Boolean,
 ) = when {

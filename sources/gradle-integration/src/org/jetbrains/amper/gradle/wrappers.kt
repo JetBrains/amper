@@ -9,18 +9,18 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 
-class PotatoModuleWrapper(
-    private val passedModule: PotatoModule
-) : PotatoModule by passedModule {
+class AmperModuleWrapper(
+    private val passedModule: AmperModule
+) : AmperModule by passedModule {
     // Wrapper functions.
     private val allFragmentWrappers = mutableMapOf<Fragment, FragmentWrapper>()
     val LeafFragment.wrappedLeaf get() = wrapped as LeafFragmentWrapper
     val Fragment.wrapped
         get() = if (this is FragmentWrapper) this else allFragmentWrappers.computeIfAbsent(this) {
-            if (this is LeafFragment) LeafFragmentWrapper(this@PotatoModuleWrapper, this)
-            else FragmentWrapper(this@PotatoModuleWrapper, this)
+            if (this is LeafFragment) LeafFragmentWrapper(this@AmperModuleWrapper, this)
+            else FragmentWrapper(this@AmperModuleWrapper, this)
         }
 
     val artifactPlatforms by lazy { artifacts.flatMap { it.platforms }.toSet() }
@@ -57,7 +57,7 @@ class PotatoModuleWrapper(
     }
 }
 
-fun Artifact.wrap(module: PotatoModuleWrapper) =
+fun Artifact.wrap(module: AmperModuleWrapper) =
     ArtifactWrapper(this, module)
 
 interface PlatformAware {
@@ -66,13 +66,13 @@ interface PlatformAware {
 
 open class ArtifactWrapper(
     artifact: Artifact,
-    private val module: PotatoModuleWrapper,
+    private val module: AmperModuleWrapper,
 ) : Artifact by artifact, PlatformAware {
     override val fragments = artifact.fragments.map { with(module) { it.wrappedLeaf } }
 }
 
 open class FragmentWrapper(
-    override val module: PotatoModuleWrapper,
+    override val module: AmperModuleWrapper,
     private val fragment: Fragment
 ) : Fragment by fragment, PlatformAware {
     override fun toString(): String = "FragmentWrapper(fragment=${fragment.name})"
@@ -86,6 +86,6 @@ open class FragmentWrapper(
 
 @Suppress("DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE")
 class LeafFragmentWrapper(
-    override val module: PotatoModuleWrapper,
+    override val module: AmperModuleWrapper,
     fragment: LeafFragment,
 ) : FragmentWrapper(module, fragment), LeafFragment by fragment, PlatformAware

@@ -6,7 +6,7 @@ package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModuleDependency
+import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.CommonTaskType
@@ -161,7 +161,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                 // TODO It could be optional in the future by, e.g., introducing an option to `publish` command
                 val thisModuleFragments = module.fragments.filter { it.platforms.contains(platform) && !it.isTest }
                 val thisModuleDependencies =
-                    thisModuleFragments.flatMap { it.externalDependencies }.filterIsInstance<PotatoModuleDependency>()
+                    thisModuleFragments.flatMap { it.externalDependencies }.filterIsInstance<LocalModuleDependency>()
                 for (moduleDependency in thisModuleDependencies) {
                     val dependencyPublishTaskName =
                         CommonTaskType.Publish.getTaskName(

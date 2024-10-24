@@ -15,10 +15,10 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
-import org.jetbrains.amper.frontend.PotatoModuleSource
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleFileSource
+import org.jetbrains.amper.frontend.AmperModuleProgrammaticSource
+import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.VersionCatalog
@@ -31,17 +31,17 @@ import java.nio.file.Path
 
 data class DefaultModel(
     override val projectRoot: Path,
-    override val modules: List<PotatoModule>,
+    override val modules: List<AmperModule>,
 ) : Model
 
 context(ProblemReporterContext)
 internal open class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
-    override val source: PotatoModuleSource,
+    override val source: AmperModuleSource,
     final override val origin: Module,
     override val usedCatalog: VersionCatalog?,
-) : PotatoModule {
+) : AmperModule {
     override var fragments = emptyList<Fragment>()
     override var artifacts = emptyList<Artifact>()
     override var customTasks = emptyList<CustomTaskDescription>()
@@ -68,13 +68,13 @@ class DefaultCustomTaskDescription(
     override val source: Path,
     override val origin: CustomTaskNode,
     override val type: CustomTaskType,
-    override val module: PotatoModule,
+    override val module: AmperModule,
     override val jvmArguments: List<CompositeString>,
     override val programArguments: List<CompositeString>,
     override val environmentVariables: Map<String, CompositeString>,
     override val dependsOn: List<TaskName>,
     override val publishArtifacts: List<PublishArtifactFromCustomTask>,
-    override val customTaskCodeModule: PotatoModule,
+    override val customTaskCodeModule: AmperModule,
     override val addToModuleRootsFromCustomTask: List<AddToModuleRootsFromCustomTask>,
 ) : CustomTaskDescription
 
@@ -88,7 +88,7 @@ internal class NotResolvedModule(
 ) : DefaultModule(
     userReadableName = userReadableName,
     type = ProductType.LIB,
-    source = PotatoModuleProgrammaticSource,
+    source = AmperModuleProgrammaticSource,
     origin = Module(),
     usedCatalog = null,
 )
@@ -101,10 +101,10 @@ class DefaultArtifact(
     override val platforms = fragments.flatMap { it.platforms }.toSet()
 }
 
-class DumbGradleModule(val gradleBuildFile: VirtualFile) : PotatoModule {
+class DumbGradleModule(val gradleBuildFile: VirtualFile) : AmperModule {
     override val userReadableName = gradleBuildFile.parent.name
     override val type = ProductType.LIB
-    override val source = PotatoModuleFileSource(gradleBuildFile.toNioPath())
+    override val source = AmperModuleFileSource(gradleBuildFile.toNioPath())
     override val origin = Module()
     override val fragments = listOf<Fragment>()
     override val artifacts = listOf<Artifact>()

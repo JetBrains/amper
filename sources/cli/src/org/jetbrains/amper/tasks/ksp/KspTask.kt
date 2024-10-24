@@ -15,7 +15,7 @@ import org.jetbrains.amper.core.use
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedClassesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedJavaSourcesPath
@@ -57,7 +57,7 @@ import kotlin.io.path.extension
 
 internal class KspTask(
     override val taskName: TaskName,
-    private val module: PotatoModule,
+    private val module: AmperModule,
     private val isTest: Boolean,
     private val fragments: List<Fragment>,
     private val platform: Platform,

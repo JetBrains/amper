@@ -18,7 +18,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.CommonTaskType
@@ -349,7 +349,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
 }
 
 private fun TaskGraphBuilder.setupAndroidPlatformTask(
-    module: PotatoModule,
+    module: AmperModule,
     androidSdkPath: Path,
     userCacheRoot: AmperUserCacheRoot,
     isTest: Boolean,
@@ -370,7 +370,7 @@ private fun TaskGraphBuilder.setupAndroidPlatformTask(
 }
 
 private fun TaskGraphBuilder.setupDownloadBuildToolsTask(
-    module: PotatoModule,
+    module: AmperModule,
     androidSdkPath: Path,
     userCacheRoot: AmperUserCacheRoot,
     isTest: Boolean,
@@ -389,7 +389,7 @@ private fun TaskGraphBuilder.setupDownloadBuildToolsTask(
 
 
 private fun TaskGraphBuilder.setupDownloadPlatformToolsTask(
-    module: PotatoModule,
+    module: AmperModule,
     androidSdkPath: Path,
     userCacheRoot: AmperUserCacheRoot,
     isTest: Boolean,
@@ -406,7 +406,7 @@ private fun TaskGraphBuilder.setupDownloadPlatformToolsTask(
 }
 
 private fun TaskGraphBuilder.setupDownloadSystemImageTask(
-    module: PotatoModule,
+    module: AmperModule,
     androidSdkPath: Path,
     userCacheRoot: AmperUserCacheRoot,
     isTest: Boolean,
@@ -427,7 +427,7 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
 
 private fun TaskGraphBuilder.setupPrepareAndroidTask(
     platform: Platform,
-    module: PotatoModule,
+    module: AmperModule,
     isTest: Boolean,
     executeOnChangedInputs: ExecuteOnChangedInputs,
     fragments: List<Fragment>,
@@ -457,7 +457,7 @@ private fun TaskGraphBuilder.setupPrepareAndroidTask(
 
 private fun TaskGraphBuilder.setupAndroidBuildTask(
     platform: Platform,
-    module: PotatoModule,
+    module: AmperModule,
     isTest: Boolean,
     executeOnChangedInputs: ExecuteOnChangedInputs,
     fragments: List<Fragment>,
@@ -485,7 +485,7 @@ private fun TaskGraphBuilder.setupAndroidBuildTask(
 }
 
 private fun TaskGraphBuilder.setupAndroidCommandlineTools(
-    module: PotatoModule,
+    module: AmperModule,
     androidSdkPath: Path,
     userCacheRoot: AmperUserCacheRoot
 ) {
@@ -499,7 +499,7 @@ private fun TaskGraphBuilder.setupAndroidCommandlineTools(
     )
 }
 
-private fun getAndroidFragment(module: PotatoModule, isTest: Boolean): LeafFragment? = module
+private fun getAndroidFragment(module: AmperModule, isTest: Boolean): LeafFragment? = module
     .fragments
     .filterIsInstance<LeafFragment>()
     .filter { it.isTest == isTest }.firstOrNull { Platform.ANDROID in it.platforms }

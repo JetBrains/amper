@@ -5,7 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskResult
@@ -13,7 +13,7 @@ import java.nio.file.Path
 
 class JvmRuntimeClasspathTask(
     override val taskName: TaskName,
-    private val module: PotatoModule,
+    private val module: AmperModule,
     private val isTest: Boolean,
 ): Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
@@ -48,7 +48,7 @@ class JvmRuntimeClasspathTask(
 
     class Result(
         val jvmRuntimeClasspath: List<Path>,
-        val module: PotatoModule,
+        val module: AmperModule,
         val isTest: Boolean,
     ): TaskResult
 }

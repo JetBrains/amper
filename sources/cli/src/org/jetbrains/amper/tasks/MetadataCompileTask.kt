@@ -23,7 +23,7 @@ import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.friends
 import org.jetbrains.amper.frontend.refinedFragments
@@ -43,7 +43,7 @@ import kotlin.io.path.walk
 
 class MetadataCompileTask(
     override val taskName: TaskName,
-    override val module: PotatoModule,
+    override val module: AmperModule,
     private val fragment: Fragment,
     private val userCacheRoot: AmperUserCacheRoot,
     private val tempRoot: AmperProjectTempRoot,
@@ -187,7 +187,7 @@ class MetadataCompileTask(
 
     class Result(
         val metadataOutputRoot: Path,
-        val module: PotatoModule,
+        val module: AmperModule,
         val fragment: Fragment,
     ) : TaskResult
 

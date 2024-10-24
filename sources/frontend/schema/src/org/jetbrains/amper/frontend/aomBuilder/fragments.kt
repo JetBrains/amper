@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
@@ -25,7 +25,7 @@ import kotlin.io.path.walk
 
 class DefaultLeafFragment(
     seed: FragmentSeed,
-    module: PotatoModule,
+    module: AmperModule,
     isTest: Boolean,
     externalDependencies: List<Notation>,
     relevantSettings: Settings?,
@@ -40,7 +40,7 @@ class DefaultLeafFragment(
 
 open class DefaultFragment(
     seed: FragmentSeed,
-    final override val module: PotatoModule,
+    final override val module: AmperModule,
     final override val isTest: Boolean,
     override val externalDependencies: List<Notation>,
     relevantSettings: Settings?,
@@ -193,7 +193,7 @@ private fun findConventionalPath(buildOutputRoot: Path, genDirs: List<Path>, pat
 fun createFragments(
     seeds: Collection<FragmentSeed>,
     moduleFile: VirtualFile,
-    module: PotatoModule,
+    module: AmperModule,
     resolveDependency: (Dependency) -> Notation?,
 ): List<DefaultFragment> {
     data class FragmentBundle(

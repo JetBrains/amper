@@ -8,7 +8,7 @@ import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.BuildType
@@ -16,7 +16,7 @@ import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 
 class AndroidBundleTask(
-    module: PotatoModule,
+    module: AmperModule,
     buildType: BuildType,
     executeOnChangedInputs: ExecuteOnChangedInputs,
     androidSdkPath: Path,

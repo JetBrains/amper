@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
@@ -54,7 +54,7 @@ class KotlinNativeCompiler(
     suspend fun compile(
         args: List<String>,
         tempRoot: AmperProjectTempRoot,
-        module: PotatoModule,
+        module: AmperModule,
     ) {
         spanBuilder("konanc")
             .setAmperModule(module)

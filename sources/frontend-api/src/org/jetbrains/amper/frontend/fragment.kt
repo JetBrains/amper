@@ -23,7 +23,7 @@ interface Fragment {
     /**
      * The module this fragment belongs to.
      */
-    val module: PotatoModule
+    val module: AmperModule
 
     /**
      * Fragments (within the same module) that this fragment depends on.
@@ -115,8 +115,8 @@ val Fragment.friends: List<Fragment>
 val Fragment.refinedFragments: List<Fragment>
     get() = fragmentDependencies.filter { it.type == FragmentDependencyType.REFINE }.map { it.target }
 
-private val Fragment.directModuleCompileDependencies: List<PotatoModule>
-    get() = externalDependencies.filterIsInstance<PotatoModuleDependency>().filter { it.compile }.map { it.module }
+private val Fragment.directModuleCompileDependencies: List<AmperModule>
+    get() = externalDependencies.filterIsInstance<LocalModuleDependency>().filter { it.compile }.map { it.module }
 
 /**
  * Source fragments (not Maven) that this fragment depends on with compile scope.
@@ -160,8 +160,17 @@ interface DefaultScopedNotation : Notation {
     val exported: Boolean get() = false
 }
 
-interface PotatoModuleDependency : DefaultScopedNotation {
-    val module: PotatoModule
+@Deprecated(
+    message = "PotatoModuleDependency was renamed to AmperModule",
+    replaceWith = ReplaceWith(
+        expression = "LocalModuleDependency",
+        imports = ["org.jetbrains.amper.frontend.LocalModuleDependency"],
+    ),
+)
+typealias PotatoModuleDependency = LocalModuleDependency
+
+interface LocalModuleDependency : DefaultScopedNotation {
+    val module: AmperModule
 }
 
 data class MavenDependency(

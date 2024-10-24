@@ -13,8 +13,8 @@ import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.isDescendantOf
@@ -56,7 +56,7 @@ class AmperBackend(val context: CliContext) {
             for ((moduleUserReadableName, moduleList) in model.modules.groupBy { it.userReadableName }) {
                 if (moduleList.size > 1) {
                     userReadableError("Module name '${moduleUserReadableName}' is not unique, it's declared in " +
-                    moduleList.joinToString(" ") { (it.source as? PotatoModuleFileSource)?.buildFile?.toString() ?: "" })
+                    moduleList.joinToString(" ") { (it.source as? AmperModuleFileSource)?.buildFile?.toString() ?: "" })
                 }
             }
 
@@ -118,7 +118,7 @@ class AmperBackend(val context: CliContext) {
     }
 
     @TestOnly
-    fun modules(): List<PotatoModule> = resolvedModel.modules
+    fun modules(): List<AmperModule> = resolvedModel.modules
 
     fun showModules() {
         for (moduleName in resolvedModel.modules.map { it.userReadableName }.sorted()) {

@@ -5,10 +5,10 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.aomBuilder.withPropagatedSettings
 import org.jetbrains.amper.frontend.schema.helper.listOfTraceable
-import org.jetbrains.amper.frontend.schema.helper.potatoModule
+import org.jetbrains.amper.frontend.schema.helper.amperModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -16,14 +16,14 @@ import kotlin.test.fail
 
 class PropagateTest {
 
-    private fun PotatoModule.withPropagatedSettings(): PotatoModule = object : PotatoModule by this {
+    private fun AmperModule.withPropagatedSettings(): AmperModule = object : AmperModule by this {
         override val fragments: List<Fragment> = this@withPropagatedSettings.fragments.withPropagatedSettings()
     }
 
     @Test
     fun `basic fragment property propagation`() {
         // given
-        val module = potatoModule("main") {
+        val module = amperModule("main") {
             fragment("common") {
                 dependant("jvm")
                 kotlin {
@@ -43,7 +43,7 @@ class PropagateTest {
 
     @Test
     fun `multi level propagation`() {
-        val module = potatoModule("main") {
+        val module = amperModule("main") {
             fragment("common") {
                 dependant("native")
                 kotlin {
@@ -68,7 +68,7 @@ class PropagateTest {
 
     @Test
     fun `set default values`() {
-        val module = potatoModule("main") {
+        val module = amperModule("main") {
             fragment("common") {
                 dependant("jvm")
                 kotlin {
@@ -88,7 +88,7 @@ class PropagateTest {
 
     @Test
     fun `artifact receives default values`() {
-        val module = potatoModule("main") {
+        val module = amperModule("main") {
             fragment("common") {
                 dependant("jvm")
             }
@@ -106,7 +106,7 @@ class PropagateTest {
 
     @Test
     fun `android namespace propagation`() {
-        val module = potatoModule("androidApp") {
+        val module = amperModule("androidApp") {
             fragment("common") {
                 dependant("android")
                 android {
@@ -126,7 +126,7 @@ class PropagateTest {
 
     @Test
     fun `android params propagation`() {
-        val module = potatoModule("androidApp") {
+        val module = amperModule("androidApp") {
             fragment("common") {
                 dependant("android")
                 android {
@@ -163,7 +163,7 @@ class PropagateTest {
         // desktop  apple
         //     \    /
         //    macosX64
-        val module = potatoModule("androidApp") {
+        val module = amperModule("androidApp") {
             fragment("common") {
                 dependant("desktop")
                 dependant("apple")
@@ -203,7 +203,7 @@ class PropagateTest {
         assertTrue(kotlinSettings.allWarningsAsErrors, "should inherit from 'desktop' parent")
     }
 
-    private fun assertSingleFragment(module: PotatoModule, fragmentName: String): Fragment {
+    private fun assertSingleFragment(module: AmperModule, fragmentName: String): Fragment {
         return module.fragments.singleOrNull { it.name == fragmentName }
             ?: fail("Expected a single fragment named '$fragmentName'")
     }

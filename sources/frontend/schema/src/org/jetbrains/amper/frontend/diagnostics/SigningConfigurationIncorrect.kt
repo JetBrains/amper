@@ -9,7 +9,7 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
@@ -29,7 +29,7 @@ import kotlin.reflect.KProperty0
 
 abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory {
     context(ProblemReporterContext)
-    override fun PotatoModule.analyze() {
+    override fun AmperModule.analyze() {
         if (type == ProductType.ANDROID_APP) {
             source.moduleDir?.let { moduleDir ->
                 fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->

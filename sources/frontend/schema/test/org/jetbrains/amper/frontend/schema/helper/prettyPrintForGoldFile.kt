@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.frontend.ModuleTasksPart
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
@@ -26,8 +26,8 @@ import kotlin.reflect.full.memberProperties
 // We don't use the visitor from the root for 2 reasons:
 //   1. this limits changes to gold files (we just replace the "parts" values with settings, but the rest of the format
 //      stays as it was)
-//   2. as a whole, the PotatoModule object contains cross-references (and even cycles) which are not nice to print
-internal fun PotatoModule.prettyPrintForGoldFile(): String = buildString {
+//   2. as a whole, the AmperModule object contains cross-references (and even cycles) which are not nice to print
+internal fun AmperModule.prettyPrintForGoldFile(): String = buildString {
     appendLine("Fragments:")
     for (fragment in fragments.sortedBy { it.name }) {
         appendLine("  ${fragment.name}")

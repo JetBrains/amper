@@ -11,7 +11,7 @@ import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isParentOf
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -34,7 +34,7 @@ internal interface TaskType {
 
 internal interface PlatformTaskType : TaskType {
     fun getTaskName(
-        module: PotatoModule,
+        module: AmperModule,
         platform: Platform,
         isTest: Boolean = false,
         buildType: BuildType? = null,
@@ -53,16 +53,16 @@ internal interface FragmentTaskType : TaskType {
 }
 
 data class ModuleSequenceCtx(
-    val module: PotatoModule,
+    val module: AmperModule,
     val platform: Platform = Platform.COMMON,
     val isTest: Boolean = false,
     val buildType: BuildType = BuildType.Debug,
 )
 
 data class ModuleDependencySequenceCtx(
-    val module: PotatoModule,
+    val module: AmperModule,
     val dependencyReason: ResolutionScope,
-    val dependsOn: PotatoModule,
+    val dependsOn: AmperModule,
     // For decomposing declarations.
     val platform: Platform = Platform.COMMON,
     val isTest: Boolean = false,
@@ -73,7 +73,7 @@ data class ModuleDependencySequenceCtx(
  * Returns all fragments in this module that target the given [platform].
  * If [includeTestFragments] is false, only production fragments are returned.
  */
-internal fun PotatoModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
+internal fun AmperModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
     fragments.filter { (includeTestFragments || !it.isTest) && it.platforms.contains(platform) }
 
 class ProjectTasksBuilder(

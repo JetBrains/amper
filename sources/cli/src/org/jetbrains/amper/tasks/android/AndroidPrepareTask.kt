@@ -8,7 +8,7 @@ import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -21,7 +21,7 @@ import kotlin.io.path.extension
 
 class AndroidPrepareTask(
     override val taskName: TaskName,
-    module: PotatoModule,
+    module: AmperModule,
     buildType: BuildType,
     executeOnChangedInputs: ExecuteOnChangedInputs,
     androidSdkPath: Path,

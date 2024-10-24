@@ -15,8 +15,8 @@ import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.KotlinSettings
@@ -367,7 +367,7 @@ class KMPPBindingPluginPart(
                             }
                         when (externalDependency) {
                             is MavenDependency -> depFunction(externalDependency.coordinates)
-                            is PotatoModuleDependency -> depFunction(externalDependency.module.linkedProject)
+                            is LocalModuleDependency -> depFunction(externalDependency.module.linkedProject)
                             else -> error("Unsupported dependency type: $externalDependency")
                         }
                     }
@@ -444,7 +444,7 @@ class KMPPBindingPluginPart(
     }
 }
 
-private val PotatoModule.mostCommonFragment: Fragment
+private val AmperModule.mostCommonFragment: Fragment
     get() = fragments.firstOrNull { fragment ->
         fragment.fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }
     } ?: error("Couldn't find the most common fragment")

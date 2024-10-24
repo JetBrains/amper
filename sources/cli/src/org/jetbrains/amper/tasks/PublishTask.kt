@@ -27,7 +27,7 @@ import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 import org.jetbrains.amper.maven.publicationCoordinates
@@ -43,7 +43,7 @@ import kotlin.io.path.isRegularFile
 
 class PublishTask(
     override val taskName: TaskName,
-    val module: PotatoModule,
+    val module: AmperModule,
     val targetRepository: RepositoriesModulePart.Repository,
     private val tempRoot: AmperProjectTempRoot,
     private val mavenLocalRepository: MavenLocalRepository,
@@ -124,7 +124,7 @@ class PublishTask(
         return dependenciesResult.flatMap { it.toMavenArtifact(coords) } + pomPath.toMavenArtifact(coords)
     }
 
-    private fun generatePomFile(module: PotatoModule, platform: Platform): Path {
+    private fun generatePomFile(module: AmperModule, platform: Platform): Path {
         tempRoot.path.createDirectories()
         val tempPath = createTempFile(tempRoot.path, "maven-deploy", ".pom")
         tempPath.toFile().deleteOnExit() // FIXME delete the file when done with upload instead of deleteOnExit

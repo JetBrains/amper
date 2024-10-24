@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.android
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.BuildType
@@ -16,7 +16,7 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 abstract class LastPhaseAndroidDelegatedGradleTask(
-    private val module: PotatoModule,
+    private val module: AmperModule,
     buildType: BuildType,
     executeOnChangedInputs: ExecuteOnChangedInputs,
     androidSdkPath: Path,

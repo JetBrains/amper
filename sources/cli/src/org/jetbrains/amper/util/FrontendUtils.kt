@@ -5,9 +5,9 @@
 package org.jetbrains.amper.util
 
 import org.jetbrains.amper.frontend.LeafFragment
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 
-val PotatoModule.targetLeafPlatforms
+val AmperModule.targetLeafPlatforms
     get() = fragments.filterIsInstance<LeafFragment>().flatMap { it.platforms }
         .filter { it.isLeaf }
         .toSet()

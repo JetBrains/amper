@@ -17,9 +17,9 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.LocalModuleDependency
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.Module
@@ -32,20 +32,20 @@ class MockModel(
     val name: String,
     override val projectRoot: Path,
 ) : Model {
-    override val modules = mutableListOf<PotatoModule>()
+    override val modules = mutableListOf<AmperModule>()
 
-    fun module(buildFile: Path, builder: MockPotatoModule.() -> Unit) =
-        MockPotatoModule(buildFile).apply(builder).apply { modules.add(this) }
+    fun module(buildFile: Path, builder: MockAmperModule.() -> Unit) =
+        MockAmperModule(buildFile).apply(builder).apply { modules.add(this) }
 }
 
-class MockPotatoModule(
+class MockAmperModule(
     buildFile: Path,
     override var type: ProductType = ProductType.JVM_APP,
     override var userReadableName: String = "module",
     override val parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
     override val origin: Module = Module(),
-) : PotatoModule {
-    override val source = PotatoModuleFileSource(buildFile)
+) : AmperModule {
+    override val source = AmperModuleFileSource(buildFile)
     override val fragments = mutableListOf<MockFragment>()
     override val artifacts = mutableListOf<MockArtifact>()
     override val usedCatalog = null
@@ -81,13 +81,13 @@ class MockFragmentLink(
     override val type: FragmentDependencyType
 ) : FragmentLink
 
-class MockPotatoDependency(override val module: PotatoModule) : PotatoModuleDependency {
+class MockLocalModuleDependency(override val module: AmperModule) : LocalModuleDependency {
     override var trace: Trace? = null
 }
 
 open class MockFragment(
     final override var name: String = "fragment",
-    override val module: PotatoModule,
+    override val module: AmperModule,
     override val settings: Settings = Settings(),
 ) : Fragment {
     override val fragmentDependencies = mutableListOf<FragmentLink>()
@@ -114,12 +114,12 @@ open class MockFragment(
     )
 
     fun dependency(notation: Notation) = externalDependencies.add(notation)
-    fun dependency(module: MockPotatoModule) = externalDependencies.add(MockPotatoDependency(module))
+    fun dependency(module: MockAmperModule) = externalDependencies.add(MockLocalModuleDependency(module))
 }
 
 class LeafMockFragment(
     name: String = "fragment",
-    module: PotatoModule,
+    module: AmperModule,
 ) : MockFragment(name, module), LeafFragment {
     override val platform get() = platforms.single()
 }

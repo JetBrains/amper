@@ -5,14 +5,14 @@
 package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.relativeTo
 
 /**
  * Returns the Gradle path of this module, as if it were part of a Gradle project with root [projectRoot].
  */
-internal fun PotatoModule.gradlePath(projectRoot: AmperProjectRoot): String {
+internal fun AmperModule.gradlePath(projectRoot: AmperProjectRoot): String {
     val moduleDir = source.moduleDir ?: error("Cannot build Android module without directory")
     val relativeModuleDir = moduleDir.relativeTo(projectRoot.path).normalize().invariantSeparatorsPathString
     return ":" + relativeModuleDir.replace('/', ':')

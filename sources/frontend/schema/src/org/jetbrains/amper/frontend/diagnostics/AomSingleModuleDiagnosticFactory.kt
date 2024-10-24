@@ -6,10 +6,10 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 
 /**
- * Factory to provide diagnostics on an AOM [PotatoModule].
+ * Factory to provide diagnostics on an AOM [AmperModule].
  *
  * Use this factory to analyze built AOM modules with propagated properties and resolved internal dependencies.
  *
@@ -22,5 +22,5 @@ interface AomSingleModuleDiagnosticFactory {
     val diagnosticId: BuildProblemId
 
     context(ProblemReporterContext)
-    fun PotatoModule.analyze()
+    fun AmperModule.analyze()
 }

@@ -8,8 +8,8 @@ import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.jetbrains.amper.frontend.MetaModulePart
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.tooling.core.withClosure
@@ -21,8 +21,8 @@ import kotlin.io.path.*
 /**
  * The directory containing the Amper module file or Gradle build file of this module.
  */
-val PotatoModule.moduleDir
-    get() = (source as? PotatoModuleFileSource)?.moduleDir
+val AmperModule.moduleDir
+    get() = (source as? AmperModuleFileSource)?.moduleDir
         ?: error("Cannot get the moduleDir of module '$userReadableName' because it doesn't have a file-based source " +
                 "(the source type is ${source::class.simpleName})")
 
@@ -46,7 +46,7 @@ fun <K, V> ExtraPropertiesExtension.getBindingMap(name: String) = try {
 /**
  * Check if the requested platform is included in module.
  */
-operator fun PotatoModuleWrapper.contains(platform: Platform) =
+operator fun AmperModuleWrapper.contains(platform: Platform) =
     artifactPlatforms.contains(platform)
 
 /**
@@ -73,7 +73,7 @@ enum class EntryPointType(val symbolName: String) { NATIVE("main"), JVM("MainKt"
 val BindingPluginPart.hasGradleScripts
     get() = module.hasGradleScripts
 
-val PotatoModule.hasGradleScripts
+val AmperModule.hasGradleScripts
     get() = moduleDir.run {
         resolve("build.gradle.kts").exists() || resolve("build.gradle").exists()
     }

@@ -5,7 +5,7 @@
 package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
@@ -154,7 +154,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
     }
 }
 
-private fun ComposeResourcesSettings.getResourcesPackageName(module: PotatoModule): String {
+private fun ComposeResourcesSettings.getResourcesPackageName(module: AmperModule): String {
     return packageName.takeIf { it.isNotEmpty() } ?: run {
         val packageParts = module.rootFragment?.inferPackageNameFromPublishing() ?: module.inferPackageNameFromModule()
         (packageParts + listOf("generated", "resources")).joinToString(separator = ".") {
@@ -169,7 +169,7 @@ private fun Fragment.inferPackageNameFromPublishing(): List<String>? {
     }
 }
 
-private fun PotatoModule.inferPackageNameFromModule(): List<String> {
+private fun AmperModule.inferPackageNameFromModule(): List<String> {
     return listOf(userReadableName)
 }
 
@@ -191,5 +191,5 @@ internal enum class ComposeGlobalTaskType(
     ComposeResourcesGenerateExpect("generateExpectComposeResourceCollectors"),
     ;
 
-    fun getTaskName(module: PotatoModule) = TaskName.moduleTask(module, keywordName)
+    fun getTaskName(module: AmperModule) = TaskName.moduleTask(module, keywordName)
 }

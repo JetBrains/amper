@@ -12,8 +12,8 @@ import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DependencyNodeHolderWithNotation
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
@@ -27,14 +27,14 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
  *
  * Graph:
  * ```
- * ┌─────────────┐
- * │potato-module├────────┐────────────────────┐───────────────────────┐
- * └──┬──────────┘        │                    │                       │
- *    │                   │                    │                       │
- *    │                   │                    │                       │
- * ┌──▼───────────┐     ┌─▼────────────┐     ┌─▼───────────────┐     ┌─▼───────────────┐
- * │potato-module1│...  │potato-moduleN│     │maven dependency1│...  │maven dependencyM│
- * └──┬───────────┘     └─┬────────────┘     └─────────────────┘     └─────────────────┘
+ * ┌────────────┐
+ * │amper-module├────────┐───────────────────┐───────────────────────┐
+ * └──┬─────────┘        │                   │                       │
+ *    │                  │                   │                       │
+ *    │                  │                   │                       │
+ * ┌──▼──────────┐     ┌─▼───────────┐     ┌─▼───────────────┐     ┌─▼───────────────┐
+ * │amper-module1│...  │amper-moduleN│     │maven dependency1│...  │maven dependencyM│
+ * └──┬──────────┘     └─┬───────────┘     └─────────────────┘     └─────────────────┘
  *
  * ```
  */
@@ -42,7 +42,7 @@ internal class Classpath(
     dependenciesFlowType: DependenciesFlowType.ClassPathType
 ): AbstractDependenciesFlow<DependenciesFlowType.ClassPathType>(dependenciesFlowType) {
 
-    override fun directDependenciesGraph(module: PotatoModule, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
+    override fun directDependenciesGraph(module: AmperModule, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
         val parentContext = Context {
             this.scope = flowType.scope
             this.platforms = setOf(flowType.platform)
@@ -52,12 +52,12 @@ internal class Classpath(
         return module.fragmentsModuleDependencies(flowType.isTest, parentContext)
     }
 
-    private fun PotatoModule.fragmentsModuleDependencies(
+    private fun AmperModule.fragmentsModuleDependencies(
         isTest: Boolean,
         parentContext: Context,
         directDependencies: Boolean = true,
         notation: DefaultScopedNotation? = null,
-        visitedModules: MutableSet<PotatoModule> = mutableSetOf()
+        visitedModules: MutableSet<AmperModule> = mutableSetOf()
     ): ModuleDependencyNodeWithModule {
 
         visitedModules.add(this)
@@ -87,7 +87,7 @@ internal class Classpath(
         platform: ResolutionPlatform,
         directDependencies: Boolean,
         moduleContext: Context,
-        visitedModules: MutableSet<PotatoModule>,
+        visitedModules: MutableSet<AmperModule>,
         isTest: Boolean
     ): List<DependencyNodeHolderWithNotation> {
         val fragmentDependencies = externalDependencies
@@ -101,7 +101,7 @@ internal class Classpath(
                         } else null
                     }
 
-                    is PotatoModuleDependency -> {
+                    is LocalModuleDependency -> {
                         val resolvedDependencyModule = dependency.module
                         if (!visitedModules.contains(resolvedDependencyModule)) {
                             val includeDependency = dependency.shouldBeAdded(scope, platform, directDependencies)
@@ -141,7 +141,7 @@ internal class Classpath(
      * Returns all fragments in this module that target the given [platform].
      * If [includeTestFragments] is false, only production fragments are returned.
      */
-    private fun PotatoModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
+    private fun AmperModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
         fragments
             .filter { (includeTestFragments || !it.isTest) && it.platforms.contains(platform) }
             .sortedBy { it.name }

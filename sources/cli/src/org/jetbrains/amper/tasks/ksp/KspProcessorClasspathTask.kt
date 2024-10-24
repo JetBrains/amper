@@ -5,7 +5,7 @@
 package org.jetbrains.amper.tasks.ksp
 
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
@@ -13,7 +13,7 @@ import java.nio.file.Path
 
 class KspProcessorClasspathTask(
     override val taskName: TaskName,
-    private val module: PotatoModule,
+    private val module: AmperModule,
     private val isTest: Boolean,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult = Result(
@@ -39,7 +39,7 @@ class KspProcessorClasspathTask(
 
     class Result(
         val processorClasspath: List<Path>,
-        val module: PotatoModule,
+        val module: AmperModule,
         val isTest: Boolean,
     ) : TaskResult
 }

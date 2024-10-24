@@ -11,14 +11,14 @@ import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.ancestralPath
 import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-fun Path.writePomFor(module: PotatoModule, platform: Platform, gradleMetadataComment: Boolean) {
+fun Path.writePomFor(module: AmperModule, platform: Platform, gradleMetadataComment: Boolean) {
     val model = generatePomModel(module, platform)
     
     WriterFactory.newXmlWriter(toFile()).use { writer ->
@@ -52,7 +52,7 @@ private fun Path.insertGradleMetadataComment() {
     writeText(contentWithGradleMetadataComment)
 }
 
-private fun generatePomModel(module: PotatoModule, platform: Platform): Model {
+private fun generatePomModel(module: AmperModule, platform: Platform): Model {
     val coords = module.publicationCoordinates(platform)
     val fragment = module.singleProductionFragmentOrNull(platform)
         ?: error("Cannot generate pom for module '${module.userReadableName}': expected a single fragment for platform $platform")
@@ -84,11 +84,11 @@ private fun generatePomModel(module: PotatoModule, platform: Platform): Model {
 
 private fun Notation.toPomDependency(platform: Platform): Dependency = when (this) {
     is MavenDependency -> toPomDependency()
-    is PotatoModuleDependency -> toPomDependency(platform)
+    is LocalModuleDependency -> toPomDependency(platform)
     is DefaultScopedNotation -> error("Dependency type ${this::class.simpleName} is not supported for pom.xml publication")
 }
 
-private fun PotatoModuleDependency.toPomDependency(platform: Platform): Dependency {
+private fun LocalModuleDependency.toPomDependency(platform: Platform): Dependency {
     val coords = module.publicationCoordinates(platform)
 
     val dependency = Dependency()
@@ -99,7 +99,7 @@ private fun PotatoModuleDependency.toPomDependency(platform: Platform): Dependen
     return dependency
 }
 
-private fun PotatoModule.singleProductionFragmentOrNull(platform: Platform) = if (platform == Platform.COMMON) {
+private fun AmperModule.singleProductionFragmentOrNull(platform: Platform) = if (platform == Platform.COMMON) {
     fragments.singleOrNull { !it.isTest && it.fragmentDependencies.isEmpty() }   
 } else {
     leafFragments.singleOrNull { !it.isTest && it.platforms == setOf(platform) }
@@ -152,6 +152,6 @@ private fun DefaultScopedNotation.mavenScopeName(): String = when {
 
 private fun DefaultScopedNotation.userReadableCoordinates(): String = when (this) {
     is MavenDependency -> coordinates
-    is PotatoModuleDependency -> module.userReadableName
+    is LocalModuleDependency -> module.userReadableName
     else -> toString()
 }

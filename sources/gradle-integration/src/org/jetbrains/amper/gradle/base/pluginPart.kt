@@ -7,10 +7,10 @@ package org.jetbrains.amper.gradle.base
 import org.gradle.api.Project
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.gradle.ArtifactWrapper
 import org.jetbrains.amper.gradle.PlatformAware
-import org.jetbrains.amper.gradle.PotatoModuleWrapper
+import org.jetbrains.amper.gradle.AmperModuleWrapper
 import org.jetbrains.amper.gradle.moduleDir
 import java.nio.file.Path
 
@@ -20,10 +20,10 @@ import java.nio.file.Path
 interface BindingPluginPart {
     val project: Project
     val model: Model
-    val module: PotatoModuleWrapper
+    val module: AmperModuleWrapper
     val moduleToProject: Map<Path, String>
 
-    val PotatoModule.linkedProject
+    val AmperModule.linkedProject
         get() = project.project(
             moduleToProject[moduleDir]
                 ?: error("No linked Gradle project found for module $userReadableName")
@@ -52,7 +52,7 @@ open class NoneAwarePart(
 open class PluginPartCtx(
     override val project: Project,
     override val model: Model,
-    override val module: PotatoModuleWrapper,
+    override val module: AmperModuleWrapper,
     override val moduleToProject: Map<Path, String>,
 ) : BindingPluginPart
 

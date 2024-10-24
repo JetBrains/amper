@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.tasks.compose
 
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.schema.commonSettings
 
 
-internal fun isComposeEnabledFor(module: PotatoModule): Boolean {
+internal fun isComposeEnabledFor(module: AmperModule): Boolean {
     return module.origin.commonSettings.compose.enabled
 }

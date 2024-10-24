@@ -21,7 +21,7 @@ import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.gradle.util.MockModel
-import org.jetbrains.amper.gradle.util.MockPotatoModule
+import org.jetbrains.amper.gradle.util.MockAmperModule
 import org.jetbrains.amper.gradle.util.getMockModelName
 import org.jetbrains.amper.gradle.util.withDebug
 import org.jetbrains.kotlin.gradle.utils.ProviderDelegate
@@ -250,7 +250,7 @@ object Models : ModelInit {
         }
     }
 
-    private fun MockPotatoModule.singleFragmentJvmArtifact() {
+    private fun MockAmperModule.singleFragmentJvmArtifact() {
         artifact(
             "myApp",
             setOf(Platform.JVM),

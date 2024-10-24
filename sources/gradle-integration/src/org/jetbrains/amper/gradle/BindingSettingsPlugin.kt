@@ -17,8 +17,8 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
@@ -77,7 +77,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
 
     private fun setGradleProjectsToAmperModuleMappings(
         projects: Set<Project>,
-        modules: List<PotatoModule>,
+        modules: List<AmperModule>,
         gradle: Gradle,
     ) {
         val amperModulesByDir = modules
@@ -86,7 +86,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
 
         projects.forEach { project ->
             val module = amperModulesByDir[project.projectDir.absolutePath] ?: return@forEach
-            project.amperModule = PotatoModuleWrapper(module)
+            project.amperModule = AmperModuleWrapper(module)
             gradle.moduleFilePathToProject[module.moduleDir] = project.path
         }
     }
@@ -150,8 +150,8 @@ class BindingSettingsPlugin : Plugin<Settings> {
     }
 }
 
-private fun PotatoModule.hasAmperConfigFile() =
-    (source as? PotatoModuleFileSource)?.buildFile?.nameWithoutExtension == "module"
+private fun AmperModule.hasAmperConfigFile() =
+    (source as? AmperModuleFileSource)?.buildFile?.nameWithoutExtension == "module"
 
 private fun RepositoryHandler.addDefaultAmperRepositoriesForDependencies() {
     mavenCentral()

@@ -9,5 +9,5 @@ import java.nio.file.Path
 
 interface Model {
     val projectRoot: Path
-    val modules: List<PotatoModule>
+    val modules: List<AmperModule>
 }

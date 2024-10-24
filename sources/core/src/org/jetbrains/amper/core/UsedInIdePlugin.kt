@@ -4,5 +4,15 @@
 
 package org.jetbrains.amper.core
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.TYPEALIAS,
+    AnnotationTarget.VALUE_PARAMETER,
+)
 annotation class UsedInIdePlugin

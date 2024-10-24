@@ -60,7 +60,7 @@ sealed class CompositeStringPart {
     }
 
     data class ModulePropertyReference(
-        val referencedModule: PotatoModule,
+        val referencedModule: AmperModule,
         val property: KnownModuleProperty,
         val originalReferenceText: String,
     ): CompositeStringPart() {
@@ -104,8 +104,8 @@ interface CustomTaskDescription {
     val source: Path
     val origin: CustomTaskNode
     val type: CustomTaskType
-    val module: PotatoModule
-    val customTaskCodeModule: PotatoModule
+    val module: AmperModule
+    val customTaskCodeModule: AmperModule
     val jvmArguments: List<CompositeString>
     val programArguments: List<CompositeString>
     val environmentVariables: Map<String, CompositeString>

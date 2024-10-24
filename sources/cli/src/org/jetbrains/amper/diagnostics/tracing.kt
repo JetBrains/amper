@@ -9,12 +9,12 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.sdk.trace.data.SpanData
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.processes.ProcessResult
 
 val amperModuleKey: AttributeKey<String> = AttributeKey.stringKey("amper-module")
 
-fun SpanBuilder.setAmperModule(module: PotatoModule): SpanBuilder =
+fun SpanBuilder.setAmperModule(module: AmperModule): SpanBuilder =
     setAttribute(amperModuleKey, module.userReadableName)
 
 fun SpanBuilder.setFragments(fragments: List<Fragment>) =

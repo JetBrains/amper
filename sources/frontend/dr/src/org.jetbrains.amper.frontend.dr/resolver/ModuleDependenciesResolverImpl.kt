@@ -7,13 +7,13 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.Resolver
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
 
 internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
-    override fun PotatoModule.resolveDependenciesGraph(dependenciesFlowType: DependenciesFlowType, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
+    override fun AmperModule.resolveDependenciesGraph(dependenciesFlowType: DependenciesFlowType, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
@@ -37,7 +37,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         }
     }
 
-    override suspend fun PotatoModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNodeWithModule {
+    override suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNodeWithModule {
         with(resolutionInput) {
             val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder)
             moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
@@ -45,7 +45,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         }
     }
 
-    private fun List<PotatoModule>.resolveDependenciesGraph(dependenciesFlowType: DependenciesFlowType, fileCacheBuilder: FileCacheBuilder.() -> Unit): DependencyNodeHolder {
+    private fun List<AmperModule>.resolveDependenciesGraph(dependenciesFlowType: DependenciesFlowType, fileCacheBuilder: FileCacheBuilder.() -> Unit): DependencyNodeHolder {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
@@ -54,7 +54,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder)
     }
 
-    override suspend fun List<PotatoModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder {
+    override suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder {
         with(resolutionInput) {
             val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder)
             moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)

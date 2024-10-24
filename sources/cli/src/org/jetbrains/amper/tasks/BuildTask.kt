@@ -6,13 +6,13 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 
 /**
  * A task attached to the 'build' command.
  */
 interface BuildTask : Task {
-    val module: PotatoModule
+    val module: AmperModule
     val isTest: Boolean
     val platform: Platform
 }

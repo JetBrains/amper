@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.startLongLivedProcess
 import org.jetbrains.amper.tasks.RunTask
@@ -44,7 +44,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class AndroidRunTask(
     override val taskName: TaskName,
-    override val module: PotatoModule,
+    override val module: AmperModule,
     override val buildType: BuildType,
     private val androidSdkPath: Path,
     private val avdPath: Path,

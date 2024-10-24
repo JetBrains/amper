@@ -36,10 +36,10 @@ fun ProjectTasksBuilder.setupKspTasks() {
                 )
             )
 
-            // We have to use paths for this right now because the Settings type has to match what
-            // we parse. We don't have PotatoSettings like we have PotatoModule, so we can't provide a
-            // real PotatoModule instance in settings.ksp.processors yet.
-            // TODO rework PotatoModule settings so we can use different types in parsing and processing
+            // settings.kotlin.ksp.processors can't provide real AmperModule instances for now, because they are
+            // parsed directly from the config files (there is no conversion like for Module -> AmperModule).
+            // This is why we use paths + the module source right now to find the actual AmperModule objects.
+            // TODO rework AmperModule settings so we can use different types in parsing and processing
             val processorModuleDepsPaths = fragments.flatMap { it.settings.kotlin.ksp.processors }
                 .filterIsInstance<ModuleKspProcessorDeclaration>()
                 .map { it.path.value }

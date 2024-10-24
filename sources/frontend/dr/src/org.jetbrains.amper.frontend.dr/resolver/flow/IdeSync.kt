@@ -12,7 +12,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.MavenDependency
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
@@ -37,9 +37,9 @@ import java.util.concurrent.ConcurrentHashMap
  * └──┬─┘                             │
  *    │                               │
  *    │                               │
- * ┌──▼───────────┐                 ┌─▼────────────┐
- * │potato-module1│...              │potato-moduleN│
- * └──┬───────────┘                 └─┬────────────┘
+ * ┌──▼──────────┐                  ┌─▼───────────┐
+ * │amper-module1│...               │amper-moduleN│
+ * └──┬──────────┘                  └─┬───────────┘
  *    │                               │
  *    ├───────────────┐               ├──────────────┐
  *    │               │               │              │
@@ -60,10 +60,10 @@ internal class IdeSync(
 
     private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
 
-    override fun directDependenciesGraph(module: PotatoModule, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule =
+    override fun directDependenciesGraph(module: AmperModule, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule =
         module.toGraph(fileCacheBuilder)
 
-    private fun PotatoModule.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
+    private fun AmperModule.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
         val repositories = getValidRepositories()
 
         val node = ModuleDependencyNodeWithModule(

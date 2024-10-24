@@ -8,7 +8,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jar.writeZip
@@ -47,7 +47,7 @@ import kotlin.math.absoluteValue
  */
 class AndroidAarTask(
     override val taskName: TaskName,
-    private val module: PotatoModule,
+    private val module: AmperModule,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val taskOutputRoot: TaskOutputRoot,
     private val tempRoot: AmperProjectTempRoot,
@@ -127,7 +127,7 @@ class AndroidAarTask(
 }
 
 // Meh, but does the trick, as AARs are purely implementation detail for now.
-private fun internalPackageNameFor(module: PotatoModule): String {
+private fun internalPackageNameFor(module: AmperModule): String {
     // The main purpose is to be unique for the module and respect android package name rules.
     return "org.jetbrains.amper.internal.p${module.userReadableName.hashCode().absoluteValue}"
 }

@@ -23,9 +23,9 @@ import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.LocalModuleDependency
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -67,7 +67,7 @@ fun <K, V> ExtraPropertiesExtension.getBindingMap(name: String) = try {
     bindingMap
 }
 
-val Gradle.projectPathToModule: MutableMap<String, PotatoModule>
+val Gradle.projectPathToModule: MutableMap<String, AmperModule>
     get() = (this as ExtensionAware).extensions.extraProperties.getBindingMap(PROJECT_TO_MODULE_EXT)
 
 val Gradle.moduleFilePathToProject: MutableMap<Path, String>
@@ -84,9 +84,9 @@ var Gradle.knownModel: Model?
     }
 
 
-val PotatoModule.buildFile get() = (source as PotatoModuleFileSource).buildFile
+val AmperModule.buildFile get() = (source as AmperModuleFileSource).buildFile
 
-val PotatoModule.buildDir get() = buildFile.parent
+val AmperModule.buildDir get() = buildFile.parent
 
 private const val SIGNING_CONFIG_NAME = "sign"
 
@@ -227,7 +227,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
                     androidFragment
                         .externalDependencies
                         .asSequence()
-                        .filterIsInstance<PotatoModuleDependency>()
+                        .filterIsInstance<LocalModuleDependency>()
                         .map { it.module }
                         .filter { it.artifacts.any { Platform.ANDROID in it.platforms } }
                         .mapNotNull { project.gradle.moduleFilePathToProject[it.buildDir] }

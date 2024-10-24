@@ -23,7 +23,7 @@ import fleet.com.intellij.openapi.util.UserDataHolderEx
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.util.BuildType
 import java.io.File
@@ -37,7 +37,7 @@ import kotlin.io.path.pathString
 class XcodeProject : XcodeProjectId, UserDataHolderEx by XcodeUserDataHolder()
 
 fun FileConventions.doGenerateBuildableXcodeproj(
-    module: PotatoModule,
+    module: AmperModule,
     fragment: LeafFragment,
     buildOutputRoot: AmperBuildOutputRoot,
     targetName: String,
@@ -156,7 +156,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
 }
 
 private fun addResourcesStages(
-    module: PotatoModule,
+    module: AmperModule,
     leafFragment: LeafFragment,
     outputRoot: AmperBuildOutputRoot,
     manipulator: PBXProjectFileManipulator,

@@ -11,7 +11,7 @@ import kotlin.reflect.KMutableProperty0
 
 fun String.doCapitalize() = replaceFirstChar { it.titlecase() }
 
-val PotatoModule.mavenRepositories: List<RepositoriesModulePart.Repository>
+val AmperModule.mavenRepositories: List<RepositoriesModulePart.Repository>
     get() = parts.find<RepositoriesModulePart>()?.mavenRepositories ?: emptyList()
 
 /**

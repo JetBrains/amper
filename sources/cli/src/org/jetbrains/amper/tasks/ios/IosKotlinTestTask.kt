@@ -15,7 +15,7 @@ import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setProcessResultAttributes
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.BaseTaskResult
@@ -27,7 +27,7 @@ import kotlin.io.path.pathString
 
 class IosKotlinTestTask(
     override val taskName: TaskName,
-    override val module: PotatoModule,
+    override val module: AmperModule,
     private val projectRoot: AmperProjectRoot,
     private val terminal: Terminal,
     override val platform: Platform,

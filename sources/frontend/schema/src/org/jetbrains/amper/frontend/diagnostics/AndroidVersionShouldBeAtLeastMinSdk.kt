@@ -9,7 +9,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.valueBase
@@ -42,7 +42,7 @@ class AndroidVersionShouldBeAtLeastMinSdk(
 object AndroidVersionShouldBeAtLeastMinSdkFactory : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "android.version.should.be.at.least.min.sdk"
 
-    context(ProblemReporterContext) override fun PotatoModule.analyze() {
+    context(ProblemReporterContext) override fun AmperModule.analyze() {
         val reportedPlaces = mutableSetOf<Trace?>()
         fragments.forEach { fragment ->
             val settings = fragment.settings.android

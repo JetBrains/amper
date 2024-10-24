@@ -6,7 +6,7 @@ package org.jetbrains.amper.tasks.ios
 
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -119,8 +119,8 @@ fun ProjectTasksBuilder.setupIosTasks() {
 }
 
 private fun ProjectTasksBuilder.includeComposeResources(
-    from: PotatoModule,
-    into: PotatoModule,
+    from: AmperModule,
+    into: AmperModule,
     forPlatform: Platform,
 ) {
     from.fragmentsTargeting(

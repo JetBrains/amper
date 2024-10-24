@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.native
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -16,7 +16,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.util.BuildType
 
-private fun isIosApp(platform: Platform, module: PotatoModule) =
+private fun isIosApp(platform: Platform, module: AmperModule) =
     platform.isDescendantOf(Platform.IOS) && module.type.isApplication()
 
 fun ProjectTasksBuilder.setupNativeTasks() {
@@ -135,15 +135,15 @@ fun ProjectTasksBuilder.setupNativeTasks() {
         }
 }
 
-private fun needsLinkedExecutable(module: PotatoModule, isTest: Boolean) =
+private fun needsLinkedExecutable(module: AmperModule, isTest: Boolean) =
     module.type.isApplication() || isTest
 
-private fun getNativeLinkTaskName(platform: Platform, module: PotatoModule, isTest: Boolean) =
+private fun getNativeLinkTaskName(platform: Platform, module: AmperModule, isTest: Boolean) =
     getNativeLinkTaskDetails(platform, module, isTest).first
 
 private fun getNativeLinkTaskDetails(
     platform: Platform,
-    module: PotatoModule,
+    module: AmperModule,
     isTest: Boolean
 ) = when {
     isIosApp(platform, module) && !isTest ->

@@ -25,8 +25,8 @@ private const val AMPER_MODULE_EXT = "org.jetbrains.amper.project.ext.amperModul
 /**
  * The Amper module corresponding to this Gradle [Project].
  */
-var Project.amperModule: PotatoModuleWrapper?
-    get() = extraProperties.getOrNull<PotatoModuleWrapper>(AMPER_MODULE_EXT)
+var Project.amperModule: AmperModuleWrapper?
+    get() = extraProperties.getOrNull<AmperModuleWrapper>(AMPER_MODULE_EXT)
     set(value) {
         extraProperties[AMPER_MODULE_EXT] = value
     }

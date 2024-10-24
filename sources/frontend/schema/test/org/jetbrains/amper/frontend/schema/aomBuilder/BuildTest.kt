@@ -15,8 +15,8 @@ import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.KnownModuleProperty
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleSource
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.parseStringWithReferences
 import org.jetbrains.amper.frontend.schema.Module
@@ -90,12 +90,12 @@ class BuildTest {
         }
     }
 
-    private class MockModule: PotatoModule {
+    private class MockModule: AmperModule {
         override val userReadableName: String
             get() = throw UnsupportedOperationException()
         override val type: ProductType
             get() = throw UnsupportedOperationException()
-        override val source: PotatoModuleSource
+        override val source: AmperModuleSource
             get() = throw UnsupportedOperationException()
         override val origin: Module
             get() = throw UnsupportedOperationException()

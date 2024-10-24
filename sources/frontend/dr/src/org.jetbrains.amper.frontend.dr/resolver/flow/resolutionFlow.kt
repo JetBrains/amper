@@ -12,7 +12,7 @@ import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
-import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
@@ -26,12 +26,12 @@ import java.util.concurrent.ConcurrentHashMap
 
 interface DependenciesFlow<T: DependenciesFlowType> {
     fun directDependenciesGraph(
-        module: PotatoModule,
+        module: AmperModule,
         fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder()
     ): ModuleDependencyNodeWithModule
 
     fun directDependenciesGraph(
-        modules: List<PotatoModule>,
+        modules: List<AmperModule>,
         fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder()
     ): DependencyNodeHolder {
         val node = DependencyNodeHolder(
@@ -72,7 +72,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         return getOrCreateNode(mavenDependency,null)
     }
 
-    fun PotatoModule.getValidRepositories(): List<Repository> {
+    fun AmperModule.getValidRepositories(): List<Repository> {
         val acceptedRepositories = mutableListOf<Repository>()
         for (repository in repositories()) {
             @Suppress("HttpUrlsUsage")
@@ -104,7 +104,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         return acceptedRepositories
     }
 
-    private fun PotatoModule.repositories(): List<Repository> =
+    private fun AmperModule.repositories(): List<Repository> =
         parts
             .filterIsInstance<RepositoriesModulePart>()
             .firstOrNull()
