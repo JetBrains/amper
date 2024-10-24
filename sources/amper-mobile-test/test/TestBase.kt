@@ -1,17 +1,19 @@
+import org.jetbrains.amper.processes.ProcessOutputListener
+import org.jetbrains.amper.processes.ProcessResult
+import org.jetbrains.amper.processes.runProcess
+import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
-import java.io.ByteArrayOutputStream
+import org.jetbrains.amper.test.SimplePrintOutputListener
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.OutputStream
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.exists
-import kotlin.test.fail
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -27,7 +29,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
     val isMacOS = currentOsName.lowercase().contains("mac")
 
     // Copies the project either from local path or Git if not found locally
-    fun copyProject(projectName: String, sourceDirectory: String) {
+    suspend fun copyProject(projectName: String, sourceDirectory: String) {
         // Construct the local source directory path
         var sourceDir = Path(sourceDirectory).resolve(projectName)
 
@@ -40,32 +42,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
             val tempDir = createTempDirectory()
 
             try {
-                val gitCloneCommand = listOf(
-                    "git",
-                    "clone",
-                    gitRepoUrl,
-                    tempDir.toAbsolutePath().toString()
-                )
-
-                val processBuilder = ProcessBuilder(gitCloneCommand)
-                    .redirectErrorStream(true)
-
-                if (isRunningInTeamCity()) {
-
-                    val workingDir = "/mnt/agent/temp/buildTmp"
-
-                    processBuilder.environment()["GIT_SSH_COMMAND"] =
-                        "ssh -i $workingDir/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-                }
-
-                val process = processBuilder.start()
-
-                val exitCode = process.waitFor()
-                if (exitCode != 0) {
-                    // Log output for debugging
-                    val errorOutput = process.inputStream.bufferedReader().use { it.readText() }
-                    error("Git clone failed with exit code $exitCode. Output: $errorOutput")
-                }
+                gitClone(gitRepoUrl, tempDir)
 
                 println("Git clone successful. Temp directory: $tempDir")
 
@@ -105,6 +82,23 @@ open class TestBase : AmperCliWithWrapperTestBase() {
             throw RuntimeException("Failed to copy files from $sourceDir to $destinationProjectPath", ex)
         }
     }
+
+    private suspend fun gitClone(repoUrl: String, tempDir: Path) {
+        val result = runProcessAndCaptureOutput(
+            command = listOf("git", "clone", repoUrl, tempDir.toAbsolutePath().toString()),
+            environment = buildMap {
+                if (isRunningInTeamCity()) {
+                    this["GIT_SSH_COMMAND"] =
+                        "ssh -i /mnt/agent/temp/buildTmp/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+                }
+            },
+            redirectErrorStream = true,
+        )
+        if (result.exitCode != 0) {
+            error("Git clone failed with exit code ${result.exitCode}. Output: ${result.stdout}")
+        }
+    }
+
     fun putAmperToGradleFile(projectDir: File, runWithPluginClasspath: Boolean) {
         val gradleFile = File("tempProjects/${projectDir.name}/settings.gradle.kts")
         require(gradleFile.exists()) { "file not found: $gradleFile" }
@@ -149,7 +143,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         }
     }
 
-    fun assembleTargetApp(projectDir: File) {
+    suspend fun assembleTargetApp(projectDir: File) {
         val tasks = listOf("assemble")
         val gradlewFileName = if (isWindows) "gradlew.bat" else "gradlew"
         val gradlewPath = File(projectDir, "../../../../$gradlewFileName")
@@ -162,27 +156,24 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         tasks.forEach { task ->
             try {
                 println("Executing '$task' in ${projectDir.name}")
-                val processBuilder = ProcessBuilder(gradlewPath.absolutePath, task)
-                    .directory(projectDir)
-                    .redirectErrorStream(true)
-
-                if (isMacOS && isRunningInTeamCity()) {
-                    println("Running on macOS and in TeamCity. Setting environment variables.")
-                    processBuilder.environment()["ANDROID_HOME"] = System.getenv("ANDROID_HOME") ?: "/Users/admin/android-sdk/"
-                    processBuilder.environment()["PATH"] = System.getenv("PATH")
-                } else {
-                    println("Not on macOS in TeamCity. No additional environment variables set.")
-                }
-
-                val process = processBuilder.start()
-
-                println("Started './gradlew $task' with process id: ${process.pid()} in ${projectDir.name}")
-
-                process.inputStream.bufferedReader().use { reader ->
-                    reader.forEachLine { println(it) }
-                }
-
-                val exitCode = process.waitFor()
+                val exitCode = runProcess(
+                    workingDir = projectDir.toPath(),
+                    command = listOf(gradlewPath.absolutePath, task),
+                    environment = buildMap {
+                        if (isMacOS && isRunningInTeamCity()) {
+                            println("Running on macOS and in TeamCity. Setting environment variables.")
+                            this["ANDROID_HOME"] = System.getenv("ANDROID_HOME") ?: "/Users/admin/android-sdk/"
+                            this["PATH"] = System.getenv("PATH")
+                        } else {
+                            println("Not on macOS in TeamCity. No additional environment variables set.")
+                        }
+                    },
+                    redirectErrorStream = true,
+                    outputListener = SimplePrintOutputListener(),
+                    onStart = { pid ->
+                        println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")
+                    },
+                )
                 println("Finished './gradlew $task' with exit code: $exitCode in ${projectDir.name}")
                 if (exitCode != 0) {
                     println("Error executing './gradlew $task' in ${projectDir.name}")
@@ -195,71 +186,6 @@ open class TestBase : AmperCliWithWrapperTestBase() {
                 println("InterruptedException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
                 throw RuntimeException("Execution of './gradlew $task' was interrupted in ${projectDir.name}", e)
             }
-        }
-    }
-
-    fun executeCommand(
-        command: List<String>,
-        workingDirectory: Path? = null,
-        expectExitCodeZero: Boolean = true,
-        env: Map<String, String> = emptyMap(),
-    ): String {
-        val process = ProcessBuilder()
-            .command(command)
-            .directory(workingDirectory?.toFile())
-            .redirectErrorStream(true)
-            .apply {
-                environment().putAll(env)
-            }
-            .start()
-
-        val output = ByteArrayOutputStream()
-        process.inputStream.use { input ->
-            input.bufferedReader().forEachLine { line ->
-                output.write((line + "\n").toByteArray())
-                output.flush()
-            }
-        }
-
-        val exitCode = process.waitFor()
-        if (expectExitCodeZero && exitCode != 0) {
-            fail("Execution failed with exit code $exitCode for command: $command\nOutput (merged stdout/stderr):\n$output")
-        }
-        return output.toString().trim()
-    }
-
-    fun executeCommand(
-        command: List<String>,
-        standardOut: OutputStream,
-        standardErr: OutputStream,
-        expectExitCodeZero: Boolean = true,
-        env: Map<String, String> = emptyMap()
-    ) {
-        val process = ProcessBuilder()
-            .command(command)
-            .redirectErrorStream(false)
-            .apply {
-                environment().putAll(env)
-            }
-            .start()
-
-        process.inputStream.use { input ->
-            input.bufferedReader().forEachLine { line ->
-                standardOut.write((line + "\n").toByteArray())
-                standardOut.flush()
-            }
-        }
-
-        process.errorStream.use { error ->
-            error.bufferedReader().forEachLine { line ->
-                standardErr.write((line + "\n").toByteArray())
-                standardErr.flush()
-            }
-        }
-
-        val exitCode = process.waitFor()
-        if (expectExitCodeZero && exitCode != 0) {
-            fail("Execution failed with exit code $exitCode for command: $command\nStderr:\n$standardErr")
         }
     }
 }

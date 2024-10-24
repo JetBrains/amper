@@ -1,7 +1,10 @@
-import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.processes.ProcessLeak
+import org.jetbrains.amper.processes.runProcess
+import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.processes.startLongLivedProcess
+import org.jetbrains.amper.test.SimplePrintOutputListener
+import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -47,27 +50,26 @@ open class AndroidBaseTest : TestBase() {
             prepareProjectsAndroidForGradle(it)
         }
 
-    private fun prepareProjectsAndroidForGradle(projectName: String) {
+    private suspend fun prepareProjectsAndroidForGradle(projectName: String) {
         val projectDirectory = File("tempProjects" + File.separator + projectName)
         val runWithPluginClasspath = true
         putAmperToGradleFile(projectDirectory, runWithPluginClasspath)
         assembleTargetApp(projectDirectory)
     }
 
-    private fun getAdbRemoteSession(): String {
-        val output = executeCommand(
+    private suspend fun getAdbRemoteSession(): String {
+        val result = runProcessAndCaptureOutput(
             command = listOf("bash", "-c", "./scripts/espressoSession.sh -s $sessionInfoPath port"),
-        )
+            redirectErrorStream = true,
+        ).checkExitCodeIsZero()
 
-        if (output.isEmpty()) {
+        if (result.stdout.isBlank()) {
             error("Session wasn't created!")
         }
-        return output
+        return result.stdout.trim()
     }
 
-    private fun adb(vararg params: String): ByteArrayOutputStream {
-        val stdout = ByteArrayOutputStream()
-        val stderr = ByteArrayOutputStream()
+    private suspend fun adb(vararg params: String): String {
         val cmd = mutableListOf<String>()
 
         if (!isRunningInTeamCity()) {
@@ -90,25 +92,22 @@ open class AndroidBaseTest : TestBase() {
 
         cmd.addAll(params)
 
-        executeCommand(
+        val result = runProcessAndCaptureOutput(
             command = cmd,
-            standardOut = stdout,
-            standardErr = stderr
-        )
+            outputListener = SimplePrintOutputListener(),
+        ).checkExitCodeIsZero()
 
-        val cmdOutput = stdout.toString()
-        val cmdError = stderr.toString()
-        println(cmdOutput)
-        println(cmdError)
-
-        return stdout
+        return result.stdout
     }
+
     private fun isRunningInTeamCity(): Boolean {
         return System.getenv("TEAMCITY_VERSION") != null
     }
 
-    private fun createAdbRemoteSession() {
-        val stdout = executeCommand(
+    private suspend fun createAdbRemoteSession() {
+        // When a session is already created, the script returns exit code 1, so we don't want to fail in that case.
+        // This is why we don't check the exit code here.
+        runProcess(
             command = listOf(
                 "./scripts/espressoSession.sh",
                 "-s",
@@ -117,23 +116,22 @@ open class AndroidBaseTest : TestBase() {
                 "Amper UI Tests",
                 "create"
             ),
-            expectExitCodeZero = false, // when a session is already created, the script returns exit code 1
+            outputListener = SimplePrintOutputListener(),
         )
-        println(stdout)
     }
 
-    fun deleteAdbRemoteSession() {
-        val stdout = executeCommand(
+    suspend fun deleteAdbRemoteSession() {
+        runProcessAndCaptureOutput(
             command = listOf(
                 "bash",
                 "-c",
                 """./scripts/espressoSession.sh -s $sessionInfoPath -n \"Amper UI Tests\" delete"""
             ),
-        )
-        println(stdout)
+            outputListener = SimplePrintOutputListener(),
+        ).checkExitCodeIsZero()
     }
 
-    private fun assembleTestApp(applicationId: String? = null) {
+    private suspend fun assembleTestApp(applicationId: String? = null) {
         val testFilePath = "../gradle-e2e-test/testData/projects/test-apk/app/src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt"
         val buildFilePath = "../gradle-e2e-test/testData/projects/test-apk/app/build.gradle.kts"
         var originalTestFileContent: String? = null
@@ -163,16 +161,15 @@ open class AndroidBaseTest : TestBase() {
         val gradlewPath = if (isWindows) "../../gradlew.bat" else "../../gradlew"
 
         // Run the APK build command
-        val stdout = executeCommand(
+        runProcessAndCaptureOutput(
             command = listOf(
                 gradlewPath,
                 "-p",
                 "../gradle-e2e-test/testData/projects/test-apk",
                 "createDebugAndroidTestApk"
             ),
-        )
-
-        println(stdout)
+            outputListener = SimplePrintOutputListener(),
+        ).checkExitCodeIsZero()
 
         // Step 3: Restore the original content of the test file and build.gradle.kts
         originalTestFileContent?.let {
@@ -185,7 +182,7 @@ open class AndroidBaseTest : TestBase() {
     }
 
 
-    private fun installAndroidTestAPK() {
+    private suspend fun installAndroidTestAPK() {
         val apkPath =
             "../gradle-e2e-test/testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
         val apkFile = File(apkPath)
@@ -196,7 +193,7 @@ open class AndroidBaseTest : TestBase() {
         }
     }
 
-    private fun installTargetAPK(projectName: String) {
+    private suspend fun installTargetAPK(projectName: String) {
         val gradleApkPath = Path("tempProjects/$projectName/build/outputs/apk/debug/$projectName-debug.apk")
         val standaloneApkPath = Path("tempProjects/$projectName/build/tasks/_${projectName}_buildAndroidDebug/gradle-project-debug.apk")
         val gradleApkPathMultiplatform = Path("tempProjects/$projectName/android-app/build/outputs/apk/debug/android-app-debug.apk")
@@ -216,7 +213,7 @@ open class AndroidBaseTest : TestBase() {
         }
     }
 
-    private fun runTestsViaAdb(applicationId: String? = null) {
+    private suspend fun runTestsViaAdb(applicationId: String? = null) {
         // Disable animations for testing
         adb("shell", "settings", "put", "global", "window_animation_scale", "0.0")
         adb("shell", "settings", "put", "global", "transition_animation_scale", "0.0")
@@ -229,14 +226,7 @@ open class AndroidBaseTest : TestBase() {
         } ?: "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner"
 
         // Run the instrumentation tests
-        val output = adb(
-            "shell",
-            "am",
-            "instrument",
-            "-w",
-            "-r",
-            testPackage
-        ).toString(Charsets.UTF_8)
+        val output = adb("shell", "am", "instrument", "-w", "-r", testPackage)
 
         // Check the output for success or errors
         if (!output.contains("OK (1 test)") || output.contains("Error")) {
@@ -246,17 +236,18 @@ open class AndroidBaseTest : TestBase() {
 
     class APKNotFoundException(message: String) : Exception(message)
 
-    private fun isEmulatorRunning(): Boolean {
-        val output = executeCommand(command = listOf(getAdbPath(), "devices"))
-        return output.contains("emulator")
+    private suspend fun isEmulatorRunning(): Boolean {
+        val result = runProcessAndCaptureOutput(command = listOf(getAdbPath(), "devices")).checkExitCodeIsZero()
+        return result.stdout.contains("emulator")
     }
 
 
-    private fun getAvailableAvds(): List<String> {
+    private suspend fun getAvailableAvds(): List<String> {
         val avdManagerPath = getAvdManagerPath()
-        val output = executeCommand(command = listOf(avdManagerPath.pathString, "list", "avd"))
+        val result = runProcessAndCaptureOutput(command = listOf(avdManagerPath.pathString, "list", "avd"))
+            .checkExitCodeIsZero()
 
-        return output.lines()
+        return result.stdout.lines()
             .filter { it.contains("Name:") }
             .map { it.split("Name:")[1].trim() }
     }
@@ -277,7 +268,7 @@ open class AndroidBaseTest : TestBase() {
     }
 
     @OptIn(ProcessLeak::class) // TODO can we somehow shutdown the emulator after all tests?
-    private fun startEmulator() {
+    private suspend fun startEmulator() {
         val emulatorPath = getEmulatorPath()
         val availableAvds = getAvailableAvds()
 
@@ -292,12 +283,14 @@ open class AndroidBaseTest : TestBase() {
 
         var isBootComplete = false
         while (!isBootComplete) {
-            val output = executeCommand(
+            // Note: sometimes we get exit code 1 with "no devices/emulators found" (before the emulator starts).
+            // We don't fail on non-zero exit code here because of this.
+            val result = runProcessAndCaptureOutput(
                 command = listOf(getAdbPath(), "shell", "getprop", "sys.boot_completed"),
-                expectExitCodeZero = false, // sometimes we get "no devices/emulators found" before the emulator starts
+                redirectErrorStream = true,
             )
 
-            if (output == "1") {
+            if (result.stdout.trim() == "1") {
                 isBootComplete = true
             } else {
                 println("Wait emulator run...")

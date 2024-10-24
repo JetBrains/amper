@@ -1,4 +1,8 @@
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.processes.runProcess
+import org.jetbrains.amper.processes.runProcessAndCaptureOutput
+import org.jetbrains.amper.test.SimplePrintOutputListener
+import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.io.*
 import kotlin.io.path.*
 
@@ -28,13 +32,13 @@ open class iOSBaseTest(): TestBase() {
     }
 
     @Throws(InterruptedException::class, IOException::class)
-    private fun installTestBundleForUITests() {
+    private suspend fun installTestBundleForUITests() {
         val absolutePath = "iOSTestsAssets/iosAppUITests-Runner.app"
         idb("install", absolutePath)
         idb("xctest", "install", "$absolutePath/Plugins/iosAppUITests.xctest")
     }
 
-    private fun prepareProjectsiOSforGradle(projectDir: String) {
+    private suspend fun prepareProjectsiOSforGradle(projectDir: String) {
         val runWithPluginClasspath = true
         val projectDirectory = File("tempProjects" + File.separator + projectDir)
         val rootPath = File(".").absolutePath
@@ -57,62 +61,41 @@ open class iOSBaseTest(): TestBase() {
         require(assetsDir.exists() && assetsDir.isDirectory) { "Assets directory not found at $assetsPath" }
     }
 
-    private fun idb(vararg params: String): String {
-        val standardOut = ByteArrayOutputStream()
-        val standardErr = ByteArrayOutputStream()
+    private suspend fun idb(vararg params: String): String {
         val idbCompanion = getOrCreateRemoteSession()
         val command = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
 
         println("Executing IDB: $command")
-        executeCommand(command, standardOut, standardErr, env = mapOf("IDB_COMPANION" to idbCompanion))
-
-        val cmdOutput = standardOut.toString()
-        val cmdError = standardErr.toString()
-        println(cmdOutput)
-        println(cmdError)
-
-        return cmdOutput
+        val result = runProcessAndCaptureOutput(
+            command = command,
+            environment = mapOf("IDB_COMPANION" to idbCompanion),
+            outputListener = SimplePrintOutputListener(),
+        ).checkExitCodeIsZero()
+        return result.stdout
     }
 
-    private fun getOrCreateRemoteSession(): String {
-        var idbCompanion = ""
+    private suspend fun getOrCreateRemoteSession(): String {
+        val result = runProcessAndCaptureOutput(
+            command = listOf("./scripts/session.sh", "-s", "sessionInfoPath", "-n", "Amper UI Test", "create"),
+            outputListener = SimplePrintOutputListener(),
+        ).checkExitCodeIsZero()
 
-        if (idbCompanion.isEmpty()) {
-            val output = executeCommand(
-                listOf("./scripts/session.sh", "-s", "sessionInfoPath", "-n", "Amper UI Test", "create"),
-            )
-
-            output.lines().forEach {
-                println(it)
-                if (it.startsWith("IDB_COMPANION")) {
-                    idbCompanion = it.split('=')[1]
-                }
+        result.stdout.lines().forEach {
+            if (it.startsWith("IDB_COMPANION")) {
+                return it.split('=')[1]
             }
         }
-
-        return idbCompanion
+        return ""
     }
 
-    fun deleteRemoteSession(): String {
-        var idbCompanion = ""
-
-        if (idbCompanion.isEmpty()) {
-            val output = executeCommand(
-                listOf("./scripts/session.sh", "-s", "sessionInfoPath", "-n", "Amper UI Test", "delete"),
-            )
-
-            output.lines().forEach {
-                println(it)
-                if (it.startsWith("IDB_COMPANION")) {
-                    idbCompanion = it.split('=')[1]
-                }
-            }
-        }
-
-        return idbCompanion
+    suspend fun deleteRemoteSession() {
+        runProcessAndCaptureOutput(
+            command = listOf("./scripts/session.sh", "-s", "sessionInfoPath", "-n", "Amper UI Test", "delete"),
+            outputListener = SimplePrintOutputListener(),
+        ).checkExitCodeIsZero()
     }
 
-    private fun processProjectDirectory(
+    private suspend fun processProjectDirectory(
         projectDir: File,
         runWithPluginClasspath: Boolean,
         assetsPath: String,
@@ -123,9 +106,7 @@ open class iOSBaseTest(): TestBase() {
         configureXcodeProject(projectDir)
     }
 
-
-
-    private fun configureXcodeProject(projectDir: File) {
+    private suspend fun configureXcodeProject(projectDir: File) {
         val baseProjectPath: String
         val pbxprojPath: File
         val xCodeProjectPath: File
@@ -155,16 +136,13 @@ open class iOSBaseTest(): TestBase() {
         executeCommandInDirectory(xcodeBuildCommand, File(xCodeProjectPath.parent))
     }
 
-    private fun executeCommandInDirectory(command: String, directory: File) {
-        ProcessBuilder("/bin/sh", "-c", command)
-            .directory(directory)
-            .redirectErrorStream(true)
-            .start().apply {
-                inputStream.bufferedReader().use { reader ->
-                    reader.forEachLine { println(it) }
-                }
-                waitFor()
-            }
+    private suspend fun executeCommandInDirectory(command: String, directory: File) {
+        runProcess(
+            workingDir = directory.toPath(),
+            command = listOf("/bin/sh", "-c", command),
+            redirectErrorStream = true,
+            outputListener = SimplePrintOutputListener(),
+        )
     }
 
     private fun updateAppTarget(xcodeprojPath: File, newDeploymentTarget: String, newBundleIdentifier: String) {
@@ -218,7 +196,7 @@ open class iOSBaseTest(): TestBase() {
 
     class AppNotFoundException(message: String) : Exception(message)
 
-    private fun installAndTestiOSApp(projectDirPath: String) {
+    private suspend fun installAndTestiOSApp(projectDirPath: String) {
         val projectDir = File("tempProjects/$projectDirPath")
         if (!projectDir.exists() || !projectDir.isDirectory) {
             throw IllegalArgumentException("Invalid project directory: $projectDir")
@@ -242,7 +220,7 @@ open class iOSBaseTest(): TestBase() {
         }
     }
 
-    private fun installAndRunAppBundle(appFile: File) {
+    private suspend fun installAndRunAppBundle(appFile: File) {
         val appBundleId = "iosApp.iosApp"
         val testHostAppBundleId = "iosApp.iosAppUITests.xctrunner"
         val xctestBundleId = "iosApp.iosAppUITests"
@@ -266,7 +244,7 @@ open class iOSBaseTest(): TestBase() {
         idb("uninstall", appBundleId)
     }
 
-    private fun configureXcodeProjectForStandalone(projectDir: File) {
+    private suspend fun configureXcodeProjectForStandalone(projectDir: File) {
         val xcodeprojPath = File(
             projectDir,
             "build/tasks/_${projectDir.name}_buildIosAppIosSimulatorArm64/build/${projectDir.name}.xcodeproj/project.pbxproj"

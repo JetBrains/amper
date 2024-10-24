@@ -3,6 +3,7 @@
  */
 
 
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -28,7 +29,9 @@ class RuniOSExamplesOnEmulatorsTestsGradle : iOSBaseTest() {
         val appFolder = File("${System.getProperty("user.dir")}/iOSTestsAssets/app")
         projectFolder.deleteRecursively()
         appFolder.deleteRecursively()
-        deleteRemoteSession()
+        runBlocking {
+            deleteRemoteSession()
+        }
     }
 
 }

@@ -3,6 +3,7 @@
  */
 
 
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -19,8 +20,10 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
     @AfterEach
     fun cleanup() {
         val projectFolder = File("${System.getProperty("user.dir")}/tempProjects")
-       projectFolder.deleteRecursively()
-        deleteAdbRemoteSession()
+        projectFolder.deleteRecursively()
+        runBlocking {
+            deleteAdbRemoteSession()
+        }
     }
 
 }
