@@ -4,18 +4,24 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.requireSingleDependency
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.BaseTaskResult
+import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.util.BuildType
 import kotlin.io.path.createDirectories
 
 class RunAppleTask(
     override val taskName: TaskName,
+    override val platform: Platform,
+    override val buildType: BuildType,
+    override val module: PotatoModule,
     private val taskOutputPath: TaskOutputRoot,
-) : Task {
+) : RunTask {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         taskOutputPath.path.createDirectories()
         val builtApp = dependenciesResult.requireSingleDependency<BuildAppleTask.Result>()
