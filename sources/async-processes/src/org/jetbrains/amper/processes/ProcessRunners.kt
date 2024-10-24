@@ -15,12 +15,32 @@ import java.nio.file.Path
  * The result of a completed process.
  */
 class ProcessResult(
-    /** The exit code of the process. */
+    /**
+     * The command line that was executed.
+     */
+    val command: List<String>,
+    /**
+     * The exit code of the process.
+     */
     val exitCode: Int,
-    /** The whole standard output of the process, decoded as UTF-8 text. */
+    /**
+     * If [errorStreamRedirected] is false, [stdout] contains the whole standard output of the process, decoded as
+     * UTF-8 text.
+     * If [errorStreamRedirected] is true, [stdout] contains both the merged stdout and stderr of the process,
+     * interlaced as they were written by the process.
+     */
     val stdout: String,
-    /** The whole standard error stream of the process, decoded as UTF-8 text. */
+    /**
+     * The whole standard error stream of the process, decoded as UTF-8 text, or the empty string if
+     * [errorStreamRedirected] is true (in that case, the stderr content is in [stdout], interlaced with the standard
+     * output).
+     */
     val stderr: String,
+    /**
+     * Whether the error stream was redirected to the standard output of the process.
+     * If true, [stderr] is empty and [stdout] contains both streams interlaced together.
+     */
+    val errorStreamRedirected: Boolean,
 )
 
 /**
@@ -59,7 +79,13 @@ suspend fun runProcessAndCaptureOutput(
         outputListener = outputListener + capture,
         input = input,
     )
-    return ProcessResult(exitCode = exitCode, stdout = capture.stdout, stderr = capture.stderr)
+    return ProcessResult(
+        command = command,
+        exitCode = exitCode,
+        stdout = capture.stdout,
+        stderr = capture.stderr,
+        errorStreamRedirected = redirectErrorStream,
+    )
 }
 
 /**
