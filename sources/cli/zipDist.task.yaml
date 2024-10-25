@@ -6,6 +6,10 @@ programArguments:
   - ${module(.).runtimeClasspathJvm}
 
 publishArtifact:
+  - path: cli.tgz
+    artifactId: cli
+    classifier: dist
+    extension: tgz
   - path: cli.zip
     artifactId: cli
     classifier: dist
