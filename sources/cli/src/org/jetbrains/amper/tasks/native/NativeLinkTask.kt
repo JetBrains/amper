@@ -17,8 +17,8 @@ import org.jetbrains.amper.compilation.mergedKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.BuildTask
@@ -45,12 +45,17 @@ class NativeLinkTask(
      * The name of the task that produces the klib for the sources of this module.
      */
     val compileKLibTaskName: TaskName,
+    /**
+     * Task names that produce klibs that need to be exposed as API in the resulting artifact.
+     */
+    val exportedKLibTaskNames: Set<TaskName>,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ): BuildTask {
     init {
         require(platform.isLeaf)
         require(platform.isDescendantOf(Platform.NATIVE))
+        require(compilationType != KotlinCompilationType.LIBRARY)
     }
 
     override suspend fun run(dependenciesResult: List<TaskResult>): Result {
@@ -61,22 +66,29 @@ class NativeLinkTask(
             error("Zero fragments in module ${module.userReadableName} for platform $platform isTest=$isTest")
         }
 
-        val externalDependencies = dependenciesResult
+        val externalKLibs = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
-            .flatMap { it.compileClasspath } // compiler dependencies including transitive
+            .flatMap { it.compileClasspath } // runtime dependencies including transitive
             .distinct()
             .filter { !it.pathString.endsWith(".jar") }
             .toList()
 
-        val moduleKLibCompilationResult = dependenciesResult
+        val includeArtifact = dependenciesResult
             .filterIsInstance<NativeCompileKlibTask.Result>()
             .firstOrNull { it.taskName == compileKLibTaskName }
+            ?.compiledKlib
             ?: error("The result of the klib compilation task (${compileKLibTaskName.name}) was not found")
-        val includeArtifact = moduleKLibCompilationResult.compiledKlib
 
         val compileKLibDependencies = dependenciesResult
             .filterIsInstance<NativeCompileKlibTask.Result>()
             .filter { it.taskName != compileKLibTaskName }
+
+        val exportedKLibDependencies = compileKLibDependencies
+            .filter { it.taskName in exportedKLibTaskNames }
+        check(exportedKLibDependencies.size == exportedKLibTaskNames.size)
+
+        val compileKLibs = compileKLibDependencies.map { it.compiledKlib }
+        val exportedKLibs = exportedKLibDependencies.map { it.compiledKlib }
 
         // TODO kotlin version settings
         val kotlinVersion = UsedVersions.kotlinVersion
@@ -86,7 +98,7 @@ class NativeLinkTask(
 
         val entryPoints = if (module.type.isApplication()) {
             fragments.mapNotNull { it.settings.native?.entryPoint }.distinct()
-        } else emptyList<String>()
+        } else emptyList()
         if (entryPoints.size > 1) {
             // TODO raise this error in the frontend?
             userReadableError("Multiple entry points defined in ${fragments.identificationPhrase()}:\n${entryPoints.joinToString("\n")}")
@@ -100,7 +112,7 @@ class NativeLinkTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val inputs = listOf(includeArtifact) + compileKLibDependencies.map { it.compiledKlib }
+        val inputs = listOf(includeArtifact) + compileKLibs
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
@@ -112,7 +124,8 @@ class NativeLinkTask(
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,
                 entryPoint = entryPoint,
-                libraryPaths = compileKLibDependencies.map { it.compiledKlib } + externalDependencies,
+                libraryPaths = compileKLibs + externalKLibs,
+                exportedLibraryPaths = exportedKLibs,
                 // no need to pass fragments nor sources, we only build from klibs
                 fragments = emptyList(),
                 sourceFiles = emptyList(),

@@ -5,10 +5,10 @@
 package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
@@ -17,9 +17,9 @@ import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
+import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.pathString
-import kotlin.io.path.createTempFile
 import kotlin.io.path.writeText
 
 private fun kotlinCommonCompilerArgs(
@@ -162,6 +162,7 @@ internal fun kotlinNativeCompilerArgs(
     compilerPlugins: List<CompilerPlugin>,
     entryPoint: String?,
     libraryPaths: List<Path>,
+    exportedLibraryPaths: List<Path>,
     fragments: List<Fragment>,
     sourceFiles: List<Path>,
     additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
@@ -199,6 +200,10 @@ internal fun kotlinNativeCompilerArgs(
     libraryPaths.forEach {
         add("-library")
         add(it.pathString)
+    }
+
+    exportedLibraryPaths.forEach {
+        add("-Xexport-library=${it.pathString}")
     }
 
     // Common args last, because they contain free compiler args

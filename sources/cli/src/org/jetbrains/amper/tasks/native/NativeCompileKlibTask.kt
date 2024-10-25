@@ -16,9 +16,9 @@ import org.jetbrains.amper.compilation.mergedKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.BuildTask
@@ -124,6 +124,7 @@ class NativeCompileKlibTask(
                     compilerPlugins = compilerPlugins,
                     entryPoint = null,
                     libraryPaths = libraryPaths,
+                    exportedLibraryPaths = emptyList(),
                     // can't pass fragments if we have no sources, because empty.kt wouldn't be part of them (konan fails)
                     fragments = if (existingSourceRoots.isEmpty()) emptyList() else fragments,
                     sourceFiles = rootsToCompile,

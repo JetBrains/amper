@@ -6,13 +6,14 @@ package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
+import org.jetbrains.amper.tasks.getModuleDependencies
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.util.BuildType
 
@@ -67,6 +68,19 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                         isTest = isTest,
                         compilationType = compilationType,
                         compileKLibTaskName = compileKLibTaskName,
+                        exportedKLibTaskNames = buildSet {
+                            // Build the exported libraries set for iOS
+                            if (compilationType == KotlinCompilationType.IOS_FRAMEWORK) {
+                                module.getModuleDependencies(
+                                    isTest = false,
+                                    platform = platform,
+                                    dependencyReason = ResolutionScope.COMPILE,
+                                    userCacheRoot = context.userCacheRoot,
+                                ).forEach { dependsOn ->
+                                    add(NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false))
+                                }
+                            }
+                        },
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)
