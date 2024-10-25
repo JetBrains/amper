@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.gradle.kmpp
 
+import org.gradle.api.GradleException
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
@@ -16,6 +17,7 @@ import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JUnitVersion
@@ -56,6 +58,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.konan.target.Family
 import java.io.File
+import kotlin.io.path.relativeTo
 
 
 // Introduced function to remember to propagate language settings.
@@ -367,7 +370,16 @@ class KMPPBindingPluginPart(
                             }
                         when (externalDependency) {
                             is MavenDependency -> depFunction(externalDependency.coordinates)
-                            is LocalModuleDependency -> depFunction(externalDependency.module.linkedProject)
+                            is LocalModuleDependency -> {
+                                val source = externalDependency.module.source
+                                if (source is AmperModuleInvalidPathSource) {
+                                    val relativeInvalidPath = source.invalidPath.relativeTo(project.projectDir.toPath())
+                                    throw GradleException(
+                                        "Unresolved dependency in project '${project.path}': " +
+                                                "cannot find Amper module at '$relativeInvalidPath'")
+                                }
+                                depFunction(externalDependency.module.linkedProject)
+                            }
                             else -> error("Unsupported dependency type: $externalDependency")
                         }
                     }

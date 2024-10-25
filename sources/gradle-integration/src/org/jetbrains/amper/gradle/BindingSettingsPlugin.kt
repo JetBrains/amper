@@ -87,7 +87,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
         projects.forEach { project ->
             val module = amperModulesByDir[project.projectDir.absolutePath] ?: return@forEach
             project.amperModule = AmperModuleWrapper(module)
-            gradle.moduleFilePathToProject[module.moduleDir] = project.path
+            gradle.moduleFilePathToProjectPath[module.moduleDir] = project.path
         }
     }
 

@@ -37,7 +37,7 @@ private const val MODULE_TO_PROJECT_EXT = "org.jetbrains.amper.gradle.ext.module
  * Needed, because there is no [Project] during gradle setting setup, only [ProjectDescriptor],
  * so cant utilize [Project]'s [ExtensionAware] interface.
  */
-val Gradle.moduleFilePathToProject: MutableMap<Path, String>
+val Gradle.moduleFilePathToProjectPath: MutableMap<Path, String>
     get() = extraProperties.getBindingMap(MODULE_TO_PROJECT_EXT)
 
 private inline fun <reified T : Any> ExtraPropertiesExtension.getOrNull(name: String): T? {

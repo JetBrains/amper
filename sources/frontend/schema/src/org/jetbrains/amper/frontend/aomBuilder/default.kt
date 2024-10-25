@@ -17,7 +17,7 @@ import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
-import org.jetbrains.amper.frontend.AmperModuleProgrammaticSource
+import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
 import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
 import org.jetbrains.amper.frontend.TaskName
@@ -85,10 +85,11 @@ class DefaultCustomTaskDescription(
 context(ProblemReporterContext)
 internal class NotResolvedModule(
     userReadableName: String,
+    invalidPath: Path,
 ) : DefaultModule(
     userReadableName = userReadableName,
     type = ProductType.LIB,
-    source = AmperModuleProgrammaticSource,
+    source = AmperModuleInvalidPathSource(invalidPath),
     origin = Module(),
     usedCatalog = null,
 )

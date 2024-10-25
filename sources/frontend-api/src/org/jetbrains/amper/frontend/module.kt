@@ -31,9 +31,15 @@ sealed interface AmperModuleSource {
 @UsedInIdePlugin
 typealias PotatoModuleProgrammaticSource = AmperModuleProgrammaticSource
 
-data object AmperModuleProgrammaticSource : AmperModuleSource {
+open class AmperModuleProgrammaticSource : AmperModuleSource {
     override val moduleDir: Nothing? = null
+
+    companion object : AmperModuleProgrammaticSource()
 }
+
+data class AmperModuleInvalidPathSource(
+    val invalidPath: Path,
+) : AmperModuleProgrammaticSource()
 
 @Deprecated(
     message = "PotatoModuleFileSource was renamed to AmperModuleFileSource",

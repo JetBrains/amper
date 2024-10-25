@@ -486,9 +486,10 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Amp
         is InternalDependency -> path?.let { path ->
             DefaultLocalModuleDependency(
                 // TODO Report to error module.
-                moduleDir2module[path] ?: run {
-                    NotResolvedModule(path.name)
-                },
+                // Note: we can't really report an error to the problem reporter here, because of the fake single-module
+                // analysis that happens in the IDE. When editing a module file, the IDE will use a fake project context
+                // that only declares this specific module, and thus all module dependencies are "unresolved".
+                moduleDir2module[path] ?: NotResolvedModule(path.name, invalidPath = path),
                 path,
                 scope.compile,
                 scope.runtime,

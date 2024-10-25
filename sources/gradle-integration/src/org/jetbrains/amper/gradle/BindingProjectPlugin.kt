@@ -35,7 +35,7 @@ class BindingProjectPlugin : Plugin<Project> {
     override fun apply(project: Project) = with(SLF4JProblemReporterContext()) {
         // Prepare context.
         val model = project.gradle.knownModel ?: error("Amper model not found")
-        val moduleToProject = project.gradle.moduleFilePathToProject
+        val moduleToProject = project.gradle.moduleFilePathToProjectPath
         val linkedModule = project.amperModule ?: error("Amper module not found for ${project.path}")
         val pluginCtx = PluginPartCtx(project, model, linkedModule, moduleToProject)
 
