@@ -10,12 +10,8 @@ import java.security.MessageDigest
 
 fun TestInfo.nameToDependency(): String = testMethod.get().name.replace('_', '.').replace(' ', ':')
 
-fun computeHash(algorithm: String, bytes: ByteArray): String {
-    val messageDigest = MessageDigest.getInstance(algorithm)
-    messageDigest.update(bytes, 0, bytes.size)
-    val hash = messageDigest.digest()
-    return hash.toHex()
-}
+fun computeHash(algorithm: String, bytes: ByteArray): String =
+    MessageDigest.getInstance(algorithm).digest(bytes).toHex()
 
 internal fun String.toMavenNode(context: Context): MavenDependencyNode {
     val (group, module, version) = split(":")
