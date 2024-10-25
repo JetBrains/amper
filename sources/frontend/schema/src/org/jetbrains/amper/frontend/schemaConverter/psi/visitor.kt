@@ -9,12 +9,14 @@ import com.intellij.amper.lang.AmperContextBlock
 import com.intellij.amper.lang.AmperContextualElement
 import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.amper.lang.AmperElementVisitor
+import com.intellij.amper.lang.AmperInvocationElement
 import com.intellij.amper.lang.AmperLanguage
 import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperObject
+import com.intellij.amper.lang.AmperObjectElement
 import com.intellij.amper.lang.AmperProperty
 import com.intellij.amper.lang.AmperReferenceExpression
-import com.intellij.amper.lang.impl.propertyList
+import com.intellij.amper.lang.impl.allObjectElements
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.parentsOfType
@@ -60,9 +62,17 @@ open class AmperPsiAdapterVisitor {
                     o.acceptChildren(this)
                 }
 
+                override fun visitInvocationElement(o: AmperInvocationElement) {
+                    val parentObject = o.parent as? AmperObject
+                    val props = parentObject?.allObjectElements.orEmpty()
+                    positionStack.push(props.indexOf(o).toString())
+                    super.visitInvocationElement(o)
+                    positionStack.pop()
+                }
+
                 override fun visitProperty(o: AmperProperty) {
                     val parentObject = o.parent as? AmperObject
-                    val props = parentObject?.propertyList.orEmpty()
+                    val props = parentObject?.allObjectElements.orEmpty()
                     var popCount = 1
                     if (props.isNotEmpty() && hasDuplicateProperties(props, o)) {
                         positionStack.push(props.indexOf(o).toString())
@@ -95,10 +105,10 @@ open class AmperPsiAdapterVisitor {
                 }
 
                 private fun hasDuplicateProperties(
-                    props: List<AmperProperty>,
+                    props: List<AmperObjectElement>,
                     o: AmperProperty
                 ): Boolean {
-                    val namesakeProps = props.filter { it.name == o.name }
+                    val namesakeProps = props.filter { it is AmperProperty && it.name == o.name }
                     val hadDuplicateProperties = namesakeProps.size > 1 && namesakeProps.map {
                         it.parentsOfType<AmperContextualElement>().map {
                             it.contexts

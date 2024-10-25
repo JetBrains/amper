@@ -42,6 +42,7 @@ internal fun instantiateDependency(
 ): Any? {
     val textValue = scalarValue?.textValue
     if ((scalarValue?.sourceElement?.language is YAMLLanguage
+                || path.segmentName?.toIntOrNull() != null
                 || textValue == path.segmentName) && textValue != null) {
         return instantiateDependency(textValue, scalarValue.sourceElement).also { dep ->
             readFromTable(dep, table, path, contexts)
