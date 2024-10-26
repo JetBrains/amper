@@ -137,25 +137,25 @@ open class AndroidBaseTest : TestBase() {
         var originalTestFileContent: String? = null
         var originalBuildFileContent: String? = null
 
-        applicationId?.let {
+        if (applicationId != null) {
             // Step 1: Modify the test file (ExampleInstrumentedTest.kt)
             originalTestFileContent = File(testFilePath).readText()
-            val updatedTestFileContent = originalTestFileContent?.replace(
+            val updatedTestFileContent = originalTestFileContent.replace(
                 "com.jetbrains.sample.app",
                 applicationId
             )
-            File(testFilePath).writeText(updatedTestFileContent ?: "")
+            File(testFilePath).writeText(updatedTestFileContent)
 
             // Step 2: Modify the build.gradle.kts
             originalBuildFileContent = File(buildFilePath).readText()
-            val updatedBuildFileContent = originalBuildFileContent?.replace(
+            val updatedBuildFileContent = originalBuildFileContent.replace(
                 "applicationId = \"com.jetbrains.sample.app\"",
                 "applicationId = \"$applicationId\""
-            )?.replace(
+            ).replace(
                 "testApplicationId = \"com.jetbrains.sample.app.test\"",
                 "testApplicationId = \"$applicationId.test\""
             )
-            File(buildFilePath).writeText(updatedBuildFileContent ?: "")
+            File(buildFilePath).writeText(updatedBuildFileContent)
         }
 
         val gradlewPath = if (isWindows) "../../gradlew.bat" else "../../gradlew"
