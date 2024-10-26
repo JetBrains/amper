@@ -14,6 +14,7 @@
 #                              default: https:/
 #   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution
 #   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
+#   AMPER_JAVA_OPTIONS         JVM options to pass to the JVM running Amper (does not affect the user's application)
 
 set -e -u
 
@@ -218,4 +219,6 @@ if [ "$simpleOs" = "windows" ]; then
 else
   classpath="$amper_target_dir/lib/*"
 fi
-exec "$java_exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.dist.sha256=$amper_sha256" "-Damper.wrapper.process.name=$0" -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
+# shellcheck disable=SC2086
+exec "$java_exe" "-Damper.wrapper.dist.sha256=$amper_sha256" "-Damper.wrapper.process.name=$0" $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
