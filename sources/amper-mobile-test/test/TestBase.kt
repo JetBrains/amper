@@ -1,5 +1,3 @@
-import org.jetbrains.amper.processes.ProcessOutputListener
-import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase

@@ -13,14 +13,11 @@ open class iOSBaseTest(): TestBase() {
         projectPath: String,
         projectAction: suspend (String) -> Unit,
     ) = runBlocking {
-        val appFile = File("iOSTestsAssets/app/Debug-iphonesimulator/iosApp.app")
-
         getOrCreateRemoteSession()
         copyProject(projectName, projectPath)
         installTestBundleForUITests()
         projectAction(projectName)
         installAndTestiOSApp(projectName)
-
     }
 
     internal fun testRunnerGradle(projectName: String) = prepareExecution(projectName, "../../examples-gradle/") {
@@ -41,19 +38,18 @@ open class iOSBaseTest(): TestBase() {
     private suspend fun prepareProjectsiOSforGradle(projectDir: String) {
         val runWithPluginClasspath = true
         val projectDirectory = File("tempProjects" + File.separator + projectDir)
-        val rootPath = File(".").absolutePath
         val assetsPath = "iOSTestsAssets"
 
-        validateDirectories(rootPath, assetsPath)
+        validateDirectories(assetsPath)
 
         if (projectDirectory.exists() && projectDirectory.isDirectory) {
-            processProjectDirectory(projectDirectory, runWithPluginClasspath, assetsPath, rootPath)
+            processProjectDirectory(projectDirectory, runWithPluginClasspath)
         } else {
             println("Project directory '${projectDirectory.absolutePath}' does not exist or is not a directory.")
         }
     }
 
-    private fun validateDirectories(rootPath: String, assetsPath: String) {
+    private fun validateDirectories(assetsPath: String) {
         val implementationDir = File("../../sources").absoluteFile
         require(implementationDir.exists()) { "Amper plugin project not found at $implementationDir" }
 
@@ -97,9 +93,7 @@ open class iOSBaseTest(): TestBase() {
 
     private suspend fun processProjectDirectory(
         projectDir: File,
-        runWithPluginClasspath: Boolean,
-        assetsPath: String,
-        rootPath: String
+        runWithPluginClasspath: Boolean
     ) {
         putAmperToGradleFile(projectDir, runWithPluginClasspath)
         assembleTargetApp(projectDir)
@@ -192,7 +186,6 @@ open class iOSBaseTest(): TestBase() {
             println("App target sections not found.")
         }
     }
-
 
     class AppNotFoundException(message: String) : Exception(message)
 
@@ -305,7 +298,7 @@ open class iOSBaseTest(): TestBase() {
                     updatedBuildSettings.replace(bundleIdentifierRegex, "PRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";")
                 } else {
                     println("PRODUCT_BUNDLE_IDENTIFIER not found, adding it.")
-                    updatedBuildSettings + "\n\t\tPRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
+                    "$updatedBuildSettings\n\t\tPRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
                 }
 
                 // Replace the old build settings section with the updated one in the file's content
@@ -319,7 +312,6 @@ open class iOSBaseTest(): TestBase() {
             println("No build settings sections found.")
         }
     }
-
 
     private suspend fun prepareProjectiOSForStandalone(projectDir: String) {
         val projectDir = Path("tempProjects") / projectDir
