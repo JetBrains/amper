@@ -48,7 +48,6 @@ abstract class AmperCliWithWrapperTestBase {
         args: List<String>,
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
-        redirectErrorStream: Boolean = false,
         bootstrapCacheDir: Path = TestUtil.sharedTestCaches,
         customJavaHome: Path? = null,
         customAmperScriptPath: Path? = null,
@@ -67,7 +66,6 @@ abstract class AmperCliWithWrapperTestBase {
         val result = runProcessAndCaptureOutput(
             workingDir = workingDir,
             command = listOf(amperScript.absolutePathString()) + args,
-            redirectErrorStream = redirectErrorStream,
             environment = buildMap {
                 // tells the wrapper to download the distribution and JRE through our local HTTP server
                 this["AMPER_DOWNLOAD_ROOT"] = httpServer.wwwRootUrl
@@ -85,8 +83,7 @@ abstract class AmperCliWithWrapperTestBase {
         assertEquals(
             expected = expectedExitCode,
             actual = result.exitCode,
-            message = "Exit code must be $expectedExitCode, but got ${result.exitCode}. " +
-                    if (redirectErrorStream) "Process output (stdout+stderr):\n${result.stdout}" else "Process stderr:\n${result.stderr}"
+            message = "Exit code must be $expectedExitCode, but got ${result.exitCode}. Process stderr:\n${result.stderr}"
         )
         if (assertEmptyStdErr) {
             assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call: $amperScript ${args.joinToString(" ")}\nStderr was:\n${result.stderr}")
