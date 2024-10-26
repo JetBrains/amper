@@ -125,12 +125,11 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
     }
 }
 
-private fun Fragment.inferredTestDependencies(): List<MavenDependency> {
-    val isJvmFragment = platforms.filter { it.isLeaf }.all { it.supportsJvmTestFrameworks() }
-    return if (isJvmFragment) {
-        // TODO support kotlin-test-testng?
-        //   For this, we should rename settings.junit -> settings.jvm.testFramework and add the TESTNG value to the enum
+private fun Fragment.inferredTestDependencies(): List<MavenDependency> =
+    if (platforms.size == 1 && platforms.single().supportsJvmTestFrameworks()) {
         when (settings.junit) {
+            // TODO support kotlin-test-testng?
+            //   For this, we should rename settings.junit -> settings.jvm.testFramework and add the TESTNG value to the enum
             JUnitVersion.JUNIT4 -> listOf(kotlinTestJUnit)
             JUnitVersion.JUNIT5 -> listOf(kotlinTestJUnit5)
             JUnitVersion.NONE -> listOf(kotlinTest)
@@ -138,7 +137,6 @@ private fun Fragment.inferredTestDependencies(): List<MavenDependency> {
     } else {
         listOf(kotlinTest, kotlinTestAnnotationsCommon)
     }
-}
 
 private fun Platform.supportsJvmTestFrameworks() = this == Platform.JVM || this == Platform.ANDROID
 

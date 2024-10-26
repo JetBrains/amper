@@ -751,6 +751,7 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.21, compile=true, runtime=true, exported=false)
     Src folder: test@jvmAndAndroid
     Fragment dependencies:
       commonTest (REFINE)
