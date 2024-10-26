@@ -3,10 +3,7 @@
  */
 
 
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import kotlin.io.path.deleteRecursively
 
 class RunAndroidExamplesOnEmulatorsTestsGradle : AndroidBaseTest() {
 
@@ -19,12 +16,4 @@ class RunAndroidExamplesOnEmulatorsTestsGradle : AndroidBaseTest() {
     fun composeAndroidMultiplatformAppGradle() = testRunnerGradle(
         projectName = "multiplatform",
     )
-
-    @AfterEach
-    fun cleanup() {
-        tempProjectsDir.deleteRecursively()
-        runBlocking {
-            deleteAdbRemoteSession()
-        }
-    }
 }

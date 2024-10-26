@@ -3,10 +3,7 @@
  */
 
 
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import kotlin.io.path.deleteRecursively
 
 class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
 
@@ -15,14 +12,4 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
         projectName = "kmptxter",
         applicationId = "com.river.kmptxter"
     )
-
-
-    @AfterEach
-    fun cleanup() {
-        tempProjectsDir.deleteRecursively()
-        runBlocking {
-            deleteAdbRemoteSession()
-        }
-    }
-
 }

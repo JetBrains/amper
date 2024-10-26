@@ -3,10 +3,7 @@
  */
 
 
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import kotlin.io.path.deleteRecursively
 
 class RunAndroidExamplesOnEmulatorsTestsStandalone : AndroidBaseTest() {
 
@@ -24,13 +21,4 @@ class RunAndroidExamplesOnEmulatorsTestsStandalone : AndroidBaseTest() {
     fun parcelizeAndroidApp() = testRunnerStandalone(
         projectName = "parcelize",
     )
-
-    @AfterEach
-    fun cleanup() {
-        tempProjectsDir.deleteRecursively()
-        runBlocking {
-            deleteAdbRemoteSession()
-        }
-    }
-
 }

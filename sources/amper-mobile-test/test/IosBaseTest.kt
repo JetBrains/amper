@@ -4,10 +4,12 @@ import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.checkExitCodeIsZero
+import org.junit.jupiter.api.AfterEach
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
@@ -19,10 +21,16 @@ import kotlin.io.path.writeText
 
 open class iOSBaseTest(): TestBase() {
 
-    protected val iosTestAssetsDir = amperMobileTestsRoot / "iOSTestsAssets"
-    protected val iosTestAssetsAppDir = iosTestAssetsDir / "app"
+    private val iosTestAssetsDir = amperMobileTestsRoot / "iOSTestsAssets"
+    private val iosTestAssetsAppDir = iosTestAssetsDir / "app"
 
     private val sessionScriptPath = scriptsDir / "session.sh"
+
+    @AfterEach
+    fun cleanupTestDirs() {
+        tempProjectsDir.deleteRecursively()
+        iosTestAssetsAppDir.deleteRecursively()
+    }
 
     private fun prepareExecution(
         projectName: String,

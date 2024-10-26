@@ -3,9 +3,7 @@
  */
 
 
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import kotlin.io.path.deleteRecursively
 
 class RuniOSExamplesOnEmulatorsTestsStandalone : iOSBaseTest() {
 
@@ -13,10 +11,4 @@ class RuniOSExamplesOnEmulatorsTestsStandalone : iOSBaseTest() {
     fun composeiOSAppStandalone() = testRunnerPure(
         projectName = "compose-ios",
     )
-
-    @AfterEach
-    fun cleanup() {
-        tempProjectsDir.deleteRecursively()
-        iosTestAssetsAppDir.deleteRecursively()
-    }
 }

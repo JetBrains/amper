@@ -6,9 +6,11 @@ import org.jetbrains.amper.processes.startLongLivedProcess
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.checkExitCodeIsZero
+import org.junit.jupiter.api.AfterEach
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
@@ -23,6 +25,14 @@ open class AndroidBaseTest : TestBase() {
     private val sessionInfoPath = scriptsDir / "device.session.json"
     private val espressoScriptPath = scriptsDir / "espressoSession.sh"
     private val gradleE2eTestProjectsPath = TestUtil.amperSourcesRoot / "gradle-e2e-test/testData/projects"
+
+    @AfterEach
+    fun cleanup() {
+        tempProjectsDir.deleteRecursively()
+        runBlocking {
+            deleteAdbRemoteSession()
+        }
+    }
 
     private fun prepareExecution(
         projectName: String,

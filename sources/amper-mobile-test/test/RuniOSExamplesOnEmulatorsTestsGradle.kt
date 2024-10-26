@@ -7,7 +7,6 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import kotlin.io.path.deleteRecursively
 
 class RuniOSExamplesOnEmulatorsTestsGradle : iOSBaseTest() {
 
@@ -24,9 +23,7 @@ class RuniOSExamplesOnEmulatorsTestsGradle : iOSBaseTest() {
     )
 
     @AfterEach
-    fun cleanup() {
-        tempProjectsDir.deleteRecursively()
-        iosTestAssetsAppDir.deleteRecursively()
+    fun cleanupSession() {
         runBlocking {
             deleteRemoteSession()
         }
