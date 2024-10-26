@@ -3,10 +3,10 @@ import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.SimplePrintOutputListener
+import org.jetbrains.amper.test.TestUtil
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
@@ -24,17 +24,20 @@ import kotlin.io.path.writeText
 
 open class TestBase : AmperCliWithWrapperTestBase() {
 
-    val destinationBasePath: Path = Path("tempProjects")
-    val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
+    protected val amperMobileTestsRoot = TestUtil.amperSourcesRoot / "amper-mobile-test"
+    protected val tempProjectsDir = amperMobileTestsRoot / "tempProjects"
+    protected val scriptsDir = amperMobileTestsRoot / "scripts"
+
+    private val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
 
     private val currentOsName = System.getProperty("os.name")
     val isWindows = currentOsName.lowercase().contains("win")
     val isMacOS = currentOsName.lowercase().contains("mac")
 
     // Copies the project either from local path or Git if not found locally
-    suspend fun copyProject(projectName: String, sourceDirectory: String) {
+    suspend fun copyProject(projectName: String, sourceDirectory: Path) {
         // Construct the local source directory path
-        var sourceDir = Path(sourceDirectory).resolve(projectName)
+        var sourceDir = sourceDirectory / projectName
 
         // Check if the source directory exists locally
         if (!sourceDir.exists()) {
@@ -71,11 +74,11 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         }
 
         // Destination path for the copied project
-        val destinationProjectPath = destinationBasePath.resolve(projectName)
+        val destinationProjectPath = tempProjectsDir.resolve(projectName)
 
         try {
             // Ensure the destination directory exists
-            destinationBasePath.createDirectories()
+            tempProjectsDir.createDirectories()
 
             // Copy the project files from source to destination
             println("Copying project from $sourceDir to $destinationProjectPath")
@@ -149,7 +152,8 @@ open class TestBase : AmperCliWithWrapperTestBase() {
     suspend fun assembleTargetApp(projectDir: Path) {
         val tasks = listOf("assemble")
         val gradlewFileName = if (isWindows) "gradlew.bat" else "gradlew"
-        val gradlewPath = projectDir.resolve("../../../../$gradlewFileName")
+        // TODO we shouldn't rely on Amper's own wrapper, as we will stop using Gradle completely
+        val gradlewPath = TestUtil.amperCheckoutRoot.resolve(gradlewFileName)
 
         if (!gradlewPath.exists()) {
             println("gradlew file does not exist in $gradlewPath")

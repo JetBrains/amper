@@ -2,16 +2,31 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.SimplePrintOutputListener
+import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.checkExitCodeIsZero
-import java.io.*
+import java.io.FileNotFoundException
+import java.io.IOException
 import java.nio.file.Path
-import kotlin.io.path.*
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.div
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
+import kotlin.io.path.pathString
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 open class iOSBaseTest(): TestBase() {
 
+    protected val iosTestAssetsDir = amperMobileTestsRoot / "iOSTestsAssets"
+    protected val iosTestAssetsAppDir = iosTestAssetsDir / "app"
+
+    private val sessionScriptPath = scriptsDir / "session.sh"
+
     private fun prepareExecution(
         projectName: String,
-        projectPath: String,
+        projectPath: Path,
         projectAction: suspend (String) -> Unit,
     ) = runBlocking {
         getOrCreateRemoteSession()
@@ -21,27 +36,32 @@ open class iOSBaseTest(): TestBase() {
         installAndTestiOSApp(projectName)
     }
 
-    internal fun testRunnerGradle(projectName: String) = prepareExecution(projectName, "../../examples-gradle/") {
-        prepareProjectsiOSforGradle(it)
+    internal fun testRunnerGradle(projectName: String) {
+        val examplesGradleProjectsDir = TestUtil.amperCheckoutRoot.resolve("examples-gradle")
+        prepareExecution(projectName, examplesGradleProjectsDir) {
+            prepareProjectsiOSforGradle(it)
+        }
     }
 
-    internal fun testRunnerPure(projectName: String) = prepareExecution(projectName, "../../examples-standalone/") {
-        prepareProjectiOSForStandalone(it)
+    internal fun testRunnerPure(projectName: String) {
+        val examplesStandaloneProjectsDir = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
+        prepareExecution(projectName, examplesStandaloneProjectsDir) {
+            prepareProjectiOSForStandalone(it)
+        }
     }
 
     @Throws(InterruptedException::class, IOException::class)
     private suspend fun installTestBundleForUITests() {
-        val absolutePath = "iOSTestsAssets/iosAppUITests-Runner.app"
-        idb("install", absolutePath)
-        idb("xctest", "install", "$absolutePath/Plugins/iosAppUITests.xctest")
+        val uiTestsAppPath = iosTestAssetsDir / "iosAppUITests-Runner.app"
+        idb("install", uiTestsAppPath.pathString)
+        idb("xctest", "install", "$uiTestsAppPath/Plugins/iosAppUITests.xctest")
     }
 
     private suspend fun prepareProjectsiOSforGradle(projectDir: String) {
         val runWithPluginClasspath = true
-        val projectDirectory = Path("tempProjects") / projectDir
-        val assetsPath = "iOSTestsAssets"
+        val projectDirectory = tempProjectsDir / projectDir
 
-        validateDirectories(assetsPath)
+        validateDirectories()
 
         if (projectDirectory.exists() && projectDirectory.isDirectory()) {
             processProjectDirectory(projectDirectory, runWithPluginClasspath)
@@ -50,12 +70,13 @@ open class iOSBaseTest(): TestBase() {
         }
     }
 
-    private fun validateDirectories(assetsPath: String) {
-        val implementationDir = Path("../../sources").toAbsolutePath()
-        require(implementationDir.exists()) { "Amper plugin project not found at $implementationDir" }
+    private fun validateDirectories() {
+        val implementationDir = TestUtil.amperSourcesRoot.toAbsolutePath()
+        require(implementationDir.exists()) { "Amper sources not found at $implementationDir" }
 
-        val assetsDir = Path(assetsPath)
-        require(assetsDir.exists() && assetsDir.isDirectory()) { "Assets directory not found at $assetsPath" }
+        require(iosTestAssetsDir.exists() && iosTestAssetsDir.isDirectory()) {
+            "Assets directory not found at $iosTestAssetsDir"
+        }
     }
 
     private suspend fun idb(vararg params: String): String {
@@ -73,7 +94,7 @@ open class iOSBaseTest(): TestBase() {
 
     private suspend fun getOrCreateRemoteSession(): String {
         val result = runProcessAndCaptureOutput(
-            command = listOf("./scripts/session.sh", "-s", "sessionInfoPath", "-n", "Amper UI Test", "create"),
+            command = listOf(sessionScriptPath.pathString, "-s", "sessionInfoPath", "-n", "Amper UI Test", "create"),
             outputListener = SimplePrintOutputListener(),
         ).checkExitCodeIsZero()
 
@@ -87,7 +108,7 @@ open class iOSBaseTest(): TestBase() {
 
     suspend fun deleteRemoteSession() {
         runProcessAndCaptureOutput(
-            command = listOf("./scripts/session.sh", "-s", "sessionInfoPath", "-n", "Amper UI Test", "delete"),
+            command = listOf(sessionScriptPath.pathString, "-s", "sessionInfoPath", "-n", "Amper UI Test", "delete"),
             outputListener = SimplePrintOutputListener(),
         ).checkExitCodeIsZero()
     }
@@ -115,7 +136,7 @@ open class iOSBaseTest(): TestBase() {
         updateAppTarget(pbxprojPath, "16.0", "iosApp.iosApp")
 
         val objRoot = "${projectDir.parent}/tmp"
-        val symRoot = "${projectDir.toAbsolutePath().parent.parent}/iOSTestsAssets/app"
+        val symRoot = iosTestAssetsAppDir.pathString
         val derivedDataPath = "${projectDir.pathString}/derivedData"
         val xcodeBuildCommand =
             "xcrun xcodebuild -project ${xCodeProjectPath.absolutePathString()} -scheme iosApp -configuration Debug OBJROOT=$objRoot SYMROOT=$symRoot -arch arm64 -derivedDataPath $derivedDataPath -sdk iphonesimulator"
@@ -182,16 +203,16 @@ open class iOSBaseTest(): TestBase() {
 
     class AppNotFoundException(message: String) : Exception(message)
 
-    private suspend fun installAndTestiOSApp(projectDirPath: String) {
-        val projectDir = Path("tempProjects/$projectDirPath")
+    private suspend fun installAndTestiOSApp(projectName: String) {
+        val projectDir = tempProjectsDir / projectName
         if (!projectDir.exists() || !projectDir.isDirectory()) {
             throw IllegalArgumentException("Invalid project directory: $projectDir")
         }
 
         println("Processing project in directory: ${projectDir.name}")
 
-        val primaryAppDirectory = Path("iOSTestsAssets/app/Debug-iphonesimulator")
-        val secondaryAppDirectory = Path("tempProjects/$projectDirPath/build/tasks/_${projectDirPath}_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator")
+        val primaryAppDirectory = iosTestAssetsAppDir / "Debug-iphonesimulator"
+        val secondaryAppDirectory = tempProjectsDir / "$projectName/build/tasks/_${projectName}_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator"
 
         val appFiles = when {
             primaryAppDirectory.isDirectory() -> primaryAppDirectory.listDirectoryEntries("*.app")
@@ -243,7 +264,7 @@ open class iOSBaseTest(): TestBase() {
         println("Rebuild app with updated target:")
 
         val xcodeBuildCommand =
-            "xcrun xcodebuild -project ${xcodeprojPath.parent.absolutePathString()} -scheme iosSimulatorArm64 -configuration Debug OBJROOT=${projectDir.parent}/tmp SYMROOT=${projectDir.toAbsolutePath().parent.parent}/iOSTestsAssets/app -arch arm64 -derivedDataPath ${projectDir.pathString}/derivedData -sdk iphonesimulator"
+            "xcrun xcodebuild -project ${xcodeprojPath.parent.absolutePathString()} -scheme iosSimulatorArm64 -configuration Debug OBJROOT=${projectDir.parent}/tmp SYMROOT=${iosTestAssetsAppDir.absolutePathString()} -arch arm64 -derivedDataPath ${projectDir.pathString}/derivedData -sdk iphonesimulator"
         executeCommandInDirectory(xcodeBuildCommand, projectDir)
     }
 
@@ -304,7 +325,7 @@ open class iOSBaseTest(): TestBase() {
     }
 
     private suspend fun prepareProjectiOSForStandalone(projectDir: String) {
-        val projectDir = Path("tempProjects") / projectDir
+        val projectDir = tempProjectsDir / projectDir
         if (projectDir.exists() && projectDir.isDirectory()) {
             runAmper(
                 workingDir = projectDir,

@@ -4,6 +4,7 @@ import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.processes.startLongLivedProcess
 import org.jetbrains.amper.test.SimplePrintOutputListener
+import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -19,11 +20,13 @@ import kotlin.io.path.writeText
  */
 
 open class AndroidBaseTest : TestBase() {
-    val sessionInfoPath = "./scripts/device.session.json"
+    private val sessionInfoPath = scriptsDir / "device.session.json"
+    private val espressoScriptPath = scriptsDir / "espressoSession.sh"
+    private val gradleE2eTestProjectsPath = TestUtil.amperSourcesRoot / "gradle-e2e-test/testData/projects"
 
     private fun prepareExecution(
         projectName: String,
-        projectPath: String,
+        projectPath: Path,
         applicationId: String? = null,
         projectAction: suspend (String) -> Unit,
     ) = runBlocking {
@@ -38,21 +41,24 @@ open class AndroidBaseTest : TestBase() {
         runTestsViaAdb(applicationId)
     }
 
-    internal fun testRunnerStandalone(projectName: String, applicationId: String? = null) =
-        prepareExecution(projectName, "../../sources/amper-backend-test/testData/projects/android", applicationId) {
+    internal fun testRunnerStandalone(projectName: String, applicationId: String? = null) {
+        val androidTestProjectsPath = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/android")
+        prepareExecution(projectName, androidTestProjectsPath, applicationId) {
             runAmper(
-                workingDir = destinationBasePath.resolve(it),
+                workingDir = tempProjectsDir.resolve(it),
                 args = listOf("task", ":$it:buildAndroidDebug"),
             )
         }
+    }
 
-    internal fun testRunnerGradle(projectName: String) =
-        prepareExecution(projectName, "../../sources/gradle-e2e-test/testData/projects") {
+    internal fun testRunnerGradle(projectName: String) {
+        prepareExecution(projectName, gradleE2eTestProjectsPath) {
             prepareProjectsAndroidForGradle(it)
         }
+    }
 
     private suspend fun prepareProjectsAndroidForGradle(projectName: String) {
-        val projectDirectory = Path("tempProjects") / projectName
+        val projectDirectory = tempProjectsDir / projectName
         val runWithPluginClasspath = true
         putAmperToGradleFile(projectDirectory, runWithPluginClasspath)
         assembleTargetApp(projectDirectory)
@@ -60,7 +66,7 @@ open class AndroidBaseTest : TestBase() {
 
     private suspend fun getAdbRemoteSession(): String {
         val result = runProcessAndCaptureOutput(
-            command = listOf("bash", "-c", "./scripts/espressoSession.sh -s $sessionInfoPath port"),
+            command = listOf("bash", "-c", "$espressoScriptPath -s $sessionInfoPath port"),
             redirectErrorStream = true,
         ).checkExitCodeIsZero()
 
@@ -110,9 +116,9 @@ open class AndroidBaseTest : TestBase() {
         // This is why we don't check the exit code here.
         runProcess(
             command = listOf(
-                "./scripts/espressoSession.sh",
+                espressoScriptPath.pathString,
                 "-s",
-                sessionInfoPath,
+                sessionInfoPath.pathString,
                 "-n",
                 "Amper UI Tests",
                 "create"
@@ -126,15 +132,16 @@ open class AndroidBaseTest : TestBase() {
             command = listOf(
                 "bash",
                 "-c",
-                """./scripts/espressoSession.sh -s $sessionInfoPath -n \"Amper UI Tests\" delete"""
+                """$espressoScriptPath -s $sessionInfoPath -n \"Amper UI Tests\" delete"""
             ),
             outputListener = SimplePrintOutputListener(),
         ).checkExitCodeIsZero()
     }
 
     private suspend fun assembleTestApp(applicationId: String? = null) {
-        val testFilePath = Path("../gradle-e2e-test/testData/projects/test-apk/app/src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt")
-        val buildFilePath = Path("../gradle-e2e-test/testData/projects/test-apk/app/build.gradle.kts")
+        val testApkAppProjectPath = gradleE2eTestProjectsPath / "test-apk/app"
+        val testFilePath = testApkAppProjectPath / "src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt"
+        val buildFilePath = testApkAppProjectPath / "build.gradle.kts"
         var originalTestFileContent: String? = null
         var originalBuildFileContent: String? = null
 
@@ -156,14 +163,15 @@ open class AndroidBaseTest : TestBase() {
             buildFilePath.writeText(updatedBuildFileContent)
         }
 
-        val gradlewPath = if (isWindows) "../../gradlew.bat" else "../../gradlew"
+        val gradlewFilename = if (isWindows) "gradlew.bat" else "gradlew"
+        val gradlewPath = TestUtil.amperCheckoutRoot / gradlewFilename
 
         // Run the APK build command
         runProcessAndCaptureOutput(
             command = listOf(
-                gradlewPath,
+                gradlewPath.pathString,
                 "-p",
-                "../gradle-e2e-test/testData/projects/test-apk",
+                testApkAppProjectPath.pathString,
                 "createDebugAndroidTestApk"
             ),
             outputListener = SimplePrintOutputListener(),
@@ -181,18 +189,18 @@ open class AndroidBaseTest : TestBase() {
 
 
     private suspend fun installAndroidTestAPK() {
-        val apkPath = "../gradle-e2e-test/testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
-        if (Path(apkPath).exists()) {
-            adb("install", "-r", apkPath)
+        val apkPath = gradleE2eTestProjectsPath / "test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+        if (apkPath.exists()) {
+            adb("install", "-r", apkPath.pathString)
         } else {
             throw APKNotFoundException("APK file does not exist at path: $apkPath")
         }
     }
 
     private suspend fun installTargetAPK(projectName: String) {
-        val gradleApkPath = Path("tempProjects/$projectName/build/outputs/apk/debug/$projectName-debug.apk")
-        val standaloneApkPath = Path("tempProjects/$projectName/build/tasks/_${projectName}_buildAndroidDebug/gradle-project-debug.apk")
-        val gradleApkPathMultiplatform = Path("tempProjects/$projectName/android-app/build/outputs/apk/debug/android-app-debug.apk")
+        val gradleApkPath = tempProjectsDir / "$projectName/build/outputs/apk/debug/$projectName-debug.apk"
+        val standaloneApkPath = tempProjectsDir / "$projectName/build/tasks/_${projectName}_buildAndroidDebug/gradle-project-debug.apk"
+        val gradleApkPathMultiplatform = tempProjectsDir / "$projectName/android-app/build/outputs/apk/debug/android-app-debug.apk"
 
         if (gradleApkPath.exists()) {
             adb("install", "-r", gradleApkPath.pathString)
