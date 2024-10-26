@@ -24,7 +24,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.tinylog.Level
 import java.nio.file.Path
 
-internal class RootCommand : SuspendingCliktCommand(name = System.getProperty("amper.wrapper.process.name") ?: "amper") {
+internal class RootCommand : SuspendingCliktCommand(name = "amper") {
 
     init {
         versionOption(version = AmperBuild.mavenVersion, message = { AmperBuild.banner })

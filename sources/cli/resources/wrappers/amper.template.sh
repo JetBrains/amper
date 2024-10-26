@@ -221,4 +221,4 @@ else
 fi
 jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
 # shellcheck disable=SC2086
-exec "$java_exe" "-Damper.wrapper.dist.sha256=$amper_sha256" "-Damper.wrapper.process.name=$0" $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+exec "$java_exe" "-Damper.wrapper.dist.sha256=$amper_sha256" $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"

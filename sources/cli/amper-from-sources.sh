@@ -229,4 +229,4 @@ if [ "$simpleOs" = "windows" ]; then
 else
   classpath="$script_dir/build/unpackedDistribution/lib/*"
 fi
-time "$java_exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.process.name=$0" -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+time "$java_exe" -ea -XX:+EnableDynamicAgentLoading -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
