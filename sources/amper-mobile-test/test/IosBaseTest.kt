@@ -332,12 +332,12 @@ open class iOSBaseTest(): TestBase() {
         }
     }
 
-    private suspend fun prepareProjectiOSForStandalone(projectDir: String) {
-        val projectDir = tempProjectsDir / projectDir
+    private suspend fun prepareProjectiOSForStandalone(projectName: String) {
+        val projectDir = tempProjectsDir / projectName
         if (projectDir.exists() && projectDir.isDirectory()) {
             runAmper(
                 workingDir = projectDir,
-                args = listOf("task", ":${projectDir.name}:buildIosAppIosSimulatorArm64"),
+                args = listOf("task", ":$projectName:buildIosAppIosSimulatorArm64"),
                 assertEmptyStdErr = false, // warn
             )
             configureXcodeProjectForStandalone(projectDir)
