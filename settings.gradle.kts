@@ -32,20 +32,27 @@ pluginManagement {
 
 plugins {
     id("org.jetbrains.amper.settings.plugin").version("0.5.0-dev-2049")
-    id("com.gradle.enterprise").version("3.16.2")
+    id("com.gradle.develocity").version("3.17.6")
     id("com.gradle.common-custom-user-data-gradle-plugin").version("2.0.2")
 }
 
 // important to have the correct root project name on CI for Gradle Enterprise, and for potentially other things
 rootProject.name = "amper"
 
-gradleEnterprise {
+val isCI = !System.getenv("CI").isNullOrEmpty()
+
+develocity {
     buildScan {
         projectId = "amper"
         server = "https://ge.jetbrains.com"
-        publishAlways()
         // background upload is bad for CI because the agent shutting down after the build could cut-off the upload
-        isUploadInBackground = System.getenv("CI") == null
+        uploadInBackground = !isCI
+
+        obfuscation {
+            ipAddresses { listOf("0.0.0.0") }
+            hostname { "concealed" }
+            username { if (isCI) "TeamCity" else "concealed" }
+        }
     }
 }
 
