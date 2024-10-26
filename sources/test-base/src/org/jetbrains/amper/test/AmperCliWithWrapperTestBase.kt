@@ -8,6 +8,7 @@ import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.junit.jupiter.api.extension.RegisterExtension
+import java.lang.management.ManagementFactory
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
@@ -60,6 +61,15 @@ abstract class AmperCliWithWrapperTestBase {
         check(amperScript.isExecutable()) { "Cannot run Amper script because it is not executable: $amperScript" }
         check(amperScript.isRegularFile()) { "Cannot run Amper script because it is not a file: $amperScript" }
 
+        val isDebuggingTest = ManagementFactory.getRuntimeMXBean().inputArguments.any { it.startsWith("-agentlib:") }
+        val extraJvmArgs = buildList {
+            // When debugging tests, we run the Amper CLI with jdwp to be able to attach a debugger to it.
+            // The CLI process will wait for a debugger to attach on a dynamic port. You can click "Attach debugger"
+            // in the IDEA console to automatically launch and attach a remote debugger.
+            if (isDebuggingTest) {
+                add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y")
+            }
+        }
         val result = runProcessAndCaptureOutput(
             workingDir = workingDir,
             command = listOf(amperScript.absolutePathString()) + args,
@@ -73,6 +83,7 @@ abstract class AmperCliWithWrapperTestBase {
                 if (customJavaHome != null) {
                     this["AMPER_JAVA_HOME"] = customJavaHome.pathString
                 }
+                this["AMPER_JAVA_OPTIONS"] = extraJvmArgs.joinToString(" ")
             },
             outputListener = SimplePrintOutputListener(stdoutPrefix = "[amper out] ", stderrPrefix = "[amper err] "),
         )
