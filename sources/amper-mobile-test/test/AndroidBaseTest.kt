@@ -5,13 +5,14 @@ import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.processes.startLongLivedProcess
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.checkExitCodeIsZero
-import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -51,7 +52,7 @@ open class AndroidBaseTest : TestBase() {
         }
 
     private suspend fun prepareProjectsAndroidForGradle(projectName: String) {
-        val projectDirectory = File("tempProjects" + File.separator + projectName)
+        val projectDirectory = Path("tempProjects") / projectName
         val runWithPluginClasspath = true
         putAmperToGradleFile(projectDirectory, runWithPluginClasspath)
         assembleTargetApp(projectDirectory)
@@ -132,22 +133,19 @@ open class AndroidBaseTest : TestBase() {
     }
 
     private suspend fun assembleTestApp(applicationId: String? = null) {
-        val testFilePath = "../gradle-e2e-test/testData/projects/test-apk/app/src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt"
-        val buildFilePath = "../gradle-e2e-test/testData/projects/test-apk/app/build.gradle.kts"
+        val testFilePath = Path("../gradle-e2e-test/testData/projects/test-apk/app/src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt")
+        val buildFilePath = Path("../gradle-e2e-test/testData/projects/test-apk/app/build.gradle.kts")
         var originalTestFileContent: String? = null
         var originalBuildFileContent: String? = null
 
         if (applicationId != null) {
             // Step 1: Modify the test file (ExampleInstrumentedTest.kt)
-            originalTestFileContent = File(testFilePath).readText()
-            val updatedTestFileContent = originalTestFileContent.replace(
-                "com.jetbrains.sample.app",
-                applicationId
-            )
-            File(testFilePath).writeText(updatedTestFileContent)
+            originalTestFileContent = testFilePath.readText()
+            val updatedTestFileContent = originalTestFileContent.replace("com.jetbrains.sample.app", applicationId)
+            testFilePath.writeText(updatedTestFileContent)
 
             // Step 2: Modify the build.gradle.kts
-            originalBuildFileContent = File(buildFilePath).readText()
+            originalBuildFileContent = buildFilePath.readText()
             val updatedBuildFileContent = originalBuildFileContent.replace(
                 "applicationId = \"com.jetbrains.sample.app\"",
                 "applicationId = \"$applicationId\""
@@ -155,7 +153,7 @@ open class AndroidBaseTest : TestBase() {
                 "testApplicationId = \"com.jetbrains.sample.app.test\"",
                 "testApplicationId = \"$applicationId.test\""
             )
-            File(buildFilePath).writeText(updatedBuildFileContent)
+            buildFilePath.writeText(updatedBuildFileContent)
         }
 
         val gradlewPath = if (isWindows) "../../gradlew.bat" else "../../gradlew"
@@ -173,20 +171,18 @@ open class AndroidBaseTest : TestBase() {
 
         // Step 3: Restore the original content of the test file and build.gradle.kts
         originalTestFileContent?.let {
-            File(testFilePath).writeText(it)
+            testFilePath.writeText(it)
         }
 
         originalBuildFileContent?.let {
-            File(buildFilePath).writeText(it)
+            buildFilePath.writeText(it)
         }
     }
 
 
     private suspend fun installAndroidTestAPK() {
-        val apkPath =
-            "../gradle-e2e-test/testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
-        val apkFile = File(apkPath)
-        if (apkFile.exists()) {
+        val apkPath = "../gradle-e2e-test/testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+        if (Path(apkPath).exists()) {
             adb("install", "-r", apkPath)
         } else {
             throw APKNotFoundException("APK file does not exist at path: $apkPath")
@@ -317,6 +313,3 @@ open class AndroidBaseTest : TestBase() {
         }
     }
 }
-
-
-

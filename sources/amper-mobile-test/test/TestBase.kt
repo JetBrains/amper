@@ -3,15 +3,20 @@ import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.SimplePrintOutputListener
-import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
+import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.name
+import kotlin.io.path.readLines
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -97,8 +102,8 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         }
     }
 
-    fun putAmperToGradleFile(projectDir: File, runWithPluginClasspath: Boolean) {
-        val gradleFile = File("tempProjects/${projectDir.name}/settings.gradle.kts")
+    fun putAmperToGradleFile(projectDir: Path, runWithPluginClasspath: Boolean) {
+        val gradleFile = projectDir / "settings.gradle.kts"
         require(gradleFile.exists()) { "file not found: $gradleFile" }
 
         if (runWithPluginClasspath) {
@@ -141,22 +146,22 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         }
     }
 
-    suspend fun assembleTargetApp(projectDir: File) {
+    suspend fun assembleTargetApp(projectDir: Path) {
         val tasks = listOf("assemble")
         val gradlewFileName = if (isWindows) "gradlew.bat" else "gradlew"
-        val gradlewPath = File(projectDir, "../../../../$gradlewFileName")
+        val gradlewPath = projectDir.resolve("../../../../$gradlewFileName")
 
         if (!gradlewPath.exists()) {
-            println("gradlew file does not exist in ${gradlewPath}")
-            throw FileNotFoundException("gradlew file does not exist in ${gradlewPath.absolutePath}")
+            println("gradlew file does not exist in $gradlewPath")
+            throw FileNotFoundException("gradlew file does not exist in ${gradlewPath.absolutePathString()}")
         }
 
         tasks.forEach { task ->
             try {
                 println("Executing '$task' in ${projectDir.name}")
                 val exitCode = runProcess(
-                    workingDir = projectDir.toPath(),
-                    command = listOf(gradlewPath.absolutePath, task),
+                    workingDir = projectDir,
+                    command = listOf(gradlewPath.absolutePathString(), task),
                     environment = buildMap {
                         if (isMacOS && isRunningInTeamCity()) {
                             println("Running on macOS and in TeamCity. Setting environment variables.")

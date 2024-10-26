@@ -5,7 +5,8 @@
 
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import java.io.File
+import kotlin.io.path.Path
+import kotlin.io.path.deleteRecursively
 
 class RuniOSExamplesOnEmulatorsTestsStandalone : iOSBaseTest() {
 
@@ -17,8 +18,8 @@ class RuniOSExamplesOnEmulatorsTestsStandalone : iOSBaseTest() {
 
     @AfterEach
     fun cleanup() {
-        val projectFolder = File("${System.getProperty("user.dir")}/tempProjects")
-        val appFolder = File("${System.getProperty("user.dir")}/iOSTestsAssets/app")
+        val projectFolder = Path("${System.getProperty("user.dir")}/tempProjects")
+        val appFolder = Path("${System.getProperty("user.dir")}/iOSTestsAssets/app")
         projectFolder.deleteRecursively()
         appFolder.deleteRecursively()
     }

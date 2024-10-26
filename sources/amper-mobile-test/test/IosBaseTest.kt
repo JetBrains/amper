@@ -4,6 +4,7 @@ import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.io.*
+import java.nio.file.Path
 import kotlin.io.path.*
 
 open class iOSBaseTest(): TestBase() {
@@ -37,24 +38,24 @@ open class iOSBaseTest(): TestBase() {
 
     private suspend fun prepareProjectsiOSforGradle(projectDir: String) {
         val runWithPluginClasspath = true
-        val projectDirectory = File("tempProjects" + File.separator + projectDir)
+        val projectDirectory = Path("tempProjects") / projectDir
         val assetsPath = "iOSTestsAssets"
 
         validateDirectories(assetsPath)
 
-        if (projectDirectory.exists() && projectDirectory.isDirectory) {
+        if (projectDirectory.exists() && projectDirectory.isDirectory()) {
             processProjectDirectory(projectDirectory, runWithPluginClasspath)
         } else {
-            println("Project directory '${projectDirectory.absolutePath}' does not exist or is not a directory.")
+            println("Project directory '${projectDirectory.absolutePathString()}' does not exist or is not a directory.")
         }
     }
 
     private fun validateDirectories(assetsPath: String) {
-        val implementationDir = File("../../sources").absoluteFile
+        val implementationDir = Path("../../sources").toAbsolutePath()
         require(implementationDir.exists()) { "Amper plugin project not found at $implementationDir" }
 
-        val assetsDir = File(assetsPath)
-        require(assetsDir.exists() && assetsDir.isDirectory) { "Assets directory not found at $assetsPath" }
+        val assetsDir = Path(assetsPath)
+        require(assetsDir.exists() && assetsDir.isDirectory()) { "Assets directory not found at $assetsPath" }
     }
 
     private suspend fun idb(vararg params: String): String {
@@ -92,7 +93,7 @@ open class iOSBaseTest(): TestBase() {
     }
 
     private suspend fun processProjectDirectory(
-        projectDir: File,
+        projectDir: Path,
         runWithPluginClasspath: Boolean
     ) {
         putAmperToGradleFile(projectDir, runWithPluginClasspath)
@@ -100,23 +101,12 @@ open class iOSBaseTest(): TestBase() {
         configureXcodeProject(projectDir)
     }
 
-    private suspend fun configureXcodeProject(projectDir: File) {
-        val baseProjectPath: String
-        val pbxprojPath: File
-        val xCodeProjectPath: File
+    private suspend fun configureXcodeProject(projectDir: Path) {
+        val iosAppFolder = projectDir / "ios-app"
+        val moduleDir = if (iosAppFolder.exists()) iosAppFolder else projectDir
 
-        val iosAppFolder = File("${projectDir.path}/ios-app")
-
-        if (iosAppFolder.exists()) {
-            baseProjectPath = "${projectDir.path}/ios-app/"
-            pbxprojPath = File("$baseProjectPath/build/apple/ios-app/ios-app.xcodeproj/project.pbxproj")
-            xCodeProjectPath = File("$baseProjectPath/build/apple/ios-app/ios-app.xcodeproj")
-        } else {
-            baseProjectPath = "${projectDir.path}/"
-            pbxprojPath =
-                File("$baseProjectPath/build/apple/${projectDir.name}/${projectDir.name}.xcodeproj/project.pbxproj")
-            xCodeProjectPath = File("$baseProjectPath/build/apple/${projectDir.name}/${projectDir.name}.xcodeproj")
-        }
+        val pbxprojPath = moduleDir / "build/apple/${moduleDir.name}/${moduleDir.name}.xcodeproj/project.pbxproj"
+        val xCodeProjectPath = moduleDir / "build/apple/${moduleDir.name}/${moduleDir.name}.xcodeproj"
 
         if (!pbxprojPath.exists()) {
             throw FileNotFoundException("File does not exist: $pbxprojPath")
@@ -124,22 +114,25 @@ open class iOSBaseTest(): TestBase() {
 
         updateAppTarget(pbxprojPath, "16.0", "iosApp.iosApp")
 
+        val objRoot = "${projectDir.parent}/tmp"
+        val symRoot = "${projectDir.toAbsolutePath().parent.parent}/iOSTestsAssets/app"
+        val derivedDataPath = "${projectDir.pathString}/derivedData"
         val xcodeBuildCommand =
-            "xcrun xcodebuild -project ${xCodeProjectPath.absolutePath} -scheme iosApp -configuration Debug OBJROOT=${projectDir.parent}/tmp SYMROOT=${projectDir.absoluteFile.parentFile.parentFile}/iOSTestsAssets/app -arch arm64 -derivedDataPath ${projectDir.path}/derivedData -sdk iphonesimulator"
+            "xcrun xcodebuild -project ${xCodeProjectPath.absolutePathString()} -scheme iosApp -configuration Debug OBJROOT=$objRoot SYMROOT=$symRoot -arch arm64 -derivedDataPath $derivedDataPath -sdk iphonesimulator"
 
-        executeCommandInDirectory(xcodeBuildCommand, File(xCodeProjectPath.parent))
+        executeCommandInDirectory(xcodeBuildCommand, xCodeProjectPath.parent)
     }
 
-    private suspend fun executeCommandInDirectory(command: String, directory: File) {
+    private suspend fun executeCommandInDirectory(command: String, directory: Path) {
         runProcess(
-            workingDir = directory.toPath(),
+            workingDir = directory,
             command = listOf("/bin/sh", "-c", command),
             redirectErrorStream = true,
             outputListener = SimplePrintOutputListener(),
         )
     }
 
-    private fun updateAppTarget(xcodeprojPath: File, newDeploymentTarget: String, newBundleIdentifier: String) {
+    private fun updateAppTarget(xcodeprojPath: Path, newDeploymentTarget: String, newBundleIdentifier: String) {
         val content = xcodeprojPath.readText()
         println("Processing file: $xcodeprojPath")
 
@@ -174,7 +167,7 @@ open class iOSBaseTest(): TestBase() {
                         "PRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
                     )
                 } else {
-                    updatedAppTarget + "\n\t\tPRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
+                    "$updatedAppTarget\n\t\tPRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
                 }
 
                 updatedContent = updatedContent.replace(appTargetSection, updatedAppTarget)
@@ -190,19 +183,21 @@ open class iOSBaseTest(): TestBase() {
     class AppNotFoundException(message: String) : Exception(message)
 
     private suspend fun installAndTestiOSApp(projectDirPath: String) {
-        val projectDir = File("tempProjects/$projectDirPath")
-        if (!projectDir.exists() || !projectDir.isDirectory) {
+        val projectDir = Path("tempProjects/$projectDirPath")
+        if (!projectDir.exists() || !projectDir.isDirectory()) {
             throw IllegalArgumentException("Invalid project directory: $projectDir")
         }
 
         println("Processing project in directory: ${projectDir.name}")
 
-        val primaryAppDirectory = File("iOSTestsAssets/app/Debug-iphonesimulator")
-        val secondaryAppDirectory = File("tempProjects/$projectDirPath/build/tasks/_$projectDirPath"+"_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator")
+        val primaryAppDirectory = Path("iOSTestsAssets/app/Debug-iphonesimulator")
+        val secondaryAppDirectory = Path("tempProjects/$projectDirPath/build/tasks/_${projectDirPath}_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator")
 
-        val appFiles = primaryAppDirectory.listFiles { _, name -> name.endsWith(".app") }
-            ?: secondaryAppDirectory.listFiles { _, name -> name.endsWith(".app") }
-            ?: emptyArray()
+        val appFiles = when {
+            primaryAppDirectory.isDirectory() -> primaryAppDirectory.listDirectoryEntries("*.app")
+            secondaryAppDirectory.isDirectory() -> secondaryAppDirectory.listDirectoryEntries("*.app")
+            else -> emptyList()
+        }
 
         if (appFiles.isNotEmpty()) {
             val appFile = appFiles.first()
@@ -213,12 +208,12 @@ open class iOSBaseTest(): TestBase() {
         }
     }
 
-    private suspend fun installAndRunAppBundle(appFile: File) {
+    private suspend fun installAndRunAppBundle(appFile: Path) {
         val appBundleId = "iosApp.iosApp"
         val testHostAppBundleId = "iosApp.iosAppUITests.xctrunner"
         val xctestBundleId = "iosApp.iosAppUITests"
 
-        idb("install", appFile.absolutePath)
+        idb("install", appFile.absolutePathString())
         val output = idb(
             "--log", "ERROR",
             "xctest",
@@ -237,27 +232,22 @@ open class iOSBaseTest(): TestBase() {
         idb("uninstall", appBundleId)
     }
 
-    private suspend fun configureXcodeProjectForStandalone(projectDir: File) {
-        val xcodeprojPath = File(
-            projectDir,
-            "build/tasks/_${projectDir.name}_buildIosAppIosSimulatorArm64/build/${projectDir.name}.xcodeproj/project.pbxproj"
-        )
+    private suspend fun configureXcodeProjectForStandalone(projectDir: Path) {
+        val xcodeprojPath = projectDir / "build/tasks/_${projectDir.name}_buildIosAppIosSimulatorArm64/build/${projectDir.name}.xcodeproj/project.pbxproj"
         if (!xcodeprojPath.exists()) {
             throw FileNotFoundException("File does not exist: $xcodeprojPath")
         }
 
         updateAppTargetPure(xcodeprojPath, "16.0", "iosApp.iosApp")
 
-
         println("Rebuild app with updated target:")
 
-
         val xcodeBuildCommand =
-            "xcrun xcodebuild -project ${xcodeprojPath.parentFile.absolutePath} -scheme iosSimulatorArm64 -configuration Debug OBJROOT=${projectDir.parent}/tmp SYMROOT=${projectDir.absoluteFile.parentFile.parentFile}/iOSTestsAssets/app -arch arm64 -derivedDataPath ${projectDir.path}/derivedData -sdk iphonesimulator"
+            "xcrun xcodebuild -project ${xcodeprojPath.parent.absolutePathString()} -scheme iosSimulatorArm64 -configuration Debug OBJROOT=${projectDir.parent}/tmp SYMROOT=${projectDir.toAbsolutePath().parent.parent}/iOSTestsAssets/app -arch arm64 -derivedDataPath ${projectDir.pathString}/derivedData -sdk iphonesimulator"
         executeCommandInDirectory(xcodeBuildCommand, projectDir)
     }
 
-    private fun updateAppTargetPure(xcodeprojPath: File, newDeploymentTarget: String, newBundleIdentifier: String) {
+    private fun updateAppTargetPure(xcodeprojPath: Path, newDeploymentTarget: String, newBundleIdentifier: String) {
         // Read the content of the file
         val content = xcodeprojPath.readText()
         println("Processing file: ${xcodeprojPath.name}")
@@ -321,7 +311,7 @@ open class iOSBaseTest(): TestBase() {
                 args = listOf("task", ":${projectDir.name}:buildIosAppIosSimulatorArm64"),
                 assertEmptyStdErr = false, // warn
             )
-            configureXcodeProjectForStandalone(projectDir.toFile())
+            configureXcodeProjectForStandalone(projectDir)
         } else {
             println("The path '$projectDir' does not exist or is not a directory.")
         }
