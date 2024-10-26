@@ -4,10 +4,7 @@
 
 package org.jetbrains.amper.test
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.junit.jupiter.api.extension.RegisterExtension
