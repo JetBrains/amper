@@ -5,21 +5,9 @@
 tasks.withType<Test> {
     maxHeapSize = "4G"
 
-    systemProperty("amper.unpacked.dist.root", "${rootProject.projectDir}/sources/cli/build/unpackedDistribution")
-
-    // To build&publish Android gradle plugin to mavenLocal
+    // To build&publish the :android-integration:gradle-plugin and deps for gradle-backed Android builds
+    // To build&publish the CLI distribution and scripts required for wrapper-based tests
     for (task in rootProject.getTasksByName("publishToMavenLocal", true)) {
-        dependsOn(task)
-    }
-
-    // To build CLI dist used for CLI integration tests
-    val distTaskName = "unpackedDistribution"
-    val distTasks = rootProject.getTasksByName(distTaskName, true).also {
-        check(it.isNotEmpty()) {
-            "Unable to find '$distTaskName' task by name"
-        }
-    }
-    for (task in distTasks) {
         dependsOn(task)
     }
 

@@ -241,13 +241,14 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     }
 
     private suspend fun assertWrongChecksum(checksumRegex: Regex) {
-        val customScript = tempDir.resolve("script$cliScriptExtension")
+        val brokenScriptName = if (OsFamily.current.isWindows) "script.bat" else "script"
+        val brokenScript = tempDir.resolve(brokenScriptName)
 
         cliScript.readLines()
             .map { line -> checksumRegex.replace(line, "\$1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") }
-            .run { customScript.writeLines(this) }
-        customScript.toFile().setExecutable(true)
-        assertTrue(customScript.isExecutable())
+            .run { brokenScript.writeLines(this) }
+        brokenScript.toFile().setExecutable(true)
+        assertTrue(brokenScript.isExecutable())
 
         val result = runAmper(
             workingDir = tempDir,
@@ -255,7 +256,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             expectedExitCode = 1,
             assertEmptyStdErr = false,
             bootstrapCacheDir = tempDir.resolve("boot strap"),
-            customAmperScriptPath = customScript,
+            customAmperScriptPath = brokenScript,
         )
         val expectedContains = "expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got"
         assertTrue("Process output must contain '$expectedContains' line. Output:\n${result.stderr}") {
@@ -267,8 +268,6 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         }
     }
 
-    private val cliScriptExtension = if (OsFamily.current.isWindows) ".bat" else ""
-
     private val cliScript: Path
-        get() = tempDir.resolve("amper$cliScriptExtension")
+        get() = tempDir.resolve(scriptNameForCurrentOs)
 }

@@ -12,6 +12,6 @@ test-dependencies:
 
 tasks:
   testJvm:
-    # android gradle plugin is required for Android part of backend
-    # unpacked dist is required for running tests based on AmperCliTestBase
-    dependsOn: [ :gradle-plugin:publishJvmToMavenLocal, :cli:unpackedDist ]
+    # To build&publish the :android-integration:gradle-plugin and deps for gradle-backed Android builds
+    # To build&publish the CLI distribution and scripts required for wrapper-based tests
+    dependsOn: [ :gradle-plugin:publishJvmToMavenLocal, :cli:publishJvmToMavenLocal ]

@@ -5,8 +5,10 @@
 package org.jetbrains.amper.test
 
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.management.ManagementFactory
 import java.nio.file.Path
@@ -30,6 +32,16 @@ abstract class AmperCliWithWrapperTestBase {
     protected val requestedFiles: List<Path>
         get() = httpServer.requestedFiles
 
+    protected val scriptNameForCurrentOs: String = if (OsFamily.current.isWindows) "amper.bat" else "amper"
+
+    companion object {
+        @JvmStatic
+        @BeforeAll
+        fun checkAmperPublication() {
+            LocalAmperPublication.checkPublicationIntegrity()
+        }
+    }
+
     /**
      * Runs the Amper CLI in the given [workingDir] with the given [args].
      *
@@ -44,11 +56,13 @@ abstract class AmperCliWithWrapperTestBase {
     protected suspend fun runAmper(
         workingDir: Path,
         args: List<String>,
+        environment: Map<String, String> = emptyMap(),
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
         bootstrapCacheDir: Path = TestUtil.sharedTestCaches,
         customJavaHome: Path? = null,
         customAmperScriptPath: Path? = null,
+        stdin: ProcessInput = ProcessInput.Empty,
     ): ProcessResult {
         check(workingDir.exists()) { "Cannot run Amper: the specified working directory $workingDir does not exist." }
         check(workingDir.isDirectory()) { "Cannot run Amper: the specified working directory $workingDir is not a directory." }
@@ -84,7 +98,9 @@ abstract class AmperCliWithWrapperTestBase {
                     this["AMPER_JAVA_HOME"] = customJavaHome.pathString
                 }
                 this["AMPER_JAVA_OPTIONS"] = extraJvmArgs.joinToString(" ")
+                putAll(environment)
             },
+            input = stdin,
             outputListener = SimplePrintOutputListener(stdoutPrefix = "[amper out] ", stderrPrefix = "[amper err] "),
         )
 

@@ -22,7 +22,10 @@ object LocalAmperPublication {
     private val wrapperBat: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")
     private val wrapperSh: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper")
 
-    private fun checkPublicationIntegrity() {
+    /**
+     * Checks that the Amper distribution and scripts were correctly published to maven local.
+     */
+    internal fun checkPublicationIntegrity() {
         val explanation = "This test requires the locally-published Amper CLI distribution and wrappers.\n" +
                 "Make sure you have setup this test task to depend on the publication tasks to ensure that."
         check(distTgz.exists()) { "Amper distribution is missing in maven local: $distTgz not found.\n$explanation" }

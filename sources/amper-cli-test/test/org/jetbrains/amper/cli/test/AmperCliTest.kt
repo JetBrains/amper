@@ -191,6 +191,8 @@ class AmperCliTest: AmperCliTestBase() {
         assertEquals(
             """
                 .editorconfig
+                amper
+                amper.bat
                 jvm-cli/module.yaml
                 linux-cli/module.yaml
                 macos-cli/module.yaml
