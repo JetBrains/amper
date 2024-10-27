@@ -11,13 +11,14 @@
 @rem                              default: https:/
 @rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution
 @rem   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
+@rem   AMPER_JAVA_OPTIONS         JVM options to pass to the JVM running Amper (does not affect the user's application)
 
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.5.0-dev-2049
+set amper_version=0.5.0-dev-2080
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=816461a8417aabec6a26a8a9b39664dcfe5a2b55c19089b0f54551c21c7be4c2
+set amper_sha256=c60425ecdda382f25f963048fa391a37716733101b0dbdd8cd26b0a611d2bcf0
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -147,5 +148,6 @@ if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
 
 REM ********** Launch Amper **********
 
-"%AMPER_JAVA_HOME%\bin\java.exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.dist.sha256=%amper_sha256%" "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%\lib\*" org.jetbrains.amper.cli.MainKt %*
+set jvm_args=-ea -XX:+EnableDynamicAgentLoading %AMPER_JAVA_OPTIONS%
+"%AMPER_JAVA_HOME%\bin\java.exe" "-Damper.wrapper.dist.sha256=%amper_sha256%" %jvm_args% -cp "%amper_target_dir%\lib\*" org.jetbrains.amper.cli.MainKt %*
 exit /B %ERRORLEVEL%
