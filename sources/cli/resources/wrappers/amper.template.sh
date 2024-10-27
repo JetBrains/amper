@@ -41,53 +41,89 @@ download_and_extract() {
   cache_dir="$5"
   extract_dir="$6"
 
-  if [ -e "$extract_dir/.flag" ] && [ -n "$(ls "$extract_dir")" ] && [ "x$(cat "$extract_dir/.flag")" = "x${file_sha}" ]; then
+  if [ -e "$extract_dir/.flag" ] && [ "$(cat "$extract_dir/.flag")" = "${file_sha}" ]; then
     # Everything is up-to-date in $extract_dir, do nothing
-    true
-  else
-    mkdir -p "$cache_dir"
-    temp_file="$cache_dir/download-file-$$.bin"
-
-    echo "Downloading $moniker... (only happens on the first run of this version)"
-
-    rm -f "$temp_file"
-    if command -v curl >/dev/null 2>&1; then
-      if [ -t 1 ]; then CURL_PROGRESS="--progress-bar"; else CURL_PROGRESS="--silent --show-error"; fi
-      # shellcheck disable=SC2086
-      curl $CURL_PROGRESS -L --fail --output "${temp_file}" "$file_url" 2>&1
-    elif command -v wget >/dev/null 2>&1; then
-      if [ -t 1 ]; then WGET_PROGRESS=""; else WGET_PROGRESS="-nv"; fi
-      wget $WGET_PROGRESS -O "${temp_file}" "$file_url" 2>&1
-    else
-      die "ERROR: Please install 'wget' or 'curl', as Amper needs one of them to download $moniker"
-    fi
-
-    check_sha "$file_url" "$temp_file" "$file_sha" "$sha_size"
-
-    rm -rf "$extract_dir"
-    mkdir -p "$extract_dir"
-
-    case "$file_url" in
-      *".zip")
-        if command -v unzip >/dev/null 2>&1; then
-          unzip -q "$temp_file" -d "$extract_dir"
-        else
-          die "ERROR: Please install 'unzip', as Amper needs it to extract $moniker"
-        fi ;;
-      *)
-        if command -v tar >/dev/null 2>&1; then
-          tar -x -f "$temp_file" -C "$extract_dir"
-        else
-          die "ERROR: Please install 'tar', as Amper needs it to extract $moniker"
-        fi ;;
-    esac
-
-    rm -f "$temp_file"
-
-    echo "$file_sha" >"$extract_dir/.flag"
-    echo "Download complete."
-    echo
+    return 0;
   fi
+
+  mkdir -p "$cache_dir"
+
+  # Take a lock for the download of this file
+  short_sha=$(echo "$file_sha" | cut -c1-32) # cannot use the ${short_sha:0:32} syntax in regular /bin/sh
+  download_lock_file="$cache_dir/download-${short_sha}.lock"
+  process_lock_file="$cache_dir/download-${short_sha}.$$.lock"
+  echo $$ >"$process_lock_file"
+  while ! ln "$process_lock_file" "$download_lock_file" 2>/dev/null; do
+    lock_owner=$(cat "$download_lock_file" 2>/dev/null || true)
+    if [ -n "$lock_owner" ] && ps -p "$lock_owner" >/dev/null; then
+      echo "Another Amper instance (pid $lock_owner) is downloading $moniker. Awaiting the result..."
+      sleep 1
+    elif [ -n "$lock_owner" ] && [ "$(cat "$download_lock_file" 2>/dev/null)" = "$lock_owner" ]; then
+      die "Another Amper instance (pid $lock_owner) locked the download of $moniker, but is no longer running"
+    fi
+  done
+
+  # shellcheck disable=SC2064
+  trap "rm -f \"$download_lock_file\"" EXIT
+  rm -f "$process_lock_file"
+
+  unlock_and_cleanup() {
+    rm -f "$download_lock_file"
+    trap - EXIT
+    return 0
+  }
+
+  if [ -e "$extract_dir/.flag" ] && [ "$(cat "$extract_dir/.flag")" = "${file_sha}" ]; then
+    # Everything is up-to-date in $extract_dir, just release the lock
+    unlock_and_cleanup
+    return 0;
+  fi
+
+  temp_file="$cache_dir/download-file-$$.bin"
+
+  echo "Downloading $moniker... (only happens on the first run of this version)"
+
+  rm -f "$temp_file"
+  if command -v curl >/dev/null 2>&1; then
+    if [ -t 1 ]; then CURL_PROGRESS="--progress-bar"; else CURL_PROGRESS="--silent --show-error"; fi
+    # shellcheck disable=SC2086
+    curl $CURL_PROGRESS -L --fail --output "${temp_file}" "$file_url" 2>&1
+  elif command -v wget >/dev/null 2>&1; then
+    if [ -t 1 ]; then WGET_PROGRESS=""; else WGET_PROGRESS="-nv"; fi
+    wget $WGET_PROGRESS -O "${temp_file}" "$file_url" 2>&1
+  else
+    die "ERROR: Please install 'wget' or 'curl', as Amper needs one of them to download $moniker"
+  fi
+
+  check_sha "$file_url" "$temp_file" "$file_sha" "$sha_size"
+
+  rm -rf "$extract_dir"
+  mkdir -p "$extract_dir"
+
+  case "$file_url" in
+    *".zip")
+      if command -v unzip >/dev/null 2>&1; then
+        unzip -q "$temp_file" -d "$extract_dir"
+      else
+        die "ERROR: Please install 'unzip', as Amper needs it to extract $moniker"
+      fi ;;
+    *)
+      if command -v tar >/dev/null 2>&1; then
+        tar -x -f "$temp_file" -C "$extract_dir"
+      else
+        die "ERROR: Please install 'tar', as Amper needs it to extract $moniker"
+      fi ;;
+  esac
+
+  rm -f "$temp_file"
+
+  echo "$file_sha" >"$extract_dir/.flag"
+
+  # Unlock and cleanup the lock file
+  unlock_and_cleanup
+
+  echo "Download complete."
+  echo
 }
 
 # usage: check_sha SOURCE_MONIKER FILE SHA_CHECKSUM SHA_SIZE
