@@ -328,14 +328,17 @@ the [module tests](Documentation.md#tests).
 | `optIns: enum list`             | Enable usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name. | (empty)           |
 | `freeCompilerArgs: string list` | Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly.                                                           |                   |
 | `debug: boolean`                | (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information.                                               | `true`            |
-| `serialization: object \| enum` | Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization).                                                                               |                   |
+| `serialization: object \| enum` | Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization).                                                                                   |                   |
 
-The `serialization:` attribute can be an object or an enum corresponding to the `format:` attribute:
+The `serialization:` attribute is an object with the following properties:
 
-| Attribute         | Description                                                                                                | Default |
-|-------------------|------------------------------------------------------------------------------------------------------------|---------|
-| `format: enum`    | `json` to enable serialization and add the JSON format, `none` to only enable serialization without format | `none`  |
-| `version: string` | the version to use for the core serialization library and the serialization format                         | `1.7.3` |
+| Attribute          | Description                                                                                                                                                                           | Default |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `enabled: boolean` | Enable the `@Serializable` annotation processing, and add the core serialization library. When enabled, a built-in catalog for kotlinx.serialization format dependencies is provided. | `false` |
+| `format: enum`     | A shortcut for `enabled: true` and adding the given serialization format dependency. For instance, `json` adds the JSON format in addition to enabling serialization.                 |         |
+| `version: string`  | The version to use for the core serialization library and the serialization formats.                                                                                                  | `1.7.3` |
+
+You can also use a short form and directly specify `serialization: enabled` or `serialization: json`.
 
 Examples:
 
@@ -344,22 +347,47 @@ Examples:
 settings:
   kotlin:
     languageVersion: 1.8
+    optIns: [ kotlin.io.path.ExperimentalPathApi ]
 ```
 
 ```yaml
-# Enabling Kotlin Serialization 
+# Enable Kotlin Serialization with the JSON format
 settings:
   kotlin:
     serialization: json
 ```
 
 ```yaml
-# Enabling Kotlin Serialization with a specific version 
+# Enable Kotlin Serialization with the JSON format and a specific version 
 settings:
   kotlin:
     serialization: 
       format: json
-      version: 1.5.1
+      version: 1.7.3
+```
+
+```yaml
+# Enable Kotlin Serialization with multiple formats
+settings:
+  kotlin:
+    serialization: enabled
+
+dependencies:
+  - $kotlin.serialization.json
+  - $kotlin.serialization.protobuf
+```
+
+```yaml
+# Enable Kotlin Serialization with multiple formats and a specific version 
+settings:
+  kotlin:
+    serialization: 
+      enabled: true
+      version: 1.7.3
+
+dependencies:
+  - $kotlin.serialization.json
+  - $kotlin.serialization.protobuf
 ```
 
 #### JVM
