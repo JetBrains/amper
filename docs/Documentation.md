@@ -484,7 +484,9 @@ dependencies:
 
 ### Settings
 
-The `settings:` section contains toolchains settings. _Toolchain_ is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (like linter, code generator). Currently, the following toolchains are supported: `kotlin:`, `java:`, `android:`, `compose:`.
+The `settings:` section contains toolchains settings.
+A _toolchain_ is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (linter, code generator).
+Currently, the following toolchains are supported: `kotlin:`, `java:`, `android:`, `compose:`.
 
 > Toolchains are supposed to be [extensible](#extensibility) in the future.
 
@@ -891,6 +893,107 @@ You can create a `proguard-rules.pro` file in the module folder to add custom ru
 It is automatically used by Amper if found.
 
 The example of how to add custom R8 rules could be found at [compose-multiplatform](../examples-standalone/compose-multiplatform/android-app/proguard-rules.pro) example in `android-app` module.
+
+#### Configuring Kotlin Symbol Processing (KSP)
+
+[Kotlin Symbol Processing](https://kotlinlang.org/docs/ksp-overview.html) is a tool that allows feeding Kotlin source
+code to _processors_, which can in turn use this information to generate code, classes, or resources, for instance.
+Amper provides built-in support for KSP.
+
+Some popular libraries also include a KSP processor to enhance their capabilities, such as
+[Room](https://developer.android.com/jetpack/androidx/releases/room) or
+[Moshi](https://github.com/square/moshi#codegen).
+
+> Note: Amper works with KSP2, so any processors used must be compatible with KSP2.
+> We’re expecting most processors to make this upgrade soon, as KSP1 is deprecated and will not support Kotlin 2.1.
+> However, at the moment, you might still see some gaps in support, such as issues with native targets.
+
+To add KSP processors to your module, add their maven coordinates to the `settings.kotlin.ksp.processors` list:
+
+```yaml
+settings:
+  kotlin:
+    ksp:
+      processors:
+        - androidx.room:room-compiler:2.7.0-alpha09
+```
+
+In multiplatform modules, all settings from the `settings` section apply to all platforms by default, including KSP processors.
+If you only want to add KSP processors for a specific platform, use a `settings` block with a
+[platform qualifier](#platform-qualifier):
+
+```yaml
+# the Room processor will only process code that compiles to the Android platform
+settings@android:
+  kotlin:
+    ksp:
+      processors:
+        - androidx.room:room-compiler:2.7.0-alpha09
+```
+
+Some processors can be customized by passing options. You can pass these options using the `processorOptions` section:
+
+```yaml
+settings:
+  kotlin:
+    ksp:
+      processors:
+        - androidx.room:room-compiler:2.7.0-alpha09
+      processorOptions:
+        room.schemaLocation: ./schema
+```
+
+> Note: all options are passed to all processors by KSP. It's the processor's responsibility to use unique option names
+> to avoid clashes with other processor options.
+
+##### Using your own local KSP processor
+
+You can implement your own processor in an Amper module as a regular JVM library, and then use it to process code from
+other modules in your project.
+
+Usually, 3 modules are involved:
+* The _processor_ module, with the actual processor implementation
+* The _annotations_ module (optional), which contains annotations that the processor looks for in the consumer code
+* The _consumer_ module, which uses KSP with the custom processor
+
+The annotations module is a very simple JVM library module without any required dependencies (it's just here to provide
+some annotations to work with, if necessary):
+```yaml
+# my-processor-annotations/module.yaml
+product:
+  type: lib
+  platforms: [ jvm ]
+```
+
+The processor module is a JVM library with a `compile-only` dependency on KSP facilities, and on the custom annotations module:
+```yaml
+# my-processor/module.yaml
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - ../my-processor-annotations
+  - com.google.devtools.ksp:symbol-processing-api:2.0.21-1.0.25: compile-only
+```
+
+The consumer module adds a regular dependency on the annotations module, and a reference to the processor module: 
+```yaml
+# my-consumer/module.yaml
+product: jvm/app
+
+dependencies:
+  - ../my-processor-annotations # to be able to annotate the consumer code
+
+settings:
+  kotlin:
+    ksp:
+      processors:
+        - ../my-processor # path to the module implementing the KSP processor
+```
+
+For more information about how to write your own processor, check out
+[the KSP documentation](https://kotlinlang.org/docs/ksp-quickstart.html#create-a-processor-of-your-own).
 
 ### Tests
 
