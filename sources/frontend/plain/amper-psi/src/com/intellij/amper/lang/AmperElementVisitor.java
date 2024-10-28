@@ -1,10 +1,9 @@
 // This is a generated file. Not intended for manual editing.
 package com.intellij.amper.lang;
 
-import org.jetbrains.annotations.*;
-import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiElementVisitor;
+import org.jetbrains.annotations.NotNull;
 
 public class AmperElementVisitor extends PsiElementVisitor {
 
@@ -84,6 +83,10 @@ public class AmperElementVisitor extends PsiElementVisitor {
 
   public void visitValue(@NotNull AmperValue o) {
     visitElement(o);
+  }
+
+  public void visitVariableDeclaration(@NotNull AmperVariableDeclaration o) {
+    visitObjectElement(o);
   }
 
   public void visitElement(@NotNull AmperElement o) {

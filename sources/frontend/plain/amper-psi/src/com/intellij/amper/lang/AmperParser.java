@@ -1,16 +1,16 @@
 // This is a generated file. Not intended for manual editing.
 package com.intellij.amper.lang;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import static com.intellij.amper.lang.AmperElementTypes.*;
-import static com.intellij.lang.parser.GeneratedParserUtilBase.*;
-
-import com.intellij.psi.tree.IElementType;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.tree.TokenSet;
 import com.intellij.lang.PsiParser;
-import com.intellij.lang.LightPsiParser;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
+
+import static com.intellij.amper.lang.AmperElementTypes.*;
+import static com.intellij.amper.lang.AmperParserUtil.*;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class AmperParser implements PsiParser, LightPsiParser {
@@ -38,7 +38,7 @@ public class AmperParser implements PsiParser, LightPsiParser {
 
   public static final TokenSet[] EXTENDS_SETS_ = new TokenSet[] {
     create_token_set_(CONTEXTUAL_ELEMENT, CONTEXTUAL_STATEMENT, CONTEXT_BLOCK, INVOCATION_ELEMENT,
-      OBJECT_ELEMENT, PROPERTY),
+      OBJECT_ELEMENT, PROPERTY, VARIABLE_DECLARATION),
     create_token_set_(BOOLEAN_LITERAL, CONTEXTUAL_PROPERTY_REFERENCE, INVOCATION_EXPRESSION, LITERAL,
       NULL_LITERAL, NUMBER_LITERAL, OBJECT, REFERENCE_EXPRESSION,
       STRING_LITERAL, VALUE),
@@ -76,15 +76,15 @@ public class AmperParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // invocation_expression | reference_expression
+  // invocation_expression | reference_expression | string_literal
   public static boolean constructor_reference(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "constructor_reference")) return false;
-    if (!nextTokenIs(b, IDENTIFIER)) return false;
     boolean r;
-    Marker m = enter_section_(b);
+    Marker m = enter_section_(b, l, _NONE_, CONSTRUCTOR_REFERENCE, "<constructor reference>");
     r = invocation_expression(b, l + 1);
     if (!r) r = reference_expression(b, l + 1);
-    exit_section_(b, m, CONSTRUCTOR_REFERENCE, r);
+    if (!r) r = string_literal(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -261,7 +261,7 @@ public class AmperParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // context_names (invocation_element | property)
+  // context_names (invocation_element | variable_declaration | property)
   public static boolean contextual_statement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "contextual_statement")) return false;
     if (!nextTokenIs(b, "<contextual statement>", AT, NEGAT)) return false;
@@ -273,11 +273,12 @@ public class AmperParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // invocation_element | property
+  // invocation_element | variable_declaration | property
   private static boolean contextual_statement_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "contextual_statement_1")) return false;
     boolean r;
     r = invocation_element(b, l + 1);
+    if (!r) r = variable_declaration(b, l + 1);
     if (!r) r = property(b, l + 1);
     return r;
   }
@@ -405,7 +406,6 @@ public class AmperParser implements PsiParser, LightPsiParser {
   // constructor_reference? '{' (object_element (','|&'}')?)* '}'
   public static boolean object(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "object")) return false;
-    if (!nextTokenIs(b, "<object>", IDENTIFIER, L_CURLY)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, OBJECT, "<object>");
     r = object_0(b, l + 1);
@@ -475,13 +475,14 @@ public class AmperParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // contextual_element | invocation_element | property
+  // contextual_element | invocation_element | variable_declaration | property
   public static boolean object_element(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "object_element")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _COLLAPSE_, OBJECT_ELEMENT, "<object element>");
     r = contextual_element(b, l + 1);
     if (!r) r = invocation_element(b, l + 1);
+    if (!r) r = variable_declaration(b, l + 1);
     if (!r) r = property(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
@@ -566,9 +567,56 @@ public class AmperParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // IDENTIFIER
+  // (IDENTIFIER)
+  public static boolean qualified_expression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "qualified_expression")) return false;
+    if (!nextTokenIsFast(b, IDENTIFIER)) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _LEFT_, REFERENCE_EXPRESSION, null);
+    r = consumeTokenFast(b, IDENTIFIER);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // reference_literal ('.' qualified_expression)*
   public static boolean reference_expression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "reference_expression")) return false;
+    if (!nextTokenIs(b, IDENTIFIER)) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _COLLAPSE_, REFERENCE_EXPRESSION, null);
+    r = reference_literal(b, l + 1);
+    r = r && reference_expression_1(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // ('.' qualified_expression)*
+  private static boolean reference_expression_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "reference_expression_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!reference_expression_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "reference_expression_1", c)) break;
+    }
+    return true;
+  }
+
+  // '.' qualified_expression
+  private static boolean reference_expression_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "reference_expression_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, DOT);
+    r = r && qualified_expression(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // IDENTIFIER
+  public static boolean reference_literal(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "reference_literal")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;
     boolean r;
     Marker m = enter_section_(b);
@@ -603,6 +651,20 @@ public class AmperParser implements PsiParser, LightPsiParser {
     if (!r) r = reference_expression(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
+  }
+
+  /* ********************************************************** */
+  // VAL_KEYWORD IDENTIFIER '=' property_value
+  public static boolean variable_declaration(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variable_declaration")) return false;
+    if (!nextTokenIs(b, VAL_KEYWORD)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, VARIABLE_DECLARATION, null);
+    r = consumeTokens(b, 1, VAL_KEYWORD, IDENTIFIER, EQ);
+    p = r; // pin = 1
+    r = r && property_value(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
 }

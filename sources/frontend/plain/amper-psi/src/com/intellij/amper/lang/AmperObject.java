@@ -1,9 +1,10 @@
 // This is a generated file. Not intended for manual editing.
 package com.intellij.amper.lang;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
-import org.jetbrains.annotations.*;
-import com.intellij.psi.PsiElement;
 
 public interface AmperObject extends AmperContainer {
 
@@ -13,8 +14,7 @@ public interface AmperObject extends AmperContainer {
   @NotNull
   List<AmperObjectElement> getObjectElementList();
 
-  @Nullable
-  AmperProperty findProperty(@NotNull String name);
+  @Nullable AmperProperty findProperty(@NotNull String name);
 
   //WARNING: getPresentation(...) is skipped
   //matching getPresentation(AmperObject, ...)

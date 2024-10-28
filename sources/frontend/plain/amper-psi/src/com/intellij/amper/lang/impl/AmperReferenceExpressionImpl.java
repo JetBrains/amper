@@ -1,16 +1,16 @@
 // This is a generated file. Not intended for manual editing.
 package com.intellij.amper.lang.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
+import com.intellij.amper.lang.AmperElementVisitor;
+import com.intellij.amper.lang.AmperReferenceExpression;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import static com.intellij.amper.lang.AmperElementTypes.*;
-import com.intellij.amper.lang.*;
+import org.jetbrains.annotations.NotNull;
 
-public class AmperReferenceExpressionImpl extends AmperReferenceLiteralMixin implements AmperReferenceExpression {
+import java.util.List;
+
+public class AmperReferenceExpressionImpl extends AmperReferenceExpressionMixin implements AmperReferenceExpression {
 
   public AmperReferenceExpressionImpl(@NotNull ASTNode node) {
     super(node);
@@ -28,8 +28,8 @@ public class AmperReferenceExpressionImpl extends AmperReferenceLiteralMixin imp
 
   @Override
   @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+  public List<AmperReferenceExpression> getReferenceExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, AmperReferenceExpression.class);
   }
 
 }

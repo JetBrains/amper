@@ -1,10 +1,10 @@
 // This is a generated file. Not intended for manual editing.
 package com.intellij.amper.lang;
 
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.PsiElement;
-import com.intellij.lang.ASTNode;
 import com.intellij.amper.lang.impl.*;
+import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
 
 public interface AmperElementTypes {
 
@@ -26,6 +26,7 @@ public interface AmperElementTypes {
   IElementType REFERENCE_EXPRESSION = new AmperElementType("REFERENCE_EXPRESSION");
   IElementType STRING_LITERAL = new AmperElementType("STRING_LITERAL");
   IElementType VALUE = new AmperElementType("VALUE");
+  IElementType VARIABLE_DECLARATION = new AmperElementType("VARIABLE_DECLARATION");
 
   IElementType AT = new AmperTokenType("@");
   IElementType BLOCK_COMMENT = new AmperTokenType("BLOCK_COMMENT");
@@ -49,6 +50,7 @@ public interface AmperElementTypes {
   IElementType SHARP = new AmperTokenType("#");
   IElementType SINGLE_QUOTED_STRING = new AmperTokenType("SINGLE_QUOTED_STRING");
   IElementType TRUE = new AmperTokenType("true");
+  IElementType VAL_KEYWORD = new AmperTokenType("val");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {
@@ -94,6 +96,9 @@ public interface AmperElementTypes {
       }
       else if (type == STRING_LITERAL) {
         return new AmperStringLiteralImpl(node);
+      }
+      else if (type == VARIABLE_DECLARATION) {
+        return new AmperVariableDeclarationImpl(node);
       }
       throw new AssertionError("Unknown element type: " + type);
     }

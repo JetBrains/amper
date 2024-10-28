@@ -9,9 +9,9 @@ class AmperLanguage : Language {
     val INSTANCE: AmperLanguage = AmperLanguage()
   }
 
-  constructor(ID: String, vararg mimeTypes: String): super(INSTANCE, ID, *mimeTypes)
+  private constructor(ID: String, vararg mimeTypes: String): super(INSTANCE, ID, *mimeTypes)
 
-  constructor(): super("Amper", "application/amper")
+  private constructor(): super("Amper", "application/amper")
 
   override fun isCaseSensitive(): Boolean {
     return true

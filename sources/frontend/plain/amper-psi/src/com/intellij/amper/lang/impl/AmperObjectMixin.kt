@@ -45,7 +45,7 @@ private fun List<AmperObjectElement>.allElementsRecursively(): List<AmperObjectE
 private fun List<AmperObjectElement>.propertyList(): List<AmperProperty> {
   return this.flatMap {
     when (it) {
-      is AmperProperty -> listOfNotNull(it.takeIf { it.value != null })
+      is AmperProperty -> listOfNotNull(it)
       is AmperContextualStatement -> listOfNotNull(it.objectElement).propertyList()
       is AmperContextBlock -> it.objectElementList.propertyList()
       else -> emptyList()
