@@ -44,6 +44,7 @@ object LocalAmperPublication {
      */
     fun setupWrappersIn(targetDir: Path) {
         checkPublicationIntegrity()
+        check(targetDir.exists()) { "Cannot setup wrapper scripts in non-existing directory: $targetDir" }
 
         wrapperBat.copyTo(targetDir.resolve("amper.bat"), REPLACE_EXISTING)
 
