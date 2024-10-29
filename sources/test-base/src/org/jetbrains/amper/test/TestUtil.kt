@@ -64,6 +64,9 @@ object TestUtil {
         "build-tools;35.0.0",
     )
 
+    /**
+     * The root directory of the Amper project, which is the checked out repository directory.
+     */
     val amperCheckoutRoot: Path by lazy {
         val start = Path(System.getProperty("user.dir"))
 
@@ -72,16 +75,25 @@ object TestUtil {
             ?: error("Unable to find Amper checkout root upwards from '$start'")
     }
 
+    /**
+     * The `sources` directory in the Amper project, containing all submodules of Amper.
+     */
     val amperSourcesRoot = amperCheckoutRoot / "sources"
 
+    /**
+     * The location of the local maven repository.
+     */
     // TODO this is technically incorrect. We should use LocalM2RepositoryFinder from DR
     val m2repository = Path(System.getProperty("user.home")) / ".m2/repository"
 
-    // Shared between different runs of testing
-    // on developer's machine: some place under working copy, assuming it won't be cleared after every test run
-    // on TeamCity: shared place on build agent which will be fully deleted if TeamCity lacks space on that agent
-    // Always run tests in a directory with a space in the name, tests quoting in a lot of places
+    /**
+     * Path to the root directory of a cache that is reused across test runs, and across CI builds.
+     *
+     * * on dev machines: some place in the working copy, assuming it won't be cleared after every test run
+     * * on TeamCity: a shared place on the build agent, which will be fully deleted if TeamCity lacks space on that agent
+     */
     val sharedTestCaches: Path by lazy {
+        // Always run tests in a directory with a space in the name, tests quoting in a lot of places
         val dir = if (TeamCityHelper.isUnderTeamCity) {
             val persistentCachePath = TeamCityHelper.systemProperties["agent.persistent.cache"]
             check(!persistentCachePath.isNullOrBlank()) {
@@ -95,14 +107,16 @@ object TestUtil {
         dir.createDirectories()
     }
 
-    // Always run tests in a directory with a space in the name, tests quoting in a lot of places
-    // on developer's machine: some place under working copy, assuming it won't be cleared after every test run
-    // on TeamCity: will be removed after the build
+    /**
+     * Path to a temporary directory that may or may not be reused across test runs.
+     *
+     * * on dev machines: some place in the working copy, assuming it won't be cleared after every test run
+     * * on TeamCity: some place that is removed after the build
+     */
     val tempDir: Path by lazy {
         val dir = if (TeamCityHelper.isUnderTeamCity) {
-            // As we found out, tempDirectory from TeamCity sometimes could be not empty
-            // (e.g., locked by some process)
-            // let's make it unique and add build id (global build counter on TC server across the entire server)
+            // As we found out, tempDirectory from TeamCity sometimes can be not empty (e.g., locked by some process).
+            // Let's make it unique and add build id (global build counter on TC server across the entire server).
             TeamCityHelper.tempDirectory / TeamCityHelper.buildId / "amper tests"
         } else {
             amperCheckoutRoot / "build" / "tests temp"
@@ -112,8 +126,12 @@ object TestUtil {
         dir
     }
 
-    // Re-use user cache root for local runs to make testing faster
-    // On CI (TeamCity) make it per-build (temp directory for build is cleaned after each build run)
+    /**
+     * Path to the root directory of a cache that is reused across test runs on dev machines, but not reused on CI.
+     *
+     * * on dev machines: the same as [sharedTestCaches]
+     * * on TeamCity: some place that is removed after the build
+     */
     val userCacheRoot: Path = if (TeamCityHelper.isUnderTeamCity) {
         // As we found out, tempDirectory from TeamCity sometimes could be not empty
         // (e.g., locked by some process)
