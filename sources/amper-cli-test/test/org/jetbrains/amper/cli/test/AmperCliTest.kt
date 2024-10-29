@@ -34,6 +34,9 @@ import kotlin.time.Duration.Companion.minutes
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
 class AmperCliTest: AmperCliTestBase() {
+
+    override val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
+
     @Test
     fun smoke() = runTestInfinitely {
         runCli("jvm-kotlin-test-smoke", "tasks")
@@ -414,6 +417,4 @@ class AmperCliTest: AmperCliTestBase() {
         val modules = modulesCommandResult.stdout.lines().dropWhile { it.isNotBlank() }.filter { it.isNotBlank() }
         return assertEquals(expectedModules, modules)
     }
-
-    override val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 }

@@ -15,8 +15,6 @@ import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestReporterExtension
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.androidHome
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.management.ManagementFactory
 import java.nio.file.Path
@@ -47,15 +45,6 @@ abstract class AmperCliTestBase {
             "Temp path is not a directory: $path"
         }
         path
-    }
-
-    protected lateinit var testInfo: TestInfo
-    protected val currentTestName: String
-        get() = testInfo.testMethod.get().name
-
-    @BeforeEach
-    fun before(testInfo: TestInfo) {
-        this.testInfo = testInfo
     }
 
     protected abstract val testDataRoot: Path

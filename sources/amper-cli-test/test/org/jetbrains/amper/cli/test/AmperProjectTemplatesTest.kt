@@ -10,6 +10,7 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.listDirectoryEntries
@@ -19,15 +20,41 @@ import kotlin.io.path.pathString
 import kotlin.test.Test
 import kotlin.test.assertContains
 
-class AmperProjectTemplatesTest: AmperCliTestBase() {
+private const val SUPPLEMENTAL_TAG = "supplemental"
+
+class AmperProjectTemplatesTest : AmperCliTestBase() {
     // Please add as many checks as possible to template tests
 
+    override val testDataRoot: Path
+        get() = throw UnsupportedOperationException() // these tests don't use test projects
+
     @BeforeEach
-    fun createFromTemplateAndBuild() {
+    fun createFromTemplateAndBuild(testInfo: TestInfo) {
         if (testInfo.tags.contains(SUPPLEMENTAL_TAG)) return
 
         runBlocking {
-            runCli(tempRoot, "init", currentTestName)
+            val templateName = testInfo.testMethod.get().name
+            runCli(tempRoot, "init", templateName)
+        }
+    }
+
+    @Test
+    @Tag(SUPPLEMENTAL_TAG)
+    fun `all templates are covered`() {
+        val methods = javaClass.declaredMethods.map { it.name }.toSet()
+
+        val templatesRoot = TestUtil.amperSourcesRoot.resolve("cli/resources/templates")
+        val entries = templatesRoot.listDirectoryEntries()
+        check(entries.size > 3) {
+            "Possibly incorrect templates root: $templatesRoot"
+        }
+        check(entries.any { it.name == "jvm-cli" } && entries.any { it.name == "multiplatform-cli" }) {
+            "Does not look like a templates root: $templatesRoot"
+        }
+
+        for (entry in entries) {
+            assertContains(methods, entry.name, "Template '${entry.pathString}' is not covered by test '${javaClass.name}'. " +
+                    "Please add a test method named '${entry.name}'")
         }
     }
 
@@ -78,32 +105,5 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
         runCli(newRoot, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
-    }
-
-    @Test
-    @Tag(SUPPLEMENTAL_TAG)
-    fun `all templates are covered`() {
-        val methods = javaClass.declaredMethods.map { it.name }.toSet()
-
-        val templatesRoot = TestUtil.amperSourcesRoot.resolve("cli/resources/templates")
-        val entries = templatesRoot.listDirectoryEntries()
-        check(entries.size > 3) {
-            "Possibly incorrect templates root: $templatesRoot"
-        }
-        check(entries.any { it.name == "jvm-cli" } && entries.any { it.name == "multiplatform-cli" }) {
-            "Does not look like a templates root: $templatesRoot"
-        }
-
-        for (entry in entries) {
-            assertContains(methods, entry.name, "Template '${entry.pathString}' is not covered by test '${javaClass.name}'. " +
-                    "Please add a test method named '${entry.name}'")
-        }
-    }
-
-    override val testDataRoot: Path
-        get() = throw UnsupportedOperationException()
-
-    companion object {
-        private const val SUPPLEMENTAL_TAG = "supplemental"
     }
 }

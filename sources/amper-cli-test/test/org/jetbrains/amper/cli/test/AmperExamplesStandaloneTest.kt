@@ -7,6 +7,8 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
@@ -16,8 +18,26 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 
 // TODO review and merge with AmperExamples2Test
-// Runs examples-standalone under current backend
-class AmperExamples1Test: AmperCliTestBase() {
+class AmperExamplesStandaloneTest: AmperCliTestBase() {
+
+    override val testDataRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
+
+    lateinit var projectName: String
+
+    @BeforeEach
+    fun determineTestProjectName(testInfo: TestInfo) {
+        projectName = testInfo.testMethod.get().name.substringBefore("_")
+    }
+
+    @Test
+    fun `all examples are covered`() {
+        val methods = javaClass.declaredMethods.map { it.name.substringBefore("_") }.toSet()
+
+        for (entry in testDataRoot.listDirectoryEntries().filter { it.isDirectory() }) {
+            assertContains(methods, entry.name, "Example '${entry.pathString}' is not covered by test '${javaClass.name}'. " +
+                    "Please add a test method named '${entry.name}'")
+        }
+    }
 
     @Test
     fun `compose-multiplatform`() = runTestInfinitely {
@@ -76,19 +96,4 @@ class AmperExamples1Test: AmperCliTestBase() {
         runCli(projectName, "run")
         runCli(projectName, "test")
     }
-
-    @Test
-    fun `all examples are covered`() {
-        val methods = javaClass.declaredMethods.map { it.name.substringBefore("_") }.toSet()
-
-        for (entry in testDataRoot.listDirectoryEntries().filter { it.isDirectory() }) {
-            assertContains(methods, entry.name, "Example '${entry.pathString}' is not covered by test '${javaClass.name}'. " +
-                    "Please add a test method named '${entry.name}'")
-        }
-    }
-
-    private val projectName: String
-        get() = currentTestName.substringBefore("_")
-
-    override val testDataRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
 }
