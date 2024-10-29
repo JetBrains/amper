@@ -58,7 +58,7 @@ $ErrorActionPreference = 'Stop'; ^
 $createdNew = $false; ^
 $lock = New-Object System.Threading.Mutex($true, ('Global\amper-bootstrap.' + '%target_dir%'.GetHashCode().ToString()), [ref]$createdNew); ^
 if (-not $createdNew) { ^
-    Write-Host 'Waiting for the other process to finish bootstrap'; ^
+    Write-Host 'Another Amper instance is bootstrapping. Waiting for our turn...'; ^
     [void]$lock.WaitOne(); ^
 } ^
  ^
