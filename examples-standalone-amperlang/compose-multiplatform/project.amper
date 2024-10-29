@@ -1,0 +1,6 @@
+modules {
+  "android-app"
+  "ios-app"
+  "jvm-app"
+  "shared"
+}

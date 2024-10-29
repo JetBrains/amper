@@ -1,0 +1,9 @@
+product = jvmApp
+
+dependencies {
+   $compose.desktop.currentOs
+} 
+
+settings {
+  compose { enabled = true }
+}

@@ -1,0 +1,18 @@
+product = androidApp
+
+dependencies {
+  $compose.foundation
+  $compose.material3
+  // Compose integration with Android activities
+  "androidx.activity:activity-compose:1.7.2"
+}
+
+settings {
+  android {
+    namespace = "com.jetbrains.sample.app"
+    signing {
+      enabled = true
+    }
+  }
+  compose { enabled = true }
+}

@@ -1,0 +1,12 @@
+product = androidApp
+
+dependencies {
+  module("../shared")
+  "androidx.activity:activity-compose:1.7.2"
+}
+
+settings {
+  compose {
+    enabled = true
+  }
+}

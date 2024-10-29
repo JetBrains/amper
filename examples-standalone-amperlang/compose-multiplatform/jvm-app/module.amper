@@ -1,0 +1,12 @@
+product = jvmApp
+
+dependencies {
+  module("../shared")
+  $compose.desktop.currentOs
+}
+
+settings {
+  compose {
+    enabled = true
+  }
+}

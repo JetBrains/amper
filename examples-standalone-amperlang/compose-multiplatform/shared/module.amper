@@ -1,0 +1,14 @@
+product = lib {
+  platforms { jvm, android, iosSimulatorArm64 }
+}
+
+dependencies {
+  $compose.foundation { exported = true }
+  $compose.material3 { exported = true }
+}
+
+settings {
+  compose {
+    enabled = true
+  }
+}

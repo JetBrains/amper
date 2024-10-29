@@ -1,0 +1,1 @@
+-printconfiguration ../build/temp/full-r8-config.txt

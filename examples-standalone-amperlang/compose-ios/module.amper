@@ -1,0 +1,13 @@
+product = iosApp
+
+dependencies {
+   $compose.foundation
+   $compose.material3
+}
+
+settings {
+  compose { enabled = true }
+  ios {
+    teamId = "<your team ID here>" // See https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/
+  }
+}
