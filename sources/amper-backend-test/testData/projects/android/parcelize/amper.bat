@@ -16,9 +16,9 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.5.0-dev-2097
+set amper_version=0.5.0-dev-2128
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=4e2bd87418fd84600748313b901fa1b86bdf37910da6d53dec3c4797194c0199
+set amper_sha256=278e423db08c1f11b0a5ca0cfb40647d6589f22c5bb9476539a1110aa9b8313d
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -58,7 +58,7 @@ $ErrorActionPreference = 'Stop'; ^
 $createdNew = $false; ^
 $lock = New-Object System.Threading.Mutex($true, ('Global\amper-bootstrap.' + '%target_dir%'.GetHashCode().ToString()), [ref]$createdNew); ^
 if (-not $createdNew) { ^
-    Write-Host 'Waiting for the other process to finish bootstrap'; ^
+    Write-Host 'Another Amper instance is bootstrapping. Waiting for our turn...'; ^
     [void]$lock.WaitOne(); ^
 } ^
  ^
