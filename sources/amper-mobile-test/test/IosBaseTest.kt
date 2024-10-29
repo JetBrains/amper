@@ -95,7 +95,7 @@ open class iOSBaseTest(): TestBase() {
         val result = runProcessAndCaptureOutput(
             command = command,
             environment = mapOf("IDB_COMPANION" to idbCompanion),
-            outputListener = SimplePrintOutputListener(),
+            outputListener = SimplePrintOutputListener,
         ).checkExitCodeIsZero()
         return result.stdout
     }
@@ -103,7 +103,7 @@ open class iOSBaseTest(): TestBase() {
     private suspend fun getOrCreateRemoteSession(): String {
         val result = runProcessAndCaptureOutput(
             command = listOf(sessionScriptPath.pathString, "-s", "sessionInfoPath", "-n", "Amper UI Test", "create"),
-            outputListener = SimplePrintOutputListener(),
+            outputListener = SimplePrintOutputListener,
         ).checkExitCodeIsZero()
 
         result.stdout.lines().forEach {
@@ -117,7 +117,7 @@ open class iOSBaseTest(): TestBase() {
     suspend fun deleteRemoteSession() {
         runProcessAndCaptureOutput(
             command = listOf(sessionScriptPath.pathString, "-s", "sessionInfoPath", "-n", "Amper UI Test", "delete"),
-            outputListener = SimplePrintOutputListener(),
+            outputListener = SimplePrintOutputListener,
         ).checkExitCodeIsZero()
     }
 
@@ -157,7 +157,7 @@ open class iOSBaseTest(): TestBase() {
             workingDir = directory,
             command = listOf("/bin/sh", "-c", command),
             redirectErrorStream = true,
-            outputListener = SimplePrintOutputListener(),
+            outputListener = SimplePrintOutputListener,
         )
     }
 

@@ -6,6 +6,7 @@ package org.jetbrains.amper.test
 
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessInput
+import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.junit.jupiter.api.BeforeAll
@@ -101,7 +102,7 @@ abstract class AmperCliWithWrapperTestBase {
                 putAll(environment)
             },
             input = stdin,
-            outputListener = SimplePrintOutputListener(stdoutPrefix = "[amper out] ", stderrPrefix = "[amper err] "),
+            outputListener = AmperProcessOutputListener,
         )
 
         assertEquals(
@@ -113,5 +114,17 @@ abstract class AmperCliWithWrapperTestBase {
             assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call: $amperScript ${args.joinToString(" ")}\nStderr was:\n${result.stderr}")
         }
         return result
+    }
+}
+
+@Suppress("ReplacePrintlnWithLogging") // these println are for test outputs and are OK here
+private object AmperProcessOutputListener : ProcessOutputListener {
+
+    override fun onStdoutLine(line: String, pid: Long) {
+        println("[amper $pid out] $line")
+    }
+
+    override fun onStderrLine(line: String, pid: Long) {
+        println("[amper $pid err] $line")
     }
 }

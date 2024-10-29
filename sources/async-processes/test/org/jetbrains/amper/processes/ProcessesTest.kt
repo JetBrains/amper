@@ -72,11 +72,11 @@ class ProcessesTest {
         val deferredExitCode = async {
             process.awaitListening(
                 outputListener = capture + object : ProcessOutputListener {
-                    override fun onStdoutLine(line: String) {
+                    override fun onStdoutLine(line: String, pid: Long) {
                         firstOutputEvent.complete(Unit)
                     }
 
-                    override fun onStderrLine(line: String) {
+                    override fun onStderrLine(line: String, pid: Long) {
                         firstOutputEvent.complete(Unit)
                     }
                 }

@@ -5,12 +5,12 @@
 package org.jetbrains.amper.processes
 
 interface ProcessOutputListener {
-    fun onStdoutLine(line: String)
-    fun onStderrLine(line: String)
+    fun onStdoutLine(line: String, pid: Long)
+    fun onStderrLine(line: String, pid: Long)
 
     object NOOP : ProcessOutputListener {
-        override fun onStdoutLine(line: String) = Unit
-        override fun onStderrLine(line: String) = Unit
+        override fun onStdoutLine(line: String, pid: Long) = Unit
+        override fun onStderrLine(line: String, pid: Long) = Unit
     }
 
     /**
@@ -23,11 +23,11 @@ interface ProcessOutputListener {
         val stdout: String get() = stdoutBuffer.toString()
         val stderr: String get() = stderrBuffer.toString()
 
-        override fun onStdoutLine(line: String) {
+        override fun onStdoutLine(line: String, pid: Long) {
             stdoutBuffer.appendLine(line)
         }
 
-        override fun onStderrLine(line: String) {
+        override fun onStderrLine(line: String, pid: Long) {
             stderrBuffer.appendLine(line)
         }
     }
@@ -44,11 +44,11 @@ interface ProcessOutputListener {
 }
 
 private class CompositeProcessOutputListener(val listeners: List<ProcessOutputListener>) : ProcessOutputListener {
-    override fun onStdoutLine(line: String) {
-        listeners.forEach { it.onStdoutLine(line) }
+    override fun onStdoutLine(line: String, pid: Long) {
+        listeners.forEach { it.onStdoutLine(line, pid) }
     }
 
-    override fun onStderrLine(line: String) {
-        listeners.forEach { it.onStderrLine(line) }
+    override fun onStderrLine(line: String, pid: Long) {
+        listeners.forEach { it.onStderrLine(line, pid) }
     }
 }

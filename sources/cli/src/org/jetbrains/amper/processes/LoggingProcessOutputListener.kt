@@ -7,11 +7,11 @@ package org.jetbrains.amper.processes
 import org.slf4j.Logger
 
 class LoggingProcessOutputListener(val logger: Logger): ProcessOutputListener {
-    override fun onStdoutLine(line: String) {
+    override fun onStdoutLine(line: String, pid: Long) {
         logger.info(line)
     }
 
-    override fun onStderrLine(line: String) {
+    override fun onStderrLine(line: String, pid: Long) {
         logger.error(line)
     }
 }

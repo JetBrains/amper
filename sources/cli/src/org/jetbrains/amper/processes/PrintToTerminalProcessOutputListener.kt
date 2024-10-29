@@ -7,11 +7,11 @@ package org.jetbrains.amper.processes
 import com.github.ajalt.mordant.terminal.Terminal
 
 class PrintToTerminalProcessOutputListener(private val terminal: Terminal) : ProcessOutputListener {
-    override fun onStdoutLine(line: String) {
+    override fun onStdoutLine(line: String, pid: Long) {
         terminal.println(line)
     }
 
-    override fun onStderrLine(line: String) {
+    override fun onStderrLine(line: String, pid: Long) {
         terminal.println(line, stderr = true)
     }
 }

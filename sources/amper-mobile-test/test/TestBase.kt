@@ -176,7 +176,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
                         }
                     },
                     redirectErrorStream = true,
-                    outputListener = SimplePrintOutputListener(),
+                    outputListener = SimplePrintOutputListener,
                     onStart = { pid ->
                         println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")
                     },

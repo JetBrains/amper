@@ -111,7 +111,7 @@ open class AndroidBaseTest : TestBase() {
 
         val result = runProcessAndCaptureOutput(
             command = cmd,
-            outputListener = SimplePrintOutputListener(),
+            outputListener = SimplePrintOutputListener,
         ).checkExitCodeIsZero()
 
         return result.stdout
@@ -133,7 +133,7 @@ open class AndroidBaseTest : TestBase() {
                 "Amper UI Tests",
                 "create"
             ),
-            outputListener = SimplePrintOutputListener(),
+            outputListener = SimplePrintOutputListener,
         )
     }
 
@@ -144,7 +144,7 @@ open class AndroidBaseTest : TestBase() {
                 "-c",
                 """$espressoScriptPath -s $sessionInfoPath -n \"Amper UI Tests\" delete"""
             ),
-            outputListener = SimplePrintOutputListener(),
+            outputListener = SimplePrintOutputListener,
         ).checkExitCodeIsZero()
     }
 
@@ -184,7 +184,7 @@ open class AndroidBaseTest : TestBase() {
                 testApkAppProjectPath.pathString,
                 "createDebugAndroidTestApk"
             ),
-            outputListener = SimplePrintOutputListener(),
+            outputListener = SimplePrintOutputListener,
         ).checkExitCodeIsZero()
 
         // Step 3: Restore the original content of the test file and build.gradle.kts

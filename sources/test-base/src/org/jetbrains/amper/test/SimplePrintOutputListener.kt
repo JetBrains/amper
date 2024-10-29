@@ -7,20 +7,17 @@ package org.jetbrains.amper.test
 import org.jetbrains.amper.processes.ProcessOutputListener
 
 /**
- * A simple [ProcessOutputListener] that outputs both stdout and stderr lines to the standard output of the current
- * process, with optional prefixes for each stream.
+ * A simple [ProcessOutputListener] that outputs stdout and stderr lines to the standard output of the current process
+ * using [println].
  */
-@Suppress("ReplacePrintlnWithLogging") // this println is for test outputs and are OK here
-class SimplePrintOutputListener(
-    val stdoutPrefix: String = "",
-    val stderrPrefix: String = "",
-) : ProcessOutputListener {
+@Suppress("ReplacePrintlnWithLogging") // these println are for test outputs and are OK here
+object SimplePrintOutputListener : ProcessOutputListener {
 
-    override fun onStdoutLine(line: String) {
-        println("$stdoutPrefix$line")
+    override fun onStdoutLine(line: String, pid: Long) {
+        println(line)
     }
 
-    override fun onStderrLine(line: String) {
-        println("$stderrPrefix$line")
+    override fun onStderrLine(line: String, pid: Long) {
+        println(line)
     }
 }

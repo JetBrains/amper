@@ -38,14 +38,15 @@ import kotlin.time.Duration.Companion.seconds
  */
 // NOT PUBLIC ON PURPOSE, please check the KDoc - the caller is responsible for too many things
 internal suspend fun Process.awaitListening(outputListener: ProcessOutputListener): Int = coroutineScope {
+    val pid = pid()
     launch {
         inputStream.consumeLinesBlockingCancellable {
-            outputListener.onStdoutLine(it)
+            outputListener.onStdoutLine(it, pid)
         }
     }
     launch {
         errorStream.consumeLinesBlockingCancellable {
-            outputListener.onStderrLine(it)
+            outputListener.onStderrLine(it, pid)
         }
     }
 
