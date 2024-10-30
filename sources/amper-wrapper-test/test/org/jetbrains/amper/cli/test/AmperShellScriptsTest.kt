@@ -4,7 +4,10 @@
 
 package org.jetbrains.amper.cli.test
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.jvm.JdkDownloader
@@ -90,6 +93,30 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             actual = listOf(LocalAmperPublication.distTgz),
             message = "The Amper script run should request the Amper distribution (and only this)",
         )
+    }
+
+    /**
+     * It's expected on the start that wrappers and cli dist are published to maven local
+     */
+    @Test
+    fun `first runs should be able to work concurrently`() = runBlocking {
+        val templatePath = shellScriptExampleProject
+        assertTrue { templatePath.isDirectory() }
+        templatePath.copyToRecursively(tempDir, followLinks = false, overwrite = false)
+
+        val bootstrapCacheDir = tempDir.resolve("boot strap")
+
+        withContext(Dispatchers.IO) {
+            repeat(15) {
+                launch {
+                    runAmper(
+                        workingDir = tempDir,
+                        args = listOf("--version"),
+                        bootstrapCacheDir = bootstrapCacheDir,
+                    )
+                }
+            }
+        }
     }
 
     @Test

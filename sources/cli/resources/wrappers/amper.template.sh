@@ -59,7 +59,12 @@ download_and_extract() {
       echo "Another Amper instance (pid $lock_owner) is downloading $moniker. Awaiting the result..."
       sleep 1
     elif [ -n "$lock_owner" ] && [ "$(cat "$download_lock_file" 2>/dev/null)" = "$lock_owner" ]; then
-      die "Another Amper instance (pid $lock_owner) locked the download of $moniker, but is no longer running"
+      rm -f "$download_lock_file"
+      # We don't want to simply loop again here, because multiple concurrent processes may face this at the same time,
+      # which means the 'rm' command above from another script could delete our new valid lock file. Instead, we just
+      # ask the user to try again. This doesn't 100% eliminate the race, but the probability of issues is drastically
+      # reduced because it would involve 4 processes with perfect timing. We can revisit this later.
+      die "Another Amper instance (pid $lock_owner) locked the download of $moniker, but is no longer running. The lock file is now removed, please try again."
     fi
   done
 
