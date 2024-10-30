@@ -39,7 +39,7 @@ plugins {
 // important to have the correct root project name on CI for Gradle Enterprise, and for potentially other things
 rootProject.name = "amper"
 
-val isCI = !System.getenv("CI").isNullOrEmpty()
+val isCI = System.getenv("TEAMCITY_VERSION") != null
 
 develocity {
     buildScan {
