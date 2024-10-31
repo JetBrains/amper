@@ -6,25 +6,28 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.FileBuildProblemSource
+import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.CompositeString
 import org.jetbrains.amper.frontend.CompositeStringPart
 import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.KnownCurrentTaskProperty
 import org.jetbrains.amper.frontend.KnownModuleProperty
+import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.LocalModuleDependency
-import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.VersionCatalog
@@ -36,6 +39,8 @@ import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.IsmDiagnosticFactories
+import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
@@ -60,6 +65,7 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.asAbsolutePath
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.reflect.KMutableProperty0
 
 /**
  * Module wrapper to hold also chosen catalog.
@@ -191,8 +197,7 @@ internal fun VersionsCatalogProvider.tryGetCatalogFor(file: VirtualFile, nonProc
 /**
  * Try to get used version catalog.
  */
-context(ProblemReporterContext)
-private fun addBuiltInCatalog(
+private fun ProblemReporterContext.addBuiltInCatalog(
     nonProcessed: Base,
     otherCatalog: VersionCatalog? = null,
 ): VersionCatalog {
@@ -200,13 +205,46 @@ private fun addBuiltInCatalog(
     val compose = commonSettings?.compose
     val serialization = commonSettings?.kotlin?.serialization
     val builtInCatalog = BuiltInCatalog(
-        serializationVersion = serialization?.version?.takeIf { serialization.enabled },
-        composeVersion = compose?.version?.takeIf { compose.enabled },
+        serializationVersion = serialization?.let { versionOrNull(
+            serialization.version.takeIf { serialization.enabled },
+            serialization::version,
+            UsedVersions.kotlinxSerializationVersion
+        ) },
+        composeVersion = compose?.let { versionOrNull(
+            compose.version?.takeIf { compose.enabled },
+            compose::version,
+            UsedVersions.composeVersion
+        ) },
     )
     val catalogs = otherCatalog?.let { listOf(it) }.orEmpty() + builtInCatalog
     val compositeCatalog = CompositeVersionCatalog(catalogs)
     return compositeCatalog
 }
+
+@OptIn(NonIdealDiagnostic::class)
+private fun ProblemReporterContext.versionOrNull(
+    version: String?,
+    property: KMutableProperty0<*>,
+    fallbackVersion: String
+): String? {
+    return version?.let {
+        // we validate the version only for emptiness because maven artifacts allow any string as a version
+        //  that's why we cannot provide a precise validation for non-empty strings
+        it.ifEmpty {
+            problemReporter.reportMessage(
+                BuildProblemImpl("empty.version.string",
+                    property.extractPsiElementOrNull()?.let { it1 -> PsiBuildProblemSource(it1) }
+                        ?: GlobalBuildProblemSource,
+                    SchemaBundle.message("empty.version.string"),
+                    Level.Error
+                )
+            )
+            // fallback to avoid double errors
+            fallbackVersion
+        }
+    }
+}
+
 
 context(ProblemReporterContext)
 private fun buildCustomTask(
