@@ -117,7 +117,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `failed resolve message`() = runTestInfinitely {
+    fun `failed dependency resolution message`() = runTestInfinitely {
         val projectName = "multi-module-failed-resolve"
         val r = runCli(
             projectName,
@@ -126,7 +126,7 @@ class AmperCliTest: AmperCliTestBase() {
             assertEmptyStdErr = false,
         )
 
-        val lastLines = r.stderr.lines().filter { it.isNotBlank() }
+        val actualStderr = r.stderr.lines().filter { it.isNotBlank() }.joinToString("\n")
 
         // could be any of them first
         val expected1 = """
@@ -153,28 +153,25 @@ class AmperCliTest: AmperCliTestBase() {
             Unable to download checksums of file junit-jupiter-api-9999.pom for dependency org.junit.jupiter:junit-jupiter-api:9999 (https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev)
             Unable to download checksums of file junit-jupiter-api-9999.module for dependency org.junit.jupiter:junit-jupiter-api:9999 (https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev)
         """.trimIndent()
-        val actual = lastLines.joinToString("\n")
 
-        if (expected1 != actual && expected2 != actual && expected3 != actual && expected4 != actual) {
-            println("Full stderr:\n${r.stderr.trim().prependIndent("STDERR ")}\n")
+        if (expected1 != actualStderr && expected2 != actualStderr && expected3 != actualStderr && expected4 != actualStderr) {
+
+            val expectedActualComparisonText = buildString {
+                appendLine(expected1.prependIndent("EXPECTED1> "))
+                appendLine()
+                appendLine(expected2.prependIndent("EXPECTED2> "))
+                appendLine()
+                appendLine(expected3.prependIndent("EXPECTED3> "))
+                appendLine()
+                appendLine(expected4.prependIndent("EXPECTED4> "))
+                appendLine()
+                appendLine(actualStderr.prependIndent("ACTUAL> "))
+            }
 
             // produce IDEA-viewable diff
-            println(expected1.trim().prependIndent("EXPECTED1> "))
-            println()
+            println(expectedActualComparisonText)
 
-            println(expected2.trim().prependIndent("EXPECTED2> "))
-            println()
-
-            println(expected3.trim().prependIndent("EXPECTED3> "))
-            println()
-
-            println(expected4.trim().prependIndent("EXPECTED4> "))
-            println()
-
-            println(actual.trim().prependIndent("ACTUAL> "))
-            println()
-
-            fail("assertion failed")
+            fail("Amper error doesn't match expected dependency resolution errors:\n$expectedActualComparisonText")
         }
     }
 
