@@ -1,5 +1,5 @@
 import SwiftUI
-import interopKotlin
+import KotlinModules
 
 @main
 struct iosApp: App {

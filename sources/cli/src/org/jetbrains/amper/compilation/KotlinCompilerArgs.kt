@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.BuildTask
+import org.jetbrains.amper.tasks.ios.IosConventions
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -139,7 +140,7 @@ enum class KotlinCompilationType(val argName: String) {
 
     fun outputFilename(module: AmperModule, platform: Platform, isTest: Boolean): String = when {
         this == LIBRARY -> "${moduleName(module, isTest)}.klib"
-        this == IOS_FRAMEWORK -> "${moduleName(module, isTest)}Kotlin.framework"
+        this == IOS_FRAMEWORK -> IosConventions.KOTLIN_FRAMEWORK_NAME  // TODO: Allow customization
         this == BINARY && platform.isDescendantOf(Platform.MINGW) -> "${moduleName(module, isTest)}.exe"
         else -> "${moduleName(module, isTest)}.kexe"
     }

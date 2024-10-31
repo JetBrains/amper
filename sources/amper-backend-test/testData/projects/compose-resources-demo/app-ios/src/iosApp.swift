@@ -1,5 +1,5 @@
 import UIKit
-import appiosKotlin
+import KotlinModules
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
