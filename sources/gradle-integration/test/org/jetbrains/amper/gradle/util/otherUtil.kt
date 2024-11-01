@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.util.*
+import java.net.URI
 import kotlin.io.path.createDirectories
 import kotlin.test.asserter
 
@@ -46,7 +46,8 @@ fun TestBase.runGradleWithModel(model: MockModelHandle): String {
     val stdout = ByteArrayOutputStream()
     val stderr = ByteArrayOutputStream()
     GradleConnector.newConnector()
-        .useGradleVersion("8.6")
+        // we use this instead of useGradleVersion() so that our tests benefit from the cache redirector and avoid timeouts
+        .useDistribution(URI("https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-8.6-bin.zip"))
         .useGradleUserHomeDir(gradleHome.toFile())
         .forProjectDirectory(tempDir)
         .connect()

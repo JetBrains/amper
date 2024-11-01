@@ -8,6 +8,7 @@ import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.ByteArrayOutputStream
+import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.CopyActionResult
 import kotlin.io.path.Path
@@ -74,7 +75,8 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         newEnv["ANDROID_HOME"] = TestUtil.androidHome.pathString
         val runner = gradleRunner
         val projectConnector = runner
-            .useGradleVersion(gradleVersion)
+            // we use this instead of useGradleVersion() so that our tests benefit from the cache redirector and avoid timeouts
+            .useDistribution(URI("https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-$gradleVersion-bin.zip"))
             .forProjectDirectory(tempDir.toFile())
             .connect()
         val stdout = ByteArrayOutputStream()
