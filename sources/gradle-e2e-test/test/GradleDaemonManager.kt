@@ -75,11 +75,8 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
 
     private val availableGradleDaemons = ArrayBlockingQueue<GradleConnector>(numberOfDaemons).apply {
         repeat(numberOfDaemons) {
-            val gradleHome = TestUtil.sharedTestCaches.resolve("gradleHome")
-                .also { it.createDirectories() }
-            add(GradleConnector.newConnector()
-                .useGradleVersion("8.2")
-                .useGradleUserHomeDir(gradleHome.toFile()))
+            val gradleHome = TestUtil.sharedTestCaches.resolve("gradleHome").createDirectories()
+            add(GradleConnector.newConnector().useGradleUserHomeDir(gradleHome.toFile()))
         }
     }
 
