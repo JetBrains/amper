@@ -23,6 +23,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 
+private const val MAVEN_CENTRAL_CACHE_REDIRECTOR = "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2"
+
 class MavenResolverTest {
     @field:TempDir
     lateinit var tempDir: File
@@ -35,7 +37,7 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"),
-                repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR).toRepositories(),
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
@@ -63,7 +65,7 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"),
-                repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR).toRepositories(),
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
@@ -83,7 +85,7 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"),
-                repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR).toRepositories(),
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.MINGW_X64,
                 resolveSourceMoniker = "test",
@@ -108,7 +110,7 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22"),
-                repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR).toRepositories(),
                 scope = ResolutionScope.RUNTIME,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
@@ -145,7 +147,7 @@ class MavenResolverTest {
             runBlocking {
                 resolver.resolve(
                     coordinates = listOf("org.tinylog:slf4j-tinylog:9999"),
-                    repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                    repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR).toRepositories(),
                     scope = ResolutionScope.COMPILE,
                     platform = ResolutionPlatform.JVM,
                     resolveSourceMoniker = "test",
@@ -156,8 +158,8 @@ class MavenResolverTest {
             """
                 Unable to resolve dependencies for test:
 
-                Unable to download checksums of file slf4j-tinylog-9999.pom for dependency org.tinylog:slf4j-tinylog:9999 (https://repo1.maven.org/maven2)
-                Unable to download checksums of file slf4j-tinylog-9999.module for dependency org.tinylog:slf4j-tinylog:9999 (https://repo1.maven.org/maven2)
+                Unable to download checksums of file slf4j-tinylog-9999.pom for dependency org.tinylog:slf4j-tinylog:9999 ($MAVEN_CENTRAL_CACHE_REDIRECTOR)
+                Unable to download checksums of file slf4j-tinylog-9999.module for dependency org.tinylog:slf4j-tinylog:9999 ($MAVEN_CENTRAL_CACHE_REDIRECTOR)
             """.trimIndent(),
             t.message
         )
@@ -171,7 +173,7 @@ class MavenResolverTest {
         // kotlinx-datetime:0.2.1 is available for macos_x64
         val macosX64 = resolver.resolve(
             coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
-            repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+            repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR).toRepositories(),
             scope = ResolutionScope.COMPILE,
             platform = ResolutionPlatform.MACOS_X64,
             resolveSourceMoniker = "test",
@@ -184,7 +186,7 @@ class MavenResolverTest {
             runBlocking {
                 resolver.resolve(
                     coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
-                    repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                    repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR).toRepositories(),
                     scope = ResolutionScope.COMPILE,
                     platform = ResolutionPlatform.MACOS_ARM64,
                     resolveSourceMoniker = "test",
@@ -206,8 +208,8 @@ class MavenResolverTest {
             resolver.resolve(
                 coordinates = listOf("org.gradle:gradle-tooling-api:8.4"),
                 repositories = listOf(
-                    "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2",
-                    "https://repo.gradle.org/gradle/libs-releases",
+                    MAVEN_CENTRAL_CACHE_REDIRECTOR,
+                    "https://repo.gradle.org/gradle/libs-releases", // TODO add to cache-redirector?
                 ).toRepositories(),
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
@@ -232,7 +234,7 @@ class MavenResolverTest {
             runBlocking {
                 resolver.resolve(
                     coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"),
-                    repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                    repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR).toRepositories(),
                     scope = ResolutionScope.COMPILE,
                     platform = ResolutionPlatform.JVM,
                     resolveSourceMoniker = "test",
@@ -243,10 +245,10 @@ class MavenResolverTest {
             """
                 Unable to resolve dependencies for test:
 
-                Unable to download checksums of file slf4j-tinylog-9999.pom for dependency org.tinylog:slf4j-tinylog:9999 (https://repo1.maven.org/maven2)
-                Unable to download checksums of file slf4j-tinylog-9999.module for dependency org.tinylog:slf4j-tinylog:9999 (https://repo1.maven.org/maven2)
-                Unable to download checksums of file xxx-9998.pom for dependency org.tinylog:xxx:9998 (https://repo1.maven.org/maven2)
-                Unable to download checksums of file xxx-9998.module for dependency org.tinylog:xxx:9998 (https://repo1.maven.org/maven2)
+                Unable to download checksums of file slf4j-tinylog-9999.pom for dependency org.tinylog:slf4j-tinylog:9999 ($MAVEN_CENTRAL_CACHE_REDIRECTOR)
+                Unable to download checksums of file slf4j-tinylog-9999.module for dependency org.tinylog:slf4j-tinylog:9999 ($MAVEN_CENTRAL_CACHE_REDIRECTOR)
+                Unable to download checksums of file xxx-9998.pom for dependency org.tinylog:xxx:9998 ($MAVEN_CENTRAL_CACHE_REDIRECTOR)
+                Unable to download checksums of file xxx-9998.module for dependency org.tinylog:xxx:9998 ($MAVEN_CENTRAL_CACHE_REDIRECTOR)
             """.trimIndent(),
             t.message
         )
