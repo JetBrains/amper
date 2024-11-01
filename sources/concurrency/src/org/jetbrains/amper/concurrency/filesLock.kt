@@ -38,12 +38,12 @@ private val filesLock = StripedMutex(stripeCount = 512)
  * * a non-reentrant coroutine Mutex for the given [hash], getting exclusive access inside one JVM
  * * a FileChannel lock on the given [file], getting exclusive access across all processes on the system
  *
- * Both locks are unlocked after method return.
+ * Both locks are unlocked after the method returns.
  *
- * The block is passed the [FileChannel] used to lock the given [file], if further inspection of the file is needed
- * while under the lock.
+ * The [block]'s parameter is the [FileChannel] used to lock the given [file], if further inspection of the file is
+ * needed while under the lock.
  *
- * Note: Since the first lock is a non-reentrant coroutine Mutex, callers MUST not call withDoubleLock again from
+ * Note: Since the first lock is a non-reentrant coroutine Mutex, callers MUST NOT call `withDoubleLock` again from
  * inside the given [block], that would make the current coroutine hang.
  */
 suspend fun <T> withDoubleLock(
