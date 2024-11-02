@@ -5,6 +5,9 @@
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_COMPOSE_DEV
+import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_MAVEN_CENTRAL
+import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_MAVEN_GOOGLE
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -100,9 +103,9 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
             repositories = listOf(
-                "https://repo1.maven.org/maven2",
-                "https://maven.google.com",
-                "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+                REDIRECTOR_MAVEN_CENTRAL,
+                REDIRECTOR_MAVEN_GOOGLE,
+                REDIRECTOR_COMPOSE_DEV
             ).toRepositories()
             platforms = setOf(ResolutionPlatform.IOS_ARM64)
         }.use { context ->
@@ -132,9 +135,9 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
             repositories = listOf(
-                "https://repo1.maven.org/maven2",
-                "https://maven.google.com",
-                "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+                REDIRECTOR_MAVEN_CENTRAL,
+                REDIRECTOR_MAVEN_GOOGLE,
+                REDIRECTOR_COMPOSE_DEV
             ).toRepositories()
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64, ResolutionPlatform.IOS_ARM64)
         }.use { context ->
@@ -165,9 +168,9 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
             repositories = listOf(
-                "https://repo1.maven.org/maven2",
-                "https://maven.google.com",
-                "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+                REDIRECTOR_MAVEN_CENTRAL,
+                REDIRECTOR_MAVEN_GOOGLE,
+                REDIRECTOR_COMPOSE_DEV
             ).toRepositories()
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
         }.use { context ->
@@ -214,11 +217,8 @@ class DependencyFileTest {
                     localRepository = mavenLocalRepository()
                     readOnlyExternalRepositories = emptyList()
                 }
-                repositories = listOf(
-                    "https://repo1.maven.org/maven2",
-                    "https://maven.google.com",
-                    "https://maven.pkg.jetbrains.space/public/p/compose/dev"
-                ).toRepositories()
+                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE, REDIRECTOR_COMPOSE_DEV)
+                    .toRepositories()
                 platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
                 scope = ResolutionScope.RUNTIME
             }.use { context ->
@@ -244,7 +244,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
         Context {
             platforms = setOf(ResolutionPlatform.MACOS_X64)
-            repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
+            repositories = listOf("$REDIRECTOR_MAVEN_CENTRAL/").toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -267,7 +267,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3 check metadata`() {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
-            repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -300,7 +300,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
-            repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -369,7 +369,7 @@ class DependencyFileTest {
                 ResolutionPlatform.IOS_X64,
             )
             scope = ResolutionScope.RUNTIME
-            repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -492,8 +492,7 @@ class DependencyFileTest {
                 ResolutionPlatform.IOS_X64,
                 )
             scope = ResolutionScope.RUNTIME
-            repositories = listOf(
-                "https://repo.maven.apache.org/maven2/").toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
