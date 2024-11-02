@@ -60,7 +60,7 @@ class DRConcurrencyTest : BaseDRTest() {
     fun `androidx_annotation annotation-jvm 1_6_0 readText`(testInfo: TestInfo) =
         doConcurrencyTest(testInfo) {
             val context = context(
-                repositories = (REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com").toRepositories(),
+                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE).toRepositories(),
                 cacheBuilder = cacheBuilder(cacheRoot))
             annotationJvmCoordinates.toMavenNode(context).dependency.moduleFile.readText()
         }
@@ -81,7 +81,7 @@ class DRConcurrencyTest : BaseDRTest() {
                         doTest(
                             testInfo = testInfo,
                             dependency = annotationJvmCoordinates,
-                            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+                            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
                             cacheBuilder = cacheBuilder(cacheRoot),
                             filterMessages = {
                                 filter { "Downloaded from" !in it.text && "Hashes don't match for" !in it.text }

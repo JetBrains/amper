@@ -43,10 +43,7 @@ class BuildGraphTest: BaseDRTest() {
     fun `com_google_guava listenablefuture 9999_0-empty-to-avoid-conflict-with-guava`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            repositories = listOf(
-                "https://repo1.maven.org/maven2",
-                "https://maven.google.com",
-                "https://maven.pkg.jetbrains.space/public/p/compose/dev"),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE, REDIRECTOR_COMPOSE_DEV),
             platform = setOf(ResolutionPlatform.JVM),
             expected = """root
                 |\--- com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
@@ -103,7 +100,7 @@ class BuildGraphTest: BaseDRTest() {
             platform = setOf(
                 ResolutionPlatform.ANDROID,
             ),
-            repositories = REDIRECTOR_MAVEN2 + "https://maven.google.com/",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
                 |\--- com.google.android.gms:play-services-measurement-api:22.1.0
                 |     +--- com.google.android.gms:play-services-ads-identifier:18.0.0
@@ -275,7 +272,7 @@ class BuildGraphTest: BaseDRTest() {
             platform = setOf(
                 ResolutionPlatform.ANDROID,
             ),
-            repositories = REDIRECTOR_MAVEN2 + "https://maven.google.com/",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
                 |\--- dev.gitlive:firebase-analytics:2.1.0
                 |     \--- dev.gitlive:firebase-analytics-android:2.1.0
@@ -502,7 +499,7 @@ class BuildGraphTest: BaseDRTest() {
     fun `dev_gitlive firebase-crashlytics 2_1_0`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            repositories = REDIRECTOR_MAVEN2 + "https://maven.google.com/",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             platform = setOf(
                 ResolutionPlatform.ANDROID,
             )
@@ -674,7 +671,7 @@ class BuildGraphTest: BaseDRTest() {
     fun `org_jetbrains_skiko skiko 0_7_85`(testInfo: TestInfo) {
         doTest(
             testInfo,
-            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV),
             expected = """root
                 |\--- org.jetbrains.skiko:skiko:0.7.85
                 |     \--- org.jetbrains.skiko:skiko-awt:0.7.85
@@ -692,7 +689,7 @@ class BuildGraphTest: BaseDRTest() {
     fun `org_jetbrains_compose_desktop desktop-jvm-macos-arm64 1_5_10`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV),
             expected = """root
                 |\--- org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.10
                 |     \--- org.jetbrains.compose.desktop:desktop:1.5.10
@@ -780,7 +777,7 @@ class BuildGraphTest: BaseDRTest() {
     fun `androidx_annotation annotation 1_6_0`(testInfo: TestInfo) {
         doTest(
             testInfo,
-            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
                 |\--- androidx.annotation:annotation:1.6.0
                 |     \--- androidx.annotation:annotation-jvm:1.6.0
@@ -797,7 +794,7 @@ class BuildGraphTest: BaseDRTest() {
             testInfo,
             platform = setOf(ResolutionPlatform.ANDROID),
             scope = ResolutionScope.RUNTIME,
-            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
                 |\--- org.jetbrains.compose.foundation:foundation:1.6.10
                 |     \--- androidx.compose.foundation:foundation:1.6.7
@@ -1039,7 +1036,7 @@ class BuildGraphTest: BaseDRTest() {
         doTest(
             testInfo,
             platform = setOf(ResolutionPlatform.ANDROID),
-            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
                 |\--- androidx.activity:activity-compose:1.7.2
                 |     +--- androidx.activity:activity-ktx:1.7.2
@@ -1159,7 +1156,7 @@ class BuildGraphTest: BaseDRTest() {
     fun `androidx_appcompat appcompat 1_6_1`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID),
             platform = setOf(ResolutionPlatform.ANDROID),
             expected = """root
                 |\--- androidx.appcompat:appcompat:1.6.1
@@ -1304,8 +1301,7 @@ class BuildGraphTest: BaseDRTest() {
 
     @Test
     fun `androidx_appcompat appcompat 1_6_1 many contexts`() {
-        val repositories =
-            (REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2").toRepositories()
+        val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID).toRepositories()
         val contexts = listOf(
             context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories),
             context(platform = setOf(ResolutionPlatform.ANDROID), repositories = repositories),
@@ -1370,7 +1366,7 @@ class BuildGraphTest: BaseDRTest() {
     fun `org_jetbrains_packagesearch packagesearch-plugin 1_0_0-SNAPSHOT`(testInfo: TestInfo) {
         doTest(
             testInfo,
-            repositories = REDIRECTOR_MAVEN2 + "https://packages.jetbrains.team/maven/p/kpm/public",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
             expected = """root
                 |\--- org.jetbrains.packagesearch:packagesearch-plugin:1.0.0-SNAPSHOT
                 |     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0
@@ -1388,7 +1384,7 @@ class BuildGraphTest: BaseDRTest() {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
-            repositories = REDIRECTOR_MAVEN2 + "https://packages.jetbrains.team/maven/p/kpm/public",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
             expected = """root
                 |\--- io.ktor:ktor-bom:2.3.9
             """.trimMargin()
@@ -1411,7 +1407,7 @@ class BuildGraphTest: BaseDRTest() {
         doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
-            repositories = REDIRECTOR_MAVEN2 + "https://packages.jetbrains.team/maven/p/amper/amper",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, "https://packages.jetbrains.team/maven/p/amper/amper"),
             expected = """root
                 |\--- org.jetbrains.amper:amper-dr-test-bom-usages:1.0
                 |     +--- io.ktor:ktor-bom:2.3.9
@@ -1512,7 +1508,7 @@ class BuildGraphTest: BaseDRTest() {
     fun `junit junit 4_10`(testInfo: TestInfo) {
         doTest(
             testInfo,
-            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
                 |\--- junit:junit:4.10
                 |     \--- org.hamcrest:hamcrest-core:1.1
@@ -1524,7 +1520,7 @@ class BuildGraphTest: BaseDRTest() {
     fun `io_ktor ktor-server-auth 2_2_2`(testInfo: TestInfo) {
         doTest(
             testInfo,
-            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
                 |\--- io.ktor:ktor-server-auth:2.2.2
                 |     \--- io.ktor:ktor-server-auth-jvm:2.2.2
@@ -1940,9 +1936,7 @@ class BuildGraphTest: BaseDRTest() {
                 ResolutionPlatform.IOS_X64,
                 ResolutionPlatform.IOS_SIMULATOR_ARM64
             ),
-            repositories = REDIRECTOR_MAVEN2 +
-                    "https://packages.jetbrains.team/maven/p/kpm/public" +
-                    "https://cache-redirector.jetbrains.com/maven.google.com",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
                 |\--- org.jetbrains.compose.ui:ui-uikit:1.6.10
             """.trimMargin()
@@ -1986,9 +1980,7 @@ class BuildGraphTest: BaseDRTest() {
             testInfo,
             scope = ResolutionScope.RUNTIME,
             platform = setOf(ResolutionPlatform.IOS_ARM64),
-            repositories = REDIRECTOR_MAVEN2 +
-                    "https://packages.jetbrains.team/maven/p/kpm/public" +
-                    "https://cache-redirector.jetbrains.com/maven.google.com",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
                |\--- org.jetbrains.compose.material3:material3-uikitarm64:1.6.10
                |     +--- org.jetbrains.compose.animation:animation-core:1.6.10
@@ -2379,8 +2371,7 @@ class BuildGraphTest: BaseDRTest() {
 
     @Test
     fun `check method distinctBfsSequence`() {
-        val repositories =
-            (REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2").toRepositories()
+        val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID).toRepositories()
         val context = context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories)
 
         val root = DependencyNodeHolder(
