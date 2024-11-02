@@ -40,7 +40,7 @@ abstract class BaseDRTest {
         dependency: List<String> = listOf(testInfo.nameToDependency()),
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
-        repositories: List<Repository> = REDIRECTOR_MAVEN2.toRepositories(),
+        repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories(),
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
@@ -59,7 +59,7 @@ abstract class BaseDRTest {
         dependency: String = testInfo.nameToDependency(),
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
-        repositories: List<String> = REDIRECTOR_MAVEN2,
+        repositories: List<String> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
@@ -72,7 +72,7 @@ abstract class BaseDRTest {
         dependency: List<String>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
-        repositories: List<String> = REDIRECTOR_MAVEN2,
+        repositories: List<String> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
@@ -83,7 +83,7 @@ abstract class BaseDRTest {
     protected fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
-        repositories: List<Repository> = REDIRECTOR_MAVEN2.toRepositories(),
+        repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories(),
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
     ) = Context {
         this.scope = scope
@@ -150,7 +150,11 @@ abstract class BaseDRTest {
     }
 
     companion object {
-        internal val REDIRECTOR_MAVEN2 = listOf("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
+        internal const val REDIRECTOR_MAVEN_CENTRAL = "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2"
+        internal const val REDIRECTOR_MAVEN_GOOGLE = "https://cache-redirector.jetbrains.com/maven.google.com"
+        internal const val REDIRECTOR_DL_GOOGLE_ANDROID = "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2"
+        internal const val REDIRECTOR_COMPOSE_DEV = "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev"
+        internal const val REDIRECTOR_JETBRAINS_KPM_PUBLIC = "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public"
 
         fun List<Message>.defaultFilterMessages(): List<Message> =
             filter { "Downloaded from" !in it.text && "Resolved from local repository" != it.text }
