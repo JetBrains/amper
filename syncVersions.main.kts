@@ -9,6 +9,7 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.file.FileVisitResult
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -46,17 +47,12 @@ val androidVersionForGradleBasedAmper = "8.2.0" // do not bump higher than Fleet
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 
 val amperRootDir: Path = __FILE__.toPath().absolute().parent // __FILE__ is this script
-val examplesStandaloneDir = amperRootDir / "examples-standalone"
 val examplesGradleDir = amperRootDir / "examples-gradle"
 val migratedProjectsDir = amperRootDir / "migrated-projects"
 val cliDir = amperRootDir / "sources/cli"
-val testDataProjectsDir = amperRootDir / "sources/amper-backend-test/testData"
 val docsDir = amperRootDir / "docs"
 val versionsCatalogToml = amperRootDir / "gradle/libs.versions.toml"
 val usedVersionsKt = amperRootDir / "sources/core/src/org/jetbrains/amper/core/UsedVersions.kt"
-
-// actually runs the script
-syncVersions()
 
 fun syncVersions() {
     println("Making sure user-visible versions are aligned in Amper, docs, and examples...")
@@ -66,6 +62,7 @@ fun syncVersions() {
     updateAmperWrappers()
     updateGradleFiles()
     updateWrapperTemplates()
+    println("Done.")
 }
 
 fun updateVersionsCatalog() {
@@ -124,13 +121,27 @@ fun updateAmperWrappers() {
     val shellWrapperText = fetchContent("$amperMavenRepoUrl/org/jetbrains/amper/cli/$bootstrapAmperVersion/cli-$bootstrapAmperVersion-wrapper")
     val batchWrapperText = fetchContent("$amperMavenRepoUrl/org/jetbrains/amper/cli/$bootstrapAmperVersion/cli-$bootstrapAmperVersion-wrapper.bat")
 
-    (amperRootDir / "amper").replaceFileText { shellWrapperText }
-    (amperRootDir / "amper.bat").replaceFileText { batchWrapperText }
-
-    (examplesStandaloneDir.walk() + testDataProjectsDir.walk()).forEach { path ->
+    amperRootDir.forEachWrapperFile { path ->
         when (path.name) {
             "amper" -> path.replaceFileText { shellWrapperText }
             "amper.bat" -> path.replaceFileText { batchWrapperText }
+        }
+    }
+}
+
+fun Path.forEachWrapperFile(action: (Path) -> Unit) {
+    visitFileTree {
+        onPreVisitDirectory { dir, _ ->
+            when (dir.name) {
+                ".kotlin", ".gradle", "build", "shared test caches" -> FileVisitResult.SKIP_SUBTREE
+                else -> FileVisitResult.CONTINUE
+            }
+        }
+        onVisitFile { file, _ ->
+            if (file.name in setOf("amper", "amper.bat")) {
+                action(file)
+            }
+            FileVisitResult.CONTINUE
         }
     }
 }
@@ -235,3 +246,6 @@ fun Path.replaceFileText(transform: (text: String) -> String) {
     writeText(newTest)
     println("Updated file .${File.separator}${relativeTo(amperRootDir)}")
 }
+
+// actually runs the script
+syncVersions()
