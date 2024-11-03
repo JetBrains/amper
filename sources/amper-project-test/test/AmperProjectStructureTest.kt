@@ -10,11 +10,8 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.amperCheckoutRoot
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.junit.jupiter.api.extension.RegisterExtension
-import java.io.IOException
 import java.nio.file.FileVisitResult
-import java.nio.file.FileVisitor
 import java.nio.file.Path
-import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.name
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
@@ -30,11 +27,22 @@ import kotlin.test.assertEquals
 class AmperProjectStructureTest {
     @Test
     fun sameVersionInEveryWrapper() {
+        val versionToFiles = amperCheckoutRoot.findWrapperFiles()
+            .map { it to extractAmperVersion(it) }
+            .groupBy({ it.second }, { it.first })
+            .toList()
+            .map { it.first to it.second.sorted() }
+            .sortedByDescending { it.second.size }
+        check(versionToFiles.size == 1) {
+            "Wrapper files reference different versions:\n\n" +
+                    versionToFiles.joinToString("\n\n") { "${it.first}:\n${it.second.joinToString("\n")}" }
+        }
+    }
+
+    private fun Path.findWrapperFiles(): List<Path> {
         val filesWithWrappers = mutableListOf<Path>()
-
         val gradleTestProjects = TestUtil.amperSourcesRoot.resolve("gradle-e2e-test/testData/projects")
-
-        amperCheckoutRoot.visitFileTree {
+        visitFileTree {
             onPreVisitDirectory { dir, _ ->
                 when {
                     dir.name == "build" -> FileVisitResult.SKIP_SUBTREE
@@ -51,16 +59,7 @@ class AmperProjectStructureTest {
                 FileVisitResult.CONTINUE
             }
         }
-        val versionToFiles = filesWithWrappers
-            .map { it to extractAmperVersion(it) }
-            .groupBy({ it.second }, { it.first })
-            .toList()
-            .map { it.first to it.second.sorted() }
-            .sortedByDescending { it.second.size }
-        check(versionToFiles.size == 1) {
-            "Wrapper files reference different versions:\n\n" +
-                    versionToFiles.joinToString("\n\n") { "${it.first}:\n${it.second.joinToString("\n")}" }
-        }
+        return filesWithWrappers
     }
 
     @Test
