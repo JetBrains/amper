@@ -51,12 +51,17 @@ open class AndroidBaseTest : TestBase() {
         runTestsViaAdb(applicationId)
     }
 
-    internal fun testRunnerStandalone(projectName: String, applicationId: String? = null) {
+    internal fun testRunnerStandalone(
+        projectName: String,
+        applicationId: String? = null,
+        multiplatform: Boolean = false
+    ) {
         val androidTestProjectsPath = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/android")
         prepareExecution(projectName, androidTestProjectsPath, applicationId) {
+            val taskPath = if (multiplatform) ":android-app:buildAndroidDebug" else ":$it:buildAndroidDebug"
             runAmper(
                 workingDir = tempProjectsDir.resolve(it),
-                args = listOf("task", ":$it:buildAndroidDebug"),
+                args = listOf("task", taskPath),
             )
         }
     }
@@ -211,6 +216,8 @@ open class AndroidBaseTest : TestBase() {
         val gradleApkPath = tempProjectsDir / "$projectName/build/outputs/apk/debug/$projectName-debug.apk"
         val standaloneApkPath = tempProjectsDir / "$projectName/build/tasks/_${projectName}_buildAndroidDebug/gradle-project-debug.apk"
         val gradleApkPathMultiplatform = tempProjectsDir / "$projectName/android-app/build/outputs/apk/debug/android-app-debug.apk"
+        val standaloneApkPathMultiplatform = tempProjectsDir / "${projectName}/build/tasks/_android-app_buildAndroidDebug/gradle-project-debug.apk"
+
 
         if (gradleApkPath.exists()) {
             adb("install", "-r", gradleApkPath.pathString)
@@ -218,10 +225,13 @@ open class AndroidBaseTest : TestBase() {
             adb("install", "-r", standaloneApkPath.pathString)
         } else if (gradleApkPathMultiplatform.exists()) {
             adb("install", "-r", gradleApkPathMultiplatform.pathString)
+        } else if (standaloneApkPathMultiplatform.exists()) {
+            adb("install", "-r", standaloneApkPathMultiplatform.pathString)
         } else {
             throw APKNotFoundException("APK file does not exist at any of those paths:\n" +
                     "${gradleApkPath.absolutePathString()}\n" +
                     "${standaloneApkPath.absolutePathString()}\n" +
+                    "${standaloneApkPathMultiplatform.absolutePathString()}\n" +
                     gradleApkPathMultiplatform.absolutePathString()
             )
         }

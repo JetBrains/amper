@@ -12,4 +12,11 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
         projectName = "kmptxter",
         applicationId = "com.river.kmptxter"
     )
+
+    @Test
+    fun kotlinConfAppTest() = testRunnerStandalone(
+        projectName = "kotlinconf",
+        applicationId = "com.jetbrains.kotlinconf.android",
+        multiplatform = true
+    )
 }
