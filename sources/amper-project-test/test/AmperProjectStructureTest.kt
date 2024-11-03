@@ -34,9 +34,9 @@ class AmperProjectStructureTest {
 
         val gradleTestProjects = TestUtil.amperSourcesRoot.resolve("gradle-e2e-test/testData/projects")
 
-        amperCheckoutRoot.visitFileTree(object : FileVisitor<Path> {
-            override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
-                return when {
+        amperCheckoutRoot.visitFileTree {
+            onPreVisitDirectory { dir, _ ->
+                when {
                     dir.name == "build" -> FileVisitResult.SKIP_SUBTREE
                     // do not reference wrappers
                     dir == gradleTestProjects -> FileVisitResult.SKIP_SUBTREE
@@ -44,27 +44,13 @@ class AmperProjectStructureTest {
                     else -> FileVisitResult.CONTINUE
                 }
             }
-
-            override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
-                if (file.name == "settings.gradle.kts" ||
-                    file.name == "amper" ||
-                    file.name == "amper.bat"
-                ) {
+            onVisitFile { file, _ ->
+                if (file.name in setOf("settings.gradle.kts", "amper", "amper.bat")) {
                     filesWithWrappers.add(file)
                 }
-                return FileVisitResult.CONTINUE
+                FileVisitResult.CONTINUE
             }
-
-            override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult = throw exc
-
-            override fun postVisitDirectory(dir: Path, exc: IOException?): FileVisitResult {
-                if (exc != null) {
-                    throw exc
-                }
-                return FileVisitResult.CONTINUE
-            }
-        })
-
+        }
         val versionToFiles = filesWithWrappers
             .map { it to extractAmperVersion(it) }
             .groupBy({ it.second }, { it.first })

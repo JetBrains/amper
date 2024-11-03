@@ -53,12 +53,8 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
             @Suppress("ReplacePrintlnWithLogging") // we're in a test context
             fun log(s: String) = println("TempDirExtension.deleteWithRetries: $s")
 
-            path.visitFileTree(object : FileVisitor<Path> {
-                override fun preVisitDirectory(dir: Path?, attrs: BasicFileAttributes): FileVisitResult {
-                    return FileVisitResult.CONTINUE
-                }
-
-                override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+            path.visitFileTree {
+                onVisitFile { file, attributes ->
                     try {
                         log("Removing file $file")
                         file.deleteIfExists()
@@ -66,16 +62,16 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
                         log("Removing file $file failed: ${t.stackTraceToString()}")
                         exceptions.add(t)
                     }
-                    return FileVisitResult.CONTINUE
+                    FileVisitResult.CONTINUE
                 }
 
-                override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult {
+                onVisitFileFailed { file, exc ->
                     exc.printStackTrace()
                     exceptions.add(exc)
-                    return FileVisitResult.CONTINUE
+                    FileVisitResult.CONTINUE
                 }
 
-                override fun postVisitDirectory(dir: Path, exc: IOException?): FileVisitResult {
+                onPostVisitDirectory { dir, exc ->
                     if (exc != null) {
                         exc.printStackTrace()
                         exceptions.add(exc)
@@ -88,9 +84,9 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
                             exceptions.add(t)
                         }
                     }
-                    return FileVisitResult.CONTINUE
+                    FileVisitResult.CONTINUE
                 }
-            })
+            }
 
             if (exceptions.isEmpty()) {
                 error(
