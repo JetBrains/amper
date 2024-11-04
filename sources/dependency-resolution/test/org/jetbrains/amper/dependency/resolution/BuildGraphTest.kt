@@ -357,7 +357,6 @@ class BuildGraphTest: BaseDRTest() {
                 |          |    |    |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1
                 |          |    |    |    |              +--- org.jetbrains:annotations:23.0.0
                 |          |    |    |    |              +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
-                |          |    |    |    |              |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1 (c)
                 |          |    |    |    |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 2.0.20
                 |          |    |    |    |              \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22
                 |          |    |    |    |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
@@ -392,11 +391,11 @@ class BuildGraphTest: BaseDRTest() {
                 |          |    |    +--- com.google.android.gms:play-services-tasks:18.2.0
                 |          |    |    |    \--- com.google.android.gms:play-services-basement:18.4.0 (*)
                 |          |    |    +--- com.google.firebase:firebase-common:21.0.0
-                |          |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4 -> 1.7.1
-                |          |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |          |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+                |          |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4
+                |          |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 -> 1.7.1 (*)
+                |          |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4 -> 1.7.1
                 |          |    |    |    |    +--- com.google.android.gms:play-services-tasks:16.0.1 -> 18.2.0 (*)
-                |          |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+                |          |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 -> 1.8.22 (*)
                 |          |    |    |    +--- com.google.firebase:firebase-components:18.0.0
                 |          |    |    |    |    \--- com.google.firebase:firebase-annotations:16.2.0
                 |          |    |    |    |         \--- javax.inject:javax.inject:1
@@ -466,7 +465,7 @@ class BuildGraphTest: BaseDRTest() {
                 |kotlin-stdlib-jdk7-1.8.22.jar
                 |kotlin-stdlib-jdk8-1.8.22.jar
                 |kotlinx-coroutines-core-jvm-1.7.1.jar
-                |kotlinx-coroutines-play-services-1.7.1.jar
+                |kotlinx-coroutines-play-services-1.6.4.jar
                 |legacy-support-core-utils-1.0.0.aar
                 |lifecycle-common-2.3.1.jar
                 |lifecycle-livedata-2.0.0.aar
@@ -1812,6 +1811,157 @@ class BuildGraphTest: BaseDRTest() {
         }
     }
 
+    /**
+     * Resolved dependencies graph is identical to what Gradle resolves.
+     * Be careful: changing of the expected result might rather highlight
+     * the error introduced to resolution logic than its improvement while DR evolving.
+     */
+    @Test
+    fun `org_apache_maven maven-core 3_9_6`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            scope = ResolutionScope.COMPILE,
+            expected = """root
+                |\--- org.apache.maven:maven-core:3.9.6
+                |     +--- org.apache.maven:maven-model:3.9.6
+                |     |    \--- org.codehaus.plexus:plexus-utils:3.5.1
+                |     +--- org.apache.maven:maven-settings:3.9.6
+                |     |    \--- org.codehaus.plexus:plexus-utils:3.5.1
+                |     +--- org.apache.maven:maven-settings-builder:3.9.6
+                |     |    +--- org.apache.maven:maven-builder-support:3.9.6
+                |     |    +--- javax.inject:javax.inject:1
+                |     |    +--- org.codehaus.plexus:plexus-interpolation:1.26
+                |     |    +--- org.codehaus.plexus:plexus-utils:3.5.1
+                |     |    +--- org.apache.maven:maven-settings:3.9.6 (*)
+                |     |    \--- org.codehaus.plexus:plexus-sec-dispatcher:2.0
+                |     |         +--- org.codehaus.plexus:plexus-utils:3.4.1 -> 3.5.1
+                |     |         +--- org.codehaus.plexus:plexus-cipher:2.0
+                |     |         |    \--- javax.inject:javax.inject:1
+                |     |         \--- javax.inject:javax.inject:1
+                |     +--- org.apache.maven:maven-builder-support:3.9.6
+                |     +--- org.apache.maven:maven-repository-metadata:3.9.6
+                |     |    \--- org.codehaus.plexus:plexus-utils:3.5.1
+                |     +--- org.apache.maven:maven-artifact:3.9.6
+                |     |    +--- org.codehaus.plexus:plexus-utils:3.5.1
+                |     |    \--- org.apache.commons:commons-lang3:3.12.0
+                |     +--- org.apache.maven:maven-plugin-api:3.9.6
+                |     |    +--- org.apache.maven:maven-model:3.9.6 (*)
+                |     |    +--- org.apache.maven:maven-artifact:3.9.6 (*)
+                |     |    +--- org.eclipse.sisu:org.eclipse.sisu.plexus:0.9.0.M2
+                |     |    |    +--- javax.annotation:javax.annotation-api:1.2
+                |     |    |    +--- javax.enterprise:cdi-api:1.2
+                |     |    |    |    +--- javax.el:javax.el-api:3.0.0
+                |     |    |    |    +--- javax.interceptor:javax.interceptor-api:1.2
+                |     |    |    |    \--- javax.inject:javax.inject:1
+                |     |    |    +--- org.eclipse.sisu:org.eclipse.sisu.inject:0.9.0.M2
+                |     |    |    +--- org.codehaus.plexus:plexus-component-annotations:2.1.0
+                |     |    |    +--- org.codehaus.plexus:plexus-classworlds:2.6.0 -> 2.7.0
+                |     |    |    \--- org.codehaus.plexus:plexus-utils:3.3.0 -> 3.5.1
+                |     |    +--- org.codehaus.plexus:plexus-utils:3.5.1
+                |     |    \--- org.codehaus.plexus:plexus-classworlds:2.7.0
+                |     +--- org.apache.maven:maven-model-builder:3.9.6
+                |     |    +--- org.codehaus.plexus:plexus-utils:3.5.1
+                |     |    +--- org.codehaus.plexus:plexus-interpolation:1.26
+                |     |    +--- javax.inject:javax.inject:1
+                |     |    +--- org.apache.maven:maven-model:3.9.6 (*)
+                |     |    +--- org.apache.maven:maven-artifact:3.9.6 (*)
+                |     |    +--- org.apache.maven:maven-builder-support:3.9.6
+                |     |    \--- org.eclipse.sisu:org.eclipse.sisu.inject:0.9.0.M2
+                |     +--- org.apache.maven:maven-resolver-provider:3.9.6
+                |     |    +--- org.apache.maven:maven-model:3.9.6 (*)
+                |     |    +--- org.apache.maven:maven-model-builder:3.9.6 (*)
+                |     |    +--- org.apache.maven:maven-repository-metadata:3.9.6 (*)
+                |     |    +--- org.apache.maven.resolver:maven-resolver-api:1.9.18
+                |     |    +--- org.apache.maven.resolver:maven-resolver-spi:1.9.18
+                |     |    |    \--- org.apache.maven.resolver:maven-resolver-api:1.9.18
+                |     |    +--- org.apache.maven.resolver:maven-resolver-util:1.9.18
+                |     |    |    \--- org.apache.maven.resolver:maven-resolver-api:1.9.18
+                |     |    +--- org.apache.maven.resolver:maven-resolver-impl:1.9.18
+                |     |    |    +--- org.apache.maven.resolver:maven-resolver-api:1.9.18
+                |     |    |    +--- org.apache.maven.resolver:maven-resolver-spi:1.9.18 (*)
+                |     |    |    +--- org.apache.maven.resolver:maven-resolver-named-locks:1.9.18
+                |     |    |    |    \--- org.slf4j:slf4j-api:1.7.36
+                |     |    |    +--- org.apache.maven.resolver:maven-resolver-util:1.9.18 (*)
+                |     |    |    \--- org.slf4j:slf4j-api:1.7.36
+                |     |    +--- org.codehaus.plexus:plexus-utils:3.5.1
+                |     |    \--- javax.inject:javax.inject:1
+                |     +--- org.apache.maven.resolver:maven-resolver-impl:1.9.18 (*)
+                |     +--- org.apache.maven.resolver:maven-resolver-api:1.9.18
+                |     +--- org.apache.maven.resolver:maven-resolver-spi:1.9.18 (*)
+                |     +--- org.apache.maven.resolver:maven-resolver-util:1.9.18 (*)
+                |     +--- org.apache.maven.shared:maven-shared-utils:3.3.4
+                |     |    \--- commons-io:commons-io:2.6
+                |     +--- org.eclipse.sisu:org.eclipse.sisu.plexus:0.9.0.M2 (*)
+                |     +--- org.eclipse.sisu:org.eclipse.sisu.inject:0.9.0.M2
+                |     +--- com.google.inject:guice:5.1.0
+                |     |    +--- javax.inject:javax.inject:1
+                |     |    +--- aopalliance:aopalliance:1.0
+                |     |    \--- com.google.guava:guava:30.1-jre -> 32.0.1-jre
+                |     |         +--- com.google.guava:failureaccess:1.0.1
+                |     |         +--- com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+                |     |         +--- com.google.code.findbugs:jsr305:3.0.2
+                |     |         +--- org.checkerframework:checker-qual:3.33.0
+                |     |         +--- com.google.errorprone:error_prone_annotations:2.18.0
+                |     |         \--- com.google.j2objc:j2objc-annotations:2.8
+                |     +--- com.google.guava:guava:32.0.1-jre (*)
+                |     +--- com.google.guava:failureaccess:1.0.1
+                |     +--- javax.inject:javax.inject:1
+                |     +--- org.codehaus.plexus:plexus-utils:3.5.1
+                |     +--- org.codehaus.plexus:plexus-classworlds:2.7.0
+                |     +--- org.codehaus.plexus:plexus-interpolation:1.26
+                |     +--- org.codehaus.plexus:plexus-component-annotations:2.1.0
+                |     +--- org.apache.commons:commons-lang3:3.12.0
+                |     \--- org.slf4j:slf4j-api:1.7.36
+            """.trimMargin()
+        )
+
+        runBlocking {
+            downloadAndAssertFiles(
+                """aopalliance-1.0.jar
+                    |cdi-api-1.2.jar
+                    |checker-qual-3.33.0.jar
+                    |commons-io-2.6.jar
+                    |commons-lang3-3.12.0.jar
+                    |error_prone_annotations-2.18.0.jar
+                    |failureaccess-1.0.1.jar
+                    |guava-32.0.1-jre.jar
+                    |guice-5.1.0.jar
+                    |j2objc-annotations-2.8.jar
+                    |javax.annotation-api-1.2.jar
+                    |javax.el-api-3.0.0.jar
+                    |javax.inject-1.jar
+                    |javax.interceptor-api-1.2.jar
+                    |jsr305-3.0.2.jar
+                    |listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
+                    |maven-artifact-3.9.6.jar
+                    |maven-builder-support-3.9.6.jar
+                    |maven-core-3.9.6.jar
+                    |maven-model-3.9.6.jar
+                    |maven-model-builder-3.9.6.jar
+                    |maven-plugin-api-3.9.6.jar
+                    |maven-repository-metadata-3.9.6.jar
+                    |maven-resolver-api-1.9.18.jar
+                    |maven-resolver-impl-1.9.18.jar
+                    |maven-resolver-named-locks-1.9.18.jar
+                    |maven-resolver-provider-3.9.6.jar
+                    |maven-resolver-spi-1.9.18.jar
+                    |maven-resolver-util-1.9.18.jar
+                    |maven-settings-3.9.6.jar
+                    |maven-settings-builder-3.9.6.jar
+                    |maven-shared-utils-3.3.4.jar
+                    |org.eclipse.sisu.inject-0.9.0.M2.jar
+                    |org.eclipse.sisu.plexus-0.9.0.M2.jar
+                    |plexus-cipher-2.0.jar
+                    |plexus-classworlds-2.7.0.jar
+                    |plexus-component-annotations-2.1.0.jar
+                    |plexus-interpolation-1.26.jar
+                    |plexus-sec-dispatcher-2.0.jar
+                    |plexus-utils-3.5.1.jar
+                    |slf4j-api-1.7.36.jar""".trimMargin(),
+                root)
+        }
+    }
+
     @Test
     fun `kotlin test with junit5`() {
         context().use { context ->
@@ -1927,9 +2077,10 @@ class BuildGraphTest: BaseDRTest() {
     }
 
     @Test
-    fun `org_jetbrains_compose_ui ui-uikit 1_6_10`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_ui ui-uikit 1_6_10 multiplatform`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
+            dependency = "org.jetbrains.compose.ui:ui-uikit:1.6.10",
             scope = ResolutionScope.RUNTIME,
             platform = setOf(
                 ResolutionPlatform.IOS_ARM64,
@@ -1948,6 +2099,31 @@ class BuildGraphTest: BaseDRTest() {
             """.trimIndent(),
             root
         )
+    }
+
+    @Test
+    fun `org_jetbrains_compose_ui ui-uikit 1_6_10 single platform`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "org.jetbrains.compose.ui:ui-uikit:1.6.10",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE),
+            expected = """root
+                |\--- org.jetbrains.compose.ui:ui-uikit:1.6.10
+                |     \--- org.jetbrains.compose.ui:ui-uikit-uikitsimarm64:1.6.10
+            """.trimMargin()
+        )
+
+        runBlocking {
+            downloadAndAssertFiles(
+                """
+            ui-uikit-uikitsimarm64-1.6.10-cinterop-utils.klib
+            ui-uikit-uikitsimarm64-1.6.10.klib
+            """.trimIndent(),
+                root
+            )
+        }
     }
 
 //    @Test
