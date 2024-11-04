@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
+import org.jetbrains.amper.frontend.api.EnumItemDescription
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -21,40 +22,75 @@ enum class AndroidVersion(
     val versionNumber: Int,
     override val outdated: Boolean = false
 ) : SchemaEnum {
+    @EnumItemDescription("1.0")
     VERSION_1(1, outdated = true),
+    @EnumItemDescription("1.1")
     VERSION_2(2, outdated = true),
+    @EnumItemDescription("1.5 Cupcake")
     VERSION_3(3, outdated = true),
+    @EnumItemDescription("1.6 Donut")
     VERSION_4(4, outdated = true),
+    @EnumItemDescription("2.0 Eclair")
     VERSION_5(5, outdated = true),
+    @EnumItemDescription("2.0.1 Eclair")
     VERSION_6(6, outdated = true),
+    @EnumItemDescription("2.1 Eclair")
     VERSION_7(7, outdated = true),
+    @EnumItemDescription("2.2 Froyo")
     VERSION_8(8, outdated = true),
+    @EnumItemDescription("2.3-2.3.2 Gingerbread")
     VERSION_9(9, outdated = true),
+    @EnumItemDescription("2.3.3-2.3.7 Gingerbread")
     VERSION_10(10, outdated = true),
+    @EnumItemDescription("3.0 Honeycomb")
     VERSION_11(11, outdated = true),
+    @EnumItemDescription("3.1 Honeycomb")
     VERSION_12(12, outdated = true),
+    @EnumItemDescription("3.2 Honeycomb")
     VERSION_13(13, outdated = true),
+    @EnumItemDescription("4.0.1-4.0.2 Ice Cream Sandwich")
     VERSION_14(14, outdated = true),
+    @EnumItemDescription("4.0.3-4.0.4 Ice Cream Sandwich")
     VERSION_15(15, outdated = true),
+    @EnumItemDescription("4.1 Jelly Bean")
     VERSION_16(16, outdated = true),
+    @EnumItemDescription("4.2 Jelly Bean")
     VERSION_17(17, outdated = true),
+    @EnumItemDescription("4.3 Jelly Bean")
     VERSION_18(18, outdated = true),
+    @EnumItemDescription("4.4 KitKat")
     VERSION_19(19, outdated = true),
+    @EnumItemDescription("5.0 Lollipop")
     VERSION_20(20, outdated = true),
+    @EnumItemDescription("5.0 Lollipop")
     VERSION_21(21),
+    @EnumItemDescription("5.1 Lollipop")
     VERSION_22(22),
+    @EnumItemDescription("6.0 Marshmallow")
     VERSION_23(23),
+    @EnumItemDescription("7.0 Nougat")
     VERSION_24(24),
+    @EnumItemDescription("7.1 Nougat")
     VERSION_25(25),
+    @EnumItemDescription("8.0 Oreo")
     VERSION_26(26),
+    @EnumItemDescription("8.1 Oreo")
     VERSION_27(27),
+    @EnumItemDescription("9.0 Pie")
     VERSION_28(28),
+    @EnumItemDescription("10.0 Q")
     VERSION_29(29),
+    @EnumItemDescription("11.0 R")
     VERSION_30(30),
+    @EnumItemDescription("12.0 S")
     VERSION_31(31),
+    @EnumItemDescription("12.0L S V2")
     VERSION_32(32),
+    @EnumItemDescription("13.0 Tiramisu")
     VERSION_33(33),
+    @EnumItemDescription("14.0 Upside Down Cake")
     VERSION_34(34),
+    @EnumItemDescription("15.0 Vanilla Ice Cream")
     VERSION_35(35),
     ;
 

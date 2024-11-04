@@ -102,3 +102,10 @@ annotation class ProductTypeSpecific(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Shorthand
+
+/**
+ * Human-readable description for enum values used in the schema
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class EnumItemDescription(val description: String)

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.core.forEachEndAware
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.EnumItemDescription
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.PlatformSpecific
@@ -184,8 +185,24 @@ val KType.enumSchema
             }
         append("]")
 
+        val enumFields = enumClass.java.fields.mapNotNull {
+            it.annotations.filterIsInstance<EnumItemDescription>().singleOrNull()?.let { a ->
+                (it.get(enumClass.java) as? SchemaEnum)?.schemaValue?.let { v -> v to a }
+            }
+        }
+
         if (orderSensitive != null) {
             appendLine(",")
             append("\"x-intellij-enum-order-sensitive\": true")
+        }
+
+        if (enumFields.isNotEmpty()) {
+            appendLine(",")
+            append("\"x-intellij-enum-metadata\": {")
+            enumFields.forEachIndexed { index, item ->
+                append("\"${item.first}\": \"(${item.second.description})\"")
+                if (index != enumFields.lastIndex) append(",")
+            }
+            append("}")
         }
     }
