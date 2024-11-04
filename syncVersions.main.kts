@@ -129,7 +129,7 @@ fun updateAmperWrappers() {
     }
 }
 
-private fun Path.forEachWrapperFile(action: (Path) -> Unit) {
+fun Path.forEachWrapperFile(action: (Path) -> Unit) {
     visitFileTree {
         onPreVisitDirectory { dir, _ ->
             when (dir.name) {
