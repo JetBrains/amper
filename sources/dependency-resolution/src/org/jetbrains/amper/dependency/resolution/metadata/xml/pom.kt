@@ -276,7 +276,11 @@ data class Dependencies(
 
 operator fun Dependencies?.plus(other: Dependencies?): Dependencies? {
     if (this == null) return other
-    return Dependencies((this.dependencies + (other?.dependencies ?: emptyList())).distinct())
+    return Dependencies(
+        (this.dependencies + (other?.dependencies ?: emptyList()))
+            // Keep the only dependency constraint per artifact (closest to the original pom => the first one in the list)
+            .distinctBy { it.groupId to it.artifactId }
+    )
 }
 
 @Serializable
@@ -336,19 +340,28 @@ fun Dependency.expandTemplates(project: Project): Dependency = copy(
 )
 
 private fun String.expandTemplate(project: Project): String {
-    if (!startsWith("\${") || !endsWith("}")) {
+    if (!contains("\${") || !contains("}")) {
         return this
     }
-    val key = removePrefix("\${").removeSuffix("}")
-    if (key.startsWith("project.")) {
-        val value = when (key.removePrefix("project.")) {
+
+    val keyStarts = indexOf("\${")
+    val keyEnds = indexOf("}")
+
+    val key = substring(keyStarts + "\${".length, keyEnds)
+
+    val value = if (key.startsWith("project.")) {
+        when (key.removePrefix("project.")) {
             "groupId" -> project.groupId
             "version" -> project.version
-            else -> null
+            else -> project.properties?.properties?.get(key)
         }
-        if (value != null) {
-            return value
-        }
+    } else {
+        project.properties?.properties?.get(key)
     }
-    return project.properties?.properties?.get(key)?.expandTemplate(project) ?: this
+
+    if (value == null) {
+        return this
+    }
+
+    return substring(0, keyStarts) + value.expandTemplate(project) + substring(keyEnds + 1, this.length)
 }

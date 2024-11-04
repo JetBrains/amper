@@ -856,7 +856,7 @@ class MavenDependency internal constructor(
         validVariants: List<Variant>,
         platform: ResolutionPlatform
     ): Variant? {
-        if (this.isKotlinTestAnnotations()) return null
+        if (this.isKotlinTestAnnotationsCommon()) return null
         val metadataVariants = validVariants.filter { it.isKotlinMetadata(platform) }
         return metadataVariants.firstOrNull() ?: run {
             messages.asMutable() += Message(
@@ -873,7 +873,7 @@ class MavenDependency internal constructor(
         validVariants: List<Variant>,
         platform: ResolutionPlatform
     ): Variant? {
-        if (this.isKotlinTestAnnotations()) return null
+        if (this.isKotlinTestAnnotationsCommon()) return null
         return validVariants.firstOrNull { it.isKotlinMetadataSources(platform) }
     }
 
@@ -1063,9 +1063,6 @@ class MavenDependency internal constructor(
         )
 
     // Skip metadata un-packaging for kotlin-test annotations.
-    private fun isKotlinTestAnnotations() =
-        group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-annotations-common"))
-
     private fun isKotlinTestJunit() =
         group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-junit", "kotlin-test-junit5"))
 
@@ -1098,8 +1095,6 @@ class MavenDependency internal constructor(
 
     private suspend fun resolveUsingPom(text: String, context: Context, level: ResolutionLevel) {
         val project = resolvePom(text, context, level) ?: return
-
-        dependencyConstraints = project.resolveDependenciesConstraints(context)
 
         (project.dependencies?.dependencies ?: listOf()).filter {
             context.settings.scope.matches(it)
@@ -1168,6 +1163,9 @@ class MavenDependency internal constructor(
         val parentNode = parent?.let {
             context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
         }
+
+        val importedDependencyManagement = resolveImportedDependencyManagement(context, resolutionLevel, depth, origin)
+
         val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, context))) {
             val text = parentNode.pom.readText()
             val parentProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
@@ -1176,7 +1174,9 @@ class MavenDependency internal constructor(
                 artifactId = artifactId ?: parentProject.artifactId,
                 version = version ?: parentProject.version,
                 dependencies = dependencies + parentProject.dependencies,
-                dependencyManagement = dependencyManagement + parentProject.dependencyManagement,
+                // Dependencies declared directly in pom.xml dependencyManagement section take precedence over directly imported dependencies,
+                // both in turn take precedence over parent dependencyManagement
+                dependencyManagement = dependencyManagement + importedDependencyManagement + parentProject.dependencyManagement,
                 properties = properties + parentProject.properties,
             )
         } else if (parent != null && (groupId == null || artifactId == null || version == null)) {
@@ -1184,27 +1184,20 @@ class MavenDependency internal constructor(
                 groupId = groupId ?: parent.groupId,
                 artifactId = artifactId ?: parent.artifactId,
                 version = version ?: parent.version,
+                dependencyManagement = dependencyManagement + importedDependencyManagement,
             )
         } else {
-            this
+            copy(
+                dependencyManagement = dependencyManagement + importedDependencyManagement,
+            )
         }
-        val dependencyManagement = project.dependencyManagement
-            ?.dependencies
-            ?.dependencies
-            ?.map { it.expandTemplates(project) }
-            ?.flatMap {
-                if (it.scope == "import" && it.version != null) {
-                    val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
-                    if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context)) {
-                        val text = dependency.pom.readText()
-                        val dependencyProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
-                        dependencyProject.dependencyManagement?.dependencies?.dependencies?.let {
-                            return@flatMap it
-                        }
-                    }
-                }
-                return@flatMap listOf(it)
-            }
+
+        val dependencyManagement = project.dependencyManagement?.copy(
+            dependencies = project.dependencyManagement.dependencies?.copy(
+                dependencies = project.dependencyManagement.dependencies.dependencies.map { it.expandTemplates(project) }
+            )
+        )
+
         val dependencies = project.dependencies
             ?.dependencies
             ?.map { dep ->
@@ -1214,6 +1207,8 @@ class MavenDependency internal constructor(
                     } else dep
                 }
                 dependencyManagement
+                    ?.dependencies
+                    ?.dependencies
                     ?.find { it.groupId == dep.groupId && it.artifactId == dep.artifactId }
                     ?.let { dependencyManagementEntry ->
                         return@map dep
@@ -1231,9 +1226,49 @@ class MavenDependency internal constructor(
             ?.map { it.expandTemplates(project) }
         return project.copy(
             dependencies = dependencies?.let { Dependencies(it) },
-            dependencyManagement = dependencyManagement?.let { DependencyManagement(Dependencies(it)) },
+            dependencyManagement = dependencyManagement
         )
     }
+
+    /**
+     * Resolve an effective imported dependencyManagement.
+     * If several dependencies are imported, then those are merged into the only dependencyManagement.
+     * The first declared import dependency takes precedence over the second one and so on.
+     *
+     * Parent poms of imported dependencies are taken into account
+     * (in a standard way of resolving dependencyManagement section)
+     * Specification tells about import scope:
+     *  "It indicates the dependency is to be replaced with the
+     *   effective list of dependencies in the specified POM's <dependencyManagement> section."
+     *  (https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#dependency-scope)
+     */
+    private suspend fun Project.resolveImportedDependencyManagement(
+        context: Context,
+        resolutionLevel: ResolutionLevel,
+        depth: Int,
+        origin: Project
+    ): DependencyManagement? = dependencyManagement
+            ?.dependencies
+            ?.dependencies
+            ?.map { it.expandTemplates(this) }
+            ?.mapNotNull {
+                if (it.scope == "import" && it.version != null) {
+                    val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
+                    if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context)) {
+                        val text = dependency.pom.readText()
+                        val dependencyProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
+                        dependencyProject.dependencyManagement
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            }
+            ?.takeIf { it.isNotEmpty() }
+            ?.reduce { a, b ->
+                (a + b)!!
+            }
 
     private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context) =
         isDownloaded() && hasMatchingChecksum(level, context) || level == ResolutionLevel.NETWORK && download(context)
