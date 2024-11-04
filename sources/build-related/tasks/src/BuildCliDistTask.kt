@@ -80,7 +80,7 @@ object BuildCliDistTask {
     private fun Path.writeDistTarGz(cliRuntimeClasspath: List<Path>) {
         TarArchiveOutputStream(GZIPOutputStream(outputStream().buffered())).use { tarStream ->
             cliRuntimeClasspath.sortedBy { it.name }.forEach { path ->
-                val entry = TarArchiveEntry("lib/${path.name}")
+                val entry = TarArchiveEntry(path, "lib/${path.name}")
                 tarStream.putArchiveEntry(entry)
                 path.inputStream().use { input -> input.copyTo(tarStream) }
                 tarStream.closeArchiveEntry()
