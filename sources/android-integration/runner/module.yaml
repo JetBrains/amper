@@ -9,7 +9,7 @@ dependencies:
   - ../../core
   - ../android-integration-core: exported
   - $libs.gradle.toolingApi: exported
-  - com.android.tools.build:builder-model:8.5.0
+  - $libs.android.tools.builder.model
 
 settings:
   kotlin:

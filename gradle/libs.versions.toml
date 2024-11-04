@@ -3,7 +3,7 @@ android-ddms = "25.3.0"
 # The AGP is used in standalone Amper to delegate Android builds to Gradle. It can be in any version.
 # The AGP used in Gradle-based Amper, on the other hand, will only work in Fleet up to a certain version.
 android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
-android-forStandalone = "8.5.0"
+agp-forStandalone = "8.5.0"
 android-tools = "31.6.1"
 apache-commons = "1.24.0"
 bouncycastle = "1.78.1"
@@ -12,7 +12,6 @@ compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR U
 google-services = "4.4.2"
 gradle-api-forGradleBased = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 gradle-api-forStandalone = "8.9"
-gradle-toolingApi = "8.9"
 intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
 intellij-platform = "233.13763.11"
@@ -36,11 +35,12 @@ xmlutil-serialization = "0.86.2"
 # intellijParsing-core, because the intellij umbrella feels natural but they don't share the same version.
 [libraries]
 android-gradle-plugin-forGradleBased = { module = "com.android.tools.build:gradle", version.ref = "android-forGradleBased" }
-android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "android-forStandalone" }
+android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "agp-forStandalone" }
 android-tools-common = { module = "com.android.tools:common", version.ref = "android-tools" }
 android-tools-ddmlib = { module = "com.android.tools.ddms:ddmlib", version.ref = "android-ddms" }
 android-tools-sdkCommon = { module = "com.android.tools:sdk-common", version.ref = "android-tools" }
 android-tools-sdklib = { module = "com.android.tools:sdklib", version.ref = "android-tools" }
+android-tools-builder-model = { module = "com.android.tools.build:builder-model", version.ref= "agp-forStandalone" }
 apacheCommons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons" }
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
@@ -49,7 +49,7 @@ compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin"
 google-services-gradle-plugin =  { module = "com.google.gms:google-services", version.ref = "google-services" }
 gradle-api-forGradleBased = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forGradleBased" }
 gradle-api-forStandalone =  { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forStandalone" }
-gradle-toolingApi = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-toolingApi" }
+gradle-toolingApi = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-api-forStandalone" }
 intellij-amper-xcodemodel = { module = "com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed", version.ref = "intellij-xcodemodel" }
 intellij-deps-asyncProfiler = { module = "org.jetbrains.intellij.deps:async-profiler", version.ref = "intellij-async-profiler" }
 intellij-parsing-core = { module = "org.jetbrains:ij-parsing-core", version.ref = "intellij-parsing" }
