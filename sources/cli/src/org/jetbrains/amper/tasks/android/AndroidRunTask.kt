@@ -5,9 +5,9 @@
 package org.jetbrains.amper.tasks.android
 
 import com.android.ddmlib.AndroidDebugBridge
+import com.android.ddmlib.CollectingOutputReceiver
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.IShellOutputReceiver
-import com.android.ddmlib.NullOutputReceiver
 import com.android.prefs.AndroidLocationsSingleton
 import com.android.repository.api.ConsoleProgressIndicator
 import com.android.sdklib.AndroidVersion
@@ -73,10 +73,22 @@ class AndroidRunTask(
 
         val activityName = findActivityToLaunch(androidFragment) ?: error("Could not find activity to launch")
 
+        val outputReceiver = CollectingOutputReceiver()
         device.executeShellCommand(
             "am start -a android.intent.action.MAIN -n ${androidFragment.settings.android.namespace}/$activityName",
-            NullOutputReceiver()
+            outputReceiver
         )
+
+        outputReceiver.output
+            .split("\n", "\r")
+            .filter { it.isNotBlank() }
+            .forEach {
+                if ("Error" in it) {
+                    logger.error(it)
+                } else {
+                    logger.info(it)
+                }
+            }
 
         return Result(device)
     }
@@ -95,7 +107,7 @@ class AndroidRunTask(
         val adb = AndroidDebugBridge.getBridge()
             ?: AndroidDebugBridge.createBridge(androidSdkPath.resolve("platform-tools/adb").toString(), false)
         flow {
-            while(!adb.hasInitialDeviceList()) {
+            while (!adb.hasInitialDeviceList()) {
                 emit(false)
                 delay(100)
             }
@@ -219,7 +231,7 @@ private suspend fun IDevice.waitForBootCompleted(interval: Duration = 10.millise
 
 private suspend fun IDevice.executeShellCommandAndGetOutput(command: String): String = coroutineScope {
     val deferred: CompletableDeferred<String> = CompletableDeferred()
-    executeShellCommand(command, object: IShellOutputReceiver {
+    executeShellCommand(command, object : IShellOutputReceiver {
         val stringBuilder = StringBuilder()
 
         override fun addOutput(data: ByteArray, offset: Int, length: Int) {
