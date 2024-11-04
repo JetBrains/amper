@@ -75,7 +75,7 @@ class AndroidRunTask(
 
         val outputReceiver = CollectingOutputReceiver()
         device.executeShellCommand(
-            "am start -a android.intent.action.MAIN -n ${androidFragment.settings.android.namespace}/$activityName",
+            "am start -a android.intent.action.MAIN -n ${androidFragment.settings.android.applicationId}/$activityName",
             outputReceiver
         )
 
