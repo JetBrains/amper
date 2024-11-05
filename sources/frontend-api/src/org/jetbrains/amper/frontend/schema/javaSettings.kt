@@ -7,11 +7,13 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
+import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 
 @EnumOrderSensitive(reverse = true)
+@EnumValueFilter("outdated", isNegated = true)
 enum class JavaVersion(
     override val schemaValue: String,
     override val outdated: Boolean = false,
