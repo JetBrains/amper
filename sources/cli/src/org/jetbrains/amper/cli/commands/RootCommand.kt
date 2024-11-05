@@ -28,7 +28,11 @@ import java.nio.file.Path
 internal class RootCommand : SuspendingCliktCommand(name = "amper") {
 
     init {
-        versionOption(version = AmperBuild.mavenVersion, message = { AmperBuild.banner })
+        versionOption(
+            version = AmperBuild.mavenVersion,
+            names = setOf("--version", "-v"),
+            message = { AmperBuild.banner },
+        )
         subcommands(
             BuildCommand(),
             CleanCommand(),
