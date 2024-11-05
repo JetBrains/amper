@@ -1,21 +1,21 @@
 repositories:
   - id: scratch
-    url: https://packages.jetbrains.team/maven/p/amper/amper
+    url: https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/amper/amper
     publish: true
     credentials:
       file: ../local.properties
       usernameKey: scratch.username
       passwordKey: scratch.password
   - id: mavenCentral
-    url: https://repo.maven.apache.org/maven2/
+    url: https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2
   - id: googleRepo
-    url: https://dl.google.com/dl/android/maven2/
+    url: https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2
   - id: mavenLocal
     url: mavenLocal
     resolve: false
     publish: true
   - id: gradle
-    url: https://plugins.gradle.org/m2/
+    url: https://cache-redirector.jetbrains.com/plugins.gradle.org/m2
   - id: intellij-repository
     url: https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases
   - id: intellij-dependencies
