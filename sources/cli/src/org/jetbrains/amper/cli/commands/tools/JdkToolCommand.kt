@@ -34,7 +34,7 @@ internal class JdkToolCommand: AmperSubcommand(name = "jdk") {
 
 private class JdkToolSubcommand(private val name: String) : AmperSubcommand(name = name) {
 
-    private val toolArguments by argument(name = "tool arguments").multiple()
+    private val toolArguments by argument(name = "tool_arguments").multiple()
 
     override fun helpEpilog(context: Context): String = "Use -- to separate $name's arguments from Amper options"
 

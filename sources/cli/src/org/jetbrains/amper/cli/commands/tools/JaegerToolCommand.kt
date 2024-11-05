@@ -47,7 +47,7 @@ internal class JaegerToolCommand: AmperSubcommand(name = "jaeger") {
     private val version by option("--jaeger-version", help = "The version of Jaeger to download and run")
         .default("1.61.0")
 
-    private val jaegerArguments by argument(name = "jaeger arguments").multiple()
+    private val jaegerArguments by argument(name = "jaeger_arguments").multiple()
 
     override fun help(context: Context): String = "Download and run Jaeger server https://www.jaegertracing.io"
 

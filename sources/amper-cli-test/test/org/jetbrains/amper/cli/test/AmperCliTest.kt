@@ -43,11 +43,11 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `run command help prints dot dot`() = runTestInfinitely {
+    fun `run command help prints dash dash`() = runTestInfinitely {
         val r = runCli("jvm-kotlin-test-smoke", "run", "--help")
 
         // Check that '--' is printed before program arguments
-        val string = "Usage: amper run [<options>] -- [<program arguments>]..."
+        val string = "Usage: amper run [<options>] -- [<app_arguments>]..."
 
         assertTrue("There should be '$string' in `run --help` output") {
             r.stdout.lines().any { it == string }

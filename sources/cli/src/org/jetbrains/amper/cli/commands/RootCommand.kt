@@ -48,7 +48,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
                 object : MordantHelpFormatter(context, showDefaultValues = true) {
                     override fun renderRepeatedMetavar(metavar: String): String {
                         // make it clear that arguments should be separated by '--'
-                        if (metavar == "[<program arguments>]" || metavar == "[<tool arguments>]") {
+                        if (metavar in setOf("[<app_arguments>]", "[<tool_arguments>]", "[<jaeger_arguments>]")) {
                             return "-- ${metavar}..."
                         }
                         return super.renderRepeatedMetavar(metavar)

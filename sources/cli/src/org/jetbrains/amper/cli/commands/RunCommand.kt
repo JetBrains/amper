@@ -31,7 +31,7 @@ internal class RunCommand : AmperSubcommand(name = "run") {
         .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
         .default(BuildType.Debug)
 
-    private val programArguments by argument(name = "program arguments").multiple()
+    private val programArguments by argument(name = "app_arguments").multiple()
 
     override fun help(context: Context): String = "Run your application"
 
