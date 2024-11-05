@@ -21,14 +21,14 @@ import kotlin.io.path.createDirectories
 
 private val backendInitialized = AtomicReference<Throwable>(null)
 
-internal suspend fun withBackend(
+internal suspend fun <T> withBackend(
     commonOptions: RootCommand.CommonOptions,
     currentCommand: String,
     commonRunSettings: CommonRunSettings = CommonRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
     setupEnvironment: Boolean = true,
-    block: suspend (AmperBackend) -> Unit,
-) {
+    block: suspend (AmperBackend) -> T,
+): T {
     val initializedException = backendInitialized.getAndSet(Throwable())
     if (initializedException != null) {
         throw IllegalStateException("withBackend was already called, see nested exception", initializedException)
@@ -43,7 +43,7 @@ internal suspend fun withBackend(
         CliEnvironmentInitializer.setupCoroutinesDebugProbes()
     }
 
-    withContext(Dispatchers.Default) {
+    return withContext(Dispatchers.Default) {
         @Suppress("UnstableApiUsage")
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
         commonOptions.terminal.println(AmperBuild.banner)
@@ -84,8 +84,9 @@ internal suspend fun withBackend(
 
         spanBuilder("Execute backend").use {
             val backend = AmperBackend(context = cliContext)
-            block(backend)
-            cancelAndWaitForScope(backgroundScope)
+            block(backend).also {
+                cancelAndWaitForScope(backgroundScope)
+            }
         }
     }
 }

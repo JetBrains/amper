@@ -10,21 +10,18 @@ import com.jetbrains.cidr.xcode.frameworks.AppleProductType
 import com.jetbrains.cidr.xcode.frameworks.AppleSdkManager
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import com.jetbrains.cidr.xcode.model.PBXBuildPhase
-import com.jetbrains.cidr.xcode.model.PBXCopyFilesBuildPhase
-import com.jetbrains.cidr.xcode.model.PBXDictionary
 import com.jetbrains.cidr.xcode.model.PBXProjectFile
 import com.jetbrains.cidr.xcode.model.PBXProjectFileManipulator
 import com.jetbrains.cidr.xcode.model.PBXReference
-import com.jetbrains.cidr.xcode.model.PBXTarget
 import com.jetbrains.cidr.xcode.plist.Plist
 import com.jetbrains.cidr.xcode.plist.XMLPlistDriver
 import com.jetbrains.cidr.xcode.util.XcodeUserDataHolder
 import fleet.com.intellij.openapi.util.UserDataHolderEx
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.util.BuildType
 import java.io.File
 import java.nio.file.Path
@@ -45,7 +42,6 @@ fun FileConventions.doGenerateBuildableXcodeproj(
     productBundleIdentifier: String,
     buildType: BuildType,
     appleSources: Set<File>,
-    frameworkDependencies: List<File>,
 ): Path {
     val platform = fragment.platform
     val productModuleName = "iosApp"
@@ -54,7 +50,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
 
     val commonSourceDir = appleSources.minBy { it.path.length }
 
-    val projectFile = projectDir.resolve("project.pbxproj").toPath()
+    val projectFile = projectDir.resolve(PBXProjectFile.PROJECT_FILE)
         .createParentDirectories().run {
             // FIXME: We clean the old project, otherwise we have issues with consecutive builds.
             //  Investigate why that happens.
@@ -63,7 +59,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
         }
     val pbxProjectFile = PBXProjectFileManipulator.createNewProject(
         XcodeProject(),
-        baseDir.toPath(),
+        baseDir,
         projectFile,
         null,
         null
@@ -77,11 +73,11 @@ fun FileConventions.doGenerateBuildableXcodeproj(
         // Create plist.
         val targetPlist = createPlist(platform)
         val infoPlistFile = writePlist(baseDir, "Info-$targetName", targetPlist)
-        addFile(infoPlistFile.path, emptyArray(), mainGroup, false)
+        addFile(infoPlistFile.pathString, emptyArray(), mainGroup, false)
 
         // Prepare settings.
         val settings = mutableMapOf<String, Any>(
-            BuildSettingNames.INFOPLIST_FILE to infoPlistFile.relativeToBase().path,
+            BuildSettingNames.INFOPLIST_FILE to infoPlistFile.relativeToBase().pathString,
             BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER to productBundleIdentifier,
             BuildSettingNames.ASSETCATALOG_COMPILER_APPICON_NAME to "AppIcon",
             // TODO Maybe add conditions?
@@ -101,6 +97,24 @@ fun FileConventions.doGenerateBuildableXcodeproj(
         val sourcesGroup = addGroup(PBXReference.SOURCE_TREE_SOURCE_ROOT, productName, commonSourceDir.path)
         val pbxTarget = addNativeTarget(targetName, AppleProductType.APPLICATION_TYPE_ID, settings, applePlatform)
         pbxTarget.setAttribute("productName", productName)
+
+        val relativeWrapperPath = checkNotNull(CliContext.wrapperScriptPath) { "Wrapper Script Path is not set" }
+            .relativeToBase()
+        addBuildPhase(
+            PBXBuildPhase.Type.SHELL_SCRIPT,
+            mapOf(
+                "name" to "Build Kotlin with Amper",
+                "shellPath" to "/bin/sh",
+                "shellScript" to """
+                    #!/bin/sh
+                    # ----- AMPER KMP INTEGRATION STEP - GENERATED - DO NOT EDIT! ------
+                    "${relativeWrapperPath.pathString}" tool xcode-integration --module="${module.userReadableName}"
+                """.trimIndent(),
+                "alwaysOutOfDate" to "1" //TODO: this disables dependency tracking, properly track in/outs?
+            ),
+            pbxTarget,
+        )
+
         for (phaseType in listOf(
             PBXBuildPhase.Type.SOURCES,
             PBXBuildPhase.Type.FRAMEWORKS,
@@ -122,32 +136,21 @@ fun FileConventions.doGenerateBuildableXcodeproj(
         if (buildType == BuildType.Release) {
             variantSettings += fragment.settings.ios.teamId?.let { mapOf("DEVELOPMENT_TEAM" to it) } ?: emptyMap()
         }
-        if (frameworkDependencies.isNotEmpty()) {
-            val frameworkSearchPaths = frameworkDependencies.map { it.parentFile.relativeToBase().path }
-            variantSettings.mergeListSetting(
-                BuildSettingNames.FRAMEWORK_SEARCH_PATHS + "[arch=${fragment.platform.architecture}][sdk=${fragment.platform.sdk}*]",
-                frameworkSearchPaths.toList()
-            )
+
+        val frameworkSearchPath = IosConventions.Context(
+            buildRootPath = buildOutputRoot.path,
+            moduleName = module.userReadableName,
+            buildType = BuildType.Debug,
+            platform = platform,
+        ).run {
+            IosConventions.getAppFrameworkDirectory().relativeToBase().pathString
         }
+        variantSettings.mergeListSetting(
+            BuildSettingNames.FRAMEWORK_SEARCH_PATHS + "[arch=${fragment.platform.architecture}][sdk=${fragment.platform.sdk}*]",
+            listOf(frameworkSearchPath),
+        )
+
         addConfiguration(buildType.variantName, variantSettings, pbxTarget)
-
-        addFrameworksStages(
-            this,
-            frameworkDependencies,
-            buildType,
-            fragment,
-            pbxTarget,
-            targetMemberships,
-            pbxProjectFile
-        )
-
-        addResourcesStages(
-            module = module,
-            leafFragment = fragment,
-            outputRoot = buildOutputRoot,
-            manipulator = this,
-            pbxTarget = pbxTarget,
-        )
     }
 
     pbxProjectFile.save()
@@ -155,119 +158,11 @@ fun FileConventions.doGenerateBuildableXcodeproj(
     return pbxProjectFile.xcodeProjFile
 }
 
-private fun addResourcesStages(
-    module: AmperModule,
-    leafFragment: LeafFragment,
-    outputRoot: AmperBuildOutputRoot,
-    manipulator: PBXProjectFileManipulator,
-    pbxTarget: PBXTarget,
-) {
-    if (isComposeEnabledFor(module)) {
-        val resourcesConventionDir = IosComposeResourcesTask.resourcesConventionDirectory(outputRoot, leafFragment)
-        // `compose-resources/` is a content path where the "resources" library expects to find the files.
-        val destination = "\$BUILT_PRODUCTS_DIR/\$CONTENTS_FOLDER_PATH/compose-resources"
-        val copyResourcesScript = buildString {
-            appendLine("#!/bin/sh/")
-            // TODO: check arch, conf, platform?
-            // TODO: Maybe replace with directory symlink
-            //  or a tree of links depending on whether xcode follows symlinks while traversing the directory
-            appendLine("if [[ -d \"${resourcesConventionDir.pathString}\" ]]; then")
-            appendLine("  mkdir -p \"$destination\"")
-            appendLine("  cp -r \"${resourcesConventionDir.pathString}\"/* \"$destination\"")
-            appendLine("fi")
-        }
-        manipulator.addBuildPhase(
-            PBXBuildPhase.Type.SHELL_SCRIPT,
-            mapOf(
-                "name" to "Stage Resources",
-                "shellPath" to "/bin/sh",
-                "shellScript" to copyResourcesScript,
-                "alwaysOutOfDate" to "1",
-            ),
-            pbxTarget,
-        ).setAttribute("outputPaths", listOf(destination))
-    }
-}
-
-/**
- * Adding stages, responsible for including frameworks into the resulting bundle.
- */
-private fun FileConventions.addFrameworksStages(
-    manipulator: PBXProjectFileManipulator,
-    frameworkDependencies: List<File>,
-    buildType: BuildType,
-    fragment: LeafFragment,
-    pbxTarget: PBXTarget,
-    targetMemberships: Array<PBXTarget>,
-    pbxProjectFile: PBXProjectFile,
-) {
-    val frameworksGroup = manipulator.addGroup(PBXReference.SOURCE_TREE_GROUP, "frameworks", null)
-    val embeddedFrameworks = mutableSetOf<String>()
-    val buildPhaseOutputPaths = mutableSetOf<String>()
-    var copyFrameworksScript = "#!/bin/sh\nmkdir -p \"\$SRCROOT/${frameworksStagingPathString}\"\n"
-
-    if (frameworkDependencies.isNotEmpty()) {
-        copyFrameworksScript += "if [ \"\$CONFIGURATION\" = \"${buildType.variantName}\" ] && [ \"\$ARCHS\" = \"${fragment.platform.architecture}\" ] && [ \"\$PLATFORM_NAME\" = \"${fragment.platform.sdk}\" ]; then\n"
-        for (framework in frameworkDependencies) {
-            embeddedFrameworks.add(framework.name)
-            val symlinkPath = "\$SRCROOT/${frameworksStagingPathString}/${framework.name}"
-            buildPhaseOutputPaths.add(symlinkPath)
-            copyFrameworksScript += "    ln -sfn \"\$SRCROOT/${framework.relativeToBase().path}\" \"${symlinkPath}\"\n"
-        }
-        copyFrameworksScript += "fi\n"
-    }
-
-    manipulator.addBuildPhase(
-        PBXBuildPhase.Type.SHELL_SCRIPT,
-        mapOf(
-            "name" to "Stage Frameworks",
-            "shellPath" to "/bin/sh",
-            "shellScript" to copyFrameworksScript,
-            "alwaysOutOfDate" to "1" //TODO: this disables dependency tracking, properly track in/outs?
-        ),
-        pbxTarget
-    ).setAttribute("outputPaths", buildPhaseOutputPaths.toList())
-
-    val embedFrameworksPhase = manipulator.addBuildPhase(
-        PBXBuildPhase.Type.COPY_FILES, mapOf(
-            "name" to "Embed Frameworks",
-            "dstSubfolderSpec" to PBXCopyFilesBuildPhase.DestinationType.FRAMEWORKS.spec
-        ), pbxTarget
-    )
-
-    val embeddedFrameworkPaths = embeddedFrameworks.map { frameworksStagingDir.resolve(it).path }
-    for (embeddedFrameworkPath in embeddedFrameworkPaths) {
-        val result = manipulator.addFile(
-            embeddedFrameworkPath,
-            targetMemberships,
-            frameworksGroup,
-            false,
-            null,
-            PBXBuildPhase.Type.FRAMEWORKS,
-            false
-        )
-        val buildFile = manipulator.addToBuildPhase(pbxTarget, embedFrameworksPhase, result.reference)
-        buildFile.setAttribute("settings", PBXDictionary(pbxProjectFile).apply {
-            setAttribute("ATTRIBUTES", listOf("CodeSignOnCopy", "RemoveHeadersOnCopy"))
-        })
-    }
-
-    //TODO: seems to work, but feels hacky! Is there a better way to convince Xcode that we'll provide the correct framework?
-    manipulator.addBuildPhase(
-        PBXBuildPhase.Type.SHELL_SCRIPT, mapOf(
-            "name" to "Cleanup Staged Frameworks",
-            "shellPath" to "/bin/sh",
-            "shellScript" to "#!/bin/sh\nrm -rf \"\$SRCROOT/${frameworksStagingPathString}\"\n",
-            "alwaysOutOfDate" to "1"
-        ), pbxTarget
-    )
-}
-
 private fun writePlist(
-    baseDir: File,
+    baseDir: Path,
     name: String,
     map: Plist,
-): File {
+): Path {
     val plist = Plist()
     plist["CFBundleDevelopmentRegion"] = "$(DEVELOPMENT_LANGUAGE)"
     plist["CFBundleExecutable"] = "$(EXECUTABLE_NAME)"
@@ -280,7 +175,7 @@ private fun writePlist(
     plist += map
 
     val file = baseDir.resolve("$name.plist")
-    XMLPlistDriver().write(plist, file)
+    XMLPlistDriver().write(plist, file.toFile())
     return file
 }
 

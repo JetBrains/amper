@@ -7,13 +7,15 @@ package org.jetbrains.amper.tasks.ios
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.cli.commands.tools.XCodeIntegrationCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.schema.Settings
@@ -21,7 +23,6 @@ import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
@@ -42,9 +43,7 @@ class BuildAppleTask(
     private val prettyPlatform = platform.pretty
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val nativeCompileTasksResults = dependenciesResult
-            .filterIsInstance<NativeLinkTask.Result>()
-            .map { it.linkedBinary }
+        val preBuildResult = dependenciesResult.requireSingleDependency<PreBuildIosTask.Result>()
 
         val leafAppleFragment = module.leafFragments.first { it.platform == platform }
         val targetName = prettyPlatform
@@ -62,7 +61,7 @@ class BuildAppleTask(
         }
 
         // TODO Add Assertion for apple platform.
-        return with(FileConventions(module, taskOutputPath.path.toFile())) {
+        return with(FileConventions(module, taskOutputPath.path)) {
             val appPath = symRoot
                 .resolve("${buildType.variantName}-${platform.sdk}")
                 .resolve("${productName}.app")
@@ -77,7 +76,7 @@ class BuildAppleTask(
             executeOnChangedInputs.execute(
                 taskName.name,
                 config,
-                appleSources.map { it.toPath() } + nativeCompileTasksResults,
+                appleSources.map { it.toPath() } + preBuildResult.buildDependencies,
             ) {
                 logger.info("Generating xcode project")
                 doGenerateBuildableXcodeproj(
@@ -89,13 +88,12 @@ class BuildAppleTask(
                     productBundleIdentifier = productBundleIdentifier,
                     buildType = buildType,
                     appleSources = appleSources,
-                    frameworkDependencies = nativeCompileTasksResults.map { it.toFile() },
                 )
 
                 val xcodebuildArgs = buildList {
                     this += "xcrun"
                     this += "xcodebuild"
-                    this += "-project"; this += projectDir.path
+                    this += "-project"; this += projectDir.pathString
                     this += "-scheme"; this += targetName
                     this += "-configuration"; this += "Debug"
                     this += "${BuildSettingNames.OBJROOT}=$objRootPathString"
@@ -111,10 +109,13 @@ class BuildAppleTask(
                     .use { span ->
                         // TODO Maybe we dont need output here?
                         val result = BuildPrimitives.runProcessAndGetOutput(
-                            workingDir = baseDir.toPath(),
+                            workingDir = baseDir,
                             command = xcodebuildArgs,
                             span = span,
                             logCall = true,
+                            environment = mapOf(
+                                XCodeIntegrationCommand.AMPER_BUILD_OUTPUT_DIR_ENV to buildOutputRoot.path.pathString,
+                            ),
                             outputListener = LoggingProcessOutputListener(logger),
                         )
                         if (result.exitCode != 0) {
@@ -122,12 +123,12 @@ class BuildAppleTask(
                         }
                     }
 
-                return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(appPath.toPath()))
+                return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(appPath))
             }
 
             Result(
                 productBundleIdentifier,
-                appPath.toPath()
+                appPath,
             )
         }
     }

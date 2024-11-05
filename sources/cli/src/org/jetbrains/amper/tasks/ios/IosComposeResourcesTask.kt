@@ -10,12 +10,12 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesResult
-import org.jetbrains.amper.tasks.ios.IosComposeResourcesTask.Companion.resourcesConventionDirectory
+import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -23,17 +23,24 @@ import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 
 /**
- * Assembles all the required resources into the [resourcesConventionDirectory] to be later packaged into the iOS
- * app.
+ * Assembles all the required resources into the [IosConventions.getComposeResourcesDirectory]
+ * to be later packaged into the iOS app.
  */
 class IosComposeResourcesTask(
     override val taskName: TaskName,
-    private val leafFragment: Fragment,
+    private val leafFragment: LeafFragment,
     private val buildOutputRoot: AmperBuildOutputRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val outputPath = resourcesConventionDirectory(buildOutputRoot, leafFragment)
+        val outputPath = IosConventions.Context(
+            buildRootPath = buildOutputRoot.path,
+            moduleName = leafFragment.module.userReadableName,
+            buildType = BuildType.Debug,
+            platform = leafFragment.platform,
+        ).run {
+            IosConventions.getComposeResourcesDirectory()
+        }
 
         val results = dependenciesResult.filterIsInstance<PrepareComposeResourcesResult.Prepared>()
         if (results.isEmpty()) {
@@ -61,13 +68,15 @@ class IosComposeResourcesTask(
             ExecuteOnChangedInputs.ExecutionResult(listOf(outputPath))
         }
 
-        // We do not encode the output path into the result as it's conventional and runtime-independent.
-        return EmptyTaskResult
+        return Result(
+            outputPath = outputPath,
+        )
     }
 
-    companion object {
-        fun resourcesConventionDirectory(outputRoot: AmperBuildOutputRoot, leafFragment: Fragment): Path {
-            return outputRoot.path / leafFragment.module.userReadableName / "${leafFragment.name}Resources"
-        }
-    }
+    class Result(
+        /**
+         * This is a conventional path, given here for pure convenience.
+         */
+        val outputPath: Path,
+    ) : TaskResult
 }

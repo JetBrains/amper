@@ -92,6 +92,8 @@ open class IOSBaseTest:TestBase() {
             runAmper(
                 workingDir = projectDir,
                 args = listOf("task", taskPath),
+                // xcode will in turn call Amper with this env
+                environment = baseEnvironmentForWrapper(),
                 assertEmptyStdErr = false,
             )
         } else {

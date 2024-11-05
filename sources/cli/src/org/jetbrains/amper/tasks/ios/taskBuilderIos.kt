@@ -5,8 +5,8 @@
 package org.jetbrains.amper.tasks.ios
 
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -58,6 +58,21 @@ fun ProjectTasksBuilder.setupIosTasks() {
                         )
                     }
 
+            val preBuildTaskName = IosTaskType.PreBuildIosApp.getTaskName(module, platform)
+            tasks.registerTask(
+                task = PreBuildIosTask(
+                    taskName = preBuildTaskName,
+                    module = module,
+                    buildType = BuildType.Debug,
+                    platform = platform,
+                    outputRoot = context.buildOutputRoot,
+                ),
+                dependsOn = buildList {
+                    composeResourcesTaskName?.let(::add)
+                    add(IosTaskType.Framework.getTaskName(module, platform, false, BuildType.Debug),)
+                },
+            )
+
             val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)
             tasks.registerTask(
                 task = BuildAppleTask(
@@ -70,10 +85,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     taskName = buildTaskName,
                     isTest = false,
                 ),
-                dependsOn = listOfNotNull(
-                    IosTaskType.Framework.getTaskName(module, platform, false, BuildType.Debug),
-                    composeResourcesTaskName,
-                )
+                dependsOn = preBuildTaskName,
             )
 
             val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
@@ -139,4 +151,5 @@ internal enum class IosTaskType(override val prefix: String) : PlatformTaskType 
     BuildIosApp("buildIosApp"),
     RunIosApp("runIosApp"),
     PrepareComposeResources("prepareComposeResourcesForIos"),
+    PreBuildIosApp("preBuildIosApp")
 }

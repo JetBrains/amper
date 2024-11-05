@@ -5,7 +5,10 @@
 package org.jetbrains.amper.tasks.ios
 
 import org.jetbrains.amper.frontend.AmperModule
-import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.pathString
+import kotlin.io.path.relativeTo
 
 
 /**
@@ -13,23 +16,21 @@ import java.io.File
  */
 class FileConventions(
     module: AmperModule,
-    taskDir: File,
+    taskDir: Path,
 ) {
-    val baseDir: File = taskDir.resolve("build")
-    val projectDir: File = baseDir.resolve("${module.userReadableName}.xcodeproj")
-    val intermediatesDir: File = taskDir.resolve("tmp")
-    val frameworksStagingDir = intermediatesDir.resolve("frameworks")
-    val symRoot = taskDir.resolve("bin")
+    val baseDir: Path = taskDir.resolve("build")
+    val projectDir: Path = baseDir.resolve("${module.userReadableName}.xcodeproj")
+    val intermediatesDir: Path = taskDir.resolve("tmp")
+    val symRoot: Path = taskDir.resolve("bin")
 
-    val derivedDataPathString = taskDir.resolve("derivedData").relativeToBase().path
-    val objRootPathString = intermediatesDir.relativeToBase().path
-    val symRootPathString = symRoot.relativeToBase().path
-    val frameworksStagingPathString = frameworksStagingDir.relativeToBase().path
+    val derivedDataPathString = taskDir.resolve("derivedData").relativeToBase().pathString
+    val objRootPathString = intermediatesDir.relativeToBase().pathString
+    val symRootPathString = symRoot.relativeToBase().pathString
 
-    fun File.relativeToBase() = relativeTo(baseDir).normalize()
+    fun Path.relativeToBase(): Path = relativeTo(baseDir).normalize()
 
     init {
-        baseDir.mkdirs()
-        projectDir.mkdirs()
+        baseDir.createDirectories()
+        projectDir.createDirectories()
     }
 }

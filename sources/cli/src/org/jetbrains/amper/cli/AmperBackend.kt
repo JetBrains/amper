@@ -25,6 +25,7 @@ import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
+import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
 import org.jetbrains.annotations.TestOnly
@@ -275,6 +276,22 @@ class AmperBackend(val context: CliContext) {
         }
 
         runTask(task.taskName)
+    }
+
+    suspend fun prebuildForXcode(
+        moduleName: String,
+        platform: Platform,
+        buildType: BuildType,
+    ) {
+        val module = resolveModule(moduleName)
+
+        val taskName = IosTaskType.PreBuildIosApp.getTaskName(
+            module = module,
+            platform = platform,
+            isTest = false,
+            buildType = buildType,
+        )
+        taskExecutor.runTasksAndReportOnFailure(setOf(taskName))
     }
 
     private fun resolveModule(moduleName: String) = modulesByName[moduleName] ?: userReadableError(

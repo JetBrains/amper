@@ -45,6 +45,13 @@ abstract class AmperCliWithWrapperTestBase {
         }
     }
 
+    protected fun baseEnvironmentForWrapper(): Map<String, String> = buildMap {
+        // tells the wrapper to download the distribution and JRE through our local HTTP server
+        this["AMPER_DOWNLOAD_ROOT"] = httpServer.wwwRootUrl
+        this["AMPER_JRE_DOWNLOAD_ROOT"] = httpServer.cacheRootUrl
+        this["AMPER_BOOTSTRAP_CACHE_DIR"] = TestUtil.sharedAmperCacheRoot.pathString
+    }
+
     /**
      * Runs the Amper CLI in the given [workingDir] with the given [args].
      *
@@ -62,7 +69,7 @@ abstract class AmperCliWithWrapperTestBase {
         environment: Map<String, String> = emptyMap(),
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
-        bootstrapCacheDir: Path = TestUtil.sharedAmperCacheRoot,
+        bootstrapCacheDir: Path? = null,
         customJavaHome: Path? = null,
         customAmperScriptPath: Path? = null,
         stdin: ProcessInput = ProcessInput.Empty,
@@ -91,11 +98,12 @@ abstract class AmperCliWithWrapperTestBase {
             workingDir = workingDir,
             command = listOf(amperScript.absolutePathString()) + args,
             environment = buildMap {
-                // tells the wrapper to download the distribution and JRE through our local HTTP server
-                this["AMPER_DOWNLOAD_ROOT"] = httpServer.wwwRootUrl
-                this["AMPER_JRE_DOWNLOAD_ROOT"] = httpServer.cacheRootUrl
+                putAll(baseEnvironmentForWrapper())
 
-                this["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
+                // Override (and add to) the base env
+                bootstrapCacheDir?.let {
+                    this["AMPER_BOOTSTRAP_CACHE_DIR"] = it.pathString
+                }
 
                 if (customJavaHome != null) {
                     this["AMPER_JAVA_HOME"] = customJavaHome.pathString
