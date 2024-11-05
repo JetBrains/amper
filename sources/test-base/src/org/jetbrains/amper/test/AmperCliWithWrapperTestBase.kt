@@ -108,10 +108,10 @@ abstract class AmperCliWithWrapperTestBase {
         assertEquals(
             expected = expectedExitCode,
             actual = result.exitCode,
-            message = "Exit code must be $expectedExitCode, but got ${result.exitCode}. Process stderr:\n${result.stderr}"
+            message = "Exit code must be $expectedExitCode, but got ${result.exitCode} for Amper call: $amperScript ${args.joinToString(" ")}\nAmper STDERR:\n${result.stderr}"
         )
         if (assertEmptyStdErr) {
-            assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call: $amperScript ${args.joinToString(" ")}\nStderr was:\n${result.stderr}")
+            assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call: $amperScript ${args.joinToString(" ")}\nAmper STDERR:\n${result.stderr}")
         }
         return result
     }
