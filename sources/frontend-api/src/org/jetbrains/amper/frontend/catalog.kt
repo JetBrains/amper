@@ -40,7 +40,11 @@ interface VersionCatalog {
                 is PsiTrace -> {
                     SchemaBundle.reportBundleError(
                         node = trace.psiElement,
-                        messageKey = if (key.value.startsWith("compose.")) "compose.is.disabled" else "no.catalog.value",
+                        messageKey = when {
+                            key.value.startsWith("compose.") -> "compose.is.disabled"
+                            key.value.startsWith("kotlin.serialization.") -> "kotlin.serialization.is.disabled"
+                            else -> "no.catalog.value"
+                        },
                         key.value
                     )
                 }
