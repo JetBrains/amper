@@ -53,10 +53,8 @@ class GradleBootstrapTest {
             .let { settingsKts.writeText(it) }
 
         // when
-        val gradleHome = TestUtil.sharedTestCaches.resolve("gradleHome")
-            .also { it.createDirectories() }
         val projectConnector = GradleConnector.newConnector()
-            .useGradleUserHomeDir(gradleHome.toFile())
+            .useGradleUserHomeDir(TestUtil.sharedGradleHome.toFile())
             .forProjectDirectory(projectPath.toFile())
             .connect()
         val stdout = ByteArrayOutputStream()

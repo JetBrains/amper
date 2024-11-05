@@ -12,7 +12,6 @@ import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 import kotlin.concurrent.thread
-import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
@@ -75,8 +74,7 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
 
     private val availableGradleDaemons = ArrayBlockingQueue<GradleConnector>(numberOfDaemons).apply {
         repeat(numberOfDaemons) {
-            val gradleHome = TestUtil.sharedTestCaches.resolve("gradleHome").createDirectories()
-            add(GradleConnector.newConnector().useGradleUserHomeDir(gradleHome.toFile()))
+            add(GradleConnector.newConnector().useGradleUserHomeDir(TestUtil.sharedGradleHome.toFile()))
         }
     }
 

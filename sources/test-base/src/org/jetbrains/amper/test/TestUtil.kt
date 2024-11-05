@@ -9,7 +9,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.jetbrains.amper.test.TestUtil.sharedTestCaches
 import org.jetbrains.amper.test.android.AndroidToolsInstaller
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -46,9 +45,10 @@ object TestUtil {
      * Path to the root directory of a cache that is reused across test runs, and across CI builds.
      *
      * * on dev machines: some place in the working copy, assuming it won't be cleared after every test run
-     * * on TeamCity: a shared place on the build agent, which will be fully deleted if TeamCity lacks space on that agent
+     * * on TeamCity: a shared place on the build agent, reused between builds but potentially fully deleted if
+     *   TeamCity lacks space on that agent
      */
-    val sharedTestCaches: Path by lazy {
+    private val sharedTestCaches: Path by lazy {
         // Always run tests in a directory with a space in the name, tests quoting in a lot of places
         val dir = if (TeamCityHelper.isUnderTeamCity) {
             val persistentCachePath = TeamCityHelper.systemProperties["agent.persistent.cache"]
@@ -62,6 +62,16 @@ object TestUtil {
 
         dir.createDirectories()
     }
+
+    /**
+     * Path to a directory used as Amper user cache, reused across test executions.
+     */
+    val sharedAmperCacheRoot by lazy { sharedTestCaches / "amper-cache" }
+
+    /**
+     * Path to a directory used as Gradle home, reused across test executions.
+     */
+    val sharedGradleHome by lazy { (sharedTestCaches / "gradleHome").createDirectories() }
 
     /**
      * Path to a temporary directory that may or may not be reused across test runs.
@@ -95,7 +105,9 @@ object TestUtil {
         TeamCityHelper.tempDirectory.resolve(TeamCityHelper.buildId).resolve("amperUserCacheRoot").also {
             it.createDirectories()
         }
-    } else sharedTestCaches
+    } else {
+        sharedAmperCacheRoot
+    }
 
     val androidHome: Path by lazy {
         val androidSdkHome = sharedTestCaches / "android-sdk"

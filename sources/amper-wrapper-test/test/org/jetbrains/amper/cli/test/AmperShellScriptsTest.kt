@@ -227,7 +227,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
 
     @Test
     fun `custom java home`() = runBlocking {
-        val fakeUserCacheRoot = AmperUserCacheRoot(TestUtil.sharedTestCaches)
+        val fakeUserCacheRoot = AmperUserCacheRoot(TestUtil.sharedAmperCacheRoot)
         val jdkHome = JdkDownloader.getJdk(fakeUserCacheRoot).homeDir
 
         val expectedAmperVersion = cliScript

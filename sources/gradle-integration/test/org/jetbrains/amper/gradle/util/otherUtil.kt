@@ -14,7 +14,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.URI
-import kotlin.io.path.createDirectories
 import kotlin.test.asserter
 
 
@@ -37,18 +36,13 @@ internal inline fun TestBase.doTest(model: MockModelHandle) {
     assertEqualsWithCurrentTestResource(extracted)
 }
 
-private val gradleHome by lazy {
-    TestUtil.sharedTestCaches.resolve("gradleHome")
-        .also { it.createDirectories() }
-}
-
 fun TestBase.runGradleWithModel(model: MockModelHandle): String {
     val stdout = ByteArrayOutputStream()
     val stderr = ByteArrayOutputStream()
     GradleConnector.newConnector()
         // we use this instead of useGradleVersion() so that our tests benefit from the cache redirector and avoid timeouts
         .useDistribution(URI("https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-8.6-bin.zip"))
-        .useGradleUserHomeDir(gradleHome.toFile())
+        .useGradleUserHomeDir(TestUtil.sharedGradleHome.toFile())
         .forProjectDirectory(tempDir)
         .connect()
         .newBuild()

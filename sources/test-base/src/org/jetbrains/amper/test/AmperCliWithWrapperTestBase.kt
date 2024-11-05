@@ -60,7 +60,7 @@ abstract class AmperCliWithWrapperTestBase {
         environment: Map<String, String> = emptyMap(),
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
-        bootstrapCacheDir: Path = TestUtil.sharedTestCaches,
+        bootstrapCacheDir: Path = TestUtil.sharedAmperCacheRoot,
         customJavaHome: Path? = null,
         customAmperScriptPath: Path? = null,
         stdin: ProcessInput = ProcessInput.Empty,
