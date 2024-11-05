@@ -252,6 +252,11 @@ if [ '!' -x "$java_exe" ]; then
   die "Unable to find bin/java executable at $java_exe"
 fi
 
+# ********** Script path detection **********
+
+# We might need to resolve symbolic links here
+wrapper_path=$(realpath "$0")
+
 # ********** Launch Amper **********
 
 if [ "$simpleOs" = "windows" ]; then
@@ -262,4 +267,7 @@ else
 fi
 jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
 # shellcheck disable=SC2086
-exec "$java_exe" "-Damper.wrapper.dist.sha256=$amper_sha256" $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+exec "$java_exe" \
+  "-Damper.wrapper.dist.sha256=$amper_sha256" \
+  "-Damper.wrapper.path=$wrapper_path" \
+  $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"

@@ -272,6 +272,11 @@ if [ ! -f "$up_to_date_file" ] || [ "$(cat "$up_to_date_file")" != "$current" ];
   current_state >"$up_to_date_file"
 fi
 
+# ********** Script path detection **********
+
+# We might need to resolve symbolic links here
+wrapper_path=$(realpath "$0")
+
 # ********** Launch Amper from unpacked dist **********
 
 if [ "$simpleOs" = "windows" ]; then
@@ -280,4 +285,6 @@ if [ "$simpleOs" = "windows" ]; then
 else
   classpath="$script_dir/build/unpackedDistribution/lib/*"
 fi
-time "$java_exe" -ea -XX:+EnableDynamicAgentLoading -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+time "$java_exe" -ea -XX:+EnableDynamicAgentLoading \
+  "-Damper.wrapper.path=$wrapper_path" \
+  -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
