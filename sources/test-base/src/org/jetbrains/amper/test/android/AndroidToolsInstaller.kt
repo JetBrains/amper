@@ -61,7 +61,7 @@ internal object AndroidToolsInstaller {
         val commandLineToolsZip = Downloader.downloadFileToCacheLocation(
             // We use the same one on all platforms to benefit from caching.
             // It's ok because we use the JDK to directly run it instead of the platform-specific wrapper scripts
-            url = "https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip",
+            url = "https://cache-redirector.jetbrains.com/dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip",
             userCacheRoot = AmperUserCacheRoot(androidSetupCacheDir),
         )
 
