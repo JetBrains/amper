@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
+import com.github.ajalt.clikt.completion.SuspendingCompletionCommand
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.obj
 import com.github.ajalt.clikt.core.subcommands
@@ -32,6 +33,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
             BuildCommand(),
             CleanCommand(),
             CleanSharedCachesCommand(),
+            SuspendingCompletionCommand(help = "Generate a tab-completion script for the Amper command for the given shell"),
             InitCommand(),
             ModulesCommand(),
             PublishCommand(),
