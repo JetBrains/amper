@@ -15,21 +15,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.slf4j.MDC
 import org.tinylog.core.LogEntry
 import org.tinylog.jul.JulTinylogBridge
-import java.util.UUID
+import java.util.*
 import java.util.function.Consumer
 import kotlin.time.Duration
 
 // TODO assert log errors
 
-class TestCollector(val backgroundScope: CoroutineScope) {
+class TestCollector(val backgroundScope: CoroutineScope) : SpansTestCollector {
     private val collectedSpans = mutableListOf<SpanData>()
     private fun addSpan(spanData: SpanData) = synchronized(collectedSpans) { collectedSpans.add(spanData) }
-    val spans: List<SpanData>
+    override val spans: List<SpanData>
         get() = synchronized(collectedSpans) { collectedSpans.toList() }
-    fun clearSpans() = synchronized(collectedSpans) { collectedSpans.clear() }
+    override fun clearSpans() = synchronized(collectedSpans) { collectedSpans.clear() }
 
     private val collectedLogEntries = mutableListOf<LogEntry>()
     private fun addLogEntry(logEntry: LogEntry) = synchronized(collectedLogEntries) { collectedLogEntries.add(logEntry) }

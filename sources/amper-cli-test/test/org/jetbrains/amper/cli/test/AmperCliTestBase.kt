@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
@@ -81,7 +82,10 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
                 add(buildOutputRoot.pathString)
                 addAll(args)
             },
-            environment = mapOf("ANDROID_HOME" to androidHome.pathString),
+            environment = mapOf(
+                "ANDROID_HOME" to androidHome.pathString,
+                GradleDaemonShutdownHook.NO_DAEMON_ENV to "1",
+            ),
             expectedExitCode = expectedExitCode,
             assertEmptyStdErr = assertEmptyStdErr,
             stdin = stdin,

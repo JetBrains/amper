@@ -9,6 +9,10 @@ import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
+import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
+import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
+import org.jetbrains.amper.test.spans.withAmperModule
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals

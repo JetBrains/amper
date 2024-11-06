@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.cli.AmperBackend
@@ -6,9 +10,9 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.test.TempDirExtension
+import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.amperCheckoutRoot
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
@@ -63,7 +67,7 @@ class AmperProjectStructureTest {
     }
 
     @Test
-    fun `list of modules is the same for gradle and standalone amper`() = runTestInfinitely {
+    fun `list of modules is the same for gradle and standalone amper`() = runTestWithCollector {
         val backend = createAmperProjectBackend(backgroundScope)
         val standaloneModulesList = backend.modules()
             .map { (it.source as AmperModuleFileSource).moduleDir.relativeTo(amperCheckoutRoot) }

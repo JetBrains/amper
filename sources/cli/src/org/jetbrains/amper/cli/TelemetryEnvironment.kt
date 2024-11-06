@@ -23,12 +23,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.diagnostics.rmi.SpanExporterService
+import org.jetbrains.amper.diagnostics.rmi.toSerializable
 import org.slf4j.LoggerFactory
 import java.io.BufferedOutputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.nio.file.Path
+import java.rmi.RemoteException
+import java.rmi.registry.LocateRegistry
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicBoolean
@@ -58,8 +62,15 @@ object TelemetryEnvironment {
 
     fun setup() {
         val exporter = OtlpStdoutSpanExporter(deferredSpansFile.outputStream)
+        val rmiSpanExporterServiceName = System.getenv(SpanExporterService.NAME_ENV_VAR)
+        val compositeSpanExporter = if (rmiSpanExporterServiceName != null) {
+            // Force the hostname to be `localhost` as sometimes the system might try to resolve the public IP and fail.
+            System.setProperty("java.rmi.server.hostname", "localhost")
+            SpanExporter.composite(exporter, RmiSpanExporter(rmiSpanExporterServiceName))
+        } else exporter
+
         val tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(BatchSpanProcessor.builder(exporter).build())
+            .addSpanProcessor(BatchSpanProcessor.builder(compositeSpanExporter).build())
             .setResource(resource)
             .build()
         val openTelemetry = OpenTelemetrySdk.builder()
@@ -138,4 +149,24 @@ private class OtlpStdoutSpanExporter(private val outputStream: OutputStream) : S
         }
         return CompletableResultCode.ofSuccess()
     }
+}
+
+private class RmiSpanExporter(
+    serviceName: String,
+) : SpanExporter {
+    private val registry = LocateRegistry.getRegistry(SpanExporterService.PORT)
+    private val service = registry.lookup(serviceName) as SpanExporterService
+
+    override fun export(spans: Collection<SpanData>): CompletableResultCode {
+        return try {
+            service.export(spans.map(SpanData::toSerializable))
+            CompletableResultCode.ofSuccess()
+        } catch (e: RemoteException) {
+            e.printStackTrace()
+            CompletableResultCode.ofFailure()
+        }
+    }
+
+    override fun flush(): CompletableResultCode = CompletableResultCode.ofSuccess()
+    override fun shutdown(): CompletableResultCode = CompletableResultCode.ofSuccess()
 }

@@ -2,11 +2,11 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.backend.test.assertions
+package org.jetbrains.amper.test.spans
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
-import org.jetbrains.amper.test.TestCollector
+import org.jetbrains.amper.diagnostics.amperModuleKey
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -44,12 +44,23 @@ data class FilteredSpans(
     fun all() = matchingSpans
 }
 
-fun TestCollector.spansNamed(name: String): FilteredSpans = filteredSpans.withName(name)
+fun SpansTestCollector.spansNamed(name: String): FilteredSpans = filteredSpans.withName(name)
 
-private val TestCollector.filteredSpans: FilteredSpans
+private val SpansTestCollector.filteredSpans: FilteredSpans
     get() = FilteredSpans(spans, emptyList())
 
 fun FilteredSpans.withName(name: String): FilteredSpans = filter("name='$name'") { it.name == name }
 
 fun <T> FilteredSpans.withAttribute(key: AttributeKey<T>, value: T): FilteredSpans =
     filter("attr['${key.key}']='$value'") { it.attributes[key] == value }
+
+val SpansTestCollector.kotlinJvmCompilationSpans: FilteredSpans
+    get() = spansNamed("kotlin-compilation")
+
+val SpansTestCollector.javaCompilationSpans: FilteredSpans
+    get() = spansNamed("javac")
+
+val SpansTestCollector.kotlinNativeCompilationSpans: FilteredSpans
+    get() = spansNamed("konanc")
+
+fun FilteredSpans.withAmperModule(name: String) = withAttribute(amperModuleKey, name)

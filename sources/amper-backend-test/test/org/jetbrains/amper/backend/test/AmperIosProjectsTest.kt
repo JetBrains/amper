@@ -5,8 +5,6 @@
 package org.jetbrains.amper.backend.test
 
 import io.opentelemetry.api.common.AttributeKey
-import org.jetbrains.amper.backend.test.assertions.FilteredSpans
-import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.diagnostics.getAttribute
@@ -15,6 +13,8 @@ import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.spans.FilteredSpans
+import org.jetbrains.amper.test.spans.spansNamed
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals

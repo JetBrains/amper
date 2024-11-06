@@ -1,8 +1,12 @@
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package androidUtils
 
 import TestBase
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.junit.jupiter.api.AfterEach
 import java.nio.file.Path
 import kotlin.io.path.deleteRecursively
@@ -32,7 +36,7 @@ open class AndroidBaseTest : TestBase() {
         projectPath: Path,
         applicationId: String? = null,
         projectAction: suspend (String) -> Unit,
-    ) = runBlocking {
+    ) = runTestInfinitely {
         TestBase().copyProject(projectName, projectPath)
         projectAction(projectName)
         ProjectPreparer.assembleTestApp(applicationId)

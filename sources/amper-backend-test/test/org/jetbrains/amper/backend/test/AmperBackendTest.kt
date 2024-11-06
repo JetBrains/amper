@@ -7,8 +7,6 @@ import com.sun.net.httpserver.Authenticator
 import com.sun.net.httpserver.BasicAuthenticator
 import com.sun.net.httpserver.HttpServer
 import io.opentelemetry.api.common.AttributeKey
-import org.jetbrains.amper.backend.test.assertions.assertHasAttribute
-import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.backend.test.extensions.ErrorCollectorExtension
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
@@ -26,6 +24,12 @@ import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.WindowsOnly
+import org.jetbrains.amper.test.spans.assertEachKotlinJvmCompilationSpan
+import org.jetbrains.amper.test.spans.assertEachKotlinNativeCompilationSpan
+import org.jetbrains.amper.test.spans.assertHasAttribute
+import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
+import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
+import org.jetbrains.amper.test.spans.spansNamed
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level

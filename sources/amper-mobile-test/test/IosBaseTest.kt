@@ -1,8 +1,12 @@
-import kotlinx.coroutines.runBlocking
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import org.junit.jupiter.api.AfterEach
 import java.io.FileNotFoundException
@@ -36,7 +40,7 @@ open class iOSBaseTest(): TestBase() {
         projectName: String,
         projectPath: Path,
         projectAction: suspend (String) -> Unit,
-    ) = runBlocking {
+    ) = runTestInfinitely {
         getOrCreateRemoteSession()
         copyProject(projectName, projectPath)
         installTestBundleForUITests()

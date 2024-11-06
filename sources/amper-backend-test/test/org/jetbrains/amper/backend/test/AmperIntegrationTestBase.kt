@@ -6,20 +6,12 @@
 
 package org.jetbrains.amper.backend.test
 
-import io.opentelemetry.api.common.AttributeKey
-import io.opentelemetry.sdk.trace.data.SpanData
-import org.jetbrains.amper.backend.test.assertions.FilteredSpans
-import org.jetbrains.amper.backend.test.assertions.assertHasAttribute
-import org.jetbrains.amper.backend.test.assertions.spansNamed
-import org.jetbrains.amper.backend.test.assertions.withAttribute
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AndroidHomeRoot
-import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.diagnostics.amperModuleKey
-import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestCollector
@@ -36,7 +28,6 @@ import kotlin.io.path.isDirectory
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class AmperIntegrationTestBase {
@@ -57,15 +48,6 @@ abstract class AmperIntegrationTestBase {
         }
         path
     }
-
-    protected val TestCollector.kotlinJvmCompilationSpans: FilteredSpans
-        get() = spansNamed("kotlin-compilation")
-
-    protected val TestCollector.javaCompilationSpans: FilteredSpans
-        get() = spansNamed("javac")
-
-    protected val TestCollector.kotlinNativeCompilationSpans: FilteredSpans
-        get() = spansNamed("konanc")
 
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
@@ -139,28 +121,6 @@ abstract class AmperIntegrationTestBase {
         }
     }
 
-    protected fun TestCollector.assertKotlinJvmCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
-        val kotlinSpan = kotlinJvmCompilationSpans.assertSingle()
-        CompilationSpanAssertions(kotlinSpan, "compiler-args").assertions()
-    }
-
-    protected fun TestCollector.assertEachKotlinJvmCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
-        kotlinJvmCompilationSpans.all().forEach { kotlinSpan ->
-            CompilationSpanAssertions(kotlinSpan, "compiler-args").assertions()
-        }
-    }
-
-    protected fun TestCollector.assertJavaCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
-        val javacSpan = javaCompilationSpans.assertSingle()
-        CompilationSpanAssertions(javacSpan, "args").assertions()
-    }
-
-    protected fun TestCollector.assertEachKotlinNativeCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
-        kotlinNativeCompilationSpans.all().forEach { kotlinSpan ->
-            CompilationSpanAssertions(kotlinSpan, "args").assertions()
-        }
-    }
-
     fun AmperBackend.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
         val taskNames = tasks().map { it.taskName.name }.toSortedSet()
         tasks.forEach { task ->
@@ -175,40 +135,3 @@ abstract class AmperIntegrationTestBase {
     }
 }
 
-fun FilteredSpans.withAmperModule(name: String) = withAttribute(amperModuleKey, name)
-
-class CompilationSpanAssertions(
-    private val span: SpanData,
-    private val compilerArgsAttributeKeyName: String,
-) {
-    private val compilerArgs: List<String>
-        get() = span.getAttribute(AttributeKey.stringArrayKey(compilerArgsAttributeKeyName))
-
-    fun hasAmperModule(name: String) {
-        span.assertHasAttribute(amperModuleKey, name)
-    }
-
-    fun hasCompilerArgument(argument: String) {
-        assertTrue("Compiler argument '$argument' is missing. Actual args: $compilerArgs") {
-            compilerArgs.contains(argument)
-        }
-    }
-
-    fun hasCompilerArgumentStartingWith(argumentPrefix: String) {
-        assertTrue("Compiler argument starting with '$argumentPrefix' is missing. Actual args: $compilerArgs") {
-            compilerArgs.any { it.startsWith(argumentPrefix) }
-        }
-    }
-
-    fun hasCompilerArgument(name: String, expectedValue: String) {
-        hasCompilerArgument(name)
-        val actualValue = compilerArgAfter(name)
-            ?: fail("Compiler argument '$name' has no value. Actual args: $compilerArgs")
-        if (actualValue != expectedValue) {
-            fail("Compiler argument '$name' has value '$actualValue', expected '$expectedValue'")
-        }
-    }
-
-    private fun compilerArgAfter(previous: String): String? =
-        compilerArgs.zipWithNext().firstOrNull { it.first == previous }?.second
-}

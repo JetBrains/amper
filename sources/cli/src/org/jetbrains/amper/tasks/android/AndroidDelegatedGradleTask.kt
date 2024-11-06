@@ -11,9 +11,10 @@ import org.jetbrains.amper.android.runAndroidBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
@@ -89,6 +90,7 @@ abstract class AndroidDelegatedGradleTask(
             val gradleLogStderrPath =
                 buildLogsRoot.path / "gradle" / "${this::class.simpleName}-$logFileName.stderr"
             gradleLogStdoutPath.createParentDirectories()
+            GradleDaemonShutdownHook.setupIfNeeded()
             val result = runAndroidBuild(
                 request,
                 gradleProjectPath,

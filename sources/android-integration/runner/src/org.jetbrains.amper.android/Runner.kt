@@ -16,10 +16,21 @@ import org.jetbrains.amper.core.AmperBuild
 import java.io.BufferedOutputStream
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import java.util.Properties
-import kotlin.io.path.createDirectories
-import kotlin.io.path.outputStream
+import java.util.*
+import kotlin.collections.ArrayDeque
+import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.buildList
+import kotlin.collections.buildMap
+import kotlin.collections.filter
+import kotlin.collections.forEach
+import kotlin.collections.isNotEmpty
+import kotlin.collections.map
+import kotlin.collections.mapOf
+import kotlin.collections.plus
+import kotlin.collections.toTypedArray
 import kotlin.io.path.div
+import kotlin.io.path.outputStream
 import kotlin.io.path.pathString
 
 
