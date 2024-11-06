@@ -81,10 +81,15 @@ class AmperBackend(val context: CliContext) {
      * Called by the 'build' command. Compiles and links all code in the project.
      *
      * If [platforms] is specified, only compilation/linking for those platforms should be run.
+     *
+     * If [modules] is specified, only compilation/linking for those modules should be run.
      */
-    suspend fun build(platforms: Set<Platform>? = null) {
+    suspend fun build(platforms: Set<Platform>? = null, modules: Set<String>? = null) {
         if (platforms != null) {
             logger.info("Compiling for platforms: ${platforms.map { it.name }.sorted().joinToString(" ")}")
+        }
+        if (modules != null) {
+            logger.info("Compiling modules: ${modules.sorted().joinToString(" ")}")
         }
 
         val possibleCompilationPlatforms = if (OsFamily.current.isMac) {
@@ -94,11 +99,13 @@ class AmperBackend(val context: CliContext) {
             Platform.leafPlatforms.filter { !it.isDescendantOf(Platform.APPLE) }.toSet()
         }
 
-        val platformsToCompile: Set<Platform> = platforms ?: possibleCompilationPlatforms
+        val platformsToCompile = platforms ?: possibleCompilationPlatforms
+        val modulesToCompile = (modules?.map { resolveModule(it) } ?: resolvedModel.modules).toSet()
+
         val taskNames = taskGraph
             .tasks
             .filterIsInstance<BuildTask>()
-            .filter { platformsToCompile.contains(it.platform) }
+            .filter { it.platform in platformsToCompile && it.module in modulesToCompile }
             .map { it.taskName }
             .toSet()
         logger.info("Selected tasks to compile: ${taskNames.sortedBy { it.name }.joinToString(" ") { it.name }}")
