@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.diagnostics
 
+import com.github.ajalt.mordant.rendering.TextStyle
+import com.github.ajalt.mordant.rendering.Theme
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie.REPEL_TERMINAL_LOGGING_MDC_NAME
 import org.tinylog.Level
@@ -30,12 +32,25 @@ class DynamicLevelConsoleWriter(properties: Map<String, String>): AbstractFormat
     }
 
     override fun write(logEntry: LogEntry) {
-        if (logEntry.level.ordinal >= minimumLevel.ordinal) {
-            if (!logEntry.context.containsKey(REPEL_TERMINAL_LOGGING_MDC_NAME)) {
-                val isError = logEntry.level.ordinal >= Level.ERROR.ordinal
-                terminal?.println(render(logEntry).trim(), stderr = isError)
+        terminal?.let { term ->
+            if (logEntry.level.ordinal >= minimumLevel.ordinal) {
+                if (!logEntry.context.containsKey(REPEL_TERMINAL_LOGGING_MDC_NAME)) {
+                    val isError = logEntry.level.ordinal >= Level.ERROR.ordinal
+                    val message = render(logEntry).trim()
+                    val style = term.theme.styleForLevel(logEntry.level)
+                    term.println(style.invoke(message), stderr = isError)
+                }
             }
         }
+    }
+
+    private fun Theme.styleForLevel(logLevel: Level) = when (logLevel) {
+        Level.WARN -> warning
+        Level.ERROR -> danger
+        Level.INFO -> TextStyle() // no special styling
+        Level.TRACE,
+        Level.DEBUG,
+        Level.OFF -> muted
     }
 
     override fun getRequiredLogEntryValues(): Collection<LogEntryValue> {
