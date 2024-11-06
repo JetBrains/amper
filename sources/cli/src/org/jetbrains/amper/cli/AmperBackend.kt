@@ -64,6 +64,10 @@ class AmperBackend(val context: CliContext) {
         }
     }
 
+    private val modulesByName by lazy {
+        resolvedModel.modules.associateBy { it.userReadableName }
+    }
+
     private val taskGraph: TaskGraph by lazy {
         ProjectTasksBuilder(context = context, model = resolvedModel).build()
     }
@@ -131,10 +135,7 @@ class AmperBackend(val context: CliContext) {
 
         if (modules != null) {
             for (moduleName in modules) {
-                val module = resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
-                    ?: userReadableError("Unable to resolve module by name '$moduleName'.\n\n" +
-                                "Available modules: ${availableModulesString()}")
-
+                val module = resolveModule(moduleName)
                 if (module.mavenRepositories.any { it.id == repositoryId }) {
                     userReadableError("Module '$moduleName' does not have repository with id '$repositoryId'")
                 }
@@ -166,12 +167,7 @@ class AmperBackend(val context: CliContext) {
         require(requestedPlatforms == null || requestedPlatforms.isNotEmpty())
 
         val moduleNamesToCheck = (includeModules ?: emptySet()) + excludeModules
-        for (moduleName in moduleNamesToCheck) {
-            if (resolvedModel.modules.none { it.userReadableName == moduleName }) {
-                userReadableError("Unable to resolve module by name '$moduleName'.\n\n" +
-                        "Available modules: ${availableModulesString()}")
-            }
-        }
+        moduleNamesToCheck.forEach { resolveModule(it) }
 
         requestedPlatforms
             ?.filter { it !in PlatformUtil.platformsMayRunOnCurrentSystem }
@@ -225,8 +221,7 @@ class AmperBackend(val context: CliContext) {
 
     suspend fun runApplication(moduleName: String? = null, platform: Platform? = null, buildType: BuildType? = BuildType.Debug) {
         val moduleToRun = if (moduleName != null) {
-            resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
-                ?: userReadableError("Unable to resolve module by name '$moduleName'.\n\nAvailable modules: ${availableModulesString()}")
+            resolveModule(moduleName)
         } else {
             val candidates = resolvedModel.modules.filter { it.type.isApplication() }
             when {
@@ -272,6 +267,11 @@ class AmperBackend(val context: CliContext) {
 
         runTask(task.taskName)
     }
+
+    private fun resolveModule(moduleName: String) = modulesByName[moduleName] ?: userReadableError(
+        "Unable to resolve module by name '$moduleName'.\n\n" +
+                "Available modules: ${availableModulesString()}"
+    )
 
     private fun availableModulesString() =
         resolvedModel.modules.map { it.userReadableName }.sorted().joinToString(" ")
