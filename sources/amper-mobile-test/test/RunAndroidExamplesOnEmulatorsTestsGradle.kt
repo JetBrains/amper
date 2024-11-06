@@ -3,6 +3,7 @@
  */
 
 
+import androidUtils.AndroidBaseTest
 import org.junit.jupiter.api.Test
 
 class RunAndroidExamplesOnEmulatorsTestsGradle : AndroidBaseTest() {

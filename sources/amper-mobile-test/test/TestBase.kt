@@ -25,7 +25,7 @@ import kotlin.io.path.writeText
 open class TestBase : AmperCliWithWrapperTestBase() {
 
     protected val amperMobileTestsRoot = TestUtil.amperSourcesRoot / "amper-mobile-test"
-    protected val tempProjectsDir = amperMobileTestsRoot / "tempProjects"
+    val tempProjectsDir = amperMobileTestsRoot / "tempProjects"
     protected val scriptsDir = amperMobileTestsRoot / "scripts"
 
     private val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
@@ -95,7 +95,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
             environment = buildMap {
                 if (isRunningInTeamCity()) {
                     this["GIT_SSH_COMMAND"] =
-                        "ssh -i /mnt/agent/temp/buildTmp/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+                        "ssh -i ~/temp/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
                 }
             },
             redirectErrorStream = true,
