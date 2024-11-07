@@ -8,15 +8,18 @@ import com.github.ajalt.clikt.command.main
 import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
+import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.TaskExecutor
 import kotlin.system.exitProcess
 
 suspend fun main(args: Array<String>) {
     try {
         TelemetryEnvironment.setup()
-        spanBuilder("Root").use {
-            RootCommand().main(args)
-        }
+        spanBuilder("Root")
+            .setListAttribute("args", args.toList())
+            .use {
+                RootCommand().main(args)
+            }
     } catch (t: Throwable) {
         System.err.println()
         System.err.println("ERROR: ${t.message}")
