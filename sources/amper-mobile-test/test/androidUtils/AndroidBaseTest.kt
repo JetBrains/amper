@@ -18,7 +18,7 @@ open class AndroidBaseTest : TestBase() {
 
     @AfterEach
     fun cleanup() {
-        //tempProjectsDir.deleteRecursively()
+        tempProjectsDir.deleteRecursively()
     }
 
     /**
