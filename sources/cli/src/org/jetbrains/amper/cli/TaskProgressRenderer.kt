@@ -23,13 +23,19 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.engine.TaskProgressListener
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.Collections.swap
+import kotlin.time.ComparableTimeMark
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 @OptIn(FlowPreview::class)
-class TaskProgressRenderer(private val terminal: Terminal, private val coroutineScope: CoroutineScope) : TaskProgressListener {
-    private data class ThreadState(val name: String?, val startTime: Instant, val elapsedSeconds: Long)
+class TaskProgressRenderer(
+    private val terminal: Terminal,
+    private val coroutineScope: CoroutineScope,
+    private val timeSource: TimeSource.WithComparableMarks = TimeSource.Monotonic,
+) : TaskProgressListener {
+    private data class ThreadState(val name: String?, val startTime: ComparableTimeMark, val elapsed: Duration)
 
     private val maxTasksOnScreen
         get() = terminal.size.height / 3
@@ -62,8 +68,8 @@ class TaskProgressRenderer(private val terminal: Terminal, private val coroutine
                                     style = terminal.theme.info
                                 }
 
-                                if (threadState.elapsedSeconds >= 1) {
-                                    cell("${threadState.elapsedSeconds}s") {
+                                if (threadState.elapsed >= 1.seconds) {
+                                    cell(threadState.elapsed.toString()) {
                                         style = terminal.theme.muted
                                     }
                                 }
@@ -102,7 +108,7 @@ class TaskProgressRenderer(private val terminal: Terminal, private val coroutine
 
     private fun updateState() {
         updateFlow.update { old ->
-            old.map { it.copy(elapsedSeconds = ChronoUnit.SECONDS.between(it.startTime, Instant.now())) }
+            old.map { it.copy(elapsed = it.startTime.elapsedNow().roundToTheSecond()) }
         }
     }
 
@@ -138,7 +144,7 @@ class TaskProgressRenderer(private val terminal: Terminal, private val coroutine
 
     override fun taskStarted(taskName: TaskName): TaskProgressListener.TaskProgressCookie {
         val job = coroutineScope.launch(Dispatchers.IO) {
-            val newThreadState = ThreadState(taskName.name, startTime = Instant.now(), elapsedSeconds = 0)
+            val newThreadState = ThreadState(taskName.name, startTime = timeSource.markNow(), elapsed = Duration.ZERO)
             delay(200)
             updateFlow.update { current ->
                 val mutable = current.toMutableList()
@@ -164,7 +170,7 @@ class TaskProgressRenderer(private val terminal: Terminal, private val coroutine
                     val mutable = current.toMutableList()
                     val taskIndex = mutable.indexOfFirst { it.name == taskName.name }
                     if (taskIndex >= 0) {
-                        mutable[taskIndex] = ThreadState(null, startTime = Instant.now(), elapsedSeconds = 0)
+                        mutable[taskIndex] = ThreadState(null, startTime = timeSource.markNow(), elapsed = Duration.ZERO)
                     }
                     trimOverflow(mutable)
                     mutable
@@ -173,3 +179,5 @@ class TaskProgressRenderer(private val terminal: Terminal, private val coroutine
         }
     }
 }
+
+private fun Duration.roundToTheSecond(): Duration = inWholeSeconds.seconds
