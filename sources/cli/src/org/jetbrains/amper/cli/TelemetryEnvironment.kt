@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
-import io.opentelemetry.exporter.logging.otlp.OtlpJsonLoggingSpanExporter
+import io.opentelemetry.exporter.logging.otlp.internal.traces.OtlpStdoutSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
@@ -26,7 +26,7 @@ import kotlin.io.path.pathString
 
 object TelemetryEnvironment {
 
-    private val otlpLogger = Logger.getLogger(OtlpJsonLoggingSpanExporter::class.java.getName())
+    private val otlpLogger = Logger.getLogger("OtlpLogger")
 
     private val resource: Resource = Resource.create(
         Attributes.builder()
@@ -52,8 +52,12 @@ object TelemetryEnvironment {
         // traces are not exported until we set the logs root directory
         otlpLogger.level = Level.OFF
 
+        val exporter = OtlpStdoutSpanExporter.builder()
+            .setOutput(otlpLogger)
+            .setWrapperJsonObject(true)
+            .build()
         val tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(BatchSpanProcessor.builder(OtlpJsonLoggingSpanExporter.create()).build())
+            .addSpanProcessor(BatchSpanProcessor.builder(exporter).build())
             .setResource(resource)
             .build()
         val openTelemetry = OpenTelemetrySdk.builder()
@@ -72,7 +76,5 @@ object TelemetryEnvironment {
 }
 
 private object MessageOnlyFormatter : Formatter() {
-    // we have to wrap it in resourceSpans ourselves, apparently:
-    // https://github.com/open-telemetry/opentelemetry-java/issues/6749
-    override fun format(record: LogRecord?): String = """{"resourceSpans":[${formatMessage(record)}]}""" + "\n"
+    override fun format(record: LogRecord?): String = "${formatMessage(record)}\n"
 }
