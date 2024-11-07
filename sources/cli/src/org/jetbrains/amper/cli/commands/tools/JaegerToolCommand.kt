@@ -45,7 +45,7 @@ internal class JaegerToolCommand: AmperSubcommand(name = "jaeger") {
         .int().default(16686)
 
     private val version by option("--jaeger-version", help = "The version of Jaeger to download and run")
-        .default("1.61.0")
+        .default("1.62.0")
 
     private val jaegerArguments by argument(name = "jaeger_arguments").multiple()
 
