@@ -7,26 +7,37 @@ package org.jetbrains.amper.cli
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
-import io.opentelemetry.exporter.logging.otlp.internal.traces.OtlpStdoutSpanExporter
+import io.opentelemetry.exporter.internal.otlp.traces.TraceRequestMarshaler
+import io.opentelemetry.exporter.logging.otlp.internal.writer.JsonWriter
+import io.opentelemetry.exporter.logging.otlp.internal.writer.StreamJsonWriter
 import io.opentelemetry.sdk.OpenTelemetrySdk
+import io.opentelemetry.sdk.common.CompletableResultCode
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
+import io.opentelemetry.sdk.trace.export.SpanExporter
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jetbrains.amper.core.AmperBuild
 import org.slf4j.LoggerFactory
+import java.io.BufferedOutputStream
+import java.io.OutputStream
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
+import java.nio.file.Path
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.util.logging.FileHandler
-import java.util.logging.Formatter
-import java.util.logging.Level
-import java.util.logging.LogRecord
-import java.util.logging.Logger
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
-import kotlin.io.path.pathString
+import kotlin.io.path.outputStream
 
 object TelemetryEnvironment {
 
-    private val otlpLogger = Logger.getLogger("OtlpLogger")
+    private val deferredSpansFile = DeferredFile()
 
     private val resource: Resource = Resource.create(
         Attributes.builder()
@@ -42,20 +53,11 @@ object TelemetryEnvironment {
 
     fun setLogsRootDirectory(amperBuildLogsRoot: AmperBuildLogsRoot) {
         val spansFile = amperBuildLogsRoot.path.resolve("opentelemetry_traces.jsonl")
-        val fileHandler = FileHandler(spansFile.pathString, true) // true to append, false to overwrite
-        fileHandler.formatter = MessageOnlyFormatter
-        otlpLogger.addHandler(fileHandler)
-        otlpLogger.level = Level.ALL
+        deferredSpansFile.setFile(spansFile)
     }
 
     fun setup() {
-        // traces are not exported until we set the logs root directory
-        otlpLogger.level = Level.OFF
-
-        val exporter = OtlpStdoutSpanExporter.builder()
-            .setOutput(otlpLogger)
-            .setWrapperJsonObject(true)
-            .build()
+        val exporter = OtlpStdoutSpanExporter(deferredSpansFile.outputStream)
         val tracerProvider = SdkTracerProvider.builder()
             .addSpanProcessor(BatchSpanProcessor.builder(exporter).build())
             .setResource(resource)
@@ -75,6 +77,65 @@ object TelemetryEnvironment {
     }
 }
 
-private object MessageOnlyFormatter : Formatter() {
-    override fun format(record: LogRecord?): String = "${formatMessage(record)}\n"
+/**
+ * Represents a file whose location is initially unknown.
+ *
+ * Writing to [outputStream] initially writes to an in-memory buffer.
+ * Once [setFile] is called, an asynchronous copy of the in-memory buffer is started, and continues to run indefinitely.
+ * Data can still be written to [outputStream] concurrently and goes to the file through the buffer.
+ */
+private class DeferredFile {
+    private val pipeEntrance = PipedOutputStream()
+    private val pipeExit = PipedInputStream(pipeEntrance)
+
+    /**
+     * The stream to write the data to, so it eventually gets to the file.
+     */
+    val outputStream = BufferedOutputStream(pipeEntrance) // this buffer should be sufficient while waiting for the file
+
+    private val fileSet = AtomicBoolean(false)
+
+    @OptIn(DelicateCoroutinesApi::class) // we do want a coroutine that lives until Amper terminates, to flush to the file
+    fun setFile(path: Path) {
+        if (fileSet.compareAndSet(false, true)) {
+            GlobalScope.launch(CoroutineName("telemetry-pipe") + Dispatchers.IO) {
+                pipeExit.use { input ->
+                    path.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            }
+        } else {
+            error("File path has already been set.")
+        }
+    }
+}
+
+// TODO remove this. This is a simplified copy of the real OtlpStdoutSpanExporter that we temporarily use while waiting
+//  for the fix of this issue to be released: https://github.com/open-telemetry/opentelemetry-java/issues/6836
+private class OtlpStdoutSpanExporter(private val outputStream: OutputStream) : SpanExporter {
+    private val isShutdown = AtomicBoolean()
+    private val jsonWriter: JsonWriter = StreamJsonWriter(outputStream, "spans")
+
+    override fun export(spans: Collection<SpanData>): CompletableResultCode {
+        if (isShutdown.get()) {
+            return CompletableResultCode.ofFailure()
+        }
+        val request = TraceRequestMarshaler.create(spans)
+        val result = jsonWriter.write(request)
+        jsonWriter.flush()
+        outputStream.write('\n'.code) // this is the bit that the built-in OtlpStdoutSpanExporter is missing
+        return result
+    }
+
+    override fun flush(): CompletableResultCode {
+        return jsonWriter.flush()
+    }
+
+    override fun shutdown(): CompletableResultCode {
+        if (isShutdown.compareAndSet(false, true)) {
+            jsonWriter.close()
+        }
+        return CompletableResultCode.ofSuccess()
+    }
 }
