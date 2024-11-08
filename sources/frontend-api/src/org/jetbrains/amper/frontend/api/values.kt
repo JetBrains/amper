@@ -46,6 +46,22 @@ abstract class SchemaNode : Traceable {
     internal fun <T : Any> value(default: T) = SchemaValueProvider(Default.Static(default))
 
     /**
+     * Register a value with a default depending on another property
+     */
+    internal fun <T : Any> dependentValue(
+        property: KProperty0<T>
+    ) = SchemaValueProvider(Default.Dependent<T, T>("Inherited from '${property.name}'", property))
+
+    /**
+     * Register a value with a default depending on another property
+     */
+    internal fun <T, V: Any> dependentValue(
+        property: KProperty0<T>,
+        desc: String? = null,
+        transformValue: (value: T) -> V?
+    ) = SchemaValueProvider(Default.Dependent(desc ?: "Computed from '${property.name}", property, transformValue))
+
+    /**
      * Register a value with a lazy default.
      */
     // the default value is nullable to allow performing validation without crashing (using "unsafe" access)
@@ -64,7 +80,7 @@ abstract class SchemaNode : Traceable {
     /**
      * Register a nullable value with a lazy default.
      */
-    internal fun <T : Any> nullableValue(default: () -> T?) = NullableSchemaValueProvider(Default.Lambda(desc = null, default))
+    internal fun <T : Any> nullableValue(desc: String? = null, default: () -> T?) = NullableSchemaValueProvider(Default.Lambda(desc = desc, default))
 
     override var trace: Trace? = null
         set(value) {
@@ -79,6 +95,15 @@ sealed class Default<T> {
     data class Static<T>(override val value: T) : Default<T>()
     data class Lambda<T>(val desc: String?, private val getter: () -> T?) : Default<T>() {
         override val value by lazy { getter() }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    data class Dependent<T, V>(
+        val desc: String,
+        val property: KProperty0<T>,
+        private val transformValue: (value: T) -> V? = { it as? V }
+    ) : Default<V>() {
+        override val value by lazy { transformValue(property.get()) }
     }
 }
 
@@ -114,7 +139,14 @@ sealed class ValueBase<T>(
 
     abstract val value: T
 
-    val unsafe: T? get() = myValue ?: default?.value
+    val unsafe: T? get() = valueOrDefault()
+
+    protected fun valueOrDefault(): T? = myValue ?: default?.let { default ->
+        if (default is Default.Dependent<*, *>) {
+            trace = DependentValueTrace(default.property.valueBase)
+        }
+        default.value
+    }
 
     val withoutDefault: T? get() = myValue
 
@@ -149,9 +181,11 @@ sealed class ValueBase<T>(
         }
 }
 
+@Suppress("UNCHECKED_CAST")
 fun <T, V> KProperty1<T, V>.valueBase(receiver: T): ValueBase<V>? =
     apply { isAccessible = true }.getDelegate(receiver) as? ValueBase<V>
 
+@Suppress("UNCHECKED_CAST")
 val <T> KProperty0<T>.valueBase: ValueBase<T>? get() =
     apply { isAccessible = true }.getDelegate() as? ValueBase<T>
 
@@ -170,7 +204,7 @@ val <T> KProperty0<T>.unsafe: T? get() {
  */
 class SchemaValue<T : Any>(property: KProperty<*>, default: Default<T>?) : ValueBase<T>(property, default) {
     override val value: T
-        get() = myValue ?: default?.value ?: error("No value")
+        get() = valueOrDefault() ?: error("No value")
 
     /**
      * Overwrite current value, if provided value is not null.

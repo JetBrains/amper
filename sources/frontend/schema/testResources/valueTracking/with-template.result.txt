@@ -8,7 +8,7 @@
 
    kotlin:
       allWarningsAsErrors: false [default]
-      apiVersion: 2.0 [default]
+      apiVersion: 2.0 [Inherited from 'languageVersion']
       debug: true [default]
       ksp:
          processorOptions: {} [default]
@@ -18,7 +18,7 @@
       languageVersion: 2.0 [default]
       progressiveMode: false [default]
       serialization:
-         enabled: false [default]
+         enabled: false [Enabled when 'format' is specified]
          format:
 
          version: 1.7.3 [default]

@@ -6,10 +6,12 @@ package org.jetbrains.amper.frontend.messages
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.BuildProblem
+import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.frontend.api.DependentValueTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
 import kotlin.reflect.KProperty0
@@ -32,10 +34,14 @@ fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? {
 
 fun Traceable.extractPsiElement(): PsiElement {
     val trace = trace
+    if (trace is DependentValueTrace) trace.precedingValue?.extractPsiElement()
     check(trace is PsiTrace) { "Can't extract PSI element from traceable ${this}. Expected to have PSI trace, but has ${trace?.javaClass}" }
     return trace.psiElement
 }
 
-fun Traceable.extractPsiElementOrNull(): PsiElement? {
-    return (trace as? PsiTrace)?.psiElement
+fun Trace.extractPsiElementOrNull(): PsiElement? {
+    if (this is DependentValueTrace) this.precedingValue?.extractPsiElementOrNull()
+    return (this as? PsiTrace)?.psiElement
 }
+
+fun Traceable.extractPsiElementOrNull(): PsiElement? = trace?.extractPsiElementOrNull()

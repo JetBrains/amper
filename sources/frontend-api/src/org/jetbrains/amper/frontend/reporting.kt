@@ -6,8 +6,8 @@ package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.BuildProblemId
+import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.LineAndColumn
@@ -15,10 +15,10 @@ import org.jetbrains.amper.core.messages.LineAndColumnRange
 import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import kotlin.reflect.KProperty0
 
 object SchemaBundle : MessageBundle("messages.SchemaBundle")
@@ -42,19 +42,22 @@ fun MessageBundle.reportBundleError(
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-): Nothing? = when (val trace = value?.trace) {
-    is PsiTrace -> reportBundleError(
-        node = trace.psiElement,
-        messageKey = messageKey,
-        *arguments,
-        level = level,
-    )
-    else -> reportError(
-        message = message(messageKey, *arguments),
-        level = level,
-        node = null as PsiElement?,
-        buildProblemId = messageKey,
-    )
+): Nothing? {
+    val psiElement = value?.extractPsiElementOrNull()
+    return when {
+        psiElement != null -> reportBundleError(
+            node = psiElement,
+            messageKey = messageKey,
+            *arguments,
+            level = level,
+        )
+        else -> reportError(
+            message = message(messageKey, *arguments),
+            level = level,
+            node = null as PsiElement?,
+            buildProblemId = messageKey,
+        )
+    }
 }
 
 context(ProblemReporterContext)

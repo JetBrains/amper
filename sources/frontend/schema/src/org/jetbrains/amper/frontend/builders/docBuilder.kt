@@ -162,5 +162,6 @@ class DocBuilder private constructor(
     private val Default<*>.asString get() = when(this) {
         is Default.Static -> (value as? SchemaEnum)?.schemaValue ?: ((value as? TraceableEnum<*>)?.value as? SchemaEnum)?.schemaValue ?: value?.toString()
         is Default.Lambda -> desc
+        is Default.Dependent<*, *> -> desc
     }
 }

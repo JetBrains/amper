@@ -114,7 +114,7 @@ class AndroidSettings : SchemaNode() {
 
     @SchemaDoc("The API level to compile the code. The code can use only the Android APIs up to that API level. " +
             "[Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())")
-    var compileSdk by value { targetSdk }
+    var compileSdk by dependentValue(::targetSdk)
 
     @SchemaDoc("A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. " +
             "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
@@ -123,7 +123,7 @@ class AndroidSettings : SchemaNode() {
     @SchemaDoc("The ID for the application on a device and in the Google Play Store. " +
             "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
     @ProductTypeSpecific(ProductType.ANDROID_APP)
-    var applicationId by value { namespace }
+    var applicationId by dependentValue(::namespace)
 
     @SchemaDoc("Application signing settings. " +
     "[Read more](https://developer.android.com/studio/publish/app-signing)")

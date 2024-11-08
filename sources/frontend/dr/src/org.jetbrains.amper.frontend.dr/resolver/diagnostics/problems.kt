@@ -13,11 +13,11 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.dependency.resolution.message
-import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.fragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 
 @UsedInIdePlugin
 fun DependencyNode.reportBuildProblems(problemReporter: ProblemReporter) {
@@ -26,7 +26,7 @@ fun DependencyNode.reportBuildProblems(problemReporter: ProblemReporter) {
     val importantMessages = messages.filter { it.severity > Severity.INFO && it.toString().isNotBlank() }
     for (directDependency in fragmentDependencies) {
         // for every direct module dependency referencing this dependency node
-        val psiElement = (directDependency.notation?.trace as? PsiTrace)?.psiElement
+        val psiElement = directDependency.notation?.trace?.extractPsiElementOrNull()
 
         if (psiElement != null) {
             for (message in importantMessages) {
@@ -54,7 +54,7 @@ fun DependencyNode.reportOverriddenDirectModuleDependencies(reporter: ProblemRep
         && this.dependencyNode.version != this.dependencyNode.dependency.version)
     {
         // for every direct module dependency referencing this dependency node
-        val psiElement = (notation?.trace as? PsiTrace)?.psiElement
+        val psiElement = notation?.trace?.extractPsiElementOrNull()
         if (psiElement != null) {
             reporter.reportMessage(
                 ModuleDependencyWithOverriddenVersion(

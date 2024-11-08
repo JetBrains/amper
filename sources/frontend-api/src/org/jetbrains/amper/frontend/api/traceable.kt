@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.api
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.VersionCatalog
 import java.nio.file.Path
-import kotlin.reflect.KProperty0
 
 /**
  * A trace is a backreference that allows to determine the source of the model property/value.
@@ -16,6 +15,8 @@ import kotlin.reflect.KProperty0
 sealed interface Trace {
     val precedingValue: ValueBase<*>?
 }
+
+class DependentValueTrace(override val precedingValue: ValueBase<*>? = null) : Trace
 
 /**
  * Property with this trace originates from the node of a PSI tree, in most cases from the manifest file.
@@ -31,6 +32,7 @@ class BuiltinCatalogTrace(val catalog: VersionCatalog) : Trace {
 
 fun <V> Trace.withPrecedingValue(precedingValue: ValueBase<V>?): Trace =
     if (precedingValue != null && this is PsiTrace) PsiTrace(this.psiElement, precedingValue)
+    else if (precedingValue != null && this is DependentValueTrace) DependentValueTrace(precedingValue)
     else this
 
 /**
@@ -70,9 +72,6 @@ class TraceablePath(
     override fun equals(other: Any?) =
         this === other || (other as? TraceablePath)?.value == value
 }
-
-// TODO Replace by traceability generalization.
-fun KProperty0<String>.toTraceableString(): TraceableString = TraceableString(get()).withTraceFrom(this.valueBase)
 
 fun <T : Traceable> T.withTraceFrom(other: Traceable?): T = apply { trace = other?.trace }
 

@@ -14,7 +14,6 @@ import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
-import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 
 
@@ -70,7 +69,7 @@ class ComposeSettings : SchemaNode() {
     var enabled by value(default = false)
 
     @SchemaDoc("The Compose plugin version")
-    var version by nullableValue<String> { UsedVersions.composeVersion.takeIf { enabled } }
+    var version by nullableValue<String>("Built-in Compose version") { UsedVersions.composeVersion.takeIf { enabled } }
 
     @SchemaDoc("Compose Resources settings")
     var resources by value(::ComposeResourcesSettings)
@@ -105,7 +104,7 @@ class SerializationSettings : SchemaNode() {
             "@Serializable annotations. This also automatically adds the kotlinx-serialization-core library to " +
             "provide the annotations and facilities for serialization, but no specific serialization format.")
     // if a format is specified, we need to enable serialization (mostly to be backwards compatible)
-    var enabled by value(default = { format != null })
+    var enabled by dependentValue<String?, Boolean>(::format, "Enabled when 'format' is specified") { it != null }
 
     @Shorthand
     @SchemaDoc("The [kotlinx.serialization format](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md) " +

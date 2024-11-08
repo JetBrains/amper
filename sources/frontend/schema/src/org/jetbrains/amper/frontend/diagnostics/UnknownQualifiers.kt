@@ -8,8 +8,8 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.withoutDefault
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
@@ -39,12 +39,12 @@ object UnknownQualifiers : IsmDiagnosticFactory {
         val unknownModifiers = this
             .filter { modifier -> modifier.value !in knownAliases }
             .filter { modifier -> modifier.value !in knownPlatforms }
-            .filter { modifier -> modifier.value != "test" || (modifier.trace as? PsiTrace)?.psiElement?.language?.id != "Amper" }
+            .filter { modifier -> modifier.value != "test" || (modifier.trace?.extractPsiElementOrNull())?.language?.id != "Amper" }
 
         if (unknownModifiers.isNotEmpty()) {
             val firstModifier = unknownModifiers.first()
 
-            if ((firstModifier.trace as? PsiTrace)?.psiElement?.parent is YAMLPsiElement) {
+            if (firstModifier.trace?.extractPsiElementOrNull()?.parent is YAMLPsiElement) {
                 // In YAML `+` separated qualifiers are mapped to a single PsiElement (key of YAMLKeyValue),
                 // so we do a single report here.
                 SchemaBundle.reportBundleError(

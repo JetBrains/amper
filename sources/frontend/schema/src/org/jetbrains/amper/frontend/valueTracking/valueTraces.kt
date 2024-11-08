@@ -11,6 +11,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.PsiTrace
@@ -20,6 +21,8 @@ import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.ProductType
 import kotlin.reflect.full.findAnnotation
 
@@ -43,6 +46,7 @@ private sealed class PropertyWithSource(
 
 sealed class ValueSource {
     data object Default : ValueSource()
+    class DependentDefault(val desc: String, val element: PsiElement?): ValueSource()
     class Element(val element: PsiElement) : ValueSource()
 }
 
@@ -92,8 +96,14 @@ private class CollectingVisitor(
                 PropertyWithSource.PropertyWithPrimitiveValue(
                     valueBase.property.name,
                     (valueBase.trace as? PsiTrace)?.let { ValueSource.Element(it.psiElement) }
-                        ?: valueBase.default?.takeIf { valueBase.trace == null && valueBase.value == valueBase.default!!.value }
-                            ?.let { ValueSource.Default },
+                        ?: valueBase.default?.takeIf { valueBase.value == valueBase.default!!.value }
+                            ?.let { def ->
+                                if (def is Default.Dependent<*, *>) {
+                                    ValueSource.DependentDefault(def.desc,
+                                        def.property.valueBase?.extractPsiElementOrNull())
+                                }
+                                else ValueSource.Default.takeIf { valueBase.trace == null }
+                            },
                     value,
                     applicablePlatforms,
                     applicableProductTypes
@@ -231,6 +241,11 @@ private fun sourcePostfix(
 ): String {
     val sourceName = when (it.source) {
         ValueSource.Default -> "default"
+        is ValueSource.DependentDefault -> it.source.desc + (it.source.element?.let { element ->
+            getFileName(element, containingFile, presentation)?.let {
+                if (it.isNotBlank()) " @ $it" else ""
+            }
+        }.orEmpty())
         is ValueSource.Element -> getFileName(it.source.element, containingFile, presentation)
         null -> null
     }

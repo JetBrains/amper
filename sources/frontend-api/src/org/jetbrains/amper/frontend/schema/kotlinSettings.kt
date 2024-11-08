@@ -40,7 +40,7 @@ class KotlinSettings : SchemaNode() {
     var languageVersion by value(KotlinVersion.Kotlin20)
 
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")
-    var apiVersion by value { languageVersion }
+    var apiVersion by dependentValue(::languageVersion)
 
     @SchemaDoc("Turn any warnings into a compilation error")
     var allWarningsAsErrors by value(false)

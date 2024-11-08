@@ -9,9 +9,9 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.Module
 import kotlin.io.path.exists
 
@@ -23,7 +23,7 @@ object UnresolvedTemplate : IsmDiagnosticFactory {
         this::apply.unsafe?.let {
             for (path in it) {
                 if (!path.value.exists()) {
-                    (path.trace as? PsiTrace)?.psiElement?.let {
+                    path.trace?.extractPsiElementOrNull()?.let {
                         problemReporter.reportMessage(
                             object : PsiBuildProblem(Level.Error) {
                                 override val element: PsiElement = it

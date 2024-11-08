@@ -80,7 +80,7 @@ class Repository : SchemaNode() {
     var url by value<String>()
 
     @SchemaDoc("The ID of the repository, used for to reference it. Defaults to the repository url")
-    var id by value { url }
+    var id by dependentValue(::url)
 
     @SchemaDoc("Credentials for the authenticated repositories")
     var credentials by nullableValue<Credentials>()
