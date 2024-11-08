@@ -102,7 +102,7 @@ class ModuleProduct : SchemaNode() {
     var type by value<ProductType>()
 
     @SchemaDoc("What platforms to generate the product for")
-    var platforms by value<List<TraceableEnum<Platform>>> { ::type.unsafe?.defaultPlatforms?.toList()?.map(Platform::asTraceable) }
+    var platforms by dependentValue(::type) { it?.defaultPlatforms?.toList()?.map(Platform::asTraceable) }
 }
 
 const val productShortForm = """

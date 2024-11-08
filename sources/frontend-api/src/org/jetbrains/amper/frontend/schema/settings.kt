@@ -104,7 +104,7 @@ class SerializationSettings : SchemaNode() {
             "@Serializable annotations. This also automatically adds the kotlinx-serialization-core library to " +
             "provide the annotations and facilities for serialization, but no specific serialization format.")
     // if a format is specified, we need to enable serialization (mostly to be backwards compatible)
-    var enabled by dependentValue<String?, Boolean>(::format, "Enabled when 'format' is specified") { it != null }
+    var enabled by dependentValue(::format, "Enabled when 'format' is specified") { it != null }
 
     @Shorthand
     @SchemaDoc("The [kotlinx.serialization format](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md) " +

@@ -58,8 +58,8 @@ abstract class SchemaNode : Traceable {
     internal fun <T, V: Any> dependentValue(
         property: KProperty0<T>,
         desc: String? = null,
-        transformValue: (value: T) -> V?
-    ) = SchemaValueProvider(Default.Dependent(desc ?: "Computed from '${property.name}", property, transformValue))
+        transformValue: (value: T?) -> V?
+    ) = SchemaValueProvider(Default.Dependent(desc ?: "Computed from '${property.name}'", property, transformValue))
 
     /**
      * Register a value with a lazy default.
@@ -101,9 +101,9 @@ sealed class Default<T> {
     data class Dependent<T, V>(
         val desc: String,
         val property: KProperty0<T>,
-        private val transformValue: (value: T) -> V? = { it as? V }
+        private val transformValue: (value: T?) -> V? = { it as? V }
     ) : Default<V>() {
-        override val value by lazy { transformValue(property.get()) }
+        override val value by lazy { transformValue(property.unsafe) }
     }
 }
 
@@ -143,6 +143,7 @@ sealed class ValueBase<T>(
 
     protected fun valueOrDefault(): T? = myValue ?: default?.let { default ->
         if (default is Default.Dependent<*, *>) {
+            default.property.isAccessible = true
             trace = DependentValueTrace(default.property.valueBase)
         }
         default.value
