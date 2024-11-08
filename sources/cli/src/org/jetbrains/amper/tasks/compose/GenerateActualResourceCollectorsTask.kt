@@ -24,6 +24,7 @@ class GenerateActualResourceCollectorsTask(
     override val taskName: TaskName,
     private val fragment: Fragment,
     private val packageName: String,
+    private val shouldGenerateCode: () -> Boolean,
     private val buildOutputRoot: AmperBuildOutputRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val makeAccessorsPublic: Boolean,
@@ -36,7 +37,7 @@ class GenerateActualResourceCollectorsTask(
 
         val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
 
-        if (resourceAccessorDirs.isEmpty()) {
+        if (!shouldGenerateCode()) {
             codeDir.deleteRecursively()
             return Result(emptyList())
         }

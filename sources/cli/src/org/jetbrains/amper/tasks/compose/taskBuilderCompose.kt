@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.tasks.compose
 
-import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
@@ -126,6 +126,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                         taskName = taskName,
                         fragment = fragment,
                         packageName = packageName,
+                        shouldGenerateCode = shouldGenerateCode,
                         makeAccessorsPublic = makeAccessorsPublic,
                         buildOutputRoot = context.buildOutputRoot,
                         useActualModifier = shouldSeparateExpectActual,
