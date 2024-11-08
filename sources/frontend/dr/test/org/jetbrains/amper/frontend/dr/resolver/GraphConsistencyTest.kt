@@ -38,7 +38,7 @@ class GraphConsistencyTest {
     @Test
     fun `check parents in a dependencies graph - classpath`() = checkParentsInDependenciesGraph(
         ResolutionInput(
-            DependenciesFlowType.ClassPathType(ResolutionScope.RUNTIME, ResolutionPlatform.JVM, false),
+            DependenciesFlowType.ClassPathType(ResolutionScope.RUNTIME, setOf(ResolutionPlatform.JVM), isTest = false),
             ResolutionDepth.GRAPH_FULL
         )
     )

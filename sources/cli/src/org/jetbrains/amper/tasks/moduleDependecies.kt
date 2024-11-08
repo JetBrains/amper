@@ -40,7 +40,7 @@ internal fun AmperModule.buildDependenciesGraph(
 
     return with(moduleDependenciesResolver) {
         resolveDependenciesGraph(
-            DependenciesFlowType.ClassPathType(dependencyReason, resolutionPlatform, isTest),
+            DependenciesFlowType.ClassPathType(dependencyReason, setOf(resolutionPlatform), isTest),
             getAmperFileCacheBuilder(userCacheRoot)
         )
     }

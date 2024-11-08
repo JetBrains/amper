@@ -9,10 +9,11 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.FragmentLink
-import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.LocalModuleDependency
+import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
@@ -75,55 +76,85 @@ internal class IdeSync(
         return node
     }
 
+   /**
+    * The method returns list of direct fragment maven dependencies in the case of single-platform module
+    * (or more precisely if this fragment belongs to a single-platform module,
+    *  and depends on single-platform fragments of other modules only).
+    *
+    * In the case of a multiplatform project,
+    * it resolves all 'COMPILE' maven dependencies declared for this fragment directly as well as those declared for fragments this
+    * fragment depends on transitively (taking the flag 'exported' into account).
+    * And return those as a plain list of this fragment direct dependencies.
+    *
+    * The reason for this is the following: maven dependencies taken from the fragments of other modules
+    * should be resolved in the context of the target platforms of this fragment (the one being resolved).
+    * Such dependencies cannot be reused from the result of the other fragment resolution targeting a broader set of platforms,
+    * because only a sub-set of the KMP library's source sets would be added as actual dependency (in klib form) for the other fragment.
+    * (those conforming to all platforms declared in the other multiplatform fragment).
+    *
+    * Being resolved in the context of the current fragment,
+    * such dependencies provide the appropriate API and runtime for the being resolved fragment target platforms.
+    *
+    * Resolution of the complete COMPILE maven dependencies graph is performed by [Classpath] flow with COMPILE resolution scope.
+    * (flag 'exported' takes effect in the case of native modules during graph resolution)
+    */
     private fun Fragment.toGraph(repositories: List<Repository>, fileCacheBuilder: FileCacheBuilder.() -> Unit): List<DirectFragmentDependencyNodeHolder> {
-        val dependencies = externalDependencies.filterIsInstance<MavenDependency>()
+        val moduleDependencies = Classpath(DependenciesFlowType.ClassPathType(
+            scope = ResolutionScope.COMPILE,
+            platforms = platforms.mapNotNull { it.toResolutionPlatform() }.toSet(),
+            includedNonExportedNative = false,
+            isTest = isTest)
+        ).directDependenciesGraph(module, fileCacheBuilder)
 
-        val sharedModuleDependencies = if (platforms.size != 1)
-            emptyList()
-        else {
-            // Find all multiplatform fragments this fragment F(P1) depends on.
-            // F(P1) -> F(P1,P2,P3)
-            // F(P1) -> F(P1,P6,P7,P8)
-            // and add external dependencies of those fragments to this one directly.
-            // Such dependencies can't be taken from multiplatform fragment dependency
-            // because such dependencies would be resolved to kmp-libraries in their own multiplatform context
-            // so that only sub-set of the library's source sets would be added as actual dependency (in klib form).
-            // (those conforming to all platforms declared in a multiplatform fragment).
-            // This way such dependencies should be resolved in context of the current single-platform fragment F(P1) as well
-            // in order to provide appropriate API and runtime for single-platform compilation and execution.
-            // Todo (AB) : Take flag 'exported' into account and go down to fragment dependencies tree transitively in that case picking up external dependencies there as well)
-            val allFragmentDeps = completeFragmentDependencies()
-                .groupBy(keySelector =  { it.target.module.userReadableName }, valueTransform = { it.target.name })
+       val directDependencies = externalDependencies
+           .filterIsInstance<MavenDependency>()
+           .map { it.toGraph(this, repositories, fileCacheBuilder) }
 
-            flowType.aom.modules.mapNotNull { module ->
-                // resolve external dependencies of ALL multiplatform fragments among current fragment dependencies
-                allFragmentDeps[module.userReadableName]?.let { deps ->
-                    module.fragments.filter { it.name in deps && it.platforms.size > 1 }.map { it.externalDependencies }.flatten()
-                }
-            }.flatten().filterIsInstance<MavenDependency>()
+        if (hasSinglePlatformDependenciesOnly(moduleDependencies)) {
+            return directDependencies
         }
 
-        val allMavenDeps = (dependencies + sharedModuleDependencies)
-            .map { it.toGraph(this, repositories, fileCacheBuilder) }
+        val allMavenDeps = moduleDependencies
+            .distinctBfsSequence()
+            .filterIsInstance<DirectFragmentDependencyNodeHolder>()
+            .filter { it.notation is MavenDependency }
+            .sortedByDescending { it.fragment == this }
+            .distinctBy { it.dependencyNode }
+            .map {
+                val mavenDependencyNotation = it.notation as MavenDependency
+                val context = mavenDependencyNotation.resolveContext(this, fileCacheBuilder, repositories)
+                mavenDependencyNotation.toFragmentDirectDependencyNode(this, context)
+            }.toList()
 
         return allMavenDeps
     }
 
-    private fun Fragment.completeFragmentDependencies(): Set<FragmentLink> {
-        val resultSet = mutableSetOf<FragmentLink>()
-        completeFragmentDependencies(resultSet)
-        return resultSet
-    }
+    private fun AmperModule.platforms(): Set<Platform> = fragments.flatMap { it.platforms }.toSet()
 
-    private fun Fragment.completeFragmentDependencies(result: MutableSet<FragmentLink>) {
-        this.fragmentDependencies.forEach {
-            if (result.add(it)) {
-                it.target.completeFragmentDependencies(result)
-            }
+    private fun Fragment.hasSinglePlatformDependenciesOnly(moduleDependencies: ModuleDependencyNodeWithModule): Boolean {
+        if (platforms.size == 1 && module.fragments.all { it.platforms == platforms }) {
+            val localModules = moduleDependencies
+                .distinctBfsSequence()
+                .filter { it is ModuleDependencyNodeWithModule && it.notation is LocalModuleDependency }
+                .map { ((it as ModuleDependencyNodeWithModule).notation as LocalModuleDependency).module }
+                .toSet()
+
+            return localModules.all { it.platforms() == platforms }
         }
+        return false
     }
 
     private fun MavenDependency.toGraph(fragment: Fragment, repositories: List<Repository>, fileCacheBuilder: FileCacheBuilder.() -> Unit): DirectFragmentDependencyNodeHolder {
+        val context = resolveContext(fragment, fileCacheBuilder, repositories)
+        val node = toFragmentDirectDependencyNode(fragment, context)
+        return node
+    }
+
+    private fun MavenDependency.resolveContext(
+        fragment: Fragment,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        repositories: List<Repository>
+    ): Context {
         val context = contextMap.computeIfAbsent(
             ContextKey(
                 // Todo (AB) : Prefer COMPILE here (and don't use Ide module dependencies as a runtime classpath)
@@ -141,9 +172,7 @@ internal class IdeSync(
                 it.copyWithNewNodeCache(emptyList(), repositories)
             } else it
         }
-
-        val node = toFragmentDirectDependencyNode(fragment, context)
-        return node
+        return context
     }
 }
 

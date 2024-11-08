@@ -1,0 +1,14 @@
+product:
+  type: lib
+  platforms: [jvm, android, iosSimulatorArm64, iosX64, iosArm64 ]
+
+dependencies:
+  - $compose.foundation: exported
+  - $compose.material3: exported
+
+test-dependencies:
+  - org.tinylog:tinylog-api-kotlin:2.6.2: exported
+
+settings:
+  compose:
+    enabled: true

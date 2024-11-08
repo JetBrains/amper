@@ -13,6 +13,7 @@ import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
@@ -111,6 +112,30 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             ?.mavenRepositories
             ?.map { Repository(it.url, it.userName, it.password) }
             ?: defaultRepositories.map { Repository(it)}
+
+    /**
+     * Returns all fragments in this module that target the given [platform].
+     * If [includeTestFragments] is false, only production fragments are returned.
+     */
+    protected fun AmperModule.fragmentsTargeting(platforms: Set<Platform>, includeTestFragments: Boolean): List<Fragment> =
+        fragments
+            .filter { (includeTestFragments || !it.isTest) && it.platforms.containsAll(platforms) }
+            .sortedBy { it.name }
+            .ensureFirstFragment(platforms)
+
+    private fun List<Fragment>.ensureFirstFragment(platforms: Set<Platform>) =
+        if (this.isEmpty() || this[0].platforms == platforms)
+            this
+        else {
+            val fragmentWithPlatform = this.firstOrNull { it.platforms == platforms }
+            if (fragmentWithPlatform == null) {
+                this
+            } else
+                buildList {
+                    add(fragmentWithPlatform)
+                    addAll(this@ensureFirstFragment - fragmentWithPlatform)
+                }
+        }
 
     companion object {
         private val alreadyReportedHttpRepositories = ConcurrentHashMap<String, Boolean>()
