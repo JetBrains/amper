@@ -4,12 +4,12 @@
 
 package org.jetbrains.amper.gradle
 
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
 
 class AmperModuleWrapper(
     private val passedModule: AmperModule
@@ -28,8 +28,8 @@ class AmperModuleWrapper(
     override val artifacts = passedModule.artifacts.map { it.wrap(this) }
     override val fragments = passedModule.fragments.map { it.wrapped }
     override val leafFragments = passedModule.fragments.filterIsInstance<LeafFragment>().map { it.wrappedLeaf }
-    override val rootFragment = passedModule.rootFragment?.wrapped
-    override val rootTestFragment = passedModule.rootTestFragment?.wrapped
+    override val rootFragment = passedModule.rootFragment.wrapped
+    override val rootTestFragment = passedModule.rootTestFragment.wrapped
     val leafNonTestFragments = leafFragments
         .filter { !it.isTest }
     val leafTestFragments = leafFragments

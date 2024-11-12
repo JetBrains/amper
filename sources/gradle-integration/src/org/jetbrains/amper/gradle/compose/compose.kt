@@ -42,7 +42,7 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
         adjustGenerateRClassTask(project, composeResourcesDir)
 
         // Adjust source sets.
-        module.rootFragment?.kotlinSourceSet?.apply {
+        module.rootFragment.kotlinSourceSet?.apply {
             resources.srcDirs(composeResourcesDir)
             dependencies {
                 implementation("org.jetbrains.compose.runtime:runtime:$composeVersion")

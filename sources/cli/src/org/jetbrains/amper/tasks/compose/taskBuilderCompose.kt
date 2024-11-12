@@ -32,7 +32,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             }
         }
 
-        val rootFragment = checkNotNull(module.rootFragment) { "Root fragment expected" }
+        val rootFragment = module.rootFragment
         val config = rootFragment.settings.compose.resources
         val packageName = config.getResourcesPackageName(module)
         val makeAccessorsPublic = config.exposedAccessors
@@ -157,7 +157,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
 
 private fun ComposeResourcesSettings.getResourcesPackageName(module: AmperModule): String {
     return packageName.takeIf { it.isNotEmpty() } ?: run {
-        val packageParts = module.rootFragment?.inferPackageNameFromPublishing() ?: module.inferPackageNameFromModule()
+        val packageParts = module.rootFragment.inferPackageNameFromPublishing() ?: module.inferPackageNameFromModule()
         (packageParts + listOf("generated", "resources")).joinToString(separator = ".") {
             it.lowercase().asUnderscoredIdentifier()
         }

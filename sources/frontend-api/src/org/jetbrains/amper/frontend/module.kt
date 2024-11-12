@@ -141,9 +141,9 @@ interface AmperModule {
 
     val leafFragments get() = fragments.filterIsInstance<LeafFragment>()
 
-    val rootFragment: Fragment? get() = fragments.firstOrNull { it.fragmentDependencies.isEmpty() }
+    val rootFragment: Fragment get() = fragments.first { it.fragmentDependencies.isEmpty() }
 
-    val rootTestFragment: Fragment? get() = fragments.firstOrNull { it.isTest && it.fragmentDependencies.size == 1 }
+    val rootTestFragment: Fragment get() = fragments.first { it.isTest && it.fragmentDependencies.size == 1 }
 
     val customTasks: List<CustomTaskDescription>
 }
