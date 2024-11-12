@@ -48,9 +48,9 @@ class TaskExecutorTest {
         // if A fails, C should be still executed
 
         val builder = TaskGraphBuilder()
-        builder.registerTask(TestTask("A", throwException = true))
+        builder.registerTask(TestTask("A") { error("throw") })
         builder.registerTask(TestTask("B"), listOf(TaskName("A")))
-        builder.registerTask(TestTask("C", delayMs = 500)) // add enough time for A to cancel execution of itself
+        builder.registerTask(TestTask("C") { delay(500) }) // add enough time for A to cancel execution of itself
         builder.registerTask(TestTask("D"), listOf(TaskName("B"), TaskName("C")))
         val graph = builder.build()
         val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
@@ -72,9 +72,9 @@ class TaskExecutorTest {
         // if A fails, C should not be still executed because of FAIL_FAST mode
 
         val builder = TaskGraphBuilder()
-        builder.registerTask(TestTask("A", throwException = true))
+        builder.registerTask(TestTask("A") { error("throw") })
         builder.registerTask(TestTask("B"), listOf(TaskName("A")))
-        builder.registerTask(TestTask("C", delayMs = 500)) // add enough time for A to cancel execution of itself
+        builder.registerTask(TestTask("C") { delay(500) }) // add enough time for A to cancel execution of itself
         builder.registerTask(TestTask("D"), listOf(TaskName("B"), TaskName("C")))
         val graph = builder.build()
         val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
@@ -128,9 +128,8 @@ class TaskExecutorTest {
     private val maxParallelTasksCount = AtomicInteger(0)
     private inner class TestTask(
         val name: String,
-        val delayMs: Long = 0,
         val waitForMaxParallelTasksCount: Int? = null,
-        val throwException: Boolean = false,
+        val body: suspend () -> Unit = {},
     ): Task {
         override val taskName: TaskName
             get() = TaskName(name)
@@ -152,8 +151,7 @@ class TaskExecutorTest {
                         }
                     }
                 }
-                delay(delayMs)
-                if (throwException) error("throw")
+                body()
                 return TestTaskResult(taskName)
             } finally {
                 tasksCount.decrementAndGet()
