@@ -149,7 +149,7 @@ internal class Classpath(
             // for native platforms compilation classpath graph contains all transitive none-exported dependencies as well,
             // because native compilation (and linking) depends on entire transitive dependencies.
             // runtime-only dependencies are not included in the compilation classpath graph
-            ResolutionScope.COMPILE -> compile && (directDependencies || exported || (flowType.includedNonExportedNative && platforms.all { it.nativeTarget != null } ))
+            ResolutionScope.COMPILE -> compile && (directDependencies || exported || (flowType.includeNonExportedNative && platforms.all { it.nativeTarget != null } ))
             ResolutionScope.RUNTIME -> runtime
         }
 }

@@ -32,7 +32,7 @@ data class ResolutionInput(
 )
 
 sealed interface DependenciesFlowType {
-    data class ClassPathType(val scope: ResolutionScope, val platforms: Set<ResolutionPlatform>, val isTest: Boolean, val includedNonExportedNative: Boolean = true): DependenciesFlowType
+    data class ClassPathType(val scope: ResolutionScope, val platforms: Set<ResolutionPlatform>, val isTest: Boolean, val includeNonExportedNative: Boolean = true): DependenciesFlowType
     data class IdeSyncType(val aom: Model): DependenciesFlowType
 }
 

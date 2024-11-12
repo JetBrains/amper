@@ -102,7 +102,7 @@ internal class IdeSync(
         val moduleDependencies = Classpath(DependenciesFlowType.ClassPathType(
             scope = ResolutionScope.COMPILE,
             platforms = platforms.mapNotNull { it.toResolutionPlatform() }.toSet(),
-            includedNonExportedNative = false,
+            includeNonExportedNative = false,
             isTest = isTest)
         ).directDependenciesGraph(module, fileCacheBuilder)
 
