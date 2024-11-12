@@ -35,7 +35,7 @@ import kotlin.io.path.pathString
 class AmperBackend(val context: CliContext) {
     private val resolvedModel: Model by lazy {
         with(CliProblemReporterContext) {
-            val model = spanBuilder("loading model")
+            val model = spanBuilder("Read model from Amper files")
                 .setAttribute("root", context.projectRoot.path.pathString)
                 .useWithoutCoroutines {
                     when (val result = SchemaBasedModelImport.getModel(context.projectContext)) {
@@ -69,7 +69,9 @@ class AmperBackend(val context: CliContext) {
     }
 
     private val taskGraph: TaskGraph by lazy {
-        ProjectTasksBuilder(context = context, model = resolvedModel).build()
+        spanBuilder("Build task graph").useWithoutCoroutines {
+            ProjectTasksBuilder(context = context, model = resolvedModel).build()
+        }
     }
 
     private val taskExecutor: TaskExecutor by lazy {
