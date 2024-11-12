@@ -36,18 +36,28 @@ class KspOutputPaths(
     val classesDir: Path,
 ) {
     /**
+     * A list of all the output dirs.
+     */
+    val outputDirs = listOf(
+        kotlinSourcesDir,
+        javaSourcesDir,
+        resourcesDir,
+        classesDir,
+    )
+
+    /**
      * A directory that contains all output dirs.
      *
      * KSP uses it to relativize paths to replicate the output dirs hierarchy in a backup directory, so it's ok if it's
      * not a direct parent of each dir, so long as all paths are in there.
      */
-    val outputsBaseDir: Path = closestAncestorOf(kotlinSourcesDir, javaSourcesDir, resourcesDir, classesDir)
+    val outputsBaseDir: Path = closestAncestorOf(outputDirs)
 }
 
 /**
  * Returns the path to the closest ancestor of all the given [paths].
  */
-private fun closestAncestorOf(vararg paths: Path): Path = paths.reduce { p1, p2 ->
+private fun closestAncestorOf(paths: List<Path>): Path = paths.reduce { p1, p2 ->
     closestAncestorOf(p1.normalize(), p2.normalize()) ?: error("No common ancestor for KSP output dirs $p1 and $p2")
 }
 

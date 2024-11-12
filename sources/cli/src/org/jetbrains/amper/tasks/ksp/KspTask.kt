@@ -13,9 +13,9 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedClassesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedJavaSourcesPath
@@ -192,7 +192,7 @@ internal class KspTask(
         val inputFiles = kspProcessorClasspath + sources + compileLibraries
 
         executeOnChangedInputs.executeForFiles("${taskName.name}-run-ksp", configuration, inputFiles) {
-            cleanDirectory(kspOutputPaths.outputsBaseDir)
+            kspOutputPaths.outputDirs.forEach(::cleanDirectory)
             if (sources.isEmpty()) {
                 logger.info("No sources were found for ${fragments.identificationPhrase()}, skipping KSP")
             } else {
@@ -204,7 +204,7 @@ internal class KspTask(
                     tempRoot = tempRoot,
                 )
             }
-            listOf(kspOutputPaths.outputsBaseDir)
+            kspOutputPaths.outputDirs
         }
     }
 

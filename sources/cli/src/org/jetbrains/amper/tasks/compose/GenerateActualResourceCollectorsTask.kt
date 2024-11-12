@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCollectorsPath
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.android.logger
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.generateActualResourceCollectors
 import kotlin.io.path.deleteRecursively
@@ -31,16 +32,16 @@ class GenerateActualResourceCollectorsTask(
     private val useActualModifier: Boolean,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val resourceAccessorDirs = dependenciesResult
-            .filterIsInstance<GenerateResourceAccessorsTask.Result>()
-            .flatMap { result -> result.sourceRoots.map { it.path } }
-
         val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
 
         if (!shouldGenerateCode()) {
             codeDir.deleteRecursively()
             return Result(emptyList())
         }
+
+        val resourceAccessorDirs = dependenciesResult
+            .filterIsInstance<GenerateResourceAccessorsTask.Result>()
+            .flatMap { result -> result.sourceRoots.map { it.path } }
 
         val config = mapOf(
             "packageName" to packageName,
@@ -49,7 +50,9 @@ class GenerateActualResourceCollectorsTask(
             "outputSourceDirectory" to codeDir.pathString,
         )
         executeOnChangedInputs.execute(taskName.name, inputs = resourceAccessorDirs, configuration = config) {
+            logger.warn("KEK: Cleaning ${codeDir.pathString}")
             cleanDirectory(codeDir)
+            logger.warn("KEK: Generating ${codeDir.pathString} from ${fragment.name}")
             generateActualResourceCollectors(
                 packageName = packageName,
                 makeAccessorsPublic = makeAccessorsPublic,
