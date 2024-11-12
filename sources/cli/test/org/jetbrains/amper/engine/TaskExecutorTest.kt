@@ -114,9 +114,16 @@ class TaskExecutorTest {
     @Test
     fun rootTasksExecuteInParallel() = runTest {
         val builder = TaskGraphBuilder()
-        builder.registerTask(TestTask("A", waitForMaxParallelTasksCount = 3))
-        builder.registerTask(TestTask("B", waitForMaxParallelTasksCount = 3))
-        builder.registerTask(TestTask("C", waitForMaxParallelTasksCount = 3))
+        val parallelTasks = setOf("A", "B", "C")
+        parallelTasks.forEach { name ->
+            builder.registerTask(TestTask(name) {
+                withTimeout(10.seconds) {
+                    while (maxParallelTasksCount.get() < parallelTasks.size) {
+                        delay(10)
+                    }
+                }
+            })
+        }
         val graph = builder.build()
         val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
         executor.run(setOf(TaskName("A"), TaskName("B"), TaskName("C")))
@@ -128,7 +135,6 @@ class TaskExecutorTest {
     private val maxParallelTasksCount = AtomicInteger(0)
     private inner class TestTask(
         val name: String,
-        val waitForMaxParallelTasksCount: Int? = null,
         val body: suspend () -> Unit = {},
     ): Task {
         override val taskName: TaskName
@@ -140,16 +146,6 @@ class TaskExecutorTest {
             try {
                 synchronized(executed) {
                     executed.add(name)
-                }
-                if (waitForMaxParallelTasksCount != null) {
-                    withTimeout(10.seconds) {
-                        while (true) {
-                            if (maxParallelTasksCount.get() == waitForMaxParallelTasksCount) {
-                                break
-                            }
-                            delay(10)
-                        }
-                    }
                 }
                 body()
                 return TestTaskResult(taskName)
