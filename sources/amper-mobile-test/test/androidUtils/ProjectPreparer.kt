@@ -46,7 +46,7 @@ object ProjectPreparer  {
             buildFilePath.writeText(updatedBuildFileContent)
         }
 
-        val gradlewFilename = if (TestBase().isWindows) "gradlew.bat" else "gradlew"
+        val gradlewFilename = if (TestBase.isWindows) "gradlew.bat" else "gradlew"
         val gradlewPath = TestUtil.amperCheckoutRoot / gradlewFilename
 
         runProcessAndCaptureOutput(

@@ -3,29 +3,26 @@
  */
 
 
+import iosUtils.IOSBaseTest
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
-class RuniOSExamplesOnEmulatorsTestsGradle : iOSBaseTest() {
+class RuniOSExamplesOnEmulatorsTestsGradle : IOSBaseTest() {
 
     @MacOnly
     @Test
     fun composeiOSAppGradle() = testRunnerGradle(
         projectName = "compose-ios",
+        bundleIdentifier = "iosApp.iosApp",
     )
 
     @MacOnly
     @Test
     fun composeAndroidMultiplatformAppGradle() = testRunnerGradle(
         projectName = "compose-multiplatform",
+        multiplatform = true,
+        bundleIdentifier = "compose-multiplatform.iosApp.iosApp",
     )
-
-    @AfterEach
-    fun cleanupSession() {
-        runBlocking {
-            deleteRemoteSession()
-        }
-    }
 }

@@ -22,6 +22,9 @@ import kotlin.io.path.writeText
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+/**
+ * Provides common utility functions.
+ */
 open class TestBase : AmperCliWithWrapperTestBase() {
 
     protected val amperMobileTestsRoot = TestUtil.amperSourcesRoot / "amper-mobile-test"
@@ -30,11 +33,12 @@ open class TestBase : AmperCliWithWrapperTestBase() {
 
     private val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
 
-    private val currentOsName = System.getProperty("os.name")
-    val isWindows = currentOsName.lowercase().contains("win")
-    val isMacOS = currentOsName.lowercase().contains("mac")
-
-    // Copies the project either from local path or Git if not found locally
+    /**
+     * Copies the [projectName] project from the specified [sourceDirectory] to a temporary projects directory.
+     * If the local source directory does not exist, clones the project from a Git repository.
+     * Setup Amper in the copied project directory.
+     *
+     */
     suspend fun copyProject(projectName: String, sourceDirectory: Path) {
         // Construct the local source directory path
         var sourceDir = sourceDirectory / projectName
@@ -89,6 +93,9 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         }
     }
 
+    /**
+     * Clones the Git repository from [repoUrl] (migrated-projects repository) into the specified [tempDir].
+     */
     private suspend fun gitClone(repoUrl: String, tempDir: Path) {
         val result = runProcessAndCaptureOutput(
             command = listOf("git", "clone", repoUrl, tempDir.toAbsolutePath().toString()),
@@ -105,6 +112,11 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         }
     }
 
+    /**
+     * Configures Amper in the Gradle settings file for the specified [projectDir].
+     *
+     * @throws IllegalArgumentException if the settings file contains a relative `includeBuild` call without a required marker.
+     */
     fun putAmperToGradleFile(projectDir: Path, runWithPluginClasspath: Boolean) {
         val gradleFile = projectDir / "settings.gradle.kts"
         require(gradleFile.exists()) { "file not found: $gradleFile" }
@@ -149,6 +161,10 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         }
     }
 
+    /**
+     * Assembles the target app in the specified [projectDir] using Gradle’s `assemble` task.
+     *
+     */
     suspend fun assembleTargetApp(projectDir: Path) {
         val tasks = listOf("assemble")
         val gradlewFileName = if (isWindows) "gradlew.bat" else "gradlew"
@@ -166,15 +182,6 @@ open class TestBase : AmperCliWithWrapperTestBase() {
                 val exitCode = runProcess(
                     workingDir = projectDir,
                     command = listOf(gradlewPath.absolutePathString(), task),
-                    environment = buildMap {
-                        if (isMacOS && isRunningInTeamCity()) {
-                            println("Running on macOS and in TeamCity. Setting environment variables.")
-                            this["ANDROID_HOME"] = System.getenv("ANDROID_HOME") ?: "/Users/admin/android-sdk/"
-                            this["PATH"] = System.getenv("PATH")
-                        } else {
-                            println("Not on macOS in TeamCity. No additional environment variables set.")
-                        }
-                    },
                     redirectErrorStream = true,
                     outputListener = SimplePrintOutputListener,
                     onStart = { pid ->
@@ -194,6 +201,9 @@ open class TestBase : AmperCliWithWrapperTestBase() {
                 throw RuntimeException("Execution of './gradlew $task' was interrupted in ${projectDir.name}", e)
             }
         }
+    }
+    companion object {
+        val isWindows: Boolean = System.getProperty("os.name").contains("Windows")
     }
 }
 

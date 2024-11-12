@@ -19,8 +19,6 @@ import kotlin.time.Duration.Companion.seconds
  */
 object EmulatorManager {
 
-    private val isWindows = TestBase().isWindows
-
     /**
      * Starts the Android emulator with the first available AVD (Android Virtual Device)
      * and waits until it is fully booted.
@@ -84,7 +82,7 @@ object EmulatorManager {
     private fun getAvdManagerPath(): Path {
         val androidHome = System.getenv("ANDROID_HOME")?.let(::Path) ?: error("ANDROID_HOME is not set")
 
-        val avdManagerBinFilename = if (isWindows) "avdmanager.bat" else "avdmanager"
+        val avdManagerBinFilename = if (TestBase.isWindows) "avdmanager.bat" else "avdmanager"
         val possiblePaths = listOf(
             androidHome / "cmdline-tools/latest/bin/$avdManagerBinFilename",
             androidHome / "cmdline-tools/bin/$avdManagerBinFilename",
@@ -104,7 +102,7 @@ object EmulatorManager {
      */
     fun getAdbPath(): String {
         val androidHome = System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME is not set")
-        return if (isWindows) {
+        return if (TestBase.isWindows) {
             "$androidHome\\platform-tools\\adb.exe"
         } else {
             "$androidHome/platform-tools/adb"
@@ -117,7 +115,7 @@ object EmulatorManager {
      */
     private fun getEmulatorPath(): String {
         val androidHome = System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME is not set")
-        return if (isWindows) {
+        return if (TestBase.isWindows) {
             "$androidHome\\emulator\\emulator.exe"
         } else {
             "$androidHome/emulator/emulator"

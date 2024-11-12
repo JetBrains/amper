@@ -3,12 +3,22 @@
  */
 
 
+import iosUtils.IOSBaseTest
 import org.junit.jupiter.api.Test
 
-class RuniOSExamplesOnEmulatorsTestsStandalone : iOSBaseTest() {
+class RuniOSExamplesOnEmulatorsTestsStandalone : IOSBaseTest() {
 
     @Test
-    fun composeiOSAppStandalone() = testRunnerPure(
+    fun composeiOSAppStandalone() = testRunnerStandalone(
         projectName = "compose-ios",
+        bundleIdentifier = "iosSimulatorArm64.compose-ios",
     )
+
+    @Test
+    fun composeiOSAppMultiplatform() = testRunnerStandalone(
+        projectName = "compose-multiplatform",
+        bundleIdentifier = "iosSimulatorArm64.ios-app",
+        multiplatform = true,
+    )
+
 }
