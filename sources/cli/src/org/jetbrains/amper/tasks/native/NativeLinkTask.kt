@@ -70,7 +70,7 @@ class NativeLinkTask(
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { it.compileClasspath } // runtime dependencies including transitive
             .distinct()
-            .filter { !it.pathString.endsWith(".jar") }
+            .filterKLibs()
             .toList()
 
         val includeArtifact = dependenciesResult

@@ -64,7 +64,7 @@ class NativeCompileKlibTask(
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { it.compileClasspath } // compiler dependencies including transitive
             .distinct()
-            .filter { !it.pathString.endsWith(".jar") }
+            .filterKLibs()
             .toList()
 
         logger.warn("" +
