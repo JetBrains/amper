@@ -106,9 +106,9 @@ internal class IdeSync(
             isTest = isTest)
         ).directDependenciesGraph(module, fileCacheBuilder)
 
-       val directDependencies = externalDependencies
-           .filterIsInstance<MavenDependency>()
-           .map { it.toGraph(this, repositories, fileCacheBuilder) }
+        val directDependencies = externalDependencies
+            .filterIsInstance<MavenDependency>()
+            .map { it.toGraph(this, repositories, fileCacheBuilder) }
 
         if (hasSinglePlatformDependenciesOnly(moduleDependencies)) {
             return directDependencies
