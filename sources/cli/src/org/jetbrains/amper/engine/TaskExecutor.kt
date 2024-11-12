@@ -13,6 +13,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
@@ -148,7 +149,7 @@ class TaskExecutor(
                         when (mode) {
                             Mode.GREEDY -> result
                             Mode.FAIL_FAST -> if (result.isFailure) {
-                                throw TaskExecutionFailed(taskName, result.exceptionOrNull()!!)
+                                taskError(taskName, result.exceptionOrNull()!!)
                             } else result
                         }
                     }
@@ -169,8 +170,16 @@ class TaskExecutor(
         FAIL_FAST,
     }
 
+    private fun taskError(taskName: TaskName, cause: Throwable): Nothing {
+        if (cause is UserReadableError) {
+            userReadableError("Task '${taskName.name}' failed: ${cause.message}")
+        } else {
+            throw TaskExecutionFailed(taskName, cause)
+        }
+    }
+
     class TaskExecutionFailed(val taskName: TaskName, val exception: Throwable)
-        : Exception("Task '${taskName.name}' failed: ${exception.message}", exception)
+        : Exception("Task '${taskName.name}' failed: $exception", exception)
 
     companion object {
         private val rootTaskName = TaskName(":")

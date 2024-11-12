@@ -83,7 +83,7 @@ class TaskExecutorTest {
                 executor.run(setOf(TaskName("D")))
             }
         }
-        assertEquals("Task 'A' failed: throw", result.message)
+        assertEquals("Task 'A' failed: java.lang.IllegalStateException: throw", result.message)
     }
 
     @Test

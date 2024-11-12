@@ -9,7 +9,6 @@ import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.engine.TaskExecutor
 import kotlin.system.exitProcess
 
 suspend fun main(args: Array<String>) {
@@ -20,16 +19,10 @@ suspend fun main(args: Array<String>) {
             .use {
                 RootCommand().main(args)
             }
-    } catch (t: Throwable) {
+    } catch (e: UserReadableError) {
         System.err.println()
-        System.err.println("ERROR: ${t.message}")
-
-        when {
-            t is UserReadableError -> System.err.println()
-            t is TaskExecutor.TaskExecutionFailed && t.cause is UserReadableError -> System.err.println()
-            else -> t.printStackTrace()
-        }
-
+        System.err.println("ERROR: ${e.message}")
+        System.err.println()
         exitProcess(1)
     }
 }

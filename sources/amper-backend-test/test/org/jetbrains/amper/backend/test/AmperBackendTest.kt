@@ -141,7 +141,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         // see `native test no tests`
 
         val projectContext = setupTestDataProject("jvm-kotlin-test-no-tests")
-        val exception = assertFailsWith<TaskExecutor.TaskExecutionFailed> {
+        val exception = assertFailsWith<UserReadableError> {
             AmperBackend(projectContext).test()
         }
         assertEquals("Task ':jvm-kotlin-test-no-tests:testJvm' failed: JVM tests failed for module 'jvm-kotlin-test-no-tests' with exit code 2 (no tests were discovered) (see errors above)", exception.message)

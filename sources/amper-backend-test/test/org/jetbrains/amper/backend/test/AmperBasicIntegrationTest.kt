@@ -5,7 +5,7 @@ package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.engine.TaskExecutor
+import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
@@ -63,7 +63,7 @@ class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
 
     @Test
     fun `jvm-failed-test`() = runTestWithCollector {
-        val exception = assertFailsWith<TaskExecutor.TaskExecutionFailed> {
+        val exception = assertFailsWith<UserReadableError> {
             AmperBackend(setupExampleProject("jvm-failed-test")).test()
         }
         assertEquals(
