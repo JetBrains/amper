@@ -14,4 +14,11 @@ class RuniOSExternalProjectsStandalone : IOSBaseTest() {
         bundleIdentifier = "iosSimulatorArm64.ios-app",
         multiplatform = true,
     )
+
+    @Test
+    fun toDoListApp() = testRunnerStandalone(
+        projectName = "todolistlite",
+        bundleIdentifier = "iosSimulatorArm64.ios-app",
+        multiplatform = true,
+    )
 }

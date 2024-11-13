@@ -20,4 +20,11 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
         applicationId = "com.jetbrains.kotlinconf.android",
         multiplatform = true
     )
+
+    @Test
+    fun toDoListApp() = testRunnerStandalone(
+        projectName = "todolistlite",
+        applicationId = "org.jetbrains.todo",
+        multiplatform = true
+    )
 }
