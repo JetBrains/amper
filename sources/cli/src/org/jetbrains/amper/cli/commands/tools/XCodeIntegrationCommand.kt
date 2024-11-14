@@ -70,7 +70,7 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
 
             val embeddedComposeResourcesDir = xcodeTargetBuildDir / getXcodeVar("CONTENTS_FOLDER_PATH") /
                     IosConventions.COMPOSE_RESOURCES_CONTENT_DIR_NAME
-            if (embeddedComposeResourcesDir.isDirectory()) {
+            if (IosConventions.getComposeResourcesDirectory().isDirectory()) {
                 embeddedComposeResourcesDir.apply {
                     createParentDirectories()
                     deleteRecursively()
