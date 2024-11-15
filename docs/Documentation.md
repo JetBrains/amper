@@ -895,10 +895,18 @@ It is automatically used by Amper if found.
 The example of how to add custom R8 rules could be found at [compose-multiplatform](../examples-standalone/compose-multiplatform/android-app/proguard-rules.pro) example in `android-app` module.
 
 
-#### Google services and firebase 
+#### Google Services and Firebase
 
-To enable `google-services` Gradle plugin put `google-services.json` in the `android/app` module just next to `module.yaml`.
-For both versions (standalone and Gradle) of Amper, `google-services.json` is automatically consumed.
+To enable the [`google-services` plugin](https://developers.google.com/android/guides/google-services-plugin), place your `google-services.json` file in the module containing an `android/app` product, next to `module.yaml`.
+    
+```
+|-androidApp/
+|  |-src/
+|  |-google-services.json
+|  |-module.yaml
+```
+ 
+This file will be consumed automatically in both standalone and Gradle-based Amper projects.
 
 #### Configuring Kotlin Symbol Processing (KSP)
 
