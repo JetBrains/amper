@@ -21,4 +21,11 @@ class RuniOSExternalProjectsStandalone : IOSBaseTest() {
         bundleIdentifier = "iosSimulatorArm64.ios-app",
         multiplatform = true,
     )
+
+    @Test
+    fun recipeApp() = testRunnerStandalone(
+        projectName = "recipeapp",
+        bundleIdentifier = "iosSimulatorArm64.ios-app",
+        multiplatform = true,
+    )
 }

@@ -27,4 +27,11 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
         applicationId = "org.jetbrains.todo",
         multiplatform = true
     )
+
+    @Test
+    fun recipeApp() = testRunnerStandalone(
+        projectName = "recipeapp",
+        applicationId = "com.recipeapp",
+        multiplatform = true,
+    )
 }
