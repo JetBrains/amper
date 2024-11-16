@@ -28,4 +28,11 @@ class RuniOSExternalProjectsStandalone : IOSBaseTest() {
         bundleIdentifier = "iosSimulatorArm64.ios-app",
         multiplatform = true,
     )
+
+    @Test
+    fun swiftAppWithoutShared() = testRunnerStandalone(
+        projectName = "swiftonlytodo",
+        bundleIdentifier = "iosSimulatorArm64.swiftonlytodo",
+        multiplatform = false,
+    )
 }
