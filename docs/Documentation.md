@@ -1932,7 +1932,7 @@ pluginManagement {
 
 plugins {
     // Add the plugin
-    id("org.jetbrains.amper.settings.plugin").version("0.6.0-dev-2269")
+    id("org.jetbrains.amper.settings.plugin").version("0.6.0-dev-2275")
 }
 
 // Add Amper modules to the project
