@@ -1,8 +1,0 @@
-[*.{kt,kts}]
-ktlint_code_style = android_studio
-
-root = true
-
-[*.yaml]
-indent_style = space
-indent_size = 2
