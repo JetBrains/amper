@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.diagnostics.rmi.LoopbackClientSocketFactory
 import org.jetbrains.amper.diagnostics.rmi.SpanExporterService
 import org.jetbrains.amper.diagnostics.rmi.toSerializable
 import org.slf4j.LoggerFactory
@@ -64,8 +65,6 @@ object TelemetryEnvironment {
         val exporter = OtlpStdoutSpanExporter(deferredSpansFile.outputStream)
         val rmiSpanExporterServiceName = System.getenv(SpanExporterService.NAME_ENV_VAR)
         val compositeSpanExporter = if (rmiSpanExporterServiceName != null) {
-            // Force the hostname to be `localhost` as sometimes the system might try to resolve the public IP and fail.
-            System.setProperty("java.rmi.server.hostname", "localhost")
             SpanExporter.composite(exporter, RmiSpanExporter(rmiSpanExporterServiceName))
         } else exporter
 
@@ -154,7 +153,8 @@ private class OtlpStdoutSpanExporter(private val outputStream: OutputStream) : S
 private class RmiSpanExporter(
     serviceName: String,
 ) : SpanExporter {
-    private val registry = LocateRegistry.getRegistry(SpanExporterService.PORT)
+    private val registry = LocateRegistry.getRegistry(
+        LoopbackClientSocketFactory.hostName, SpanExporterService.PORT, LoopbackClientSocketFactory)
     private val service = registry.lookup(serviceName) as SpanExporterService
 
     override fun export(spans: Collection<SpanData>): CompletableResultCode {

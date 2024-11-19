@@ -7,6 +7,9 @@ package org.jetbrains.amper.test
 import io.opentelemetry.sdk.trace.data.SpanData
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.cli.TelemetryEnvironment
+import org.jetbrains.amper.diagnostics.rmi.LoopbackClientSocketFactory
+import org.jetbrains.amper.diagnostics.rmi.LoopbackServerSocketFactory
 import org.jetbrains.amper.diagnostics.rmi.SpanExporterService
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import java.rmi.NoSuchObjectException
@@ -29,20 +32,19 @@ class CliSpanCollector : SpansTestCollector {
     override fun clearSpans() = synchronized(collectedSpans) { collectedSpans.clear() }
 
     companion object {
-        init {
-            // Force the hostname to be `localhost` as sometimes the system might try to resolve the public IP and fail.
-            System.setProperty("java.rmi.server.hostname", "localhost")
-        }
-
         private val registry: Registry by lazy {
             try {
-                LocateRegistry.getRegistry(SpanExporterService.PORT).also {
+                LocateRegistry.getRegistry(LoopbackClientSocketFactory.hostName,
+                    SpanExporterService.PORT, LoopbackClientSocketFactory,
+                ).also {
                     // We call list() here to trigger registry location, otherwise `getRegistry` doesn't throw even if
                     // it doesn't exist yet.
                     it.list()
                 }
             } catch (e: NoSuchObjectException) {
-                LocateRegistry.createRegistry(SpanExporterService.PORT)
+                LocateRegistry.createRegistry(
+                    SpanExporterService.PORT, LoopbackClientSocketFactory, LoopbackServerSocketFactory,
+                )
             }
         }
 
@@ -65,11 +67,13 @@ class CliSpanCollector : SpansTestCollector {
                     }
                 }
                 testCollector.serviceRef =
-                    UnicastRemoteObject.exportObject(serviceImpl, SpanExporterService.PORT) as SpanExporterService
+                    UnicastRemoteObject.exportObject(serviceImpl, SpanExporterService.PORT,
+                        LoopbackClientSocketFactory, LoopbackServerSocketFactory) as SpanExporterService
 
                 registry.bind(serviceName, testCollector.serviceRef)
                 try {
                     withContext(SpanExporterServiceNameContext(serviceName)) {
+                        TelemetryEnvironment
                         testCollector.block()
                     }
                 } finally {
