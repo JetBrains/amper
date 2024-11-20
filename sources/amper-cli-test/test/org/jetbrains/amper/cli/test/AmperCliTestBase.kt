@@ -15,7 +15,10 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.androidHome
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
+import java.util.*
+import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 
@@ -49,14 +52,21 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
         stdin: ProcessInput = ProcessInput.Empty,
+        copyToTemp: Boolean = false,
     ): ProcessResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
         check(projectRoot.isDirectory()) {
             "Project root is not a directory: $projectRoot"
         }
 
+        val workingProjectRoot = if (copyToTemp) {
+            val tempProjectDir = tempRoot / UUID.randomUUID().toString() / projectRoot.fileName
+            tempProjectDir.createDirectories()
+            projectRoot.copyToRecursively(target = tempProjectDir, overwrite = false, followLinks = true)
+        } else projectRoot
+
         return runCli(
-            projectRoot,
+            workingProjectRoot,
             *args,
             expectedExitCode = expectedExitCode,
             assertEmptyStdErr = assertEmptyStdErr,

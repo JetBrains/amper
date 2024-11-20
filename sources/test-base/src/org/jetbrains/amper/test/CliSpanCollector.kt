@@ -7,7 +7,6 @@ package org.jetbrains.amper.test
 import io.opentelemetry.sdk.trace.data.SpanData
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.cli.TelemetryEnvironment
 import org.jetbrains.amper.diagnostics.rmi.LoopbackClientSocketFactory
 import org.jetbrains.amper.diagnostics.rmi.LoopbackServerSocketFactory
 import org.jetbrains.amper.diagnostics.rmi.SpanExporterService
@@ -73,7 +72,6 @@ class CliSpanCollector : SpansTestCollector {
                 registry.bind(serviceName, testCollector.serviceRef)
                 try {
                     withContext(SpanExporterServiceNameContext(serviceName)) {
-                        TelemetryEnvironment
                         testCollector.block()
                     }
                 } finally {

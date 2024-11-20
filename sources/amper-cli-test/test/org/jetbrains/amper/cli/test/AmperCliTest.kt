@@ -389,6 +389,7 @@ class AmperCliTest: AmperCliTestBase() {
             backendTestProjectName = "compose-resources-demo",
             "build", "--platform=iosSimulatorArm64",
             assertEmptyStdErr = false,  // xcodebuild prints a bunch of warnings (unrelated to resources) for now :(
+            copyToTemp = true,
         )
     }
 

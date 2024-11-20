@@ -64,6 +64,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
         runCli(
             projectName, "build", "-p", "jvm", "-p", "android", "-p", "iosSimulatorArm64",
             assertEmptyStdErr = false,
+            copyToTemp = true,
         )
 
         // main/test for Jvm + main/test * debug/release for Android.
@@ -163,7 +164,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     fun `compose-ios`() = runTestInfinitely {
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
-        runCli(projectName, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
+        runCli(projectName, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false, copyToTemp = true)
         // TODO Can we run it somehow?
     }
 

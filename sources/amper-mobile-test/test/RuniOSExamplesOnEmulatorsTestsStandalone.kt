@@ -11,13 +11,13 @@ class RuniOSExamplesOnEmulatorsTestsStandalone : IOSBaseTest() {
     @Test
     fun composeiOSAppStandalone() = testRunnerStandalone(
         projectName = "compose-ios",
-        bundleIdentifier = "iosSimulatorArm64.compose-ios",
+        bundleIdentifier = "compose-ios",
     )
 
     @Test
     fun composeiOSAppMultiplatform() = testRunnerStandalone(
         projectName = "compose-multiplatform",
-        bundleIdentifier = "iosSimulatorArm64.ios-app",
+        bundleIdentifier = "ios-app",
         iosAppModuleName = "ios-app",
     )
 

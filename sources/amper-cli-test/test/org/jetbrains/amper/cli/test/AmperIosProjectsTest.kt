@@ -15,6 +15,7 @@ import org.jetbrains.amper.test.spans.spansNamed
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class AmperIosProjectsTest : AmperCliTestBase() {
@@ -52,6 +53,8 @@ class AmperIosProjectsTest : AmperCliTestBase() {
             "task", ":interop:buildIosAppIosSimulatorArm64",
             assertEmptyStdErr = false,
         )
+        xcodeProjectGenSpans.assertNone()
+        assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
         xcodebuildSpans.assertZeroExitCode()
     }
 
@@ -62,7 +65,10 @@ class AmperIosProjectsTest : AmperCliTestBase() {
             backendTestProjectName = "interop",
             "build", "-p", "iosSimulatorArm64",
             assertEmptyStdErr = false,
+            copyToTemp = true,
         )
+        xcodeProjectGenSpans.assertNone()
+        assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
         xcodebuildSpans.assertZeroExitCode()
     }
 
@@ -95,7 +101,9 @@ class AmperIosProjectsTest : AmperCliTestBase() {
             backendTestProjectName = "compose",
             "task", ":compose:buildIosAppIosSimulatorArm64",
             assertEmptyStdErr = false,
+            copyToTemp = true,
         )
+        xcodeProjectGenSpans.assertSingle()
         xcodebuildSpans.assertZeroExitCode()
     }
 
@@ -106,6 +114,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
             backendTestProjectName = "compose",
             "build", "-p", "iosSimulatorArm64",
             assertEmptyStdErr = false,
+            copyToTemp = true,
         )
         xcodebuildSpans.assertZeroExitCode()
     }
@@ -131,6 +140,14 @@ private val SpansTestCollector.iosKotlinTests: FilteredSpans
 
 private val SpansTestCollector.konancSpans: FilteredSpans
     get() = spansNamed("konanc")
+
+private val SpansTestCollector.xcodeProjectGenSpans
+    get() = spansNamed("xcode project generation")
+
+private val SpansTestCollector.xcodeProjectManagementSpans
+    get() = spansNamed("xcode project management")
+
+private val UpdatedAttribute = AttributeKey.booleanKey("updated")
 
 private fun FilteredSpans.assertZeroExitCode() = assertSingle().apply {
     assertEquals(0, getAttribute(AttributeKey.longKey("exit-code")))

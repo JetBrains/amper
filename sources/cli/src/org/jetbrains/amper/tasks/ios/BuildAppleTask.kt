@@ -5,8 +5,10 @@
 package org.jetbrains.amper.tasks.ios
 
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
+import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.tools.XCodeIntegrationCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
@@ -17,118 +19,89 @@ import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.allFragmentDependencies
-import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 import kotlin.io.path.pathString
+import kotlin.io.path.readText
 
 
 class BuildAppleTask(
     override val platform: Platform,
     override val module: AmperModule,
     private val buildType: BuildType,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val buildOutputRoot: AmperBuildOutputRoot,
     private val taskOutputPath: TaskOutputRoot,
     override val taskName: TaskName,
     override val isTest: Boolean,
 ) : BuildTask {
-    private val prettyPlatform = platform.pretty
+    init {
+        require(platform.isDescendantOf(Platform.IOS)) { "Invalid iOS platform: $platform" }
+    }
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val preBuildResult = dependenciesResult.requireSingleDependency<PreBuildIosTask.Result>()
+        val projectInitialInfo = dependenciesResult.requireSingleDependency<ManageXCodeProjectTask.Result>()
 
-        val leafAppleFragment = module.leafFragments.first { it.platform == platform }
-        val targetName = prettyPlatform
-        val productName = module.userReadableName
-        val productBundleIdentifier = getQualifiedName(leafAppleFragment.settings, targetName, productName)
+        val workingDir = taskOutputPath.path.createDirectories()
+        val derivedDataPath = workingDir / "derivedData"
+        val objRootPath = workingDir / "tmp"
+        val symRootPath = workingDir / "bin"
 
-        // Define required apple sources.
-        val currentPlatformFamily = platform.parent?.let { it.leaves + it } ?: emptySet()
-        val appleSources = buildSet {
-            leafAppleFragment.allFragmentDependencies(
-                includeSelf = true,
-            ).forEach {
-                if (currentPlatformFamily.containsAll(it.platforms)) add(it.src.toFile().normalize())
-            }
+        val xcodebuildArgs = buildList {
+            this += "xcrun"
+            this += "xcodebuild"
+            this += "-project"; this += projectInitialInfo.projectDir.pathString
+            this += "-scheme"; this += projectInitialInfo.targetName
+            this += "-configuration"; this += buildType.variantName
+            this += "-arch"; this += platform.architecture
+            this += "-derivedDataPath"; this += derivedDataPath.pathString
+            this += "-sdk"; this += platform.sdk
+            this += "${BuildSettingNames.OBJROOT}=${objRootPath.pathString}"
+            this += "${BuildSettingNames.SYMROOT}=${symRootPath.pathString}"
+            this += "AMPER_WRAPPER_PATH=${CliContext.wrapperScriptPath.absolutePathString()}"
+            this += "build"
         }
-
-        // TODO Add Assertion for apple platform.
-        return with(FileConventions(module, taskOutputPath.path)) {
-            val appPath = symRoot
-                .resolve("${buildType.variantName}-${platform.sdk}")
-                .resolve("${productName}.app")
-
-            // TODO Add all other ios settings.
-            val config = mapOf(
-                "target.platform" to prettyPlatform,
-                "task.output.root" to taskOutputPath.path.pathString,
-                "build.type" to buildType.value,
-            )
-
-            executeOnChangedInputs.execute(
-                taskName.name,
-                config,
-                appleSources.map { it.toPath() } + preBuildResult.buildDependencies,
-            ) {
-                logger.info("Generating xcode project")
-                doGenerateBuildableXcodeproj(
-                    module = module,
-                    fragment = leafAppleFragment,
-                    buildOutputRoot = buildOutputRoot,
-                    targetName = targetName,
-                    productName = productName,
-                    productBundleIdentifier = productBundleIdentifier,
-                    buildType = buildType,
-                    appleSources = appleSources,
+        spanBuilder("xcodebuild")
+            .setAmperModule(module)
+            .setListAttribute("args", xcodebuildArgs)
+            .use { span ->
+                // TODO Maybe we dont need output here?
+                val result = BuildPrimitives.runProcessAndGetOutput(
+                    workingDir = workingDir,
+                    command = xcodebuildArgs,
+                    span = span,
+                    logCall = true,
+                    environment = mapOf(
+                        XCodeIntegrationCommand.AMPER_BUILD_OUTPUT_DIR_ENV to buildOutputRoot.path.pathString,
+                    ),
+                    outputListener = LoggingProcessOutputListener(logger),
                 )
-
-                val xcodebuildArgs = buildList {
-                    this += "xcrun"
-                    this += "xcodebuild"
-                    this += "-project"; this += projectDir.pathString
-                    this += "-scheme"; this += targetName
-                    this += "-configuration"; this += "Debug"
-                    this += "${BuildSettingNames.OBJROOT}=$objRootPathString"
-                    this += "${BuildSettingNames.SYMROOT}=$symRootPathString"
-                    this += "-arch"; this += platform.architecture
-                    this += "-derivedDataPath"; this += derivedDataPathString
-                    this += "-sdk"; this += platform.sdk
-                    this += "build"
+                if (result.exitCode != 0) {
+                    userReadableError("xcodebuild invocation failed: \n${result.stderr}")
                 }
-                spanBuilder("xcodebuild")
-                    .setAmperModule(module)
-                    .setListAttribute("args", xcodebuildArgs)
-                    .use { span ->
-                        // TODO Maybe we dont need output here?
-                        val result = BuildPrimitives.runProcessAndGetOutput(
-                            workingDir = baseDir,
-                            command = xcodebuildArgs,
-                            span = span,
-                            logCall = true,
-                            environment = mapOf(
-                                XCodeIntegrationCommand.AMPER_BUILD_OUTPUT_DIR_ENV to buildOutputRoot.path.pathString,
-                            ),
-                            outputListener = LoggingProcessOutputListener(logger),
-                        )
-                        if (result.exitCode != 0) {
-                            userReadableError("xcodebuild invocation failed: \n${result.stderr}")
-                        }
-                    }
-
-                return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(appPath))
             }
 
+        val iosContext = IosConventions.Context(
+            buildRootPath = buildOutputRoot.path,
+            moduleName = module.userReadableName,
+            buildType = buildType,
+            platform = platform,
+        )
+        return with(iosContext) {
+            val outputDescription: IosConventions.BuildOutputDescription =
+                Json.decodeFromString(IosConventions.getBuildOutputDescriptionFilePath().readText())
             Result(
-                productBundleIdentifier,
-                appPath,
+                bundleId = outputDescription.productBundleId,
+                appPath = Path(outputDescription.appPath),
             )
         }
     }
@@ -140,13 +113,3 @@ class BuildAppleTask(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }
-
-private fun getQualifiedName(
-    settings: Settings,
-    targetName: String,
-    productName: String,
-): String = listOfNotNull(
-    settings.publishing?.group?.takeIf { it.isNotBlank() },
-    targetName,
-    productName.takeIf { it.isNotBlank() }
-).joinToString(".")

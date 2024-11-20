@@ -40,6 +40,16 @@ fun ProjectTasksBuilder.setupIosTasks() {
         }
 
     allModules()
+        .filterModuleType { it == ProductType.IOS_APP }
+        .withEach {
+            tasks.registerTask(
+                task = ManageXCodeProjectTask(
+                    module = module,
+                ),
+            )
+        }
+
+    allModules()
         .alsoPlatforms(Platform.IOS)
         .filterModuleType { it == ProductType.IOS_APP }
         .withEach {
@@ -79,13 +89,17 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     platform = platform,
                     module = module,
                     buildType = BuildType.Debug,
-                    executeOnChangedInputs = executeOnChangedInputs,
                     buildOutputRoot = context.buildOutputRoot,
                     taskOutputPath = context.getTaskOutputPath(buildTaskName),
                     taskName = buildTaskName,
                     isTest = false,
                 ),
-                dependsOn = preBuildTaskName,
+                dependsOn = listOf(
+                    preBuildTaskName,
+                    // This goes here instead of pre-build because if the build is run from xcode, then managing the
+                    // project won't help much anyway.
+                    ManageXCodeProjectTask.taskName(module),
+                ),
             )
 
             val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)

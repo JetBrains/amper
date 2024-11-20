@@ -6,6 +6,8 @@ package org.jetbrains.amper.cli.commands.tools
 
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
@@ -15,11 +17,13 @@ import org.jetbrains.amper.tasks.ios.IosConventions
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
+import kotlin.io.path.writeText
 
 internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integration") {
     private val env: Map<String, String> = System.getenv()
@@ -32,6 +36,8 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
 
     override suspend fun run() {
         val superAmperBuildBuildRoot = env[AMPER_BUILD_OUTPUT_DIR_ENV]
+
+        // TODO: Additionally validate xcode environment and give actionable error messages about configuration.
 
         val iosContext = if (superAmperBuildBuildRoot == null) {
             // Running from xcode only - need to run iOS prebuild task ourselves
@@ -81,8 +87,22 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
                     followLinks = true,
                 )
             }
+
+            val outputDescription = IosConventions.BuildOutputDescription(
+                appPath = getBuiltAppDirectory().also { appPath ->
+                    check(appPath.isDirectory()) {
+                        "Expected app path '$appPath' to be an existing directory"
+                    }
+                }.absolutePathString(),
+                productBundleId = getXcodeVar("PRODUCT_BUNDLE_IDENTIFIER"),
+            )
+            IosConventions.getBuildOutputDescriptionFilePath().writeText(Json.encodeToString(outputDescription))
         }
     }
+
+    private fun getBuiltAppDirectory(): Path = Path(getXcodeVar("SYMROOT")) /
+            "${getXcodeVar("CONFIGURATION")}-${getXcodeVar("PLATFORM_NAME")}" /
+            "${getXcodeVar("PRODUCT_NAME")}.app"
 
     private fun inferXcodeContextFromEnv(
         buildOutputRootPath: Path,

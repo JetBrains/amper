@@ -105,10 +105,11 @@ class CliContext private constructor(
 
         /**
          * An absolute path to the wrapper script that the process currently runs under.
-         * `null` if that is not available, which is likely to be named an unsupported configuration.
          */
-        val wrapperScriptPath: Path?
-            get() = System.getProperty("amper.wrapper.path")?.takeIf { it.isNotBlank() }?.let(::Path)
+        val wrapperScriptPath: Path by lazy {
+            System.getProperty("amper.wrapper.path")?.takeIf { it.isNotBlank() }?.let(::Path)
+                ?: error("Missing `amper.wrapper.path` property. Is your Amper distribution intact?")
+        }
     }
 }
 
