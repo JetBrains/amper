@@ -14,6 +14,8 @@ import io.ktor.client.statement.*
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.httpClient
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -72,6 +74,12 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         amperBatPath.writeText(batWrapper)
 
         commonOptions.terminal.println("Updated Amper scripts to version $version")
+
+        // to force downloading Amper distribution and JRE
+        val exitCode = runAmperVersionFirstRun(amperBatPath, amperBashPath)
+        if (exitCode != 0) {
+            userReadableError("Couldn't run the new Amper version. Please check the errors above.")
+        }
     }
 
     private fun checkDirectories(vararg amperScriptPaths: Path) {
@@ -131,6 +139,11 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         httpClient.get("$repository/org/jetbrains/amper/cli/$version/cli-$version-wrapper$extension").bodyAsText()
     } catch (e: Exception) {
         userReadableError("Couldn't fetch Amper script content in version $version:\n$e")
+    }
+
+    private suspend fun runAmperVersionFirstRun(batWrapper: Path, bashWrapper: Path): Int {
+        val wrapper = if (DefaultSystemInfo.detect().family.isWindows) batWrapper else bashWrapper
+        return runProcessWithInheritedIO(command = listOf(wrapper.absolutePathString(), "--version"))
     }
 }
 
