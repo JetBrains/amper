@@ -33,10 +33,10 @@ open class IOSBaseTest : TestBase() {
         bundleIdentifier: String,
         multiplatform: Boolean = false,
         standalone: Boolean,
-        projectAction: suspend (String) -> Unit
+        buildIosApp: suspend (String) -> Unit
     ) = runBlocking {
         copyProject(projectName, projectPath)
-        projectAction(projectName)
+        buildIosApp(projectName)
         SimulatorManager.launchSimulator()
         AppManager.launchTest(
             projectRootDir = tempProjectsDir / projectName,
@@ -53,7 +53,7 @@ open class IOSBaseTest : TestBase() {
     internal fun testRunnerGradle(projectName: String, bundleIdentifier: String, multiplatform: Boolean = false) {
         val examplesGradleProjectsDir = TestUtil.amperCheckoutRoot.resolve("examples-gradle")
         prepareExecution(projectName, examplesGradleProjectsDir, bundleIdentifier, multiplatform, false) {
-            prepareProjectsiOSforGradle(it, multiplatform)
+            buildIosAppWithGradle(it, multiplatform)
         }
     }
 
@@ -63,16 +63,16 @@ open class IOSBaseTest : TestBase() {
     internal fun testRunnerStandalone(projectName: String, bundleIdentifier: String, multiplatform: Boolean = false) {
         val examplesStandaloneProjectsDir = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
         prepareExecution(projectName, examplesStandaloneProjectsDir, bundleIdentifier, multiplatform, true) {
-            prepareProjectiOSForStandalone(it, multiplatform)
+            buildIosAppWithStandaloneAmper(it, multiplatform)
         }
     }
 
     /**
-     * Configures and builds iOS project for Gradle-based projects.
+     * Builds the iOS app for the project named [projectName] using Gradle.
      */
-    private suspend fun prepareProjectsiOSforGradle(projectDir: String, multiplatform: Boolean) {
+    private suspend fun buildIosAppWithGradle(projectName: String, multiplatform: Boolean) {
         val runWithPluginClasspath = true
-        val projectDirectory = tempProjectsDir / projectDir
+        val projectDirectory = tempProjectsDir / projectName
 
         if (projectDirectory.exists() && projectDirectory.isDirectory()) {
             buildiOSAppGradle(projectDirectory, runWithPluginClasspath, multiplatform)
@@ -82,9 +82,9 @@ open class IOSBaseTest : TestBase() {
     }
 
     /**
-     * Configures and builds iOS project for Standalone-based projects.
+     * Builds the iOS app for the project named [projectName] using standalone Amper.
      */
-    private suspend fun prepareProjectiOSForStandalone(projectName: String, multiplatform: Boolean = false) {
+    private suspend fun buildIosAppWithStandaloneAmper(projectName: String, multiplatform: Boolean = false) {
         val projectDir = tempProjectsDir / projectName
         val taskPath = if (multiplatform) ":ios-app:buildIosAppIosSimulatorArm64" else ":$projectName:buildIosAppIosSimulatorArm64"
 
