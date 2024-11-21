@@ -27,13 +27,13 @@ open class AndroidBaseTest : TestBase() {
         projectName: String,
         projectsDir: Path,
         applicationId: String? = null,
-        buildApk: suspend (Path) -> Unit,
+        buildApk: suspend (projectDir: Path) -> Path,
     ) = runTestInfinitely {
         val copiedProjectDir = copyProjectToTempDir(projectName, projectsDir)
-        buildApk(copiedProjectDir)
-        ProjectPreparer.assembleTestApp(applicationId)
-        ApkManager.installAndroidTestAPK()
-        ApkManager.installTargetAPK(projectRootDir = copiedProjectDir, rootProjectName = projectName)
+        val targetApkPath = buildApk(copiedProjectDir)
+        val testAppApkPath = InstrumentedTestApp.assemble(applicationId)
+        ApkManager.installApk(testAppApkPath)
+        ApkManager.installApk(targetApkPath)
         ApkManager.runTestsViaAdb(applicationId)
     }
 
@@ -45,26 +45,61 @@ open class AndroidBaseTest : TestBase() {
     internal fun testRunnerStandalone(
         projectName: String,
         applicationId: String? = null,
-        multiplatform: Boolean = false
+        androidAppModuleName: String? = null,
     ) {
         val androidTestProjectsPath = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/android")
 
         prepareExecution(projectName, androidTestProjectsPath, applicationId) { projectDir ->
-            val taskPath = if (multiplatform) ":android-app:buildAndroidDebug" else ":$projectName:buildAndroidDebug"
-            runAmper(
-                workingDir = projectDir,
-                args = listOf("task", taskPath),
-            )
+            buildApkWithAmper(projectDir, moduleName = androidAppModuleName ?: projectName)
         }
     }
 
     /**
-     * Runs Gradle-based tests for the Android project specified by [projectName] using Amper.
+     * Builds the Android debug APK for the given [moduleName] in the given [projectDir].
+     *
+     * @return the path to the built APK
      */
-    internal fun testRunnerGradle(projectName: String) {
+    private suspend fun buildApkWithAmper(projectDir: Path, moduleName: String): Path {
+        runAmper(
+            workingDir = projectDir,
+            args = listOf("task", ":$moduleName:buildAndroidDebug"),
+        )
+        // internal Amper convention based on the task name
+        return projectDir / "build/tasks/_${moduleName}_buildAndroidDebug/gradle-project-debug.apk"
+    }
+
+    /**
+     * Runs Gradle-based tests for the Android project specified by [projectName] using Amper.
+     *
+     * If [androidAppSubprojectName] is specified, the corresponding subproject is used as the Android app to test,
+     * otherwise the root project is expected to be the Android app.
+     */
+    internal fun testRunnerGradle(projectName: String, androidAppSubprojectName: String? = null) {
         prepareExecution(projectName, gradleE2eTestProjectsPath) { projectDir ->
             putAmperToGradleFile(projectDir, runWithPluginClasspath = true)
-            assembleTargetApp(projectDir)
+            buildApkWithGradle(projectDir, projectName, androidAppSubprojectName)
+        }
+    }
+
+    /**
+     * Builds the Android debug APK for the project in the given [projectRootDir].
+     *
+     * If [androidAppSubprojectName] is specified, the corresponding subproject is used as the Android app to test,
+     * otherwise the root project is expected to be the Android app.
+     *
+     * @return the path to the built APK
+     */
+    private suspend fun buildApkWithGradle(
+        projectRootDir: Path,
+        rootProjectName: String,
+        androidAppSubprojectName: String?
+    ): Path {
+        assembleTargetApp(projectRootDir)
+
+        return if (androidAppSubprojectName != null) {
+            projectRootDir / "$androidAppSubprojectName/build/outputs/apk/debug/$androidAppSubprojectName-debug.apk"
+        } else {
+            projectRootDir / "build/outputs/apk/debug/$rootProjectName-debug.apk"
         }
     }
 }

@@ -11,27 +11,27 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
     @Test
     fun kmptexterAppTest() = testRunnerStandalone(
         projectName = "kmptxter",
-        applicationId = "com.river.kmptxter"
+        applicationId = "com.river.kmptxter",
     )
 
     @Test
     fun kotlinConfAppTest() = testRunnerStandalone(
         projectName = "kotlinconf",
         applicationId = "com.jetbrains.kotlinconf.android",
-        multiplatform = true
+        androidAppModuleName = "android-app",
     )
 
     @Test
     fun toDoListApp() = testRunnerStandalone(
         projectName = "todolistlite",
         applicationId = "org.jetbrains.todo",
-        multiplatform = true
+        androidAppModuleName = "android-app",
     )
 
     @Test
     fun recipeApp() = testRunnerStandalone(
         projectName = "recipeapp",
         applicationId = "com.recipeapp",
-        multiplatform = true,
+        androidAppModuleName = "android-app",
     )
 }

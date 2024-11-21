@@ -5,6 +5,7 @@ import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.checkExitCodeIsZero
+import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
@@ -13,7 +14,7 @@ import kotlin.io.path.writeText
 /**
  * Manages project preparation tasks such as copying and assembling the project.
  */
-object ProjectPreparer  {
+object InstrumentedTestApp  {
 
     /** Path to the directory containing Gradle E2E test projects. */
     private val gradleE2eTestProjectsPath = TestUtil.amperSourcesRoot / "gradle-e2e-test/testData/projects"
@@ -21,7 +22,7 @@ object ProjectPreparer  {
     /**
      * Assembles the APK containing the instrumented tests themselves, optionally using a custom [applicationId].
      */
-    suspend fun assembleTestApp(applicationId: String? = null) {
+    suspend fun assemble(applicationId: String? = null): Path {
         val testApkAppProjectPath = gradleE2eTestProjectsPath / "test-apk/app"
         val testFilePath = testApkAppProjectPath / "src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt"
         val buildFilePath = testApkAppProjectPath / "build.gradle.kts"
@@ -67,5 +68,7 @@ object ProjectPreparer  {
         originalBuildFileContent?.let {
             buildFilePath.writeText(it)
         }
+
+        return testApkAppProjectPath / "build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
     }
 }

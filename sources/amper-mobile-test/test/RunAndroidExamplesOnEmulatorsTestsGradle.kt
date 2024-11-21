@@ -16,5 +16,6 @@ class RunAndroidExamplesOnEmulatorsTestsGradle : AndroidBaseTest() {
     @Test
     fun composeAndroidMultiplatformAppGradle() = testRunnerGradle(
         projectName = "multiplatform",
+        androidAppSubprojectName = "android-app",
     )
 }
