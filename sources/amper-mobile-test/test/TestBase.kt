@@ -55,7 +55,6 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         if (!sourceDir.exists()) {
             println("Local source directory not found: $sourceDir. Attempting to clone from Git...")
 
-
             // Clone the project from Git repository into a temporary directory
             val tempDir = createTempDirectory()
 
@@ -172,12 +171,10 @@ open class TestBase : AmperCliWithWrapperTestBase() {
 
     /**
      * Assembles the target app in the specified [projectDir] using Gradle’s `assemble` task.
-     *
      */
-    suspend fun assembleTargetApp(projectDir: Path) {
-        val tasks = listOf("assemble")
+    suspend fun assembleTargetApp(projectDir: Path, subprojectName: String? = null) {
         val gradlewFileName = if (isWindows) "gradlew.bat" else "gradlew"
-        // TODO we shouldn't rely on Amper's own wrapper, as we will stop using Gradle completely
+        // FIXME we shouldn't rely on Amper's own wrapper, as we will stop using Gradle completely
         val gradlewPath = TestUtil.amperCheckoutRoot.resolve(gradlewFileName)
 
         if (!gradlewPath.exists()) {
@@ -185,30 +182,30 @@ open class TestBase : AmperCliWithWrapperTestBase() {
             throw FileNotFoundException("gradlew file does not exist in ${gradlewPath.absolutePathString()}")
         }
 
-        tasks.forEach { task ->
-            try {
-                println("Executing '$task' in ${projectDir.name}")
-                val exitCode = runProcess(
-                    workingDir = projectDir,
-                    command = listOf(gradlewPath.absolutePathString(), task),
-                    redirectErrorStream = true,
-                    outputListener = SimplePrintOutputListener,
-                    onStart = { pid ->
-                        println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")
-                    },
-                )
-                println("Finished './gradlew $task' with exit code: $exitCode in ${projectDir.name}")
-                if (exitCode != 0) {
-                    println("Error executing './gradlew $task' in ${projectDir.name}")
-                    error("Execution of './gradlew $task' failed in ${projectDir.name}")
-                }
-            } catch (e: IOException) {
-                println("IOException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
-                throw RuntimeException("Execution of './gradlew $task' failed in ${projectDir.name}", e)
-            } catch (e: InterruptedException) {
-                println("InterruptedException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
-                throw RuntimeException("Execution of './gradlew $task' was interrupted in ${projectDir.name}", e)
+        val task = if (subprojectName == null) "assemble" else ":$subprojectName:assemble"
+        try {
+            println("Executing '$task' in ${projectDir.name}")
+            // FIXME we should use the Gradle tooling API for this and stop the daemon after the tests
+            val exitCode = runProcess(
+                workingDir = projectDir,
+                command = listOf(gradlewPath.absolutePathString(), task),
+                redirectErrorStream = true,
+                outputListener = SimplePrintOutputListener,
+                onStart = { pid ->
+                    println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")
+                },
+            )
+            println("Finished './gradlew $task' with exit code: $exitCode in ${projectDir.name}")
+            if (exitCode != 0) {
+                println("Error executing './gradlew $task' in ${projectDir.name}")
+                error("Execution of './gradlew $task' failed in ${projectDir.name}")
             }
+        } catch (e: IOException) {
+            println("IOException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
+            throw RuntimeException("Execution of './gradlew $task' failed in ${projectDir.name}", e)
+        } catch (e: InterruptedException) {
+            println("InterruptedException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
+            throw RuntimeException("Execution of './gradlew $task' was interrupted in ${projectDir.name}", e)
         }
     }
     companion object {

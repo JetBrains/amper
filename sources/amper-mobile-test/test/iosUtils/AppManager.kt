@@ -7,11 +7,6 @@ package iosUtils
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.div
-import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
-import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.name
 
 /**
  * Manages iOS-app installation and execution on the iOS Simulator.
@@ -19,60 +14,6 @@ import kotlin.io.path.name
  * run apps via xcrun and helps ensure that the application is actually running.
  */
 object AppManager {
-
-    class AppNotFoundException(message: String) : Exception(message)
-
-    /**
-     * Starts the test process for the iOS app of the project in [projectRootDir] by locating and installing
-     * the app file on the simulator, then launching it with the specified [bundleIdentifier].
-     * Configures behavior based on [multiplatform] and [standalone] settings.
-     *
-     * @throws AppNotFoundException if the app file is not found.
-     */
-    suspend fun launchTest(
-        projectRootDir: Path,
-        rootProjectName: String,
-        bundleIdentifier: String,
-        multiplatform: Boolean,
-        standalone: Boolean
-    ) {
-        require(projectRootDir.exists() && projectRootDir.isDirectory()) {
-            "Invalid project directory: $projectRootDir"
-        }
-
-        println("Processing project in directory: ${projectRootDir.name}")
-
-        val appFile = findAppFile(projectRootDir, rootProjectName, multiplatform, standalone)
-        installAndVerifyAppLaunch(appFile, bundleIdentifier)
-    }
-
-    /**
-     * Finds the app file for the project in [projectRootDir] by determining the appropriate directory path based on
-     * the given [rootProjectName], and whether the project is [multiplatform] and/or using [standalone] Amper.
-     */
-    private fun findAppFile(
-        projectRootDir: Path,
-        rootProjectName: String,
-        multiplatform: Boolean,
-        standalone: Boolean
-    ): Path {
-        val appDirectory = when {
-            multiplatform && standalone ->
-                projectRootDir / "build/tasks/_ios-app_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator"
-
-            multiplatform && !standalone ->
-                projectRootDir / "ios-app/build/bin/ios-app/Debug-iphonesimulator"
-
-            !multiplatform && standalone ->
-                projectRootDir / "build/tasks/_${rootProjectName}_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator"
-
-            else -> // !multiplatform && !standalone
-                projectRootDir / "build/bin/$rootProjectName/Debug-iphonesimulator"
-        }
-
-        return appDirectory.listDirectoryEntries("*.app").firstOrNull()
-            ?: throw AppNotFoundException("No app files found in $appDirectory")
-    }
 
     /**
      * Installs an iOS app on the booted simulator, launches it, verifies its successful start,
@@ -84,7 +25,7 @@ object AppManager {
      * Additionally, it ensures the app's data container is accessible, signaling that the app is fully active.
      * Finally, the function uninstalls the app to leave the simulator in a clean state.
      */
-    private suspend fun installAndVerifyAppLaunch(appFile: Path, appBundleId: String) {
+    suspend fun installAndVerifyAppLaunch(appFile: Path, appBundleId: String) {
         // Step 1: Install the app on the booted simulator
         println("Installing $appBundleId")
         runProcessAndCaptureOutput(

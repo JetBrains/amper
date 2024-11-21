@@ -12,27 +12,26 @@ class RuniOSExternalProjectsStandalone : IOSBaseTest() {
     fun kotlinConfAppTest() = testRunnerStandalone(
         projectName = "kotlinconf",
         bundleIdentifier = "iosSimulatorArm64.ios-app",
-        multiplatform = true,
+        iosAppModuleName = "ios-app",
     )
 
     @Test
     fun toDoListApp() = testRunnerStandalone(
         projectName = "todolistlite",
         bundleIdentifier = "iosSimulatorArm64.ios-app",
-        multiplatform = true,
+        iosAppModuleName = "ios-app",
     )
 
     @Test
     fun recipeApp() = testRunnerStandalone(
         projectName = "recipeapp",
         bundleIdentifier = "iosSimulatorArm64.ios-app",
-        multiplatform = true,
+        iosAppModuleName = "ios-app",
     )
 
     @Test
     fun swiftAppWithoutShared() = testRunnerStandalone(
         projectName = "swiftonlytodo",
         bundleIdentifier = "iosSimulatorArm64.swiftonlytodo",
-        multiplatform = false,
     )
 }

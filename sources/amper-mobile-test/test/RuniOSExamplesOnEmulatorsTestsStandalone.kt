@@ -18,7 +18,7 @@ class RuniOSExamplesOnEmulatorsTestsStandalone : IOSBaseTest() {
     fun composeiOSAppMultiplatform() = testRunnerStandalone(
         projectName = "compose-multiplatform",
         bundleIdentifier = "iosSimulatorArm64.ios-app",
-        multiplatform = true,
+        iosAppModuleName = "ios-app",
     )
 
 }

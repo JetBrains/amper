@@ -22,7 +22,7 @@ class RuniOSExamplesOnEmulatorsTestsGradle : IOSBaseTest() {
     @Test
     fun composeAndroidMultiplatformAppGradle() = testRunnerGradle(
         projectName = "compose-multiplatform",
-        multiplatform = true,
         bundleIdentifier = "compose-multiplatform.iosApp.iosApp",
+        iosAppSubprojectName = "ios-app",
     )
 }
