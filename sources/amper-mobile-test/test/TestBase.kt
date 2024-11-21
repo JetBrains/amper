@@ -31,7 +31,6 @@ open class TestBase : AmperCliWithWrapperTestBase() {
 
     protected val amperMobileTestsRoot = TestUtil.amperSourcesRoot / "amper-mobile-test"
     val tempProjectsDir = amperMobileTestsRoot / "tempProjects"
-    protected val scriptsDir = amperMobileTestsRoot / "scripts"
 
     private val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
 
