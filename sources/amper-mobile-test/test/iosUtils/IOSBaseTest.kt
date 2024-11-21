@@ -9,10 +9,8 @@ import iosUtils.GradleAssembleHelper.buildiOSAppGradle
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.test.TestUtil
-import org.junit.jupiter.api.AfterEach
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
@@ -21,11 +19,7 @@ import kotlin.io.path.isDirectory
  * A base class for testing iOS modules and projects, providing utilities to clean up test directories,
  * prepare project builds, and launch test processes.
  */
-open class IOSBaseTest:TestBase() {
-    @AfterEach
-    fun cleanupTestDirs() {
-        tempProjectsDir.deleteRecursively()
-    }
+open class IOSBaseTest : TestBase() {
 
     /**
      * Copies the specified [projectName] to temp folder, runs a given [projectAction] (depends on a type of Amper) on it,

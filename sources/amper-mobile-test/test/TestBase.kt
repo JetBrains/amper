@@ -4,6 +4,7 @@ import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.TestUtil
+import org.junit.jupiter.api.AfterEach
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Path
@@ -11,6 +12,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -32,6 +34,11 @@ open class TestBase : AmperCliWithWrapperTestBase() {
     protected val scriptsDir = amperMobileTestsRoot / "scripts"
 
     private val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
+
+    @AfterEach
+    fun cleanup() {
+        tempProjectsDir.deleteRecursively()
+    }
 
     /**
      * Copies the [projectName] project from the specified [sourceDirectory] to a temporary projects directory.

@@ -7,9 +7,7 @@ package androidUtils
 import TestBase
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
-import org.junit.jupiter.api.AfterEach
 import java.nio.file.Path
-import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 
 /**
@@ -19,11 +17,6 @@ open class AndroidBaseTest : TestBase() {
 
     /** Path to the directory containing E2E test projects for Gradle-based tests */
     private val gradleE2eTestProjectsPath = TestUtil.amperSourcesRoot / "gradle-e2e-test/testData/projects"
-
-    @AfterEach
-    fun cleanup() {
-        tempProjectsDir.deleteRecursively()
-    }
 
     /**
      * Sets up and executes a test environment for [projectName] located at [projectPath],
