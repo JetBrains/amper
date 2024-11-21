@@ -30,7 +30,7 @@ import kotlin.io.path.writeText
 open class TestBase : AmperCliWithWrapperTestBase() {
 
     protected val amperMobileTestsRoot = TestUtil.amperSourcesRoot / "amper-mobile-test"
-    val tempProjectsDir = amperMobileTestsRoot / "tempProjects"
+    private val tempProjectsDir = amperMobileTestsRoot / "tempProjects"
 
     private val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
 
@@ -44,8 +44,10 @@ open class TestBase : AmperCliWithWrapperTestBase() {
      * If the local source directory does not exist, clones the project from a Git repository.
      * Setup Amper in the copied project directory.
      *
+     * @return the path to root directory of the copied project. Its name is guaranteed to match [projectName] to avoid
+     * issues with Gradle projects that don't specify a `rootProject.name` explicitly.
      */
-    suspend fun copyProject(projectName: String, sourceDirectory: Path) {
+    suspend fun copyProjectToTempDir(projectName: String, sourceDirectory: Path): Path {
         // Construct the local source directory path
         var sourceDir = sourceDirectory / projectName
 
@@ -97,6 +99,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         } catch (ex: IOException) {
             throw RuntimeException("Failed to copy files from $sourceDir to $destinationProjectPath", ex)
         }
+        return destinationProjectPath
     }
 
     /**

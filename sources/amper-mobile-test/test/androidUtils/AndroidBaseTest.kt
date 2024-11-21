@@ -19,21 +19,21 @@ open class AndroidBaseTest : TestBase() {
     private val gradleE2eTestProjectsPath = TestUtil.amperSourcesRoot / "gradle-e2e-test/testData/projects"
 
     /**
-     * Sets up and executes a test environment for [projectName] located at [projectPath],
-     * including assembling the app, optionally using [applicationId] for custom APK setup,
-     * and applying [projectAction] to define specific test actions.
+     * Sets up and executes a test environment for [projectName] located in [projectsDir],
+     * including assembling the app, optionally using [applicationId] for custom APK setup.
+     * The [buildApk] function is used to build the APK via the build tool used for the test.
      */
     private fun prepareExecution(
         projectName: String,
-        projectPath: Path,
+        projectsDir: Path,
         applicationId: String? = null,
-        projectAction: suspend (String) -> Unit,
+        buildApk: suspend (Path) -> Unit,
     ) = runTestInfinitely {
-        copyProject(projectName, projectPath)
-        projectAction(projectName)
+        val copiedProjectDir = copyProjectToTempDir(projectName, projectsDir)
+        buildApk(copiedProjectDir)
         ProjectPreparer.assembleTestApp(applicationId)
         ApkManager.installAndroidTestAPK()
-        ApkManager.installTargetAPK(projectRootDir = tempProjectsDir / projectName, rootProjectName = projectName)
+        ApkManager.installTargetAPK(projectRootDir = copiedProjectDir, rootProjectName = projectName)
         ApkManager.runTestsViaAdb(applicationId)
     }
 
@@ -49,10 +49,10 @@ open class AndroidBaseTest : TestBase() {
     ) {
         val androidTestProjectsPath = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/android")
 
-        prepareExecution(projectName, androidTestProjectsPath, applicationId) {
-            val taskPath = if (multiplatform) ":android-app:buildAndroidDebug" else ":$it:buildAndroidDebug"
+        prepareExecution(projectName, androidTestProjectsPath, applicationId) { projectDir ->
+            val taskPath = if (multiplatform) ":android-app:buildAndroidDebug" else ":$projectName:buildAndroidDebug"
             runAmper(
-                workingDir = tempProjectsDir.resolve(it),
+                workingDir = projectDir,
                 args = listOf("task", taskPath),
             )
         }
@@ -62,10 +62,9 @@ open class AndroidBaseTest : TestBase() {
      * Runs Gradle-based tests for the Android project specified by [projectName] using Amper.
      */
     internal fun testRunnerGradle(projectName: String) {
-        prepareExecution(projectName, gradleE2eTestProjectsPath) {
-            val projectDirectory = tempProjectsDir / it
-            putAmperToGradleFile(projectDirectory, runWithPluginClasspath = true)
-            assembleTargetApp(projectDirectory)
+        prepareExecution(projectName, gradleE2eTestProjectsPath) { projectDir ->
+            putAmperToGradleFile(projectDir, runWithPluginClasspath = true)
+            assembleTargetApp(projectDir)
         }
     }
 }

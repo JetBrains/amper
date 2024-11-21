@@ -22,7 +22,7 @@ import kotlin.io.path.isDirectory
 open class IOSBaseTest : TestBase() {
 
     /**
-     * Copies the specified [projectName] to temp folder, runs a given [projectAction] (depends on a type of Amper) on it,
+     * Copies the specified [projectName] to temp folder, runs a given [buildIosApp] (depends on a type of Amper) on it,
      * and launches the iOS simulator. Configures the setup based on [multiplatform]
      * and [standalone] flags.
      */
@@ -33,13 +33,13 @@ open class IOSBaseTest : TestBase() {
         bundleIdentifier: String,
         multiplatform: Boolean = false,
         standalone: Boolean,
-        buildIosApp: suspend (String) -> Unit
+        buildIosApp: suspend (Path) -> Unit
     ) = runBlocking {
-        copyProject(projectName, projectPath)
-        buildIosApp(projectName)
+        val copiedProjectDir = copyProjectToTempDir(projectName, projectPath)
+        buildIosApp(copiedProjectDir)
         SimulatorManager.launchSimulator()
         AppManager.launchTest(
-            projectRootDir = tempProjectsDir / projectName,
+            projectRootDir = copiedProjectDir,
             rootProjectName = projectName,
             bundleIdentifier = bundleIdentifier,
             multiplatform = multiplatform,
@@ -52,8 +52,8 @@ open class IOSBaseTest : TestBase() {
      */
     internal fun testRunnerGradle(projectName: String, bundleIdentifier: String, multiplatform: Boolean = false) {
         val examplesGradleProjectsDir = TestUtil.amperCheckoutRoot.resolve("examples-gradle")
-        prepareExecution(projectName, examplesGradleProjectsDir, bundleIdentifier, multiplatform, false) {
-            buildIosAppWithGradle(it, multiplatform)
+        prepareExecution(projectName, examplesGradleProjectsDir, bundleIdentifier, multiplatform, false) { projectDir ->
+            buildIosAppWithGradle(projectRootDir = projectDir, multiplatform)
         }
     }
 
@@ -62,42 +62,44 @@ open class IOSBaseTest : TestBase() {
      */
     internal fun testRunnerStandalone(projectName: String, bundleIdentifier: String, multiplatform: Boolean = false) {
         val examplesStandaloneProjectsDir = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
-        prepareExecution(projectName, examplesStandaloneProjectsDir, bundleIdentifier, multiplatform, true) {
-            buildIosAppWithStandaloneAmper(it, multiplatform)
+        prepareExecution(projectName, examplesStandaloneProjectsDir, bundleIdentifier, multiplatform, true) { projectDir ->
+            buildIosAppWithStandaloneAmper(projectRootDir = projectDir, projectName, multiplatform)
         }
     }
 
     /**
-     * Builds the iOS app for the project named [projectName] using Gradle.
+     * Builds the iOS app for the project located at [projectRootDir] using Gradle.
      */
-    private suspend fun buildIosAppWithGradle(projectName: String, multiplatform: Boolean) {
+    private suspend fun buildIosAppWithGradle(projectRootDir: Path, multiplatform: Boolean) {
         val runWithPluginClasspath = true
-        val projectDirectory = tempProjectsDir / projectName
 
-        if (projectDirectory.exists() && projectDirectory.isDirectory()) {
-            buildiOSAppGradle(projectDirectory, runWithPluginClasspath, multiplatform)
+        if (projectRootDir.exists() && projectRootDir.isDirectory()) {
+            buildiOSAppGradle(projectRootDir, runWithPluginClasspath, multiplatform)
         } else {
-            println("Project directory '${projectDirectory.absolutePathString()}' does not exist or is not a directory.")
+            println("Project directory '${projectRootDir.absolutePathString()}' does not exist or is not a directory.")
         }
     }
 
     /**
-     * Builds the iOS app for the project named [projectName] using standalone Amper.
+     * Builds the iOS app for the project named [rootProjectName] located at [projectRootDir] using standalone Amper.
      */
-    private suspend fun buildIosAppWithStandaloneAmper(projectName: String, multiplatform: Boolean = false) {
-        val projectDir = tempProjectsDir / projectName
-        val taskPath = if (multiplatform) ":ios-app:buildIosAppIosSimulatorArm64" else ":$projectName:buildIosAppIosSimulatorArm64"
+    private suspend fun buildIosAppWithStandaloneAmper(
+        projectRootDir: Path,
+        rootProjectName: String,
+        multiplatform: Boolean = false,
+    ) {
+        val taskPath = if (multiplatform) ":ios-app:buildIosAppIosSimulatorArm64" else ":$rootProjectName:buildIosAppIosSimulatorArm64"
 
-        if (projectDir.exists() && projectDir.isDirectory()) {
+        if (projectRootDir.exists() && projectRootDir.isDirectory()) {
             runAmper(
-                workingDir = projectDir,
+                workingDir = projectRootDir,
                 args = listOf("task", taskPath),
                 // xcode will in turn call Amper with this env
                 environment = baseEnvironmentForWrapper(),
                 assertEmptyStdErr = false,
             )
         } else {
-            println("The path '$projectDir' does not exist or is not a directory.")
+            println("The path '$projectRootDir' does not exist or is not a directory.")
         }
     }
 }
