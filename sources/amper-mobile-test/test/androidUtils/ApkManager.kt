@@ -1,16 +1,15 @@
 package androidUtils
 
-import TestBase
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.checkExitCodeIsZero
+import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
-
 
 /**
  * Manages APK installation and test execution on the Android emulator.
@@ -19,8 +18,6 @@ import kotlin.io.path.pathString
  */
 object ApkManager  {
 
-    private var tempProjectsDir = TestBase().tempProjectsDir
-  
     /**
      * Installs a predefined Android test APK on the emulator by locating the file at a specified path
      * and using adb for installation. Throws an exception if the file is not found.
@@ -37,17 +34,16 @@ object ApkManager  {
     }
 
     /**
-     * Installs the target APK for [projectName] on the emulator by checking multiple paths
-     * based on standard and multiplatform project structures, and using adb for installation
-     * once the APK is found.
+     * Installs the target APK for the project located at [projectRootDir] on the emulator by checking multiple paths
+     * based on standard and multiplatform project structures, and using adb for installation once the APK is found.
      *
      * @throws APKNotFoundException when the APK file does not exist at any of the checked Amper-related paths.
      */
-    suspend fun installTargetAPK(projectName: String) {
-        val gradleApkPath = tempProjectsDir / "$projectName/build/outputs/apk/debug/$projectName-debug.apk"
-        val standaloneApkPath = tempProjectsDir / "$projectName/build/tasks/_${projectName}_buildAndroidDebug/gradle-project-debug.apk"
-        val gradleApkPathMultiplatform = tempProjectsDir / "$projectName/android-app/build/outputs/apk/debug/android-app-debug.apk"
-        val standaloneApkPathMultiplatform = tempProjectsDir / "${projectName}/build/tasks/_android-app_buildAndroidDebug/gradle-project-debug.apk"
+    suspend fun installTargetAPK(projectRootDir: Path, rootProjectName: String) {
+        val gradleApkPath = projectRootDir / "build/outputs/apk/debug/$rootProjectName-debug.apk"
+        val standaloneApkPath = projectRootDir / "build/tasks/_${rootProjectName}_buildAndroidDebug/gradle-project-debug.apk"
+        val gradleApkPathMultiplatform = projectRootDir / "android-app/build/outputs/apk/debug/android-app-debug.apk"
+        val standaloneApkPathMultiplatform = projectRootDir / "build/tasks/_android-app_buildAndroidDebug/gradle-project-debug.apk"
 
         if (gradleApkPath.exists()) {
             adb("install", "-r", gradleApkPath.pathString)

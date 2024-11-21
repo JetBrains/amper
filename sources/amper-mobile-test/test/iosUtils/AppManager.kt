@@ -4,7 +4,6 @@
 
 package iosUtils
 
-import TestBase
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -24,26 +23,26 @@ object AppManager {
     class AppNotFoundException(message: String) : Exception(message)
 
     /**
-     * Starts the test process for the [projectName] iOS app by locating and installing
+     * Starts the test process for the iOS app of the project in [projectRootDir] by locating and installing
      * the app file on the simulator, then launching it with the specified [bundleIdentifier].
      * Configures behavior based on [multiplatform] and [standalone] settings.
      *
      * @throws AppNotFoundException if the app file is not found.
      */
     suspend fun launchTest(
-        projectName: String,
+        projectRootDir: Path,
+        rootProjectName: String,
         bundleIdentifier: String,
         multiplatform: Boolean,
         standalone: Boolean
     ) {
-        val projectDir = TestBase().tempProjectsDir / projectName
-        require(projectDir.exists() && projectDir.isDirectory()) {
-            "Invalid project directory: $projectDir"
+        require(projectRootDir.exists() && projectRootDir.isDirectory()) {
+            "Invalid project directory: $projectRootDir"
         }
 
-        println("Processing project in directory: ${projectDir.name}")
+        println("Processing project in directory: ${projectRootDir.name}")
 
-        val appFile = findAppFile(projectDir, projectName, multiplatform, standalone)
+        val appFile = findAppFile(projectRootDir, rootProjectName, multiplatform, standalone)
         installAndVerifyAppLaunch(appFile, bundleIdentifier)
     }
 

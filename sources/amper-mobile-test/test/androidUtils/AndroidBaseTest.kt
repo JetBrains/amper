@@ -23,7 +23,6 @@ open class AndroidBaseTest : TestBase() {
      * including assembling the app, optionally using [applicationId] for custom APK setup,
      * and applying [projectAction] to define specific test actions.
      */
-
     private fun prepareExecution(
         projectName: String,
         projectPath: Path,
@@ -34,7 +33,7 @@ open class AndroidBaseTest : TestBase() {
         projectAction(projectName)
         ProjectPreparer.assembleTestApp(applicationId)
         ApkManager.installAndroidTestAPK()
-        ApkManager.installTargetAPK(projectName)
+        ApkManager.installTargetAPK(projectRootDir = tempProjectsDir / projectName, rootProjectName = projectName)
         ApkManager.runTestsViaAdb(applicationId)
     }
 

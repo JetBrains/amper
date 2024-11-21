@@ -38,7 +38,13 @@ open class IOSBaseTest : TestBase() {
         copyProject(projectName, projectPath)
         projectAction(projectName)
         SimulatorManager.launchSimulator()
-        AppManager.launchTest(projectName, bundleIdentifier, multiplatform, standalone)
+        AppManager.launchTest(
+            projectRootDir = tempProjectsDir / projectName,
+            rootProjectName = projectName,
+            bundleIdentifier = bundleIdentifier,
+            multiplatform = multiplatform,
+            standalone = standalone,
+        )
     }
 
     /**
