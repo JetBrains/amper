@@ -64,7 +64,9 @@ open class AndroidBaseTest : TestBase() {
      */
     internal fun testRunnerGradle(projectName: String) {
         prepareExecution(projectName, gradleE2eTestProjectsPath) {
-            ProjectPreparer.prepareProjectsAndroidForGradle(it)
+            val projectDirectory = tempProjectsDir / it
+            putAmperToGradleFile(projectDirectory, runWithPluginClasspath = true)
+            assembleTargetApp(projectDirectory)
         }
     }
 }

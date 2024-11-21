@@ -68,15 +68,4 @@ object ProjectPreparer  {
             buildFilePath.writeText(it)
         }
     }
-
-    /**
-     * Prepares the [projectName] Android project for testing by configuring Gradle
-     * and assembling the test APK.
-     */
-    suspend fun prepareProjectsAndroidForGradle(projectName: String) {
-        val projectDirectory = TestBase().tempProjectsDir/ projectName
-        val runWithPluginClasspath = true
-        TestBase().putAmperToGradleFile(projectDirectory, runWithPluginClasspath)
-        TestBase().assembleTargetApp(projectDirectory)
-    }
 }

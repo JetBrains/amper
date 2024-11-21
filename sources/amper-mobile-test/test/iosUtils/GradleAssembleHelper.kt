@@ -19,8 +19,6 @@ import kotlin.io.path.name
  */
 object GradleAssembleHelper {
 
-    val tempProjectsDir = TestBase().tempProjectsDir
-
     /**
      * Configures and builds the iOS app in the specified project directory using Gradle.
      * Runs only the iOS assembly if the project is multiplatform; otherwise, assembles full target app.

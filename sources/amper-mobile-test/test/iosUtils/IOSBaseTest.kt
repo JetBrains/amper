@@ -66,7 +66,7 @@ open class IOSBaseTest : TestBase() {
      */
     private suspend fun prepareProjectsiOSforGradle(projectDir: String, multiplatform: Boolean) {
         val runWithPluginClasspath = true
-        val projectDirectory = GradleAssembleHelper.tempProjectsDir / projectDir
+        val projectDirectory = tempProjectsDir / projectDir
 
         if (projectDirectory.exists() && projectDirectory.isDirectory()) {
             buildiOSAppGradle(projectDirectory, runWithPluginClasspath, multiplatform)
