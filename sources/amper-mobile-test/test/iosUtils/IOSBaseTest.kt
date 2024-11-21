@@ -79,7 +79,7 @@ open class IOSBaseTest : TestBase() {
      * Configures and builds iOS project for Standalone-based projects.
      */
     private suspend fun prepareProjectiOSForStandalone(projectName: String, multiplatform: Boolean = false) {
-        val projectDir = TestBase().tempProjectsDir / projectName
+        val projectDir = tempProjectsDir / projectName
         val taskPath = if (multiplatform) ":ios-app:buildIosAppIosSimulatorArm64" else ":$projectName:buildIosAppIosSimulatorArm64"
 
         if (projectDir.exists() && projectDir.isDirectory()) {

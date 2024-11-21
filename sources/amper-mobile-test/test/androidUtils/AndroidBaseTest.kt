@@ -30,7 +30,7 @@ open class AndroidBaseTest : TestBase() {
         applicationId: String? = null,
         projectAction: suspend (String) -> Unit,
     ) = runTestInfinitely {
-        TestBase().copyProject(projectName, projectPath)
+        copyProject(projectName, projectPath)
         projectAction(projectName)
         ProjectPreparer.assembleTestApp(applicationId)
         ApkManager.installAndroidTestAPK()
