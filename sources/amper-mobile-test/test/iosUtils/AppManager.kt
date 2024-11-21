@@ -48,28 +48,27 @@ object AppManager {
     }
 
     /**
-     * Finds the app file for [projectName] in the specified [baseDir] by determining the
-     * appropriate directory path based on [multiplatform] and [standalone] configurations.
-     *
+     * Finds the app file for the project in [projectRootDir] by determining the appropriate directory path based on
+     * the given [rootProjectName], and whether the project is [multiplatform] and/or using [standalone] Amper.
      */
     private fun findAppFile(
-        baseDir: Path,
-        projectName: String,
+        projectRootDir: Path,
+        rootProjectName: String,
         multiplatform: Boolean,
         standalone: Boolean
     ): Path {
         val appDirectory = when {
             multiplatform && standalone ->
-                baseDir / "build/tasks/_ios-app_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator"
+                projectRootDir / "build/tasks/_ios-app_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator"
 
             multiplatform && !standalone ->
-                baseDir / "ios-app/build/bin/ios-app/Debug-iphonesimulator"
+                projectRootDir / "ios-app/build/bin/ios-app/Debug-iphonesimulator"
 
             !multiplatform && standalone ->
-                baseDir / "build/tasks/_${projectName}_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator"
+                projectRootDir / "build/tasks/_${rootProjectName}_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator"
 
             else -> // !multiplatform && !standalone
-                baseDir / "build/bin/$projectName/Debug-iphonesimulator"
+                projectRootDir / "build/bin/$rootProjectName/Debug-iphonesimulator"
         }
 
         return appDirectory.listDirectoryEntries("*.app").firstOrNull()
