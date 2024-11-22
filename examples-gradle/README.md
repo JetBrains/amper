@@ -5,14 +5,14 @@ Refer to the [setup](../docs/Setup.md) and the [usage instructions](../docs/Usag
 
 | Example               | Download                                                                                                                         |
 |-----------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| Compose Multiplatform | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/compose-multiplatform) |
-| Compose Android       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/compose-android)       |
-| Compose Desktop       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/compose-desktop)       |
-| Compose iOS           | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/compose-ios)           |
-| Coverage with Kover   | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/coverage)              |
-| Gradle Interop        | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/gradle-interop)        |
-| Gradle Migration JVM  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/gradle-migration-jvm)  |
-| Gradle Migration KMP  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/gradle-migration-kmp)  |
-| JVM "Hello, World"    | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/jvm)                   |
-| New Project Template  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.5&path=/examples-gradle/new-project-template)  |
+| Compose Multiplatform | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/compose-multiplatform) |
+| Compose Android       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/compose-android)       |
+| Compose Desktop       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/compose-desktop)       |
+| Compose iOS           | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/compose-ios)           |
+| Coverage with Kover   | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/coverage)              |
+| Gradle Interop        | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/gradle-interop)        |
+| Gradle Migration JVM  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/gradle-migration-jvm)  |
+| Gradle Migration KMP  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/gradle-migration-kmp)  |
+| JVM "Hello, World"    | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/jvm)                   |
+| New Project Template  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-gradle/new-project-template)  |
 
