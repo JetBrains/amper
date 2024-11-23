@@ -84,7 +84,7 @@ class DRConcurrencyTest : BaseDRTest() {
                             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
                             cacheBuilder = cacheBuilder(cacheRoot),
                             filterMessages = {
-                                filter { "Downloaded from" !in it.text && "Hashes don't match for" !in it.text }
+                                filter { "Downloaded " !in it.text && "Hashes don't match for" !in it.text }
                             }
                         )
                         // The File is updated/deleted to make it be downloaded again on the next iteration under the file lock

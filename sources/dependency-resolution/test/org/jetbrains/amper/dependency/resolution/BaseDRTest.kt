@@ -157,6 +157,6 @@ abstract class BaseDRTest {
         internal const val REDIRECTOR_JETBRAINS_KPM_PUBLIC = "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public"
 
         fun List<Message>.defaultFilterMessages(): List<Message> =
-            filter { "Downloaded from" !in it.text && "Resolved from local repository" != it.text }
+            filter { "Downloaded " !in it.text && "Resolved " !in it.text }
     }
 }

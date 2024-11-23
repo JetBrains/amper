@@ -319,7 +319,15 @@ class MavenDependency internal constructor(
     internal var dependencyConstraints: List<MavenDependencyConstraint> = listOf()
         private set
 
-    val messages: List<Message> = CopyOnWriteArrayList()
+    internal var metadataResolutionFailureMessage: Message? = null
+
+    internal val messages: List<Message>
+        get() =
+            metadataResolutionFailureMessage
+                ?.let { listOf(it) }
+                ?: (pom.diagnosticsReporter.getMessages() +
+                        moduleFile.diagnosticsReporter.getMessages() +
+                        files(withSources = true).flatMap { it.diagnosticsReporter.getMessages() })
 
     private val mutex = Mutex()
 
@@ -405,42 +413,68 @@ class MavenDependency internal constructor(
     }
 
     private suspend fun resolve(context: Context, level: ResolutionLevel) {
-        val settings = context.settings
-        // 1. Download pom.
-        val pomText = if (pom.isDownloadedOrDownload(level, context)) {
-            pom.readText()
-        } else {
-            if (level != ResolutionLevel.NETWORK) {
-                messages.asMutable() += Message(
-                    "Pom was not found for $this",
-                    settings.repositories.toString(),
-                    Severity.WARNING,
-                )
-            }
-            null
-        }
-        this.pomText = pomText
+        try {
+            resetMetadataDiagnostics()
 
-        // 2. If pom is missing or mentions metadata, use it.
-        if (pomText == null || pomText.contains("do_not_remove: published-with-gradle-metadata")) {
-            if (moduleFile.isDownloadedOrDownload(level, context)) {
-                resolveUsingMetadata(context, level)
-                return
-            }
-            if (pomText != null) {
+            val settings = context.settings
+            // 1. Download pom.
+            val pomText = if (pom.isDownloadedOrDownload(level, context, pom.diagnosticsReporter)) {
+                pom.readText()
+            } else {
                 if (level != ResolutionLevel.NETWORK) {
-                    messages.asMutable() += Message(
-                        "Pom is resolved, but metadata was not found for $this",
-                        context.settings.repositories.toString(),
-                        Severity.WARNING,
+                    pom.diagnosticsReporter.addMessage(
+                        Message(
+                            "Pom was not found for $this",
+                            settings.repositories.toString(),
+                            Severity.WARNING,
+                        )
                     )
                 }
+                null
+            }
+            this.pomText = pomText
+
+            // 2. If pom is missing or mentions metadata, use it.
+            if (pomText == null || pomText.contains("do_not_remove: published-with-gradle-metadata")) {
+                if (moduleFile.isDownloadedOrDownload(level, context, moduleFile.diagnosticsReporter)) {
+                    resolveUsingMetadata(context, level, moduleFile.diagnosticsReporter)
+                    return
+                }
+                if (pomText != null) {
+                    if (level != ResolutionLevel.NETWORK) {
+                        moduleFile.diagnosticsReporter.addMessage(
+                            Message(
+                                "Pom is resolved, but metadata was not found for $this",
+                                context.settings.repositories.toString(),
+                                Severity.WARNING,
+                            )
+                        )
+                    }
+                }
+            }
+            // 3. If metadata can't be used, use pom.
+            if (pomText != null) {
+                resolveUsingPom(pomText, context, level, pom.diagnosticsReporter)
+                return
+            }
+        } finally {
+            // 4. if neither pom nor module file were downloaded
+            if (state < level.state) {
+                metadataResolutionFailureMessage =
+                    Message(
+                        "Unable to resolve dependency $this",
+                        context.settings.repositories.joinToString(),
+                        Severity.ERROR,
+                        suppressedMessages = pom.diagnosticsReporter.getMessages() + moduleFile.diagnosticsReporter.getMessages()
+                    )
             }
         }
-        // 3. If can't use metadata, use pom.
-        if (pomText != null) {
-            resolveUsingPom(pomText, context, level)
-        }
+    }
+
+    private fun resetMetadataDiagnostics() {
+        metadataResolutionFailureMessage = null
+        pom.diagnosticsReporter.reset()
+        moduleFile.diagnosticsReporter.reset()
     }
 
     private fun List<Variant>.filterWithFallbackScope(scope: ResolutionScope): List<Variant> {
@@ -487,8 +521,8 @@ class MavenDependency internal constructor(
         }
     }
 
-    private suspend fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
-        val moduleMetadata = parseModuleMetadata(context, level)
+    private suspend fun resolveUsingMetadata(context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter) {
+        val moduleMetadata = parseModuleMetadata(context, level, diagnosticsReporter)
         this.moduleMetadata = moduleMetadata
 
         if (moduleMetadata == null) return
@@ -509,11 +543,12 @@ class MavenDependency internal constructor(
             validVariants.also {
                 variants = it
                 if (it.withoutDocumentationAndMetadata.size > 1) {
-                    messages.asMutable() += Message(
-                        "More than a single variant provided",
-                        it.joinToString { it.name },
-                        Severity.WARNING,
-                    )
+                    diagnosticsReporter.addMessage(
+                        Message(
+                            "More than a single variant provided",
+                            it.joinToString { it.name },
+                            Severity.WARNING,
+                    ))
                 }
             }
             // One platform case
@@ -521,9 +556,9 @@ class MavenDependency internal constructor(
                 .withoutDocumentationAndMetadata
                 .let { variants ->
                     variants.flatMap {
-                        it.dependencies(context, moduleMetadata, level) + listOfNotNull(it.`available-at`?.asDependency())
+                        it.dependencies(context, moduleMetadata, level, diagnosticsReporter) + listOfNotNull(it.`available-at`?.asDependency())
                     }.mapNotNull {
-                        it.toMavenDependency(context, moduleMetadata)
+                        it.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
                     }.let {
                         children = it
                     }
@@ -538,27 +573,30 @@ class MavenDependency internal constructor(
                 }
         } else {
             // Multiplatform case
-            val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata, level)
+            val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata, level, diagnosticsReporter)
             if (processedAsSpecialCase) {
-                return
+                // Do nothing, dependency was already processed
+            } else {
+                val (kotlinMetadataVariant, kmpMetadataFile) =
+                    detectKotlinMetadataLibrary(context, ResolutionPlatform.COMMON, moduleMetadata, level, diagnosticsReporter)
+                        ?: return  // children list is empty in case kmp common variant is not resolved
+
+                resolveKmpLibrary(kmpMetadataFile, context, moduleMetadata, level, kotlinMetadataVariant, diagnosticsReporter)
+
+                // Add KMP sources
+                val sourcesDependencyFile = getKotlinMetadataSourcesVariant(moduleMetadata.variants, ResolutionPlatform.COMMON)
+                    ?.let { getKotlinMetadataFile(it, diagnosticsReporter) }
+                    ?.let { getDependencyFile(this, it) }
+                    ?: getAutoAddedSourcesDependencyFile()
+
+                sourceSetsFiles = sourceSetsFiles.toMutableList() + listOf(sourcesDependencyFile)
             }
-
-            val (kotlinMetadataVariant, kmpMetadataFile) =
-                detectKotlinMetadataLibrary(context, ResolutionPlatform.COMMON, moduleMetadata, level)
-                    ?: return  // children list is empty in case kmp common variant is not resolved
-
-            resolveKmpLibrary(kmpMetadataFile, context, moduleMetadata, level, kotlinMetadataVariant)
-
-            // Add KMP sources
-            val sourcesDependencyFile = getKotlinMetadataSourcesVariant(moduleMetadata.variants, ResolutionPlatform.COMMON)
-                ?.let { getKotlinMetadataFile(it) }
-                ?.let { getDependencyFile(this, it) }
-                ?: getAutoAddedSourcesDependencyFile()
-
-            sourceSetsFiles = sourceSetsFiles.toMutableList() + listOf(sourcesDependencyFile)
         }
 
         state = level.state
+
+        // We have used a module metadata file for resolving dependency, => lower severity of pom-related issues.
+        pom.diagnosticsReporter.lowerSeverityTo(Severity.WARNING)
     }
 
     fun getAutoAddedSourcesDependencyFile() =
@@ -576,7 +614,8 @@ class MavenDependency internal constructor(
     private suspend fun processSpecialKmpLibraries(
         context: Context,
         moduleMetadata: Module,
-        level: ResolutionLevel
+        level: ResolutionLevel,
+        diagnosticsReporter: DiagnosticReporter
     ): Boolean {
         if (isKotlinTestAnnotationsCommon()
             || isKotlinStdlibCommon())
@@ -585,9 +624,9 @@ class MavenDependency internal constructor(
                 .variants
                 .let {
                     it.flatMap {
-                        it.dependencies(context, moduleMetadata, level)
+                        it.dependencies(context, moduleMetadata, level, diagnosticsReporter)
                     }.mapNotNull {
-                        it.toMavenDependency(context, moduleMetadata)
+                        it.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
                     }.let {
                         children = it
                     }
@@ -612,14 +651,15 @@ class MavenDependency internal constructor(
 
     private fun Dependency.toMavenDependency(
         context: Context,
+        diagnosticsReporter: DiagnosticReporter,
         errorMessageBuilder: (String) -> String
     ): MavenDependency? {
-        val resolvedVersion = resolveVersion(errorMessageBuilder)
+        val resolvedVersion = resolveVersion(diagnosticsReporter, errorMessageBuilder)
         return resolvedVersion?.let { context.createOrReuseDependency(group, module, resolvedVersion) }
     }
 
-    private fun Dependency.toMavenDependency(context: Context, module: Module): MavenDependency? {
-        return toMavenDependency(context) { versionError ->
+    private fun Dependency.toMavenDependency(context: Context, module: Module, diagnosticsReporter: DiagnosticReporter): MavenDependency? {
+        return toMavenDependency(context, diagnosticsReporter) { versionError ->
             "Module ${module.component.group}:${module.component.module}:${module.component.version} " +
                     "depends on ${this@toMavenDependency.group}:${this@toMavenDependency.module}, but its version could not be resolved:" +
                     " $versionError"
@@ -629,7 +669,8 @@ class MavenDependency internal constructor(
     private suspend fun Variant.bomDependencyConstraints(
         context: Context,
         module: Module,
-        level: ResolutionLevel
+        level: ResolutionLevel,
+        diagnosticsReporter: DiagnosticReporter
     ): List<MavenDependencyConstraint> =
         dependencies.mapNotNull {
             if (!it.isBom()) {
@@ -637,7 +678,7 @@ class MavenDependency internal constructor(
             } else {
                 withResolvedVersion(it)
                     .takeIf { it.version != null }
-                    ?.toMavenDependency(context, module)
+                    ?.toMavenDependency(context, module, diagnosticsReporter)
                     ?.let {
                         it.resolveChildren(context, level)
                         it.dependencyConstraints
@@ -645,16 +686,17 @@ class MavenDependency internal constructor(
             }
         }.flatten().takeIf { it.isNotEmpty() }
             // try to resolve constraints from '.pom' - descriptor
-            ?: pomText?.let { resolveDependenciesConstraintsUsingPom(it, context, level) }
+            ?: pomText?.let { resolveDependenciesConstraintsUsingPom(it, context, level, diagnosticsReporter) }
             ?: emptyList()
 
     private suspend fun Variant.dependencies(
         context: Context,
         module: Module,
-        level: ResolutionLevel
+        level: ResolutionLevel,
+        diagnosticsReporter: DiagnosticReporter
     ): List<Dependency> =
         dependencies.map {
-            withResolvedVersion(it) { bomDependencyConstraints(context, module, level) }
+            withResolvedVersion(it) { bomDependencyConstraints(context, module, level, diagnosticsReporter) }
         }
 
     /**
@@ -688,46 +730,50 @@ class MavenDependency internal constructor(
             }
         }
 
-    private fun Dependency.resolveVersion(errorMessageBuilder: (String) -> String): String? {
+    private fun Dependency.resolveVersion(diagnosticsReporter: DiagnosticReporter, errorMessageBuilder: (String) -> String): String? {
         return if (version == null) {
-            messages.asMutable() += Message(
-                text = errorMessageBuilder("Attribute 'version' is not defined"),
-                severity = Severity.ERROR
-            )
+            diagnosticsReporter.addMessage(
+                Message(
+                    text = errorMessageBuilder("Attribute 'version' is not defined"),
+                    severity = Severity.ERROR
+            ))
             null
         } else {
             val resolvedVersion = version.resolve()
             if (resolvedVersion == null) {
-                messages.asMutable() += Message(
-                    text = errorMessageBuilder("neither 'requires' nor 'prefers' nor 'strictly' attributes are defined"),
-                    severity = Severity.ERROR
-                )
+                diagnosticsReporter.addMessage(
+                    Message(
+                        text = errorMessageBuilder("neither 'requires' nor 'prefers' nor 'strictly' attributes are defined"),
+                        severity = Severity.ERROR
+                ))
                 return null
             }
             resolvedVersion
         }
     }
 
-    private suspend fun parseModuleMetadata(context: Context, level: ResolutionLevel): Module? {
-        if (moduleFile.isDownloadedOrDownload(level, context)) {
+    private suspend fun parseModuleMetadata(context: Context, level: ResolutionLevel, diagnosticReporter: DiagnosticReporter): Module? {
+        if (moduleFile.isDownloadedOrDownload(level, context, diagnosticReporter)) {
             try {
                 return moduleFile.readText().parseMetadata()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                messages.asMutable() += Message(
-                    "Unable to parse metadata file $moduleFile",
-                    e.toString(),
-                    Severity.ERROR,
-                    e,
-                )
+                diagnosticReporter.addMessage(
+                    Message(
+                        "Unable to parse metadata file $moduleFile",
+                        e.toString(),
+                        Severity.ERROR,
+                        e,
+                ))
             }
         } else {
-            messages.asMutable() += Message(
-                "module file was not downloaded for $this",
-                context.settings.repositories.toString(),
-                if (level.state == ResolutionState.RESOLVED) Severity.ERROR else Severity.WARNING,
-            )
+            diagnosticReporter.addMessage(
+                Message(
+                    "module file was not downloaded for $this",
+                    context.settings.repositories.toString(),
+                    if (level.state == ResolutionState.RESOLVED) Severity.ERROR else Severity.WARNING,
+            ))
         }
         return null
     }
@@ -736,30 +782,34 @@ class MavenDependency internal constructor(
         context: Context,
         platform: ResolutionPlatform,
         moduleMetadata: Module?,
-        level: ResolutionLevel
+        level: ResolutionLevel,
+        diagnosticsReporter: DiagnosticReporter
     ): Pair<Variant, DependencyFile>? {
         val resolvedModuleMetadata = moduleMetadata
-            ?: parseModuleMetadata(context, level)
+            ?: parseModuleMetadata(context, level, diagnosticsReporter)
             ?: return null
 
-        val kotlinMetadataVariant = getKotlinMetadataVariant(resolvedModuleMetadata.variants, platform)
+        val kotlinMetadataVariant = getKotlinMetadataVariant(resolvedModuleMetadata.variants, platform, diagnosticsReporter)
             ?: return null  // children list is empty in case kmp common variant is not resolved
-        val kotlinMetadataFile = getKotlinMetadataFile(kotlinMetadataVariant)
-            ?: return null  // children list is empty in case kmp common variant file is not resolved
+        val kotlinMetadataFile = getKotlinMetadataFile(kotlinMetadataVariant, diagnosticsReporter)
+            ?: return null  // children list is empty if kmp common variant file is not resolved
 
         val kmpMetadataDependencyFile = getDependencyFile(this, kotlinMetadataFile)
 
         return (kotlinMetadataVariant to kmpMetadataDependencyFile).takeIf {
             it.second.isDownloadedOrDownload(
                 level,
-                context
+                context,
+                it.second.diagnosticsReporter
             )
         }
             ?: run {
-                messages.asMutable() += Message(
-                    "Kotlin metadata file ${kmpMetadataDependencyFile.nameWithoutExtension}.${kmpMetadataDependencyFile.extension} is required for $this",
-                    severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
-                )
+                diagnosticsReporter.addMessage(
+                    Message(
+                        "Kotlin metadata file ${kmpMetadataDependencyFile.nameWithoutExtension}.${kmpMetadataDependencyFile.extension} is required for $this",
+                        severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
+                        suppressedMessages = kmpMetadataDependencyFile.diagnosticsReporter.getMessages()
+                ))
                 null
             }
     }
@@ -769,15 +819,17 @@ class MavenDependency internal constructor(
         context: Context,
         moduleMetadata: Module,
         level: ResolutionLevel,
-        kotlinMetadataVariant: Variant
+        kotlinMetadataVariant: Variant,
+        diagnosticsReporter: DiagnosticReporter
     ) {
         val kmpMetadata = kmpMetadataFile.getPath()?.let {
             readJarEntry(it, "META-INF/kotlin-project-structure-metadata.json")
         } ?: run {
-            messages.asMutable() += Message(
-                "Can't resolve common library: META-INF/kotlin-project-structure-metadata.json is not found inside ${kmpMetadataFile.fileName}",
-                severity = Severity.ERROR
-            )
+            diagnosticsReporter.addMessage(
+                Message(
+                    "Can't resolve common library: META-INF/kotlin-project-structure-metadata.json is not found inside ${kmpMetadataFile.fileName}",
+                    severity = Severity.ERROR
+            ))
             return
         }
 
@@ -806,7 +858,8 @@ class MavenDependency internal constructor(
                             moduleMetadata,
                             kotlinProjectStructureMetadata,
                             context,
-                            level
+                            level,
+                            diagnosticsReporter
                         )
                     }
                 }
@@ -821,17 +874,18 @@ class MavenDependency internal constructor(
             .mapNotNull { rawDep ->
                 val parts = rawDep.split(":")
                 if (parts.size != 2) {
-                    messages.asMutable() += Message(
-                        "Kotlin library file ${group}:${module}:${version} depends on $rawDep that has unexpected coordinates format",
-                        severity = Severity.ERROR,
-                    )
+                    diagnosticsReporter.addMessage(
+                        Message(
+                            "Kotlin library file ${group}:${module}:${version} depends on $rawDep that has unexpected coordinates format",
+                            severity = Severity.ERROR,
+                    ))
                     null
                 } else {
                     val dependencyGroup = parts[0]
                     val dependencyModule = parts[1]
-                    kotlinMetadataVariant.dependencies(context, moduleMetadata, level)
+                    kotlinMetadataVariant.dependencies(context, moduleMetadata, level, diagnosticsReporter)
                         .firstOrNull { it.group == dependencyGroup && it.module == dependencyModule }
-                        ?.toMavenDependency(context) { versionErrorMessage ->
+                        ?.toMavenDependency(context, diagnosticsReporter) { versionErrorMessage ->
                             "Kotlin library file ${group}:${module}:${version} depends on $rawDep," +
                                     " but its version could not be determined from corresponding module file, " +
                                     " $versionErrorMessage"
@@ -842,28 +896,32 @@ class MavenDependency internal constructor(
         // todo (AB) : take kotlinMetadataVariant.dependencyConstraints into account as well? What subset on constraints should be taken into account?
     }
 
-    private fun getKotlinMetadataFile(kotlinMetadataVariant: Variant) =
+    private fun getKotlinMetadataFile(kotlinMetadataVariant: Variant, diagnosticReporter: DiagnosticReporter) =
         kotlinMetadataVariant.files.singleOrNull()
             ?: run {
-                messages.asMutable() += Message(
-                    "Kotlin metadata file is not resolved for maven dependency ${group}:${module}:${version},",
-                    severity = Severity.ERROR,
-                )
+                diagnosticReporter.addMessage(
+                    Message(
+                        "Kotlin metadata file is not resolved for maven dependency ${group}:${module}:${version},",
+                        severity = Severity.ERROR,
+                ))
                 null
             }
 
     private fun getKotlinMetadataVariant(
         validVariants: List<Variant>,
-        platform: ResolutionPlatform
+        platform: ResolutionPlatform,
+        diagnosticReporter: DiagnosticReporter
     ): Variant? {
         if (this.isKotlinTestAnnotationsCommon()) return null
         val metadataVariants = validVariants.filter { it.isKotlinMetadata(platform) }
         return metadataVariants.firstOrNull() ?: run {
-            messages.asMutable() += Message(
-                "More than a single variant provided for multiplatform dependency ${group}:${module}:${version}, " +
-                        "but kotlin metadata is not found (none of variants has attribute 'org.gradle.usage' equal to 'kotlin-metadata')",
-                severity = Severity.ERROR,
-            )
+            diagnosticReporter.addMessage(
+                Message(
+                    "More than a single variant provided for multiplatform dependency ${group}:${module}:${version}, " +
+                            "but kotlin metadata is not found " +
+                            "(none of variants has attribute 'org.gradle.usage' equal to 'kotlin-metadata')",
+                    severity = Severity.ERROR,
+            ))
 
             null
         }
@@ -882,9 +940,10 @@ class MavenDependency internal constructor(
         moduleMetadata: Module,
         kotlinProjectStructureMetadata: KotlinProjectStructureMetadata? = null, // is empty for sources only
         context: Context,
-        level: ResolutionLevel
+        level: ResolutionLevel,
+        diagnosticReporter: DiagnosticReporter
     ): DependencyFile? =
-        toDependencyFile(name, kmpMetadataFile, moduleMetadata, kotlinProjectStructureMetadata, context, level)
+        toDependencyFile(name, kmpMetadataFile, moduleMetadata, kotlinProjectStructureMetadata, context, level, diagnosticReporter)
 
     // todo (AB) : All this logic might be wrapped into ExecuteOnChange in order to skip metadata resolution in case targetFile exists already
     private suspend fun toDependencyFile(
@@ -893,28 +952,30 @@ class MavenDependency internal constructor(
         moduleMetadata: Module,
         kotlinProjectStructureMetadata: KotlinProjectStructureMetadata? = null, // is empty for sources only
         context: Context,
-        level: ResolutionLevel
+        level: ResolutionLevel,
+        diagnosticsReporter: DiagnosticReporter
     ): DependencyFile? {
         val group = kmpMetadataFile.dependency.group
         val module = kmpMetadataFile.dependency.module
         val version = kmpMetadataFile.dependency.version
         // kmpMetadataFile hash
         val sha1 = kmpMetadataFile.getOrDownloadExpectedHash(
-            "sha1", null, context.settings.progress, context.resolutionCache, level
+            "sha1", null, context.settings.progress, context.resolutionCache, diagnosticsReporter, level
         )
             ?: kmpMetadataFile.getPath()?.let {
                 computeHash(it, "sha1").hash
             }
             ?: run {
-                messages.asMutable() += Message(
-                    "Kotlin metadata file hash sha1 could not be resolved for maven dependency ${group}:${module}:${version},",
-                    severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.INFO,
-                )
+                diagnosticsReporter.addMessage(
+                    Message(
+                        "Kotlin metadata file hash sha1 could not be resolved for maven dependency ${group}:${module}:${version},",
+                        severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.INFO,
+                ))
                 return null
             }
 
         val kmpLibraryWithSourceSet = resolveKmpLibraryWithSourceSet(
-            sourceSetName, kmpMetadataFile, context, kotlinProjectStructureMetadata, moduleMetadata, level
+            sourceSetName, kmpMetadataFile, context, kotlinProjectStructureMetadata, moduleMetadata, level, diagnosticsReporter
         )
             ?: run {
                 logger.debug("SourceSet $sourceSetName for kotlin multiplatform library ${kmpMetadataFile.fileName} is not found")
@@ -951,11 +1012,12 @@ class MavenDependency internal constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                messages.asMutable() += Message(
-                    "Failed repackaging kotlin multiplatform library ${kmpLibraryWithSourceSet.name}",
-                    severity = Severity.ERROR,
-                    exception = e
-                )
+                diagnosticsReporter.addMessage(
+                    Message(
+                        "Failed repackaging kotlin multiplatform library ${kmpLibraryWithSourceSet.name}",
+                        severity = Severity.ERROR,
+                        exception = e
+                ))
                 false
             }
         }
@@ -995,7 +1057,8 @@ class MavenDependency internal constructor(
         context: Context,
         kotlinProjectStructureMetadata: KotlinProjectStructureMetadata?,
         moduleMetadata: Module,
-        level: ResolutionLevel
+        level: ResolutionLevel,
+        diagnosticsReporter: DiagnosticReporter
     ) = if (hasJarEntry(kmpMetadataFile.getPath()!!, sourceSetName) == true) {
         kmpMetadataFile.getPath()!!
     } else if (kotlinProjectStructureMetadata == null) {
@@ -1024,10 +1087,10 @@ class MavenDependency internal constructor(
                 it.first
                     .`available-at`
                     ?.asDependency()
-                    ?.toMavenDependency(context, moduleMetadata)
+                    ?.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
                     ?.let {
-                        val depModuleMetadata = it.parseModuleMetadata(context, level)
-                        it.detectKotlinMetadataLibrary(context, platform, depModuleMetadata, level)
+                        val depModuleMetadata = it.parseModuleMetadata(context, level, diagnosticsReporter)
+                        it.detectKotlinMetadataLibrary(context, platform, depModuleMetadata, level, diagnosticsReporter)
                     }?.let {
                         it.second.getPath()?.takeIf { hasJarEntry(it, sourceSetName) == true }
                     }
@@ -1093,8 +1156,8 @@ class MavenDependency internal constructor(
 
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
 
-    private suspend fun resolveUsingPom(text: String, context: Context, level: ResolutionLevel) {
-        val project = resolvePom(text, context, level) ?: return
+    private suspend fun resolveUsingPom(text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter) {
+        val project = resolvePom(text, context, level, diagnosticsReporter) ?: return
 
         (project.dependencies?.dependencies ?: listOf()).filter {
             context.settings.scope.matches(it)
@@ -1108,29 +1171,33 @@ class MavenDependency internal constructor(
 
         packaging = project.packaging ?: "jar"
         state = level.state
+
+        // We have used a pom file for resolving dependency, => lower severity of module-metadata-related issues.
+        moduleFile.diagnosticsReporter.lowerSeverityTo(Severity.WARNING)
     }
 
     private suspend fun resolvePom(
-        text: String, context: Context, level: ResolutionLevel
+        text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter
     ) : Project? {
         return try {
-            text.parsePom().resolve(context, level)
+            text.parsePom().resolve(context, level, diagnosticsReporter)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            messages.asMutable() += Message(
-                "Unable to parse pom file ${this.pom}",
-                e.toString(),
-                Severity.ERROR,
-                e,
-            )
+            diagnosticsReporter.addMessage(
+                Message(
+                    "Unable to parse pom file ${this.pom}",
+                    e.toString(),
+                    Severity.ERROR,
+                    e,
+            ))
             return null
         }
     }
 
     private suspend fun resolveDependenciesConstraintsUsingPom(
-        text: String, context: Context, level: ResolutionLevel
-    ): List<MavenDependencyConstraint> = resolvePom(text, context, level)
+        text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter
+    ): List<MavenDependencyConstraint> = resolvePom(text, context, level, diagnosticsReporter)
         ?.resolveDependenciesConstraints(context)
         ?: emptyList()
 
@@ -1150,25 +1217,27 @@ class MavenDependency internal constructor(
     private suspend fun Project.resolve(
         context: Context,
         resolutionLevel: ResolutionLevel,
+        diagnosticsReporter: DiagnosticReporter,
         depth: Int = 0,
         origin: Project = this
     ): Project {
         if (depth > 10) {
-            messages.asMutable() += Message(
-                "Project ${origin.name} has more than ten ancestors",
-                severity = Severity.WARNING,
-            )
+            diagnosticsReporter.addMessage(
+                Message(
+                    "Project ${origin.name} has more than ten ancestors",
+                    severity = Severity.WARNING,
+            ))
             return this
         }
         val parentNode = parent?.let {
             context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
         }
 
-        val importedDependencyManagement = resolveImportedDependencyManagement(context, resolutionLevel, depth, origin)
+        val importedDependencyManagement = resolveImportedDependencyManagement(context, resolutionLevel, diagnosticsReporter, depth, origin)
 
-        val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, context))) {
+        val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter))) {
             val text = parentNode.pom.readText()
-            val parentProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
+            val parentProject = text.parsePom().resolve(context, resolutionLevel, diagnosticsReporter, depth + 1, origin)
             copy(
                 groupId = groupId ?: parentProject.groupId,
                 artifactId = artifactId ?: parentProject.artifactId,
@@ -1245,8 +1314,9 @@ class MavenDependency internal constructor(
     private suspend fun Project.resolveImportedDependencyManagement(
         context: Context,
         resolutionLevel: ResolutionLevel,
+        diagnosticsReporter: DiagnosticReporter,
         depth: Int,
-        origin: Project
+        origin: Project,
     ): DependencyManagement? = dependencyManagement
             ?.dependencies
             ?.dependencies
@@ -1254,9 +1324,9 @@ class MavenDependency internal constructor(
             ?.mapNotNull {
                 if (it.scope == "import" && it.version != null) {
                     val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
-                    if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context)) {
+                    if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter)) {
                         val text = dependency.pom.readText()
-                        val dependencyProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
+                        val dependencyProject = text.parsePom().resolve(context, resolutionLevel, diagnosticsReporter, depth + 1, origin)
                         dependencyProject.dependencyManagement
                     } else {
                         null
@@ -1270,8 +1340,9 @@ class MavenDependency internal constructor(
                 (a + b)!!
             }
 
-    private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context) =
-        isDownloaded() && hasMatchingChecksum(level, context) || level == ResolutionLevel.NETWORK && download(context)
+    private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context, diagnosticsReporter: DiagnosticReporter) =
+        isDownloaded() && hasMatchingChecksum(level, context, diagnosticsReporter)
+                || level == ResolutionLevel.NETWORK && download(context, diagnosticsReporter)
 
     private val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant>
         get() = filterNot { it.isDocumentationOrMetadata }
@@ -1299,19 +1370,23 @@ class MavenDependency internal constructor(
                         && !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context))
             }
 
-        notDownloaded.forEach { it.download(context) }
+        notDownloaded.forEach {
+            it.diagnosticsReporter.reset()
+            it.download(context, it.diagnosticsReporter)
+        }
 
-        allFiles.forEach { it.postProcess(context, downloadSources, ResolutionLevel.NETWORK) }
+        allFiles.forEach { it.postProcess(context, downloadSources, ResolutionLevel.NETWORK, it.diagnosticsReporter) }
     }
 
-    private suspend fun DependencyFile.postProcess(context: Context, downloadSources: Boolean, level: ResolutionLevel) {
-        repackageKmpLibrarySources(context, downloadSources, level)
+    private suspend fun DependencyFile.postProcess(context: Context, downloadSources: Boolean, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter) {
+        repackageKmpLibrarySources(context, downloadSources, level, diagnosticsReporter)
     }
 
     private suspend fun DependencyFile.repackageKmpLibrarySources(
         context: Context,
         downloadSources: Boolean,
-        level: ResolutionLevel
+        level: ResolutionLevel,
+        diagnosticsReporter: DiagnosticReporter
     ) {
         if (context.settings.platforms.size > 1
             && downloadSources
@@ -1334,7 +1409,8 @@ class MavenDependency internal constructor(
                                 moduleMetadata,
                                 null,
                                 context,
-                                level
+                                level,
+                                diagnosticsReporter
                             )
                         }
                     }
@@ -1348,8 +1424,6 @@ class MavenDependency internal constructor(
     private fun DependencyFile.isSourcesDependencyFile(): Boolean =
         !files(withSources = false).map { it.fileName }.contains(this.fileName)
 }
-
-internal fun <E> List<E>.asMutable(): MutableList<E> = this as MutableList<E>
 
 private fun Dependency.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
 

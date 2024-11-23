@@ -187,10 +187,28 @@ data class Message(
     val extra: String = "",
     val severity: Severity = Severity.INFO,
     val exception: Throwable? = null,
+    val suppressedMessages: List<Message> = emptyList()
 )
 
 val Message.message: String
+    get() = ownMessage
+
+val Message.detailedMessage: String
+    get() = withSuppressed()
+
+private val Message.ownMessage: String
     get() = "$text${extra.takeIf { it.isNotBlank() }?.let{ " ($it)" } ?: ""}"
+
+private fun Message.withSuppressed(level: Int = 1): String =
+    buildString {
+        append(ownMessage)
+        suppressedMessages.forEach {
+            if (it.severity >= severity) {
+                append("\n").append("  ".repeat(level)).append(it.withSuppressed(level + 1))
+            }
+        }
+    }
+
 
 enum class Severity {
     INFO, WARNING, ERROR

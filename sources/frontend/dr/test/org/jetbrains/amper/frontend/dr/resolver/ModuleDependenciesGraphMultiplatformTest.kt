@@ -2380,6 +2380,6 @@ class ModuleDependenciesGraphMultiplatformTest {
         internal val REDIRECTOR_MAVEN2 = listOf("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
 
         fun List<Message>.defaultFilterMessages(): List<Message> =
-            filter { "Downloaded from" !in it.text && "Resolved from local repository" != it.text }
+            filter { "Downloaded " !in it.text && "Resolved " !in it.text }
     }
 }

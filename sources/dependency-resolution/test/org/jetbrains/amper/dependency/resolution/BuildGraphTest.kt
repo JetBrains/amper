@@ -38,6 +38,42 @@ class BuildGraphTest: BaseDRTest() {
             root, true
         )
     }
+    // todo (AB) : Test case II: artifact HASH file is corrupted (wrong checksum inside), check that
+    // todo (AB) : - HASH file is re-downloaded
+    // todo (AB) : - artifact is correct (re-downloaded if it was corrupted)
+    // todo (AB) : - no errors is associated with corresponding dependency
+
+    /**
+     * This test checks that if one of the repositories fails to resolve dependency
+     * and return some incorrect/unexpected response,
+     * dependency should still be resolved successfully from the valid repository
+     */
+    @Test
+    fun `com_squareup_retrofit2 retrofit 2_11_0`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            scope = ResolutionScope.COMPILE,
+            platform = setOf(ResolutionPlatform.JVM),
+            repositories = listOf("https://jetbrains.team/p/amper/reviews/", REDIRECTOR_MAVEN_CENTRAL,),
+
+            expected = """root
+                |\--- com.squareup.retrofit2:retrofit:2.11.0
+                |     \--- com.squareup.okhttp3:okhttp:3.14.9
+                |          \--- com.squareup.okio:okio:1.17.2
+            """.trimMargin()
+        )
+        runBlocking {
+            downloadAndAssertFiles(
+                """okhttp-3.14.9-sources.jar
+                |okhttp-3.14.9.jar
+                |okio-1.17.2-sources.jar
+                |okio-1.17.2.jar
+                |retrofit-2.11.0-sources.jar
+                |retrofit-2.11.0.jar""".trimMargin(),
+                root, true
+            )
+        }
+    }
 
     @Test
     fun `com_google_guava listenablefuture 9999_0-empty-to-avoid-conflict-with-guava`(testInfo: TestInfo) {
@@ -1319,7 +1355,7 @@ class BuildGraphTest: BaseDRTest() {
         runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
         root.verifyGraphConnectivity()
         root.distinctBfsSequence().forEach {
-            val messages = it.messages.filter { "Downloaded from" !in it.text }
+            val messages = it.messages.filter { "Downloaded " !in it.text }
             assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
         }
     }
