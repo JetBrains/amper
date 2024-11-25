@@ -70,7 +70,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
 
             val preBuildTaskName = IosTaskType.PreBuildIosApp.getTaskName(module, platform)
             tasks.registerTask(
-                task = PreBuildIosTask(
+                task = IosPreBuildTask(
                     taskName = preBuildTaskName,
                     module = module,
                     buildType = BuildType.Debug,
@@ -85,7 +85,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
 
             val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)
             tasks.registerTask(
-                task = BuildAppleTask(
+                task = IosBuildTask(
                     platform = platform,
                     module = module,
                     buildType = BuildType.Debug,
@@ -104,7 +104,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
 
             val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
             tasks.registerTask(
-                task = RunAppleTask(
+                task = IosRunTask(
                     taskName = runTaskName,
                     platform = platform,
                     buildType = buildType,

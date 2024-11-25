@@ -35,7 +35,7 @@ import kotlin.io.path.pathString
 import kotlin.io.path.readText
 
 
-class BuildAppleTask(
+class IosBuildTask(
     override val platform: Platform,
     override val module: AmperModule,
     private val buildType: BuildType,

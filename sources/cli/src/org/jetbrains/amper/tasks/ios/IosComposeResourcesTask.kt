@@ -68,15 +68,6 @@ class IosComposeResourcesTask(
             ExecuteOnChangedInputs.ExecutionResult(listOf(outputPath))
         }
 
-        return Result(
-            outputPath = outputPath,
-        )
+        return EmptyTaskResult
     }
-
-    class Result(
-        /**
-         * This is a conventional path, given here for pure convenience.
-         */
-        val outputPath: Path,
-    ) : TaskResult
 }

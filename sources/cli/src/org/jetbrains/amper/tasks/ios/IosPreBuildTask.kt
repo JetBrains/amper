@@ -11,13 +11,13 @@ import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.util.BuildType
-import java.nio.file.Path
 import kotlin.io.path.createParentDirectories
 
-class PreBuildIosTask(
+class IosPreBuildTask(
     override val taskName: TaskName,
     private val module: AmperModule,
     private val buildType: BuildType,
@@ -27,7 +27,7 @@ class PreBuildIosTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val frameworkPath = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>().linkedBinary
 
-        return IosConventions.Context(
+        IosConventions.Context(
             buildRootPath = outputRoot.path,
             moduleName = module.userReadableName,
             buildType = buildType,
@@ -40,22 +40,8 @@ class PreBuildIosTask(
                 to = targetPath,
                 overwrite = true,  // TODO: incremental instead?
             )
-
-            Result(
-                buildDependencies = listOfNotNull(
-                    // Framework
-                    frameworkPath,
-                    // Compose resources dir, if present
-                    dependenciesResult.filterIsInstance<IosComposeResourcesTask.Result>().firstOrNull()?.outputPath,
-                )
-            )
         }
-    }
 
-    class Result(
-        /**
-         * All of these are conventional paths, given here for pure convenience.
-         */
-        val buildDependencies: List<Path>,
-    ) : TaskResult
+        return EmptyTaskResult
+    }
 }

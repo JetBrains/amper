@@ -5,8 +5,8 @@
 package org.jetbrains.amper.tasks.ios
 
 import org.jetbrains.amper.engine.requireSingleDependency
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.BaseTaskResult
 import org.jetbrains.amper.tasks.RunTask
@@ -15,7 +15,7 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import kotlin.io.path.createDirectories
 
-class RunAppleTask(
+class IosRunTask(
     override val taskName: TaskName,
     override val platform: Platform,
     override val buildType: BuildType,
@@ -24,7 +24,7 @@ class RunAppleTask(
 ) : RunTask {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         taskOutputPath.path.createDirectories()
-        val builtApp = dependenciesResult.requireSingleDependency<BuildAppleTask.Result>()
+        val builtApp = dependenciesResult.requireSingleDependency<IosBuildTask.Result>()
         val chosenDevice = queryDevices().firstOrNull() ?: error("No available device")
         bootAndWaitSimulator(chosenDevice.deviceId, forceShowWindow = true)
         installAppOnDevice(chosenDevice.deviceId, builtApp.appPath)
