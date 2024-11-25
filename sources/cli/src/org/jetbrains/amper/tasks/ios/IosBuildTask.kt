@@ -90,20 +90,18 @@ class IosBuildTask(
                 }
             }
 
-        val iosContext = IosConventions.Context(
+        val iosConventions = IosConventions(
             buildRootPath = buildOutputRoot.path,
             moduleName = module.userReadableName,
             buildType = buildType,
             platform = platform,
         )
-        return with(iosContext) {
-            val outputDescription: IosConventions.BuildOutputDescription =
-                Json.decodeFromString(IosConventions.getBuildOutputDescriptionFilePath().readText())
-            Result(
-                bundleId = outputDescription.productBundleId,
-                appPath = Path(outputDescription.appPath),
-            )
-        }
+        val outputDescription: IosConventions.BuildOutputDescription =
+            Json.decodeFromString(iosConventions.getBuildOutputDescriptionFilePath().readText())
+        return Result(
+            bundleId = outputDescription.productBundleId,
+            appPath = Path(outputDescription.appPath),
+        )
     }
 
     class Result(

@@ -39,7 +39,7 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
 
         // TODO: Additionally validate xcode environment and give actionable error messages about configuration.
 
-        val iosContext = if (superAmperBuildBuildRoot == null) {
+        val iosConventions = if (superAmperBuildBuildRoot == null) {
             // Running from xcode only - need to run iOS prebuild task ourselves
             withBackend(commonOptions, commandName) { backend ->
                 val iosContext = inferXcodeContextFromEnv(
@@ -61,43 +61,42 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
         }
 
         // Copy the xcodebuild dependencies to their respective conventional locations.
-        with(iosContext) {
-            val xcodeTargetBuildDir = Path(getXcodeVar("TARGET_BUILD_DIR"))
 
-            val embeddedFrameworkPath =
-                xcodeTargetBuildDir / getXcodeVar("FRAMEWORKS_FOLDER_PATH")
-            embeddedFrameworkPath.createDirectories()
-            BuildPrimitives.copy(
-                from = IosConventions.getAppFrameworkPath(),
-                to = embeddedFrameworkPath / IosConventions.KOTLIN_FRAMEWORK_NAME,
-                followLinks = true,
-                overwrite = true,
-            )
+        val xcodeTargetBuildDir = Path(getXcodeVar("TARGET_BUILD_DIR"))
 
-            val embeddedComposeResourcesDir = xcodeTargetBuildDir / getXcodeVar("CONTENTS_FOLDER_PATH") /
-                    IosConventions.COMPOSE_RESOURCES_CONTENT_DIR_NAME
-            if (IosConventions.getComposeResourcesDirectory().isDirectory()) {
-                embeddedComposeResourcesDir.apply {
-                    createParentDirectories()
-                    deleteRecursively()
-                }
-                BuildPrimitives.copy(
-                    from = IosConventions.getComposeResourcesDirectory(),
-                    to = embeddedComposeResourcesDir,
-                    followLinks = true,
-                )
+        val embeddedFrameworkPath =
+            xcodeTargetBuildDir / getXcodeVar("FRAMEWORKS_FOLDER_PATH")
+        embeddedFrameworkPath.createDirectories()
+        BuildPrimitives.copy(
+            from = iosConventions.getAppFrameworkPath(),
+            to = embeddedFrameworkPath / IosConventions.KOTLIN_FRAMEWORK_NAME,
+            followLinks = true,
+            overwrite = true,
+        )
+
+        val embeddedComposeResourcesDir = xcodeTargetBuildDir / getXcodeVar("CONTENTS_FOLDER_PATH") /
+                IosConventions.COMPOSE_RESOURCES_CONTENT_DIR_NAME
+        if (iosConventions.getComposeResourcesDirectory().isDirectory()) {
+            embeddedComposeResourcesDir.apply {
+                createParentDirectories()
+                deleteRecursively()
             }
-
-            val outputDescription = IosConventions.BuildOutputDescription(
-                appPath = getBuiltAppDirectory().also { appPath ->
-                    check(appPath.isDirectory()) {
-                        "Expected app path '$appPath' to be an existing directory"
-                    }
-                }.absolutePathString(),
-                productBundleId = getXcodeVar("PRODUCT_BUNDLE_IDENTIFIER"),
+            BuildPrimitives.copy(
+                from = iosConventions.getComposeResourcesDirectory(),
+                to = embeddedComposeResourcesDir,
+                followLinks = true,
             )
-            IosConventions.getBuildOutputDescriptionFilePath().writeText(Json.encodeToString(outputDescription))
         }
+
+        val outputDescription = IosConventions.BuildOutputDescription(
+            appPath = getBuiltAppDirectory().also { appPath ->
+                check(appPath.isDirectory()) {
+                    "Expected app path '$appPath' to be an existing directory"
+                }
+            }.absolutePathString(),
+            productBundleId = getXcodeVar("PRODUCT_BUNDLE_IDENTIFIER"),
+        )
+        iosConventions.getBuildOutputDescriptionFilePath().writeText(Json.encodeToString(outputDescription))
     }
 
     private fun getBuiltAppDirectory(): Path = Path(getXcodeVar("SYMROOT")) /
@@ -106,7 +105,7 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
 
     private fun inferXcodeContextFromEnv(
         buildOutputRootPath: Path,
-    ): IosConventions.Context {
+    ): IosConventions {
         val buildType: BuildType = getXcodeVar("CONFIGURATION").let { value ->
             BuildType.entries.find { it.name == value } ?: userReadableError("Invalid `CONFIGURATION`: `$value`")
         }
@@ -135,7 +134,7 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
             }
         }
 
-        return IosConventions.Context(
+        return IosConventions(
             buildRootPath = buildOutputRootPath,
             platform = platform,
             buildType = buildType,

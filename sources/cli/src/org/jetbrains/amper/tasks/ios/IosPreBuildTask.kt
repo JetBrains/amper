@@ -15,6 +15,7 @@ import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.util.BuildType
+import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import kotlin.io.path.createParentDirectories
 
 class IosPreBuildTask(
@@ -23,22 +24,27 @@ class IosPreBuildTask(
     private val buildType: BuildType,
     private val platform: Platform,
     private val outputRoot: AmperBuildOutputRoot,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val frameworkPath = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>().linkedBinary
 
-        IosConventions.Context(
+        val targetPath = IosConventions(
             buildRootPath = outputRoot.path,
             moduleName = module.userReadableName,
             buildType = buildType,
             platform = platform,
-        ).run {
-            val targetPath = IosConventions.getAppFrameworkPath()
-            targetPath.createParentDirectories()
+        ).getAppFrameworkPath()
+
+        targetPath.createParentDirectories()
+        executeOnChangedInputs.execute(taskName.name, emptyMap(), listOf(frameworkPath)) {
             BuildPrimitives.copy(
                 from = frameworkPath,
                 to = targetPath,
-                overwrite = true,  // TODO: incremental instead?
+                overwrite = true,
+            )
+            ExecuteOnChangedInputs.ExecutionResult(
+                outputs = listOf(targetPath),
             )
         }
 

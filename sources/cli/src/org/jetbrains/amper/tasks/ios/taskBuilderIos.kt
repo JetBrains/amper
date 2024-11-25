@@ -76,6 +76,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     buildType = BuildType.Debug,
                     platform = platform,
                     outputRoot = context.buildOutputRoot,
+                    executeOnChangedInputs = executeOnChangedInputs,
                 ),
                 dependsOn = buildList {
                     composeResourcesTaskName?.let(::add)

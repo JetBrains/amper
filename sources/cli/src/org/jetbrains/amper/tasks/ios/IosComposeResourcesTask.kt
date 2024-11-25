@@ -17,7 +17,6 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesResult
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
@@ -33,14 +32,12 @@ class IosComposeResourcesTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val outputPath = IosConventions.Context(
+        val outputPath = IosConventions(
             buildRootPath = buildOutputRoot.path,
             moduleName = leafFragment.module.userReadableName,
             buildType = BuildType.Debug,
             platform = leafFragment.platform,
-        ).run {
-            IosConventions.getComposeResourcesDirectory()
-        }
+        ).getComposeResourcesDirectory()
 
         val results = dependenciesResult.filterIsInstance<PrepareComposeResourcesResult.Prepared>()
         if (results.isEmpty()) {
