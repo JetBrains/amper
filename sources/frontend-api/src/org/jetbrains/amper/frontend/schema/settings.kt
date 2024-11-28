@@ -8,6 +8,7 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.KnownStringValues
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -101,6 +102,7 @@ class SerializationSettings : SchemaNode() {
             "automatically added to dependencies. When null, no format dependency is automatically added. " +
             "Prefer using the built-in catalog dependencies for this, as it gives control over the 'scope' and " +
             "'exported' properties.")
+    @KnownStringValues("json", "json-okio", "hocon", "protobuf", "cbor", "properties", "none")
     var format by nullableValue<String>(default = null)
 
     @SchemaDoc("The version of the kotlinx.serialization core and format libraries to use.")
@@ -108,15 +110,6 @@ class SerializationSettings : SchemaNode() {
 }
 
 const val legacySerializationFormatNone = "none"
-const val serializationSettingsShortForm = """
-  {
-    "enum": [
-      "enabled",
-      "json",
-      "$legacySerializationFormatNone"
-    ]
-  }
-"""
 
 class IosSettings : SchemaNode() {
 

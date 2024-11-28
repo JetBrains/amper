@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.builders
 import org.jetbrains.amper.core.forEachEndAware
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.Default
+import org.jetbrains.amper.frontend.api.KnownStringValues
 import org.jetbrains.amper.frontend.api.Shorthand
 import java.io.Writer
 import kotlin.reflect.KClass
@@ -208,7 +209,24 @@ class JsonSchemaBuilder(
                     }
                 }
             } else {
-                type.jsonSchema()
+                val knownStringValues = if (type.isString || type.isTraceableString) {
+                    prop.findAnnotation<KnownStringValues>()?.values.orEmpty()
+                } else emptyArray<String>()
+                if (knownStringValues.isNotEmpty()) {
+                    """
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [${knownStringValues.joinToString(",") { "\"$it\"" }}],
+                                "x-intellij-enum-order-sensitive": true
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    """.trimIndent()
+                }
+                else type.jsonSchema()
             }
         }
 

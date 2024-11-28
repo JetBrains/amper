@@ -784,7 +784,16 @@
             "format": {
               "x-intellij-html-description": "The [kotlinx.serialization format](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md) to use, such as `json`. When set, the corresponding `kotlinx-serialization-<format>` library is automatically added to dependencies. When null, no format dependency is automatically added. Prefer using the built-in catalog dependencies for this, as it gives control over the 'scope' and 'exported' properties.",
               "title": "The kotlinx.serialization format to use, such as `json`. When set, the corresponding `kotlinx-serialization-<format>` library is automatically added to dependencies. When null, no format dependency is automatically added. Prefer using the built-in catalog dependencies for this, as it gives control over the 'scope' and 'exported' properties",
-              "type": "string"
+              "anyOf": [
+                  {
+                      "type": "string",
+                      "enum": ["json","json-okio","hocon","protobuf","cbor","properties","none"],
+                      "x-intellij-enum-order-sensitive": true
+                  },
+                  {
+                      "type": "string"
+                  }
+              ]
             },
             "version": {
               "x-intellij-html-description": "The version of the kotlinx.serialization core and format libraries to use.",
@@ -800,7 +809,16 @@
           ]
         },
         {
-          "type": "string"
+          "anyOf": [
+              {
+                  "type": "string",
+                  "enum": ["json","json-okio","hocon","protobuf","cbor","properties","none"],
+                  "x-intellij-enum-order-sensitive": true
+              },
+              {
+                  "type": "string"
+              }
+          ]
         }
       ]
     },

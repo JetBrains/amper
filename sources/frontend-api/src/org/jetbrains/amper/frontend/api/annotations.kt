@@ -99,3 +99,10 @@ annotation class Shorthand
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class EnumItemDescription(val description: String)
+
+/**
+ * If we don't want to limit a value by an enum, but we still want to provide code assistance for known values
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class KnownStringValues(vararg val values: String)
