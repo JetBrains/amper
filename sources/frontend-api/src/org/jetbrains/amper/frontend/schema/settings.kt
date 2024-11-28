@@ -8,7 +8,6 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -88,7 +87,6 @@ class ComposeResourcesSettings : SchemaNode() {
     var exposedAccessors by value(default = false)
 }
 
-@AdditionalSchemaDef(serializationSettingsShortForm)
 class SerializationSettings : SchemaNode() {
 
     @SchemaDoc("Enables the kotlinx.serialization compiler plugin, which generates code based on " +

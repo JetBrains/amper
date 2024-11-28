@@ -37,16 +37,6 @@ annotation class CustomSchemaDef(
 )
 
 /**
- * A way of rude tuning resulting json schema.
- */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class AdditionalSchemaDef(
-    val json: String,
-    val useOneOf: Boolean = false
-)
-
-/**
  * This annotation can be used to indicate that the order in which the enumeration constants
  * are declared is important.
  * This will be utilized in JSON schema by setting the meta property `x-intellij-enum-order-sensitive` to `true`.

@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -73,7 +72,6 @@ class Module : Base() {
     var module by value(::Meta)
 }
 
-@AdditionalSchemaDef(repositoryShortForm, useOneOf = true)
 class Repository : SchemaNode() {
     @Shorthand
     @SchemaDoc("The url of the repository")

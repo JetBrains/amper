@@ -7,15 +7,12 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
-import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.asTraceable
-import org.jetbrains.amper.frontend.api.unsafe
 
 
 @SchemaDoc("Defines what should be produced out of the module. Read more about the [product types](#product-types)")
@@ -94,7 +91,6 @@ enum class ProductType(
 }
 
 @SchemaDoc("Defines what should be produced out of the module. [Read more](#product-types)")
-@AdditionalSchemaDef(productShortForm, useOneOf = true)
 class ModuleProduct : SchemaNode() {
 
     @Shorthand

@@ -5,9 +5,9 @@
 package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.core.forEachEndAware
-import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.Default
+import org.jetbrains.amper.frontend.api.Shorthand
 import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -31,10 +31,15 @@ private const val enabledSettingsShortForm = """
 class JsonSchemaBuilderCtx {
     val visited = mutableSetOf<KClass<*>>()
     val customSchemaDef = mutableMapOf<String, String>()
-    val additionalSchemaDef = mutableMapOf<String, AdditionalSchemaDef>()
     val declaredPatternProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
-    val declaredProperties: MutableMap<String, MutableMap<String, String>> = mutableMapOf()
+    val declaredProperties: MutableMap<String, MutableMap<String, PropertyInfo>> = mutableMapOf()
 }
+
+class PropertyInfo(
+    val fullJsonDef: String,
+    val bodyDef: String,
+    val shorthand: Boolean = false
+)
 
 /**
  * A visitor, that traverses the tree and put all schema info into [JsonSchemaBuilderCtx].
@@ -70,7 +75,7 @@ class JsonSchemaBuilder(
 
                     visited.forEachEndAware { isEnd, it ->
                         val key = it.jsonDef
-                        val propertyValues = declaredProperties[key]
+                        val propertyInfos = declaredProperties[key]
                         val patternProperties = declaredPatternProperties[key]
                         appendLine("    \"$key\": {")
 
@@ -78,17 +83,13 @@ class JsonSchemaBuilder(
                         if (customSchema != null) {
                             appendLine(customSchema.prependIndent("      "))
                         } else {
-                            val (additionalSchema, useOneOf) =
-                                additionalSchemaDef[key]?.let { it.json.trimIndent() to it.useOneOf }
-                                    ?: if (propertyValues?.containsKey("enabled") == true) {
-                                        enabledSettingsShortForm.trimIndent() to null
-                                    } else (null to null)
-                            if (additionalSchema != null) {
-                                val term = if (useOneOf == true) "oneOf" else "anyOf"
-                                appendLine("      \"$term\": [")
+                            val enabledShorthandSchema = enabledValueSchema(propertyInfos)
+                            val extraShorthandSchema = shorthandValueSchema(propertyInfos)
+                            if (enabledShorthandSchema != null || extraShorthandSchema != null) {
+                                appendLine("      \"anyOf\": [")
                                 appendLine("        {")
                             }
-                            val identPrefix = additionalSchema?.let { "    " } ?: ""
+                            val identPrefix = (enabledShorthandSchema ?: extraShorthandSchema)?.let { "    " } ?: ""
                             appendLine("$identPrefix      \"type\": \"object\",")
 
                             // pattern properties section.
@@ -98,24 +99,30 @@ class JsonSchemaBuilder(
                                     append(it.replaceIndent("$identPrefix        "))
                                     if (!isEnd2) appendLine(",") else appendLine()
                                 }
-                                if (propertyValues != null) appendLine("$identPrefix      },")
+                                if (propertyInfos != null) appendLine("$identPrefix      },")
                                 else appendLine("$identPrefix      }")
                             }
 
                             // properties section.
-                            if (propertyValues != null) {
+                            if (propertyInfos != null) {
                                 appendLine("$identPrefix      \"properties\": {")
-                                propertyValues.values.forEachEndAware { isEnd2, it ->
-                                    append(it.replaceIndent("$identPrefix        "))
+                                propertyInfos.values.forEachEndAware { isEnd2, it ->
+                                    append(it.fullJsonDef.replaceIndent("$identPrefix        "))
                                     if (!isEnd2) appendLine(",") else appendLine()
                                 }
                                 appendLine("$identPrefix      },")
                                 appendLine("$identPrefix      \"additionalProperties\": false")
                             }
 
-                            if (additionalSchema != null) {
+                            if (enabledShorthandSchema != null || extraShorthandSchema != null) {
                                 appendLine("        },")
-                                appendLine(additionalSchema.prependIndent("        "))
+                                if (enabledShorthandSchema != null) {
+                                    val suffix = if (extraShorthandSchema != null) "," else ""
+                                    appendLine(enabledShorthandSchema.prependIndent("        ") + suffix)
+                                }
+                                if (extraShorthandSchema != null) {
+                                    appendLine(extraShorthandSchema.prependIndent("        "))
+                                }
                                 appendLine("      ]")
                             }
                         }
@@ -127,6 +134,16 @@ class JsonSchemaBuilder(
                     appendLine("}")
                 }
             }
+
+        private fun shorthandValueSchema(propertyInfos: MutableMap<String, PropertyInfo>?): String? = propertyInfos.orEmpty().values
+                .singleOrNull { it.shorthand }?.bodyDef?.let {
+                    "{\n${it.prependIndent("  ")}\n}"
+            }?.trimIndent()
+
+        private fun enabledValueSchema(propertyValues: MutableMap<String, PropertyInfo>?): String? =
+            if (propertyValues?.containsKey("enabled") == true) {
+                enabledSettingsShortForm.trimIndent()
+            } else null
     }
 
     private fun addPatternProperty(prop: KProperty<*>, block: () -> String) {
@@ -137,7 +154,9 @@ class JsonSchemaBuilder(
 
     private fun addProperty(prop: KProperty<*>, block: () -> String) {
         ctx.declaredProperties.compute(currentRoot.jsonDef) { _, old ->
-            old.orNew.apply { put(prop.name, buildProperty(prop, block)) }
+            old.orNew().apply { put(prop.name, PropertyInfo(buildProperty(prop, block),
+                block(),
+                prop.hasAnnotation<Shorthand>())) }
         }
     }
 
@@ -146,9 +165,6 @@ class JsonSchemaBuilder(
             klass.hasAnnotation<CustomSchemaDef>() ->
                 ctx.customSchemaDef[klass.jsonDef] = klass.findAnnotation<CustomSchemaDef>()!!.json.trimIndent()
             else -> {
-                if (klass.hasAnnotation<AdditionalSchemaDef>()) {
-                    ctx.additionalSchemaDef[klass.jsonDef] = klass.findAnnotation<AdditionalSchemaDef>()!!
-                }
                 visitSchema(klass, JsonSchemaBuilder(klass, ctx))
             }
         }
@@ -215,5 +231,5 @@ class JsonSchemaBuilder(
     }
 
     private val MutableList<String>?.orNew get() = this ?: mutableListOf()
-    private val MutableMap<String, String>?.orNew get() = this ?: mutableMapOf()
+    private fun <T1, T2> MutableMap<T1, T2>?.orNew() = this ?: mutableMapOf()
 }

@@ -174,7 +174,7 @@
       "additionalProperties": false
     },
     "ModuleProduct": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": "object",
           "properties": {
@@ -320,7 +320,7 @@
       ]
     },
     "Repository": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": "object",
           "properties": {
@@ -796,10 +796,11 @@
         },
         {
           "enum": [
-            "enabled",
-            "json",
-            "none"
+            "enabled"
           ]
+        },
+        {
+          "type": "string"
         }
       ]
     },
