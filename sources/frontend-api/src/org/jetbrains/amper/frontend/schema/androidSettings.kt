@@ -145,7 +145,6 @@ class AndroidSettings : SchemaNode() {
     var parcelize by value<ParcelizeSettings>(ParcelizeSettings())
 }
 
-@AdditionalSchemaDef(ANDROID_SIGNING_SETTINGS_SHORT_FORM)
 class AndroidSigningSettings : SchemaNode() {
     @SchemaDoc("Enable signing with keystore")
     var enabled by value(default = false)
@@ -174,7 +173,6 @@ val Properties.storePassword: String? get() = getProperty(KeystoreProperty.Store
 val Properties.keyAlias: String? get() = getProperty(KeystoreProperty.KeyAlias.key)
 val Properties.keyPassword: String? get() = getProperty(KeystoreProperty.KeyPassword.key)
 
-@AdditionalSchemaDef(parcelizeSettingsShortForm)
 class ParcelizeSettings : SchemaNode() {
 
     @SchemaDoc("Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an " +
@@ -189,10 +187,3 @@ class ParcelizeSettings : SchemaNode() {
     var additionalAnnotations: List<TraceableString> by value(default = emptyList())
 }
 
-const val parcelizeSettingsShortForm = """
-  {
-    "enum": [
-      "enabled"
-    ]
-  }
-"""

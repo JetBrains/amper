@@ -17,6 +17,14 @@ import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.typeOf
 
 
+private const val enabledSettingsShortForm = """
+  {
+    "enum": [
+      "enabled"
+    ]
+  }
+"""
+
 /**
  * The place where schema is actually built.
  */
@@ -25,7 +33,7 @@ class JsonSchemaBuilderCtx {
     val customSchemaDef = mutableMapOf<String, String>()
     val additionalSchemaDef = mutableMapOf<String, AdditionalSchemaDef>()
     val declaredPatternProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
-    val declaredProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
+    val declaredProperties: MutableMap<String, MutableMap<String, String>> = mutableMapOf()
 }
 
 /**
@@ -70,7 +78,11 @@ class JsonSchemaBuilder(
                         if (customSchema != null) {
                             appendLine(customSchema.prependIndent("      "))
                         } else {
-                            val (additionalSchema, useOneOf) = additionalSchemaDef[key]?.let { it.json.trimIndent() to it.useOneOf } ?: (null to null)
+                            val (additionalSchema, useOneOf) =
+                                additionalSchemaDef[key]?.let { it.json.trimIndent() to it.useOneOf }
+                                    ?: if (propertyValues?.containsKey("enabled") == true) {
+                                        enabledSettingsShortForm.trimIndent() to null
+                                    } else (null to null)
                             if (additionalSchema != null) {
                                 val term = if (useOneOf == true) "oneOf" else "anyOf"
                                 appendLine("      \"$term\": [")
@@ -93,7 +105,7 @@ class JsonSchemaBuilder(
                             // properties section.
                             if (propertyValues != null) {
                                 appendLine("$identPrefix      \"properties\": {")
-                                propertyValues.forEachEndAware { isEnd2, it ->
+                                propertyValues.values.forEachEndAware { isEnd2, it ->
                                     append(it.replaceIndent("$identPrefix        "))
                                     if (!isEnd2) appendLine(",") else appendLine()
                                 }
@@ -125,7 +137,7 @@ class JsonSchemaBuilder(
 
     private fun addProperty(prop: KProperty<*>, block: () -> String) {
         ctx.declaredProperties.compute(currentRoot.jsonDef) { _, old ->
-            old.orNew.apply { add(buildProperty(prop, block)) }
+            old.orNew.apply { put(prop.name, buildProperty(prop, block)) }
         }
     }
 
@@ -203,4 +215,5 @@ class JsonSchemaBuilder(
     }
 
     private val MutableList<String>?.orNew get() = this ?: mutableListOf()
+    private val MutableMap<String, String>?.orNew get() = this ?: mutableMapOf()
 }

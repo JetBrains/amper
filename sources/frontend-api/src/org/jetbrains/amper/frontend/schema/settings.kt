@@ -62,7 +62,6 @@ class Settings : SchemaNode() {
     var native by nullableValue<NativeSettings>()
 }
 
-@AdditionalSchemaDef(composeSettingsShortForm)
 class ComposeSettings : SchemaNode() {
 
     @SchemaDoc("Enable Compose runtime, dependencies and the compiler plugins")
@@ -88,14 +87,6 @@ class ComposeResourcesSettings : SchemaNode() {
     )
     var exposedAccessors by value(default = false)
 }
-
-const val composeSettingsShortForm = """
-  {
-    "enum": [
-      "enabled"
-    ]
-  }
-"""
 
 @AdditionalSchemaDef(serializationSettingsShortForm)
 class SerializationSettings : SchemaNode() {
@@ -164,7 +155,6 @@ class PublishingSettings : SchemaNode() {
     var name by nullableValue<String>()
 }
 
-@AdditionalSchemaDef(koverSettingsShortForm)
 class KoverSettings : SchemaNode() {
 
     @SchemaDoc("Enable code overage with Kover")
@@ -176,14 +166,6 @@ class KoverSettings : SchemaNode() {
 //    @SchemaDoc("")
     var html by nullableValue<KoverHtmlSettings>()
 }
-
-const val koverSettingsShortForm = """
-  {
-    "enum": [
-      "enabled"
-    ]
-  }
-"""
 
 class KoverXmlSettings : SchemaNode() {
 //    @SchemaDoc("")
