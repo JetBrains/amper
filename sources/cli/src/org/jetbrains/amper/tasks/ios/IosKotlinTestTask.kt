@@ -14,8 +14,8 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setProcessResultAttributes
 import org.jetbrains.amper.engine.requireSingleDependency
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.BaseTaskResult
@@ -36,7 +36,7 @@ class IosKotlinTestTask(
         val compileTaskResult = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>()
         val workingDir = module.source.moduleDir ?: projectRoot.path
         val executable = compileTaskResult.linkedBinary
-        val chosenDevice = queryDevices().firstOrNull() ?: error("No available device")
+        val chosenDevice = pickBestDevice() ?: error("No available device")
 
         DeviceLock.withLock(hash = chosenDevice.deviceId.hashCode()) {
             return spanBuilder("ios-kotlin-test")

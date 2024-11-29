@@ -25,7 +25,7 @@ class IosRunTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         taskOutputPath.path.createDirectories()
         val builtApp = dependenciesResult.requireSingleDependency<IosBuildTask.Result>()
-        val chosenDevice = queryDevices().firstOrNull() ?: error("No available device")
+        val chosenDevice = pickBestDevice() ?: error("No available device")
         bootAndWaitSimulator(chosenDevice.deviceId, forceShowWindow = true)
         installAppOnDevice(chosenDevice.deviceId, builtApp.appPath)
         launchAppOnDevice(chosenDevice.deviceId, builtApp.bundleId)
