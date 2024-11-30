@@ -100,10 +100,3 @@ class ModuleProduct : SchemaNode() {
     @SchemaDoc("What platforms to generate the product for")
     var platforms by dependentValue(::type) { it?.defaultPlatforms?.toList()?.map(Platform::asTraceable) }
 }
-
-const val productShortForm = """
-  {
-    "enum": ["lib","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"],
-    "x-intellij-enum-order-sensitive": true
-  }
-"""

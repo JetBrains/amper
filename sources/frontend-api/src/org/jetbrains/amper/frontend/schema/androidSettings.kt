@@ -152,14 +152,6 @@ class AndroidSigningSettings : SchemaNode() {
     var propertiesFile by value<Path> { Path("keystore.properties") }
 }
 
-const val ANDROID_SIGNING_SETTINGS_SHORT_FORM = """
-  {
-    "enum": [
-      "enabled"
-    ]
-  }
-"""
-
 enum class KeystoreProperty(val key: String) {
     StoreFile("storeFile"),
     StorePassword("storePassword"),

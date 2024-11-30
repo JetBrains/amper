@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
@@ -53,6 +54,7 @@ val Base.commonSettings get() = settings[noModifiers]!!
 /**
  * Common test settings section.
  */
+@UsedInIdePlugin
 val Base.commonTestSettings get() = `test-settings`[noModifiers]!!
 
 class Template : Base()
@@ -106,12 +108,6 @@ class TaskSettings: SchemaNode() {
     @SchemaDoc("Adds to task dependencies")
     var dependsOn by nullableValue<List<TraceableString>>()
 }
-
-const val repositoryShortForm = """
-  {
-    "type": "string"
-  }
-"""
 
 @SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interop)")
 enum class AmperLayout(

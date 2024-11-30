@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.frontend.api.CustomSchemaDef
+import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceablePath
@@ -23,14 +23,22 @@ class KspSettings : SchemaNode() {
     var processorOptions by value<Map<TraceableString, TraceableString>>(default = emptyMap())
 }
 
-@CustomSchemaDef(""""type": "string"""")
 sealed interface KspProcessorDeclaration
 
-data class MavenKspProcessorDeclaration(val coordinates: TraceableString) : KspProcessorDeclaration
+data class MavenKspProcessorDeclaration(
+    @DependencyKey
+    val coordinates: TraceableString
+) : KspProcessorDeclaration
 
-data class ModuleKspProcessorDeclaration(val path: TraceablePath) : KspProcessorDeclaration
+data class ModuleKspProcessorDeclaration(
+    @DependencyKey
+    val path: TraceablePath
+) : KspProcessorDeclaration
 
-data class CatalogKspProcessorDeclaration(val catalogKey: CatalogKey) : KspProcessorDeclaration
+data class CatalogKspProcessorDeclaration(
+    @DependencyKey
+    val catalogKey: CatalogKey
+) : KspProcessorDeclaration
 
 /**
  * Whether KSP should be run.

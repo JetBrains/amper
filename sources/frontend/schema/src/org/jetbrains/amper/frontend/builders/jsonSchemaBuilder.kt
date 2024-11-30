@@ -5,8 +5,8 @@
 package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.core.forEachEndAware
-import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.Default
+import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.KnownStringValues
 import org.jetbrains.amper.frontend.api.Shorthand
 import java.io.Writer
@@ -15,8 +15,18 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.typeOf
 
+
+private const val exportedSettingsShortForm = """
+  {
+    "enum": [
+      "exported"
+    ]
+  }
+"""
 
 private const val enabledSettingsShortForm = """
   {
@@ -31,7 +41,6 @@ private const val enabledSettingsShortForm = """
  */
 class JsonSchemaBuilderCtx {
     val visited = mutableSetOf<KClass<*>>()
-    val customSchemaDef = mutableMapOf<String, String>()
     val declaredPatternProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
     val declaredProperties: MutableMap<String, MutableMap<String, PropertyInfo>> = mutableMapOf()
 }
@@ -39,7 +48,8 @@ class JsonSchemaBuilderCtx {
 class PropertyInfo(
     val fullJsonDef: String,
     val bodyDef: String,
-    val shorthand: Boolean = false
+    val shorthand: Boolean = false,
+    val dependencyKey: Boolean = false
 )
 
 /**
@@ -73,59 +83,82 @@ class JsonSchemaBuilder(
 
                     appendLine("  \"\$defs\": {")
 
-
                     visited.forEachEndAware { isEnd, it ->
                         val key = it.jsonDef
                         val propertyInfos = declaredProperties[key]
                         val patternProperties = declaredPatternProperties[key]
                         appendLine("    \"$key\": {")
 
-                        val customSchema = customSchemaDef[key]
-                        if (customSchema != null) {
-                            appendLine(customSchema.prependIndent("      "))
-                        } else {
-                            val enabledShorthandSchema = enabledValueSchema(propertyInfos)
-                            val extraShorthandSchema = shorthandValueSchema(propertyInfos)
-                            if (enabledShorthandSchema != null || extraShorthandSchema != null) {
-                                appendLine("      \"anyOf\": [")
-                                appendLine("        {")
-                            }
-                            val identPrefix = (enabledShorthandSchema ?: extraShorthandSchema)?.let { "    " } ?: ""
+                        val hasDependencyKey = propertyInfos.orEmpty().any { it.value.dependencyKey }
+
+                        val enabledShorthandSchema =
+                            enabledValueSchema(propertyInfos)
+                        val extraShorthandSchema = shorthandValueSchema(propertyInfos)
+                        var identPrefix = (enabledShorthandSchema ?: extraShorthandSchema)?.let { "    " } ?: ""
+
+                        if (hasDependencyKey) {
+                            appendLine("$identPrefix  \"anyOf\": [")
+                            appendLine("$identPrefix    {")
+                            appendLine("$identPrefix      \"type\": \"string\"")
+                            appendLine("$identPrefix    },")
+                            appendLine("$identPrefix    {")
                             appendLine("$identPrefix      \"type\": \"object\",")
+                            appendLine("$identPrefix      \"patternProperties\": {")
+                            appendLine("$identPrefix        \"^.*$\": {")
+                        }
 
-                            // pattern properties section.
-                            if (patternProperties != null) {
-                                appendLine("$identPrefix      \"patternProperties\": {")
-                                patternProperties.forEachEndAware { isEnd2, it ->
-                                    append(it.replaceIndent("$identPrefix        "))
-                                    if (!isEnd2) appendLine(",") else appendLine()
-                                }
-                                if (propertyInfos != null) appendLine("$identPrefix      },")
-                                else appendLine("$identPrefix      }")
-                            }
+                        if ((enabledShorthandSchema != null || extraShorthandSchema != null)) {
+                            val prefix = if (hasDependencyKey) "        " else ""
+                            appendLine("$prefix      \"anyOf\": [")
+                            appendLine("$prefix        {")
+                        }
 
-                            // properties section.
-                            if (propertyInfos != null) {
-                                appendLine("$identPrefix      \"properties\": {")
-                                propertyInfos.values.forEachEndAware { isEnd2, it ->
-                                    append(it.fullJsonDef.replaceIndent("$identPrefix        "))
-                                    if (!isEnd2) appendLine(",") else appendLine()
-                                }
-                                appendLine("$identPrefix      },")
-                                appendLine("$identPrefix      \"additionalProperties\": false")
-                            }
+                        identPrefix = if (hasDependencyKey) "$identPrefix        " else identPrefix
 
-                            if (enabledShorthandSchema != null || extraShorthandSchema != null) {
-                                appendLine("        },")
-                                if (enabledShorthandSchema != null) {
-                                    val suffix = if (extraShorthandSchema != null) "," else ""
-                                    appendLine(enabledShorthandSchema.prependIndent("        ") + suffix)
-                                }
-                                if (extraShorthandSchema != null) {
-                                    appendLine(extraShorthandSchema.prependIndent("        "))
-                                }
-                                appendLine("      ]")
+                        appendLine("$identPrefix      \"type\": \"object\",")
+
+                        // pattern properties section.
+                        if (patternProperties != null) {
+                            appendLine("$identPrefix      \"patternProperties\": {")
+                            patternProperties.forEachEndAware { isEnd2, it ->
+                                append(it.replaceIndent("$identPrefix        "))
+                                if (!isEnd2) appendLine(",") else appendLine()
                             }
+                            if (propertyInfos != null) appendLine("$identPrefix      },")
+                            else appendLine("$identPrefix      }")
+                        }
+
+                        var indent = "$identPrefix      "
+
+                        // properties section.
+                        if (propertyInfos != null) {
+                            appendLine("$indent\"properties\": {")
+                            propertyInfos.values.filter { !it.dependencyKey }.forEachEndAware { isEnd2, it ->
+                                append(it.fullJsonDef.replaceIndent("$indent  "))
+                                if (!isEnd2) appendLine(",") else appendLine()
+                            }
+                            appendLine("$indent},")
+                            appendLine("$indent\"additionalProperties\": false")
+                        }
+
+                        indent = indent.substring(2)
+                        if (enabledShorthandSchema != null || extraShorthandSchema != null) {
+                            appendLine("$indent},")
+                            if (enabledShorthandSchema != null) {
+                                val suffix = if (extraShorthandSchema != null) "," else ""
+                                appendLine(enabledShorthandSchema.prependIndent(indent) + suffix)
+                            }
+                            if (extraShorthandSchema != null) {
+                                appendLine(extraShorthandSchema.prependIndent(indent))
+                            }
+                            appendLine("${indent.substring(2)}]")
+                        }
+
+                        if (hasDependencyKey) {
+                            appendLine("${indent.substring(4)}}")
+                            appendLine("${indent.substring(6)}}")
+                            appendLine("${indent.substring(8)}}")
+                            appendLine("${indent.substring(10)}]")
                         }
 
                         if (!isEnd) appendLine("    },")
@@ -136,13 +169,17 @@ class JsonSchemaBuilder(
                 }
             }
 
-        private fun shorthandValueSchema(propertyInfos: MutableMap<String, PropertyInfo>?): String? = propertyInfos.orEmpty().values
+        private fun shorthandValueSchema(propertyInfos: MutableMap<String, PropertyInfo>?): String? =
+            propertyInfos.orEmpty().values
                 .singleOrNull { it.shorthand }?.bodyDef?.let {
                     "{\n${it.prependIndent("  ")}\n}"
-            }?.trimIndent()
+                }?.trimIndent()
 
         private fun enabledValueSchema(propertyValues: MutableMap<String, PropertyInfo>?): String? =
-            if (propertyValues?.containsKey("enabled") == true) {
+            if (propertyValues.orEmpty().containsKey("exported")
+                && propertyValues.orEmpty().any { it.value.dependencyKey }) {
+                exportedSettingsShortForm.trimIndent()
+            } else if (propertyValues?.containsKey("enabled") == true) {
                 enabledSettingsShortForm.trimIndent()
             } else null
     }
@@ -155,20 +192,21 @@ class JsonSchemaBuilder(
 
     private fun addProperty(prop: KProperty<*>, block: () -> String) {
         ctx.declaredProperties.compute(currentRoot.jsonDef) { _, old ->
-            old.orNew().apply { put(prop.name, PropertyInfo(buildProperty(prop, block),
-                block(),
-                prop.hasAnnotation<Shorthand>())) }
+            old.orNew().apply {
+                put(
+                    prop.name, PropertyInfo(
+                        buildProperty(prop, block),
+                        block(),
+                        prop.hasAnnotation<Shorthand>(),
+                        prop.hasAnnotation<DependencyKey>()
+                    )
+                )
+            }
         }
     }
 
     override fun visitClas(klass: KClass<*>) = if (ctx.visited.add(klass)) {
-        when {
-            klass.hasAnnotation<CustomSchemaDef>() ->
-                ctx.customSchemaDef[klass.jsonDef] = klass.findAnnotation<CustomSchemaDef>()!!.json.trimIndent()
-            else -> {
-                visitSchema(klass, JsonSchemaBuilder(klass, ctx))
-            }
-        }
+        visitSchema(klass, JsonSchemaBuilder(klass, ctx))
     } else Unit
 
     override fun visitTyped(
@@ -213,29 +251,47 @@ class JsonSchemaBuilder(
                     prop.findAnnotation<KnownStringValues>()?.values.orEmpty()
                 } else emptyArray<String>()
                 if (knownStringValues.isNotEmpty()) {
-                    """
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "enum": [${knownStringValues.joinToString(",") { "\"$it\"" }}],
-                                "x-intellij-enum-order-sensitive": true
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
-                    """.trimIndent()
-                }
-                else type.jsonSchema()
+                    knownValuesSchema(knownStringValues)
+                } else type.jsonSchema()
             }
         }
 
+    private fun KType.sealedClassSchema(): String {
+        val subclassSchemas = unwrapKClass.sealedSubclasses.map {
+            if (it.isData && it.memberProperties.size == 1) {
+                it.memberProperties.single().returnType.jsonSchema()
+            } else it.starProjectedType.jsonSchema()
+        }.distinct()
+        if (subclassSchemas.size == 1) {
+            return subclassSchemas.single()
+        }
+        return """
+            "oneOf": [
+                {${
+            subclassSchemas.joinToString(",")
+        }}
+            ]
+        """.trimIndent()
+    }
+
+    private fun knownValuesSchema(knownStringValues: Array<out String>): String = """
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [${knownStringValues.joinToString(",") { "\"$it\"" }}],
+                                    "x-intellij-enum-order-sensitive": true
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        """.trimIndent()
+
     private fun KType.jsonSchema(): String {
-        val customSchemaDef = unwrapKClassOrNull?.findAnnotation<CustomSchemaDef>()
+        if (unwrapKClass.isSealed) {
+            return sealedClassSchema()
+        }
         return when {
-            // Bypass other checks if we already know the schema for it.
-            // This allows arbitrary classes to be used as long as they provide a CustomSchemaDef.
-            customSchemaDef != null -> customSchemaDef.json.trimIndent()
             isEnum -> enumSchema
             isTraceableEnum -> arguments.single().type!!.enumSchema
             isString || isTraceableString -> stringSchema

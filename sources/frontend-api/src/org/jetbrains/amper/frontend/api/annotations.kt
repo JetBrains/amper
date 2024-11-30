@@ -28,13 +28,14 @@ annotation class SchemaDoc(
 annotation class ModifierAware
 
 /**
- * A way of rude tuning resulting json schema.
+ * Defines that this field is a dependency key. Can be either of:
+ * - String / TraceableString
+ * - TraceablePath
+ * - CatalogKey
  */
-@Target(AnnotationTarget.CLASS)
+@Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class CustomSchemaDef(
-    val json: String
-)
+annotation class DependencyKey
 
 /**
  * This annotation can be used to indicate that the order in which the enumeration constants

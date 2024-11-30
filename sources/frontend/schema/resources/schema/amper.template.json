@@ -137,31 +137,34 @@
             "^.*$": {
               "anyOf": [
                 {
+                  "type": "object",
+                  "properties": {
+                    "exported": {
+                      "x-intellij-html-description": "Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)",
+                      "title": "Whether a dependency should be visible as a part of a published API",
+                      "type": "boolean"
+                    },
+                    "scope": {
+                      "x-intellij-html-description": "When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)",
+                      "title": "When the dependency should be used. Read more about the dependency scopes",
+                      "enum": ["compile-only","runtime-only","all"],
+                      "x-intellij-enum-order-sensitive": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
                   "enum": [
-                    "exported",
-                    "compile-only",
-                    "runtime-only"
+                    "exported"
                   ]
                 },
                 {
-                  "type": "object",
-                  "properties": {
-                    "scope": {
-                      "enum": [
-                        "all",
-                        "compile-only",
-                        "runtime-only"
-                      ]
-                    },
-                    "exported": {
-                      "type": "boolean"
-                    }
-                  }
+                  "enum": ["compile-only","runtime-only","all"],
+                  "x-intellij-enum-order-sensitive": true
                 }
               ]
             }
-          },
-          "additionalProperties": false
+          }
         }
       ]
     },
@@ -176,31 +179,34 @@
             "^.*$": {
               "anyOf": [
                 {
+                  "type": "object",
+                  "properties": {
+                    "exported": {
+                      "x-intellij-html-description": "Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)",
+                      "title": "Whether a dependency should be visible as a part of a published API",
+                      "type": "boolean"
+                    },
+                    "scope": {
+                      "x-intellij-html-description": "When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)",
+                      "title": "When the dependency should be used. Read more about the dependency scopes",
+                      "enum": ["compile-only","runtime-only","all"],
+                      "x-intellij-enum-order-sensitive": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
                   "enum": [
-                    "exported",
-                    "compile-only",
-                    "runtime-only"
+                    "exported"
                   ]
                 },
                 {
-                  "type": "object",
-                  "properties": {
-                    "scope": {
-                      "enum": [
-                        "all",
-                        "compile-only",
-                        "runtime-only"
-                      ]
-                    },
-                    "exported": {
-                      "type": "boolean"
-                    }
-                  }
+                  "enum": ["compile-only","runtime-only","all"],
+                  "x-intellij-enum-order-sensitive": true
                 }
               ]
             }
-          },
-          "additionalProperties": false
+          }
         }
       ]
     },
@@ -215,31 +221,34 @@
             "^.*$": {
               "anyOf": [
                 {
+                  "type": "object",
+                  "properties": {
+                    "exported": {
+                      "x-intellij-html-description": "Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)",
+                      "title": "Whether a dependency should be visible as a part of a published API",
+                      "type": "boolean"
+                    },
+                    "scope": {
+                      "x-intellij-html-description": "When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)",
+                      "title": "When the dependency should be used. Read more about the dependency scopes",
+                      "enum": ["compile-only","runtime-only","all"],
+                      "x-intellij-enum-order-sensitive": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
                   "enum": [
-                    "exported",
-                    "compile-only",
-                    "runtime-only"
+                    "exported"
                   ]
                 },
                 {
-                  "type": "object",
-                  "properties": {
-                    "scope": {
-                      "enum": [
-                        "all",
-                        "compile-only",
-                        "runtime-only"
-                      ]
-                    },
-                    "exported": {
-                      "type": "boolean"
-                    }
-                  }
+                  "enum": ["compile-only","runtime-only","all"],
+                  "x-intellij-enum-order-sensitive": true
                 }
               ]
             }
-          },
-          "additionalProperties": false
+          }
         }
       ]
     },

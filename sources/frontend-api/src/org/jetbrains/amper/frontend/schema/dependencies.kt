@@ -6,13 +6,15 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.CustomSchemaDef
+import org.jetbrains.amper.frontend.api.DependencyKey
+import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 
+@EnumOrderSensitive
 enum class DependencyScope(
     override val schemaValue: String,
     val runtime: Boolean,
@@ -36,24 +38,24 @@ sealed class Dependency : SchemaNode() {
     var scope by value(DependencyScope.ALL)
 }
 
-@CustomSchemaDef(dependencySchema)
 class ExternalMavenDependency : Dependency() {
 
     @SchemaDoc("Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
+    @DependencyKey
     var coordinates by value<String>()
 }
 
-@CustomSchemaDef(dependencySchema)
 class InternalDependency : Dependency() {
 
     @SchemaDoc("Dependency [on another module](#module-dependencies) in the codebase")
+    @DependencyKey
     var path by nullableValue<Path>()
 }
 
-@CustomSchemaDef(dependencySchema)
 class CatalogDependency : Dependency() {
 
     @SchemaDoc("Dependency from [a dependency catalog](#dependencyversion-catalogs)")
+    @DependencyKey
     var catalogKey by value<CatalogKey>()
 }
 
@@ -62,43 +64,3 @@ class CatalogKey(val key: String): TraceableString(key) {
     override fun equals(other: Any?) =
         this === other || (other as? CatalogKey)?.key == key
 }
-
-const val dependencySchema = """
-  "anyOf": [
-    {
-      "type": "string"
-    },
-    {
-      "type": "object",
-      "patternProperties": {
-        "^.*$": {
-          "anyOf": [
-            {
-              "enum": [
-                "exported",
-                "compile-only",
-                "runtime-only"
-              ]
-            },
-            {
-              "type": "object",
-              "properties": {
-                "scope": {
-                  "enum": [
-                    "all",
-                    "compile-only",
-                    "runtime-only"
-                  ]
-                },
-                "exported": {
-                  "type": "boolean"
-                }
-              }
-            }
-          ]
-        }
-      },
-      "additionalProperties": false
-    }
-  ]
-"""
