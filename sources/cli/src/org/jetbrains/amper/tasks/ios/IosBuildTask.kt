@@ -50,6 +50,10 @@ class IosBuildTask(
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val projectInitialInfo = dependenciesResult.requireSingleDependency<ManageXCodeProjectTask.Result>()
+        val xcodeSettings = projectInitialInfo.resolvedXcodeSettings[buildType] ?: run {
+            // TODO: Assist user in creating this configuration back?
+            userReadableError("Missing ${buildType.name} configuration in Xcode project.")
+        }
 
         val workingDir = taskOutputPath.path.createDirectories()
         val derivedDataPath = workingDir / "derivedData"
@@ -68,6 +72,12 @@ class IosBuildTask(
             this += "${BuildSettingNames.OBJROOT}=${objRootPath.pathString}"
             this += "${BuildSettingNames.SYMROOT}=${symRootPath.pathString}"
             this += "AMPER_WRAPPER_PATH=${CliContext.wrapperScriptPath.absolutePathString()}"
+            if (!platform.isIosSimulator && !xcodeSettings.hasTeamId && !xcodeSettings.isSigningDisabled) {
+                logger.warn("`DEVELOPMENT_TEAM` build setting is not detected in the Xcode project. " +
+                        "Adding `CODE_SIGNING_ALLOWED=NO` to disable signing. " +
+                        "You can still sign the app manually later.")
+                this += "CODE_SIGNING_ALLOWED=NO"
+            }
             this += "build"
         }
         spanBuilder("xcodebuild")

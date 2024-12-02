@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.ios
 
+import com.android.utils.associateNotNull
 import com.jetbrains.cidr.xcode.XcodeProjectId
 import com.jetbrains.cidr.xcode.frameworks.ApplePlatform
 import com.jetbrains.cidr.xcode.frameworks.AppleProductType
@@ -92,7 +93,7 @@ class ManageXCodeProjectTask(
     private fun validateAndUpdateProject(
         projectDir: Path,
         pbxProjectFilePath: Path,
-        span: Span? = null,
+        span: Span,
     ): Result {
         val pbxProjectFile: PBXProjectFile = PBXProjectFile(XcodeProjectHandle(), projectDir, pbxProjectFilePath)
             .apply {
@@ -117,14 +118,29 @@ class ManageXCodeProjectTask(
                 amperPhase[key] = value
             }
             pbxProjectFile.save()
-            span?.setAttribute(UpdatedAttribute, true)
+            span.setAttribute(UpdatedAttribute, true)
         } else {
             logger.info("Amper Phase is valid")
-            span?.setAttribute(UpdatedAttribute, false)
+            span.setAttribute(UpdatedAttribute, false)
+        }
+
+        val xcodeSettings = target.buildConfigurations.associateNotNull { configuration ->
+            val buildType = BuildType.entries.find { it.name == configuration.name } ?: return@associateNotNull null
+
+            val settingsResolver = ConfigurationSettingsResolver(
+                buildConfiguration = configuration,
+                target = target,
+            )
+
+            buildType to ResolvedXcodeSettings(
+                hasTeamId = settingsResolver.getBuildSetting("DEVELOPMENT_TEAM").string != null,
+                isSigningDisabled = settingsResolver.getBuildSetting("CODE_SIGNING_ALLOWED").string == "NO",
+            )
         }
 
         return Result(
             targetName = target.name,
+            resolvedXcodeSettings = xcodeSettings,
             projectDir = projectDir,
         )
     }
@@ -132,7 +148,7 @@ class ManageXCodeProjectTask(
     private fun generateDefaultProject(
         pbxProjectFilePath: Path,
         baseDir: Path,
-        projectDir: Path
+        projectDir: Path,
     ): Result {
         pbxProjectFilePath.createParentDirectories()
         pbxProjectFilePath.createFile()
@@ -246,6 +262,10 @@ class ManageXCodeProjectTask(
         return Result(
             targetName = DEFAULT_TARGET_NAME,
             projectDir = projectDir,
+            resolvedXcodeSettings = mapOf(
+                BuildType.Debug to ResolvedXcodeSettings(),
+                BuildType.Release to ResolvedXcodeSettings(),
+            ),
         )
     }
 
@@ -264,8 +284,6 @@ class ManageXCodeProjectTask(
         this["UILaunchScreen"] = mapOf<String, Any>().toPlist()
 
         // Needed for https://github.com/JetBrains/compose-multiplatform/issues/3634
-        // TODO: Maybe don't force it here
-        //  when we migrate to the external user-maintained xcode project way.
         this["CADisableMinimumFrameDurationOnPhone"] = true
     }
 
@@ -299,9 +317,15 @@ class ManageXCodeProjectTask(
         )
     }
 
+    class ResolvedXcodeSettings(
+        val hasTeamId: Boolean = false,
+        val isSigningDisabled: Boolean = false,
+    )
+
     class Result(
         val targetName: String,
         val projectDir: Path,
+        val resolvedXcodeSettings: Map<BuildType, ResolvedXcodeSettings>,
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

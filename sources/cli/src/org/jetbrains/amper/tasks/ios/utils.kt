@@ -4,6 +4,12 @@
 
 package org.jetbrains.amper.tasks.ios
 
+import com.jetbrains.apple.sdk.ArchitectureValue
+import com.jetbrains.cidr.xcode.frameworks.AppleSdk
+import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingsResolver
+import com.jetbrains.cidr.xcode.model.PBXProjectFile
+import com.jetbrains.cidr.xcode.model.PBXTarget
+import com.jetbrains.cidr.xcode.model.XCBuildConfiguration
 import com.jetbrains.cidr.xcode.plist.Plist
 import org.jetbrains.amper.frontend.Platform
 
@@ -36,4 +42,14 @@ internal fun Map<String, *>.toPlist(): Plist = Plist().also { plist ->
             else -> v
         }
     }
+}
+
+internal class ConfigurationSettingsResolver(
+    override val target: PBXTarget,
+    override val buildConfiguration: XCBuildConfiguration,
+) : BuildSettingsResolver() {
+    override val projectFile: PBXProjectFile get() = target.file
+    override val architectures: Set<ArchitectureValue>? get() = null
+    override val sdk: AppleSdk? get() = null
+    override fun areSdkAndArchitectureOverridden() = true
 }
