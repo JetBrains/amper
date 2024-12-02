@@ -17,6 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.test.expect
 
 class AmperIosProjectsTest : AmperCliTestBase() {
     override val testDataRoot: Path
@@ -109,14 +110,23 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `build for compose app for iosSimulatorArm64`() = runCliTestWithCollector {
-        runCli(
+    fun `build for compose app for all ios archs (arm64 without signing)`() = runCliTestWithCollector {
+        val result = runCli(
             backendTestProjectName = "compose",
-            "build", "-p", "iosSimulatorArm64",
+            "build", // build all the platforms
             assertEmptyStdErr = false,
             copyToTemp = true,
         )
-        xcodebuildSpans.assertZeroExitCode()
+
+        xcodeProjectGenSpans.assertSingle()
+        xcodebuildSpans.assertTimes(3)
+        expect(1) {
+            // for iosArm64
+            ("`DEVELOPMENT_TEAM` build setting is not detected in the Xcode project. " +
+                    "Adding `CODE_SIGNING_ALLOWED=NO` to disable signing. " +
+                    "You can still sign the app manually later.").toRegex(RegexOption.LITERAL)
+                .findAll(result.stdout).count()
+        }
     }
 
     @Test

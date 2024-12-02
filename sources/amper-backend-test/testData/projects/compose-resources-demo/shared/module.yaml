@@ -1,9 +1,9 @@
 product:
   type: lib
-  platforms: [ jvm, android, iosSimulatorArm64 ]
+  platforms: [ jvm, android, iosArm64, iosSimulatorArm64, iosX64 ]
 
 aliases:
-  - nonAndroid: [ jvm, iosSimulatorArm64 ]
+  - nonAndroid: [ jvm, iosArm64, iosSimulatorArm64, iosX64 ]
 
 settings:
   compose:

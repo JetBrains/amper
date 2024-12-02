@@ -1,6 +1,6 @@
 product:
   type: lib
-  platforms: [jvm, android, iosSimulatorArm64]
+  platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
 
 dependencies:
   - $compose.foundation: exported
