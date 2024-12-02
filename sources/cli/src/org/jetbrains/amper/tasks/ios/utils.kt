@@ -20,8 +20,8 @@ internal val Platform.architecture
 
 internal val Platform.sdk
     get() = when (this) {
-        Platform.IOS_ARM64, Platform.IOS_X64 -> "iphoneos"
-        Platform.IOS_SIMULATOR_ARM64 -> "iphonesimulator"
+        Platform.IOS_ARM64 -> "iphoneos"
+        Platform.IOS_SIMULATOR_ARM64, Platform.IOS_X64 -> "iphonesimulator"
         else -> error("Cannot determine apple platform for $this")
     }
 
