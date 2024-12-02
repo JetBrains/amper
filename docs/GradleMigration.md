@@ -42,7 +42,7 @@ pluginManagement {
 
 plugins {
     // apply the plugin:
-    id("org.jetbrains.amper.settings.plugin").version("0.6.0-dev-2299")
+    id("org.jetbrains.amper.settings.plugin").version("0.6.0-dev-2302")
 }
 
 rootProject.name = "my-project-name"
