@@ -7,10 +7,10 @@ information on how to get started.
 
 | Example               | Download                                                                                                                                        |
 |-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| Compose Multiplatform | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone-amperlang/compose-multiplatform) |
-| Compose Android       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone-amperlang/compose-android)       |
-| Compose Desktop       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone-amperlang/compose-desktop)       |
-| Compose iOS           | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone-amperlang/compose-ios)           |
-| JVM "Hello, World"    | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone-amperlang/jvm)                   |
-| New Project Template  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone-amperlang/new-project-template)  |
+| Compose Multiplatform | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-standalone-amperlang/compose-multiplatform) |
+| Compose Android       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-standalone-amperlang/compose-android)       |
+| Compose Desktop       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-standalone-amperlang/compose-desktop)       |
+| Compose iOS           | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-standalone-amperlang/compose-ios)           |
+| JVM "Hello, World"    | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-standalone-amperlang/jvm)                   |
+| New Project Template  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=HEAD&path=/examples-standalone-amperlang/new-project-template)  |
 
