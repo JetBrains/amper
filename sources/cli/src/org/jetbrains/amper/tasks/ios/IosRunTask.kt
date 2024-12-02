@@ -22,6 +22,12 @@ class IosRunTask(
     override val module: AmperModule,
     private val taskOutputPath: TaskOutputRoot,
 ) : RunTask {
+    init {
+        require(platform.isIosSimulator) {
+            "`$platform` is not a simulator platform"
+        }
+    }
+
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         taskOutputPath.path.createDirectories()
         val builtApp = dependenciesResult.requireSingleDependency<IosBuildTask.Result>()

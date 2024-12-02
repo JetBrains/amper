@@ -10,6 +10,12 @@ import org.jetbrains.amper.util.BuildType
 
 val BuildType.variantName get() = value.lowercase().replaceFirstChar { it.titlecase() }
 
+internal val Platform.isIosSimulator
+    get() = when(this) {
+        Platform.IOS_X64, Platform.IOS_SIMULATOR_ARM64 -> true
+        else -> false
+    }
+
 internal val Platform.architecture
     get() = when (this) {
         Platform.IOS_ARM64 -> "arm64"

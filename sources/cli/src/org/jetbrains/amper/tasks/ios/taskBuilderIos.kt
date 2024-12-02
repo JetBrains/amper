@@ -25,6 +25,10 @@ import org.jetbrains.amper.util.BuildType
 fun ProjectTasksBuilder.setupIosTasks() {
     allModules()
         .alsoPlatforms(Platform.IOS)
+        .filter {
+            // Tests only make sense for simulator targets
+            it.platform.isIosSimulator
+        }
         .withEach {
             // TODO: compose resources for iOS tests?
             tasks.registerTask(
@@ -103,17 +107,20 @@ fun ProjectTasksBuilder.setupIosTasks() {
                 ),
             )
 
-            val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
-            tasks.registerTask(
-                task = IosRunTask(
-                    taskName = runTaskName,
-                    platform = platform,
-                    buildType = buildType,
-                    module = module,
-                    taskOutputPath = context.getTaskOutputPath(runTaskName),
-                ),
-                dependsOn = listOf(buildTaskName)
-            )
+            // TODO: Can we launch on a real device?
+            if (platform.isIosSimulator) {
+                val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
+                tasks.registerTask(
+                    task = IosRunTask(
+                        taskName = runTaskName,
+                        platform = platform,
+                        buildType = buildType,
+                        module = module,
+                        taskOutputPath = context.getTaskOutputPath(runTaskName),
+                    ),
+                    dependsOn = listOf(buildTaskName)
+                )
+            }
         }
 
     allModules()
