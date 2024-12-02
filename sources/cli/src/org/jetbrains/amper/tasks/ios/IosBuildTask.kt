@@ -61,7 +61,7 @@ class IosBuildTask(
             this += "xcodebuild"
             this += "-project"; this += projectInitialInfo.projectDir.pathString
             this += "-scheme"; this += projectInitialInfo.targetName
-            this += "-configuration"; this += buildType.variantName
+            this += "-configuration"; this += buildType.name
             this += "-arch"; this += platform.architecture
             this += "-derivedDataPath"; this += derivedDataPath.pathString
             this += "-sdk"; this += platform.sdk

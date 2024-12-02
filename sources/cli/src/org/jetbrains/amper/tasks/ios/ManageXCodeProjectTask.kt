@@ -148,7 +148,7 @@ class ManageXCodeProjectTask(
 
         // Add configurations to the project level.
         BuildType.entries.forEach { buildType ->
-            manipulator.addConfiguration(name = buildType.variantName, map = emptyMap(), target = null)
+            manipulator.addConfiguration(name = buildType.name, map = emptyMap(), target = null)
         }
 
         val infoPlistFile = baseDir / "info.plist"
@@ -242,7 +242,7 @@ class ManageXCodeProjectTask(
                 }
             }
             // Add configuration along with its settings to the target level
-            manipulator.addConfiguration(buildType.variantName, settings, pbxTarget)
+            manipulator.addConfiguration(buildType.name, settings, pbxTarget)
         }
 
         pbxProjectFile.save()

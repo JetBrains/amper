@@ -63,5 +63,5 @@ class IosConventions(
         getConventionalXcodeIntegrationDirectory() / COMPOSE_RESOURCES_CONTENT_DIR_NAME
 
     private fun getConventionalXcodeIntegrationDirectory(): Path =
-        buildRootPath / "xci" / moduleName / platform.pretty / buildType.value
+        buildRootPath / "xci" / moduleName / platform.pretty / buildType.name
 }

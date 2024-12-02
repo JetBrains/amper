@@ -6,9 +6,6 @@ package org.jetbrains.amper.tasks.ios
 
 import com.jetbrains.cidr.xcode.plist.Plist
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.util.BuildType
-
-val BuildType.variantName get() = value.lowercase().replaceFirstChar { it.titlecase() }
 
 internal val Platform.isIosSimulator
     get() = when(this) {
