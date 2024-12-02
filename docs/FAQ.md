@@ -103,7 +103,7 @@ Both projects aim to improve the developer experience and the IDE support, but f
 different constraints. Amper's approach is to design, from the ground up, a tool that is easy to use for the developers
 regardless of their background, with great IDE support in mind, and focused on specific use-cases.
 The [Declarative Gradle project](https://blog.gradle.org/declarative-gradle) approaches the same goal from the other end, 
-simplifying and managing the complexity of an already exising powerful tool. 
+improving the developer experience and the IDE support in an already exising powerful tool. 
 
 While both projects are still experimental, it's important that you provide your feedback to shape the future development.
 
