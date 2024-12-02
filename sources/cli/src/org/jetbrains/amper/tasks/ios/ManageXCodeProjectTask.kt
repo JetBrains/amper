@@ -225,7 +225,6 @@ class ManageXCodeProjectTask(
             val settings = baseSettings.toMutableMap().apply {
                 when (buildType) {
                     BuildType.Debug -> {
-                        this[BuildSettingNames.ARCHS] = "arm64 x86_64"
                         this[BuildSettingNames.ONLY_ACTIVE_ARCH] = "YES"
                         this[BuildSettingNames.ENABLE_TESTABILITY] = "YES"
                         // Misc:
@@ -234,10 +233,7 @@ class ManageXCodeProjectTask(
                     }
 
                     BuildType.Release -> {
-                        this[BuildSettingNames.ARCHS] = "arm64"
-                        this += module.rootFragment.settings.ios.teamId?.let {
-                            mapOf("DEVELOPMENT_TEAM" to it)
-                        } ?: emptyMap()
+                        // Nothing here for now
                     }
                 }
             }
