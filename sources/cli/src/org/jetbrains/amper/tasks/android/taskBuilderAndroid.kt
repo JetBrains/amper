@@ -355,11 +355,11 @@ private fun TaskGraphBuilder.setupAndroidPlatformTask(
     isTest: Boolean,
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
-    val targetSdk = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: return
+    val compileSdk = androidFragment?.settings?.android?.compileSdk?.versionNumber ?: return
     registerTask(
         GetAndroidPlatformJarTask(
             GetAndroidPlatformFileFromPackageTask(
-                "platforms;android-$targetSdk",
+                "platforms;android-$compileSdk",
                 androidSdkPath,
                 userCacheRoot,
                 AndroidTaskType.InstallPlatform.getTaskName(module, Platform.ANDROID, isTest)
@@ -378,7 +378,7 @@ private fun TaskGraphBuilder.setupDownloadBuildToolsTask(
     val androidFragment = getAndroidFragment(module, isTest)
     registerTask(
         GetAndroidPlatformFileFromPackageTask(
-            "build-tools;${androidFragment?.settings?.android?.targetSdk?.versionNumber}.0.0",
+            "build-tools;${androidFragment?.settings?.android?.compileSdk?.versionNumber}.0.0",
             androidSdkPath,
             userCacheRoot,
             AndroidTaskType.InstallBuildTools.getTaskName(module, Platform.ANDROID, isTest)

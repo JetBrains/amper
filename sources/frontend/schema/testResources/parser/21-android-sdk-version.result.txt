@@ -24,7 +24,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> VERSION_32
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -104,7 +104,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> VERSION_32
         versionCode: <default> 1
         versionName: <default> unspecified
       }
