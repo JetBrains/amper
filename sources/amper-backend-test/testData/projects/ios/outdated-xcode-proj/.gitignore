@@ -1,0 +1,5 @@
+# Include xcode project and manifest for tests
+!info.plist
+!module.xcodeproj
+module.xcodeproj/**
+!module.xcodeproj/project.pbxproj

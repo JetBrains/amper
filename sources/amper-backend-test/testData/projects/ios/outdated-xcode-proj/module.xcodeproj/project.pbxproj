@@ -1,0 +1,215 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		279A4809B7B9BF375711AF0A /* interop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = interop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		279A487967EB93EF13407858 /* info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		279A4C73D7031F50F1E314B9 /* src */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			children = (
+			);
+			path = src;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		279A4157CF6CCC3811A85792 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		279A4677AA852FAFD9F334A1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				279A4809B7B9BF375711AF0A /* interop.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		279A4E56370BF3D9C36CB104 = {
+			isa = PBXGroup;
+			children = (
+				279A4677AA852FAFD9F334A1 /* Products */,
+				279A487967EB93EF13407858 /* info.plist */,
+				279A4C73D7031F50F1E314B9 /* src */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		279A4AB0D44929F919B1B85B /* app */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 279A47D0A76920FC93200D31 /* Build configuration list for PBXNativeTarget "app" */;
+			buildPhases = (
+				279A4A835AF44E6D2A2EBD77 /* Build Kotlin with Amper */,
+				279A447B9A4E805078EF5E23 /* Sources */,
+				279A4157CF6CCC3811A85792 /* Frameworks */,
+				279A41F3F2510759265DD23B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				279A4C73D7031F50F1E314B9 /* src */,
+			);
+			name = app;
+			productName = app;
+			productReference = 279A4809B7B9BF375711AF0A /* interop.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		279A4C8858AEB48431334E3C /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 279A4AE0CCCD4061506C8263 /* Build configuration list for PBXProject "module" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 279A4E56370BF3D9C36CB104;
+			productRefGroup = 279A4677AA852FAFD9F334A1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				279A4AB0D44929F919B1B85B /* app */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		279A41F3F2510759265DD23B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		279A4A835AF44E6D2A2EBD77 /* Build Kotlin with Amper */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			inputPaths = (
+			);
+			name = "Build Kotlin with Amper";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# !AMPER KMP INTEGRATION STEP!\n# This script is managed by Amper, do not edit manually!\n\"${AMPER_WRAPPER_PATH}\" tool FOO xcode-integration --module=\"interop\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		279A447B9A4E805078EF5E23 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		279A433A57ABB0CB9B86AF0D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		279A43E4353708768AA44ABC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				AMPER_WRAPPER_PATH = "../../../../../cli/amper-from-sources.sh";
+				ARCHS = arm64;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEVELOPMENT_TEAM = "<your team ID here>";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited) $(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)";
+				INFOPLIST_FILE = info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = interop;
+				PRODUCT_MODULE_NAME = app;
+				PRODUCT_NAME = interop;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = (
+					1,
+					2,
+				);
+			};
+			name = Release;
+		};
+		279A4549C96EB2DCFC68FC86 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		279A4F9F19FABC95BC1E8731 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				AMPER_WRAPPER_PATH = "../../../../../cli/amper-from-sources.sh";
+				ARCHS = "arm64 x86_64";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited) $(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)";
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INFOPLIST_FILE = info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = interop;
+				PRODUCT_MODULE_NAME = app;
+				PRODUCT_NAME = interop;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = (
+					1,
+					2,
+				);
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		279A47D0A76920FC93200D31 /* Build configuration list for PBXNativeTarget "app" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				279A4F9F19FABC95BC1E8731 /* Debug */,
+				279A43E4353708768AA44ABC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		279A4AE0CCCD4061506C8263 /* Build configuration list for PBXProject "module" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				279A4549C96EB2DCFC68FC86 /* Debug */,
+				279A433A57ABB0CB9B86AF0D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 279A4C8858AEB48431334E3C /* Project object */;
+}

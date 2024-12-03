@@ -46,31 +46,57 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
 
     protected abstract val testDataRoot: Path
 
+    data class CliTempDirRunResult(
+        val processResult: ProcessResult,
+        val tempProjectDir: Path,
+    )
+
     protected suspend fun runCli(
         backendTestProjectName: String,
         vararg args: String,
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
         stdin: ProcessInput = ProcessInput.Empty,
-        copyToTemp: Boolean = false,
     ): ProcessResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
         check(projectRoot.isDirectory()) {
             "Project root is not a directory: $projectRoot"
         }
 
-        val workingProjectRoot = if (copyToTemp) {
-            val tempProjectDir = tempRoot / UUID.randomUUID().toString() / projectRoot.fileName
-            tempProjectDir.createDirectories()
-            projectRoot.copyToRecursively(target = tempProjectDir, overwrite = false, followLinks = true)
-        } else projectRoot
-
         return runCli(
-            workingProjectRoot,
+            projectRoot,
             *args,
             expectedExitCode = expectedExitCode,
             assertEmptyStdErr = assertEmptyStdErr,
             stdin = stdin,
+        )
+    }
+
+    protected suspend fun runCliInTempDir(
+        backendTestProjectName: String,
+        vararg args: String,
+        expectedExitCode: Int = 0,
+        assertEmptyStdErr: Boolean = true,
+        stdin: ProcessInput = ProcessInput.Empty,
+    ): CliTempDirRunResult {
+        val projectRoot = testDataRoot.resolve(backendTestProjectName)
+        check(projectRoot.isDirectory()) {
+            "Project root is not a directory: $projectRoot"
+        }
+
+        val tempProjectDir = tempRoot / UUID.randomUUID().toString() / projectRoot.fileName
+        tempProjectDir.createDirectories()
+        projectRoot.copyToRecursively(target = tempProjectDir, overwrite = false, followLinks = true)
+
+        return CliTempDirRunResult(
+            tempProjectDir = tempProjectDir,
+            processResult = runCli(
+                projectRoot = tempProjectDir,
+                args = args,
+                expectedExitCode = expectedExitCode,
+                assertEmptyStdErr = assertEmptyStdErr,
+                stdin = stdin,
+            )
         )
     }
 

@@ -62,14 +62,26 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     @Test
     @MacOnly
     fun `build for simple for iosSimulatorArm64`() = runCliTestWithCollector {
-        runCli(
+        runCliInTempDir(
             backendTestProjectName = "interop",
             "build", "-p", "iosSimulatorArm64",
             assertEmptyStdErr = false,
-            copyToTemp = true,
         )
         xcodeProjectGenSpans.assertNone()
         assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
+        xcodebuildSpans.assertZeroExitCode()
+    }
+
+    @Test
+    @MacOnly
+    fun `build for outdated-xcode-proj updates the project`() = runCliTestWithCollector {
+        runCliInTempDir(
+            backendTestProjectName = "outdated-xcode-proj",
+            "build", "-p", "iosSimulatorArm64",
+            assertEmptyStdErr = false,
+        )
+        xcodeProjectGenSpans.assertNone()
+        assertTrue { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
         xcodebuildSpans.assertZeroExitCode()
     }
 
@@ -98,24 +110,30 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     @Test
     @MacOnly
     fun `buildIosApp for compose app for iosSimulatorArm64`() = runCliTestWithCollector {
-        runCli(
+        val (_, path) = runCliInTempDir(
             backendTestProjectName = "compose",
             "task", ":compose:buildIosAppIosSimulatorArm64",
             assertEmptyStdErr = false,
-            copyToTemp = true,
         )
         xcodeProjectGenSpans.assertSingle()
-        xcodebuildSpans.assertZeroExitCode()
+        clearSpans()
+
+        runCli(
+            projectRoot = path,
+            "task", ":compose:buildIosAppIosSimulatorArm64",
+            assertEmptyStdErr = false,
+        )
+        xcodeProjectGenSpans.assertNone()
+        assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
     }
 
     @Test
     @MacOnly
     fun `build for compose app for all ios archs (arm64 without signing)`() = runCliTestWithCollector {
-        val result = runCli(
+        val (result, _) = runCliInTempDir(
             backendTestProjectName = "compose",
             "build", // build all the platforms
             assertEmptyStdErr = false,
-            copyToTemp = true,
         )
 
         xcodeProjectGenSpans.assertSingle()

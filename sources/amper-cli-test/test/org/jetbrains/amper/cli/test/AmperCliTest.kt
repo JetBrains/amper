@@ -379,11 +379,10 @@ class AmperCliTest: AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose resources demo build (ios)`() = runTestInfinitely {
-        runCli(
+        runCliInTempDir(
             backendTestProjectName = "compose-resources-demo",
             "build", "--platform=iosSimulatorArm64",
             assertEmptyStdErr = false,  // xcodebuild prints a bunch of warnings (unrelated to resources) for now :(
-            copyToTemp = true,
         )
     }
 

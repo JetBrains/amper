@@ -51,7 +51,8 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-multiplatform`() = runCliTestWithCollector {
-        with(runCli(projectName, "tasks")) {
+        val (result, tempProjectPath) = runCliInTempDir(projectName, "tasks")
+        with(result) {
             (jvmBaseTasks + jvmTestTasks + iosLibraryTasks + androidTestTasks).forEach {
                 assertContains(stdout, ":shared:$it")
             }
@@ -60,11 +61,10 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
             iosAppTasks.forEach { assertContains(stdout, ":ios-app:$it") }
         }
 
-        // TODO Dont compose ios app for non simulator platform, until signing is handled.
         runCli(
-            projectName, "build", "-p", "jvm", "-p", "android", "-p", "iosSimulatorArm64",
+            projectRoot = tempProjectPath,
+             "build",
             assertEmptyStdErr = false,
-            copyToTemp = true,
         )
 
         // main/test for Jvm + main/test * debug/release for Android.
@@ -76,8 +76,8 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
         // main for Jvm (no test sources).
         kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
 
-        // main/test klib + framework for Ios.
-        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(4)
+        // (main/test klib + framework for Ios) * 3 ios targets
+        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(4 * 3)
     }
 
     @Test
@@ -164,7 +164,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     fun `compose-ios`() = runTestInfinitely {
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
-        runCli(projectName, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false, copyToTemp = true)
+        runCliInTempDir(projectName, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
         // TODO Can we run it somehow?
     }
 
@@ -182,14 +182,25 @@ private val jvmTestTasks = listOf("compileJvmTest", "resolveDependenciesJvmTest"
 private val jvmAppTasks = jvmBaseTasks + listOf("runJvm")
 
 private val iosLibraryTasks = listOf(
+    "compileIosArm64",
     "compileIosSimulatorArm64",
+    "compileIosX64",
 )
 
 private val iosAppTasks = iosLibraryTasks + listOf(
+    "frameworkIosArm64",
     "frameworkIosSimulatorArm64",
+    "frameworkIosX64",
+
+    "buildIosAppIosArm64",
     "buildIosAppIosSimulatorArm64",
+    "buildIosAppIosX64",
+
     "runIosAppIosSimulatorArm64",
+    "runIosAppIosX64",
+
     "testIosSimulatorArm64",
+    "testIosX64",
 )
 
 private val androidTestTasks = listOf(
