@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.core.AmperBuild
@@ -39,11 +40,14 @@ internal suspend fun <T> withBackend(
     //  and does not handle source class names from jul LogRecord
     // JulTinylogBridge.activate()
 
-    spanBuilder("Install coroutines debug probes").use {
-        CliEnvironmentInitializer.setupCoroutinesDebugProbes()
-    }
-
     return withContext(Dispatchers.Default) {
+        // it's ok to parallelize this as long as we wait for it before doing coroutines-heavy work
+        val coroutinesDebugInstallJob = launch {
+            spanBuilder("Install coroutines debug probes").use {
+                CliEnvironmentInitializer.setupCoroutinesDebugProbes()
+            }
+        }
+
         @Suppress("UnstableApiUsage")
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
         commonOptions.terminal.println(AmperBuild.banner)
@@ -81,6 +85,9 @@ internal suspend fun <T> withBackend(
                 }
             }
         }
+
+        // we make sure coroutines debug probes are installed before executing coroutines-heavy backend work
+        coroutinesDebugInstallJob.join()
 
         val backend = AmperBackend(context = cliContext)
         spanBuilder("Run command with backend").use {
