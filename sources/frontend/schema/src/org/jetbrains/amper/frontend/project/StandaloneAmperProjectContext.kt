@@ -2,10 +2,13 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("CONTEXT_RECEIVERS_DEPRECATED")
+
 package org.jetbrains.amper.frontend.project
 
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
+import io.opentelemetry.api.common.Attributes
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -64,14 +67,15 @@ class StandaloneAmperProjectContext(
         @UsedInIdePlugin
         fun find(start: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
-            val result = spanBuilder("Find Amper project: presearch").useWithoutCoroutines {
-                preSearchProjectRoot(frontendPathResolver.loadVirtualFile(start))
-            } ?: return null
+            val startVirtualFile = frontendPathResolver.loadVirtualFile(start)
+            val result = preSearchProjectRoot(start = startVirtualFile) ?: return null
 
-            val potentialContext = spanBuilder("Find Amper project: create").useWithoutCoroutines {
-                create(result.potentialRoot, frontendPathResolver)
-                    ?: error("potentialRoot should point to a valid project root")
-            }
+            val potentialContext = spanBuilder("Create candidate project context")
+                .setAttribute("potential-root", result.potentialRoot.presentableUrl)
+                .useWithoutCoroutines {
+                    create(result.potentialRoot, frontendPathResolver)
+                        ?: error("potentialRoot should point to a valid project root")
+                }
 
             if (result.startModuleFile != null && result.startModuleFile !in potentialContext.amperModuleFiles) {
                 // We found a module file while going up, and the project file higher up doesn't include it.
@@ -97,9 +101,7 @@ class StandaloneAmperProjectContext(
         context(ProblemReporterContext)
         fun create(rootDir: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
             val pathResolver = FrontendPathResolver(project = project)
-            return spanBuilder("Create Amper project").useWithoutCoroutines {
-                create(pathResolver.loadVirtualFile(rootDir), pathResolver)
-            }
+            return create(pathResolver.loadVirtualFile(rootDir), pathResolver)
         }
 
         /**
@@ -115,16 +117,12 @@ class StandaloneAmperProjectContext(
             frontendPathResolver: FrontendPathResolver
         ): StandaloneAmperProjectContext? {
             val rootModuleFile = rootDir.findChildMatchingAnyOf(amperModuleFileNames)
+            val amperProject = with(frontendPathResolver) { parseAmperProject(rootDir) }
 
-            val amperProject = spanBuilder("Create project context: parse amper project file").useWithoutCoroutines {
-                with(frontendPathResolver) { parseAmperProject(rootDir) }
-            }
             if (rootModuleFile == null && amperProject == null) {
                 return null
             }
-            val explicitProjectModuleFiles = spanBuilder("Create project context: resolve module paths").useWithoutCoroutines {
-                amperProject?.modulePaths(rootDir) ?: emptyList()
-            }
+            val explicitProjectModuleFiles = amperProject?.modulePaths(rootDir) ?: emptyList()
 
             return StandaloneAmperProjectContext(
                 frontendPathResolver = frontendPathResolver,
@@ -151,44 +149,58 @@ private data class RootSearchResult(
 )
 
 /**
- * Attempts to find the project root directory in a pure Amper project from the given [start] point.
+ * Attempts to find the project root directory in a standalone Amper project from the given [start] point.
  *
  * In practice, this function goes up the file hierarchy and looks for module files or a project file along the way.
  * The returned [RootSearchResult] is a record of what was found.
  * If neither a project file nor a module file are found, we don't have an Amper project and null is returned.
  */
-private fun preSearchProjectRoot(start: VirtualFile): RootSearchResult? {
-    var currentDir: VirtualFile? = if (start.isDirectory) start else start.parent
-    var closestModuleFile: VirtualFile? = null
-    while (currentDir != null) {
-        if (currentDir.hasChildMatchingAnyOf(amperProjectFileNames)) {
-            return RootSearchResult(potentialRoot = currentDir, startModuleFile = closestModuleFile)
-        }
-        if (closestModuleFile == null) {
-            val moduleFile = currentDir.findChildMatchingAnyOf(amperModuleFileNames)
-            if (moduleFile != null) {
-                closestModuleFile = moduleFile
+private fun preSearchProjectRoot(start: VirtualFile): RootSearchResult? = spanBuilder("Pre-search project root")
+    .setAttribute("start", start.path)
+    .useWithoutCoroutines block@{ span ->
+        var currentDir: VirtualFile? = if (start.isDirectory) start else start.parent
+        var closestModuleFile: VirtualFile? = null
+        while (currentDir != null) {
+            if (currentDir.hasChildMatchingAnyOf(amperProjectFileNames)) {
+                return@block RootSearchResult(potentialRoot = currentDir, startModuleFile = closestModuleFile)
             }
+            if (closestModuleFile == null) {
+                val moduleFile = currentDir.findChildMatchingAnyOf(amperModuleFileNames)
+                if (moduleFile != null) {
+                    span.addEvent(
+                        "found start module file",
+                        Attributes.builder().put("path", moduleFile.presentableUrl).build()
+                    )
+                    closestModuleFile = moduleFile
+                }
+            }
+            currentDir = currentDir.parent
         }
-        currentDir = currentDir.parent
+        if (closestModuleFile != null) {
+            return@block RootSearchResult(potentialRoot = closestModuleFile.parent, startModuleFile = closestModuleFile)
+        }
+        null // neither project nor module file found
     }
-    if (closestModuleFile != null) {
-        return RootSearchResult(potentialRoot = closestModuleFile.parent, startModuleFile = closestModuleFile)
-    }
-    return null // neither project nor module file found
-}
 
 context(ProblemReporterContext, FrontendPathResolver)
 private fun parseAmperProject(projectRootDir: VirtualFile): Project? {
     val projectFile = projectRootDir.findChildMatchingAnyOf(amperProjectFileNames) ?: return null
-    return ConverterImpl(projectRootDir, this@FrontendPathResolver, problemReporter).convertProject(projectFile)
+    return spanBuilder("Parse Amper project file")
+        .setAttribute("project-file", projectFile.path)
+        .useWithoutCoroutines {
+            ConverterImpl(projectRootDir, this@FrontendPathResolver, problemReporter).convertProject(projectFile)
+        }
 }
 
 context(ProblemReporterContext)
 private fun Project.modulePaths(projectRootDir: VirtualFile): List<VirtualFile> =
-    modules
-        .flatMap { modulePathOrGlob -> projectRootDir.resolveMatchingModuleFiles(modulePathOrGlob) }
-        .distinct() // TODO report error/warning for duplicates
+    spanBuilder("Resolve module paths from project file")
+        .setAttribute("module-count", modules.size.toString())
+        .useWithoutCoroutines {
+            modules
+                .flatMap { modulePathOrGlob -> projectRootDir.resolveMatchingModuleFiles(modulePathOrGlob) }
+                .distinct() // TODO report error/warning for duplicates
+        }
 
 context(ProblemReporterContext)
 private fun VirtualFile.resolveMatchingModuleFiles(relativeModulePathOrGlob: TraceableString): List<VirtualFile> {

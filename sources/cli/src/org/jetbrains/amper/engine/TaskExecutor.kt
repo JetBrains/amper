@@ -53,16 +53,20 @@ class TaskExecutor(
     // Dispatch on default dispatcher, execute on tasks dispatcher
     // Task failures do not throw, instead all exceptions are returned as a map
     suspend fun run(tasksToRun: Set<TaskName>): Map<TaskName, Result<TaskResult>> = withContext(Dispatchers.Default) {
-        tasksToRun.forEach { assertTaskIsKnown(it) }
-        val results = mutableMapOf<TaskName, Deferred<Result<TaskResult>>>()
-        try {
-            coroutineScope {
-                runTask(rootTaskName, emptyList(), results, rootTaskDependencies = tasksToRun)
-                results.mapValues { it.value.await() }
+        spanBuilder("Run tasks")
+            .setAttribute("root-tasks", tasksToRun.joinToString { it.name })
+            .use {
+                tasksToRun.forEach { assertTaskIsKnown(it) }
+                val results = mutableMapOf<TaskName, Deferred<Result<TaskResult>>>()
+                try {
+                    coroutineScope {
+                        runTask(rootTaskName, emptyList(), results, rootTaskDependencies = tasksToRun)
+                        results.mapValues { it.value.await() }
+                    }
+                } catch (e: CancellationException) {
+                    results.mapValues { if (it.value.isCancelled) Result.failure(e) else it.value.await() }
+                }
             }
-        } catch (e: CancellationException) {
-            results.mapValues { if (it.value.isCancelled) Result.failure(e) else it.value.await() }
-        }
     }
 
     private fun assertTaskIsKnown(taskName: TaskName) {

@@ -22,6 +22,8 @@ import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.commands.tools.ToolCommand
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.use
 import org.tinylog.Level
 import java.nio.file.Path
 
@@ -98,7 +100,9 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
     ).path(mustExist = false, canBeFile = false, canBeDir = true)
 
     override suspend fun run() {
-        val terminal = Terminal()
+        val terminal = spanBuilder("Initialize Mordant Terminal").use {
+            Terminal()
+        }
 
         currentContext.obj = CommonOptions(
             explicitRoot = root,
@@ -109,10 +113,12 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
             terminal = terminal,
         )
 
-        CliEnvironmentInitializer.setupConsoleLogging(
-            consoleLogLevel = consoleLogLevel,
-            terminal = terminal,
-        )
+        spanBuilder("Setup console logging").use {
+            CliEnvironmentInitializer.setupConsoleLogging(
+                consoleLogLevel = consoleLogLevel,
+                terminal = terminal,
+            )
+        }
     }
 
     data class CommonOptions(

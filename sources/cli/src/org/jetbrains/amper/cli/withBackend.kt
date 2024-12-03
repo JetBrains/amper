@@ -39,7 +39,7 @@ internal suspend fun <T> withBackend(
     //  and does not handle source class names from jul LogRecord
     // JulTinylogBridge.activate()
 
-    spanBuilder("CLI Setup: install coroutines debug probes").use {
+    spanBuilder("Install coroutines debug probes").use {
         CliEnvironmentInitializer.setupCoroutinesDebugProbes()
     }
 
@@ -48,7 +48,7 @@ internal suspend fun <T> withBackend(
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
         commonOptions.terminal.println(AmperBuild.banner)
 
-        val cliContext = spanBuilder("CLI Setup: create CliContext").use {
+        val cliContext = spanBuilder("Create CLI context").use {
             CliContext.create(
                 explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
                 buildOutputRoot = commonOptions.buildOutputRoot?.let {
@@ -67,7 +67,7 @@ internal suspend fun <T> withBackend(
         TelemetryEnvironment.setLogsRootDirectory(cliContext.buildLogsRoot)
 
         if (setupEnvironment) {
-            spanBuilder("CLI Setup: setup logging and monitoring").use {
+            spanBuilder("Setup file logging and monitoring").use {
                 CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot, cliContext.terminal)
                 CliEnvironmentInitializer.setupFileLogging(cliContext.buildLogsRoot)
 
@@ -82,9 +82,11 @@ internal suspend fun <T> withBackend(
             }
         }
 
-        spanBuilder("Execute backend").use {
-            val backend = AmperBackend(context = cliContext)
-            block(backend).also {
+        val backend = AmperBackend(context = cliContext)
+        spanBuilder("Run command with backend").use {
+            block(backend)
+        }.also {
+            spanBuilder("Await background scope completion").use {
                 cancelAndWaitForScope(backgroundScope)
             }
         }

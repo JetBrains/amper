@@ -4,26 +4,51 @@
 
 package org.jetbrains.amper.cli
 
-import com.github.ajalt.clikt.command.main
+import com.github.ajalt.clikt.command.SuspendingCliktCommand
+import com.github.ajalt.clikt.parsers.CommandLineParser
 import com.github.ajalt.mordant.rendering.Theme
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setListAttribute
+import java.time.Instant
 import kotlin.system.exitProcess
 
 suspend fun main(args: Array<String>) {
     try {
+        val mainStartTime = Instant.now()
         TelemetryEnvironment.setup()
         spanBuilder("Root")
+            .setStartTimestamp(mainStartTime)
             .setListAttribute("args", args.toList())
             .use {
-                RootCommand().main(args)
+                // we add a fake span here to represent the telemetry setup
+                spanBuilder("Setup telemetry").setStartTimestamp(mainStartTime).startSpan().end()
+
+                val rootCommand = spanBuilder("Initialize CLI command definitions").use {
+                    RootCommand()
+                }
+                rootCommand.mainWithTelemetry(args)
             }
     } catch (e: UserReadableError) {
         printUserError(e.message)
         exitProcess(1)
+    }
+}
+
+/**
+ * Parses command line arguments and runs this command.
+ */
+// This implementation is inlined from CoreSuspendingCliktCommand.main
+// to isolate the parsing of CLI arguments for telemetry purposes (FTR, it's ~20ms).
+private suspend fun SuspendingCliktCommand.mainWithTelemetry(args: Array<String>) {
+    val command = this
+    CommandLineParser.main(command) {
+        val result = spanBuilder("Parse CLI arguments").use {
+            CommandLineParser.parse(command, args.asList())
+        }
+        CommandLineParser.run(result.invocation) { it.run() }
     }
 }
 

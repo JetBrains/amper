@@ -58,7 +58,7 @@ class CliContext private constructor(
                 "currentTopLevelCommand should not be blank"
             }
 
-            val amperProjectContext = spanBuilder("CLI Setup: create project context").use {
+            val amperProjectContext = spanBuilder("Create Amper project context").use {
                 with(CliProblemReporterContext) {
                     createProjectContext(explicitProjectRoot).also {
                         if (problemReporter.wereProblemsReported()) {
@@ -88,6 +88,10 @@ class CliContext private constructor(
                     .also { it.createDirectories() }
             )
 
+            // FIXME why do it here? We only need it for publish tasks
+            val mavenLocalRepository = spanBuilder("Initialize maven local repository").use {
+                MavenLocalRepository()
+            }
             return CliContext(
                 projectContext = amperProjectContext,
                 buildOutputRoot = buildOutputRootNotNull,
@@ -96,7 +100,7 @@ class CliContext private constructor(
                 userCacheRoot = userCacheRoot,
                 commonRunSettings = commonRunSettings,
                 taskExecutionMode = taskExecutionMode,
-                mavenLocalRepository = MavenLocalRepository(),
+                mavenLocalRepository = mavenLocalRepository,
                 terminal = terminal,
                 backgroundScope = backgroundScope,
                 androidHomeRoot = androidHomeRootNotNull
