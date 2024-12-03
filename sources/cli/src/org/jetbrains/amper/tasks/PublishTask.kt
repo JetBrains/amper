@@ -23,6 +23,8 @@ import org.eclipse.aether.internal.impl.Maven2RepositoryLayoutFactory
 import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.util.repository.AuthenticationBuilder
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.useWithoutCoroutines
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
@@ -41,12 +43,17 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempFile
 import kotlin.io.path.isRegularFile
 
+private val mavenLocalRepository by lazy {
+    spanBuilder("Initialize maven local repository").useWithoutCoroutines {
+        MavenLocalRepository()
+    }
+}
+
 class PublishTask(
     override val taskName: TaskName,
     val module: AmperModule,
     val targetRepository: RepositoriesModulePart.Repository,
     private val tempRoot: AmperProjectTempRoot,
-    private val mavenLocalRepository: MavenLocalRepository,
 ) : Task {
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
@@ -63,7 +70,7 @@ class PublishTask(
         val repositorySystem = container.lookup(RepositorySystem::class.java)
         val request = DefaultMavenExecutionRequest()
         val localRepository = mavenRepositorySystem.createLocalRepository(request, localRepositoryPath)
-        request.setLocalRepository(localRepository)
+        request.localRepository = localRepository
         val repositorySession = defaultRepositorySystemSessionFactory.newRepositorySession(request)
         repositorySession.setConfigProperty(Maven2RepositoryLayoutFactory.CONFIG_PROP_CHECKSUMS_ALGORITHMS, "MD5,SHA-1,SHA-256,SHA-512")
 

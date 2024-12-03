@@ -32,7 +32,6 @@ class CliContext private constructor(
     val buildLogsRoot: AmperBuildLogsRoot,
     val commonRunSettings: CommonRunSettings,
     val taskExecutionMode: TaskExecutor.Mode,
-    val mavenLocalRepository: MavenLocalRepository,
     val terminal: Terminal,
     val androidHomeRoot: AndroidHomeRoot,
     /**
@@ -88,10 +87,6 @@ class CliContext private constructor(
                     .also { it.createDirectories() }
             )
 
-            // FIXME why do it here? We only need it for publish tasks
-            val mavenLocalRepository = spanBuilder("Initialize maven local repository").use {
-                MavenLocalRepository()
-            }
             return CliContext(
                 projectContext = amperProjectContext,
                 buildOutputRoot = buildOutputRootNotNull,
@@ -100,10 +95,9 @@ class CliContext private constructor(
                 userCacheRoot = userCacheRoot,
                 commonRunSettings = commonRunSettings,
                 taskExecutionMode = taskExecutionMode,
-                mavenLocalRepository = mavenLocalRepository,
                 terminal = terminal,
                 backgroundScope = backgroundScope,
-                androidHomeRoot = androidHomeRootNotNull
+                androidHomeRoot = androidHomeRootNotNull,
             )
         }
 

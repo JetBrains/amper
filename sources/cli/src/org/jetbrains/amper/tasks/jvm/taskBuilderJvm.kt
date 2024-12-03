@@ -152,7 +152,6 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         module = module,
                         targetRepository = repository,
                         tempRoot = context.projectTempRoot,
-                        mavenLocalRepository = context.mavenLocalRepository,
                     ),
                     CommonTaskType.Jar.getTaskName(module, platform, isTest = false),
                 )
