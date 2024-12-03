@@ -34,35 +34,33 @@ import org.slf4j.LoggerFactory
 import kotlin.io.path.pathString
 
 class AmperBackend(val context: CliContext) {
-    private val resolvedModel: Model by lazy {
-        with(CliProblemReporterContext) {
-            val model = spanBuilder("Read model from Amper files")
-                .setAttribute("root", context.projectRoot.path.pathString)
-                .useWithoutCoroutines {
-                    when (val result = SchemaBasedModelImport.getModel(context.projectContext)) {
-                        is Result.Failure -> {
-                            if (problemReporter.wereProblemsReported()) {
-                                userReadableError("failed to build tasks graph, refer to the errors above")
-                            }
-                            else throw result.exception
+    private val resolvedModel: Model = with(CliProblemReporterContext) {
+        val model = spanBuilder("Read model from Amper files")
+            .setAttribute("root", context.projectRoot.path.pathString)
+            .useWithoutCoroutines {
+                when (val result = SchemaBasedModelImport.getModel(context.projectContext)) {
+                    is Result.Failure -> {
+                        if (problemReporter.wereProblemsReported()) {
+                            userReadableError("failed to read Amper model, refer to the errors above")
                         }
-                        is Result.Success -> result.value
+                        else throw result.exception
                     }
-                }
-
-            if (problemReporter.wereProblemsReported()) {
-                userReadableError("failed to build tasks graph, refer to the errors above")
-            }
-
-            for ((moduleUserReadableName, moduleList) in model.modules.groupBy { it.userReadableName }) {
-                if (moduleList.size > 1) {
-                    userReadableError("Module name '${moduleUserReadableName}' is not unique, it's declared in " +
-                    moduleList.joinToString(" ") { (it.source as? AmperModuleFileSource)?.buildFile?.toString() ?: "" })
+                    is Result.Success -> result.value
                 }
             }
 
-            model
+        if (problemReporter.wereProblemsReported()) {
+            userReadableError("failed to read Amper model, refer to the errors above")
         }
+
+        for ((moduleUserReadableName, moduleList) in model.modules.groupBy { it.userReadableName }) {
+            if (moduleList.size > 1) {
+                userReadableError("Module name '${moduleUserReadableName}' is not unique, it's declared in " +
+                moduleList.joinToString(" ") { (it.source as? AmperModuleFileSource)?.buildFile?.toString() ?: "" })
+            }
+        }
+
+        model
     }
 
     private val modulesByName by lazy {
