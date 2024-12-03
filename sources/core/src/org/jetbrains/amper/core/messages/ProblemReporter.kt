@@ -35,6 +35,13 @@ abstract class CollectingProblemReporter : ProblemReporter {
     }
 }
 
+class NoOpCollectingProblemReporter : CollectingProblemReporter() {
+    fun getProblems(): Collection<BuildProblem> = problems
+
+    override fun doReportMessage(message: BuildProblem) {
+    }
+}
+
 @OptIn(NonIdealDiagnostic::class)
 fun renderMessage(problem: BuildProblem): String = buildString {
     fun appendSource(source: BuildProblemSource) {

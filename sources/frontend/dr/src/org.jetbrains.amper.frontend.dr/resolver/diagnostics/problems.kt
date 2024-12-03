@@ -3,107 +3,90 @@
  */
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 
-import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Severity
-import org.jetbrains.amper.dependency.resolution.message
-import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
-import org.jetbrains.amper.frontend.dr.resolver.fragmentDependencies
-import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
-import org.jetbrains.amper.frontend.messages.PsiBuildProblem
-import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsRegistrar.reporters
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.BasicDrDiagnostics
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.OverriddenDirectModuleDependencies
 
-@UsedInIdePlugin
-fun DependencyNode.reportBuildProblems(problemReporter: ProblemReporter) {
-    if (!messages.any { it.severity > Severity.INFO }) return
+internal object DrDiagnosticsRegistrar {
+    val reporters = listOf(
+        BasicDrDiagnostics(),
+        OverriddenDirectModuleDependencies()
+    )
+}
 
-    val importantMessages = messages.filter { it.severity > Severity.INFO && it.toString().isNotBlank() }
-    for (directDependency in fragmentDependencies) {
-        // for every direct module dependency referencing this dependency node
-        val psiElement = directDependency.notation?.trace?.extractPsiElementOrNull()
+interface DrDiagnosticsReporter {
+    /**
+     * The maximal level at which diagnostics are reported by this reporter.
+     * If requested level is higher than the level of the diagnostics reporter, then it is skipped.
+     */
+    val level: Level
 
-        if (psiElement != null) {
-            for (message in importantMessages) {
-                val level = when (message.severity) {
-                    Severity.ERROR -> Level.Error
-                    Severity.WARNING -> Level.Warning
-                    else -> null
-                }
-                if (level != null) {
-                    // todo (AB) : improve showing errors/warnings
-                    // todo (AB) : - don't show error related to transitive dependency if it is among direct ones (show only there)
-                    // todo (AB) : - improve error message about transitive dependencies
-                    val buildProblem = DependencyBuildProblem(this, directDependency, message, level, psiElement)
-                    problemReporter.reportMessage(buildProblem)
-                }
+    fun reportBuildProblemsForNode(node: DependencyNode, problemReporter: ProblemReporter, level: Level)
+}
+
+/**
+ * Traverse the entire dependencies graph collecting build problems for every node with the help of predefined
+ * list of diagnostics reporters
+ */
+fun collectBuildProblems(graph: DependencyNodeHolder, problemReporter: NoOpCollectingProblemReporter, level: Level) =
+    collectBuildProblems(graph, problemReporter, level, reporters)
+
+/**
+ * Traverse the entire dependencies graph collecting build problems for every node.
+ */
+fun collectBuildProblems(graph: DependencyNodeHolder, problemReporter: NoOpCollectingProblemReporter, level: Level, diagnosticReporters: List<DrDiagnosticsReporter>)/*: Collection<BuildProblem>*/{
+    for (node in graph.distinctBfsSequence()) {
+        //if (node is MavenDependencyNode) {
+        //  node.dependency
+        //    .files()
+        //    .mapNotNull { it.getPath() }
+        //    .filterNot { it.name.endsWith("-sources.jar") || it.name.endsWith("-javadoc.jar") }
+        //    .forEach { file ->
+        //      // todo (AB) : do not throw from import
+        //      if (!file.exists()) {
+        //        LOG.warn ( "File '$file' was returned from dependency resolution, but is missing on disk" )
+        //      }
+        //    }
+        //}
+        diagnosticReporters.forEach {
+            if (it.level >= level) {
+                it.reportBuildProblemsForNode(node, problemReporter, level)
             }
         }
     }
+
+//    problemReporter.getProblems()
+//        .filter { it.source is PsiBuildProblemSource }
+//        .distinctBy { (it.source as PsiBuildProblemSource).psiElement to it.message }
+//        .forEach { buildProblem ->
+//            (buildProblem.source as? PsiBuildProblemSource)?.let {
+//                val psiFileProblems = readAction {
+//                    dependenciesBuildProblems.computeIfAbsent(it.psiElement.containingFile) { mutableSetOf() }
+//                }
+//                psiFileProblems.add(buildProblem)
+//            }
+//        }
+//
+//    AmperDependenciesProblemsHolder.getInstance(project)
+//        .updateProjectDependenciesBuildProblems(dependenciesBuildProblems.mapValues { it.value.toList() })
 }
 
-@UsedInIdePlugin
-fun DependencyNode.reportOverriddenDirectModuleDependencies(reporter: ProblemReporter) {
-    if (this is DirectFragmentDependencyNodeHolder
-        && this.dependencyNode is MavenDependencyNode
-        && this.dependencyNode.version != this.dependencyNode.dependency.version)
-    {
-        // for every direct module dependency referencing this dependency node
-        val psiElement = notation?.trace?.extractPsiElementOrNull()
-        if (psiElement != null) {
-            reporter.reportMessage(
-                ModuleDependencyWithOverriddenVersion(
-                    this.dependencyNode.version,
-                    this.dependencyNode.dependency.version,
-                    this.dependencyNode.mavenCoordinates().toString(),
-                    psiElement
-                ))
-        }
-    }
+internal fun Message.mapSeverityToLevel(): Level = when (severity) {
+    Severity.ERROR -> Level.Error
+    Severity.WARNING -> Level.Warning
+    Severity.INFO -> Level.Redundancy
 }
 
-class DependencyBuildProblem(
-    @UsedInIdePlugin
-    val problematicDependency: DependencyNode,
-    val directFragmentDependency: DirectFragmentDependencyNodeHolder,
-    val errorMessage: Message,
-    level: Level,
-    @UsedInIdePlugin
-    override val element: PsiElement,
-) : PsiBuildProblem(level) {
-    override val buildProblemId: BuildProblemId = ID
-    override val message: String
-        get() = if (problematicDependency.parents.contains(directFragmentDependency)) {
-            errorMessage.message
-        }  else {
-            "Transitive dependency problem: ${this.errorMessage.message}"
-        }
-
-    companion object {
-        const val ID = "dependency.problem"
-    }
-}
-
-class ModuleDependencyWithOverriddenVersion(
-    @UsedInIdePlugin
-    val originalVersion: String,
-    @UsedInIdePlugin
-    val effectiveVersion: String,
-    @UsedInIdePlugin
-    val effectiveCoordinates: String,
-    @UsedInIdePlugin
-    override val element: PsiElement,
-) : PsiBuildProblem(Level.Warning) {
-    override val buildProblemId: BuildProblemId = ID
-    override val message: String
-        get() = "Declared dependency version is overridden, the actual version is $effectiveVersion"
-
-    companion object {
-        const val ID = "dependency.version.is.overridden"
-    }
+internal fun Level.mapLevelToSeverity(): Severity? = when (this) {
+    Level.Fatal -> null                  // DR doesn't report anything that might stop the overall import process
+    Level.Error -> Severity.ERROR
+    Level.Warning -> Severity.WARNING
+    Level.Redundancy -> Severity.INFO
 }

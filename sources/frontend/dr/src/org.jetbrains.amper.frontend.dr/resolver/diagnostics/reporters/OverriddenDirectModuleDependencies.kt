@@ -1,0 +1,65 @@
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters
+
+import com.intellij.psi.PsiElement
+import org.jetbrains.amper.core.UsedInIdePlugin
+import org.jetbrains.amper.core.messages.BuildProblemId
+import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.ProblemReporter
+import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
+import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
+import org.jetbrains.amper.frontend.messages.PsiBuildProblem
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
+
+class OverriddenDirectModuleDependencies: DrDiagnosticsReporter{
+
+    override val level = Level.Warning
+
+    override fun reportBuildProblemsForNode(
+        node: DependencyNode,
+        problemReporter: ProblemReporter,
+        level: Level
+    ) {
+        if (node is DirectFragmentDependencyNodeHolder
+            && node.dependencyNode is MavenDependencyNode
+            && node.dependencyNode.version != node.dependencyNode.dependency.version)
+        {
+            // for every direct module dependency referencing this dependency node
+            val psiElement = node.notation?.trace?.extractPsiElementOrNull()
+            if (psiElement != null) {
+                problemReporter.reportMessage(
+                    ModuleDependencyWithOverriddenVersion(
+                        node.dependencyNode.version,
+                        node.dependencyNode.dependency.version,
+                        node.dependencyNode.mavenCoordinates().toString(),
+                        psiElement
+                    ))
+            }
+        }
+    }
+}
+
+class ModuleDependencyWithOverriddenVersion(
+    @UsedInIdePlugin
+    val originalVersion: String,
+    @UsedInIdePlugin
+    val effectiveVersion: String,
+    @UsedInIdePlugin
+    val effectiveCoordinates: String,
+    @UsedInIdePlugin
+    override val element: PsiElement,
+) : PsiBuildProblem(Level.Warning) {
+    override val buildProblemId: BuildProblemId = ID
+    override val message: String
+        get() = "Declared dependency version is overridden, the actual version is $effectiveVersion"
+
+    companion object {
+        const val ID = "dependency.version.is.overridden"
+    }
+}
