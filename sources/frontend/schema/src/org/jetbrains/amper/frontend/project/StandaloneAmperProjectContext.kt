@@ -73,17 +73,17 @@ class StandaloneAmperProjectContext(
                     ?: error("potentialRoot should point to a valid project root")
             }
 
-            if (result.startModuleFile == null || result.startModuleFile in potentialContext.amperModuleFiles) {
-                return potentialContext
+            if (result.startModuleFile != null && result.startModuleFile !in potentialContext.amperModuleFiles) {
+                // We found a module file while going up, and the project file higher up doesn't include it.
+                // This means that the potential context (defined by the project file) is not our actual context,
+                // we're just a single module project.
+                return StandaloneAmperProjectContext(
+                    frontendPathResolver = frontendPathResolver,
+                    projectRootDir = result.startModuleFile.parent,
+                    amperModuleFiles = listOf(result.startModuleFile),
+                )
             }
-            // We found a module file while going up, and the project file higher up doesn't include it.
-            // This means that the potential context (defined by the project file) is not our actual context,
-            // we're just a single module project.
-            return StandaloneAmperProjectContext(
-                frontendPathResolver = frontendPathResolver,
-                projectRootDir = result.startModuleFile.parent,
-                amperModuleFiles = listOf(result.startModuleFile),
-            )
+            return potentialContext
         }
 
         /**
