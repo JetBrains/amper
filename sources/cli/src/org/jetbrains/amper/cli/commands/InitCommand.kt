@@ -19,6 +19,6 @@ internal class InitCommand : AmperSubcommand(name = "init") {
 
     override suspend fun run() {
         val directory = commonOptions.explicitRoot ?: Path(System.getProperty("user.dir"))
-        ProjectGenerator(terminal = Terminal()).initProject(template, directory)
+        ProjectGenerator(terminal = commonOptions.terminal).initProject(template, directory)
     }
 }
