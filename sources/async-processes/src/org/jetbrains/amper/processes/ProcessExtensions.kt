@@ -150,25 +150,31 @@ internal inline fun <T> Process.withDestructionHook(block: (Process) -> T): T {
     }
     // If the JVM is shut down (e.g. via Ctrl+C) while this child process is running, we don't want to leak the process.
     // That said, we only call destroyHierarchy(), which is asynchronous, because we can't afford to wait for the
-    // process to actually terminate when the JVM is shutting down (we need to promptly terminate Amper).
-    return withShutdownHook(onJvmShudown = { destroyHierarchy() }) {
+    // process to actually terminate when the JVM is shutting down (we need to promptly terminate).
+    return withShutdownHook(onJvmShutdown = { destroyHierarchy() }) {
         block(this)
     }
 }
 
 @OptIn(ExperimentalContracts::class)
 @PublishedApi
-internal inline fun <T> withShutdownHook(crossinline onJvmShudown: () -> Unit, block: () -> T): T {
+internal inline fun <T> withShutdownHook(crossinline onJvmShutdown: () -> Unit, block: () -> T): T {
     contract {
         callsInPlace(block, kind = InvocationKind.EXACTLY_ONCE)
     }
-    val hookThread = Thread { onJvmShudown() }
+    val hookThread = Thread { onJvmShutdown() }
     val runtime = Runtime.getRuntime()
     try {
         runtime.addShutdownHook(hookThread)
         return block()
     } finally {
-        runtime.removeShutdownHook(hookThread)
+        try {
+            runtime.removeShutdownHook(hookThread)
+        } catch (_: IllegalStateException) {
+            // IllegalStateException is thrown if the JVM is already shutting down.
+            // In this case, we actually don't want to unregister the hook, so it's fine to ignore this exception.
+            // There is no direct way to check whether the JVM is shutting down before attempting to remove the hook.
+        }
     }
 }
 
