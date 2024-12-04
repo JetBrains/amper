@@ -89,7 +89,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         .path(canBeFile = false)
         .convert { AmperUserCacheRoot(it.toAbsolutePath()) }
         // It's ok to use a non-lazy default here because most of the time we'll use the default value anyway.
-        // This also allows to have the default value in the help, we avoids duplicating the location
+        // Detecting this path eagerly allows showing the default value in the help.
         .default(AmperUserCacheRoot.fromCurrentUser())
 
     private val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)

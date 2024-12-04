@@ -33,8 +33,7 @@ data class AmperUserCacheRoot(val path: Path) {
             val userHome = Path(System.getProperty("user.home"))
 
             val localAppData = when (OsFamily.current) {
-                OsFamily.Windows -> Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData)?.let { Path(it) }
-                    ?: (userHome / "AppData/Local")
+                OsFamily.Windows -> getWindowsLocalAppData()
                 OsFamily.MacOs -> userHome / "Library/Caches"
                 OsFamily.Linux,
                 OsFamily.FreeBSD,
@@ -43,6 +42,12 @@ data class AmperUserCacheRoot(val path: Path) {
             }
 
             return AmperUserCacheRoot(localAppData.resolve("Amper"))
+        }
+
+        private fun getWindowsLocalAppData(): Path {
+            // we prefer the env variable because getting known folders through Shell32Util is slow (~300-400ms)
+            val localAppDataFromEnv = System.getenv("LOCALAPPDATA")?.takeIf { it.isNotBlank() }
+            return Path(localAppDataFromEnv ?: Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData))
         }
     }
 }
