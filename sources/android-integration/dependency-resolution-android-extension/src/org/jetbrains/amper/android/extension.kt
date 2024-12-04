@@ -3,7 +3,7 @@
  */
 
 
-package org.jetbrains.amper.dependency.resolution.org.jetbrains.amper.android
+package org.jetbrains.amper.android
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

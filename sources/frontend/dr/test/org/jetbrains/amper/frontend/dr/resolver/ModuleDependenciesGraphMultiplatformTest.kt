@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.Result
@@ -18,7 +20,9 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.test.TestUtil
+import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.test.Test
@@ -42,6 +46,48 @@ import kotlin.test.fail
 class ModuleDependenciesGraphMultiplatformTest {
 
     private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("frontend/dr/testData/projects")
+
+    @Test
+    fun `test sync empty jvm module`() {
+        val aom = getTestProjectModel("jvm-empty-project")
+
+        kotlin.test.assertEquals(aom.modules[0].fragments.map { it.name }.toSet(),  setOf("jvm", "jvmTest"), "")
+
+
+        val jvmTestFragmentDeps = runBlocking {
+            doTest(
+                aom,
+                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                module = "jvm-empty-project",
+                expected = """module:jvm-empty-project
++--- dep:jvm-empty-project:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+|         \--- org.jetbrains:annotations:13.0
++--- dep:jvm-empty-project:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+\--- dep:jvm-empty-project:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21
+     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
+          +--- org.jetbrains.kotlin:kotlin-test:2.0.21
+          |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+          \--- junit:junit:4.13.2
+               \--- org.hamcrest:hamcrest-core:1.3"""
+            )
+        }
+
+        runBlocking {
+            downloadAndAssertFiles(
+                files = """
+                |annotations-13.0.jar
+                |hamcrest-core-1.3.jar
+                |junit-4.13.2.jar
+                |kotlin-stdlib-2.0.21.jar
+                |kotlin-test-2.0.21.jar
+                |kotlin-test-junit-2.0.21.jar
+                """.trimMargin(),
+                jvmTestFragmentDeps
+            )
+        }
+    }
 
     @Test
     fun `test shared@ios dependencies graph`() {

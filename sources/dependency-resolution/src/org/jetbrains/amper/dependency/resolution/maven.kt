@@ -149,17 +149,6 @@ class UnresolvedMavenDependencyNode(
     }
 
     companion object {
-        enum class GradleScope {
-            api,
-            implementation, compile,
-            testImplementation, testCompile,
-            compileOnly,
-            compileOnlyApi,
-            testCompileOnly,
-            runtimeOnly, runtime,
-            testRuntimeOnly, testRuntime
-        }
-
         fun parseGradleScope(coordinates: String): Pair<GradleScope, String>? =
             GradleScope.entries
                 .firstOrNull { coordinates.startsWith("${it.name}(") }
@@ -176,6 +165,17 @@ class UnresolvedMavenDependencyNode(
                 .takeIf { it.startsWith(prefix) && it.endsWith(suffix) }
                 ?.substringAfter(prefix)
                 ?.substringBefore(suffix)
+    }
+
+    enum class GradleScope {
+        api,
+        implementation, compile,
+        testImplementation, testCompile,
+        compileOnly,
+        compileOnlyApi,
+        testCompileOnly,
+        runtimeOnly, runtime,
+        testRuntimeOnly, testRuntime
     }
 }
 

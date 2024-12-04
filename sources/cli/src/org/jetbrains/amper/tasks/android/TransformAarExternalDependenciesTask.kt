@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks.android
 
-import org.jetbrains.amper.dependency.resolution.org.jetbrains.amper.android.extractAars
+import org.jetbrains.amper.android.extractAars
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
