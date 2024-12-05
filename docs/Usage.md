@@ -91,7 +91,10 @@ cd jvm
 
 #### Updating standalone Amper to a newer version
 
-Use the same procedure as for [downloading Amper executables](#using-the-standalone-amper-version-from-the-command-line).
+Run `./amper update` to update the Amper scripts and distribution to the latest released version.
+Use the `--dev` option if you want to try the bleeding edge dev build of Amper (no guarantees are made on these builds).
+
+See `./amper update -h` for more information about the available options.
 
 ### Using Amper in IntelliJ IDEA
 
