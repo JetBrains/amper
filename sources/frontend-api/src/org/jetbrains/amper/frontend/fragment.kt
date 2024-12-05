@@ -137,6 +137,9 @@ val Fragment.allSourceFragmentCompileDependencies: List<Fragment>
         val fragmentsFromOtherModules = directModuleCompileDependencies.flatMap { module ->
             module.fragments.filter { it.platforms.containsAll(platforms) }
         }
+
+        // FIXME include transitive exported module dependencies
+
         return fragmentsFromThisModule + fragmentsFromOtherModules
     }
 
