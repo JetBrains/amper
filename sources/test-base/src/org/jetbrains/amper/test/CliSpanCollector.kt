@@ -5,89 +5,91 @@
 package org.jetbrains.amper.test
 
 import io.opentelemetry.sdk.trace.data.SpanData
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.diagnostics.rmi.LoopbackClientSocketFactory
-import org.jetbrains.amper.diagnostics.rmi.LoopbackServerSocketFactory
-import org.jetbrains.amper.diagnostics.rmi.SpanExporterService
+import kotlinx.coroutines.yield
 import org.jetbrains.amper.test.spans.SpansTestCollector
-import java.rmi.NoSuchObjectException
-import java.rmi.registry.LocateRegistry
-import java.rmi.registry.Registry
-import java.rmi.server.UnicastRemoteObject
-import java.util.*
+import java.io.EOFException
+import java.io.ObjectInputStream
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.nio.channels.ServerSocketChannel
+import java.nio.channels.SocketChannel
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
+import kotlin.coroutines.coroutineContext
 
-class CliSpanCollector : SpansTestCollector {
-    // Do not inline - have to keep a strong reference
-    private lateinit var serviceRef: SpanExporterService
+@OptIn(ExperimentalContracts::class)
+suspend fun collectSpansFromCli(
+    block: suspend () -> Unit,
+): SpansTestCollector {
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+    check(coroutineContext[SpanListenerPortContext] == null) {
+        "Calls to collectSpansFromCli can't be nested."
+    }
+    return coroutineScope {
+        val spans = mutableListOf<SpanData>()
 
-    private val collectedSpans = mutableListOf<SpanData>()
-    private fun addSpan(spanData: SpanData) = synchronized(collectedSpans) { collectedSpans.add(spanData) }
-
-    override val spans: List<SpanData>
-        get() = synchronized(collectedSpans) { collectedSpans.toList() }
-    override fun clearSpans() = synchronized(collectedSpans) { collectedSpans.clear() }
-
-    companion object {
-        private val registry: Registry by lazy {
-            try {
-                LocateRegistry.getRegistry(LoopbackClientSocketFactory.hostName,
-                    SpanExporterService.PORT, LoopbackClientSocketFactory,
-                ).also {
-                    // We call list() here to trigger registry location, otherwise `getRegistry` doesn't throw even if
-                    // it doesn't exist yet.
-                    it.list()
-                }
-            } catch (e: NoSuchObjectException) {
-                LocateRegistry.createRegistry(
-                    SpanExporterService.PORT, LoopbackClientSocketFactory, LoopbackServerSocketFactory,
-                )
-            }
+        val serviceSocketChannel = ServerSocketChannel.open().apply {
+            configureBlocking(false)
+        }
+        val serverSocket = serviceSocketChannel.socket().apply {
+            // Let the OS pick the port, we'll provide it as a coroutine context element
+            bind(InetSocketAddress(InetAddress.getLoopbackAddress(), 0))
         }
 
-        fun runCliTestWithCollector(
-            timeout: Duration = Duration.INFINITE,
-            block: suspend CliSpanCollector.() -> Unit,
-        ) {
-            val serviceName = UUID.randomUUID().toString()
+        val listenJob = launch {
+            while (isActive) {
+                val socketChannel: SocketChannel? = serviceSocketChannel.accept()
+                if (socketChannel == null) {
+                    yield()
+                    continue
+                }
 
-            runTest(
-                timeout = timeout,
-            ) {
-                val testCollector = CliSpanCollector()
-
-                val serviceImpl = object : SpanExporterService {
-                    override fun export(spanData: List<SpanData>) {
-                        for (spanDatum in spanData) {
-                            testCollector.addSpan(spanDatum)
+                // New connection, handle it
+                launch {
+                    try {
+                        socketChannel.use {
+                            // This blocks and is not cancellable
+                            ObjectInputStream(it.socket().getInputStream().buffered()).use { objectStream ->
+                                while (true) {
+                                    spans += objectStream.readObject() as SpanData
+                                }
+                            }
                         }
+                    } catch (_: EOFException) {
+                        // Nothing
                     }
-                }
-                testCollector.serviceRef =
-                    UnicastRemoteObject.exportObject(serviceImpl, SpanExporterService.PORT,
-                        LoopbackClientSocketFactory, LoopbackServerSocketFactory) as SpanExporterService
-
-                registry.bind(serviceName, testCollector.serviceRef)
-                try {
-                    withContext(SpanExporterServiceNameContext(serviceName)) {
-                        testCollector.block()
-                    }
-                } finally {
-                    UnicastRemoteObject.unexportObject(serviceImpl, true)
-                    registry.unbind(serviceName)
                 }
             }
         }
-    }
 
-    class SpanExporterServiceNameContext(
-        val serviceName: String,
-    ) : CoroutineContext.Element {
-        override val key: CoroutineContext.Key<*>
-            get() = SpanExporterServiceNameContext
+        try {
+            withContext(SpanListenerPortContext(port = serverSocket.localPort)) {
+                block()
+            }
+        } finally {
+            listenJob.cancelAndJoin()
+            serviceSocketChannel.close()
+        }
 
-        companion object : CoroutineContext.Key<SpanExporterServiceNameContext>
+        object : SpansTestCollector {
+            override val spans: List<SpanData> = spans
+            override fun clearSpans() = throw UnsupportedOperationException()
+        }
     }
+}
+
+class SpanListenerPortContext(
+    val port: Int,
+) : CoroutineContext.Element {
+    override val key: CoroutineContext.Key<*>
+        get() = SpanListenerPortContext
+
+    companion object : CoroutineContext.Key<SpanListenerPortContext>
 }

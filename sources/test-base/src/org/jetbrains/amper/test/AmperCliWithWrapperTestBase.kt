@@ -5,7 +5,6 @@
 package org.jetbrains.amper.test
 
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.diagnostics.rmi.SpanExporterService
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
@@ -93,6 +92,9 @@ abstract class AmperCliWithWrapperTestBase {
             if (isDebuggingTest) {
                 add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y")
             }
+            coroutineContext[SpanListenerPortContext]?.let {
+                add("-Damper.internal.testing.otlp.port=${it.port}")
+            }
         }
         val result = runProcessAndCaptureOutput(
             workingDir = workingDir,
@@ -107,9 +109,6 @@ abstract class AmperCliWithWrapperTestBase {
 
                 if (customJavaHome != null) {
                     this["AMPER_JAVA_HOME"] = customJavaHome.pathString
-                }
-                coroutineContext[CliSpanCollector.SpanExporterServiceNameContext]?.let {
-                    this[SpanExporterService.NAME_ENV_VAR] = it.serviceName
                 }
                 this["AMPER_JAVA_OPTIONS"] = extraJvmArgs.joinToString(" ")
                 putAll(environment)

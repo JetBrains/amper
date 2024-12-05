@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.test.CliSpanCollector.Companion.runCliTestWithCollector
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
+import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
 import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
@@ -50,7 +50,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-multiplatform`() = runCliTestWithCollector {
+    fun `compose-multiplatform`() = runTestInfinitely {
         val (result, tempProjectPath) = runCliInTempDir(projectName, "tasks")
         with(result) {
             (jvmBaseTasks + jvmTestTasks + iosLibraryTasks + androidTestTasks).forEach {
@@ -61,23 +61,25 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
             iosAppTasks.forEach { assertContains(stdout, ":ios-app:$it") }
         }
 
-        runCli(
-            projectRoot = tempProjectPath,
-             "build",
-            assertEmptyStdErr = false,
-        )
+        collectSpansFromCli {
+            runCli(
+                projectRoot = tempProjectPath,
+                "build",
+                assertEmptyStdErr = false,
+            )
+        }.run {
+            // main/test for Jvm + main/test * debug/release for Android.
+            kotlinJvmCompilationSpans.withAmperModule("shared").assertTimes(6)
 
-        // main/test for Jvm + main/test * debug/release for Android.
-        kotlinJvmCompilationSpans.withAmperModule("shared").assertTimes(6)
+            // debug/release for Android (no test sources).
+            kotlinJvmCompilationSpans.withAmperModule("android-app").assertTimes(2)
 
-        // debug/release for Android (no test sources).
-        kotlinJvmCompilationSpans.withAmperModule("android-app").assertTimes(2)
+            // main for Jvm (no test sources).
+            kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
 
-        // main for Jvm (no test sources).
-        kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
-
-        // (main/test klib + framework for Ios) * 3 ios targets
-        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(4 * 3)
+            // (main/test klib + framework for Ios) * 3 ios targets
+            kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(4 * 3)
+        }
     }
 
     @Test
@@ -111,24 +113,28 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose-desktop`() = runCliTestWithCollector {
+    fun `compose-desktop`() = runTestInfinitely {
         with(runCli(projectName, "tasks")) {
             jvmAppTasks.forEach { assertContains(stdout, ":compose-desktop:$it") }
         }
 
-        runCli(projectName, "build")
-        assertKotlinJvmCompilationSpan {
+        collectSpansFromCli {
+            runCli(projectName, "build")
+        }.assertKotlinJvmCompilationSpan {
             hasCompilerArgumentStartingWith("-Xplugin=")
         }
     }
 
     @Test
-    fun jvm() = runCliTestWithCollector {
+    fun jvm() = runTestInfinitely {
         with(runCli(projectName, "tasks")) {
             jvmAppTasks.forEach { assertContains(stdout, ":jvm:$it") }
         }
 
-        with(runCli(projectName, "run")) {
+        collectSpansFromCli {
+            val result = runCli(projectName, "run")
+            assertContains(result.stdout, "Hello, World!")
+        }.run {
             // testing some default compiler arguments
             assertKotlinJvmCompilationSpan {
                 hasCompilerArgument("-language-version", "2.0")
@@ -138,7 +144,6 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
             assertJavaCompilationSpan {
                 hasCompilerArgument("--release", "17")
             }
-            assertContains(stdout, "Hello, World!")
         }
 
         with(runCli(projectName, "test")) {
@@ -149,14 +154,17 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose-android`() = runCliTestWithCollector {
+    fun `compose-android`() = runTestInfinitely {
         with(runCli(projectName, "tasks")) {
             androidAppTasks.forEach { assertContains(stdout, ":compose-android:$it") }
         }
 
-        runCli(projectName, "build")
-        // debug + release
-        kotlinJvmCompilationSpans.assertTimes(2)
+        collectSpansFromCli {
+            runCli(projectName, "build")
+        }.run {
+            // debug + release
+            kotlinJvmCompilationSpans.assertTimes(2)
+        }
     }
 
     @Test

@@ -23,17 +23,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.jetbrains.amper.core.AmperBuild
-import org.jetbrains.amper.diagnostics.rmi.LoopbackClientSocketFactory
-import org.jetbrains.amper.diagnostics.rmi.SpanExporterService
-import org.jetbrains.amper.diagnostics.rmi.toSerializable
+import org.jetbrains.amper.diagnostics.toSerializable
 import org.slf4j.LoggerFactory
 import java.io.BufferedOutputStream
+import java.io.IOException
+import java.io.ObjectOutputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
+import java.net.InetAddress
+import java.net.Socket
 import java.nio.file.Path
-import java.rmi.RemoteException
-import java.rmi.registry.LocateRegistry
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicBoolean
@@ -63,9 +63,9 @@ object TelemetryEnvironment {
 
     fun setup() {
         val exporter = OtlpStdoutSpanExporter(deferredSpansFile.outputStream)
-        val rmiSpanExporterServiceName = System.getenv(SpanExporterService.NAME_ENV_VAR)
-        val compositeSpanExporter = if (rmiSpanExporterServiceName != null) {
-            SpanExporter.composite(exporter, RmiSpanExporter(rmiSpanExporterServiceName))
+        val spanListenerPort = System.getProperty("amper.internal.testing.otlp.port")?.toIntOrNull()
+        val compositeSpanExporter = if (spanListenerPort != null) {
+            SpanExporter.composite(exporter, SocketSpanExporter(port = spanListenerPort))
         } else exporter
 
         val tracerProvider = SdkTracerProvider.builder()
@@ -150,23 +150,32 @@ private class OtlpStdoutSpanExporter(private val outputStream: OutputStream) : S
     }
 }
 
-private class RmiSpanExporter(
-    serviceName: String,
+private class SocketSpanExporter(
+    port: Int,
 ) : SpanExporter {
-    private val registry = LocateRegistry.getRegistry(
-        LoopbackClientSocketFactory.hostName, SpanExporterService.PORT, LoopbackClientSocketFactory)
-    private val service = registry.lookup(serviceName) as SpanExporterService
+    private val socket = Socket(InetAddress.getLoopbackAddress(), port)
+    private val outputStream = ObjectOutputStream(socket.getOutputStream().buffered())
 
     override fun export(spans: Collection<SpanData>): CompletableResultCode {
         return try {
-            service.export(spans.map(SpanData::toSerializable))
+            spans.forEach { span ->
+                outputStream.writeObject(span.toSerializable())
+            }
             CompletableResultCode.ofSuccess()
-        } catch (e: RemoteException) {
+        } catch (e: IOException) {
             e.printStackTrace()
             CompletableResultCode.ofFailure()
         }
     }
 
-    override fun flush(): CompletableResultCode = CompletableResultCode.ofSuccess()
-    override fun shutdown(): CompletableResultCode = CompletableResultCode.ofSuccess()
+    override fun flush(): CompletableResultCode {
+        outputStream.flush()
+        return CompletableResultCode.ofSuccess()
+    }
+
+    override fun shutdown(): CompletableResultCode {
+        outputStream.flush()
+        socket.close()
+        return CompletableResultCode.ofSuccess()
+    }
 }
