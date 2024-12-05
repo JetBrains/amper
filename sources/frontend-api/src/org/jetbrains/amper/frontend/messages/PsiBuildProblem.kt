@@ -9,6 +9,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DependentValueTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
@@ -32,16 +33,26 @@ fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? {
     return valueBase?.extractPsiElementOrNull()
 }
 
-fun Traceable.extractPsiElement(): PsiElement {
-    val trace = trace
-    if (trace is DependentValueTrace) trace.precedingValue?.extractPsiElement()
-    check(trace is PsiTrace) { "Can't extract PSI element from traceable ${this}. Expected to have PSI trace, but has ${trace?.javaClass}" }
-    return trace.psiElement
-}
+fun Traceable.extractPsiElement(): PsiElement =
+    when (val trace = trace) {
+        is DependentValueTrace -> {
+            trace.precedingValue?.extractPsiElement()
+                // we assume that precedingValue is not null, the nullable preceding value is a programmatic error in case of DependentValueTrace
+                ?: error { "Can't extract PSI element from traceable ${this}. Preceding value is null" }
+        }
+        is PsiTrace -> trace.psiElement
+        is BuiltinCatalogTrace -> {
+            // todo (AB) : It is not correct to throw error here, either returned value should be nullable,
+            // todo (AB) : or built-in catalogue entries should be associated with the real trace in some virtual file.
+            error { "Can't extract PSI element from traceable ${this}. Expected to have PSI trace, but has ${trace.javaClass}" }
+        }
+        null -> error { "Can't extract PSI element from traceable ${this}. Element doesn't have trace" }
+    }
 
-fun Trace.extractPsiElementOrNull(): PsiElement? {
-    if (this is DependentValueTrace) this.precedingValue?.extractPsiElementOrNull()
-    return (this as? PsiTrace)?.psiElement
+fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
+    is DependentValueTrace -> this.precedingValue?.trace?.extractPsiElementOrNull()
+    is PsiTrace -> psiElement
+    is BuiltinCatalogTrace -> null
 }
 
 fun Traceable.extractPsiElementOrNull(): PsiElement? = trace?.extractPsiElementOrNull()

@@ -206,4 +206,9 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     fun `parcelize options`() {
         aomTest("parcelize-options")
     }
+
+    @Test
+    fun `test with android version override`() {
+        aomTest("overriding-android-sdk-compile-version", expectedError = "Version for compileSdk (27) should be at least minSdk version (30)")
+    }
 }

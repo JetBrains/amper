@@ -1,0 +1,10 @@
+product {
+  type = "android/app"
+}
+
+settings {
+  android {
+    minSdk = "30"
+    compileSdk = "27"
+  }
+}

@@ -39,6 +39,8 @@ fun <V> Trace.withPrecedingValue(precedingValue: ValueBase<V>?): Trace =
  * An entity that can persist its trace.
  */
 interface Traceable {
+    // todo (AB): nullable trace inside Traceable interface doesn't make any sense from the model consumer point of view.
+    // todo (AB): it seems this is done mostly because of the trace is initialized (lately), maybe lateinit could be a solution here?
     var trace: Trace?
 }
 
