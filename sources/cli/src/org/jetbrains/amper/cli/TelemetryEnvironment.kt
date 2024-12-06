@@ -7,9 +7,7 @@ package org.jetbrains.amper.cli
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
-import io.opentelemetry.exporter.internal.otlp.traces.TraceRequestMarshaler
-import io.opentelemetry.exporter.logging.otlp.internal.writer.JsonWriter
-import io.opentelemetry.exporter.logging.otlp.internal.writer.StreamJsonWriter
+import io.opentelemetry.exporter.logging.otlp.internal.traces.OtlpStdoutSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.common.CompletableResultCode
 import io.opentelemetry.sdk.resources.Resource
@@ -28,7 +26,6 @@ import org.slf4j.LoggerFactory
 import java.io.BufferedOutputStream
 import java.io.IOException
 import java.io.ObjectOutputStream
-import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.net.InetAddress
@@ -62,7 +59,10 @@ object TelemetryEnvironment {
     }
 
     fun setup() {
-        val exporter = OtlpStdoutSpanExporter(deferredSpansFile.outputStream)
+        val exporter = OtlpStdoutSpanExporter.builder()
+            .setOutput(deferredSpansFile.outputStream)
+            .setWrapperJsonObject(true)
+            .build()
         val spanListenerPort = System.getProperty("amper.internal.testing.otlp.port")?.toIntOrNull()
         val compositeSpanExporter = if (spanListenerPort != null) {
             SpanExporter.composite(exporter, SocketSpanExporter(port = spanListenerPort))
@@ -118,35 +118,6 @@ private class DeferredFile {
         } else {
             error("File path has already been set.")
         }
-    }
-}
-
-// TODO remove this. This is a simplified copy of the real OtlpStdoutSpanExporter that we temporarily use while waiting
-//  for the fix of this issue to be released: https://github.com/open-telemetry/opentelemetry-java/issues/6836
-private class OtlpStdoutSpanExporter(private val outputStream: OutputStream) : SpanExporter {
-    private val isShutdown = AtomicBoolean()
-    private val jsonWriter: JsonWriter = StreamJsonWriter(outputStream, "spans")
-
-    override fun export(spans: Collection<SpanData>): CompletableResultCode {
-        if (isShutdown.get()) {
-            return CompletableResultCode.ofFailure()
-        }
-        val request = TraceRequestMarshaler.create(spans)
-        val result = jsonWriter.write(request)
-        jsonWriter.flush()
-        outputStream.write('\n'.code) // this is the bit that the built-in OtlpStdoutSpanExporter is missing
-        return result
-    }
-
-    override fun flush(): CompletableResultCode {
-        return jsonWriter.flush()
-    }
-
-    override fun shutdown(): CompletableResultCode {
-        if (isShutdown.compareAndSet(false, true)) {
-            jsonWriter.close()
-        }
-        return CompletableResultCode.ofSuccess()
     }
 }
 
