@@ -154,18 +154,13 @@ class JvmCompileTask(
 
             val presentResources = resources.filter { it.exists() }
             for (resource in presentResources) {
-                logger.info("Copy resources from '$resource' to '${taskOutputRoot.path}'")
-                if (resource.isDirectory()) {
-                    BuildPrimitives.copy(
-                        from = resource,
-                        to = taskOutputRoot.path
-                    )
+                val dest = if (resource.isDirectory()) {
+                    taskOutputRoot.path
                 } else {
-                    BuildPrimitives.copy(
-                        from = resource,
-                        to = taskOutputRoot.path.resolve(resource.fileName)
-                    )
+                    taskOutputRoot.path.resolve(resource.fileName)
                 }
+                logger.debug("Copying resources from '{}' to '{}'...", resource, dest)
+                BuildPrimitives.copy(from = resource, to = dest)
             }
 
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path.toAbsolutePath()))
