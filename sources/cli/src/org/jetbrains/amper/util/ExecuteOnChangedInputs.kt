@@ -101,21 +101,21 @@ class ExecuteOnChangedInputs(
                     getCachedResult(stateFile, stateFileChannel, configuration, inputs)
                 }
                 if (existingResult != null) {
-                    logger.debug("INC: up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
-                    logger.info("'$id' is up-to-date")
+                    logger.debug("[inc] up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
+                    logger.debug("[inc] '$id' is up-to-date")
                     span.setAttribute("status", "up-to-date")
                     addResultToSpan(span, existingResult)
                     return@withLock existingResult
                 } else {
                     span.setAttribute("status", "requires-building")
-                    logger.info("building '$id'")
+                    logger.debug("[inc] building '$id'")
                 }
 
                 val (result, buildTime) = measureTimedValue { block() }
 
                 addResultToSpan(span, result)
 
-                logger.info("finished '$id' in $buildTime")
+                logger.debug("[inc] finished '$id' in $buildTime")
 
                 writeStateFile(stateFileChannel, configuration, inputs, result)
 
@@ -217,7 +217,7 @@ class ExecuteOnChangedInputs(
     // TODO Probably rewrite to JSON? or a binary format?
     private fun getCachedResult(stateFile: Path, stateFileChannel: FileChannel, configuration: Map<String, String>, inputs: List<Path>): ExecutionResult? {
         if (stateFileChannel.size() <= 0) {
-            logger.debug("INC: state file is missing or empty at '{}' -> rebuilding", stateFile)
+            logger.debug("[inc] state file is missing or empty at '{}' -> rebuilding", stateFile)
             return null
         }
 
@@ -225,25 +225,25 @@ class ExecuteOnChangedInputs(
             stateFileChannel.position(0)
             stateFileChannel.readEntireFileToByteArray().decodeToString()
         } catch (t: Throwable) {
-            logger.warn("INC: Unable to read state file '$stateFile' -> rebuilding", t)
+            logger.warn("[inc] Unable to read state file '$stateFile' -> rebuilding", t)
             return null
         }
 
         if (stateText.isBlank()) {
-            logger.warn("INC: Previous state file '$stateFile' is empty -> rebuilding")
+            logger.warn("[inc] Previous state file '$stateFile' is empty -> rebuilding")
             return null
         }
 
         val state = try {
             jsonSerializer.decodeFromString<State>(stateText)
         } catch (t: Throwable) {
-            logger.warn("INC: Unable to deserialize state file '$stateFile' -> rebuilding", t)
+            logger.warn("[inc] Unable to deserialize state file '$stateFile' -> rebuilding", t)
             return null
         }
 
         if (state.amperBuild != currentAmperBuildNumber) {
-            logger.info(
-                "INC: State file '$stateFile' has a different Amper build number -> rebuilding\n" +
+            logger.debug(
+                "[inc] State file '$stateFile' has a different Amper build number -> rebuilding\n" +
                         "old: ${state.amperBuild}\n" +
                         "current: $currentAmperBuildNumber"
             )
@@ -253,7 +253,7 @@ class ExecuteOnChangedInputs(
         if (state.configuration != configuration) {
             // TODO better reporting what was exactly changed
             logger.debug(
-                "INC: state file has a wrong configuration at '$stateFile' -> rebuilding\n" +
+                "[inc] state file has a wrong configuration at '$stateFile' -> rebuilding\n" +
                         "  old: ${state.configuration}\n" +
                         "  new: $configuration"
             )
@@ -263,7 +263,7 @@ class ExecuteOnChangedInputs(
         val inputPaths = inputs.map { it.pathString }.toSet()
         if (state.inputs != inputPaths) {
             logger.debug(
-                "INC: state file has a wrong inputs list at '$stateFile' -> rebuilding\n" +
+                "[inc] state file has a wrong inputs list at '$stateFile' -> rebuilding\n" +
                         "  old: ${state.inputs.sorted()}\n" +
                         "  new: ${inputPaths.sorted()}"
             )
@@ -273,7 +273,7 @@ class ExecuteOnChangedInputs(
         val currentInputsState = getPathListState(inputs, failOnMissing = false)
         if (state.inputsState != currentInputsState) {
             logger.debug(
-                "INC: state file has a wrong inputs at '$stateFile' -> rebuilding\n" +
+                "[inc] state file has a wrong inputs at '$stateFile' -> rebuilding\n" +
                         "  old: ${state.inputsState}\n" +
                         "  new: $currentInputsState"
             )
@@ -284,7 +284,7 @@ class ExecuteOnChangedInputs(
         val currentOutputsState = getPathListState(outputsList, failOnMissing = false)
         if (state.outputsState != currentOutputsState) {
             logger.debug(
-                "INC: state file has a wrong outputs at '$stateFile' -> rebuilding\n" +
+                "[inc] state file has a wrong outputs at '$stateFile' -> rebuilding\n" +
                         "  old: ${state.outputsState}\n" +
                         "  new: $currentOutputsState"
             )

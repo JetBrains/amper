@@ -1175,9 +1175,6 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             runtimeClasspathViaTask.jvmRuntimeClasspath.withoutImplicitAmperLibs().map { it.name },
             "Unexpected list of resolved runtime dependencies (via task)"
         )
-
-        val find = "finished ':app:resolveDependenciesJvm' in"
-        assertInfoLogStartsWith(find)
     }
 
     @Test
