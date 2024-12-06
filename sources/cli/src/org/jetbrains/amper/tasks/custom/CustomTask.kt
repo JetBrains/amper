@@ -79,14 +79,11 @@ internal class CustomTask(
             tempRoot = tempRoot,
         )
 
-        // Move into runJava and under runJava span?
-        val message = "Process exited with exit code ${result.exitCode}" +
-                (if (result.stderr.isNotEmpty()) "\nSTDERR:\n${result.stderr}\n" else "") +
-                (if (result.stdout.isNotEmpty()) "\nSTDOUT:\n${result.stdout}\n" else "")
         if (result.exitCode != 0) {
+            val message = "Custom task '${codeModule.userReadableName}' exited with exit code ${result.exitCode}" +
+                    (if (result.stderr.isNotEmpty()) "\nSTDERR:\n${result.stderr}\n" else "") +
+                    (if (result.stdout.isNotEmpty()) "\nSTDOUT:\n${result.stdout}\n" else "")
             userReadableError(message)
-        } else {
-            logger.info(message)
         }
 
         val additionalSources = mutableListOf<AdditionalSourcesProvider.SourceRoot>()
