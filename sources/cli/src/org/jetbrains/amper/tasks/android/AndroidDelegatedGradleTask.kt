@@ -80,10 +80,10 @@ abstract class AndroidDelegatedGradleTask(
         ) {
             val gradleProjectPath = (taskOutputPath.path / "gradle-project").also { path -> path.createDirectories() }
             googleServicesJson?.let {
-                logger.info("Using google services json at $it")
+                logger.debug("Using google services json at {}", it)
                 googleServicesJson.copyTo(gradleProjectPath / googleServicesFileName, overwrite = true)
             }
-            logger.info("Using android sdk at $androidSdkPath")
+            logger.debug("Using android sdk at {}", androidSdkPath)
             val logFileName = UUID.randomUUID()
             val gradleLogStdoutPath =
                 buildLogsRoot.path / "gradle" / "${this::class.simpleName}-$logFileName.stdout"
