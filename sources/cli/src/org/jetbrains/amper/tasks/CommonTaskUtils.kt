@@ -18,6 +18,14 @@ object CommonTaskUtils {
  */
 fun Collection<Fragment>.identificationPhrase(): String = when (size) {
     0 -> "no fragments"
-    1 -> "fragment '${single().name}' of module '${single().module.userReadableName}'"
+    1 -> single().identificationPhrase()
     else -> "fragments ${map { it.name }.sorted()} of module '${first().module.userReadableName}'"
 }
+
+/**
+ * A phrase identifying this fragment:
+ * ```
+ * fragment 'x' of module 'my-module'
+ * ```
+ */
+fun Fragment.identificationPhrase(): String = "fragment '${name}' of module '${module.userReadableName}'"

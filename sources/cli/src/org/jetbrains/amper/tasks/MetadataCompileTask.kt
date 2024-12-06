@@ -111,7 +111,7 @@ class MetadataCompileTask(
                     refinesPaths = refinesPaths,
                 )
             } else {
-                logger.info("Sources for fragment '${fragment.name}' of module '${module.userReadableName}' are missing, skipping compilation")
+                logger.info("No sources were found for ${fragment.identificationPhrase()}, skipping compilation")
             }
 
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path.toAbsolutePath()))
