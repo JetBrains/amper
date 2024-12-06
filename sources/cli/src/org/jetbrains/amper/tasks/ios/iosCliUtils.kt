@@ -61,7 +61,6 @@ suspend fun bootAndWaitSimulator(
                 listOf("open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", deviceId)
             else
                 listOf("xcrun", "simctl", "boot", deviceId),
-            logCall = true,
             outputListener = LoggingProcessOutputListener(logger),
         )
         bootCommandIssued = true
@@ -87,12 +86,10 @@ suspend fun bootAndWaitSimulator(
 
 private suspend fun xcrun(
     vararg args: String,
-    logCall: Boolean = false,
     listener: ProcessOutputListener = LoggingProcessOutputListener(logger),
 ) = BuildPrimitives.runProcessAndGetOutput(
     workingDir = Path("."),
     command = listOf(XCRUN_EXECUTABLE) + args,
-    logCall = logCall,
     outputListener = listener,
 ).stdout
 
@@ -119,7 +116,6 @@ private object SimCtl {
     suspend fun queryDevice(deviceId: String): Device? {
         val simcltListOut = xcrun(
             "simctl", "list", "-v", "devices", deviceId, "--json",
-            logCall = false,
             listener = ProcessOutputListener.NOOP,
         )
 
@@ -130,7 +126,6 @@ private object SimCtl {
     suspend fun queryAvailableDevices(): List<Device> {
         val simcltListOut = xcrun(
             "simctl", "list", "-v", "devices", "--json",
-            logCall = true,
             listener = ProcessOutputListener.NOOP,
         )
 

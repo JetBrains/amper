@@ -89,7 +89,6 @@ class IosBuildTask(
                     workingDir = workingDir,
                     command = xcodebuildArgs,
                     span = span,
-                    logCall = true,
                     environment = mapOf(
                         XCodeIntegrationCommand.AMPER_BUILD_OUTPUT_DIR_ENV to buildOutputRoot.path.pathString,
                     ),

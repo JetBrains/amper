@@ -57,7 +57,6 @@ class IosKotlinTestTask(
                     val result = BuildPrimitives.runProcessAndGetOutput(
                         workingDir = workingDir,
                         command = spawnTestsCommand,
-                        logCall = true,
                         span = span,
                         outputListener = PrintToTerminalProcessOutputListener(terminal),
                     )

@@ -17,7 +17,6 @@ import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.util.ShellQuoting
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.copyToRecursively
@@ -52,12 +51,11 @@ object BuildPrimitives {
         workingDir: Path,
         command: List<String>,
         span: Span? = null,
-        logCall: Boolean = false,
         environment: Map<String, String> = emptyMap(),
         outputListener: ProcessOutputListener,
         input: ProcessInput = ProcessInput.Empty,
     ): ProcessResult {
-        if (logCall) logger.logProcessCall(command.toList())
+        logger.debug("[cmd] ${ShellQuoting.quoteArgumentsPosixShellWay(command.toList())}")
 
         val result = withContext(Dispatchers.IO) {
             // Why quoteCommandLineForCurrentPlatform:
@@ -93,8 +91,4 @@ object BuildPrimitives {
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private fun Logger.logProcessCall(command: List<String>) {
-        debug("[cmd] ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")
-    }
 }
