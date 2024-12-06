@@ -84,7 +84,7 @@ class NativeCompileKlibTask(
         val kotlinVersion = UsedVersions.kotlinVersion
         val kotlinUserSettings = fragments.mergedKotlinSettings()
 
-        logger.info("native compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
+        logger.debug("native compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
         val configuration: Map<String, String> = mapOf(
             "kotlin.version" to kotlinVersion,

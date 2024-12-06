@@ -57,7 +57,7 @@ class MetadataCompileTask(
     override val isTest: Boolean = fragment.isTest
 
     override suspend fun run(dependenciesResult: List<TaskResult>): Result {
-        logger.info("compile metadata for '${module.userReadableName}' -- ${fragment.name}")
+        logger.debug("compile metadata for '${module.userReadableName}' -- ${fragment.name}")
 
         // TODO Make kotlin version configurable in settings
         val kotlinVersion = UsedVersions.kotlinVersion

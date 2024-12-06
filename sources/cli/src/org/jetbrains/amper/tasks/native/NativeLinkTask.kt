@@ -94,7 +94,7 @@ class NativeLinkTask(
         val kotlinVersion = UsedVersions.kotlinVersion
         val kotlinUserSettings = fragments.mergedKotlinSettings()
 
-        logger.info("native link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
+        logger.debug("native link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
         val entryPoints = if (module.type.isApplication()) {
             fragments.mapNotNull { it.settings.native?.entryPoint }.distinct()
