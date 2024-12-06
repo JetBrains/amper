@@ -94,6 +94,7 @@ object BuildPrimitives {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    private fun Logger.logProcessCall(command: List<String>) =
-        this.info("Calling: ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")
+    private fun Logger.logProcessCall(command: List<String>) {
+        debug("[cmd] ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")
+    }
 }
