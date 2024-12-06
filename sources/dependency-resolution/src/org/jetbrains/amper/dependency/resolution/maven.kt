@@ -464,7 +464,7 @@ class MavenDependency internal constructor(
                     Message(
                         "Unable to resolve dependency $this",
                         context.settings.repositories.joinToString(),
-                        Severity.ERROR,
+                        if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
                         suppressedMessages = pom.diagnosticsReporter.getMessages() + moduleFile.diagnosticsReporter.getMessages()
                     )
             }
@@ -772,7 +772,7 @@ class MavenDependency internal constructor(
                 Message(
                     "module file was not downloaded for $this",
                     context.settings.repositories.toString(),
-                    if (level.state == ResolutionState.RESOLVED) Severity.ERROR else Severity.WARNING,
+                    if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
             ))
         }
         return null
