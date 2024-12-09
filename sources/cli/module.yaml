@@ -18,6 +18,7 @@ dependencies:
   - ../android-integration/runner
   - ../async-processes
   - ../compose-resources
+  - ../xcode-model-ext
   - $libs.bouncycastle.bcprov # for keystore generation
   - $libs.bouncycastle.bcpkix # for keystore generation
   - $libs.intellij.amper.xcodemodel

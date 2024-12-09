@@ -15,6 +15,7 @@ import com.jetbrains.cidr.xcode.model.PBXProjectFile
 import com.jetbrains.cidr.xcode.model.PBXProjectFileManipulator
 import com.jetbrains.cidr.xcode.model.PBXReference
 import com.jetbrains.cidr.xcode.model.ProjectFilesChanges
+import com.jetbrains.cidr.xcode.model.addFileSystemSynchronizedRootGroup
 import com.jetbrains.cidr.xcode.plist.Plist
 import com.jetbrains.cidr.xcode.plist.XMLPlistDriver
 import com.jetbrains.cidr.xcode.util.XcodeUserDataHolder
@@ -167,7 +168,8 @@ class ManageXCodeProjectTask(
             manipulator.addConfiguration(name = buildType.name, map = emptyMap(), target = null)
         }
 
-        val infoPlistFile = baseDir / "info.plist"
+        val src = module.rootFragment.src
+        val infoPlistFile = src / "Info.plist"
         XMLPlistDriver().write(createDefaultPlist(), infoPlistFile.toFile())
         manipulator.addFile(
             path = infoPlistFile.pathString,
@@ -209,12 +211,6 @@ class ManageXCodeProjectTask(
             this[BuildSettingNames.CLANG_ENABLE_OBJC_ARC] = "YES"
         }
 
-        val sourcesGroup = manipulator.addGroup(
-            sourceTree = PBXReference.SOURCE_TREE_SOURCE_ROOT,
-            name = "src",
-            path = module.rootFragment.src.relativeTo(baseDir).pathString,
-        )
-
         val pbxTarget = manipulator.addNativeTarget(
             name = DEFAULT_TARGET_NAME,
             productTypeId = AppleProductType.APPLICATION_TYPE_ID,
@@ -223,9 +219,17 @@ class ManageXCodeProjectTask(
             platform = iosPlatform,
         )
 
-        // Add sourceGroup as a new PBXFileSystemSynchronizedRootGroup, xcode 16+
-        sourcesGroup["isa"] = "PBXFileSystemSynchronizedRootGroup"
-        pbxTarget.addToAttributeList(key = "fileSystemSynchronizedGroups", value = sourcesGroup.createReference())
+        // Add "src" as a new PBXFileSystemSynchronizedRootGroup, xcode 16+
+        manipulator.addFileSystemSynchronizedRootGroup(
+            sourceTree = PBXReference.SOURCE_TREE_SOURCE_ROOT,
+            name = "src",
+            path = src.relativeTo(baseDir).pathString,
+            addToTargets = listOf(pbxTarget),
+            membershipExceptions = listOf(
+                // Exclude Info.plist so it doesn't interfere with the build
+                infoPlistFile.relativeTo(src).pathString
+            ),
+        )
 
         manipulator.addBuildPhase(
             PBXBuildPhase.Type.SHELL_SCRIPT,

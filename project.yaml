@@ -30,3 +30,4 @@ modules:
   - sources/gradle-e2e-test
   - sources/gradle-integration
   - sources/test-base
+  - sources/xcode-model-ext
