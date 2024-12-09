@@ -47,12 +47,8 @@ class JvmRunTask(
 
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
-        // TODO how to support options like debugging, xmx etc?
-        // TODO some of them should be coming from module files, some from command line
-        // ideally ./amper :cli:jvmRun --debug
-
-        // TODO how to customize properties? -ea? -Xmx?
-        val jvmArgs = listOf("-ea")
+        // TODO also support options from module files? (AMPER-3253)
+        val jvmArgs = listOf("-ea") + commonRunSettings.userJvmArgs
 
         val workingDir = module.source.moduleDir ?: projectRoot.path
 

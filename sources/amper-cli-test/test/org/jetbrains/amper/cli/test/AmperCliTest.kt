@@ -406,6 +406,37 @@ class AmperCliTest: AmperCliTestBase() {
         runCli(backendTestProjectName = "parcelize-shared-kmp-model", "build")
     }
 
+    @Test
+    fun `jvm test with JVM arg`() = runTestInfinitely {
+        runCli(backendTestProjectName = "jvm-kotlin-test-systemprop", "test", "--jvm-args=-Dmy.system.prop=hello")
+
+        // should fail without the system prop
+        runCli(
+            backendTestProjectName = "jvm-kotlin-test-systemprop",
+            "test",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+
+        // should fail with an incorrect value for the system prop
+        runCli(
+            backendTestProjectName = "jvm-kotlin-test-systemprop",
+            "test",
+            "--jvm-args=-Dmy.system.prop=WRONG",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+    }
+
+    @Test
+    fun `jvm run with JVM arg`() = runTestInfinitely {
+        val result1 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=-Dmy.system.prop=hello")
+        assertEquals("my.system.prop=hello", result1.stdout.trim().lines().last())
+
+        val result2 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=-Dmy.system.prop=world")
+        assertEquals("my.system.prop=world", result2.stdout.trim().lines().last())
+    }
+
     private fun assertModulesList(modulesCommandResult: ProcessResult, expectedModules: List<String>) {
         // TODO should we have a machine-readable output format without banner/logs location messages?
         // Sometimes there are output lines about waiting for other processes or downloading the distribution or JRE.

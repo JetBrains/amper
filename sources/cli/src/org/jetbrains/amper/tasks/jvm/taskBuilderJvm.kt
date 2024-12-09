@@ -196,6 +196,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     taskName = testTaskName,
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
+                    commonRunSettings = context.commonRunSettings,
                 ),
                 listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true),

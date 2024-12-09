@@ -12,8 +12,10 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import org.jetbrains.amper.cli.withBackend
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.util.BuildType
+import org.slf4j.LoggerFactory
 
 internal class RunCommand : AmperSubcommand(name = "run") {
 
@@ -31,6 +33,9 @@ internal class RunCommand : AmperSubcommand(name = "run") {
         .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
         .default(BuildType.Debug)
 
+    private val jvmArgs by userJvmArgsOption(help = "The JVM arguments to pass to the JVM running the application " +
+            "(only for JVM applications)")
+
     private val programArguments by argument(name = "app_arguments").multiple()
 
     override fun help(context: Context): String = "Run your application"
@@ -38,10 +43,17 @@ internal class RunCommand : AmperSubcommand(name = "run") {
     override fun helpEpilog(context: Context): String = "Use -- to separate the application's arguments from Amper options"
 
     override suspend fun run() {
+        if (jvmArgs.isNotEmpty() && platform != Platform.JVM) {
+            LoggerFactory.getLogger(javaClass).warn("--jvm-args have no effect when running a non-JVM app")
+        }
+
         withBackend(
             commonOptions,
             commandName,
-            commonRunSettings = CommonRunSettings(programArgs = programArguments),
+            commonRunSettings = CommonRunSettings(
+                programArgs = programArguments,
+                userJvmArgs = jvmArgs,
+            ),
         ) { backend ->
             backend.runApplication(moduleName = module, platform = platform, buildType = buildType)
         }

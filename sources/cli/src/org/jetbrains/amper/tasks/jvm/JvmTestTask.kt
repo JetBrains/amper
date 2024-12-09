@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
+import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
@@ -40,6 +41,7 @@ class JvmTestTask(
     private val tempRoot: AmperProjectTempRoot,
     private val projectRoot: AmperProjectRoot,
     private val terminal: Terminal,
+    private val commonRunSettings: CommonRunSettings,
     override val module: AmperModule,
     override val taskName: TaskName,
     override val platform: Platform = Platform.JVM,
@@ -101,10 +103,11 @@ class JvmTestTask(
         })
 
         try {
+            // TODO also support JVM system properties from module files (AMPER-3253), and maybe other options?
             val jvmCommand = listOf(
                 javaExecutable.pathString,
-                // TODO more jvm options? which options should be here?
                 "-ea",
+                *commonRunSettings.userJvmArgs.toTypedArray(),
                 "-jar",
                 junitConsole.pathString,
                 "execute",

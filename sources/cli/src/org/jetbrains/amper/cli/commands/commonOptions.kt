@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.transformAll
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.frontend.Platform
 
@@ -28,3 +29,11 @@ internal fun ParameterHolder.leafPlatformOption(help: String) = option(
 private fun checkAndGetPlatform(value: String) =
     prettyLeafPlatforms[value]
         ?: userReadableError("Unsupported platform '$value'.\n\nPossible values: $prettyLeafPlatformsString")
+
+internal fun ParameterHolder.userJvmArgsOption(help: String) = option(
+    "--jvm-args",
+    help = help,
+).transformAll { values ->
+    // FIXME deal with quoted args more correctly
+    values.flatMap { it.split(" ") }.filter { it.isNotBlank() }
+}
