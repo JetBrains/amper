@@ -38,11 +38,18 @@ val kotlinxSerializationVersion = "1.7.3"
 val kspVersion = "$kotlinVersion-1.0.25"
 val composeVersion = "1.6.10"
 
-/** This is the Gradle version used in Gradle-based Amper projects, not Amper itself. */
-val gradleVersion = "8.6"
+/**
+ * This is the Gradle version used in Gradle-based Amper projects, not Amper itself.
+ * It is limited by the use of undocumented Gradle APIs to allow customizing the Compose version.
+ * Technically, users can use a higher version, but they won't be able to use a non-default Compose version anymore.
+ */
+val gradleVersion = "8.6" // do not bump if we still hack our way to apply dynamic plugin versions
 
-/** This is the version of AGP used in Gradle-based Amper (not the one for standalone, which is internal). */
-val androidVersionForGradleBasedAmper = "8.2.0" // do not bump higher than Fleet can import
+/**
+ * This is the version of AGP used in Gradle-based Amper (not the one for standalone, which is internal).
+ * It is limited by the current default [gradleVersion] we use (see above), and the version Fleet can import.
+ */
+val androidVersionForGradleBasedAmper = "8.2.0" // do not bump higher than Gradle & Fleet support
 
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 
