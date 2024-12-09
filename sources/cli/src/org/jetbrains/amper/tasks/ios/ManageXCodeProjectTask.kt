@@ -310,7 +310,7 @@ class ManageXCodeProjectTask(
             "shellScript" to """
                 |# $AMPER_PHASE_MAGIC
                 |# This script is managed by Amper, do not edit manually!
-                |"${'$'}{$AMPER_WRAPPER_PATH_CONF}" tool xcode-integration --module="${module.userReadableName}"
+                |"${'$'}{$AMPER_WRAPPER_PATH_CONF}" tool xcode-integration
                 |
             """.trimMargin(),
             "alwaysOutOfDate" to "1", // TODO: Maybe track inputs/outputs properly if that's possible

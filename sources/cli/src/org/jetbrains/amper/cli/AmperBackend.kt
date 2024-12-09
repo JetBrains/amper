@@ -12,10 +12,10 @@ import org.jetbrains.amper.core.useWithoutCoroutines
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
-import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
+import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.isDescendantOf
@@ -29,9 +29,11 @@ import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
+import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.annotations.TestOnly
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 import kotlin.io.path.pathString
 
 class AmperBackend(val context: CliContext) {
@@ -285,12 +287,30 @@ class AmperBackend(val context: CliContext) {
         runTask(task.taskName)
     }
 
+    /**
+     * Run the iOS pre-build task identified by the [platform], [buildType] and the module.
+     * The module is identified by its [moduleDir].
+     *
+     * @return the name of the module with the [moduleDir].
+     */
     suspend fun prebuildForXcode(
-        moduleName: String,
+        moduleDir: Path,
         platform: Platform,
         buildType: BuildType,
-    ) {
-        val module = resolveModule(moduleName)
+    ): String {
+        val module = resolvedModel.modules.find { it.source.moduleDir == moduleDir }
+        requireNotNull(module) {
+            "Unable to resolve a module with the module directory '$moduleDir'"
+        }
+
+        if (platform !in module.targetLeafPlatforms) {
+            val availablePlatformsForModule = module.targetLeafPlatforms.sorted().joinToString(" ")
+            userReadableError("""
+                    Platform '${platform.pretty}' is not found for iOS module '${module.userReadableName}'.
+                    The module has declared platforms: $availablePlatformsForModule.
+                    Please declare the required platform explicitly in the module's file.
+                """.trimIndent())
+        }
 
         val taskName = IosTaskType.PreBuildIosApp.getTaskName(
             module = module,
@@ -299,6 +319,8 @@ class AmperBackend(val context: CliContext) {
             buildType = buildType,
         )
         taskExecutor.runTasksAndReportOnFailure(setOf(taskName))
+
+        return module.userReadableName
     }
 
     private fun resolveModule(moduleName: String) = modulesByName[moduleName] ?: userReadableError(

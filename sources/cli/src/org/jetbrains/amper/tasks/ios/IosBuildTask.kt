@@ -91,6 +91,7 @@ class IosBuildTask(
                     span = span,
                     environment = mapOf(
                         XCodeIntegrationCommand.AMPER_BUILD_OUTPUT_DIR_ENV to buildOutputRoot.path.pathString,
+                        XCodeIntegrationCommand.AMPER_MODULE_NAME_ENV to module.userReadableName,
                     ),
                     outputListener = LoggingProcessOutputListener(logger),
                 )
