@@ -242,7 +242,7 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun publish() = runTestInfinitely {
-        val groupDir = m2repository.resolve("amper").resolve("test")
+        val groupDir = m2repository.resolve("amper/test/jvm-publish")
         groupDir.deleteRecursively()
 
         runCli("jvm-publish", "publish", "mavenLocal")

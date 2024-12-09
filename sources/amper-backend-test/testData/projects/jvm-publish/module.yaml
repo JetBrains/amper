@@ -42,6 +42,6 @@ dependencies:
 
 settings:
   publishing:
-    group: "amper.test"
+    group: "amper.test.jvm-publish"
     version: "2.2"
     name: artifactName

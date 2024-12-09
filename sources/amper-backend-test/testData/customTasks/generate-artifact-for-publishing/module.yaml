@@ -11,5 +11,5 @@ repositories:
 
 settings:
   publishing:
-    group: amper.test
+    group: amper.test.generate-artifact-for-publishing
     version: 1.0-FANCY

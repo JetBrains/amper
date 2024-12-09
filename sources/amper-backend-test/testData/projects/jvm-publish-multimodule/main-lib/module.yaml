@@ -4,7 +4,7 @@ product:
     - jvm
 
 apply:
-  - ../common-template.module.yaml
+  - ../common.module-template.yaml
 
 dependencies:
   - ../jvm-lib: exported

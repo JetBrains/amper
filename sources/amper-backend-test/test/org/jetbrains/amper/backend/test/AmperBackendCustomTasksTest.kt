@@ -82,8 +82,7 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
 
     @Test
     fun `generate artifact for publishing`() = runTestWithCollector {
-        val m2repository = Path(System.getProperty("user.home"), ".m2/repository")
-        val groupDir = m2repository.resolve("amper").resolve("test")
+        val groupDir = TestUtil.m2repository.resolve("amper/test/generate-artifact-for-publishing")
         groupDir.deleteRecursively()
 
         val projectContext = setupTestDataProject("generate-artifact-for-publishing")

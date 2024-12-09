@@ -576,8 +576,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     fun `jvm publish to maven local`() = runTestWithCollector {
-        val m2repository = Path(System.getProperty("user.home"), ".m2/repository")
-        val groupDir = m2repository.resolve("amper").resolve("test")
+        val groupDir = TestUtil.m2repository.resolve("amper/test/jvm-publish")
         groupDir.deleteRecursively()
 
         val projectContext = setupTestDataProject("jvm-publish")
@@ -606,7 +605,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <modelVersion>4.0.0</modelVersion>
-              <groupId>amper.test</groupId>
+              <groupId>amper.test.jvm-publish</groupId>
               <artifactId>artifactName</artifactId>
               <version>2.2</version>
               <name>jvm-publish</name>
@@ -660,8 +659,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     fun `jvm publish multi-module to maven local`() = runTestWithCollector {
-        val m2repository = Path(System.getProperty("user.home"), ".m2/repository")
-        val groupDir = m2repository.resolve("amper").resolve("test")
+        val groupDir = TestUtil.m2repository.resolve("amper/test/jvm-publish-multimodule")
         groupDir.deleteRecursively()
 
         val projectContext = setupTestDataProject("jvm-publish-multimodule")
@@ -702,19 +700,19 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <modelVersion>4.0.0</modelVersion>
-              <groupId>amper.test</groupId>
+              <groupId>amper.test.jvm-publish-multimodule</groupId>
               <artifactId>main-lib</artifactId>
               <version>1.2.3</version>
               <name>main-lib</name>
               <dependencies>
                 <dependency>
-                  <groupId>amper.test</groupId>
+                  <groupId>amper.test.jvm-publish-multimodule</groupId>
                   <artifactId>jvm-lib</artifactId>
                   <version>1.2.3</version>
                   <scope>compile</scope>
                 </dependency>
                 <dependency>
-                  <groupId>amper.test</groupId>
+                  <groupId>amper.test.jvm-publish-multimodule</groupId>
                   <artifactId>kmp-lib-jvm</artifactId>
                   <version>1.2.3</version>
                   <scope>runtime</scope>
@@ -743,7 +741,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             val backend = AmperBackend(projectContext)
             backend.runTask(TaskName(":jvm-publish:publishJvmToRepoNoCredentialsId"))
 
-            val groupDir = www.resolve("amper").resolve("test")
+            val groupDir = www.resolve("amper/test/jvm-publish")
             val files = groupDir.walk()
                 .map {
                     check(it.fileSize() > 0) {
@@ -798,7 +796,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             val backend = AmperBackend(projectContext)
             backend.runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
 
-            val groupDir = www.resolve("amper").resolve("test")
+            val groupDir = www.resolve("amper/test/jvm-publish")
             val files = groupDir.walk()
                 .map {
                     check(it.fileSize() > 0) {
@@ -864,11 +862,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 AmperBackend(projectContext).runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
             }
 
-            val mavenMetadataXml = www.resolve("amper/test/artifactName/maven-metadata.xml")
+            val mavenMetadataXml = www.resolve("amper/test/jvm-publish/artifactName/maven-metadata.xml")
             assertEquals("""
                 <?xml version="1.0" encoding="UTF-8"?>
                 <metadata>
-                  <groupId>amper.test</groupId>
+                  <groupId>amper.test.jvm-publish</groupId>
                   <artifactId>artifactName</artifactId>
                   <versioning>
                     <release>2.3</release>
@@ -911,7 +909,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             assertEquals("""
                 <?xml version="1.0" encoding="UTF-8"?>
                 <metadata>
-                  <groupId>amper.test</groupId>
+                  <groupId>amper.test.jvm-publish</groupId>
                   <artifactId>artifactName</artifactId>
                   <versioning>
                     <release>1.0</release>
@@ -923,10 +921,10 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                   </versioning>
                 </metadata>
 
-            """.trimIndent(), www.resolve("amper/test/artifactName/maven-metadata.xml").readText()
+            """.trimIndent(), www.resolve("amper/test/jvm-publish/artifactName/maven-metadata.xml").readText()
                 .replace(Regex("<lastUpdated>\\d+</lastUpdated>"), "<lastUpdated>TIMESTAMP</lastUpdated>"))
 
-            val lastVersion = www.resolve("amper/test/artifactName/2.0-SNAPSHOT").listDirectoryEntries()
+            val lastVersion = www.resolve("amper/test/jvm-publish/artifactName/2.0-SNAPSHOT").listDirectoryEntries()
                 .map { it.name }
                 .sorted()
                 .last { it.startsWith("artifactName-") && it.endsWith(".jar") }
@@ -936,7 +934,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             assertEquals("""
                 <?xml version="1.0" encoding="UTF-8"?>
                 <metadata modelVersion="1.1.0">
-                  <groupId>amper.test</groupId>
+                  <groupId>amper.test.jvm-publish</groupId>
                   <artifactId>artifactName</artifactId>
                   <versioning>
                     <lastUpdated>TIMESTAMP</lastUpdated>
@@ -966,7 +964,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                   <version>2.0-SNAPSHOT</version>
                 </metadata>
 
-            """.trimIndent(), www.resolve("amper/test/artifactName/2.0-SNAPSHOT/maven-metadata.xml").readText()
+            """.trimIndent(), www.resolve("amper/test/jvm-publish/artifactName/2.0-SNAPSHOT/maven-metadata.xml").readText()
                 .replace(Regex("<lastUpdated>\\d+</lastUpdated>"), "<lastUpdated>TIMESTAMP</lastUpdated>")
                 .replace(Regex("<updated>\\d+</updated>"), "<updated>TIMESTAMP</updated>")
                 .replace(Regex("<timestamp>[\\d.]+</timestamp>"), "<timestamp>TIMESTAMP</timestamp>")

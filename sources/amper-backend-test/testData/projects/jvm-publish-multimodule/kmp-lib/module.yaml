@@ -5,4 +5,4 @@ product:
     - linuxX64
 
 apply:
-  - ../common-template.module.yaml
+  - ../common.module-template.yaml
