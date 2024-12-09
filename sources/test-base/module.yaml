@@ -6,6 +6,7 @@ dependencies:
   - io.github.java-diff-utils:java-diff-utils:4.12: exported
   # bump jupiter-api version for junit-5 since we use recent api than referenced from kotlin-test-junit5
   - org.junit.jupiter:junit-jupiter-api:5.10.2: exported
+  - $libs.intellij.platform.util # for proper command line quoting/escaping to launch Amper CLI
   - $libs.kotlinx.coroutines.core: exported
   - $libs.kotlinx.coroutines.test: exported
   - $libs.kotlinx.coroutines.slf4j: exported

@@ -433,8 +433,11 @@ class AmperCliTest: AmperCliTestBase() {
         val result1 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=-Dmy.system.prop=hello")
         assertEquals("my.system.prop=hello", result1.stdout.trim().lines().last())
 
-        val result2 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=-Dmy.system.prop=world")
-        assertEquals("my.system.prop=world", result2.stdout.trim().lines().last())
+        val result2 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=\"-Dmy.system.prop=hello world\"")
+        assertEquals("my.system.prop=hello world", result2.stdout.trim().lines().last())
+
+        val result3 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=-Dmy.system.prop=hello\\ world")
+        assertEquals("my.system.prop=hello world", result3.stdout.trim().lines().last())
     }
 
     private fun assertModulesList(modulesCommandResult: ProcessResult, expectedModules: List<String>) {

@@ -34,6 +34,47 @@ internal fun ParameterHolder.userJvmArgsOption(help: String) = option(
     "--jvm-args",
     help = help,
 ).transformAll { values ->
-    // FIXME deal with quoted args more correctly
-    values.flatMap { it.split(" ") }.filter { it.isNotBlank() }
+    values.flatMap { it.splitArgsHonoringQuotes() }
+}
+
+internal fun String.splitArgsHonoringQuotes(): List<String> {
+    val args = mutableListOf<String>()
+    var currentArg = StringBuilder()
+    var inQuotes = false
+    var escaping = false
+    var hasPendingArg = false
+
+    for (c in this) {
+        if (escaping) {
+            currentArg.append(c)
+            escaping = false
+            continue
+        }
+        when {
+            c == '\\' -> {
+                escaping = true
+            }
+            c == '"' -> {
+                inQuotes = !inQuotes
+                hasPendingArg = true
+            }
+            c == ' ' && !inQuotes -> {
+                if (hasPendingArg) { // multiple spaces shouldn't yield empty args
+                    args.add(currentArg.toString())
+                    currentArg.clear()
+                    hasPendingArg = false
+                }
+            }
+            else -> {
+                currentArg.append(c)
+                hasPendingArg = true
+            }
+        }
+    }
+    require(!escaping) { "Dangling escape character '\\'" }
+    require(!inQuotes) { "Unclosed quotes" }
+    if (hasPendingArg) {
+        args.add(currentArg.toString())
+    }
+    return args
 }

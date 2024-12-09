@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.test
 
+import com.intellij.execution.CommandLineUtil
+import com.intellij.execution.Platform
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
@@ -76,7 +78,8 @@ abstract class AmperCliWithWrapperTestBase {
         check(workingDir.exists()) { "Cannot run Amper: the specified working directory $workingDir does not exist." }
         check(workingDir.isDirectory()) { "Cannot run Amper: the specified working directory $workingDir is not a directory." }
 
-        val amperScript = customAmperScriptPath ?: workingDir.resolve(if (OsFamily.current.isWindows) "amper.bat" else "amper")
+        val isWindows = OsFamily.current.isWindows
+        val amperScript = customAmperScriptPath ?: workingDir.resolve(if (isWindows) "amper.bat" else "amper")
         check(amperScript.exists()) {
             "Amper script not found at $amperScript\n" +
                     "You can use LocalAmperPublication.setupWrappersIn(dir) to copy wrappers into the test project dir."
@@ -96,9 +99,11 @@ abstract class AmperCliWithWrapperTestBase {
                 add("-Damper.internal.testing.otlp.port=${it.port}")
             }
         }
+        val currentPlatformForIJ = if (isWindows) Platform.WINDOWS else Platform.UNIX
         val result = runProcessAndCaptureOutput(
             workingDir = workingDir,
-            command = listOf(amperScript.absolutePathString()) + args,
+            // proper quotes/escaping, workaround for the time-old bug https://bugs.openjdk.org/browse/JDK-8131908
+            command = CommandLineUtil.toCommandLine(amperScript.absolutePathString(), args, currentPlatformForIJ),
             environment = buildMap {
                 putAll(baseEnvironmentForWrapper())
 
