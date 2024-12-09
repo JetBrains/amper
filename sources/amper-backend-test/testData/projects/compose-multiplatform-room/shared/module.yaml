@@ -5,14 +5,14 @@ product:
 dependencies:
   - $compose.foundation: exported
   - $compose.material3: exported
-  - androidx.room:room-runtime:2.7.0-alpha09: exported # because of the RoomDatabase type that we output
+  - androidx.room:room-runtime:2.7.0-alpha11: exported # because of the RoomDatabase type that we output
   - androidx.sqlite:sqlite-bundled:2.5.0-alpha09
 
 settings:
   kotlin:
     ksp:
       processors:
-        - androidx.room:room-compiler:2.7.0-alpha09
+        - androidx.room:room-compiler:2.7.0-alpha11
   compose: enabled
 
 # we want separate schema locations for each platform, otherwise there might be concurrency issues
