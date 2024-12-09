@@ -67,7 +67,7 @@ class NativeCompileKlibTask(
             .filterKLibs()
             .toList()
 
-        logger.warn("" +
+        logger.debug("" +
                 "native compile ${module.userReadableName} -- collected external dependencies" +
                 if (externalDependencies.isNotEmpty()) "\n" else "" +
                 externalDependencies.sorted().joinToString("\n").prependIndent("  ")
