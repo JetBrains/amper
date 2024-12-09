@@ -11,8 +11,6 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.FilteredSpans
-import org.jetbrains.amper.test.spans.SpansTestCollector
-import org.jetbrains.amper.test.spans.spansNamed
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -184,23 +182,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
         }
     }
 }
-
-private val SpansTestCollector.xcodebuildSpans: FilteredSpans
-    get() = spansNamed("xcodebuild")
-
-private val SpansTestCollector.iosKotlinTests: FilteredSpans
-    get() = spansNamed("ios-kotlin-test")
-
-private val SpansTestCollector.konancSpans: FilteredSpans
-    get() = spansNamed("konanc")
-
-private val SpansTestCollector.xcodeProjectGenSpans
-    get() = spansNamed("xcode project generation")
-
-private val SpansTestCollector.xcodeProjectManagementSpans
-    get() = spansNamed("xcode project management")
-
-private val UpdatedAttribute = AttributeKey.booleanKey("updated")
 
 private fun FilteredSpans.assertZeroExitCode() = assertSingle().apply {
     assertEquals(0, getAttribute(AttributeKey.longKey("exit-code")))

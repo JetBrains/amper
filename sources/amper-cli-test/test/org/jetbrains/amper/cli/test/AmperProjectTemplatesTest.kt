@@ -5,20 +5,22 @@
 package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
+import org.jetbrains.amper.test.collectSpansFromCli
+import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
 import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertFalse
 
 private const val SUPPLEMENTAL_TAG = "supplemental"
 
@@ -82,7 +84,9 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-multiplatform`() = runTestInfinitely {
-        runCli(tempRoot, "build", assertEmptyStdErr = false)
+        collectSpansFromCli {
+            runCli(tempRoot, "build", assertEmptyStdErr = false)
+        }.assertXcodeProjectIsValid()
     }
 
     @Test
@@ -98,12 +102,15 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-ios`() = runTestInfinitely {
-        // Move the module to "compose-ios" directory, since ios module name depends on amper module name.
-        val content = tempRoot.listDirectoryEntries()
-        val newRoot = tempRoot.resolve("compose-ios").createDirectories()
-        content.forEach { it.moveTo(newRoot.resolve(it.name)) }
-        // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
-        // that are treated like errors.
-        runCli(newRoot, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
+        collectSpansFromCli {
+            // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
+            // that are treated like errors.
+            runCli(tempRoot, "build", assertEmptyStdErr = false)
+        }.assertXcodeProjectIsValid()
+    }
+
+    private fun SpansTestCollector.assertXcodeProjectIsValid() {
+        // Xcode project should be generated correctly by `init` and thus not updated by the build.
+        assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
     }
 }
