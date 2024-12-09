@@ -43,10 +43,6 @@ internal class RunCommand : AmperSubcommand(name = "run") {
     override fun helpEpilog(context: Context): String = "Use -- to separate the application's arguments from Amper options"
 
     override suspend fun run() {
-        if (jvmArgs.isNotEmpty() && platform != Platform.JVM) {
-            LoggerFactory.getLogger(javaClass).warn("--jvm-args have no effect when running a non-JVM app")
-        }
-
         withBackend(
             commonOptions,
             commandName,

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli
 
+import org.jetbrains.amper.cli.commands.userJvmArgsOption
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.OsFamily
@@ -215,6 +216,11 @@ class AmperBackend(val context: CliContext) {
         if (includedTestTasks.isEmpty()) {
             userReadableError("No test tasks were found for specified include filters")
         }
+        if (context.commonRunSettings.userJvmArgs.isNotEmpty() &&
+            includedTestTasks.none { it.platform in setOf(Platform.JVM, Platform.ANDROID) }
+        ) {
+            logger.warn("The $userJvmArgsOption option has no effect when running only non-JVM tests")
+        }
 
         val testTasks = includedTestTasks
             .filter { task -> !excludeModules.contains(task.module.userReadableName) }
@@ -273,6 +279,9 @@ class AmperBackend(val context: CliContext) {
                 """.trimIndent())
         }
 
+        if (context.commonRunSettings.userJvmArgs.isNotEmpty() && task.platform != Platform.JVM) {
+            logger.warn("The $userJvmArgsOption option have no effect when running a non-JVM app")
+        }
         runTask(task.taskName)
     }
 

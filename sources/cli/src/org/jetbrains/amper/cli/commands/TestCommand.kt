@@ -34,9 +34,6 @@ internal class TestCommand : AmperSubcommand(name = "test") {
         if (filter != null) {
             userReadableError("Filters are not implemented yet")
         }
-        if (jvmArgs.isNotEmpty() && platforms.isNotEmpty() && Platform.JVM !in platforms && Platform.ANDROID !in platforms) {
-            LoggerFactory.getLogger(javaClass).warn("--jvm-args have no effect when running only non-JVM tests")
-        }
 
         // try to execute as many tests as possible
         withBackend(
