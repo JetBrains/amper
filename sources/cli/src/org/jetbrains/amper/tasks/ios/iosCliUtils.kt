@@ -38,7 +38,7 @@ suspend fun shutdownDevice(deviceId: String) =
     xcrun("simctl", "shutdown", deviceId)
 
 suspend fun pickBestDevice(): Device? {
-    val devices = SimCtl.queryAvailableDevices().sortedBy { it.runtimeId }
+    val devices = SimCtl.queryAvailableDevices().sortedByDescending { it.runtimeId }
     val latestRuntime = devices.firstOrNull()?.runtimeId ?: return null
     // Naive ranking algorithm
     return devices.takeWhile { it.runtimeId == latestRuntime }.maxBy {
