@@ -10,9 +10,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.TaskExecutor
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.slf4j.LoggerFactory
 import kotlin.collections.isNotEmpty
 
 internal class TestCommand : AmperSubcommand(name = "test") {
@@ -22,7 +20,12 @@ internal class TestCommand : AmperSubcommand(name = "test") {
 
     private val filter by option("-f", "--filter", help = "wildcard filter to run only matching tests, the option could be repeated to run tests matching any filter")
 
-    private val jvmArgs by userJvmArgsOption(help = "The JVM arguments to pass to the JVM running the tests (only affects JVM tests)")
+    private val jvmArgs by userJvmArgsOption(
+        help = "The JVM arguments to pass to the JVM running the tests, separated by spaces. " +
+                "These arguments only affect JVM and Android tests; they don't affect non-JVM tests (such as iOS tests). " +
+                "If the $UserJvmArgsOption option is repeated, the arguments contained in all occurrences are passed " +
+                "to the JVM in the order they were specified. The JVM decides how it handles duplicate arguments."
+    )
 
     private val includeModules by option("-m", "--include-module", help = "specific module to check, the option could be repeated to check several modules").multiple()
 

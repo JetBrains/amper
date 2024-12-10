@@ -30,9 +30,9 @@ private fun checkAndGetPlatform(value: String) =
     prettyLeafPlatforms[value]
         ?: userReadableError("Unsupported platform '$value'.\n\nPossible values: $prettyLeafPlatformsString")
 
-internal const val userJvmArgsOption = "--jvm-args"
+internal const val UserJvmArgsOption = "--jvm-args"
 
-internal fun ParameterHolder.userJvmArgsOption(help: String) = option(userJvmArgsOption, help = help)
+internal fun ParameterHolder.userJvmArgsOption(help: String) = option(UserJvmArgsOption, help = help)
     .transformAll { values ->
         values.flatMap { it.splitArgsHonoringQuotes() }
     }

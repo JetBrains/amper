@@ -12,10 +12,8 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import org.jetbrains.amper.cli.withBackend
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.util.BuildType
-import org.slf4j.LoggerFactory
 
 internal class RunCommand : AmperSubcommand(name = "run") {
 
@@ -33,8 +31,12 @@ internal class RunCommand : AmperSubcommand(name = "run") {
         .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
         .default(BuildType.Debug)
 
-    private val jvmArgs by userJvmArgsOption(help = "The JVM arguments to pass to the JVM running the application " +
-            "(only for JVM applications)")
+    private val jvmArgs by userJvmArgsOption(
+        help = "The JVM arguments to pass to the JVM running the application, separated by spaces. " +
+                "These arguments only affect the JVM used to run the application, and don't affect non-JVM applications. " +
+                "If the $UserJvmArgsOption option is repeated, the arguments contained in all occurrences are passed " +
+                "to the JVM in the order they were specified. The JVM decides how it handles duplicate arguments."
+    )
 
     private val programArguments by argument(name = "app_arguments").multiple()
 
