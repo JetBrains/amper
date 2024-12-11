@@ -24,12 +24,11 @@ import org.jetbrains.amper.gradle.util.MockModel
 import org.jetbrains.amper.gradle.util.MockAmperModule
 import org.jetbrains.amper.gradle.util.getMockModelName
 import org.jetbrains.amper.gradle.util.withDebug
-import org.jetbrains.kotlin.gradle.utils.ProviderDelegate
 import java.nio.file.Path
 import kotlin.collections.set
 import kotlin.io.path.createDirectories
 import kotlin.properties.PropertyDelegateProvider
-
+import kotlin.reflect.KProperty
 
 class MockModelInit : ModelInit by Models
 
@@ -259,5 +258,15 @@ object Models : ModelInit {
                 settings.jvm = JvmSettings().apply { mainClass = "MainKt" }
             }
         )
+    }
+}
+
+// TODO this class was removed in KGP 2.1.0, so we copied it here as a quick fix.
+//  We probably don't need this and should clean up.
+private class ProviderDelegate<out T : Any>(
+    private val defaultValueProvider: () -> T
+) {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        return defaultValueProvider()
     }
 }

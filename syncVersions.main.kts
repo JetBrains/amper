@@ -33,7 +33,7 @@ val bootstrapAmperVersion = "0.6.0-dev-2436" // AUTO-UPDATED BY THE CI - DO NOT 
  */
 val amperInternalJbrVersion = "21.0.4b509.26"
 
-val kotlinVersion = "2.0.21"
+val kotlinVersion = "2.1.0"
 val kotlinxSerializationVersion = "1.7.3"
 val kspVersion = "2.1.0-1.0.29" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
 val composeVersion = "1.6.10"
