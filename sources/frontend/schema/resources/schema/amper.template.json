@@ -547,6 +547,7 @@
         "teamId": {
           "x-intellij-html-description": "A Team ID is a unique string assigned to your team by Apple.<br>It's necessary if you want to run/test on a Apple device.<br>Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/), or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`)",
           "title": "A Team ID is a unique string assigned to your team by Apple.<br>It's necessary if you want to run/test on a Apple device.<br>Read how to locate your team ID in Xcode, or use KDoctor tool",
+          "x-intellij-metadata": {"gradleSpecific": true},
           "type": "string"
         }
       },
@@ -618,6 +619,7 @@
         "ksp": {
           "x-intellij-html-description": "[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.",
           "title": "KSP  settings",
+          "x-intellij-metadata": {"standaloneSpecific": true},
           "$ref": "#/$defs/KspSettings"
         },
         "languageFeatures": {

@@ -9,9 +9,11 @@ import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumItemDescription
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
+import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
+import org.jetbrains.amper.frontend.api.StandaloneSpecific
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -74,38 +76,50 @@ private fun extraData(prop: KProperty<*>): String {
         extraData["x-intellij-html-description"] = "\"$documentation\""
         extraData["title"] = "\"${turnDocIntoShortForm(documentation)}\""
     }
-    val platformSpecific = prop.findAnnotation<PlatformSpecific>()
-    val productTypeSpecific = prop.findAnnotation<ProductTypeSpecific>()
-    when {
-        platformSpecific != null && productTypeSpecific != null -> {
-            extraData[extraDataKey] = "{\"platforms\": [${
-                platformSpecific.platforms.joinToString {
-                    "\"${it.pretty}\""
-                }
-            }], \"productTypes\": [${
-                productTypeSpecific.productTypes.joinToString {
-                    "\"${it.value}\""
-                }
-            }]}"
-        }
-        platformSpecific != null -> {
-            extraData[extraDataKey] = "{\"platforms\": [${
-                platformSpecific.platforms.joinToString {
-                    "\"${it.pretty}\""
-                }
-            }]}"
-        }
-        productTypeSpecific != null -> {
-            extraData[extraDataKey] = "{\"productTypes\": [${
-                productTypeSpecific.productTypes.joinToString {
-                    "\"${it.value}\""
-                }
-            }]}"
-        }
-    }
+    buildSpecificsData(prop)?.let { extraData[extraDataKey] = it }
     return if (extraData.isNotEmpty()) {
         extraData.entries.joinToString("") { "\"${it.key}\": ${it.value},\n".addIdentButFirst("  ") }
     } else ""
+}
+
+private fun buildSpecificsData(prop: KProperty<*>): String? {
+    val platformSpecific = prop.findAnnotation<PlatformSpecific>()
+    val productTypeSpecific = prop.findAnnotation<ProductTypeSpecific>()
+    val gradleSpecific = prop.findAnnotation<GradleSpecific>()
+    val standaloneSpecific = prop.findAnnotation<StandaloneSpecific>()
+    val extras =
+        if (platformSpecific != null || productTypeSpecific != null || gradleSpecific != null || standaloneSpecific != null) {
+            val builder = StringBuilder("{")
+            platformSpecific?.let {
+                builder.append(
+                    "\"platforms\": [${
+                        platformSpecific.platforms.joinToString {
+                            "\"${it.pretty}\""
+                        }
+                    }]"
+                )
+            }
+            productTypeSpecific?.let {
+                if (platformSpecific != null) builder.append(",")
+                builder.append(
+                    "\"productTypes\": [${
+                        productTypeSpecific.productTypes.joinToString {
+                            "\"${it.value}\""
+                        }
+                    }]")
+            }
+            gradleSpecific?.let {
+                if (platformSpecific != null || productTypeSpecific != null) builder.append(",")
+                builder.append("\"gradleSpecific\": true")
+            }
+            standaloneSpecific?.let {
+                if (platformSpecific != null || productTypeSpecific != null || gradleSpecific != null) builder.append(",")
+                builder.append("\"standaloneSpecific\": true")
+            }
+            builder.append("}")
+            builder.toString()
+        } else null
+    return extras
 }
 
 private fun turnDocIntoShortForm(documentation: String) = documentation.replace("[Read more]", "").replace(

@@ -87,6 +87,20 @@ annotation class ProductTypeSpecific(
 )
 
 /**
+ * This annotation marks a property that is applicable only to a Gradle-based Amper configuration
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class GradleSpecific
+
+/**
+ * This annotation marks a property that is applicable only to a standalone Amper configuration
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class StandaloneSpecific
+
+/**
  * This annotation should be applied to properties
  *  which represent shorthand values for their parent object construction
  */

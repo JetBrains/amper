@@ -8,6 +8,7 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.KnownStringValues
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
@@ -113,6 +114,7 @@ const val legacySerializationFormatNone = "none"
 
 class IosSettings : SchemaNode() {
 
+    @GradleSpecific
     @SchemaDoc("A Team ID is a unique string assigned to your team by Apple.<br>" +
             "It's necessary if you want to run/test on a Apple device.<br>" +
             "Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/)," +
