@@ -1,0 +1,12 @@
+product:
+  type: lib
+  platforms:
+    - iosX64
+    - android
+
+settings:
+  compose:
+    enabled: true
+
+dependencies@ios:
+  - $compose.foundation

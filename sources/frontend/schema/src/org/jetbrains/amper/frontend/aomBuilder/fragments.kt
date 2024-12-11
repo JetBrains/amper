@@ -6,13 +6,13 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.mapStartAware
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
@@ -187,8 +187,10 @@ fun Fragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot: Path):
 
 private fun findConventionalPath(buildOutputRoot: Path, genDirs: List<Path>, pathSuffix: String) =
     genDirs.map { buildOutputRoot / it }.find { it.endsWith(pathSuffix) }
-        ?: error("generated dir paths don't contain conventional generated path suffix '$pathSuffix'. Found:\n" +
-                genDirs.joinToString("\n"))
+        ?: error(
+            "generated dir paths don't contain conventional generated path suffix '$pathSuffix'. Found:\n" +
+                    genDirs.joinToString("\n")
+        )
 
 fun createFragments(
     seeds: Collection<FragmentSeed>,
@@ -201,23 +203,19 @@ fun createFragments(
         val testFragment: DefaultFragment,
     )
 
-    fun FragmentSeed.toFragment(isTest: Boolean, externalDependencies: List<Notation>) =
-        if (isLeaf) DefaultLeafFragment(
+    fun FragmentSeed.toFragment(isTest: Boolean, externalDependencies: List<Notation>): DefaultFragment {
+        // Merge test settings ang non-test settings for test fragments.
+        val fragmentSettings = if (isTest) mergeSettingsFrom(relevantSettings, relevantTestSettings) else relevantSettings
+        val fragmentCtor = if (isLeaf) ::DefaultLeafFragment else ::DefaultFragment
+        return fragmentCtor(
             this,
             module,
             isTest,
             externalDependencies,
-            if (isTest) relevantTestSettings else relevantSettings,
+            fragmentSettings,
             moduleFile
         )
-        else DefaultFragment(
-            this,
-            module,
-            isTest,
-            externalDependencies,
-            if (isTest) relevantTestSettings else relevantSettings,
-            moduleFile
-        )
+    }
 
     // Create fragments.
     val initial = seeds.associateWith {

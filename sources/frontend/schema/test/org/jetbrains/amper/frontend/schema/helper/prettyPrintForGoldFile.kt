@@ -4,8 +4,9 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
-import org.jetbrains.amper.frontend.ModuleTasksPart
+import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
@@ -99,10 +100,13 @@ private class HumanReadableSerializerVisitor(
         if (visitTraceable(it)) return
         if (!it.isPrettifiedWithToString()) {
             // we have to detect cycles for complex objects
-            // we exclude the empty collections/maps singletons because we don't want to count those as a cycle
+            // we exclude the empty collections/maps because we don't want to count those as a cycle
             // TODO instead of checking for _duplicates_ we should check for real _cycles_ (only keeping track of
             //  objects within which we are, not the ones that appear in other places in the file)
-            if (it in visited && it !== emptyList<Any>() && it !== emptySet<Any>() && it !== emptyMap<Any, Any>()) {
+            if (it in visited &&
+                !it.asSafely<Collection<*>>().isNullOrEmpty() &&
+                !it.asSafely<Map<*, *>>().isNullOrEmpty()
+            ) {
                 builder.appendLine("<cycle>").append(currentIndent)
                 return
             }
@@ -117,14 +121,17 @@ private class HumanReadableSerializerVisitor(
                 super.visit(it.value)
                 return true
             }
+
             is TraceableEnum<*> -> {
                 super.visit(it.value)
                 return true
             }
+
             is TraceablePath -> {
                 super.visit(it.value)
                 return true
             }
+
             else -> return false
         }
     }
@@ -172,11 +179,15 @@ private class HumanReadableSerializerVisitor(
     override fun visitValue(it: ValueBase<*>) {
         builder.append(it.property.name)
         builder.append(": ")
-        if (it.withoutDefault != null) {
-            visit(it.withoutDefault)
-        } else {
+        if (it.withoutDefault == null || (
+                    // We are mutating ksp processors every time, so value will be set, but it will be empty.
+                    it.withoutDefault.asSafely<List<*>>()?.isEmpty() == true && it.value == it.withoutDefault
+                    )
+        ) {
             builder.append("<default> ")
             visit(it.default?.value)
+        } else {
+            visit(it.withoutDefault)
         }
     }
 
@@ -213,7 +224,7 @@ private class HumanReadableSerializerVisitor(
 @OptIn(ExperimentalContracts::class)
 private fun Any?.isPrettifiedWithToString(): Boolean {
     contract {
-        returns(false) implies(this@isPrettifiedWithToString != null)
+        returns(false) implies (this@isPrettifiedWithToString != null)
     }
     return when (this) {
         null,
@@ -226,6 +237,7 @@ private fun Any?.isPrettifiedWithToString(): Boolean {
         is String,
         is Enum<*>,
         is Path -> true
+
         else -> this::class.isData
     }
 }

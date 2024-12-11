@@ -205,7 +205,7 @@ fun <T : Any, V> MergeCtx<T>.mergeCollection(
 
 private fun <T : Any, V, CV : List<V>?> MergeCtx<T>.doMergeCollection(
     prop: KMutableProperty1<T, CV>,
-    toCV: List<V>.() -> CV,
+    toCV: List<V>.() -> CV?,
 ) {
     // TODO Handle collection merge tuning here.
     val targetProp = prop.valueBase(target) ?: return
@@ -213,12 +213,18 @@ private fun <T : Any, V, CV : List<V>?> MergeCtx<T>.doMergeCollection(
     val baseValue = valueBase?.withoutDefault
     val overwrite = prop.valueBase(overwrite)
     val overwriteValue = overwrite?.withoutDefault
-    val result = baseValue?.toMutableList() ?: mutableListOf()
-    result.addAll(overwriteValue ?: emptyList())
+
+    val result = when {
+        baseValue != null && overwriteValue != null -> baseValue.toMutableList().apply { addAll(overwriteValue) }
+        baseValue != null -> baseValue
+        overwriteValue != null -> overwriteValue
+        else -> null
+    }
+
     if (targetProp.trace == null) {
         targetProp.trace = overwrite?.let { it.trace?.withPrecedingValue(valueBase) } ?: valueBase?.trace
     }
-    targetProp(result.toCV())
+    result?.toCV()?.let { targetProp(it) }
 }
 
 fun <T : Any, V> MergeCtx<T>.mergeScalar(

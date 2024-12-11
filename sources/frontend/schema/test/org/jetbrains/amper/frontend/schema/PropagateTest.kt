@@ -4,132 +4,95 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.aomBuilder.withPropagatedSettings
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.aomBuilder.FragmentSeed
+import org.jetbrains.amper.frontend.aomBuilder.adjustSeedsDependencies
+import org.jetbrains.amper.frontend.aomBuilder.propagateSettingsForSeeds
 import org.jetbrains.amper.frontend.schema.helper.listOfTraceable
-import org.jetbrains.amper.frontend.schema.helper.amperModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class PropagateTest {
 
-    private fun AmperModule.withPropagatedSettings(): AmperModule = object : AmperModule by this {
-        override val fragments: List<Fragment> = this@withPropagatedSettings.fragments.withPropagatedSettings()
-    }
-
     @Test
     fun `basic fragment property propagation`() {
         // given
-        val module = amperModule("main") {
-            fragment("common") {
-                dependant("jvm")
-                kotlin {
+        val seeds = buildSet {
+            seed(Platform.COMMON) {
+                kotlin = KotlinSettings().apply {
                     languageVersion = KotlinVersion.Kotlin19
                 }
             }
-            fragment("jvm") {
-                dependsOn("common")
-            }
-        }
+            seed(Platform.JVM)
+        }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
-        val resolvedModule = module.withPropagatedSettings()
-
-        val jvmFragment = assertSingleFragment(resolvedModule, "jvm")
-        assertEquals(KotlinVersion.Kotlin19, jvmFragment.settings.kotlin.languageVersion)
+        val jvmSeed = seeds.assertSingleSeed(Platform.JVM)
+        assertEquals(KotlinVersion.Kotlin19, jvmSeed.relevantSettings?.kotlin?.languageVersion)
     }
 
     @Test
     fun `multi level propagation`() {
-        val module = amperModule("main") {
-            fragment("common") {
-                dependant("native")
-                kotlin {
+        val seeds = buildSet {
+            seed(Platform.COMMON) {
+                kotlin = KotlinSettings().apply {
                     languageVersion = KotlinVersion.Kotlin19
                 }
             }
-            fragment("native") {
-                dependant("darwin")
-                dependsOn("common")
-            }
+            seed(Platform.NATIVE)
+            seed(Platform.APPLE)
+        }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
-            fragment("darwin") {
-                dependsOn("native")
-            }
-        }
-
-        val resolvedModule = module.withPropagatedSettings()
-
-        val darwinFragment = assertSingleFragment(resolvedModule, "darwin")
-        assertEquals(KotlinVersion.Kotlin19, darwinFragment.settings.kotlin.languageVersion)
+        val darwinFragment = seeds.assertSingleSeed(Platform.APPLE)
+        assertEquals(KotlinVersion.Kotlin19, darwinFragment.relevantSettings?.kotlin?.languageVersion)
     }
 
     @Test
     fun `set default values`() {
-        val module = amperModule("main") {
-            fragment("common") {
-                dependant("jvm")
-                kotlin {
-                    languageVersion = KotlinVersion.Kotlin19
+        val seeds = buildSet {
+            seed(Platform.COMMON) {
+                kotlin = KotlinSettings().apply {
+                    languageVersion = KotlinVersion.Kotlin20
                 }
             }
-            fragment("jvm") {
-                dependsOn("common")
-            }
-        }
+            seed(Platform.JVM)
+        }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
-        val resolvedModule = module.withPropagatedSettings()
-
-        val jvmFragment = assertSingleFragment(resolvedModule, "jvm")
-        assertEquals(KotlinVersion.Kotlin19, jvmFragment.settings.kotlin.apiVersion)
+        val jvmFragment = seeds.assertSingleSeed(Platform.JVM)
+        assertEquals(KotlinVersion.Kotlin20, jvmFragment.relevantSettings?.kotlin?.apiVersion)
     }
 
     @Test
     fun `artifact receives default values`() {
-        val module = amperModule("main") {
-            fragment("common") {
-                dependant("jvm")
-            }
-            fragment("jvm") {
-                dependsOn("common")
-                jvm {}
-            }
-        }
+        val seeds = buildSet {
+            seed(Platform.COMMON)
+            seed(Platform.JVM)
+        }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
-        val resolvedModule = module.withPropagatedSettings()
-
-        val jvmFragment = assertSingleFragment(resolvedModule, "jvm")
-        assertEquals(KotlinVersion.Kotlin20, jvmFragment.settings.kotlin.apiVersion)
+        val jvmFragment = seeds.assertSingleSeed(Platform.JVM)
+        assertEquals(KotlinVersion.Kotlin20, jvmFragment.relevantSettings?.kotlin?.apiVersion)
     }
 
     @Test
     fun `android namespace propagation`() {
-        val module = amperModule("androidApp") {
-            fragment("common") {
-                dependant("android")
-                android {
+        val seeds = buildSet {
+            seed(Platform.COMMON) {
+                android = AndroidSettings().apply {
                     namespace = "namespace"
                 }
             }
-            fragment("android") {
-                dependsOn("common")
-            }
-        }
+            seed(Platform.ANDROID)
+        }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
-        val resolvedModule = module.withPropagatedSettings()
-
-        val androidFragment = assertSingleFragment(resolvedModule, "android")
-        assertEquals("namespace", androidFragment.settings.android.namespace)
+        val androidFragment = seeds.assertSingleSeed(Platform.ANDROID)
+        assertEquals("namespace", androidFragment.relevantSettings?.android?.namespace)
     }
 
     @Test
     fun `android params propagation`() {
-        val module = amperModule("androidApp") {
-            fragment("common") {
-                dependant("android")
-                android {
+        val seeds = buildSet {
+            seed(Platform.COMMON) {
+                android = AndroidSettings().apply {
                     applicationId = "com.example.applicationid"
                     namespace = "com.example.namespace"
                     minSdk = AndroidVersion.VERSION_30
@@ -138,22 +101,18 @@ class PropagateTest {
                     targetSdk = AndroidVersion.VERSION_33
                 }
             }
-            fragment("android") {
-                dependsOn("common")
-            }
-        }
+            seed(Platform.ANDROID)
+        }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
-        val resolvedModule = module.withPropagatedSettings()
+        val androidFragment = seeds.assertSingleSeed(Platform.ANDROID)
+        val androidSettings = androidFragment.relevantSettings?.android
 
-        val androidFragment = assertSingleFragment(resolvedModule, "android")
-        val androidSettings = androidFragment.settings.android
-
-        assertEquals("com.example.applicationid", androidSettings.applicationId)
-        assertEquals("com.example.namespace", androidSettings.namespace)
-        assertEquals(AndroidVersion.VERSION_30, androidSettings.minSdk)
-        assertEquals(AndroidVersion.VERSION_33, androidSettings.maxSdk)
-        assertEquals(AndroidVersion.VERSION_33, androidSettings.compileSdk)
-        assertEquals(AndroidVersion.VERSION_33, androidSettings.targetSdk)
+        assertEquals("com.example.applicationid", androidSettings?.applicationId)
+        assertEquals("com.example.namespace", androidSettings?.namespace)
+        assertEquals(AndroidVersion.VERSION_30, androidSettings?.minSdk)
+        assertEquals(AndroidVersion.VERSION_33, androidSettings?.maxSdk)
+        assertEquals(AndroidVersion.VERSION_33, androidSettings?.compileSdk)
+        assertEquals(AndroidVersion.VERSION_33, androidSettings?.targetSdk)
     }
 
     @Test
@@ -163,49 +122,75 @@ class PropagateTest {
         // desktop  apple
         //     \    /
         //    macosX64
-        val module = amperModule("androidApp") {
-            fragment("common") {
-                dependant("desktop")
-                dependant("apple")
-                kotlin {
+        val adjustSeedsDependencies = buildSet {
+            seed(Platform.COMMON) {
+                kotlin = KotlinSettings().apply {
                     optIns = listOfTraceable("kotlin.contracts.ExperimentalContracts")
                 }
             }
-            fragment("apple") {
-                dependsOn("common")
-                dependant("macosX64")
-                kotlin {
+
+            seed(setOf(Platform.MACOS_ARM64, Platform.IOS_ARM64), "apple") {
+                kotlin = KotlinSettings().apply {
                     debug = true
                     languageVersion = KotlinVersion.Kotlin18
                 }
             }
-            fragment("desktop") {
-                dependsOn("common")
-                dependant("macosX64")
-                kotlin {
+
+            seed(setOf(Platform.MACOS_ARM64, Platform.JVM), "desktop") {
+                kotlin = KotlinSettings().apply {
                     allWarningsAsErrors = true
                 }
             }
-            fragment("macosX64") {
-                dependsOn("apple")
-                dependsOn("desktop")
-            }
-        }
 
-        val resolvedModule = module.withPropagatedSettings()
+            seed(Platform.MACOS_ARM64)
+        }.adjustSeedsDependencies()
+        val seeds = adjustSeedsDependencies.propagateSettingsForSeeds()
 
-        val macosX64Fragment = assertSingleFragment(resolvedModule, "macosX64")
-        val kotlinSettings = macosX64Fragment.settings.kotlin
 
-        assertEquals(listOfTraceable("kotlin.contracts.ExperimentalContracts"), kotlinSettings.optIns, "should inherit from 'common' ancestor")
-        assertTrue(kotlinSettings.debug, "should inherit 'debug' from 'apple' parent")
-        assertEquals(KotlinVersion.Kotlin18, kotlinSettings.languageVersion, "should inherit 'languageVersion' from 'apple' parent")
-        assertTrue(kotlinSettings.allWarningsAsErrors, "should inherit from 'desktop' parent")
+        val kotlinSettings = seeds.assertSingleSeed(Platform.MACOS_ARM64).relevantSettings?.kotlin
+
+        assertEquals(
+            listOfTraceable("kotlin.contracts.ExperimentalContracts"),
+            kotlinSettings?.optIns,
+            "should inherit from 'common' ancestor"
+        )
+        assertEquals(true, kotlinSettings?.debug, "should inherit 'debug' from 'apple' parent")
+        assertEquals(
+            KotlinVersion.Kotlin18,
+            kotlinSettings?.languageVersion,
+            "should inherit 'languageVersion' from 'apple' parent"
+        )
+        assertEquals(true, kotlinSettings?.allWarningsAsErrors, "should inherit from 'desktop' parent")
     }
 
-    private fun assertSingleFragment(module: AmperModule, fragmentName: String): Fragment {
-        return module.fragments.singleOrNull { it.name == fragmentName }
-            ?: fail("Expected a single fragment named '$fragmentName'")
+    private fun Collection<FragmentSeed>.assertSingleSeed(platform: Platform): FragmentSeed {
+        val modifiers: Set<String> = setOf(platform.pretty)
+        return singleOrNull { it.platforms == platform.leaves && it.modifiersAsStrings == modifiers }
+            ?: fail("Expected a single fragment seed with platform '$platform'")
+    }
+
+    /**
+     * Add a seed by specifying the natural hierarchy platform.
+     */
+    private fun MutableSet<FragmentSeed>.seed(platform: Platform, init: Settings.() -> Unit = {}): Boolean {
+        val platforms = if (platform == Platform.COMMON) Platform.values.filter { it.isLeaf }.toSet()
+        else platform.leaves
+        return add(FragmentSeed(platforms, setOf(platform.pretty)).apply {
+            relevantSettings = Settings().apply(init)
+        })
+    }
+
+    /**
+     * Add a seed by manually specifying leaf platforms and modifiers.
+     */
+    private fun MutableSet<FragmentSeed>.seed(
+        leafPlatforms: Set<Platform>,
+        modifier: String,
+        init: Settings.() -> Unit = {}
+    ): Boolean {
+        return add(FragmentSeed(leafPlatforms, setOf(modifier)).apply {
+            relevantSettings = Settings().apply(init)
+        })
     }
 }
 

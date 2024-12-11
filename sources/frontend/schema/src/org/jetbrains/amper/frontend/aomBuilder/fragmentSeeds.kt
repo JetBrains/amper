@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Modifiers
@@ -26,7 +27,7 @@ data class FragmentSeed(
     val modifiersAsStrings: Set<String>,
 ) {
     val isLeaf by lazy { platforms.singleOrNull()?.isLeaf == true }
-    val dependencies = mutableListOf<FragmentSeed>()
+    val dependencies = mutableSetOf<FragmentSeed>()
 
     var relevantSettings: Settings? = null
     var relevantTestSettings: Settings? = null
@@ -35,16 +36,8 @@ data class FragmentSeed(
     var relevantTestDependencies: List<Dependency>? = null
 
     // Seeds equality should be based only on its platforms.
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as FragmentSeed
-        return platforms == other.platforms
-    }
-
-    override fun hashCode(): Int {
-        return platforms.hashCode()
-    }
+    override fun equals(other: Any?) = this === other || platforms == other.asSafely<FragmentSeed>()?.platforms
+    override fun hashCode() = platforms.hashCode()
 }
 
 /**
@@ -75,7 +68,7 @@ data class FragmentSeed(
  * so resulting fragments are **`[ apple, macos, ios ]`**
  */
 // TODO Maybe more comprehensive return value to trace things.
-fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
+fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
     val declaredPlatforms = product.platforms
     val declaredLeafPlatforms = declaredPlatforms.flatMap { it.value.leaves }.toSet()
 
@@ -85,7 +78,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     // TODO Check - there should be no aliases with same platforms? Maybe report.
     // Here aliases with same platforms are lost.
     val leafPlatforms2aliases = buildMap {
-        aliases2leafPlatforms.entries.sortedBy { it.key }.forEach { putIfAbsent(it , it.key) }
+        aliases2leafPlatforms.entries.sortedBy { it.key }.forEach { putIfAbsent(it, it.key) }
     }
 
     val applicableHierarchy = Platform.naturalHierarchy.entries
@@ -127,7 +120,10 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     val initialSeeds = buildSet {
         reduced.forEach { platform ->
             // Check if the platform is a candidate for replacement by alias.
-            if (platform.isLeaf && (platform.parentNoCommon !in reduced || (platform.parentNoCommon?.leaves?.intersect(declaredLeafPlatforms))?.size == 1) ) {
+            if (platform.isLeaf && (platform.parentNoCommon !in reduced || (platform.parentNoCommon?.leaves?.intersect(
+                    declaredLeafPlatforms
+                ))?.size == 1)
+            ) {
                 val matchingClosestAlias = combinedAliases.entries
                     .filter { platform in it.value }
                     .sortedBy { it.key }
@@ -169,15 +165,6 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
             .forEach { add(FragmentSeed(it.value, setOf(it.key))) }
     }
 
-    // Get a list of leaf platforms, denoted by modifiers.
-    fun Modifiers.convertToLeafPlatforms() =
-        // If modifiers are empty, then treat them like common platform modifiers.
-        if (isEmpty()) declaredLeafPlatforms
-        // Otherwise, parse every modifier individually.
-        else map { it.value }.mapNotNull {
-            aliases2leafPlatforms[it] ?: Platform[it]?.leaves // TODO Report if no such platform
-        }.flatten().toSet()
-
     // Create a fragment seed from modifiers like "alias+ios".
     fun Modifiers.convertToSeed(): FragmentSeed? {
         val (areAliases, nonAliases) = partition { aliases2leafPlatforms.contains(it.value) }
@@ -212,17 +199,8 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
         addAll(modifiersSeeds)
     }.toMutableSet()
 
-    // Set up dependencies following platform hierarchy.
-    requiredSeeds.forEach { fragmentSeed ->
-        val dependencyCandidates = requiredSeeds.filter {
-            it.platforms.containsAll(fragmentSeed.platforms) && it != fragmentSeed
-        }
-
-        // Exclude all candidates, that include some other candidates entirely.
-        fragmentSeed.dependencies += dependencyCandidates.filter { candidate ->
-            dependencyCandidates.none { it != candidate && candidate.platforms.containsAll(it.platforms) }
-        }
-    }
+    // Do adjust dependencies.
+    requiredSeeds.adjustSeedsDependencies()
 
     // And add common fragment if needed.
     if (requiredSeeds.size > 1) {
@@ -235,6 +213,18 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
             roots.forEach { it.dependencies.add(commonSeed) }
         }
     }
+
+    // Get a list of leaf platforms, denoted by modifiers.
+    fun Modifiers.convertToLeafPlatforms() =
+        // If modifiers are empty, then treat them like common platform modifiers.
+        if (isEmpty()) declaredLeafPlatforms
+        // Otherwise, parse every modifier individually.
+        else map { it.value }.mapNotNull {
+            aliases2leafPlatforms[it] ?: Platform[it]?.leaves // TODO Report if no such platform
+        }.flatten()
+            .toSet()
+            // Additionally, limit this platforms by declared ones.
+            .intersect(declaredLeafPlatforms)
 
     // Get leaf-platforms to settings associations.
     val leaves2Settings = settings.entries
@@ -261,4 +251,18 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     }
 
     return requiredSeeds
+}
+
+/**
+ * Set up dependencies following platform hierarchy.
+ */
+internal fun Set<FragmentSeed>.adjustSeedsDependencies() = onEach { fragmentSeed ->
+    val dependencyCandidates = this.filter {
+        it.platforms.containsAll(fragmentSeed.platforms) && it != fragmentSeed
+    }
+
+    // Exclude all candidates, that include some other candidates entirely.
+    fragmentSeed.dependencies += dependencyCandidates.filter { candidate ->
+        dependencyCandidates.none { it != candidate && candidate.platforms.containsAll(it.platforms) }
+    }
 }

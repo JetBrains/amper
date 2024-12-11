@@ -102,7 +102,7 @@ internal fun doBuild(
                 projectContext.tryGetCatalogFor(moduleFile, nonProcessed)
             }
 
-            // Process module file.
+            // Process the module file.
             val processedModule = with(systemInfo) {
                 nonProcessed
                     .replaceCatalogDependencies(chosenCatalog)
@@ -455,14 +455,18 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGrad
     val moduleDirToGradleModule = gradleModules.associateBy { it.gradleBuildFile.parent.toNioPath() }
     val moduleDirToModule = moduleDirToAmperModule + moduleDirToGradleModule
 
-    modules.forEach { (modulePath, schemaModule, module) ->
-        val seeds = schemaModule.buildFragmentSeeds()
-        val moduleFragments = createFragments(seeds, modulePath, module) { it.resolveInternalDependency(moduleDirToModule) }
-        val propagatedFragments = moduleFragments.withPropagatedSettings()
+    modules.forEach { (modulePath, ismModule, module) ->
+        // Do build seeds and propagate settings.
+        val seeds = ismModule.buildFragmentSeeds()
+        // FIXME propagateSettingsForSeeds breaks dependencies, so we need to build them again.
+        // FIXME Fix is to optimize `propagateSettingsForSeeds()` by gradually propagating stuff instead of doing that for every seed.
+        val propagatedSeeds = seeds.propagateSettingsForSeeds().adjustSeedsDependencies()
+
+        val moduleFragments = createFragments(propagatedSeeds, modulePath, module) { it.resolveInternalDependency(moduleDirToModule) }
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
         module.apply {
-            fragments = propagatedFragments
+            fragments = moduleFragments
             artifacts = createArtifacts(false, module.type, leaves) +
                     createArtifacts(true, module.type, testLeaves)
         }

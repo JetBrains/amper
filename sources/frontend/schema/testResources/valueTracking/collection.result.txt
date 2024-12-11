@@ -20,10 +20,7 @@
          processors: (empty) [default]
          version: 2.0.21-1.0.25 [default]
 
-      languageFeatures: (empty)
       languageVersion: 2.0 [default]
-      linkerOpts: (empty)
-      optIns: (empty)
       progressiveMode: false [default]
       serialization:
          enabled: false [Enabled when 'format' is specified]

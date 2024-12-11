@@ -55,7 +55,8 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: <cycle>
+          processors: <default> [
+          ]
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
@@ -134,7 +135,8 @@ Fragments:
         ksp: <default> {
           processorOptions: <default> {
           }
-          processors: <cycle>
+          processors: <default> [
+          ]
           version: <default> 2.0.21-1.0.25
         }
         languageFeatures: <default> null
