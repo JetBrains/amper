@@ -11,11 +11,13 @@ import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.FragmentTaskType
+import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
 import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
+import org.jetbrains.amper.tasks.compose.isHotReloadEnabledFor
 import org.jetbrains.amper.tasks.getModuleDependencies
 
 fun ProjectTasksBuilder.setupJvmTasks() {
@@ -62,18 +64,34 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     if (isTest) {
                         add(CommonTaskType.Compile.getTaskName(module, platform, isTest = true))
                     }
-                    // we always want the production jar (for both test and main classpath)
-                    add(CommonTaskType.Jar.getTaskName(module, platform, isTest = false))
+
+                    if (isComposeEnabledFor(module) && isHotReloadEnabledFor(module)) {
+                        add(HotReloadTaskType.Classes.getTaskName(module, platform, isTest = false))
+                    } else {
+                        // we always want the production jar (for both test and main classpath)
+                        add(CommonTaskType.Jar.getTaskName(module, platform, isTest = false))
+                    }
+
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
 
                     module.getModuleDependencies(isTest, platform, ResolutionScope.RUNTIME, context.userCacheRoot)
                         .forEach {
-                            add(CommonTaskType.Jar.getTaskName(it, platform, isTest = false))
+                            if (isComposeEnabledFor(module) && isHotReloadEnabledFor(module)) {
+                                add(HotReloadTaskType.Classes.getTaskName(it, platform, isTest = false))
+                            } else {
+                                add(CommonTaskType.Jar.getTaskName(it, platform, isTest = false))
+                            }
                         }
                 }
             )
 
             if (!isTest) {
+                val classesTaskName = HotReloadTaskType.Classes.getTaskName(module, platform, isTest = false)
+                tasks.registerTask(
+                    JvmClassesTask(taskName = classesTaskName),
+                    CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
+                )
+
                 // We do not pack test classes into a jar.
                 val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest = false)
                 tasks.registerTask(
@@ -85,8 +103,22 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     ),
                     CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
                 )
-
+                
                 if (isComposeEnabledFor(module)) {
+
+                    val reloadTaskName = HotReloadTaskType.Reload.getTaskName(module, platform, isTest = false)
+                    tasks.registerTask(
+                        JvmReloadClassesTask(reloadTaskName), 
+                        dependsOn = buildList {
+                            add(CommonTaskType.Compile.getTaskName(module, platform, isTest = false))
+
+                            module.getModuleDependencies(isTest, platform, ResolutionScope.RUNTIME, context.userCacheRoot)
+                                .forEach {
+                                    add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
+                                }
+                        }
+                    )
+
                     fragments.forEach { fragment ->
                         tasks.registerDependency(
                             taskName = CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
@@ -136,6 +168,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         commonRunSettings = context.commonRunSettings,
                         terminal = context.terminal,
                         tempRoot = context.projectTempRoot,
+                        executeOnChangedInputs = executeOnChangedInputs,
                     ),
                     CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
                 )
@@ -210,4 +243,9 @@ private enum class JvmFragmentTaskType(
 ) : FragmentTaskType {
     PrepareComposeResources("prepareComposeResourcesForJvm"),
     ;
+}
+
+internal enum class HotReloadTaskType(override val prefix: String) : PlatformTaskType {
+    Classes("classes"),
+    Reload("reload"),
 }

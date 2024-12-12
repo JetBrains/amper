@@ -90,8 +90,17 @@ AndroidSigningSettings
 ComposeSettings
 ---------------
 	enabled: Boolean, default: false - Enable Compose runtime, dependencies and the compiler plugins
+	experimental: ComposeExperimentalSettings - Experimental Compose settings
 	resources: ComposeResourcesSettings - Compose Resources settings
 	version: String - The Compose plugin version
+
+ComposeExperimentalSettings
+---------------------------
+	hotReload: ComposeExperimentalHotReloadSettings - Experimental Compose hot-reload settings
+
+ComposeExperimentalHotReloadSettings
+------------------------------------
+	enabled: Boolean, default: false - Enable hot reload
 
 ComposeResourcesSettings
 ------------------------

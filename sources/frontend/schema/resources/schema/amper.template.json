@@ -499,6 +499,11 @@
               "title": "Enable Compose runtime, dependencies and the compiler plugins",
               "type": "boolean"
             },
+            "experimental": {
+              "x-intellij-html-description": "Experimental Compose settings",
+              "title": "Experimental Compose settings",
+              "$ref": "#/$defs/ComposeExperimentalSettings"
+            },
             "resources": {
               "x-intellij-html-description": "Compose Resources settings",
               "title": "Compose Resources settings",
@@ -508,6 +513,37 @@
               "x-intellij-html-description": "The Compose plugin version",
               "title": "The Compose plugin version",
               "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
+    },
+    "ComposeExperimentalSettings": {
+      "type": "object",
+      "properties": {
+        "hotReload": {
+          "x-intellij-html-description": "Experimental Compose hot-reload settings",
+          "title": "Experimental Compose hot-reload settings",
+          "$ref": "#/$defs/ComposeExperimentalHotReloadSettings"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ComposeExperimentalHotReloadSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "x-intellij-html-description": "Enable hot reload",
+              "title": "Enable hot reload",
+              "type": "boolean"
             }
           },
           "additionalProperties": false

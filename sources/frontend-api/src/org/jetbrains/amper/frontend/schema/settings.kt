@@ -75,6 +75,9 @@ class ComposeSettings : SchemaNode() {
 
     @SchemaDoc("Compose Resources settings")
     var resources by value(::ComposeResourcesSettings)
+    
+    @SchemaDoc("Experimental Compose settings")
+    var experimental by value(::ComposeExperimentalSettings)
 }
 
 class ComposeResourcesSettings : SchemaNode() {
@@ -89,6 +92,16 @@ class ComposeResourcesSettings : SchemaNode() {
                 "internal."
     )
     var exposedAccessors by value(default = false)
+}
+
+class ComposeExperimentalSettings: SchemaNode() {
+    @SchemaDoc("Experimental Compose hot-reload settings")
+    var hotReload by value(::ComposeExperimentalHotReloadSettings)
+}
+
+class ComposeExperimentalHotReloadSettings: SchemaNode() {
+    @SchemaDoc("Enable hot reload")
+    var enabled by value(default = false)
 }
 
 class SerializationSettings : SchemaNode() {

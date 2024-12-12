@@ -12,6 +12,7 @@ compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR U
 google-services = "4.4.2"
 gradle-api-forGradleBased = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 gradle-api-forStandalone = "8.9"
+hot-reload-version = "1.0.0-dev.31.9"
 intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
 intellij-platform = "233.13763.11"
@@ -27,6 +28,7 @@ slf4j = "2.0.16"
 stacktrace-decoroutinator = "2.3.8"
 tinylog = "2.6.2"
 xmlutil-serialization = "0.86.2"
+
 
 # Naming convention: https://blog.gradle.org/best-practices-naming-version-catalog-entries
 # We follow this convention with a twist: the group part might consist of multiple segments if several groups are
@@ -50,6 +52,8 @@ google-services-gradle-plugin =  { module = "com.google.gms:google-services", ve
 gradle-api-forGradleBased = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forGradleBased" }
 gradle-api-forStandalone =  { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forStandalone" }
 gradle-toolingApi = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-api-forStandalone" }
+hot-reload-core = { module = "org.jetbrains.compose:hot-reload-core", version.ref = "hot-reload-version" }
+hot-reload-orchestration = { module = "org.jetbrains.compose:hot-reload-orchestration", version.ref = "hot-reload-version" }
 intellij-amper-xcodemodel = { module = "com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed", version.ref = "intellij-xcodemodel" }
 intellij-deps-asyncProfiler = { module = "org.jetbrains.intellij.deps:async-profiler", version.ref = "intellij-async-profiler" }
 intellij-parsing-core = { module = "org.jetbrains:ij-parsing-core", version.ref = "intellij-parsing" }

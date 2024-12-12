@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
@@ -8,7 +8,9 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.ancestralPath
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -17,6 +19,7 @@ import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
+import org.jetbrains.amper.frontend.toClassBasedSet
 
 private val kotlinStdlib = kotlinDependencyOf("kotlin-stdlib")
 private val kotlinStdlibJdk8 = kotlinDependencyOf("kotlin-stdlib-jdk8")
@@ -29,6 +32,10 @@ private val kotlinTestJUnit5 = kotlinDependencyOf("kotlin-test-junit5")
 private val kotlinTestTestNG = kotlinDependencyOf("kotlin-test-testng")
 
 private val kotlinParcelizeRuntime = kotlinDependencyOf("kotlin-parcelize-runtime")
+
+private val hotReloadDependency = MavenDependency(
+    coordinates = TraceableString("org.jetbrains.compose:hot-reload-runtime-api:${UsedVersions.hotReloadVersion}")
+)
 
 private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
     coordinates = library("org.jetbrains.kotlin:$artifactId", UsedVersions.kotlinVersion),
@@ -55,6 +62,13 @@ private fun composeResourcesDependency(composeVersion: TraceableString) = MavenD
  */
 internal fun DefaultModule.addImplicitDependencies() {
     fragments = fragments.map { it.withImplicitDependencies() }
+    parts = parts.map {
+        if (it is RepositoriesModulePart) {
+            it.withImplicitMavenRepositories(fragments)
+        } else {
+            it
+        }
+    }.toClassBasedSet()
 }
 
 private fun Fragment.withImplicitDependencies(): Fragment {
@@ -102,6 +116,10 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
     if (platforms == setOf(Platform.ANDROID)) {
         add(kotlinStdlibJdk7)
         add(kotlinStdlibJdk8)
+    }
+    
+    if (platforms == setOf(Platform.JVM) && settings.compose.enabled && settings.compose.experimental.hotReload.enabled) {
+        add(hotReloadDependency)
     }
 
     if (isTest) {
@@ -153,3 +171,19 @@ private val MavenDependency.groupAndArtifact: String
         // This is not the place to fail if we want validation on maven coordinates, so we just go "best effort" here.
         return if (parts.size >= 2) "${parts[0]}:${parts[1]}" else coordinates.value
     }
+
+private fun RepositoriesModulePart.withImplicitMavenRepositories(fragments: List<Fragment>): ModulePart<*> {
+    val isHotReloadRuntimeApiPresent = fragments
+        .flatMap { it.externalDependencies }
+        .filterIsInstance<MavenDependency>()
+        .any { it.groupAndArtifact == "org.jetbrains.compose:hot-reload-runtime-api" }
+    if (!isHotReloadRuntimeApiPresent) {
+        return this
+    }
+    return RepositoriesModulePart(mavenRepositories = mavenRepositories + RepositoriesModulePart.Repository(
+        id = "firework-dev",
+        url = "https://packages.jetbrains.team/maven/p/firework/dev",
+        publish = false,
+        resolve = true,
+    ))
+}

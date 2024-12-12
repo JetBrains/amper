@@ -27,6 +27,7 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.setMapAttribute
+import org.jetbrains.amper.util.ExecuteOnChangedInputs.Change.ChangeType
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -49,6 +50,7 @@ class ExecuteOnChangedInputs(
     buildOutputRoot: AmperBuildOutputRoot,
     private val currentAmperBuildNumber: String = AmperBuild.codeIdentifier,
 ) {
+
     private val stateRoot = buildOutputRoot.path.resolve("incremental.state")
 
     // increment this counter if you change the state file format
@@ -82,7 +84,7 @@ class ExecuteOnChangedInputs(
         configuration: Map<String, String>,
         inputs: List<Path>,
         block: suspend () -> ExecutionResult
-    ): ExecutionResult = spanBuilder("inc $id")
+    ): IncrementalExecutionResult = spanBuilder("inc $id")
         .setMapAttribute("configuration", configuration)
         .setListAttribute("inputs", inputs.map { it.pathString }.sorted())
         .use { span ->
@@ -97,15 +99,16 @@ class ExecuteOnChangedInputs(
             // Prevent parallel execution of this 'id' from this or other processes,
             // tracked by a lock on state file
             withLock(id, stateFile) { stateFileChannel ->
-                val (existingResult, cacheCheckTime) = measureTimedValue {
-                    getCachedResult(stateFile, stateFileChannel, configuration, inputs)
+                val (cachedState, cacheCheckTime) = measureTimedValue {
+                    getCachedState(stateFile, stateFileChannel, configuration, inputs)
                 }
-                if (existingResult != null) {
+                if (cachedState != null && !cachedState.outdated) {
                     logger.debug("[inc] up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
                     logger.debug("[inc] '$id' is up-to-date")
                     span.setAttribute("status", "up-to-date")
+                    val existingResult = ExecutionResult(cachedState.state.outputs.map { Path(it) }, cachedState.state.outputProperties)
                     addResultToSpan(span, existingResult)
-                    return@withLock existingResult
+                    return@withLock IncrementalExecutionResult(existingResult, listOf())
                 } else {
                     span.setAttribute("status", "requires-building")
                     logger.debug("[inc] building '$id'")
@@ -122,7 +125,14 @@ class ExecuteOnChangedInputs(
                 // TODO remove this check later or hide under debug/assert mode
                 ensureStateFileIsConsistent(stateFile, stateFileChannel, configuration, inputs, result)
 
-                return@withLock result
+                val oldState = cachedState?.state?.outputsState ?: mapOf()
+                val newState = getPathListState(result.outputs, failOnMissing = false)
+                
+                val changes = oldState compare newState
+
+                return@withLock IncrementalExecutionResult(result, changes).also {
+                    logger.debug("[inc] '$id' changes: {}", changes.joinToString { "'${it.path}' ${it.type}" })
+                }
             }
         }
 
@@ -161,7 +171,7 @@ class ExecuteOnChangedInputs(
     }
 
     @Serializable
-    private data class State(
+    data class State(
         val amperBuild: String,
         @Serializable(with = SortedMapSerializer::class)
         val configuration: Map<String, String>,
@@ -183,7 +193,9 @@ class ExecuteOnChangedInputs(
         result: ExecutionResult,
     ) {
         try {
-            val r = getCachedResult(stateFile, stateFileChannel, configuration, inputs)
+            val r = getCachedState(stateFile, stateFileChannel, configuration, inputs)
+                ?.state
+                ?.let { ExecutionResult(it.outputs.map { Path(it) }, it.outputProperties) }
                 ?: run {
                     stateFileChannel.position(0)
                     val stateText = stateFileChannel.readEntireFileToByteArray().decodeToString()
@@ -214,8 +226,10 @@ class ExecuteOnChangedInputs(
         }
     }
 
+    data class CachedState(val state: State, val outdated: Boolean)
+
     // TODO Probably rewrite to JSON? or a binary format?
-    private fun getCachedResult(stateFile: Path, stateFileChannel: FileChannel, configuration: Map<String, String>, inputs: List<Path>): ExecutionResult? {
+    private fun getCachedState(stateFile: Path, stateFileChannel: FileChannel, configuration: Map<String, String>, inputs: List<Path>): CachedState? {
         if (stateFileChannel.size() <= 0) {
             logger.debug("[inc] state file is missing or empty at '{}' -> rebuilding", stateFile)
             return null
@@ -247,7 +261,7 @@ class ExecuteOnChangedInputs(
                         "old: ${state.amperBuild}\n" +
                         "current: $currentAmperBuildNumber"
             )
-            return null
+            return CachedState(state = state, outdated = true)
         }
 
         if (state.configuration != configuration) {
@@ -257,7 +271,7 @@ class ExecuteOnChangedInputs(
                         "  old: ${state.configuration}\n" +
                         "  new: $configuration"
             )
-            return null
+            return CachedState(state = state, outdated = true)
         }
 
         val inputPaths = inputs.map { it.pathString }.toSet()
@@ -267,9 +281,9 @@ class ExecuteOnChangedInputs(
                         "  old: ${state.inputs.sorted()}\n" +
                         "  new: ${inputPaths.sorted()}"
             )
-            return null
+            return CachedState(state = state, outdated = true)
         }
-
+        
         val currentInputsState = getPathListState(inputs, failOnMissing = false)
         if (state.inputsState != currentInputsState) {
             logger.debug(
@@ -277,7 +291,7 @@ class ExecuteOnChangedInputs(
                         "  old: ${state.inputsState}\n" +
                         "  new: $currentInputsState"
             )
-            return null
+            return CachedState(state = state, outdated = true)
         }
 
         val outputsList = state.outputs.map { Path(it) }
@@ -288,10 +302,10 @@ class ExecuteOnChangedInputs(
                         "  old: ${state.outputsState}\n" +
                         "  new: $currentOutputsState"
             )
-            return null
+            return CachedState(state = state, outdated = true)
         }
 
-        return ExecutionResult(outputs = outputsList, outputProperties = state.outputProperties)
+        return CachedState(state = state, outdated = false)
     }
 
     private fun getPathListState(paths: List<Path>, failOnMissing: Boolean): Map<String, String> {
@@ -381,7 +395,23 @@ class ExecuteOnChangedInputs(
         return attr
     }
 
-    class ExecutionResult(val outputs: List<Path>, val outputProperties: Map<String, String> = emptyMap())
+    open class ExecutionResult(val outputs: List<Path>, val outputProperties: Map<String, String> = emptyMap())
+    
+    data class IncrementalExecutionResult(private val executionResult: ExecutionResult, val changes: List<Change>): ExecutionResult(executionResult.outputs, executionResult.outputProperties)
+    
+    data class Change(val path: Path, val type: ChangeType) {
+        enum class ChangeType { CREATED, MODIFIED, DELETED }
+    }
+    
+    private infix fun Map<String, String>.compare(state: Map<String, String>): List<Change> = buildList {
+        for (key in keys union state.keys) {
+            when {
+                key !in this@compare -> add(Change(Path(key), ChangeType.CREATED))
+                key !in state -> add(Change(Path(key), ChangeType.DELETED))
+                this@compare[key] != state[key] -> add(Change(Path(key), ChangeType.MODIFIED))
+            }
+        }    
+    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(ExecuteOnChangedInputs::class.java)

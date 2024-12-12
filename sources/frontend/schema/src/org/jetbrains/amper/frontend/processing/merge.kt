@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
@@ -12,6 +12,8 @@ import org.jetbrains.amper.frontend.api.withPrecedingValue
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schema.Base
+import org.jetbrains.amper.frontend.schema.ComposeExperimentalHotReloadSettings
+import org.jetbrains.amper.frontend.schema.ComposeExperimentalSettings
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
@@ -127,7 +129,19 @@ private fun ComposeSettings.mergeComposeSettings(overwrite: ComposeSettings?) =
         mergeScalar(ComposeSettings::enabled)
         mergeScalar(ComposeSettings::version)
         mergeNodeProperty(ComposeSettings::resources, ComposeResourcesSettings::mergeComposeResourcesSettings)
+        mergeNodeProperty(ComposeSettings::experimental, ComposeExperimentalSettings::mergeComposeExperimentalSettings)
     }
+
+context(MergeCtxWithProp<*, *>)
+fun ComposeExperimentalSettings.mergeComposeExperimentalSettings(overwrite: ComposeExperimentalSettings?) =
+    mergeNode(overwrite, ::ComposeExperimentalSettings) {
+        mergeNodeProperty(ComposeExperimentalSettings::hotReload, ComposeExperimentalHotReloadSettings::mergeComposeExperimentalHotReloadSettings)
+    }
+
+context(MergeCtxWithProp<*, *>)
+fun ComposeExperimentalHotReloadSettings.mergeComposeExperimentalHotReloadSettings(overwrite: ComposeExperimentalHotReloadSettings?) = mergeNode(overwrite, ::ComposeExperimentalHotReloadSettings) {
+    mergeScalar(ComposeExperimentalHotReloadSettings::enabled)
+}
 
 context(MergeCtxWithProp<*, *>)
 private fun ParcelizeSettings.mergeParcelizeSettings(overwrite: ParcelizeSettings?) =

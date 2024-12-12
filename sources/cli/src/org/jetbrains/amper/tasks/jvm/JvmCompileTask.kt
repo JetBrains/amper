@@ -131,7 +131,7 @@ class JvmCompileTask(
         val resources = fragments.map { it.resourcesPath.toAbsolutePath() } + additionalResources.map { it.path }
         val inputs = sources + resources + classpath
 
-        executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+        val result = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             val nonEmptySourceDirs = sources
@@ -177,6 +177,7 @@ class JvmCompileTask(
             classesOutputRoot = taskOutputRoot.path.toAbsolutePath(),
             module = module,
             isTest = isTest,
+            changes = result.changes,
         )
     }
 
@@ -359,6 +360,7 @@ class JvmCompileTask(
         val classesOutputRoot: Path,
         val module: AmperModule,
         val isTest: Boolean,
+        val changes: List<ExecuteOnChangedInputs.Change>,
     ) : TaskResult, RuntimeClasspathElementProvider {
         override val paths: List<Path>
             get() = listOf(classesOutputRoot)

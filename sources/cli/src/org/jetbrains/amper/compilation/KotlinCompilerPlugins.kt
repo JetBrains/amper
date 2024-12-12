@@ -36,6 +36,11 @@ internal data class CompilerPlugin(
         fun compose(jarPath: Path) = CompilerPlugin(
             id = "androidx.compose.compiler.plugins.kotlin",
             jarPath = jarPath,
+            options = listOf(
+                Option(name = "featureFlag", value = "OptimizeNonSkippingGroups"), 
+                // TODO: enable this option when use patched compose compiler 
+//                Option(name = "generateFunctionKeyMetaAnnotations", value = "function"),
+            )
         )
     }
 }

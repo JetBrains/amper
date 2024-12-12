@@ -31,6 +31,11 @@ Fragments:
       }
       compose: <default> {
         enabled: <default> false
+        experimental: <default> {
+          hotReload: <default> {
+            enabled: <default> false
+          }
+        }
         resources: <default> {
           exposedAccessors: <default> false
           packageName: <default> 
@@ -110,6 +115,11 @@ Fragments:
       }
       compose: <default> {
         enabled: <default> false
+        experimental: <default> {
+          hotReload: <default> {
+            enabled: <default> false
+          }
+        }
         resources: <default> {
           exposedAccessors: <default> false
           packageName: <default> 

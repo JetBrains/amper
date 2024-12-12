@@ -8,6 +8,12 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.schema.commonSettings
 
 
-internal fun isComposeEnabledFor(module: AmperModule): Boolean {
-    return module.origin.commonSettings.compose.enabled
-}
+internal fun isComposeEnabledFor(module: AmperModule): Boolean = module.origin.commonSettings.compose.enabled
+
+internal fun isHotReloadEnabledFor(module: AmperModule): Boolean = module
+    .origin
+    .commonSettings
+    .compose
+    .experimental
+    .hotReload
+    .enabled

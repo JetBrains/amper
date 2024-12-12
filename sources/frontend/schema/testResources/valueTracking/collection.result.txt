@@ -1,5 +1,10 @@
    compose:
       enabled: false [default]
+      experimental:
+         hotReload:
+            enabled: false [default]
+
+
       resources:
          exposedAccessors: false [default]
          packageName:  [default]

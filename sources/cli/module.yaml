@@ -63,6 +63,8 @@ dependencies:
   - com.sun.xml.bind:jaxb-impl:2.3.2
   - jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
   - io.github.classgraph:classgraph:4.8.172
+  - $libs.hot.reload.core
+  - $libs.hot.reload.orchestration
 
 test-dependencies:
   - ../test-base
