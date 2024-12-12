@@ -22,10 +22,10 @@ internal class RunCommand : AmperSubcommand(name = "run") {
     private val platform by leafPlatformOption(help = "Run the app on specified platform. This option is only necessary if " +
             "the module has multiple main functions for different platforms")
 
-    private val buildType by option(
-        "-b",
-        "--build-type",
-        help = "Run the app with the specified build type (${BuildType.buildTypeStrings.sorted().joinToString(", ")})",
+    private val variant by option(
+        "-v",
+        "--variant",
+        help = "Run the specified variant of the app (${BuildType.buildTypeStrings.sorted().joinToString(", ")})",
         completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings),
     )
         .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
@@ -53,7 +53,7 @@ internal class RunCommand : AmperSubcommand(name = "run") {
                 userJvmArgs = jvmArgs,
             ),
         ) { backend ->
-            backend.runApplication(moduleName = module, platform = platform, buildType = buildType)
+            backend.runApplication(moduleName = module, platform = platform, buildType = variant)
         }
     }
 }

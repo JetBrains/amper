@@ -5,8 +5,8 @@
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.LocalModuleDependency
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.CommonTaskType
@@ -80,7 +80,6 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     JvmClassesJarTask(
                         taskName = jarTaskName,
                         module = module,
-                        isTest = false,
                         taskOutputRoot = context.getTaskOutputPath(jarTaskName),
                         executeOnChangedInputs = executeOnChangedInputs,
                     ),

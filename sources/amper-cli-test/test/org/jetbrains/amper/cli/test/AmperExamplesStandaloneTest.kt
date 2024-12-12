@@ -68,11 +68,11 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
                 assertEmptyStdErr = false,
             )
         }.run {
-            // main/test for Jvm + main/test * debug/release for Android.
-            kotlinJvmCompilationSpans.withAmperModule("shared").assertTimes(6)
+            // main/test for Jvm + main/test * debug for Android.
+            kotlinJvmCompilationSpans.withAmperModule("shared").assertTimes(4)
 
-            // debug/release for Android (no test sources).
-            kotlinJvmCompilationSpans.withAmperModule("android-app").assertTimes(2)
+            // debug for Android (no test sources).
+            kotlinJvmCompilationSpans.withAmperModule("android-app").assertTimes(1)
 
             // main for Jvm (no test sources).
             kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
@@ -160,7 +160,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
         }
 
         collectSpansFromCli {
-            runCli(projectName, "build")
+            runCli(projectName, "build", "--variant", "debug", "--variant", "release")
         }.run {
             // debug + release
             kotlinJvmCompilationSpans.assertTimes(2)

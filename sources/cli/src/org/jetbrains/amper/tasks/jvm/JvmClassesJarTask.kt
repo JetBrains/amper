@@ -5,13 +5,16 @@
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
 import org.jetbrains.amper.tasks.AbstractJarTask
+import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -22,11 +25,21 @@ import kotlin.io.path.div
  */
 class JvmClassesJarTask(
     override val taskName: TaskName,
-    private val module: AmperModule,
-    private val isTest: Boolean,
+    override val module: AmperModule,
+    override val buildType: BuildType? = null,
+    override val platform: Platform = Platform.JVM,
     private val taskOutputRoot: TaskOutputRoot,
     executeOnChangedInputs: ExecuteOnChangedInputs,
-) : AbstractJarTask(taskName, executeOnChangedInputs) {
+) : AbstractJarTask(taskName, executeOnChangedInputs), BuildTask {
+
+    override val isTest: Boolean
+        get() = false
+
+    init {
+        require(platform == Platform.JVM || platform == Platform.ANDROID) {
+            "Illegal platform for JvmClassesJarTask: $platform"
+        }
+    }
 
     override fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput> {
         val compileTaskResults = dependenciesResult.filterIsInstance<JvmCompileTask.Result>()
@@ -38,8 +51,7 @@ class JvmClassesJarTask(
 
     // TODO add version here?
     override fun outputJarPath(): Path {
-        val testSuffix = if (isTest) "-test" else ""
-        return taskOutputRoot.path / "${module.userReadableName}$testSuffix-jvm.jar"
+        return taskOutputRoot.path / "${module.userReadableName}-jvm.jar"
     }
 
     override fun jarConfig(): JarConfig = JarConfig(mainClassFqn = findMainClass())

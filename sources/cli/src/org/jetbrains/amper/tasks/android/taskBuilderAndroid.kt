@@ -15,10 +15,10 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.CommonTaskType
@@ -139,6 +139,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 JvmCompileTask(
                     module = module,
                     isTest = isTest,
+                    buildType = buildType,
                     fragments = fragments,
                     userCacheRoot = context.userCacheRoot,
                     projectRoot = context.projectRoot,
@@ -146,6 +147,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     taskName = compileTaskName,
                     executeOnChangedInputs = executeOnChangedInputs,
                     tempRoot = context.projectTempRoot,
+                    platform = Platform.ANDROID,
                 ),
                 buildList {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
@@ -183,9 +185,10 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     JvmClassesJarTask(
                         taskName = jarTaskName,
                         module = module,
-                        isTest = false,
+                        buildType = buildType,
                         taskOutputRoot = context.getTaskOutputPath(jarTaskName),
                         executeOnChangedInputs = executeOnChangedInputs,
+                        platform = Platform.ANDROID,
                     ),
                     CommonTaskType.Compile.getTaskName(module, platform, false, buildType),
                 )
@@ -196,6 +199,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                         taskName = aarTaskName,
                         executeOnChangedInputs = executeOnChangedInputs,
                         module = module,
+                        buildType = buildType,
                         taskOutputRoot = context.getTaskOutputPath(aarTaskName),
                         tempRoot = context.projectTempRoot,
                     ),
@@ -469,15 +473,16 @@ private fun TaskGraphBuilder.setupAndroidBuildTask(
     val buildAndroidTaskName = AndroidTaskType.Build.getTaskName(module, platform, isTest, buildType)
     registerTask(
         AndroidBuildTask(
-            module,
-            buildType,
-            executeOnChangedInputs,
-            androidSdkPath,
-            fragments,
-            context.projectRoot,
-            context.getTaskOutputPath(buildAndroidTaskName),
-            context.buildLogsRoot,
-            buildAndroidTaskName,
+            module = module,
+            buildType = buildType,
+            isTest = isTest,
+            executeOnChangedInputs = executeOnChangedInputs,
+            androidSdkPath = androidSdkPath,
+            fragments = fragments,
+            projectRoot = context.projectRoot,
+            taskOutputPath = context.getTaskOutputPath(buildAndroidTaskName),
+            buildLogsRoot = context.buildLogsRoot,
+            taskName = buildAndroidTaskName,
         ),
         listOf(
             CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)

@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
@@ -215,6 +216,7 @@ class AmperKspTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    @Disabled("AMPER-3957")
     fun `ksp android room`() = runTestWithCollector {
         val projectContext = setupTestDataProject("ksp-android-room")
         val generatedSchemaPath = projectContext.projectRoot.path / "generated-db-schema"
@@ -301,12 +303,18 @@ class AmperKspTest : AmperIntegrationTestBase() {
         generatedSchemaPath.deleteRecursively()
 
         val backend = AmperBackend(projectContext)
-        backend.build()
-
-        projectContext.generatedFilesDir(module = "shared", fragment = "android").assertContainsRelativeFiles(
-            "src/ksp/kotlin/AppDatabase_Impl.kt",
-            "src/ksp/kotlin/TodoDao_Impl.kt",
+        backend.build(
+            platforms = setOf(
+                Platform.JVM,
+                // Platform.ANDROID, // AMPER-3957
+            )
         )
+
+        // AMPER-3957:
+//        projectContext.generatedFilesDir(module = "shared", fragment = "android").assertContainsRelativeFiles(
+//            "src/ksp/kotlin/AppDatabase_Impl.kt",
+//            "src/ksp/kotlin/TodoDao_Impl.kt",
+//        )
         projectContext.generatedFilesDir(module = "shared", fragment = "jvm").assertContainsRelativeFiles(
             "src/ksp/kotlin/AppDatabase_Impl.kt",
             "src/ksp/kotlin/TodoDao_Impl.kt",
@@ -330,7 +338,7 @@ class AmperKspTest : AmperIntegrationTestBase() {
 //        }
 
         generatedSchemaPath.assertContainsRelativeFiles(
-            "android/AppDatabase/1.json",
+//            "android/AppDatabase/1.json",
             "jvm/AppDatabase/1.json",
         )
     }

@@ -38,7 +38,7 @@ import kotlin.io.path.readText
 class IosBuildTask(
     override val platform: Platform,
     override val module: AmperModule,
-    private val buildType: BuildType,
+    override val buildType: BuildType,
     private val buildOutputRoot: AmperBuildOutputRoot,
     private val taskOutputPath: TaskOutputRoot,
     override val taskName: TaskName,

@@ -7,15 +7,17 @@ package org.jetbrains.amper.tasks.android
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jar.writeZip
+import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.RuntimeClasspathElementProvider
+import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -47,11 +49,18 @@ import kotlin.math.absoluteValue
  */
 class AndroidAarTask(
     override val taskName: TaskName,
-    private val module: AmperModule,
+    override val module: AmperModule,
+    override val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val taskOutputRoot: TaskOutputRoot,
     private val tempRoot: AmperProjectTempRoot,
-) : Task {
+) : BuildTask {
+    override val isTest: Boolean
+        get() = false
+
+    override val platform: Platform
+        get() = Platform.ANDROID
+
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val jarResult = dependenciesResult.filterIsInstance<JvmClassesJarTask.Result>().singleOrNull()
             ?: error("No input classes jar")

@@ -28,9 +28,9 @@ import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setFragments
 import org.jetbrains.amper.diagnostics.setListAttribute
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.jvm.JdkDownloader
@@ -47,6 +47,7 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.resourcesFor
 import org.jetbrains.amper.tasks.sourcesFor
+import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
@@ -75,9 +76,15 @@ class JvmCompileTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
+    override val buildType: BuildType? = null,
+    override val platform: Platform = Platform.JVM,
 ): BuildTask {
 
-    override val platform: Platform = Platform.JVM
+    init {
+        require(platform == Platform.JVM || platform == Platform.ANDROID) {
+            "Illegal platform for JvmCompileTask: $platform"
+        }
+    }
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         require(fragments.isNotEmpty()) {

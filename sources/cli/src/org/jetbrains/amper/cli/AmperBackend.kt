@@ -82,18 +82,31 @@ class AmperBackend(val context: CliContext) {
     }
 
     /**
-     * Called by the 'build' command. Compiles and links all code in the project.
+     * Called by the 'build' command.
+     * Builds ready-to-run and ready-to-test artifacts for all included modules/platforms/buildTypes.
+     *
+     * The idea is that `amper run` and `amper test`
+     * (if called with compatible filters) will practically do no building work after `amper build`.
      *
      * If [platforms] is specified, only compilation/linking for those platforms should be run.
      *
      * If [modules] is specified, only compilation/linking for those modules should be run.
+     *
+     * If [buildTypes] are specified, only compilation/linking
      */
-    suspend fun build(platforms: Set<Platform>? = null, modules: Set<String>? = null) {
+    suspend fun build(
+        platforms: Set<Platform>? = null,
+        modules: Set<String>? = null,
+        buildTypes: Set<BuildType>? = null,
+    ) {
         if (platforms != null) {
             logger.info("Compiling for platforms: ${platforms.map { it.name }.sorted().joinToString(" ")}")
         }
         if (modules != null) {
             logger.info("Compiling modules: ${modules.sorted().joinToString(" ")}")
+        }
+        if (buildTypes != null) {
+            logger.info("Compiling variants: ${buildTypes.map { it.value }.sorted().joinToString(" ")}")
         }
 
         val possibleCompilationPlatforms = if (OsFamily.current.isMac) {
@@ -105,11 +118,16 @@ class AmperBackend(val context: CliContext) {
 
         val platformsToCompile = platforms ?: possibleCompilationPlatforms
         val modulesToCompile = (modules?.map { resolveModule(it) } ?: resolvedModel.modules).toSet()
+        val buildTypesToCompile = buildTypes ?: BuildType.entries.toSet()
 
         val taskNames = taskGraph
             .tasks
             .filterIsInstance<BuildTask>()
-            .filter { it.platform in platformsToCompile && it.module in modulesToCompile }
+            .filter {
+                it.platform in platformsToCompile &&
+                        it.module in modulesToCompile &&
+                        (it.buildType == null || it.buildType in buildTypesToCompile)
+            }
             .map { it.taskName }
             .toSet()
         logger.info("Selected tasks to compile: ${taskNames.sortedBy { it.name }.joinToString(" ") { it.name }}")

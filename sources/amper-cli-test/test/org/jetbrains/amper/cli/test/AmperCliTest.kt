@@ -18,6 +18,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.fileSize
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
@@ -346,6 +347,19 @@ class AmperCliTest: AmperCliTestBase() {
         )
 
         assertContains(r.stdout, "Input: 'Hello World!'")
+    }
+
+    @Test
+    fun `build command produces a jar for jvm`() = runTest(timeout = 10.minutes) {
+        runCli(
+            backendTestProjectName = "multiplatform-input",
+            "build", "-p", "jvm",
+        )
+
+        assertTrue {
+            val file = tempRoot / "build" / "tasks" / "_shared_jarJvm" / "shared-jvm.jar"
+            file.exists()
+        }
     }
 
     @Test
