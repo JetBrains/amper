@@ -12,19 +12,23 @@ import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.FilteredSpans
 import java.nio.file.Path
+import kotlin.io.path.div
+import kotlin.io.path.pathString
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlin.test.expect
 
+@MacOnly
 class AmperIosProjectsTest : AmperCliTestBase() {
     override val testDataRoot: Path
         get() = TestUtil.amperSourcesRoot
             .resolve("amper-backend-test/testData/projects/ios")
 
     @Test
-    @MacOnly
     fun `framework for simple for iosSimulatorArm64`() = runTestInfinitely {
         collectSpansFromCli {
             runCli(
@@ -36,7 +40,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `framework for simple for iosArm64`() = runTestInfinitely {
         collectSpansFromCli {
             runCli(
@@ -48,7 +51,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `buildIosApp for simple for iosSimulatorArm64`() = runTestInfinitely {
         collectSpansFromCli {
             runCli(
@@ -64,7 +66,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `build for simple for iosSimulatorArm64`() = runTestInfinitely {
         collectSpansFromCli {
             runCliInTempDir(
@@ -80,7 +81,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `build for outdated-xcode-proj updates the project`() = runTestInfinitely {
         collectSpansFromCli {
             runCliInTempDir(
@@ -96,7 +96,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `framework for compose for iosSimulatorArm64`() = runTestInfinitely {
         collectSpansFromCli {
             runCli(
@@ -108,7 +107,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `framework for compose for iosArm64`() = runTestInfinitely {
         collectSpansFromCli {
             runCli(
@@ -120,7 +118,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `buildIosApp for compose app for iosSimulatorArm64`() = runTestInfinitely {
         val projectPath: Path
         collectSpansFromCli {
@@ -145,7 +142,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `build for compose app for all ios archs (arm64 without signing)`() = runTestInfinitely {
         collectSpansFromCli {
             val (result, _) = runCliInTempDir(
@@ -168,7 +164,6 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `run kotlin tests in simulator`() = runTestInfinitely {
         collectSpansFromCli {
             runCli(
@@ -180,6 +175,23 @@ class AmperIosProjectsTest : AmperCliTestBase() {
             val testsStdOut = iosKotlinTests.assertZeroExitCode().getAttribute(AttributeKey.stringKey("stdout"))
             assertTrue(testsStdOut.contains("##teamcity[testSuiteFinished name='SimpleTestsKt']"))
         }
+    }
+
+    @Test
+    fun `compose-multiplatform - build debug with xcodebuild`() = runTestInfinitely {
+        val result = runXcodebuild(
+            "-project", (testDataRoot / "non-intel" / "module.xcodeproj").pathString,
+            "-scheme", "app",
+            "-configuration", "Debug",
+            "-arch", "x86_64",
+            "-sdk", "iphonesimulator",
+        )
+        assertNotEquals(illegal = 0, actual = result.exitCode)
+        assertContains(result.stdout, """
+            ERROR: Platform 'iosX64' is not found for iOS module 'non-intel'.
+            The module has declared platforms: IOS_ARM64 IOS_SIMULATOR_ARM64.
+            Please declare the required platform explicitly in the module's file.
+        """.trimIndent())
     }
 }
 

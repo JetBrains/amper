@@ -170,7 +170,12 @@ class ManageXCodeProjectTask(
 
         val src = module.rootFragment.src
         val infoPlistFile = src / "Info.plist"
-        XMLPlistDriver().write(createDefaultPlist(), infoPlistFile.toFile())
+        if (!infoPlistFile.exists()) {
+            // Do not override the file if already exists
+            logger.warn("The Info.plist already exists, no need to generate the default one.")
+            XMLPlistDriver().write(createDefaultPlist(), infoPlistFile.toFile())
+        }
+
         manipulator.addFile(
             path = infoPlistFile.pathString,
             targets = emptyArray(),

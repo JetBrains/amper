@@ -6,7 +6,9 @@ package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.processes.ProcessInput
+import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
+import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
@@ -106,6 +108,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
         stdin: ProcessInput = ProcessInput.Empty,
+        customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
     ): ProcessResult {
         println("Running Amper CLI with '${args.toList()}' on $projectRoot")
 
@@ -125,7 +128,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             expectedExitCode = expectedExitCode,
             assertEmptyStdErr = assertEmptyStdErr,
             stdin = stdin,
-            customAmperScriptPath = tempWrappersDir.resolve(scriptNameForCurrentOs),
+            customAmperScriptPath = customAmperScriptPath,
         )
 
         val stdout = result.stdout.fancyPrependIndent("STDOUT: ").ifEmpty { "STDOUT: <no-output>" }
@@ -140,6 +143,30 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         testReporter.publishEntry(message)
 
         return result
+    }
+
+    protected suspend fun runXcodebuild(
+        vararg buildArgs: String,
+        workingDir: Path = tempRoot,
+    ): ProcessResult {
+        return runProcessAndCaptureOutput(
+            workingDir = workingDir,
+            command = listOf(
+                "xcrun", "xcodebuild",
+                *buildArgs,
+                "build",
+            ),
+            environment = baseEnvironmentForWrapper(),
+            outputListener = object : ProcessOutputListener {
+                override fun onStdoutLine(line: String, pid: Long) {
+                    println("[xcodebuild out / $pid] $line")
+                }
+
+                override fun onStderrLine(line: String, pid: Long) {
+                    println("[xcodebuild err / $pid] $line")
+                }
+            },
+        )
     }
 
     private fun String.fancyPrependIndent(prepend: String): String {

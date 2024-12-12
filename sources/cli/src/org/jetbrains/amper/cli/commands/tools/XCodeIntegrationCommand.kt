@@ -14,6 +14,8 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.tasks.ios.IosConventions
 import org.jetbrains.amper.util.BuildType
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -26,6 +28,7 @@ import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 
 internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integration") {
+    private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val env: Map<String, String> = System.getenv()
 
     override val hiddenFromHelp: Boolean
@@ -35,7 +38,16 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
         validateGeneralXcodeEnvironment()
 
         val superAmperBuildRoot = env[AMPER_BUILD_OUTPUT_DIR_ENV]
-        val buildType = inferBuildTypeFromEnv()
+        val buildType = inferBuildTypeFromEnv().let { inferred ->
+            if (inferred != BuildType.Debug) {
+                // TODO: Support Release configuration in Amper
+                logger.warn(
+                    "Amper doesn't yet support building Kotlin for `${inferred.name}` configuration. " +
+                            "Falling back to `Debug`"
+                )
+            }
+            BuildType.Debug
+        }
         val platform = inferPlatformFromEnv()
 
         val (buildDir: Path, moduleName: String) = if (superAmperBuildRoot == null) {
