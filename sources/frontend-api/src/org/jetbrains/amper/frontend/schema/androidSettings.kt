@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.EnumItemDescription
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -21,75 +20,75 @@ enum class AndroidVersion(
     val versionNumber: Int,
     override val outdated: Boolean = false
 ) : SchemaEnum {
-    @EnumItemDescription("1.0")
+    @SchemaDoc("1.0")
     VERSION_1(1, outdated = true),
-    @EnumItemDescription("1.1")
+    @SchemaDoc("1.1")
     VERSION_2(2, outdated = true),
-    @EnumItemDescription("1.5 Cupcake")
+    @SchemaDoc("1.5, Cupcake")
     VERSION_3(3, outdated = true),
-    @EnumItemDescription("1.6 Donut")
+    @SchemaDoc("1.6, Donut")
     VERSION_4(4, outdated = true),
-    @EnumItemDescription("2.0 Eclair")
+    @SchemaDoc("2.0, Eclair")
     VERSION_5(5, outdated = true),
-    @EnumItemDescription("2.0.1 Eclair")
+    @SchemaDoc("2.0.1, Eclair")
     VERSION_6(6, outdated = true),
-    @EnumItemDescription("2.1 Eclair")
+    @SchemaDoc("2.1, Eclair")
     VERSION_7(7, outdated = true),
-    @EnumItemDescription("2.2 Froyo")
+    @SchemaDoc("2.2, Froyo")
     VERSION_8(8, outdated = true),
-    @EnumItemDescription("2.3-2.3.2 Gingerbread")
+    @SchemaDoc("2.3-2.3.2, Gingerbread")
     VERSION_9(9, outdated = true),
-    @EnumItemDescription("2.3.3-2.3.7 Gingerbread")
+    @SchemaDoc("2.3.3-2.3.7, Gingerbread")
     VERSION_10(10, outdated = true),
-    @EnumItemDescription("3.0 Honeycomb")
+    @SchemaDoc("3.0, Honeycomb")
     VERSION_11(11, outdated = true),
-    @EnumItemDescription("3.1 Honeycomb")
+    @SchemaDoc("3.1, Honeycomb")
     VERSION_12(12, outdated = true),
-    @EnumItemDescription("3.2 Honeycomb")
+    @SchemaDoc("3.2, Honeycomb")
     VERSION_13(13, outdated = true),
-    @EnumItemDescription("4.0.1-4.0.2 Ice Cream Sandwich")
+    @SchemaDoc("4.0.1-4.0.2, Ice Cream Sandwich")
     VERSION_14(14, outdated = true),
-    @EnumItemDescription("4.0.3-4.0.4 Ice Cream Sandwich")
+    @SchemaDoc("4.0.3-4.0.4, Ice Cream Sandwich")
     VERSION_15(15, outdated = true),
-    @EnumItemDescription("4.1 Jelly Bean")
+    @SchemaDoc("4.1, Jelly Bean")
     VERSION_16(16, outdated = true),
-    @EnumItemDescription("4.2 Jelly Bean")
+    @SchemaDoc("4.2, Jelly Bean")
     VERSION_17(17, outdated = true),
-    @EnumItemDescription("4.3 Jelly Bean")
+    @SchemaDoc("4.3, Jelly Bean")
     VERSION_18(18, outdated = true),
-    @EnumItemDescription("4.4 KitKat")
+    @SchemaDoc("4.4, KitKat")
     VERSION_19(19, outdated = true),
-    @EnumItemDescription("5.0 Lollipop")
+    @SchemaDoc("5.0, Lollipop")
     VERSION_20(20, outdated = true),
-    @EnumItemDescription("5.0 Lollipop")
+    @SchemaDoc("5.0, Lollipop")
     VERSION_21(21),
-    @EnumItemDescription("5.1 Lollipop")
+    @SchemaDoc("5.1, Lollipop")
     VERSION_22(22),
-    @EnumItemDescription("6.0 Marshmallow")
+    @SchemaDoc("6.0, Marshmallow")
     VERSION_23(23),
-    @EnumItemDescription("7.0 Nougat")
+    @SchemaDoc("7.0, Nougat")
     VERSION_24(24),
-    @EnumItemDescription("7.1 Nougat")
+    @SchemaDoc("7.1, Nougat")
     VERSION_25(25),
-    @EnumItemDescription("8.0 Oreo")
+    @SchemaDoc("8.0, Oreo")
     VERSION_26(26),
-    @EnumItemDescription("8.1 Oreo")
+    @SchemaDoc("8.1, Oreo")
     VERSION_27(27),
-    @EnumItemDescription("9.0 Pie")
+    @SchemaDoc("9, Pie")
     VERSION_28(28),
-    @EnumItemDescription("10.0 Q")
+    @SchemaDoc("10, Q")
     VERSION_29(29),
-    @EnumItemDescription("11.0 R")
+    @SchemaDoc("11, R")
     VERSION_30(30),
-    @EnumItemDescription("12.0 S")
+    @SchemaDoc("12, S")
     VERSION_31(31),
-    @EnumItemDescription("12.0L S V2")
+    @SchemaDoc("12L, S")
     VERSION_32(32),
-    @EnumItemDescription("13.0 Tiramisu")
+    @SchemaDoc("13, Tiramisu")
     VERSION_33(33),
-    @EnumItemDescription("14.0 Upside Down Cake")
+    @SchemaDoc("14, Upside Down Cake")
     VERSION_34(34),
-    @EnumItemDescription("15.0 Vanilla Ice Cream")
+    @SchemaDoc("15, Vanilla Ice Cream")
     VERSION_35(35),
     ;
 

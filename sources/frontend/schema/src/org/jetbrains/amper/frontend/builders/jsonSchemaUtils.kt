@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.core.forEachEndAware
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.EnumItemDescription
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.GradleSpecific
@@ -200,7 +199,7 @@ val KType.enumSchema
         append("]")
 
         val enumFields = enumClass.java.fields.mapNotNull {
-            it.annotations.filterIsInstance<EnumItemDescription>().singleOrNull()?.let { a ->
+            it.annotations.filterIsInstance<SchemaDoc>().singleOrNull()?.let { a ->
                 (it.get(enumClass.java) as? SchemaEnum)?.schemaValue?.let { v -> v to a }
             }
         }
@@ -214,9 +213,18 @@ val KType.enumSchema
             appendLine(",")
             append("\"x-intellij-enum-metadata\": {")
             enumFields.forEachIndexed { index, item ->
-                append("\"${item.first}\": \"(${item.second.description})\"")
+                append("\"${item.first}\": \"${item.second.doc.let { adjustEnumValueDoc(it) }}\"")
                 if (index != enumFields.lastIndex) append(",")
             }
             append("}")
         }
     }
+
+private fun adjustEnumValueDoc(doc: String): String {
+    val left = doc.indexOf('[')
+    val right = doc.indexOf(']')
+    val resultingDoc = (if (left >= 0 && right > left) {
+        doc.substring(left + 1, right)
+    } else doc).trimStart('(').trimEnd(')').capitalize()
+    return if (resultingDoc.isNotEmpty() && resultingDoc[0].isDigit()) "(${resultingDoc})" else resultingDoc
+}

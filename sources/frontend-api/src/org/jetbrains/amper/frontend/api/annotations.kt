@@ -109,13 +109,6 @@ annotation class StandaloneSpecific
 annotation class Shorthand
 
 /**
- * Human-readable description for enum values used in the schema
- */
-@Target(AnnotationTarget.PROPERTY)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class EnumItemDescription(val description: String)
-
-/**
  * If we don't want to limit a value by an enum, but we still want to provide code assistance for known values
  */
 @Target(AnnotationTarget.PROPERTY)
