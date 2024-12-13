@@ -226,5 +226,5 @@ private fun adjustEnumValueDoc(doc: String): String {
     val resultingDoc = (if (left >= 0 && right > left) {
         doc.substring(left + 1, right)
     } else doc).trimStart('(').trimEnd(')').capitalize()
-    return if (resultingDoc.isNotEmpty() && resultingDoc[0].isDigit()) "(${resultingDoc})" else resultingDoc
+    return "(${resultingDoc})"
 }

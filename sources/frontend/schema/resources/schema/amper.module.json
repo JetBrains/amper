@@ -169,7 +169,7 @@
           "x-intellij-html-description": "File layout of the module. [Read more](#file-layout-with-gradle-interop)",
           "title": "File layout of the module",
           "enum": ["gradle-kmp","gradle-jvm","default"],
-          "x-intellij-enum-metadata": {"gradle-kmp": "Kotlin Multiplatform layout","gradle-jvm": "JVM layout","default": "Default Amper file layout"}
+          "x-intellij-enum-metadata": {"gradle-kmp": "(Kotlin Multiplatform layout)","gradle-jvm": "(JVM layout)","default": "(Default Amper file layout)"}
         }
       },
       "additionalProperties": false
@@ -193,7 +193,7 @@
               "title": "What type of product to generate",
               "enum": ["lib","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"],
               "x-intellij-enum-order-sensitive": true,
-              "x-intellij-enum-metadata": {"lib": "A reusable library which could be used as dependency by other modules in the codebase","jvm/app": "A JVM console or desktop application","android/app": "An Android VM application","ios/app": "An iOS application","macos/app": "A native macOS application","linux/app": "A native linux application","windows/app": "A native Windows application"}
+              "x-intellij-enum-metadata": {"lib": "(A reusable library which could be used as dependency by other modules in the codebase)","jvm/app": "(A JVM console or desktop application)","android/app": "(An Android VM application)","ios/app": "(An iOS application)","macos/app": "(A native macOS application)","linux/app": "(A native linux application)","windows/app": "(A native Windows application)"}
             }
           },
           "additionalProperties": false
@@ -201,7 +201,7 @@
         {
           "enum": ["lib","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"],
           "x-intellij-enum-order-sensitive": true,
-          "x-intellij-enum-metadata": {"lib": "A reusable library which could be used as dependency by other modules in the codebase","jvm/app": "A JVM console or desktop application","android/app": "An Android VM application","ios/app": "An iOS application","macos/app": "A native macOS application","linux/app": "A native linux application","windows/app": "A native Windows application"}
+          "x-intellij-enum-metadata": {"lib": "(A reusable library which could be used as dependency by other modules in the codebase)","jvm/app": "(A JVM console or desktop application)","android/app": "(An Android VM application)","ios/app": "(An iOS application)","macos/app": "(A native macOS application)","linux/app": "(A native linux application)","windows/app": "(A native Windows application)"}
         }
       ]
     },
