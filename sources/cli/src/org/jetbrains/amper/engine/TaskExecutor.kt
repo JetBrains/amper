@@ -175,10 +175,10 @@ class TaskExecutor(
     }
 
     private fun taskError(taskName: TaskName, cause: Throwable): Nothing {
-        if (cause is UserReadableError) {
-            userReadableError("Task '${taskName.name}' failed: ${cause.message}")
-        } else {
-            throw TaskExecutionFailed(taskName, cause)
+        when(cause) {
+            is UserReadableError -> userReadableError("Task '${taskName.name}' failed: ${cause.message}")
+            is CancellationException -> throw cause  // Cooperate to cancellation
+            else -> throw TaskExecutionFailed(taskName, cause)
         }
     }
 
