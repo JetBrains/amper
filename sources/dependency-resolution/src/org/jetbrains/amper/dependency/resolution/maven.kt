@@ -1446,13 +1446,22 @@ private fun String.removeSquareBracketsForSingleValue() = when {
 // - interval are not implemented and we need to warn/show error to user about it
 // - now strictly is treated as requires, should be supported properly
 
+/**
+ * Finds the path to the local .m2 repository as configured in Maven.
+ * See the documentation of [findPath] for details.
+ */
 object LocalM2RepositoryFinder {
     /**
-     *     Finds the path to the local .m2 repository as configured in Maven. <br> The location for the repository is determined in the same way as Gradle's mavenLocal() publications. It looks at the following locations, in order of precedence: <br>
-     *     The value of system property 'maven.repo.local' if set;
-     *     The value of element <localRepository> of ~/.m2/settings.xml if this file exists and element is set;
-     *     The value of element <localRepository> of $M2_HOME/conf/settings.xml (where $M2_HOME is the value of the environment variable with that name) if this file exists and element is set;
-     *     The path <user.home>/.m2/repository (where the user home is taken from the system property user.home)
+     * Finds the path to the local .m2 repository as configured in Maven.
+     *
+     * The location for the repository is determined in the same way as Gradle's mavenLocal() publications.
+     * It looks at the following locations, in order of precedence:
+     *
+     * 1. The value of system property 'maven.repo.local' if set;
+     * 2. The value of element `<localRepository>` of `~/.m2/settings.xml` if this file exists and element is set;
+     * 3. The value of element `<localRepository>` of `$M2_HOME/conf/settings.xml` (where `$M2_HOME` is the value of the
+     *    environment variable with that name) if this file exists and element is set;
+     * 4. The path `<user.home>/.m2/repository` (where the user home is taken from the system property `user.home`)
      */
     fun findPath(): Path = Path(findLocalM2RepoPathString())
 
