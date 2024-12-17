@@ -21,6 +21,7 @@ dependencies:
   - ../async-processes: exported # for ProcessResult in the API
   - ../core
   - ../cli: compile-only # todo (Anton Prokhorov): think splitting cli to submodules
+  - ../dependency-resolution
 
 apply:
   - ../common.module-template.yaml

@@ -9,6 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder
 import org.jetbrains.amper.test.android.AndroidToolsInstaller
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -38,8 +39,7 @@ object TestUtil {
     /**
      * The location of the local maven repository.
      */
-    // TODO this is technically incorrect. We should use LocalM2RepositoryFinder from DR
-    val m2repository = Path(System.getProperty("user.home")) / ".m2/repository"
+    val m2repository = LocalM2RepositoryFinder.findPath()
 
     /**
      * Path to the root directory of a cache that is reused across test runs, and across CI builds.
