@@ -4,8 +4,21 @@
 
 package org.jetbrains.amper.tasks
 
+import org.jetbrains.amper.test.TestFilter
+
+/**
+ * Settings that are passed from the command line to user-visible processes that Amper runs, such as tests or the
+ * user's applications.
+ */
 data class CommonRunSettings(
+    /**
+     * The arguments to use when running the user's JVM or native application.
+     */
     val programArgs: List<String> = emptyList(),
+    /**
+     * Filters to select or exclude tests.
+     */
+    val testFilters: List<TestFilter> = emptyList(),
     /**
      * The JVM args passed by the user.
      *

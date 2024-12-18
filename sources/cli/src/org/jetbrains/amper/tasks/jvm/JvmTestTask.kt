@@ -25,6 +25,9 @@ import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
+import org.jetbrains.amper.test.FilterMode
+import org.jetbrains.amper.test.TestFilter
+import org.jetbrains.amper.test.wildcardsToRegex
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
@@ -62,7 +65,7 @@ class JvmTestTask(
             groupId = "org.junit.platform",
             artifactId = "junit-platform-console-standalone",
             packaging = "jar",
-            version = "1.10.1",
+            version = "1.11.4",
         ).toString()
 
         // test task depends on compile test task
@@ -88,14 +91,20 @@ class JvmTestTask(
         cleanDirectory(taskOutputRoot.path)
         val reportsDir = taskOutputRoot.path.resolve("reports")
 
-        val junitArgs = listOf(
+        val junitArgs = buildList {
             // TODO I certainly want to have it here by default (too many real life errors when tests are skipped for a some reason)
             //  but probably there should be an option to disable it
-            "--fail-if-no-tests",
-            "--scan-class-path=$testModuleClasspath",
-            "--class-path=${testClasspath.joinToString(File.pathSeparator)}",
-            "--reports-dir=${reportsDir}",
-        )
+            add("--fail-if-no-tests")
+            add("--class-path=${testClasspath.joinToString(File.pathSeparator)}")
+            add("--reports-dir=${reportsDir}")
+
+            val filterArguments = commonRunSettings.testFilters.map { it.toJUnitArgument() }
+            addAll(filterArguments)
+            if (filterArguments.isEmpty() ||
+                filterArguments.any { it.startsWith("--include") || it.startsWith("--exclude") }) {
+                add("--scan-class-path=$testModuleClasspath")
+            }
+        }
 
         val junitArgsFile = createTempFile(tempRoot.path, "junit-args-", ".txt")
         junitArgsFile.writeText(junitArgs.joinToString("\n") { arg ->
@@ -149,6 +158,24 @@ class JvmTestTask(
             junitArgsFile.deleteExisting()
         }
     }
+
+    private fun TestFilter.toJUnitArgument(): String =
+        when (this) {
+            // Note: using --select=nested-method:com.example.Enclosing/Nested.myTest as specified in the docs doesn't
+            // work, but using the plain --select-method with a $ sign works fine...
+            is TestFilter.SpecificTestInclude -> "--select-method=${suiteFqn.slashToDollar()}#$testName"
+            is TestFilter.SuitePattern -> when (mode) {
+                FilterMode.Exclude -> "--exclude-classname=${pattern.slashToDollar().wildcardsToRegex()}"
+                FilterMode.Include -> when {
+                    "*" in pattern || "?" in pattern -> "--include-classname=${pattern.slashToDollar().wildcardsToRegex()}"
+                    // Note: using --select=nested-class:com.example.Enclosing/Nested as specified in the docs doesn't
+                    // work, but using the plain --select-class with a $ sign works fine...
+                    else -> "--select-class=${pattern.slashToDollar()}"
+                }
+            }
+        }
+
+    private fun String.slashToDollar() = replace('/', '$')
 
     private fun jarHasClasses(jarPath: Path): Boolean =
         JarFile(jarPath.toFile(), false).use { jar ->
