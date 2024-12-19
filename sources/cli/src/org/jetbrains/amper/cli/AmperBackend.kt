@@ -165,7 +165,7 @@ class AmperBackend(val context: CliContext) {
         if (modules != null) {
             for (moduleName in modules) {
                 val module = resolveModule(moduleName)
-                if (module.mavenRepositories.any { it.id == repositoryId }) {
+                if (module.mavenRepositories.none { it.id == repositoryId }) {
                     userReadableError("Module '$moduleName' does not have repository with id '$repositoryId'")
                 }
             }
