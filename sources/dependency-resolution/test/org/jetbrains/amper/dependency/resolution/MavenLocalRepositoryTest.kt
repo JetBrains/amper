@@ -54,14 +54,19 @@ class MavenLocalRepositoryTest {
     }
 
     @Test
-    fun mavenRepositoryPathDefault() {
+    @ExtendWith(SystemStubsExtension::class)
+    fun mavenRepositoryPathDefault(systemProperties: SystemProperties, environmentVariables: EnvironmentVariables) {
+        clearLocalM2MachineOverrides(systemProperties, environmentVariables)
+
         val repo = MavenLocalRepository()
         assertEquals(repo.repository, Path(System.getProperty("user.home")).resolve(".m2/repository"))
     }
 
     @Test
     @ExtendWith(SystemStubsExtension::class)
-    fun mavenRepositoryPathFromSystemPropertyTest(systemProperties: SystemProperties) {
+    fun mavenRepositoryPathFromSystemPropertyTest(systemProperties: SystemProperties, environmentVariables: EnvironmentVariables) {
+        clearLocalM2MachineOverrides(systemProperties, environmentVariables)
+
         try {
             systemProperties.set("maven.repo.local", "$temp/maven")
             val repo = MavenLocalRepository()
@@ -73,7 +78,9 @@ class MavenLocalRepositoryTest {
 
     @Test
     @ExtendWith(SystemStubsExtension::class)
-    fun mavenRepositoryPathFromUserHomeM2SettingsTest(systemProperties: SystemProperties) {
+    fun mavenRepositoryPathFromUserHomeM2SettingsTest(systemProperties: SystemProperties, environmentVariables: EnvironmentVariables) {
+        clearLocalM2MachineOverrides(systemProperties, environmentVariables)
+
         val userHomeOverridden = temp.toPath()
         val m2SettingsPath = userHomeOverridden.resolve(".m2")
         m2SettingsPath.createDirectories()
@@ -86,7 +93,9 @@ class MavenLocalRepositoryTest {
 
     @Test
     @ExtendWith(SystemStubsExtension::class)
-    fun mavenRepositoryPathFromM2HomeSettingsTest(environmentVariables: EnvironmentVariables) {
+    fun mavenRepositoryPathFromM2HomeSettingsTest(systemProperties: SystemProperties, environmentVariables: EnvironmentVariables) {
+        clearLocalM2MachineOverrides(systemProperties, environmentVariables)
+
         val m2HomeOverridden = temp.toPath()
         val m2SettingsPath = m2HomeOverridden.resolve("conf")
         m2SettingsPath.createDirectories()
@@ -107,4 +116,13 @@ class MavenLocalRepositoryTest {
     )
 
     private fun randomString() = UUID.randomUUID().toString()
+
+    /**
+     * Temporarily resets custom maven settings of the local machine to control the test configuration completely.
+     */
+    private fun clearLocalM2MachineOverrides(systemProperties: SystemProperties, environmentVariables: EnvironmentVariables) {
+        systemProperties.set("maven.repo.local", "")
+        systemProperties.set("user.home", Path("nothing-to-see-here").absolutePathString())
+        environmentVariables.set("M2_HOME", "")
+    }
 }
