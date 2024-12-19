@@ -10,7 +10,6 @@ import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.schema.CatalogDependency
-import org.jetbrains.amper.frontend.schema.CatalogKey
 import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.DependencyScope
@@ -26,7 +25,7 @@ internal fun instantiateKspProcessor(
 ): Any? {
     val text = scalarValue?.textValue ?: return null
     return when {
-        text.startsWith("$") -> CatalogKspProcessorDeclaration(CatalogKey(text.substring(1)).applyPsiTrace(scalarValue.sourceElement))
+        text.startsWith("$") -> CatalogKspProcessorDeclaration(TraceableString(text.substring(1)).applyPsiTrace(scalarValue.sourceElement))
         text.startsWith(".") -> ModuleKspProcessorDeclaration(text.asAbsolutePath().asTraceable().applyPsiTrace(scalarValue.sourceElement))
         else -> MavenKspProcessorDeclaration(TraceableString(text).applyPsiTrace(scalarValue.sourceElement))
     }
@@ -97,7 +96,7 @@ internal fun instantiateDependency(text: String, sourceElement: PsiElement?): De
             it::path.valueBase?.doApplyPsiTrace(sourceElement)
         }
         text.startsWith("$") -> CatalogDependency().also {
-            it.catalogKey = CatalogKey(text.substring(1)).applyPsiTrace(sourceElement)
+            it.catalogKey = text.substring(1)
             it::catalogKey.valueBase?.doApplyPsiTrace(sourceElement)
         }
         else -> ExternalMavenDependency().also {

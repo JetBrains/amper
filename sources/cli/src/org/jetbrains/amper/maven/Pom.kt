@@ -108,12 +108,12 @@ private fun AmperModule.singleProductionFragmentOrNull(platform: Platform) = if 
 private fun MavenDependency.toPomDependency(): Dependency {
     // TODO the knowledge of this representation should live in the frontend only, and the components should be
     //  accessible in a type-safe way directly on the MavenDependency type.
-    val parts = coordinates.split(":")
+    val parts = coordinates.value.split(":")
 
     val dependency = Dependency()
-    dependency.groupId = parts.getOrNull(0) ?: error("Missing group in dependency notation '$coordinates'")
-    dependency.artifactId = parts.getOrNull(1) ?: error("Missing artifact ID in dependency notation '$coordinates'")
-    dependency.version = parts.getOrNull(2) ?: error("Missing version in dependency notation '$coordinates'")
+    dependency.groupId = parts.getOrNull(0) ?: error("Missing group in dependency notation '${coordinates.value}'")
+    dependency.artifactId = parts.getOrNull(1) ?: error("Missing artifact ID in dependency notation '${coordinates.value}'")
+    dependency.version = parts.getOrNull(2) ?: error("Missing version in dependency notation '${coordinates.value}'")
     dependency.classifier = parts.getOrNull(3)
     dependency.scope = mavenScopeName()
     return dependency
@@ -151,7 +151,7 @@ private fun DefaultScopedNotation.mavenScopeName(): String = when {
 }
 
 private fun DefaultScopedNotation.userReadableCoordinates(): String = when (this) {
-    is MavenDependency -> coordinates
+    is MavenDependency -> coordinates.value
     is LocalModuleDependency -> module.userReadableName
     else -> toString()
 }

@@ -4,30 +4,12 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
 import kotlinx.coroutines.runBlocking
-import org.intellij.lang.annotations.Language
-import org.jetbrains.amper.core.Result
-import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.Message
-import org.jetbrains.amper.dependency.resolution.Resolver
-import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
-import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.test.TestUtil
-import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
-import kotlin.io.path.exists
-import kotlin.io.path.name
 import kotlin.test.Test
-import kotlin.test.assertTrue
-import kotlin.test.fail
 
 /**
  * Resolved module dependencies graph for the test project 'compose-multiplatform' is almost identical to what Gradle resolves*.
@@ -43,13 +25,13 @@ import kotlin.test.fail
  *    It will be fixed in the nearest future (as soon as Amper IDE plugin started calling
  *    CLI for running application instead of reusing module classpath from the Workspace model)
  */
-class ModuleDependenciesGraphMultiplatformTest {
+class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 
     private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("frontend/dr/testData/projects")
 
     @Test
     fun `test sync empty jvm module`() {
-        val aom = getTestProjectModel("jvm-empty-project")
+        val aom = getTestProjectModel("jvm-empty-project", testDataRoot)
 
         kotlin.test.assertEquals(aom.modules[0].fragments.map { it.name }.toSet(),  setOf("jvm", "jvmTest"), "")
 
@@ -57,7 +39,7 @@ class ModuleDependenciesGraphMultiplatformTest {
         val jvmTestFragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
                 module = "jvm-empty-project",
                 expected = """module:jvm-empty-project
 +--- dep:jvm-empty-project:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
@@ -91,7 +73,7 @@ class ModuleDependenciesGraphMultiplatformTest {
 
     @Test
     fun `test shared@ios dependencies graph`() {
-        val aom = getTestProjectModel("compose-multiplatform")
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val sharedIosFragmentDeps = runBlocking {
             doTest(
@@ -343,7 +325,7 @@ class ModuleDependenciesGraphMultiplatformTest {
 
     @Test
     fun `test shared@iosX64 dependencies graph`() {
-        val aom = getTestProjectModel("compose-multiplatform")
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
         val iosAppIosX64FragmentDeps = runBlocking {
             doTest(
                 aom,
@@ -571,7 +553,7 @@ class ModuleDependenciesGraphMultiplatformTest {
 
     @Test
     fun `test shared@iosX64Test dependencies graph`() {
-        val aom = getTestProjectModel("compose-multiplatform")
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
         val iosAppIosX64FragmentDeps = runBlocking {
             doTest(
                 aom,
@@ -813,7 +795,7 @@ class ModuleDependenciesGraphMultiplatformTest {
      */
     @Test
     fun `test ios-app@iosX64Test dependencies graph`() {
-        val aom = getTestProjectModel("compose-multiplatform")
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
         val iosAppIosX64FragmentDeps = runBlocking {
             doTest(
                 aom,
@@ -1045,7 +1027,7 @@ class ModuleDependenciesGraphMultiplatformTest {
 
     @Test
     fun `test ios-app@ios dependencies graph`() {
-        val aom = getTestProjectModel("compose-multiplatform")
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val iosAppIosFragmentDeps = runBlocking {
             doTest(
@@ -1297,7 +1279,7 @@ class ModuleDependenciesGraphMultiplatformTest {
 
     @Test
     fun `test ios-app@iosX64 dependencies graph`() {
-        val aom = getTestProjectModel("compose-multiplatform")
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
         val iosAppIosX64FragmentDeps = runBlocking {
             doTest(
                 aom,
@@ -1527,7 +1509,7 @@ class ModuleDependenciesGraphMultiplatformTest {
     // todo (AB) : It seems it is caused by resolving RUNTIME version of library instead of COMPILE one being resolved by IdeSync.
     @Test
     fun `test android-app@android dependencies graph`() {
-        val aom = getTestProjectModel("compose-multiplatform")
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val androidAppAndroidFragmentDeps = runBlocking {
             doTest(
@@ -1924,7 +1906,7 @@ class ModuleDependenciesGraphMultiplatformTest {
 
     @Test
     fun `test shared@android dependencies graph`() {
-        val aom = getTestProjectModel("compose-multiplatform")
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val sharedAndroidFragmentDeps = runBlocking {
             doTest(
@@ -2317,115 +2299,5 @@ class ModuleDependenciesGraphMultiplatformTest {
                 """.trimMargin(),
             sharedAndroidFragmentDeps
         )
-    }
-
-    protected suspend fun doTest(
-        aom: Model,
-        resolutionInput: ResolutionInput,
-        verifyMessages: Boolean = true,
-        @Language("text") expected: String? = null,
-        module: String? = null,
-        fragment: String? = null,
-        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
-    ): DependencyNode {
-        val graph =
-            with(moduleDependenciesResolver) {
-                aom.modules.resolveDependencies(resolutionInput)
-            }
-
-//        graph.verifyGraphConnectivity()
-        if (verifyMessages) {
-            graph.distinctBfsSequence().forEach {
-                val messages = it.messages.filterMessages()
-                assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
-            }
-        }
-
-        val subGraph = when {
-            module != null && fragment != null -> DependencyNodeHolder("Fragment '$module.$fragment' dependencies", graph.fragmentDeps(module, fragment), emptyContext {})
-            module != null -> graph.moduleDeps(module)
-            else -> graph
-        }
-
-        expected?.let {
-            assertEquals(expected, subGraph)
-        }
-        return subGraph
-    }
-
-    private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
-        kotlin.test.assertEquals(expected, root.prettyPrint().trimEnd())
-
-    protected suspend fun downloadAndAssertFiles(
-        files: String,
-        root: DependencyNode,
-        withSources: Boolean = false,
-        checkAutoAddedDocumentation: Boolean = true
-    ) {
-        Resolver().downloadDependencies(root, withSources)
-        assertFiles(
-            files,
-            root,
-            withSources,
-            checkExistence = true,
-            checkAutoAddedDocumentation = checkAutoAddedDocumentation
-        )
-    }
-
-    // todo (AB) : Reuse utility methods from dependence-resolution test module
-    protected fun assertFiles(
-        files: String, root: DependencyNode,
-        withSources: Boolean = false,
-        checkExistence: Boolean = false,// could be set to true only in case dependency files were downloaded by caller already
-        checkAutoAddedDocumentation: Boolean = true // auto added documentation files are skipped fom check if this flag is false.
-    ) {
-        root.distinctBfsSequence()
-            .filterIsInstance<MavenDependencyNode>()
-            .flatMap { it.dependency.files(withSources) }
-            .filterNot { !checkAutoAddedDocumentation && it.isAutoAddedDocumentation }
-            .mapNotNull { runBlocking { it.getPath() } }
-            .sortedBy { it.name }
-            .toSet()
-            .let {
-                kotlin.test.assertEquals(files, it.joinToString("\n") { it.name })
-                if (checkExistence) {
-                    it.forEach {
-                        check(it.exists()) {
-                            "File $it was returned from dependency resolution, but is missing on disk"
-                        }
-                    }
-                }
-            }
-    }
-
-    private fun DependencyNode.moduleDeps(name: String): ModuleDependencyNodeWithModule = children
-        .filterIsInstance<ModuleDependencyNodeWithModule>()
-        .single { it.module.userReadableName == name }
-
-    private fun DependencyNode.fragmentDeps(module: String, fragment: String) =
-        moduleDeps(module).children
-            .filterIsInstance<DirectFragmentDependencyNodeHolder>()
-            .filter { it.fragment.name == fragment }
-
-    private fun getTestProjectModel(testProjectName: String): Model {
-        val projectPath = testDataRoot.resolve(testProjectName)
-        val aom = with(object : ProblemReporterContext {
-            override val problemReporter: ProblemReporter = TestProblemReporter()
-        }) {
-            val amperProjectContext =
-                StandaloneAmperProjectContext.create(projectPath, null) ?: fail("Fails to create test project context")
-            when (val result = SchemaBasedModelImport.getModel(amperProjectContext)) {
-                is Result.Failure -> throw result.exception
-                is Result.Success -> result.value
-            }
-        }
-        return aom
-    }
-
-    companion object {
-        internal val REDIRECTOR_MAVEN2 = listOf("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
-
-        fun List<Message>.defaultFilterMessages(): List<Message> =
-            filter { "Downloaded " !in it.text && "Resolved " !in it.text }
     }
 }

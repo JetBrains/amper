@@ -5,6 +5,8 @@
 package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.Modifiers
@@ -33,9 +35,8 @@ fun replaceComposeOsSpecific(other: ExternalMavenDependency) = when {
                     "org.jetbrains.compose.desktop:desktop-jvm",
                     "org.jetbrains.compose.desktop:desktop-jvm-${detect().familyArch}"
                 )
-
-            scope = other.scope
-            exported = other.exported
+            this::coordinates.valueBase?.withTraceFrom(other::coordinates.valueBase)
+            copyFrom(other)
         }
 
     other.coordinates.startsWith("org.jetbrains.compose.desktop:desktop:") ->
@@ -44,8 +45,8 @@ fun replaceComposeOsSpecific(other: ExternalMavenDependency) = when {
                     "org.jetbrains.compose.desktop:desktop",
                     "org.jetbrains.compose.desktop:desktop-jvm-${detect().familyArch}"
                 )
-            scope = other.scope
-            exported = other.exported
+            this::coordinates.valueBase?.withTraceFrom(other::coordinates.valueBase)
+            copyFrom(other)
         }
 
     else -> other

@@ -369,7 +369,7 @@ class KMPPBindingPluginPart(
                                 { implementation(it) }
                             }
                         when (externalDependency) {
-                            is MavenDependency -> depFunction(externalDependency.coordinates)
+                            is MavenDependency -> depFunction(externalDependency.coordinates.value)
                             is LocalModuleDependency -> {
                                 val source = externalDependency.module.source
                                 if (source is AmperModuleInvalidPathSource) {

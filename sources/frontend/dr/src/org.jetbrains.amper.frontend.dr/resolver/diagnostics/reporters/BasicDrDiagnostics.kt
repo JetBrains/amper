@@ -10,13 +10,19 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Message
+import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.dependency.resolution.message
+import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.api.Traceable
+import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.mapLevelToSeverity
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.mapSeverityToLevel
 import org.jetbrains.amper.frontend.dr.resolver.fragmentDependencies
+import org.jetbrains.amper.frontend.getLineAndColumnRangeInPsiFile
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 
@@ -44,11 +50,38 @@ class BasicDrDiagnostics: DrDiagnosticsReporter{
                     // todo (AB) : improve showing errors/warnings
                     // todo (AB) : - don't show error related to transitive dependency if it is among direct ones (show only there)
                     // todo (AB) : - improve error message about transitive dependencies
-                    val buildProblem = DependencyBuildProblem(node, directDependency, message, level, psiElement)
+
+                    val refinedErrorMessage = refineErrorMessage(message, node, directDependency)
+                    val buildProblem = DependencyBuildProblem(node, directDependency, refinedErrorMessage, level, psiElement)
                     problemReporter.reportMessage(buildProblem)
                 }
             }
         }
+    }
+
+    private fun refineErrorMessage(message: Message, node: DependencyNode, directDependency: DirectFragmentDependencyNodeHolder): Message {
+        // direct node could have version traces only
+        if (message.severity >= Severity.ERROR && node == directDependency.dependencyNode && node is MavenDependencyNode) {
+            val versionTrace = (directDependency.notation as? org.jetbrains.amper.frontend.MavenDependency)?.coordinates?.resolveVersionTrace()
+            if (versionTrace != null && versionTrace.value == node.dependency.version && versionTrace.trace is PsiTrace) {
+                val psiElement = (versionTrace.trace as? PsiTrace)?.psiElement
+                if (psiElement != null && versionTrace.value == node.dependency.version) {
+                    val range = getLineAndColumnRangeInPsiFile(psiElement)
+                    return message.copy(
+                        text = message.text +
+                                ". The version ${node.dependency.version} is defined at ${psiElement.containingFile.name}:${range.start.line}"
+                    )
+                }
+            }
+        }
+
+        return message
+    }
+
+
+
+    private fun Traceable.resolveVersionTrace(): TraceableVersion? {
+        return (this as? TraceableVersion) ?: this.trace?.computedValueTrace?.resolveVersionTrace()
     }
 }
 

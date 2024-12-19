@@ -37,7 +37,7 @@ data class ModuleKspProcessorDeclaration(
 
 data class CatalogKspProcessorDeclaration(
     @DependencyKey
-    val catalogKey: CatalogKey
+    val catalogKey: TraceableString
 ) : KspProcessorDeclaration
 
 /**

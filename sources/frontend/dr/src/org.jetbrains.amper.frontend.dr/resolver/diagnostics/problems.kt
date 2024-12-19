@@ -35,13 +35,13 @@ interface DrDiagnosticsReporter {
  * Traverse the entire dependencies graph collecting build problems for every node with the help of predefined
  * list of diagnostics reporters
  */
-fun collectBuildProblems(graph: DependencyNodeHolder, problemReporter: NoOpCollectingProblemReporter, level: Level) =
+fun collectBuildProblems(graph: DependencyNode, problemReporter: NoOpCollectingProblemReporter, level: Level) =
     collectBuildProblems(graph, problemReporter, level, reporters)
 
 /**
  * Traverse the entire dependencies graph collecting build problems for every node.
  */
-fun collectBuildProblems(graph: DependencyNodeHolder, problemReporter: NoOpCollectingProblemReporter, level: Level, diagnosticReporters: List<DrDiagnosticsReporter>)/*: Collection<BuildProblem>*/{
+fun collectBuildProblems(graph: DependencyNode, problemReporter: NoOpCollectingProblemReporter, level: Level, diagnosticReporters: List<DrDiagnosticsReporter>)/*: Collection<BuildProblem>*/{
     for (node in graph.distinctBfsSequence()) {
         //if (node is MavenDependencyNode) {
         //  node.dependency

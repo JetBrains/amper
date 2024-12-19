@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 
@@ -177,7 +178,7 @@ interface LocalModuleDependency : DefaultScopedNotation {
 }
 
 data class MavenDependency(
-    val coordinates: String,
+    val coordinates: TraceableString,
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,

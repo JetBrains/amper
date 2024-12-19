@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
+import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
@@ -55,7 +56,7 @@ object UselessSettingValue : AomSingleModuleDiagnosticFactory {
 
 private class UselessSetting(
     private val settingProp: ValueBase<*>,
-    private val precedingValue: ValueBase<*>?,
+    private val precedingValue: Traceable?,
 ) : PsiBuildProblem(Level.Redundancy) {
     override val element: PsiElement
         get() = settingProp.extractPsiElement()

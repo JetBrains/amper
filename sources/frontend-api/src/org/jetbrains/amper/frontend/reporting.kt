@@ -92,7 +92,7 @@ private fun reportError(
     return null
 }
 
-internal fun getLineAndColumnRangeInPsiFile(node: PsiElement): LineAndColumnRange {
+fun getLineAndColumnRangeInPsiFile(node: PsiElement): LineAndColumnRange {
     val document: Document = node.containingFile.viewProvider.document
     val textRange = node.textRange
     return LineAndColumnRange(

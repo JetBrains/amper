@@ -52,7 +52,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         val coordinates = parseCoordinates()
         val dependencyNode = coordinates
             ?.let { context.toMavenDependencyNode(coordinates) }
-            ?: UnresolvedMavenDependencyNode(this.coordinates, context)
+            ?: UnresolvedMavenDependencyNode(this.coordinates.value, context)
 
         val node = DirectFragmentDependencyNodeHolder(
             "dep:${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}",

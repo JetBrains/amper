@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
@@ -32,7 +32,10 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.unsafe
+import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
@@ -65,7 +68,6 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.asAbsolutePath
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.reflect.KMutableProperty0
 
 /**
  * Module wrapper to hold also chosen catalog.
@@ -205,16 +207,14 @@ private fun ProblemReporterContext.addBuiltInCatalog(
     val compose = commonSettings?.compose
     val serialization = commonSettings?.kotlin?.serialization
     val builtInCatalog = BuiltInCatalog(
-        serializationVersion = serialization?.let { versionOrNull(
-            serialization.version.takeIf { serialization.enabled },
-            serialization::version,
-            UsedVersions.kotlinxSerializationVersion
-        ) },
-        composeVersion = compose?.let { versionOrNull(
-            compose.version?.takeIf { compose.enabled },
-            compose::version,
-            UsedVersions.composeVersion
-        ) },
+        serializationVersion = serialization?.version?.takeIf { serialization.enabled }
+            ?.let {
+                version(TraceableVersion(it, serialization::version.valueBase!!), UsedVersions.kotlinxSerializationVersion)
+            },
+        composeVersion = compose?.version?.takeIf { compose.enabled }
+            ?.let {
+                version(TraceableVersion(it, compose::version.valueBase!!), UsedVersions.composeVersion)
+            },
     )
     val catalogs = otherCatalog?.let { listOf(it) }.orEmpty() + builtInCatalog
     val compositeCatalog = CompositeVersionCatalog(catalogs)
@@ -222,26 +222,25 @@ private fun ProblemReporterContext.addBuiltInCatalog(
 }
 
 @OptIn(NonIdealDiagnostic::class)
-private fun ProblemReporterContext.versionOrNull(
-    version: String?,
-    property: KMutableProperty0<*>,
+private fun ProblemReporterContext.version(
+    version: TraceableVersion,
     fallbackVersion: String
-): String? {
-    return version?.let {
-        // we validate the version only for emptiness because maven artifacts allow any string as a version
-        //  that's why we cannot provide a precise validation for non-empty strings
-        it.ifEmpty {
-            problemReporter.reportMessage(
-                BuildProblemImpl("empty.version.string",
-                    property.extractPsiElementOrNull()?.let { it1 -> PsiBuildProblemSource(it1) }
-                        ?: GlobalBuildProblemSource,
-                    SchemaBundle.message("empty.version.string"),
-                    Level.Error
-                )
+): TraceableString {
+    // we validate the version only for emptiness because maven artifacts allow any string as a version
+    //  that's why we cannot provide a precise validation for non-empty strings
+    return if (!version.value.isEmpty()) version
+    else {
+        problemReporter.reportMessage(
+            BuildProblemImpl(
+                "empty.version.string",
+                version.trace?.extractPsiElementOrNull()?.let { it1 -> PsiBuildProblemSource(it1) }
+                    ?: GlobalBuildProblemSource,
+                SchemaBundle.message("empty.version.string"),
+                Level.Error
             )
-            // fallback to avoid double errors
-            fallbackVersion
-        }
+        )
+        // fallback to avoid double errors
+        TraceableString(fallbackVersion)
     }
 }
 
@@ -519,7 +518,7 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Amp
     when (this) {
         is ExternalMavenDependency -> MavenDependency(
             // TODO Report absence of coordinates.
-            coordinates,
+            TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!),
             scope.compile,
             scope.runtime,
             exported,

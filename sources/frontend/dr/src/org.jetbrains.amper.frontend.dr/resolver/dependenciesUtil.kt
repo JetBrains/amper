@@ -57,7 +57,7 @@ internal fun parseCoordinates(coordinates: String): MavenCoordinates? {
 }
 
 internal fun MavenDependency.parseCoordinates(): MavenCoordinates? {
-    return parseCoordinates(this.coordinates)
+    return parseCoordinates(this.coordinates.value)
 }
 
 fun MavenDependencyNode.mavenCoordinates(suffix: String? = null): MavenCoordinates {

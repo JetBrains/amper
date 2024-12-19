@@ -8,7 +8,7 @@ import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.api.with
+import org.jetbrains.amper.frontend.api.withPrecedingValue
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schema.Base
@@ -302,7 +302,7 @@ fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
 
 /** Trace from override value, with the preceding value as base. */
 context(MergeCtxWithProp<T, V>, MergeCtx<*>) private val <T : Any, V> mergedTrace
-    get() = overwriteProp!!.trace?.with(precedingValue = baseProp)
+    get() = overwriteProp!!.trace?.withPrecedingValue(precedingValue = baseProp)
 
 /** Trace from override value, with no preceding value. */
 context(MergeCtxWithProp<T, V>, MergeCtx<*>) private val <T : Any, V> explicitTrace

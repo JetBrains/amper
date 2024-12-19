@@ -169,7 +169,7 @@ sealed class ValueBase<T>(
     val unsafe: T? get() = myValue ?: default?.let { default ->
         if (default is Default.Dependent<*, *>) {
             default.property.isAccessible = true
-            trace = DependentValueTrace(default.property.valueBase)
+            trace = DefaultValueDependentTrace(default.property.valueBase)
         }
         default.value
     }

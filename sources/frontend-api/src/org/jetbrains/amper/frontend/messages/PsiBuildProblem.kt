@@ -10,7 +10,7 @@ import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
-import org.jetbrains.amper.frontend.api.DependentValueTrace
+import org.jetbrains.amper.frontend.api.DefaultValueDependentTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
@@ -35,8 +35,8 @@ fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? {
 
 fun Traceable.extractPsiElement(): PsiElement =
     when (val trace = trace) {
-        is DependentValueTrace -> {
-            trace.precedingValue?.extractPsiElement()
+        is DefaultValueDependentTrace -> {
+            trace.computedValueTrace?.extractPsiElement()
                 // we assume that precedingValue is not null, the nullable preceding value is a programmatic error in case of DependentValueTrace
                 ?: error { "Can't extract PSI element from traceable ${this}. Preceding value is null" }
         }
@@ -50,7 +50,7 @@ fun Traceable.extractPsiElement(): PsiElement =
     }
 
 fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
-    is DependentValueTrace -> this.precedingValue?.trace?.extractPsiElementOrNull()
+    is DefaultValueDependentTrace -> this.computedValueTrace?.trace?.extractPsiElementOrNull()
     is PsiTrace -> psiElement
     is BuiltinCatalogTrace -> null
 }

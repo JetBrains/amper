@@ -27,14 +27,14 @@ interface VersionCatalog {
     /**
      * Get dependency notation by key.
      */
-    fun findInCatalog(key: TraceableString): TraceableString?
+    fun findInCatalog(key: String): TraceableString?
 
     /**
      * Get dependency notation by key. Reports on a missing value.
      */
     context(ProblemReporterContext)
     fun findInCatalogWithReport(key: TraceableString): TraceableString? {
-        val value = findInCatalog(key)
+        val value = findInCatalog(key.value)
         if (value == null) {
             when (val trace = key.trace) {
                 is PsiTrace -> {

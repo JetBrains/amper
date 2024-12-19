@@ -11,6 +11,10 @@ import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.ancestralPath
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
+import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.TraceableVersion
+import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 
@@ -27,24 +31,24 @@ private val kotlinTestTestNG = kotlinDependencyOf("kotlin-test-testng")
 private val kotlinParcelizeRuntime = kotlinDependencyOf("kotlin-parcelize-runtime")
 
 private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
-    coordinates = "org.jetbrains.kotlin:$artifactId:${UsedVersions.kotlinVersion}",
+    coordinates = library("org.jetbrains.kotlin:$artifactId", UsedVersions.kotlinVersion),
 )
+// todo (AB) : Why libraries are crated here insteod of being taken from built-in catalogues?
+private fun kotlinxSerializationCoreDependency(version: TraceableVersion) = MavenDependency(
+    coordinates = library("org.jetbrains.kotlinx:kotlinx-serialization-core", version),
+).withTraceFrom(version)
 
-private fun kotlinxSerializationCoreDependency(version: String) = MavenDependency(
-    coordinates = "org.jetbrains.kotlinx:kotlinx-serialization-core:$version",
-)
+private fun kotlinxSerializationFormatDependency(format: String, version: TraceableString) = MavenDependency(
+    coordinates = library("org.jetbrains.kotlinx:kotlinx-serialization-$format", version),
+).withTraceFrom(version)
 
-private fun kotlinxSerializationFormatDependency(format: String, version: String) = MavenDependency(
-    coordinates = "org.jetbrains.kotlinx:kotlinx-serialization-$format:$version",
-)
+private fun composeRuntimeDependency(composeVersion: TraceableString) = MavenDependency(
+    coordinates = library("org.jetbrains.compose.runtime:runtime", composeVersion),
+).withTraceFrom(composeVersion)
 
-private fun composeRuntimeDependency(composeVersion: String) = MavenDependency(
-    coordinates = "org.jetbrains.compose.runtime:runtime:$composeVersion",
-)
-
-private fun composeResourcesDependency(composeVersion: String) = MavenDependency(
-    coordinates = "org.jetbrains.compose.components:components-resources:$composeVersion",
-)
+private fun composeResourcesDependency(composeVersion: TraceableString) = MavenDependency(
+    coordinates = library("org.jetbrains.compose.components:components-resources", composeVersion),
+).withTraceFrom(composeVersion)
 
 /**
  * Add automatically-added implicit dependencies to default module impl.
@@ -104,19 +108,20 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
         addAll(inferredTestDependencies())
     }
     if (settings.kotlin.serialization.enabled) {
+        val kotlinSerializationVersion = TraceableVersion(settings.kotlin.serialization.version, settings.kotlin.serialization::version.valueBase)
         // if kotlinx.serialization plugin is enabled, we need the @Serializable annotation, which is in core
-        add(kotlinxSerializationCoreDependency(settings.kotlin.serialization.version))
+        add(kotlinxSerializationCoreDependency(kotlinSerializationVersion))
 
         val format = settings.kotlin.serialization.format
         if (format != null && format != legacySerializationFormatNone) {
-            add(kotlinxSerializationFormatDependency(format, settings.kotlin.serialization.version))
+            add(kotlinxSerializationFormatDependency(format, kotlinSerializationVersion))
         }
     }
     if (settings.android.parcelize.enabled) {
         add(kotlinParcelizeRuntime)
     }
     if (settings.compose.enabled) {
-        val composeVersion = checkNotNull(settings.compose.version)
+        val composeVersion = TraceableVersion(checkNotNull(settings.compose.version), settings.compose::version.valueBase)
         add(composeRuntimeDependency(composeVersion))
 
         // Have to add dependency because generated code depends on it
@@ -143,8 +148,8 @@ private fun Platform.supportsJvmTestFrameworks() = this == Platform.JVM || this 
 
 private val MavenDependency.groupAndArtifact: String
     get() {
-        val parts = coordinates.split(":", limit = 3)
+        val parts = coordinates.value.split(":", limit = 3)
         // Some tests don't have actual coordinates, maybe in real life we might also not have a group:artifact prefix.
         // This is not the place to fail if we want validation on maven coordinates, so we just go "best effort" here.
-        return if (parts.size >= 2) "${parts[0]}:${parts[1]}" else coordinates
+        return if (parts.size >= 2) "${parts[0]}:${parts[1]}" else coordinates.value
     }

@@ -13,37 +13,70 @@ import java.nio.file.Path
  * It can be a PSI element, or a synthetic trace in case the property has been constructed programmatically.
  */
 sealed interface Trace {
-    val precedingValue: ValueBase<*>?
+    /**
+     * Old value defined initially and suppressed by merge or inheritance during model building,
+     * it could be a chain of the subsequent preceding values built during merge of templates and module file definitions.
+     */
+    val precedingValue: ValueBase<*>? // old value suppressed by merge or inheritance
+
+    /**
+     * If the value of a property is computed based on the value of another property, then trace to that value is registered here.
+     */
+    val computedValueTrace: Traceable?
 }
 
-data class DependentValueTrace(
-    override val precedingValue: ValueBase<*>? = null,
+
+/**
+ * This is for cases when there is no PSI element for the value being calculated.
+ */
+data class DefaultValueDependentTrace(
+    override val computedValueTrace: Traceable? = null,
+    override val precedingValue: ValueBase<*>? = null
 ) : Trace
 
 /**
- * Property with this trace originates from the node of a PSI tree, in most cases from the manifest file.
+ * The Property with this trace originates from the node of a PSI tree, in most cases from the manifest file.
  */
 data class PsiTrace(
     val psiElement: PsiElement,
     override val precedingValue: ValueBase<*>? = null,
+    override val computedValueTrace: Traceable? = null,
 ) : Trace
 
 /**
- * Property with this trace originates from the version catalog provided by the toolchain.
+ * The Property with this trace originates from the version catalog provided by the toolchain.
  */
 data class BuiltinCatalogTrace(
     val catalog: VersionCatalog,
+    override val computedValueTrace: Traceable? = null,
 ) : Trace {
     override val precedingValue: ValueBase<*>? = null
 }
 
-fun <V> Trace.with(
-    precedingValue: ValueBase<V>? = null,
-): Trace = when {
-    precedingValue == null -> this
-    this is PsiTrace -> copy(precedingValue = precedingValue)
-    this is DependentValueTrace -> copy(precedingValue = precedingValue)
-    else -> this
+fun <V> Trace.withPrecedingValue(precedingValue: ValueBase<V>?): Trace =
+    if (precedingValue == null)
+        this
+    else {
+        when(this) {
+            is PsiTrace -> this.copy(precedingValue = precedingValue)
+            is DefaultValueDependentTrace -> this.copy(precedingValue = precedingValue)
+            is BuiltinCatalogTrace -> this
+        }
+    }
+
+fun Trace.withComputedValueTrace(computedValueTrace: Traceable?): Trace =
+    if (computedValueTrace == null)
+        this
+    else {
+        when(this) {
+            is PsiTrace -> this.copy(computedValueTrace = computedValueTrace)
+            is DefaultValueDependentTrace -> this.copy(computedValueTrace = computedValueTrace)
+            is BuiltinCatalogTrace -> this.copy(computedValueTrace = computedValueTrace)
+        }
+    }
+
+fun Traceable.withComputedValueTrace(substitutionTrace: Traceable?) {
+    trace = trace?.withComputedValueTrace(substitutionTrace)
 }
 
 /**
@@ -86,10 +119,21 @@ class TraceablePath(
         this === other || (other as? TraceablePath)?.value == value
 }
 
+class TraceableVersion(value: String, source: ValueBase<String?>?): TraceableString(value) {
+    init {
+        trace = source?.trace
+    }
+
+    override fun hashCode() = value.hashCode()
+    override fun equals(other: Any?) =
+        this === other || (other as? TraceableString)?.value == this.value
+}
+
 fun <T : Traceable> T.withTraceFrom(other: Traceable?): T = apply { trace = other?.trace }
 
 /**
  * Adds a trace to this [Traceable] pointing to the given [element], and returns this [Traceable] for chaining.
  * If [element] is null, the trace is set to null.
  */
+// todo (AB) : Remove nullability here.
 fun <T : Traceable> T.applyPsiTrace(element: PsiElement?) = apply { trace = element?.let(::PsiTrace) }

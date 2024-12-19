@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.ValueBase
 import java.nio.file.Path
 
 @EnumOrderSensitive
@@ -56,11 +57,5 @@ class CatalogDependency : Dependency() {
 
     @SchemaDoc("Dependency from [a dependency catalog](#dependencyversion-catalogs)")
     @DependencyKey
-    var catalogKey by value<CatalogKey>()
-}
-
-class CatalogKey(val key: String): TraceableString(key) {
-    override fun hashCode() = key.hashCode()
-    override fun equals(other: Any?) =
-        this === other || (other as? CatalogKey)?.key == key
+    var catalogKey by value<String>()
 }
