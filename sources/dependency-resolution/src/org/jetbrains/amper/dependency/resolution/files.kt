@@ -158,7 +158,8 @@ class GradleLocalRepository(internal val filesPath: Path) : LocalRepository {
 
 /**
  * Defines an `.m2` directory structure.
- * It accepts a path to the `repository` directory or defaults to `~/.m2/repository`.
+ *
+ * It accepts a path to the [repository] directory or discovers the location using maven conventions.
  */
 class MavenLocalRepository(val repository: Path) : LocalRepository {
 
