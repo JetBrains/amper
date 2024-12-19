@@ -56,4 +56,14 @@ class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") 
     fun `settings context specificity`() {
         diagnosticsTest("settings-context-specificity", levels = arrayOf(Level.Warning))
     }
+
+    @Test
+    fun `settings no modifiers allowed`() {
+        diagnosticsTest("settings-no-modifiers-allowed", levels = arrayOf(Level.Error))
+    }
+
+    @Test
+    fun `settings context specificity valid with aliases`() {
+        diagnosticsTest("settings-context-specificity-valid-with-aliases", levels = arrayOf(Level.Warning))
+    }
 }

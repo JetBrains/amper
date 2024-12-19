@@ -1,0 +1,15 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+    - iosX64
+    - android
+
+settings@jvm:
+  <![Error] This setting can only be used without any context.!>compose<!>:
+    enabled: true
+
+settings@android:
+  kotlin:
+    <![Error] This setting can only be used without any context.!>serialization<!>:
+      format: json

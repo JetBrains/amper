@@ -1,0 +1,20 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+    - iosX64
+    - android
+
+aliases:
+  myAlias: [ jvm, android ]
+
+settings@myAlias:
+  android:
+    namespace: aaa
+
+# If we are adding leaf fragment, then `android.namespace` property is inherited.
+# We need to make sure that we are not failing on inherited properties, only
+# on merged or explicitly defined ones.
+settings@jvm:
+  kotlin:
+    verbose: true

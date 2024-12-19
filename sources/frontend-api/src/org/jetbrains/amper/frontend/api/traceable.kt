@@ -16,24 +16,35 @@ sealed interface Trace {
     val precedingValue: ValueBase<*>?
 }
 
-class DependentValueTrace(override val precedingValue: ValueBase<*>? = null) : Trace
+data class DependentValueTrace(
+    override val precedingValue: ValueBase<*>? = null,
+) : Trace
 
 /**
  * Property with this trace originates from the node of a PSI tree, in most cases from the manifest file.
  */
-class PsiTrace(val psiElement: PsiElement, override val precedingValue: ValueBase<*>? = null) : Trace
+data class PsiTrace(
+    val psiElement: PsiElement,
+    override val precedingValue: ValueBase<*>? = null,
+) : Trace
 
 /**
  * Property with this trace originates from the version catalog provided by the toolchain.
  */
-class BuiltinCatalogTrace(val catalog: VersionCatalog) : Trace {
+data class BuiltinCatalogTrace(
+    val catalog: VersionCatalog,
+) : Trace {
     override val precedingValue: ValueBase<*>? = null
 }
 
-fun <V> Trace.withPrecedingValue(precedingValue: ValueBase<V>?): Trace =
-    if (precedingValue != null && this is PsiTrace) PsiTrace(this.psiElement, precedingValue)
-    else if (precedingValue != null && this is DependentValueTrace) DependentValueTrace(precedingValue)
-    else this
+fun <V> Trace.with(
+    precedingValue: ValueBase<V>? = null,
+): Trace = when {
+    precedingValue == null -> this
+    this is PsiTrace -> copy(precedingValue = precedingValue)
+    this is DependentValueTrace -> copy(precedingValue = precedingValue)
+    else -> this
+}
 
 /**
  * An entity that can persist its trace.

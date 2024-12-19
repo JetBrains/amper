@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.KnownStringValues
+import org.jetbrains.amper.frontend.api.ContextAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -39,6 +40,7 @@ class Settings : SchemaNode() {
     @PlatformSpecific(Platform.ANDROID)
     var android by value(::AndroidSettings)
 
+    @ContextAgnostic
     @SchemaDoc("[Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework." +
             "Read more about [Compose configuration](#configuring-compose-multiplatform)")
     var compose by value(::ComposeSettings)

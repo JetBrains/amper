@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.aomBuilder.tryGetCatalogFor
+import org.jetbrains.amper.frontend.api.copy
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.Base
@@ -18,40 +19,35 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
 
 context(ProblemReporterContext)
 internal fun readTemplate(catalogFinder: VersionsCatalogProvider, file: VirtualFile): ModelInit.TemplateHolder? {
-   val converter = ConverterImpl(file.parent, catalogFinder.frontendPathResolver, this@ProblemReporterContext.problemReporter)
-   val nonProcessed = converter.convertTemplate(file) ?: return null
-   val chosenCatalog = with(converter) { catalogFinder.tryGetCatalogFor(file, nonProcessed) }
-   val processed = nonProcessed.replaceCatalogDependencies(chosenCatalog)
-   return ModelInit.TemplateHolder(processed, chosenCatalog)
+    val converter =
+        ConverterImpl(file.parent, catalogFinder.frontendPathResolver, this@ProblemReporterContext.problemReporter)
+    val nonProcessed = converter.convertTemplate(file) ?: return null
+    val chosenCatalog = with(converter) { catalogFinder.tryGetCatalogFor(file, nonProcessed) }
+    val processed = nonProcessed.replaceCatalogDependencies(chosenCatalog)
+    return ModelInit.TemplateHolder(processed, chosenCatalog)
 }
 
 context(ProblemReporterContext)
 internal fun Module.readTemplatesAndMerge(catalogFinder: AmperProjectContext): Module {
-    val readTemplates = apply
+    val readTemplates: List<Base> = apply
         ?.mapNotNull { catalogFinder.frontendPathResolver.loadVirtualFileOrNull(it.value) }
         ?.mapNotNull { readTemplate(catalogFinder, it)?.template } ?: emptyList()
-    val toMerge = readTemplates + this
 
-    val merged = toMerge.reduce { first, second -> first.merge(second, ::Template) }
+    if (readTemplates.isEmpty()) return this
+    val mergedTemplates: Base = readTemplates.reduce { base, overwrite ->
+        base.mergeTemplate(overwrite, ::Template)
+    }
 
-    val result = Module()
     // Copy non-merge-able stuff.
-    result.mergeNode(this@readTemplatesAndMerge, { result }) {
-        mergeNodeProperty(Module::product) { it }
-        mergeNodeProperty(Module::module) { it }
-        mergeNodeProperty(Module::aliases) { it }
-        mergeNodeProperty(Module::apply) { it }
+    val result = Module().also {
+        Module::product.copy(from = this, to = it)
+        Module::module.copy(from = this, to = it)
+        Module::aliases.copy(from = this, to = it)
+        Module::apply.copy(from = this, to = it)
     }
 
-    // Copy all other fields.
-    result.mergeNode(merged, { result }) {
-        mergeNodeProperty(Base::repositories) { it }
-        mergeNodeProperty(Base::settings) { it }
-        mergeNodeProperty(Base::`test-settings`) { it }
-        mergeNodeProperty(Base::dependencies) { it }
-        mergeNodeProperty(Base::`test-dependencies`) { it }
-        mergeNodeProperty(Base::tasks) { it }
-    }
+    // Merge all other fields.
+    mergedTemplates.mergeTemplate(this) { result }
 
     return result
 }

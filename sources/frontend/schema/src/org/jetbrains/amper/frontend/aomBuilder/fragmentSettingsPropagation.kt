@@ -4,8 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import org.jetbrains.amper.frontend.api.withTraceFrom
-import org.jetbrains.amper.frontend.processing.merge
+import org.jetbrains.amper.frontend.processing.mergeSettings
 import org.jetbrains.amper.frontend.schema.Settings
 
 /**
@@ -17,12 +16,12 @@ internal fun Collection<FragmentSeed>.propagateSettingsForSeeds() =
 
 internal fun mergeSettingsFrom(vararg settings: Settings?) = mergeSettingsFrom(settings.toList())
 
-private fun mergeSettingsFrom(settings: Collection<Settings?>) = when {
-    settings.isEmpty() -> null
-    settings.size == 1 -> settings.first()
-    else -> settings.filterNotNull().fold(Settings(), Settings::merge)
+private fun mergeSettingsFrom(settings: Collection<Settings?>): Settings? {
+    val nonNullSettings = settings.filterNotNull()
+    return if (nonNullSettings.isEmpty()) null
+    // We don't need to create the new instance, since [Settings::merge] does this.
+    else nonNullSettings.reduce(Settings::mergeSettings)
 }
-
 
 private fun FragmentSeed.withMergedSettingsFromAncestors(): FragmentSeed {
     // we reverse because we want to apply the furthest settings first (e.g., common) and the specific ones later
@@ -31,20 +30,10 @@ private fun FragmentSeed.withMergedSettingsFromAncestors(): FragmentSeed {
     val result = this.copy()
     result.relevantDependencies = relevantDependencies
     result.relevantTestDependencies = relevantTestDependencies
-
-    // the merge operation mutates the receiver, so we need to start from a new Settings() instance,
-    // otherwise we'll modify the original fragment settings, and this may affect other resolutions
     result.relevantSettings = mergeSettingsFrom(ancestralPath.map { it.relevantSettings })
-        ?.withTraceFrom(ancestralPath.lastOrNull { it.relevantSettings?.trace != null }?.relevantSettings)
     result.relevantTestSettings = mergeSettingsFrom(ancestralPath.map { it.relevantTestSettings })
-        ?.withTraceFrom(ancestralPath.lastOrNull { it.relevantTestSettings?.trace != null }?.relevantTestSettings)
     return result
 }
-
-//fun FragmentSeed.ancestralPath(): List<FragmentSeed> = buildList {
-//    add(this@ancestralPath)
-//    dependencies.forEach { addAll(it.ancestralPath()) }
-//}.distinct()
 
 fun FragmentSeed.ancestralPath(): Sequence<FragmentSeed> = sequence {
     val seenAncestors = mutableSetOf<FragmentSeed>()

@@ -101,6 +101,13 @@ annotation class GradleSpecific
 annotation class StandaloneSpecific
 
 /**
+ * This annotation can be used for properties to specify that they can only be used without any modifier.
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ContextAgnostic
+
+/**
  * This annotation should be applied to properties
  *  which represent shorthand values for their parent object construction
  */

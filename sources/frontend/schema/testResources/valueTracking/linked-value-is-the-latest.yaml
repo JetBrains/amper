@@ -1,0 +1,14 @@
+product:
+  type: lib
+  platforms: [ android, jvm ]
+
+apply:
+  - linked-value-is-the-latest-template.module-template.yaml
+
+settings:
+  kotlin:
+    debug: true
+
+settings@jvm:
+  kotlin:
+    deb<caret>ug: false

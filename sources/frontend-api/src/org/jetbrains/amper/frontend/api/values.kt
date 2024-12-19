@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.api
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
+import com.intellij.util.asSafely
 import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
@@ -55,7 +56,7 @@ abstract class SchemaNode : Traceable {
     /**
      * Register a value with a default depending on another property
      */
-    internal fun <T, V: Any> dependentValue(
+    internal fun <T, V : Any> dependentValue(
         property: KProperty0<T>,
         desc: String? = null,
         transformValue: (value: T?) -> V?
@@ -80,7 +81,8 @@ abstract class SchemaNode : Traceable {
     /**
      * Register a nullable value with a lazy default.
      */
-    internal fun <T : Any> nullableValue(desc: String? = null, default: () -> T?) = NullableSchemaValueProvider(Default.Lambda(desc = desc, default))
+    internal fun <T : Any> nullableValue(desc: String? = null, default: () -> T?) =
+        NullableSchemaValueProvider(Default.Lambda(desc = desc, default))
 
     override var trace: Trace? = null
         set(value) {
@@ -135,13 +137,36 @@ sealed class ValueBase<T>(
     val default: Default<T>?,
 ) : Traceable, ReadWriteProperty<SchemaNode, T> {
 
-    protected var myValue: T? = null
+    enum class ValueState {
+        /**
+         * The value has not been set yet.
+         */
+        UNSET,
+
+        /**
+         * The value has been set explicitly.
+         */
+        EXPLICIT,
+
+        /**
+         * The value has been inherited without merging.
+         */
+        INHERITED,
+
+        /**
+         * The value has been set explicitly and merged with inherited one.
+         */
+        MERGED,
+    }
+
+    private var myValue: T? = null
+
+    var state: ValueState = ValueState.UNSET
+        private set
 
     abstract val value: T
 
-    val unsafe: T? get() = valueOrDefault()
-
-    protected fun valueOrDefault(): T? = myValue ?: default?.let { default ->
+    val unsafe: T? get() = myValue ?: default?.let { default ->
         if (default is Default.Dependent<*, *>) {
             default.property.isAccessible = true
             trace = DependentValueTrace(default.property.valueBase)
@@ -152,27 +177,24 @@ sealed class ValueBase<T>(
     val withoutDefault: T? get() = myValue
 
     /**
-     * Overwrite current value, if provided value is not null.
+     * Overwrite current value if provided value is not null.
      */
-    operator fun invoke(newValue: T?): ValueBase<T> {
-        if (newValue != null) {
-            myValue = newValue
-            if (newValue is Traceable) {
-                trace = newValue.trace
-            }
-            else if (trace is PsiTrace) {
-                (trace as PsiTrace).psiElement.putUserData(linkedAmperValue, this)
-            }
-        }
-        return this
+    operator fun invoke(
+        newValue: T?,
+        newState: ValueState,
+        newTrace: Trace?,
+    ) = apply {
+        newValue ?: return@apply
+        myValue = newValue
+        state = newState
+        trace = newTrace ?: newValue.asSafely<Traceable>()?.trace
     }
-
-    open operator fun invoke(newValue: T?, onNull: () -> Unit): ValueBase<T> = invoke(newValue)
 
     override fun getValue(thisRef: SchemaNode, property: KProperty<*>) = value
 
     override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) {
         myValue = value
+        state = ValueState.EXPLICIT
     }
 
     override var trace: Trace? = null
@@ -200,26 +222,17 @@ val <T> KProperty0<T>.unsafe: T? get() {
     return if (delegate != null) delegate.unsafe else get()
 }
 
+fun <T, V> KProperty1<T, V>.copy(from: T, to: T) {
+    val fromValue = valueBase(from) ?: error("Cannot perform a copy for a non [ValueBase] backed property: $this")
+    val toValue = valueBase(to) ?: error("Cannot perform a copy for a non [ValueBase] backed property: $this")
+    toValue(fromValue.withoutDefault, fromValue.state, null)
+}
+
 /**
  * Required (non-null) schema value.
  */
 class SchemaValue<T : Any>(property: KProperty<*>, default: Default<T>?) : ValueBase<T>(property, default) {
-    override val value: T
-        get() = valueOrDefault() ?: error("No value")
-
-    /**
-     * Overwrite current value, if provided value is not null.
-     * Invoke [onNull] if it is.
-     */
-    override operator fun invoke(newValue: T?, onNull: () -> Unit): ValueBase<T> {
-        if (newValue == null) onNull() else {
-            myValue = newValue
-            if (newValue is Traceable) {
-                trace = newValue.trace
-            }
-        }
-        return this
-    }
+    override val value: T get() = unsafe ?: error("No value")
 }
 
 /**
@@ -261,6 +274,22 @@ abstract class SchemaValuesVisitor {
     }
 
     open fun visitOther(it: Any?) = Unit
+}
+
+/**
+ * Visitor that is aware of visited properties' path.
+ *
+ * **Warning!** It is relying on the fact that visiting is done in linear non-parallel way.
+ */
+abstract class PathAwareSchemaValuesVisitor : SchemaValuesVisitor() {
+    private val path: MutableList<ValueBase<*>> = mutableListOf()
+    val currentPath: List<ValueBase<*>> get() = path
+    override fun visitValue(it: ValueBase<*>) = try {
+        path.add(it)
+        super.visitValue(it)
+    } finally {
+        path.removeLast()
+    }
 }
 
 /**
