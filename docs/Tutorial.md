@@ -80,7 +80,7 @@ Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle
 
 Documentation:
 
-- [Using standalone Amper](Usage.md#using-the-standalone-amper-version-from-the-command-line)
+- [Using standalone Amper](Usage.md#using-amper-from-the-command-line)
 - [Using Gradle-based Amper](Usage.md#using-the-gradle-based-amper-version-from-the-command-line)
 - [Project layout](Documentation.md#project-layout)
 - [module file anatomy](Documentation.md#module-file-anatomy)

@@ -1,3 +1,53 @@
+### Using Amper from the command line
+
+> Amper has a self-containing executable that can be downloaded using the standard OS tools.
+
+To use the Amper CLI, you need to download the Amper executable script to your project's root folder. The script is
+a small file that downloads and runs the actual Amper CLI distribution.
+
+Depending on your operating system, use one of the following commands to download the script:
+Linux/macOS:
+```
+curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.6.0-dev-2331/cli-0.6.0-dev-2331-wrapper?download=true" && chmod +x amper
+```
+
+Windows powershell:
+```
+Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.6.0-dev-2331/cli-0.6.0-dev-2331-wrapper.bat?download=true -OutFile amper.bat
+```
+
+Alternatively, you can use any other method to download the script from the Maven repository, as long as you
+save it with the correct name and extension.
+
+After that, run the Amper script to explore what is possible using Amper CLI:
+
+```
+./amper --help
+```
+
+> The first time you run the Amper script, it will take some time to download the JDK and Amper CLI distribution.
+> Subsequent runs will be faster, as the downloaded files will be cached locally.
+
+Useful commands:
+- `amper init` to create a new Amper project
+- `amper build` to compile and link all code in the project
+- `amper test` to run tests in the project
+- `amper run` to run your application 
+- `amper clean` to remove the project's build output and caches
+
+E.g. to build and run the [JVM "Hello, World"](../examples-standalone/jvm):
+```
+cd jvm
+./amper run 
+```
+
+#### Updating Amper to a newer version
+
+Run `./amper update` to update the Amper scripts and distribution to the latest released version.
+Use the `--dev` option if you want to try the bleeding edge dev build of Amper (no guarantees are made on these builds).
+
+See `./amper update -h` for more information about the available options.
+
 ### Using the Gradle-based Amper version from the command line
 
 > To use the Gradle-based version of Amper: 
@@ -45,56 +95,6 @@ plugins {
 }
 // ...
 ```
-
-### Using the standalone Amper version from the command line
-
-> The standalone version of Amper is a self-containing executable that can be downloaded using the standard OS tools.
-
-To use the Amper CLI, you need to download the Amper executable script to your project's root folder. The script is
-a small file that downloads and runs the actual Amper CLI distribution.
-
-Depending on your operating system, use one of the following commands to download the script:
-Linux/macOS:
-```
-curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.6.0-dev-2331/cli-0.6.0-dev-2331-wrapper?download=true" && chmod +x amper
-```
-
-Windows powershell:
-```
-Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.6.0-dev-2331/cli-0.6.0-dev-2331-wrapper.bat?download=true -OutFile amper.bat
-```
-
-Alternatively, you can use any other method to download the script from the Maven repository, as long as you
-save it with the correct name and extension.
-
-After that, run the Amper script to explore what is possible using Amper CLI:
-
-```
-./amper --help
-```
-
-> The first time you run the Amper script, it will take some time to download the JDK and Amper CLI distribution.
-> Subsequent runs will be faster, as the downloaded files will be cached locally.
-
-Useful commands:
-- `amper init` to create a new Amper project
-- `amper build` to compile and link all code in the project
-- `amper test` to run tests in the project
-- `amper run` to run your application 
-- `amper clean` to remove the project's build output and caches
-
-E.g. to build and run the [JVM "Hello, World"](../examples-standalone/jvm):
-```
-cd jvm
-./amper run 
-```
-
-#### Updating standalone Amper to a newer version
-
-Run `./amper update` to update the Amper scripts and distribution to the latest released version.
-Use the `--dev` option if you want to try the bleeding edge dev build of Amper (no guarantees are made on these builds).
-
-See `./amper update -h` for more information about the available options.
 
 ### Using Amper in IntelliJ IDEA
 

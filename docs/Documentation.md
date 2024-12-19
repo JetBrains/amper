@@ -4,12 +4,9 @@ Check the [setup instructions](Setup.md)
 
 ## Basics
 
-Amper exists as a standalone build tool and also as a Gradle plugin.
-For [Gradle-based projects](#gradle-based-projects) Amper supports full Gradle interop, Gradle plugins and custom tasks.
-Certain functionality and behavior might differ between the standalone and Gradle-based Amper versions.
+Amper has as a self-containing command line tool, see the [usage instructions](Usage.md#using-amper-from-the-command-line) 
 
-See the usage instructions for the [standalone Amper version](Usage.md#using-the-standalone-amper-version-from-the-command-line) and for
-the [Gradle-based version](Usage.md#using-the-gradle-based-amper-version-from-the-command-line).
+Also, for existing Gradle projects there is [Amper Gradle plugin](#gradle-based-projects) which offers full Gradle interop. Note that certain functionality and behavior might differ between the standalone and Gradle-based Amper versions.
 
 An Amper **project** is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
 configuration. The folder with the `project.yaml` file is the project root. Modules can only be located under the

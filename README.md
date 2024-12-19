@@ -66,8 +66,8 @@ There are multiple ways to try Amper:
 
 * In the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](docs/Usage.md#using-amper-in-intellij-idea)).
 * In the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/), for the JVM, Android, and Multiplatform projects ([instructions](docs/Usage.md#using-amper-in-fleet)).
-* Using [standalone Amper from the command line](docs/Usage.md#using-the-standalone-amper-version-from-the-command-line).
-* Using [Gradle-Based Amper from the command line](docs/Usage.md#using-the-gradle-based-amper-version-from-the-command-line) to build Gradle-based Amper projects.
+* Using [Amper from the command line](docs/Usage.md#using-amper-from-the-command-line).
+* Using [Amper in existing Gradle projects](docs/Documentation.md#gradle-based-projects)
 
 ## Examples
 

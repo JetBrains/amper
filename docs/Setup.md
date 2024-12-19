@@ -8,9 +8,6 @@ Fleet comes preconfigured with the Amper support. If you use IntelliJ IDEA, inst
 The best way to get the most recent IDE versions is by using the [Toolbox App](https://www.jetbrains.com/lp/toolbox/).
 
 ## Prepare the environment
-- Install and configure the latest JDK 17+.
-- Install and configure the latest Android Studio for Android samples.
-- Install and configure the latest Xcode for iOS samples.
 
 Use the [KDoctor](https://github.com/Kotlin/kdoctor) tool to ensure that your development environment is configured correctly:
 
