@@ -130,7 +130,7 @@ class AmperBackend(val context: CliContext) {
             }
             .map { it.taskName }
             .toSet()
-        logger.info("Selected tasks to compile: ${taskNames.sortedBy { it.name }.joinToString(" ") { it.name }}")
+        logger.info("Selected tasks to compile: ${formatTaskNames(taskNames)}")
         taskExecutor.runTasksAndReportOnFailure(taskNames)
     }
 
@@ -182,9 +182,7 @@ class AmperBackend(val context: CliContext) {
             userReadableError("No publish tasks were found for specified module and repository filters")
         }
 
-        context.terminal.println("Tasks that will be executed:\n" +
-            publishTasks.sorted().joinToString("\n"))
-
+        logger.info("Selected tasks to publish: ${formatTaskNames(publishTasks)}")
         taskExecutor.runTasksAndReportOnFailure(publishTasks)
     }
 
@@ -348,6 +346,9 @@ class AmperBackend(val context: CliContext) {
 
     private fun availableModulesString() =
         resolvedModel.modules.map { it.userReadableName }.sorted().joinToString(" ")
+
+    private fun formatTaskNames(publishTasks: Collection<TaskName>) =
+        publishTasks.map { it.name }.sorted().joinToString(" ")
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 }
