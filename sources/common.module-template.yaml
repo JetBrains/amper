@@ -6,6 +6,13 @@ repositories:
       file: ../local.properties
       usernameKey: scratch.username
       passwordKey: scratch.password
+  - id: amper-maven-test
+    url: https://packages.jetbrains.team/maven/p/amper/amper-maven-test
+    publish: true
+    credentials:
+      file: ../local.properties
+      usernameKey: scratch.username
+      passwordKey: scratch.password
   - id: mavenCentral
     url: https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2
   - id: googleRepo
