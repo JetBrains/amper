@@ -21,7 +21,6 @@ internal class DependenciesTest : TestBase(Path("testResources") / "dependencies
     fun `compile runtime`() {
         aomTest("dependency-flags-runtime-compile")
     }
-
     /**
      * See: https://youtrack.jetbrains.com/issue/AMPER-3619
      */

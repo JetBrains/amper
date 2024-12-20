@@ -216,7 +216,6 @@ class AmperKspTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    @Disabled("AMPER-3957")
     fun `ksp android room`() = runTestWithCollector {
         val projectContext = setupTestDataProject("ksp-android-room")
         val generatedSchemaPath = projectContext.projectRoot.path / "generated-db-schema"
@@ -303,6 +302,8 @@ class AmperKspTest : AmperIntegrationTestBase() {
         generatedSchemaPath.deleteRecursively()
 
         val backend = AmperBackend(projectContext)
+        // [AMPER-3957]: Should be changed back to build for all platforms 'backend.build()',
+        // AMPER-395 is fixed, but some other stuff is still broken that prevent it from being uncommented
         backend.build(
             platforms = setOf(
                 Platform.JVM,
@@ -310,7 +311,7 @@ class AmperKspTest : AmperIntegrationTestBase() {
             )
         )
 
-        // AMPER-3957:
+        // [AMPER-3957]:
 //        projectContext.generatedFilesDir(module = "shared", fragment = "android").assertContainsRelativeFiles(
 //            "src/ksp/kotlin/AppDatabase_Impl.kt",
 //            "src/ksp/kotlin/TodoDao_Impl.kt",
@@ -338,6 +339,7 @@ class AmperKspTest : AmperIntegrationTestBase() {
 //        }
 
         generatedSchemaPath.assertContainsRelativeFiles(
+            // [AMPER-3957]:
 //            "android/AppDatabase/1.json",
             "jvm/AppDatabase/1.json",
         )

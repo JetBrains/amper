@@ -496,6 +496,16 @@ class MavenDependency internal constructor(
         }
     }
 
+    private fun List<Variant>.filterWithFallbackJvmEnvironment(platform: ResolutionPlatform): List<Variant> {
+        val platformVariants = this.filter { platform.type.matchesJvmEnvironment(it) }
+        return when {
+            platformVariants.withoutDocumentationAndMetadata.isNotEmpty()
+                    || platform.type.fallback == null -> platformVariants
+
+            else -> this.filter { platform.type.fallback.matchesJvmEnvironment(it) }
+        }
+    }
+
     private fun List<Variant>.filterMultipleVariantsByUnusedAttributes(): List<Variant> {
         return when {
             (this.withoutDocumentationAndMetadata.size == 1) -> this
@@ -505,6 +515,7 @@ class MavenDependency internal constructor(
                     "org.gradle.usage",
                     "org.jetbrains.kotlin.native.target",
                     "org.jetbrains.kotlin.platform.type",
+                    "org.gradle.jvm.environment"
                 )
                 val minUnusedAttrsCount = this.minOfOrNull { v ->
                     v.attributes.count { it.key !in usedAttributes }
@@ -545,8 +556,8 @@ class MavenDependency internal constructor(
                 if (it.withoutDocumentationAndMetadata.size > 1) {
                     diagnosticsReporter.addMessage(
                         Message(
-                            "More than a single variant provided",
-                            it.joinToString { it.name },
+                            "More than a single variant provided for $this",
+                            it.withoutDocumentationAndMetadata.joinToString { it.name },
                             Severity.WARNING,
                     ))
                 }
@@ -1111,6 +1122,7 @@ class MavenDependency internal constructor(
 
         val validVariants = initiallyFilteredVariants
             .filterWithFallbackPlatform(platform)
+            .filterWithFallbackJvmEnvironment(platform)
             .filterWithFallbackScope(settings.scope)
             .filterMultipleVariantsByUnusedAttributes()
 

@@ -13,7 +13,7 @@ import org.jetbrains.amper.frontend.schema.Settings
 
 
 /**
- * A seed to create new fragment.
+ * A seed to create a new fragment.
  */
 data class FragmentSeed(
     /**
@@ -44,10 +44,10 @@ data class FragmentSeed(
  * Seed generation is combined into steps:
  * 1. Determining applicable natural hierarchy sub-forest
  * 2. Reducing this hierarchy to the minimal matching one
- * 3. Replacing single leaf fragments by their closest parents (or aliases) if possible.
+ * 3. Replacing single leaf fragments with their closest parents (or aliases) if possible.
  * 4. Adding other aliases if needed.
  * 5. Adding a common fragment if there is no common natural hierarchy root between generated seeds.
- * 6. Determining dependencies between fragments, based on their platforms.
+ * 6. Determining dependencies between fragments based on their platforms.
  *
  * So, with declared platforms:
  * 1. **`[ iosArm64 ]`** - applicable natural hierarchy will be `[ native, apple, ios, iosArm64 ]`,
@@ -55,7 +55,7 @@ data class FragmentSeed(
  * so resulting fragments are **`[ ios ]`**.
  * 2. **`[ iosArm64 ]`** and alias **`myAlias: [ iosArm64 ]`** - applicable natural hierarchy will be
  * `[ native, apple, ios, iosArm64 ]`, reduced will be `[ ios, iosArm64 ]`,
- * and `iosArm64` is single leaf platform with parent being `ios`, but closest matching parent or alias is
+ * and `iosArm64` is single leaf platform with parent being `ios`, but the closest matching parent or alias is
  * `myAlias`, so resulting fragments are **`[ myAlias ]`**.
  * 3. **`[ iosArm64, iosSimulatorArm64 ]`** - applicable natural hierarchy will be `[ native, apple, ios, iosArm64, iosSimulatorArm64 ]`,
  * reduced will be `[ ios, iosArm64, iosSimulatorArm64 ]` and there are no single leaf platforms,
@@ -96,7 +96,7 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
     val reduced = buildSet {
         hierarchyTrees.entries.forEach { (_, tree) ->
             val treeLeafPlatforms = tree.map { it.key }.filter { it.isLeaf }.toSet()
-            // This is the closest element in the tree, that contains all tree's leaf platforms.
+            // This is the closest element in the tree, which contains all tree's leaf platforms.
             val closestRoot = tree
                 .filter { it.value.containsAll(treeLeafPlatforms) }
                 .minByOrNull { it.value.size }
@@ -127,12 +127,12 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
                 val matchingClosestAlias = combinedAliases.entries
                     .filter { platform in it.value }
                     .sortedBy { it.key }
-                    // Take alias only if it has only a single platform present in module.
+                    // Take alias only if it has only a single platform present in the module.
                     .filter { alias -> alias.value.filter { it in declaredLeafPlatforms }.size == 1 }
                     .minByOrNull { it.value.size }
 
                 if (matchingClosestAlias != null) {
-                    // Mark alias as used. Also mark aliases with the same platforms as used.
+                    // Mark alias as used. Also, mark aliases with the same platforms as used.
                     aliasesLeft.remove(matchingClosestAlias.key)
                     combinedAliases.entries
                         .filter { matchingClosestAlias.value == it.value }
@@ -202,7 +202,7 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
     // Do adjust dependencies.
     requiredSeeds.adjustSeedsDependencies()
 
-    // And add common fragment if needed.
+    // And add a common fragment if needed.
     if (requiredSeeds.size > 1) {
         val roots = requiredSeeds
             .filter { it.dependencies.isEmpty() }
@@ -223,7 +223,7 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
             aliases2leafPlatforms[it] ?: Platform[it]?.leaves // TODO Report if no such platform
         }.flatten()
             .toSet()
-            // Additionally, limit this platforms by declared ones.
+            // Additionally, limit these platforms by declared ones.
             .intersect(declaredLeafPlatforms)
 
     // Get leaf-platforms to settings associations.
@@ -261,7 +261,7 @@ internal fun Set<FragmentSeed>.adjustSeedsDependencies() = onEach { fragmentSeed
         it.platforms.containsAll(fragmentSeed.platforms) && it != fragmentSeed
     }
 
-    // Exclude all candidates, that include some other candidates entirely.
+    // Exclude all candidates that include some other candidates entirely.
     fragmentSeed.dependencies += dependencyCandidates.filter { candidate ->
         dependencyCandidates.none { it != candidate && candidate.platforms.containsAll(it.platforms) }
     }

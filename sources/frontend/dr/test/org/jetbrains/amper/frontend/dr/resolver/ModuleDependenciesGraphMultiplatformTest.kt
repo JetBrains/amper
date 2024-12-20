@@ -5,8 +5,6 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
-import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
 import kotlin.test.Test

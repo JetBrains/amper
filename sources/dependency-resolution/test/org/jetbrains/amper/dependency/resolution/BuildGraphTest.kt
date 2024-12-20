@@ -75,6 +75,83 @@ class BuildGraphTest: BaseDRTest() {
         }
     }
 
+    /**
+     * This test (and the next one) checks that Gradle metadata variant attribute 'org.gradle.jvm.environment'
+     * is taken into account while resolving jvm/android-specific dependencies.
+     *
+     * Gradle metadata of Library 'androidx.sqlite:sqlite:2.5.0-alpha11' defines variants for both jvm and android
+     * platforms, but all of them target JVM platform (i.e., attribute 'org.jetbrains.kotlin.platform.type' is set to 'jvm'),
+     * the difference between android and jvm variants is in attribute 'org.gradle.jvm.environment' only.
+     * For Android-specific variant the attribute is set to 'android' and for jvm-specific - to 'standard-jvm'.
+     *
+     * Before the corresponding fix, both variants were picked up by DR, which in turn caused runtime exception due to class duplication
+     * because both variants contain the same classes.
+     * See https://youtrack.jetbrains.com/issue/AMPER-3957 for more details.
+     */
+    @Test
+    fun `androidx_sqlite sqlite 2_5_0-alpha11 android`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "androidx.sqlite:sqlite:2.5.0-alpha11",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(ResolutionPlatform.ANDROID),
+            repositories = listOf( REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE ),
+
+            expected = """root
+                |\--- androidx.sqlite:sqlite:2.5.0-alpha11
+                |     \--- androidx.sqlite:sqlite-android:2.5.0-alpha11
+                |          +--- androidx.annotation:annotation:1.8.1
+                |          |    \--- androidx.annotation:annotation-jvm:1.8.1
+                |          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 1.8.22
+                |          |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22
+                |          |              \--- org.jetbrains:annotations:13.0
+                |          \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
+            """.trimMargin()
+        )
+        runBlocking {
+            downloadAndAssertFiles(
+                """annotation-jvm-1.8.1.jar
+                |annotations-13.0.jar
+                |kotlin-stdlib-1.8.22.jar
+                |kotlin-stdlib-common-1.8.22.jar
+                |sqlite-android-2.5.0-alpha11.aar""".trimMargin(),
+                root
+            )
+        }
+    }
+
+    @Test
+    fun `androidx_sqlite sqlite 2_5_0-alpha11 jvm`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "androidx.sqlite:sqlite:2.5.0-alpha11",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(ResolutionPlatform.JVM),
+            repositories = listOf( REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE ),
+
+            expected = """root
+                |\--- androidx.sqlite:sqlite:2.5.0-alpha11
+                |     \--- androidx.sqlite:sqlite-jvm:2.5.0-alpha11
+                |          +--- androidx.annotation:annotation:1.8.1
+                |          |    \--- androidx.annotation:annotation-jvm:1.8.1
+                |          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 1.8.22
+                |          |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22
+                |          |              \--- org.jetbrains:annotations:13.0
+                |          \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
+            """.trimMargin()
+        )
+        runBlocking {
+            downloadAndAssertFiles(
+                """annotation-jvm-1.8.1.jar
+                |annotations-13.0.jar
+                |kotlin-stdlib-1.8.22.jar
+                |kotlin-stdlib-common-1.8.22.jar
+                |sqlite-jvm-2.5.0-alpha11.jar""".trimMargin(),
+                root
+            )
+        }
+    }
+
     @Test
     fun `com_google_guava listenablefuture 9999_0-empty-to-avoid-conflict-with-guava`(testInfo: TestInfo) {
         val root = doTest(

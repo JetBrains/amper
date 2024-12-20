@@ -81,4 +81,17 @@ enum class PlatformType(
     WASM("wasm");
 
     internal fun matches(variant: Variant) = variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this.value } ?: true
+
+    internal fun matchesJvmEnvironment(variant: Variant): Boolean {
+        val jvmEnvironment = variant.attributes["org.gradle.jvm.environment"]
+        return (jvmEnvironment == null) || when (this) {
+            JVM -> {
+                jvmEnvironment == "standard-jvm"
+            }
+            ANDROID_JVM ->  {
+                jvmEnvironment == "android"
+            }
+            else -> true
+        }
+    }
 }
