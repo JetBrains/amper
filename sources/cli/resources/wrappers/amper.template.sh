@@ -92,10 +92,10 @@ download_and_extract() {
   if command -v curl >/dev/null 2>&1; then
     if [ -t 1 ]; then CURL_PROGRESS="--progress-bar"; else CURL_PROGRESS="--silent --show-error"; fi
     # shellcheck disable=SC2086
-    curl $CURL_PROGRESS -L --fail --output "${temp_file}" "$file_url" 2>&1
+    curl $CURL_PROGRESS -L --fail --retry 5 --connect-timeout 30 --output "${temp_file}" "$file_url" 2>&1
   elif command -v wget >/dev/null 2>&1; then
     if [ -t 1 ]; then WGET_PROGRESS=""; else WGET_PROGRESS="-nv"; fi
-    wget $WGET_PROGRESS -O "${temp_file}" "$file_url" 2>&1
+    wget $WGET_PROGRESS --tries=5 --connect-timeout=30 --read-timeout=120 -O "${temp_file}" "$file_url" 2>&1
   else
     die "ERROR: Please install 'wget' or 'curl', as Amper needs one of them to download $moniker"
   fi
