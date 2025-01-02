@@ -425,20 +425,6 @@ repositories:
     url: https://jitpack.io
 ```
 
-In case you need to define a mirror for a pre-configured repository, reference its URLs as ID.
-The pre-configured repositories have the following IDs:
-* https://repo1.maven.org/maven2 - Maven Central; contains most of the published libraries for Java and Kotlin
-* https://maven.google.com - Google's repository; contains mostly Android libraries                        
-* https://maven.pkg.jetbrains.space/public/p/compose/dev - contains Compose Multiplatform libraries
-
-E.g., to provide a mirror for the Maven Central use the following snippet:
-```yaml
-repositories:
-  - id: https://repo1.maven.org/maven2
-    url: <mirror url>
-```
-
-
 To configure repository credentials, use the following snippet:
 ```yaml
 repositories:
