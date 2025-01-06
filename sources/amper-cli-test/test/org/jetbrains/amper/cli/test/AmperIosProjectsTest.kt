@@ -126,7 +126,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
                 "task", ":compose:buildIosAppIosSimulatorArm64",
                 assertEmptyStdErr = false,
             )
-            projectPath = result.tempProjectDir
+            projectPath = result.projectRoot
         }.xcodeProjectGenSpans.assertSingle()
 
         collectSpansFromCli {
@@ -144,7 +144,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     @Test
     fun `build for compose app for all ios archs (arm64 without signing)`() = runTestInfinitely {
         collectSpansFromCli {
-            val (result, _) = runCliInTempDir(
+            val result = runCliInTempDir(
                 backendTestProjectName = "compose",
                 "build", // build all the platforms
                 assertEmptyStdErr = false,

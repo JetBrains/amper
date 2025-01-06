@@ -454,7 +454,7 @@ class AmperCliTest: AmperCliTestBase() {
         assertEquals("my.system.prop=hello world", result3.stdout.trim().lines().last())
     }
 
-    private fun assertModulesList(modulesCommandResult: ProcessResult, expectedModules: List<String>) {
+    private fun assertModulesList(modulesCommandResult: AmperCliResult, expectedModules: List<String>) {
         // TODO should we have a machine-readable output format without banner/logs location messages?
         // Sometimes there are output lines about waiting for other processes or downloading the distribution or JRE.
         // There are also the output banner and the "logs are there" lines.

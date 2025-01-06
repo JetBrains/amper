@@ -23,6 +23,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
+import kotlin.test.assertTrue
 
 abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     @RegisterExtension
@@ -48,10 +49,31 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
 
     protected abstract val testDataRoot: Path
 
-    data class CliTempDirRunResult(
-        val processResult: ProcessResult,
-        val tempProjectDir: Path,
-    )
+    data class AmperCliResult(
+        val projectRoot: Path,
+        val buildOutputRoot: Path,
+        val exitCode: Int,
+        val stdout: String,
+        val stderr: String,
+    ) {
+        fun assertStdoutContains(text: String) {
+            assertTrue("No line in stdout contains the text '$text':\n" + stdout.trim()) {
+                stdout.lineSequence().any { text in it }
+            }
+        }
+        fun assertStdoutTextContains(text: String) {
+            assertTrue("Stdout does not contain the text '$text':\n" + stdout.trim()) {
+               text in stdout
+            }
+        }
+        fun assertStdoutContainsLine(expectedLine: String, nOccurrences: Int = 1) {
+            val suffix = if (nOccurrences > 1) " $nOccurrences times" else " once"
+            val count = stdout.lines().count { it == expectedLine }
+            assertTrue("stdout should contain line '$expectedLine'$suffix (got $count occurrences)") {
+                count == nOccurrences
+            }
+        }
+    }
 
     protected suspend fun runCli(
         backendTestProjectName: String,
@@ -59,7 +81,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
         stdin: ProcessInput = ProcessInput.Empty,
-    ): ProcessResult {
+    ): AmperCliResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
         check(projectRoot.isDirectory()) {
             "Project root is not a directory: $projectRoot"
@@ -80,7 +102,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
         stdin: ProcessInput = ProcessInput.Empty,
-    ): CliTempDirRunResult {
+    ): AmperCliResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
         check(projectRoot.isDirectory()) {
             "Project root is not a directory: $projectRoot"
@@ -90,15 +112,12 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         tempProjectDir.createDirectories()
         projectRoot.copyToRecursively(target = tempProjectDir, overwrite = false, followLinks = true)
 
-        return CliTempDirRunResult(
-            tempProjectDir = tempProjectDir,
-            processResult = runCli(
-                projectRoot = tempProjectDir,
-                args = args,
-                expectedExitCode = expectedExitCode,
-                assertEmptyStdErr = assertEmptyStdErr,
-                stdin = stdin,
-            )
+        return runCli(
+            projectRoot = tempProjectDir,
+            args = args,
+            expectedExitCode = expectedExitCode,
+            assertEmptyStdErr = assertEmptyStdErr,
+            stdin = stdin,
         )
     }
 
@@ -109,7 +128,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         assertEmptyStdErr: Boolean = true,
         stdin: ProcessInput = ProcessInput.Empty,
         customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
-    ): ProcessResult {
+    ): AmperCliResult {
         println("Running Amper CLI with '${args.toList()}' on $projectRoot")
 
         val buildOutputRoot = tempRoot.resolve("build")
@@ -142,7 +161,13 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         // if tests were run from Gradle
         testReporter.publishEntry(message)
 
-        return result
+        return AmperCliResult(
+            projectRoot = projectRoot,
+            buildOutputRoot = buildOutputRoot,
+            stdout = result.stdout,
+            stderr = result.stderr,
+            exitCode = result.exitCode,
+        )
     }
 
     protected suspend fun runXcodebuild(

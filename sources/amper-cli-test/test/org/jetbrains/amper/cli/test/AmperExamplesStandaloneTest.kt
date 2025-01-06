@@ -51,8 +51,8 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-multiplatform`() = runTestInfinitely {
-        val (result, tempProjectPath) = runCliInTempDir(projectName, "tasks")
-        with(result) {
+        val amperResult = runCliInTempDir(projectName, "tasks")
+        with(amperResult) {
             (jvmBaseTasks + jvmTestTasks + iosLibraryTasks + androidTestTasks).forEach {
                 assertContains(stdout, ":shared:$it")
             }
@@ -63,7 +63,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
 
         collectSpansFromCli {
             runCli(
-                projectRoot = tempProjectPath,
+                projectRoot = amperResult.projectRoot,
                 "build",
                 assertEmptyStdErr = false,
             )

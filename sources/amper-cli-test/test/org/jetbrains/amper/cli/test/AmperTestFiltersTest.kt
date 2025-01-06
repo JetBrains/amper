@@ -286,7 +286,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
 
     private val junitTestCountRegex = Regex("""\[\s*(?<count>\d+) tests found\s*]""")
 
-    private fun ProcessResult.assertJUnitTestCount(expected: Int) {
+    private fun AmperCliResult.assertJUnitTestCount(expected: Int) {
         val countMatch = stdout.lines().firstNotNullOfOrNull { junitTestCountRegex.matchEntire(it.trim()) }
             ?: fail("JUnit test count not present in stdout: $stdout")
         val count = countMatch.groups["count"]?.value?.toIntOrNull()
@@ -296,7 +296,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
 
     private val nativeTestCountRegex = Regex("""\[==========] (?<count>\d+) tests from \d+ test cases ran.*""")
 
-    private fun ProcessResult.assertNativeTestCount(expected: Int) {
+    private fun AmperCliResult.assertNativeTestCount(expected: Int) {
         val countMatch = stdout.lines().firstNotNullOfOrNull { nativeTestCountRegex.matchEntire(it.trim()) }
             ?: fail("Native test count not present in stdout: $stdout")
         val count = countMatch.groups["count"]?.value?.toIntOrNull()

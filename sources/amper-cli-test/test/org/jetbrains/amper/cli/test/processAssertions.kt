@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.processes.ProcessResult
+import org.jetbrains.amper.cli.test.AmperCliTestBase.AmperCliResult
 import kotlin.test.assertTrue
 
-fun ProcessResult.assertStdoutContainsLine(expectedLine: String, nOccurrences: Int = 1) {
+fun AmperCliResult.assertStdoutContainsLine(expectedLine: String, nOccurrences: Int = 1) {
     val suffix = if (nOccurrences > 1) " $nOccurrences times" else " once"
     val count = stdout.lines().count { it == expectedLine }
     assertTrue("stdout should contain line '$expectedLine'$suffix (got $count occurrences)") {
