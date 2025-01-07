@@ -1,9 +1,10 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.backend.test
 
+import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.system.Arch
@@ -13,6 +14,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Disabled
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -41,6 +43,11 @@ class AmperKspTest : AmperIntegrationTestBase() {
         copyToTemp = copyToTemp,
         programArgs = programArgs,
     )
+    
+    @AfterEach
+    fun tearDown() {
+        ConnectorServices.reset()
+    }
 
     @Test
     fun `ksp jvm autoservice`() = runTestWithCollector {
