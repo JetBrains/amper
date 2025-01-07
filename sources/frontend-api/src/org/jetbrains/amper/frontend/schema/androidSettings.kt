@@ -20,75 +20,75 @@ enum class AndroidVersion(
     val versionNumber: Int,
     override val outdated: Boolean = false
 ) : SchemaEnum {
-    @SchemaDoc("1.0")
+    @SchemaDoc("Android 1.0")
     VERSION_1(1, outdated = true),
-    @SchemaDoc("1.1")
+    @SchemaDoc("Android 1.1")
     VERSION_2(2, outdated = true),
-    @SchemaDoc("1.5, Cupcake")
+    @SchemaDoc("Android 1.5, Cupcake")
     VERSION_3(3, outdated = true),
-    @SchemaDoc("1.6, Donut")
+    @SchemaDoc("Android 1.6, Donut")
     VERSION_4(4, outdated = true),
-    @SchemaDoc("2.0, Eclair")
+    @SchemaDoc("Android 2.0, Eclair")
     VERSION_5(5, outdated = true),
-    @SchemaDoc("2.0.1, Eclair")
+    @SchemaDoc("Android 2.0.1, Eclair")
     VERSION_6(6, outdated = true),
-    @SchemaDoc("2.1, Eclair")
+    @SchemaDoc("Android 2.1, Eclair")
     VERSION_7(7, outdated = true),
-    @SchemaDoc("2.2, Froyo")
+    @SchemaDoc("Android 2.2, Froyo")
     VERSION_8(8, outdated = true),
-    @SchemaDoc("2.3-2.3.2, Gingerbread")
+    @SchemaDoc("Android 2.3-2.3.2, Gingerbread")
     VERSION_9(9, outdated = true),
-    @SchemaDoc("2.3.3-2.3.7, Gingerbread")
+    @SchemaDoc("Android 2.3.3-2.3.7, Gingerbread")
     VERSION_10(10, outdated = true),
-    @SchemaDoc("3.0, Honeycomb")
+    @SchemaDoc("Android 3.0, Honeycomb")
     VERSION_11(11, outdated = true),
-    @SchemaDoc("3.1, Honeycomb")
+    @SchemaDoc("Android 3.1, Honeycomb")
     VERSION_12(12, outdated = true),
-    @SchemaDoc("3.2, Honeycomb")
+    @SchemaDoc("Android 3.2, Honeycomb")
     VERSION_13(13, outdated = true),
-    @SchemaDoc("4.0.1-4.0.2, Ice Cream Sandwich")
+    @SchemaDoc("Android 4.0.1-4.0.2, Ice Cream Sandwich")
     VERSION_14(14, outdated = true),
-    @SchemaDoc("4.0.3-4.0.4, Ice Cream Sandwich")
+    @SchemaDoc("Android 4.0.3-4.0.4, Ice Cream Sandwich")
     VERSION_15(15, outdated = true),
-    @SchemaDoc("4.1, Jelly Bean")
+    @SchemaDoc("Android 4.1, Jelly Bean")
     VERSION_16(16, outdated = true),
-    @SchemaDoc("4.2, Jelly Bean")
+    @SchemaDoc("Android 4.2, Jelly Bean")
     VERSION_17(17, outdated = true),
-    @SchemaDoc("4.3, Jelly Bean")
+    @SchemaDoc("Android 4.3, Jelly Bean")
     VERSION_18(18, outdated = true),
-    @SchemaDoc("4.4, KitKat")
+    @SchemaDoc("Android 4.4, KitKat")
     VERSION_19(19, outdated = true),
-    @SchemaDoc("5.0, Lollipop")
+    @SchemaDoc("Android 5.0, Lollipop")
     VERSION_20(20, outdated = true),
-    @SchemaDoc("5.0, Lollipop")
+    @SchemaDoc("Android 5.0, Lollipop")
     VERSION_21(21),
-    @SchemaDoc("5.1, Lollipop")
+    @SchemaDoc("Android 5.1, Lollipop")
     VERSION_22(22),
-    @SchemaDoc("6.0, Marshmallow")
+    @SchemaDoc("Android 6.0, Marshmallow")
     VERSION_23(23),
-    @SchemaDoc("7.0, Nougat")
+    @SchemaDoc("Android 7.0, Nougat")
     VERSION_24(24),
-    @SchemaDoc("7.1, Nougat")
+    @SchemaDoc("Android 7.1, Nougat")
     VERSION_25(25),
-    @SchemaDoc("8.0, Oreo")
+    @SchemaDoc("Android 8.0, Oreo")
     VERSION_26(26),
-    @SchemaDoc("8.1, Oreo")
+    @SchemaDoc("Android 8.1, Oreo")
     VERSION_27(27),
-    @SchemaDoc("9, Pie")
+    @SchemaDoc("Android 9, Pie")
     VERSION_28(28),
-    @SchemaDoc("10, Q")
+    @SchemaDoc("Android 10, Q")
     VERSION_29(29),
-    @SchemaDoc("11, R")
+    @SchemaDoc("Android 11, R")
     VERSION_30(30),
-    @SchemaDoc("12, S")
+    @SchemaDoc("Android 12, S")
     VERSION_31(31),
-    @SchemaDoc("12L, S")
+    @SchemaDoc("Android 12L, S")
     VERSION_32(32),
-    @SchemaDoc("13, Tiramisu")
+    @SchemaDoc("Android 13, Tiramisu")
     VERSION_33(33),
-    @SchemaDoc("14, Upside Down Cake")
+    @SchemaDoc("Android 14, Upside Down Cake")
     VERSION_34(34),
-    @SchemaDoc("15, Vanilla Ice Cream")
+    @SchemaDoc("Android 15, Vanilla Ice Cream")
     VERSION_35(35),
     ;
 
