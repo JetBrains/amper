@@ -6,6 +6,8 @@ package org.jetbrains.amper.test
 
 import com.intellij.execution.CommandLineUtil
 import com.intellij.execution.Platform
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
@@ -39,6 +41,11 @@ abstract class AmperCliWithWrapperTestBase {
     protected val scriptNameForCurrentOs: String = if (OsFamily.current.isWindows) "amper.bat" else "amper"
 
     companion object {
+
+        // This is to limit resource consumption when using lots of parallel CLI tests
+        private const val maxParallelAmperProcesses = 8
+        private val amperProcessSemaphore = Semaphore(permits = maxParallelAmperProcesses)
+
         @JvmStatic
         @BeforeAll
         fun checkAmperPublication() {
@@ -100,27 +107,29 @@ abstract class AmperCliWithWrapperTestBase {
             }
         }
         val currentPlatformForIJ = if (isWindows) Platform.WINDOWS else Platform.UNIX
-        val result = runProcessAndCaptureOutput(
-            workingDir = workingDir,
-            // proper quotes/escaping, workaround for the time-old bug https://bugs.openjdk.org/browse/JDK-8131908
-            command = CommandLineUtil.toCommandLine(amperScript.absolutePathString(), args, currentPlatformForIJ),
-            environment = buildMap {
-                putAll(baseEnvironmentForWrapper())
+        val result = amperProcessSemaphore.withPermit {
+            runProcessAndCaptureOutput(
+                workingDir = workingDir,
+                // proper quotes/escaping, workaround for the time-old bug https://bugs.openjdk.org/browse/JDK-8131908
+                command = CommandLineUtil.toCommandLine(amperScript.absolutePathString(), args, currentPlatformForIJ),
+                environment = buildMap {
+                    putAll(baseEnvironmentForWrapper())
 
-                // Override (and add to) the base env
-                bootstrapCacheDir?.let {
-                    this["AMPER_BOOTSTRAP_CACHE_DIR"] = it.pathString
-                }
+                    // Override (and add to) the base env
+                    bootstrapCacheDir?.let {
+                        this["AMPER_BOOTSTRAP_CACHE_DIR"] = it.pathString
+                    }
 
-                if (customJavaHome != null) {
-                    this["AMPER_JAVA_HOME"] = customJavaHome.pathString
-                }
-                this["AMPER_JAVA_OPTIONS"] = extraJvmArgs.joinToString(" ")
-                putAll(environment)
-            },
-            input = stdin,
-            outputListener = AmperProcessOutputListener,
-        )
+                    if (customJavaHome != null) {
+                        this["AMPER_JAVA_HOME"] = customJavaHome.pathString
+                    }
+                    this["AMPER_JAVA_OPTIONS"] = extraJvmArgs.joinToString(" ")
+                    putAll(environment)
+                },
+                input = stdin,
+                outputListener = AmperProcessOutputListener,
+            )
+        }
 
         assertEquals(
             expected = expectedExitCode,
