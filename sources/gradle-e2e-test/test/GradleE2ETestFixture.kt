@@ -3,6 +3,7 @@
  */
 
 import org.apache.commons.io.output.TeeOutputStream
+import org.gradle.tooling.BuildException
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.test.TestUtil
@@ -91,7 +92,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
                 .setStandardError(TeeOutputStream(System.err, stderr))
 //                .addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
                 .run()
-        } catch (t: Throwable) {
+        } catch (t: BuildException) {
             if (shouldSucceed) {
                 throw t
             } else {
