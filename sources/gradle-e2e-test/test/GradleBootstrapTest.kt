@@ -52,21 +52,24 @@ class GradleBootstrapTest {
             )
             .let { settingsKts.writeText(it) }
 
-        // when
-        val projectConnector = GradleConnector.newConnector()
+        val stdout = ByteArrayOutputStream()
+        val stderr = ByteArrayOutputStream()
+
+        GradleConnector.newConnector()
             .useGradleUserHomeDir(TestUtil.sharedGradleHome.toFile())
             .forProjectDirectory(projectPath.toFile())
             .connect()
-        val stdout = ByteArrayOutputStream()
-        val stderr = ByteArrayOutputStream()
-        projectConnector.newBuild()
-            .withArguments(
-                //                "-Dorg.gradle.jvmargs=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
-                // --no-build-cache to actually build stuff instead of getting it from cache since cache is shared between runs
-                "assemble", "--stacktrace", "--no-build-cache", "-PinBootstrapMode=true")
-            .setStandardOutput(TeeOutputStream(System.out, stdout))
-            .setStandardError(TeeOutputStream(System.err, stderr))
-            .run()
+            .use { projectConnection ->
+                projectConnection.newBuild()
+                    .withArguments(
+                        // "-Dorg.gradle.jvmargs=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
+                        // --no-build-cache to actually build stuff instead of getting it from cache since cache is shared between runs
+                        "assemble", "--stacktrace", "--no-build-cache", "-PinBootstrapMode=true"
+                    )
+                    .setStandardOutput(TeeOutputStream(System.out, stdout))
+                    .setStandardError(TeeOutputStream(System.err, stderr))
+                    .run()
+            }
         val output = (stdout.toByteArray().decodeToString() + "\n" + stderr.toByteArray().decodeToString()).replace("\r", "")
 
         // then

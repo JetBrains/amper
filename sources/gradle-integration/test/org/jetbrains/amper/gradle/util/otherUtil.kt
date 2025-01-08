@@ -45,12 +45,15 @@ fun TestBase.runGradleWithModel(model: MockModelHandle): String {
         .useGradleUserHomeDir(TestUtil.sharedGradleHome.toFile())
         .forProjectDirectory(tempDir)
         .connect()
-        .newBuild()
-        .withArguments(printKotlinSourcesTask, "--stacktrace")
-        .withMockModel(model)
-        .setStandardError(TeeOutputStream(System.err, stderr))
-        .setStandardOutput(TeeOutputStream(System.out, stdout))
-        .run()
+        .use { projectConnection ->
+            projectConnection
+                .newBuild()
+                .withArguments(printKotlinSourcesTask, "--stacktrace")
+                .withMockModel(model)
+                .setStandardError(TeeOutputStream(System.err, stderr))
+                .setStandardOutput(TeeOutputStream(System.out, stdout))
+                .run()
+        }
     val output = (stdout.toByteArray().decodeToString() + "\n" + stderr.toByteArray().decodeToString()).replace("\r", "")
     return output
 }

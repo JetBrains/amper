@@ -97,6 +97,8 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
             } else {
                 // skip, the error will be checked by expectOutputToHave
             }
+        } finally {
+            projectConnector.close()
         }
         val output = (stdout.toByteArray().decodeToString() + "\n" + stderr.toByteArray().decodeToString()).replace("\r", "")
 
