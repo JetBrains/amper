@@ -4,47 +4,67 @@
 
 package org.jetbrains.amper
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class CoroutineStacktraceTest {
     init {
-        CliEnvironmentInitializer.setupCoroutinesDebugProbes()
+        CliEnvironmentInitializer.setupCoroutinesInstrumentation()
     }
 
     @Test
-    @Ignore(value = "AMPER-396 CLI: Provide coroutine stacktraces")
     fun smoke() {
         try {
             runBlocking {
-                fun3()
+                fun5()
             }
             fail("must throw")
         } catch (t: Throwable) {
-            val string = t.stackTraceToString()
-            assertTrue(string.contains(".fun1"), "must contain .fun1: $string")
-            assertTrue(string.contains(".fun2"), "must contain .fun2: $string")
-            assertTrue(string.contains(".fun3"), "must contain .fun3: $string")
+            val stacktrace = t.stackTraceToString()
+            stacktrace.assertContainsCallsTo("fun1", count = 1)
+//            stacktrace.assertContainsCallsTo("fun2TailRec", count = 3) // can't do this yet, apparently
+            stacktrace.assertContainsCallsTo("fun3", count = 1)
+//            stacktrace.assertContainsCallsTo("fun4Inline", count = 1) // can't do this yet, apparently
+            stacktrace.assertContainsCallsTo("fun5", count = 1)
+        }
+    }
+
+    private fun String.assertContainsCallsTo(funName: String, count: Int) {
+        val actualCount = lines().count { it.contains(".$funName") }
+        assertTrue("should contain $count call(s) to $funName. Got $actualCount:\n$this") {
+            actualCount == count
         }
     }
 
     suspend fun fun1() {
-        delay(10)
+        yield()
         throw Exception("exception at ${System.currentTimeMillis()}")
     }
 
-    suspend fun fun2() {
-        fun1()
-        delay(10)
+    tailrec suspend fun fun2TailRec(depth: Int = 2) {
+        if (depth == 0) {
+            fun1()
+        } else {
+            fun2TailRec(depth - 1)
+        }
     }
 
     suspend fun fun3() {
-        fun2()
-        delay(10)
+        yield()
+        fun2TailRec()
+    }
+
+    suspend inline fun fun4Inline() {
+        yield()
+        fun3()
+    }
+
+    suspend fun fun5() {
+        yield()
+        fun4Inline()
     }
 }

@@ -5,9 +5,12 @@
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.terminal.Terminal
+import dev.reformator.stacktracedecoroutinator.runtime.DecoroutinatorRuntime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.debug.DebugProbes
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.useWithoutCoroutines
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.DynamicFileWriter
 import org.jetbrains.amper.diagnostics.DynamicLevelConsoleWriter
@@ -21,14 +24,18 @@ import kotlin.io.path.writeText
 object CliEnvironmentInitializer {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun setupCoroutinesDebugProbes() {
-        // see https://github.com/Anamorphosee/stacktrace-decoroutinator#motivation
-        // Temporary disabled due to unresolved issues with it AMPER-396 CLI: Provide coroutine stacktraces
-        // DecoroutinatorRuntime.load()
+    fun setupCoroutinesInstrumentation() {
+        // TODO investigate the performance impact of the decoroutinator
+        spanBuilder("Load stacktrace-decoroutinator runtime").useWithoutCoroutines {
+            // see https://github.com/Anamorphosee/stacktrace-decoroutinator#motivation
+            DecoroutinatorRuntime.load()
+        }
 
-        // coroutines debug probes, required to dump coroutines
-        DebugProbes.enableCreationStackTraces = false
-        DebugProbes.install()
+        spanBuilder("Install coroutines debug probes").useWithoutCoroutines {
+            // coroutines debug probes, required to dump coroutines
+            DebugProbes.enableCreationStackTraces = false
+            DebugProbes.install()
+        }
     }
 
     fun setupDeadLockMonitor(logsRoot: AmperBuildLogsRoot, terminal: Terminal) {

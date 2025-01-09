@@ -43,8 +43,8 @@ internal suspend fun <T> withBackend(
     return withContext(Dispatchers.Default) {
         // it's ok to parallelize this as long as we wait for it before doing coroutines-heavy work
         val coroutinesDebugInstallJob = launch {
-            spanBuilder("Install coroutines debug probes").use {
-                CliEnvironmentInitializer.setupCoroutinesDebugProbes()
+            spanBuilder("Setup coroutines instrumentation").use {
+                CliEnvironmentInitializer.setupCoroutinesInstrumentation()
             }
         }
 
