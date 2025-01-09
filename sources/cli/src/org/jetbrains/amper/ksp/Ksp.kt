@@ -52,9 +52,10 @@ internal class Ksp(
             mainClass = compilationType.kspMainClassFqn,
             classpath = kspImplJars,
             programArgs = args,
-            outputListener = LoggingProcessOutputListener(logger),
+            outputListener = LoggingProcessOutputListener(logger, prefix = "[ksp] "),
             tempRoot = tempRoot,
         )
+        // Note: KSP fails automatically with exit code 1 if any error log is present
         if (result.exitCode != 0) {
             userReadableError("KSP execution failed with exit code ${result.exitCode} (see errors above)")
         }

@@ -13,13 +13,15 @@ class MySymbolProcessor(environment: SymbolProcessorEnvironment) : SymbolProcess
     private val options = environment.options
     private val platforms = environment.platforms
 
+    private var classWasGenerated = false
+
     override fun process(resolver: Resolver): List<KSAnnotated> {
         println("Running my local symbol processor!")
 
-        println("Here are some test logs at different levels:")
-        logger.info("info log")
+        println("Here are some test logs at levels info & warn (not error):")
+        logger.info("info log") // apparently not logged by KSP
         logger.warn("warn log")
-        logger.error("error log")
+        // logger.error("error log") // KSP 1.0.28+ automatically fails with exit code 1 if any error is logged
 
         val annotationName = MyKspAnnotation::class.qualifiedName ?: error("")
         val (annotatedClasses, invalidClasses) = resolver
@@ -31,7 +33,6 @@ class MySymbolProcessor(environment: SymbolProcessorEnvironment) : SymbolProcess
         println("Found ${annotatedClasses.size} annotated classes: ${annotatedClasses.map { it.qualifiedName?.asString() }}")
         println("Found ${invalidClasses.size} invalid annotated classes: ${invalidClasses.map { it.qualifiedName?.asString() }}")
 
-        println("Generating resource file...")
 
         val allFilesInModuleDependencies = Dependencies(
             aggregating = false, // we don't use anything outside the current module
@@ -41,6 +42,7 @@ class MySymbolProcessor(environment: SymbolProcessorEnvironment) : SymbolProcess
         // generate Kotlin source files
         annotatedClasses.forEach { c ->
             val generatedClassName = "${c.simpleName?.asString()}Generated"
+            println("Generating Kotlin file $generatedClassName.kt...")
             codeGenerator.createNewFile(
                 dependencies = allFilesInModuleDependencies,
                 packageName = "com.sample.myprocessor.gen",
@@ -57,27 +59,33 @@ class MySymbolProcessor(environment: SymbolProcessorEnvironment) : SymbolProcess
                     }
                 """.trimIndent())
             }
+            println("Kotlin file $generatedClassName.kt generation complete...")
         }
 
-        // generate a resource file
-        codeGenerator.createNewFile(
-            dependencies = allFilesInModuleDependencies,
-            packageName = "com.sample.myprocessor.gen",
-            fileName = "annotated-classes",
-            extensionName = "txt",
-        ).bufferedWriter().use { out ->
-            val annotatedClassNames = annotatedClasses
-                .map { it.qualifiedName!!.asString() }
-                .sorted()
-                .reversedIf(options["${MySymbolProcessor::class.java.packageName}.reverseOrder"] == "true")
-                .joinToString("\n")
-            out.write(annotatedClassNames)
+        if (annotatedClasses.isNotEmpty()) {
+            println("Generating resource file annotated-classes.txt...")
+            // generate a resource file
+            codeGenerator.createNewFile(
+                dependencies = allFilesInModuleDependencies,
+                packageName = "com.sample.myprocessor.gen",
+                fileName = "annotated-classes",
+                extensionName = "txt",
+            ).bufferedWriter().use { out ->
+                val annotatedClassNames = annotatedClasses
+                    .map { it.qualifiedName!!.asString() }
+                    .sorted()
+                    .reversedIf(options["${MySymbolProcessor::class.java.packageName}.reverseOrder"] == "true")
+                    .joinToString("\n")
+                out.write(annotatedClassNames)
+            }
+            println("Resource file annotated-classes.txt generation complete.")
         }
 
         if (platforms.all { it is JvmPlatformInfo }) {
             // generate Java source files only for JVM targets
             annotatedClasses.forEach { c ->
                 val generatedClassName = "${c.simpleName?.asString()}GeneratedJava"
+                println("Generating Java file $generatedClassName.java...")
                 codeGenerator.createNewFile(
                     dependencies = allFilesInModuleDependencies,
                     packageName = "com.sample.myprocessor.gen",
@@ -94,22 +102,32 @@ class MySymbolProcessor(environment: SymbolProcessorEnvironment) : SymbolProcess
                     }
                 """.trimIndent())
                 }
+                println("Java file $generatedClassName.java generation complete...")
             }
 
-            // generate a class file only for JVM targets
-            codeGenerator.createNewFile(
-                dependencies = allFilesInModuleDependencies,
-                packageName = "com.sample.myprocessor.gen",
-                fileName = "MyGeneratedClass",
-                extensionName = "class",
-            ).use { out ->
-                val classResourcePath = "/classes-to-generate/com/sample/myprocessor/gen/MyGeneratedClass.class"
-                val generatedClassContentsStream = MySymbolProcessor::class.java.getResourceAsStream(classResourcePath)
-                    ?: error("Missing resource $classResourcePath")
-                generatedClassContentsStream
-                    .use { classContentsStream ->
-                        classContentsStream.copyTo(out)
-                    }
+            if (!classWasGenerated) {
+                println("Generating class file MyGeneratedClass.class...")
+                // generate a class file only for JVM targets
+                codeGenerator.createNewFile(
+                    dependencies = Dependencies(
+                        aggregating = false, // we don't use anything outside the current module
+                        *emptyArray(), // tells KSP we have looked at all files - don't rerun if nothing changes
+                    ),
+                    packageName = "com.sample.myprocessor.gen",
+                    fileName = "MyGeneratedClass",
+                    extensionName = "class",
+                ).use { out ->
+                    val classResourcePath = "/classes-to-generate/com/sample/myprocessor/gen/MyGeneratedClass.class"
+                    val generatedClassContentsStream =
+                        MySymbolProcessor::class.java.getResourceAsStream(classResourcePath)
+                            ?: error("Missing resource $classResourcePath")
+                    generatedClassContentsStream
+                        .use { classContentsStream ->
+                            classContentsStream.copyTo(out)
+                        }
+                }
+                println("Class file MyGeneratedClass.class generation complete...")
+                classWasGenerated = true
             }
         }
         return invalidClasses

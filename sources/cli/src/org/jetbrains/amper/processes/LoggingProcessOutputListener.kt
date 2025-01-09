@@ -6,12 +6,16 @@ package org.jetbrains.amper.processes
 
 import org.slf4j.Logger
 
-class LoggingProcessOutputListener(val logger: Logger): ProcessOutputListener {
+class LoggingProcessOutputListener(
+    val logger: Logger,
+    val prefix: String = "",
+): ProcessOutputListener {
+
     override fun onStdoutLine(line: String, pid: Long) {
-        logger.info(line)
+        logger.info("$prefix$line")
     }
 
     override fun onStderrLine(line: String, pid: Long) {
-        logger.error(line)
+        logger.error("$prefix$line")
     }
 }
