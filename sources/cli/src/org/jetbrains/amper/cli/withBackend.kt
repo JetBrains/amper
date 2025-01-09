@@ -70,6 +70,10 @@ internal suspend fun <T> withBackend(
 
         TelemetryEnvironment.setLogsRootDirectory(cliContext.buildLogsRoot)
 
+        // we make sure coroutines debug probes are installed before trying to setup DeadLockMonitor
+        // and before executing coroutines-heavy backend work
+        coroutinesDebugInstallJob.join()
+
         if (setupEnvironment) {
             spanBuilder("Setup file logging and monitoring").use {
                 CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot, cliContext.terminal)
@@ -85,9 +89,6 @@ internal suspend fun <T> withBackend(
                 }
             }
         }
-
-        // we make sure coroutines debug probes are installed before executing coroutines-heavy backend work
-        coroutinesDebugInstallJob.join()
 
         val backend = AmperBackend(context = cliContext)
         spanBuilder("Run command with backend").use {
