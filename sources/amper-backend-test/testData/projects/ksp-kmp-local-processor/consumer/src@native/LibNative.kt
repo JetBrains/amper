@@ -2,6 +2,7 @@ package com.sample.ksp.localprocessor.consumer
 
 import com.sample.ksp.localprocessor.annotation.MyKspAnnotation
 import kotlinx.cinterop.*
+import kotlin.experimental.*
 import kotlin.native.concurrent.*
 
 @MyKspAnnotation
@@ -15,4 +16,5 @@ fun useNativeStdlib() {
     memScoped { 42 }
 }
 
-fun declarationWithNativeAPI(): Worker = TODO()
+@OptIn(ExperimentalNativeApi::class)
+fun declarationWithNativeAPI(): CpuArchitecture = TODO()
