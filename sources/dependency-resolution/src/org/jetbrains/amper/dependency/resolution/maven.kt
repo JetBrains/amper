@@ -29,6 +29,7 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
 import org.jetbrains.amper.dependency.resolution.metadata.xml.expandTemplates
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
+import org.slf4j.LoggerFactory
 import parseSettings
 import java.nio.file.Path
 import java.util.concurrent.CancellationException
@@ -40,6 +41,7 @@ import kotlin.io.path.readText
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
+private val logger = LoggerFactory.getLogger("maven.kt")
 
 /**
  * Serves as a holder for a dependency defined by Maven coordinates, namely, group, module, and version.

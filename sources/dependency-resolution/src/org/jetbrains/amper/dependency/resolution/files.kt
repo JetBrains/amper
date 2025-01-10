@@ -56,7 +56,7 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
 
-internal val logger = LoggerFactory.getLogger("files.kt")
+private val logger = LoggerFactory.getLogger("files.kt")
 
 /**
  * Provides mapping between [MavenDependency] and a location on disk.
@@ -312,6 +312,7 @@ open class DependencyFile(
                       // Download artifact from external remote storage if it has not been resolved from local cache
                     ?: downloadAndVerifyHash(fileChannel, tempFilePath, repositories, progress, cache, expectedHash, diagnosticsReporter)
             }
+
         }
     }
 
@@ -692,6 +693,7 @@ open class DependencyFile(
                 "/${dependency.version}" +
                 "/$name"
         try {
+
             // todo (AB) : Use exponential retry here
             return withRetry(retryCount = 3,
                 retryOnException = { e ->
@@ -708,39 +710,48 @@ open class DependencyFile(
                     .GET()
                     .build()
 
-                val future = client.sendAsync(request, BodyHandlers.ofInputStream())
-                val response = future.await()
+                downloadSemaphore.acquire()
+                val response = try {
+                    val future = client.sendAsync(request, BodyHandlers.ofInputStream())
+                    future.await()
+                } finally {
+                    downloadSemaphore.release()
+                }
 
-                when (val status = response.statusCode()) {
-                    200 -> {
-                        val expectedSize = fileFromVariant(dependency, name)?.size
-                            ?: response.headers().firstValueAsLong(HttpHeaders.ContentLength)
-                                .takeIf{ it.isPresent && it.asLong != -1L }?.asLong
-                        val size = response.body().toByteReadChannel().readTo(writers)
-                        if (expectedSize != null && size != expectedSize) {
-                            throw IOException(
-                                "Content length doesn't match for $url. Expected: $expectedSize, actual: $size"
-                            )
+                response.body().use { responseBody ->
+                    when (val status = response.statusCode()) {
+                        200 -> {
+                            val expectedSize = fileFromVariant(dependency, name)?.size
+                                ?: response.headers().firstValueAsLong(HttpHeaders.ContentLength)
+                                    .takeIf { it.isPresent && it.asLong != -1L }?.asLong
+                            val size = responseBody.toByteReadChannel().readTo(writers)
+
+                            if (expectedSize != null && size != expectedSize) {
+                                throw IOException(
+                                    "Content length doesn't match for $url. Expected: $expectedSize, actual: $size"
+                                )
+                            }
+
+                            if (logger.isDebugEnabled) {
+                                logger.debug("Downloaded {} for the dependency {}:{}:{}", url, dependency.group, dependency.module, dependency.version)
+                            } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
+                                // Reports downloaded dependency to INFO (visible to user by default)
+                                logger.info("Downloaded $url")
+                            }
+
+                            true
                         }
 
-                        if (logger.isDebugEnabled) {
-                            logger.debug("Downloaded {} for the dependency {}:{}:{}", url, dependency.group, dependency.module, dependency.version)
-                        } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
-                            // Reports downloaded dependency to INFO (visible to user by default)
-                            logger.info("Downloaded $url")
+                        404 -> {
+                            logger.debug("Not found URL: $url")
+                            false
                         }
 
-                        true
+                        else -> throw IOException(
+                            "Unexpected response code for $url. " +
+                                    "Expected: ${HttpStatusCode.OK.value}, actual: $status"
+                        )
                     }
-
-                    404 -> {
-                        logger.debug("Not found URL: $url")
-                        false
-                    }
-                    else -> throw IOException(
-                        "Unexpected response code for $url. " +
-                                "Expected: ${HttpStatusCode.OK.value}, actual: $status"
-                    )
                 }
             }
         } catch (e: CancellationException) {

@@ -16,6 +16,7 @@ import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Severity
+import org.jetbrains.amper.dependency.resolution.detailedMessage
 import org.jetbrains.amper.dependency.resolution.message
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
@@ -90,15 +91,15 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 val errors = errorNodes.flatMap { it.messages }.filter { it.severity == Severity.ERROR }
 
                 for (error in errors) {
-                    span.recordException(error.exception ?: MavenResolverException(error.message))
+                    span.recordException(error.exception ?: MavenResolverException(error.detailedMessage))
                     DoNotLogToTerminalCookie.use {
-                        logger.error(error.message, error.exception)
+                        logger.error(error.detailedMessage, error.exception)
                     }
                 }
 
                 userReadableError(
                     "Unable to resolve dependencies for $resolveSourceMoniker:\n\n" +
-                            errors.joinToString("\n") { it.message })
+                            errors.joinToString("\n") { it.detailedMessage })
             }
         }
 

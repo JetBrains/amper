@@ -162,21 +162,30 @@ class Resolver {
                 .distinctBfsSequence { it !is MavenDependencyConstraintNode }
                 .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
                 .forEach {
-                    val asyncDownloading = async {
+                    launch {
                         it.downloadDependencies(downloadSources)
-                    }
-                    downloadSemaphore.acquire()
-                    asyncDownloading.invokeOnCompletion {
-                        downloadSemaphore.release()
                     }
                 }
         }
 
-        // todo (AB) : Close contexts (and thus related http clients - check that those are removed from context - not only closed)
+        node.closeResolutionContexts()
+    }
+
+    private suspend fun DependencyNode.closeResolutionContexts() {
+        coroutineScope {
+            distinctBfsSequence { it !is MavenDependencyConstraintNode }
+                .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
+                .map { it.context }.distinct()
+                .forEach {
+                    launch {
+                        it.close()
+                    }
+                }
+        }
     }
 }
 
-val downloadSemaphore = Semaphore(5)
+val downloadSemaphore = Semaphore(10)
 
 private class ConflictResolver(val conflictResolutionStrategies: List<ConflictResolutionStrategy>) {
     /**
