@@ -1,11 +1,10 @@
 product: jvm/app
 
 dependencies:
-  - ../tasks
+  - ../../cli
+  - ../../core
+  - $libs.kotlinx.coroutines.core
+  - $libs.apacheCommons.compress
 
 apply:
   - ../../common.module-template.yaml
-
-settings:
-  jvm:
-    mainClass: BuildUnpackedDistTask

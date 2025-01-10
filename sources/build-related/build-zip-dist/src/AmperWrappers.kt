@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @file:Suppress("SameParameterValue")
 
 import org.jetbrains.amper.core.AmperBuild
@@ -13,6 +17,7 @@ import kotlin.io.path.readText
 
 @OptIn(ExperimentalStdlibApi::class)
 object AmperWrappers {
+
     fun generateWrappers(
         targetDir: Path,
         cliDistTgz: Path,
