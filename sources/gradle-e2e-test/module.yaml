@@ -14,7 +14,7 @@ test-dependencies:
   - $libs.snakeyaml
   - $libs.gradle.toolingApi
   - $libs.kotlin.reflect
-  - commons-io:commons-io:2.4
+  - commons-io:commons-io:2.14.0
 
 apply:
   - ../common.module-template.yaml
