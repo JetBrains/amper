@@ -139,5 +139,6 @@ if errorlevel 1 goto fail
 
 REM ********** Launch Amper from unpacked dist **********
 
-"%AMPER_JAVA_HOME%\bin\java.exe" -ea -XX:+EnableDynamicAgentLoading "-Damper.wrapper.path=%~f0" -cp "%~dp0build\unpackedDistribution\lib\*" org.jetbrains.amper.cli.MainKt %*
-exit /b %ERRORLEVEL%
+set jvm_args=-ea -XX:+EnableDynamicAgentLoading %AMPER_JAVA_OPTIONS%
+"%AMPER_JAVA_HOME%\bin\java.exe" "-Damper.wrapper.path=%~f0" %jvm_args% -cp "%~dp0build\unpackedDistribution\lib\*" org.jetbrains.amper.cli.MainKt %*
+exit /B %ERRORLEVEL%

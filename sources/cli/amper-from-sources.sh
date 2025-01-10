@@ -285,6 +285,8 @@ if [ "$simpleOs" = "windows" ]; then
 else
   classpath="$script_dir/build/unpackedDistribution/lib/*"
 fi
-time "$java_exe" -ea -XX:+EnableDynamicAgentLoading \
+jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
+# shellcheck disable=SC2086
+time "$java_exe" \
   "-Damper.wrapper.path=$wrapper_path" \
-  -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+  $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
