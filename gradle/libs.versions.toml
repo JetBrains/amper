@@ -28,7 +28,7 @@ opentelemetry = "1.44.0"
 slf4j = "2.0.16"
 snakeyaml = "2.2"
 stacktrace-decoroutinator = "2.4.8"
-tinylog = "2.6.2"
+tinylog = "2.7.0"
 xmlutil-serialization = "0.86.2"
 
 
