@@ -3,6 +3,7 @@ product: jvm/app
 dependencies:
   - org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r
   - org.yaml:snakeyaml:2.2
+  - $libs.slf4j.simple
 
 apply:
   - ../../common.module-template.yaml

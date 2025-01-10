@@ -89,6 +89,7 @@ opentelemetry-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotl
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-sdkTrace = { module = "io.opentelemetry:opentelemetry-sdk-trace", version.ref = "opentelemetry" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 stacktrace-decoroutinator = { module = "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm", version.ref = "stacktrace-decoroutinator" }
 tinylog-api = { module = "org.tinylog:tinylog-api-kotlin", version.ref = "tinylog" }
 tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
