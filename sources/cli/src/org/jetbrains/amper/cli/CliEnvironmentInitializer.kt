@@ -5,7 +5,7 @@
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.terminal.Terminal
-import dev.reformator.stacktracedecoroutinator.runtime.DecoroutinatorRuntime
+import dev.reformator.stacktracedecoroutinator.jvm.DecoroutinatorJvmApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.debug.DebugProbes
 import org.jetbrains.amper.core.AmperBuild
@@ -26,9 +26,9 @@ object CliEnvironmentInitializer {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun setupCoroutinesInstrumentation() {
         // TODO investigate the performance impact of the decoroutinator
-        spanBuilder("Load stacktrace-decoroutinator runtime").useWithoutCoroutines {
+        spanBuilder("Install stacktrace-decoroutinator").useWithoutCoroutines {
             // see https://github.com/Anamorphosee/stacktrace-decoroutinator#motivation
-            DecoroutinatorRuntime.load()
+            DecoroutinatorJvmApi.install()
         }
 
         spanBuilder("Install coroutines debug probes").useWithoutCoroutines {
