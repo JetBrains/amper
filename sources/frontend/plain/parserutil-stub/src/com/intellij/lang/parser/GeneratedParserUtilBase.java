@@ -529,10 +529,14 @@ public class GeneratedParserUtilBase {
         }
         while (state.hooks != null && state.hooks.level >= state.level) {
             if (state.hooks.level == state.level) {
-                marker = ((Hook<Object>)state.hooks.hook).run(builder, marker, state.hooks.param);
+                marker = runHook(state.hooks, builder, marker);
             }
             state.hooks = state.hooks.next;
         }
+    }
+
+    private static <T> PsiBuilder.Marker runHook(Hooks<T> hooks, PsiBuilder builder, PsiBuilder.Marker marker) {
+        return hooks.hook.run(builder, marker, hooks.param);
     }
 
     private static void exit_section_impl_(ErrorState state,
@@ -1075,7 +1079,7 @@ public class GeneratedParserUtilBase {
         }
     }
 
-    private record Hooks<T>(Hook<T> hook, T param, int level, Hooks next) {
+    private record Hooks<T>(Hook<T> hook, T param, int level, Hooks<?> next) {
         static <E> Hooks<E> concat(Hook<E> hook, E param, int level, Hooks<?> hooks) {
             return new Hooks<>(hook, param, level, hooks);
         }
