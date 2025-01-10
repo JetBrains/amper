@@ -86,7 +86,6 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
                 is MavenDependencyConstraintNode -> {
                     it.dependencyConstraint = it.context.createOrReuseDependencyConstraint(it.group, it.module, Version(requires = resolvedVersion))
                 }
-                else -> null
             }
         }
         return true

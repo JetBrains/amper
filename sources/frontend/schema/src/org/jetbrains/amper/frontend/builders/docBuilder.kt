@@ -79,7 +79,7 @@ class DocBuilder private constructor(
         }
     } else Unit
 
-    override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<Any>?) {
+    override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<*>?) {
         addPropDesc(prop, type, default = default)
     }
 
@@ -111,7 +111,7 @@ class DocBuilder private constructor(
         prop: KProperty<*>,
         type: KType,
         subtypes: Collection<KClass<*>>? = null,
-        default: Default<Any>? = null,
+        default: Default<*>? = null,
         isModifierAware: Boolean = false,
     ) {
         val desc = buildString {

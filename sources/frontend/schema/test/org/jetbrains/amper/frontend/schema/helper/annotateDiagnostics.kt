@@ -81,7 +81,7 @@ private fun StringBuilder.appendTextDecoratedWithDiagnostics(
     )
 
     val diagnosticPoints: List<DiagnosticPoint> = sortedDiagnostics.flatMap { (source, diagnostic) ->
-        val source = source as FileWithRangesBuildProblemSource
+        source as FileWithRangesBuildProblemSource
         val startOffset = source.offsetRange.first
         val endOffset = source.offsetRange.last
         listOf(DiagnosticPoint(startOffset, true, diagnostic), DiagnosticPoint(endOffset, false, diagnostic))

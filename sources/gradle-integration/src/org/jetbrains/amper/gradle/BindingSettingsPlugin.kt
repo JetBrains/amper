@@ -39,7 +39,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
 
             // the class loader is different within projectsLoaded, and we need this one to load the ModelInit service
             val gradleClassLoader = Thread.currentThread().contextClassLoader
-            settings.gradle.projectsLoaded { g ->
+            settings.gradle.projectsLoaded {
                 // at this point all projects have been created by settings.gradle.kts, but none were evaluated yet
                 val projects = settings.gradle.rootProject.allprojects
 

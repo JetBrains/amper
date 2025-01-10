@@ -40,7 +40,7 @@ interface SchemaVisitor {
     fun visitCommon(
         prop: KProperty<*>,
         type: KType,
-        default: Default<Any>?,
+        default: Default<*>?,
     )
 
     /**

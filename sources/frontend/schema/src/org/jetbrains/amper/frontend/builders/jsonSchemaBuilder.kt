@@ -120,8 +120,8 @@ class JsonSchemaBuilder(
                         // pattern properties section.
                         if (patternProperties != null) {
                             appendLine("$identPrefix      \"patternProperties\": {")
-                            patternProperties.forEachEndAware { isEnd2, it ->
-                                append(it.replaceIndent("$identPrefix        "))
+                            patternProperties.forEachEndAware { isEnd2, prop ->
+                                append(prop.replaceIndent("$identPrefix        "))
                                 if (!isEnd2) appendLine(",") else appendLine()
                             }
                             if (propertyInfos != null) appendLine("$identPrefix      },")
@@ -133,8 +133,8 @@ class JsonSchemaBuilder(
                         // properties section.
                         if (propertyInfos != null) {
                             appendLine("$indent\"properties\": {")
-                            propertyInfos.values.filter { !it.dependencyKey }.forEachEndAware { isEnd2, it ->
-                                append(it.fullJsonDef.replaceIndent("$indent  "))
+                            propertyInfos.values.filter { !it.dependencyKey }.forEachEndAware { isEnd2, propInfo ->
+                                append(propInfo.fullJsonDef.replaceIndent("$indent  "))
                                 if (!isEnd2) appendLine(",") else appendLine()
                             }
                             appendLine("$indent},")
@@ -184,7 +184,7 @@ class JsonSchemaBuilder(
             } else null
     }
 
-    private fun addPatternProperty(prop: KProperty<*>, block: () -> String) {
+    private fun addPatternProperty(block: () -> String) {
         ctx.declaredPatternProperties.compute(currentRoot.jsonDef) { _, old ->
             old.orNew.apply { add(block()) }
         }
@@ -228,7 +228,7 @@ class JsonSchemaBuilder(
         if (modifierAware) {
             check(type.isMap) { "Modifier-aware properties must be of type Map<Modifier, *>" }
             addProperty(prop) { buildForTyped(type.mapValueType) }
-            addPatternProperty(prop) {
+            addPatternProperty {
                 buildModifierBasedCollection(prop.name) { buildForTyped(type.mapValueType) }
             }
         } else {
@@ -237,7 +237,7 @@ class JsonSchemaBuilder(
         super.visitTyped(prop, type, schemaNodeType, types, modifierAware)
     }
 
-    override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<Any>?) =
+    override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<*>?) =
         addProperty(prop) {
             if (prop.name == "aliases") {
                 // Not all platforms could be used in aliases, but only those declared in module file in product definition

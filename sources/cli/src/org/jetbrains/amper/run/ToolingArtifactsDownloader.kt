@@ -25,7 +25,7 @@ class ToolingArtifactsDownloader(
 
     private val mavenResolver = MavenResolver(userCacheRoot)
 
-    suspend fun downloadHotReloadAgent(version: String = UsedVersions.hotReloadVersion): List<Path> =
+    suspend fun downloadHotReloadAgent(): List<Path> =
         downloadToolingArtifacts(
             listOf("org.jetbrains.compose:hot-reload-agent:${UsedVersions.hotReloadVersion}"),
             listOf(

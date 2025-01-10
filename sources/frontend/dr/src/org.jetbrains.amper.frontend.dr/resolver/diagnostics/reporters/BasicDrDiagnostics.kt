@@ -46,13 +46,13 @@ class BasicDrDiagnostics: DrDiagnosticsReporter{
 
             if (psiElement != null) {
                 for (message in importantMessages) {
-                    val level = message.mapSeverityToLevel()
+                    val msgLevel = message.mapSeverityToLevel()
                     // todo (AB) : improve showing errors/warnings
                     // todo (AB) : - don't show error related to transitive dependency if it is among direct ones (show only there)
                     // todo (AB) : - improve error message about transitive dependencies
 
                     val refinedErrorMessage = refineErrorMessage(message, node, directDependency)
-                    val buildProblem = DependencyBuildProblem(node, directDependency, refinedErrorMessage, level, psiElement)
+                    val buildProblem = DependencyBuildProblem(node, directDependency, refinedErrorMessage, msgLevel, psiElement)
                     problemReporter.reportMessage(buildProblem)
                 }
             }

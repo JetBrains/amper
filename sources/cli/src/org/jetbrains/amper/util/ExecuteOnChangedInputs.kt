@@ -341,7 +341,7 @@ class ExecuteOnChangedInputs(
                     // Using Path.visitFileTree to get both file name AND file attributes at the same time.
                     // This is much faster on OSes where you can get both, e.g., Windows.
                     current.visitFileTree {
-                        onPreVisitDirectory { subdir, attrs ->
+                        onPreVisitDirectory { subdir, _ ->
                             if (current == subdir) {
                                 return@onPreVisitDirectory FileVisitResult.CONTINUE
                             }
@@ -359,7 +359,7 @@ class ExecuteOnChangedInputs(
                             FileVisitResult.CONTINUE
                         }
 
-                        onPostVisitDirectory { dir, exc ->
+                        onPostVisitDirectory { _, exc ->
                             if (exc != null) {
                                 throw exc
                             }

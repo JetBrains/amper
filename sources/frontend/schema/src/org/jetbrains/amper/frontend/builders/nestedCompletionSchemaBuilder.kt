@@ -110,7 +110,7 @@ class NestedCompletionSchemaBuilder(
         }
     }
 
-    override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<Any>?) {
+    override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<*>?) {
         // do nothing - skip
     }
 

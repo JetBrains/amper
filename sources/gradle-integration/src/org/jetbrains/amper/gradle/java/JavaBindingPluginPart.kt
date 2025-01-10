@@ -89,7 +89,7 @@ class JavaBindingPluginPart(
                         "Applying application settings from first one."
             )
         val fragment = leafPlatformFragments.firstOrNull() ?: return
-        if (fragment.settings.compose?.enabled != true) {
+        if (!fragment.settings.compose.enabled) {
             project.plugins.apply(ApplicationPlugin::class.java)
         }
 
@@ -103,7 +103,7 @@ class JavaBindingPluginPart(
         // Do when layout is known.
         project.afterEvaluate {
             if (module.type.isLibrary()) return@afterEvaluate
-            val foundMainClass = if (jvmSettings?.mainClass != null) {
+            val foundMainClass = if (jvmSettings.mainClass != null) {
                 jvmSettings.mainClass
             } else {
                 val sources = fragment.kotlinSourceSet?.closureSources?.ifEmpty {

@@ -24,7 +24,7 @@ class ClassBasedSet<T : Any> : AbstractMutableSet<T>() {
     override fun add(element: T) =
         (internalMap.put(element::class.java, element) !== element)
 
-    operator fun <T2 : T> get(clazz: Class<T2>): T2? = internalMap.get(clazz) as? T2
+    operator fun <T2 : T> get(clazz: Class<T2>): T2? = internalMap[clazz]?.let { clazz.cast(it) }
     inline fun <reified T2 : T> find() = this[T2::class.java]
 }
 

@@ -34,11 +34,11 @@ abstract class BaseModuleDrTest {
             assertTrue(messages.isEmpty(), "There must be no messages for $this: $messages")
         }
     ): DependencyNode {
-        val resolutionInput = resolutionInput.copy(fileCacheBuilder = cacheBuilder(TestUtil.userCacheRoot))
+        val resolutionInputCopy = resolutionInput.copy(fileCacheBuilder = cacheBuilder(TestUtil.userCacheRoot))
 
         val graph =
             with(moduleDependenciesResolver) {
-                aom.modules.resolveDependencies(resolutionInput)
+                aom.modules.resolveDependencies(resolutionInputCopy)
             }
 
 //        graph.verifyGraphConnectivity()

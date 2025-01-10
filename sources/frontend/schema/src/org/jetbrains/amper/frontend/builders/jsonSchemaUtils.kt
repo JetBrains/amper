@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.StandaloneSpecific
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -223,8 +224,8 @@ val KType.enumSchema
 private fun adjustEnumValueDoc(doc: String): String {
     val left = doc.indexOf('[')
     val right = doc.indexOf(']')
-    val resultingDoc = (if (left >= 0 && right > left) {
+    val resultingDoc = (if (left in 0..<right) {
         doc.substring(left + 1, right)
-    } else doc).trimStart('(').trimEnd(')').capitalize()
+    } else doc).trimStart('(').trimEnd(')').replaceFirstChar { it.titlecase() }
     return "(${resultingDoc})"
 }

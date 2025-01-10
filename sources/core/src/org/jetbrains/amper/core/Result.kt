@@ -36,9 +36,9 @@ inline fun <T, R> Result<T>.map(transform: (T) -> R): Result<R> = when (this) {
     is Result.Failure -> Result.failure(exception)
 }
 
-inline fun <T, R, V : Result<R>?> Result<T>.flatMap(transform: (T) -> V): V = when (this) {
+inline fun <T, R> Result<T>.flatMap(transform: (T) -> Result<R>): Result<R> = when (this) {
     is Result.Success -> transform(value)
-    is Result.Failure -> Result.failure<R>(exception) as V
+    is Result.Failure -> Result.failure(exception)
 }
 
 fun <T> List<Result<T>>.unwrap(): List<T> = map { it.get() }

@@ -2,6 +2,8 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DEPRECATION")
+
 package org.jetbrains.amper.diagnostics
 
 import io.opentelemetry.api.common.AttributeKey
@@ -58,6 +60,7 @@ private class SerializableSpanData(
     override fun getTotalRecordedEvents() = events.size
     override fun getTotalRecordedLinks() = links.size
     override fun getTotalAttributeCount() = attributes.size()
+    @Deprecated("Deprecated in parent interface")
     override fun getInstrumentationLibraryInfo(): InstrumentationLibraryInfo = InstrumentationLibraryInfo.empty()
     override fun getResource(): Resource = Resource.create(resourceAttributes, resourceSchemaUrl)
 

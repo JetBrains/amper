@@ -51,7 +51,7 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
             fun log(s: String) = println("TempDirExtension.deleteWithRetries: $s")
 
             path.visitFileTree {
-                onVisitFile { file, attributes ->
+                onVisitFile { file, _ ->
                     try {
                         log("Removing file $file")
                         file.deleteIfExists()
@@ -62,7 +62,7 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
                     FileVisitResult.CONTINUE
                 }
 
-                onVisitFileFailed { file, exc ->
+                onVisitFileFailed { _, exc ->
                     exc.printStackTrace()
                     exceptions.add(exc)
                     FileVisitResult.CONTINUE

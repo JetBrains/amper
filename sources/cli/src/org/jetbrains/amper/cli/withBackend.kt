@@ -76,7 +76,7 @@ internal suspend fun <T> withBackend(
 
         if (setupEnvironment) {
             spanBuilder("Setup file logging and monitoring").use {
-                CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot, cliContext.terminal)
+                CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot)
                 CliEnvironmentInitializer.setupFileLogging(cliContext.buildLogsRoot)
 
                 // TODO output version, os and some env to log file only

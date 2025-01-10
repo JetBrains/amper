@@ -91,7 +91,7 @@ abstract class SchemaNode : Traceable {
         }
 }
 
-sealed class Default<T> {
+sealed class Default<out T> {
     abstract val value: T?
 
     data class Static<T>(override val value: T) : Default<T>()
