@@ -11,7 +11,7 @@ dependencies:
   - $libs.kotlinx.coroutines.core
 
 test-dependencies:
-  - org.yaml:snakeyaml:2.2
+  - $libs.snakeyaml
   - $libs.gradle.toolingApi
   - $libs.kotlin.reflect
   - commons-io:commons-io:2.4

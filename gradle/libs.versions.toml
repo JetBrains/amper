@@ -9,6 +9,7 @@ apache-commons = "1.24.0"
 bouncycastle = "1.78.1"
 clikt = "5.0.1"
 compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
+eclipse-jgit = "6.7.0.202309050840-r"
 google-services = "4.4.2"
 gradle-api-forGradleBased = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 gradle-api-forStandalone = "8.9"
@@ -25,6 +26,7 @@ maven-resolver = "1.9.22"
 mordant = "3.0.0"
 opentelemetry = "1.44.0"
 slf4j = "2.0.16"
+snakeyaml = "2.2"
 stacktrace-decoroutinator = "2.4.8"
 tinylog = "2.6.2"
 xmlutil-serialization = "0.86.2"
@@ -88,8 +90,10 @@ opentelemetry-exporterOtlpCommon = { module = "io.opentelemetry:opentelemetry-ex
 opentelemetry-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-sdkTrace = { module = "io.opentelemetry:opentelemetry-sdk-trace", version.ref = "opentelemetry" }
+org-eclipse-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "eclipse-jgit" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
 stacktrace-decoroutinator = { module = "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm", version.ref = "stacktrace-decoroutinator" }
 tinylog-api = { module = "org.tinylog:tinylog-api-kotlin", version.ref = "tinylog" }
 tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
