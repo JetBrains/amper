@@ -166,6 +166,7 @@ fun updateWrapperTemplates() {
     sequenceOf(
         cliDir / "resources/wrappers/amper.template.sh",
         cliDir / "amper-from-sources.sh",
+        amperRootDir / "amper-from-sources",
     ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
             .replaceRegexGroup1(Regex("""\bjbr_version=(\S+)"""), jvmVersion)
@@ -178,6 +179,7 @@ fun updateWrapperTemplates() {
     sequenceOf(
         cliDir / "resources/wrappers/amper.template.bat",
         cliDir / "amper-from-sources.bat",
+        amperRootDir / "amper-from-sources.bat",
     ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
             .replaceRegexGroup1(Regex("""\bset\s+jbr_version=(\S+)"""), jvmVersion)
