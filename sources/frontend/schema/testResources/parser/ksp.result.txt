@@ -2,7 +2,7 @@ Fragments:
   android
     External dependencies:
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha11, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
@@ -64,7 +64,7 @@ Fragments:
             "room.generateKotlin": true
           }
           processors: [
-            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha11)
+            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha12)
           ]
           version: 1.9.20-1.0.24
         }
@@ -151,7 +151,7 @@ Fragments:
             "room.generateKotlin": true
           }
           processors: [
-            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha11)
+            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha12)
           ]
           version: 1.9.20-1.0.24
         }

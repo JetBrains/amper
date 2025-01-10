@@ -2,7 +2,7 @@ product = "android/app"
 
 dependencies {
   "androidx.appcompat:appcompat:1.6.1"
-  "androidx.room:room-runtime:2.7.0-alpha11"
+  "androidx.room:room-runtime:2.7.0-alpha12"
 }
 
 settings {
@@ -10,7 +10,7 @@ settings {
     ksp {
       version = "1.9.20-1.0.24"
       processors {
-        "androidx.room:room-compiler:2.7.0-alpha11"
+        "androidx.room:room-compiler:2.7.0-alpha12"
       }
       processorOptions {
         "room.schemaLocation" = "./generated-db-schema"

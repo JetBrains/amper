@@ -926,7 +926,7 @@ settings:
   kotlin:
     ksp:
       processors:
-        - androidx.room:room-compiler:2.7.0-alpha11
+        - androidx.room:room-compiler:2.7.0-alpha12
 ```
 
 In multiplatform modules, all settings from the `settings` section apply to all platforms by default, including KSP processors.
@@ -939,7 +939,7 @@ settings@android:
   kotlin:
     ksp:
       processors:
-        - androidx.room:room-compiler:2.7.0-alpha11
+        - androidx.room:room-compiler:2.7.0-alpha12
 ```
 
 Some processors can be customized by passing options. You can pass these options using the `processorOptions` section:
@@ -949,7 +949,7 @@ settings:
   kotlin:
     ksp:
       processors:
-        - androidx.room:room-compiler:2.7.0-alpha11
+        - androidx.room:room-compiler:2.7.0-alpha12
       processorOptions:
         room.schemaLocation: ./schema
 ```
