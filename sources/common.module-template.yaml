@@ -41,8 +41,6 @@ settings:
 
   kotlin:
     languageVersion: 1.9
-    languageFeatures:
-      - contextReceivers
     freeCompilerArgs:
       - -Xcontext-receivers
     optIns: [ kotlin.io.path.ExperimentalPathApi ]
