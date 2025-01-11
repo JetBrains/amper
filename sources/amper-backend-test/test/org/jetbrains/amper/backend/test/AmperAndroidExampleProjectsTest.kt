@@ -45,9 +45,7 @@ import kotlin.time.Duration.Companion.minutes
 
 class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
 
-    private val androidTestDataRoot: Path = TestUtil
-        .amperSourcesRoot
-        .resolve("amper-backend-test/testData/projects/android")
+    private val androidTestDataRoot: Path = TestUtil.amperTestProjectsRoot / "android"
 
     private suspend fun TestCollector.setupAndroidTestProject(
         testProjectName: String,

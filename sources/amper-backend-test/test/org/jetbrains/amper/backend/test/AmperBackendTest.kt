@@ -13,7 +13,6 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.core.*
 import org.jetbrains.amper.diagnostics.getAttribute
-import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -39,7 +38,6 @@ import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.util.jar.Attributes
 import java.util.jar.JarFile
-import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
@@ -65,8 +63,6 @@ import kotlin.test.assertTrue
 
 class AmperBackendTest : AmperIntegrationTestBase() {
 
-    private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
-
     @RegisterExtension
     private val errorCollectorExtension = ErrorCollectorExtension()
 
@@ -75,7 +71,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,
     ): CliContext = setupTestProject(
-        testDataRoot.resolve(testProjectName),
+        testProjectPath = TestUtil.amperTestProjectsRoot.resolve(testProjectName),
         copyToTemp = copyToTemp,
         programArgs = programArgs,
     )

@@ -14,7 +14,7 @@ import kotlin.test.fail
 
 class AmperTestFiltersTest : AmperCliTestBase() {
 
-    override val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
+    override val testDataRoot: Path = TestUtil.amperTestProjectsRoot
 
     @Test
     fun `include test single (jvm-cli)`() = runTestInfinitely {

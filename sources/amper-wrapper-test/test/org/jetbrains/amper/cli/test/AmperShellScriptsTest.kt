@@ -25,6 +25,7 @@ import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isExecutable
@@ -45,7 +46,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     private val tempDir: Path
         get() = tempDirExtension.path
 
-    private val shellScriptExampleProject = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/shell-scripts")
+    private val shellScriptExampleProject = TestUtil.amperTestProjectsRoot / "shell-scripts"
 
     @BeforeEach
     fun prepareScript() {

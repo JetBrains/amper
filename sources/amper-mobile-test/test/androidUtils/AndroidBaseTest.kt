@@ -47,7 +47,7 @@ open class AndroidBaseTest : TestBase() {
         applicationId: String? = null,
         androidAppModuleName: String? = null,
     ) {
-        val androidTestProjectsPath = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/android")
+        val androidTestProjectsPath = TestUtil.amperTestProjectsRoot / "android"
 
         prepareExecution(projectName, androidTestProjectsPath, applicationId) { projectDir ->
             buildApkWithAmper(projectDir, moduleName = androidAppModuleName ?: projectName)

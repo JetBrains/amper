@@ -34,7 +34,7 @@ import kotlin.time.Duration.Companion.minutes
 @Execution(ExecutionMode.CONCURRENT)
 class AmperCliTest: AmperCliTestBase() {
 
-    override val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
+    override val testDataRoot: Path = TestUtil.amperTestProjectsRoot
 
     @Test
     fun smoke() = runTestInfinitely {

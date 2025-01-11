@@ -29,7 +29,7 @@ import kotlin.test.assertTrue
 @Execution(ExecutionMode.CONCURRENT)
 class AmperKspTest: AmperCliTestBase() {
 
-    override val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
+    override val testDataRoot: Path = TestUtil.amperTestProjectsRoot
 
     @Test
     fun `ksp jvm autoservice`() = runTestInfinitely {

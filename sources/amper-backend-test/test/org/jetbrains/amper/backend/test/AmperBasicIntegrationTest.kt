@@ -13,7 +13,6 @@ import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
 import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
 import org.jetbrains.amper.test.spans.withAmperModule
-import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -23,10 +22,8 @@ import kotlin.test.assertFailsWith
 // It was decoupled from the Gradle-based examples, and split into AmperExamples2Test and AmperBasicIntegrationTest.
 class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
 
-    private val exampleProjectsRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
-
     private suspend fun TestCollector.setupExampleProject(testProjectName: String): CliContext =
-        setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
+        setupTestProject(TestUtil.amperTestProjectsRoot.resolve(testProjectName), copyToTemp = true)
 
     @Test
     fun `jvm-default-compiler-settings`() = runTestWithCollector {

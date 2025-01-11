@@ -25,8 +25,7 @@ import kotlin.test.expect
 @MacOnly
 class AmperIosProjectsTest : AmperCliTestBase() {
     override val testDataRoot: Path
-        get() = TestUtil.amperSourcesRoot
-            .resolve("amper-backend-test/testData/projects/ios")
+        get() = TestUtil.amperTestProjectsRoot / "ios"
 
     @Test
     fun `framework for simple for iosSimulatorArm64`() = runTestInfinitely {

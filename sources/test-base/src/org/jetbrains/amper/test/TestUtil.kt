@@ -37,6 +37,11 @@ object TestUtil {
     val amperSourcesRoot = amperCheckoutRoot / "sources"
 
     /**
+     * The directory containing all test projects for Amper standalone.
+     */
+    val amperTestProjectsRoot = amperSourcesRoot / "amper-backend-test/testData/projects"
+
+    /**
      * The location of the local maven repository.
      */
     val m2repository = LocalM2RepositoryFinder.findPath()

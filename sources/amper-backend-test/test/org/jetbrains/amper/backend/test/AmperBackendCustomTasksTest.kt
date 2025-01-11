@@ -15,6 +15,7 @@ import java.nio.file.Path
 import java.util.zip.ZipFile
 import kotlin.io.path.Path
 import kotlin.io.path.deleteRecursively
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.readText
@@ -25,14 +26,14 @@ import kotlin.test.assertTrue
 
 class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
 
-    private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/customTasks")
+    private val testDataRoot: Path = TestUtil.amperSourcesRoot / "amper-backend-test/testData/customTasks"
 
     private suspend fun TestCollector.setupTestDataProject(
         testProjectName: String,
         programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,
     ): CliContext = setupTestProject(
-        testDataRoot.resolve(testProjectName),
+        testProjectPath = testDataRoot.resolve(testProjectName),
         copyToTemp = copyToTemp,
         programArgs = programArgs,
     )
