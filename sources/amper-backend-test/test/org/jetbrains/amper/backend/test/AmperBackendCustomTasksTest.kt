@@ -26,7 +26,7 @@ import kotlin.test.assertTrue
 
 class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
 
-    private val testDataRoot: Path = TestUtil.amperSourcesRoot / "amper-backend-test/testData/customTasks"
+    private val testDataRoot: Path = TestUtil.amperTestProjectsRoot / "customTasks"
 
     private suspend fun TestCollector.setupTestDataProject(
         testProjectName: String,
