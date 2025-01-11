@@ -11,7 +11,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.concurrency.Hash
 import org.jetbrains.amper.concurrency.Hasher
@@ -57,6 +59,8 @@ import kotlin.io.path.writeText
 
 
 private val logger = LoggerFactory.getLogger("files.kt")
+
+private val downloadSemaphore = Semaphore(10)
 
 /**
  * Provides mapping between [MavenDependency] and a location on disk.
@@ -710,47 +714,50 @@ open class DependencyFile(
                     .GET()
                     .build()
 
-                downloadSemaphore.acquire()
-                val response = try {
+                downloadSemaphore.withPermit {
                     val future = client.sendAsync(request, BodyHandlers.ofInputStream())
-                    future.await()
-                } finally {
-                    downloadSemaphore.release()
-                }
+                    val response = future.await()
 
-                response.body().use { responseBody ->
-                    when (val status = response.statusCode()) {
-                        200 -> {
-                            val expectedSize = fileFromVariant(dependency, name)?.size
-                                ?: response.headers().firstValueAsLong(HttpHeaders.ContentLength)
-                                    .takeIf { it.isPresent && it.asLong != -1L }?.asLong
-                            val size = responseBody.toByteReadChannel().readTo(writers)
+                    response.body().use { responseBody ->
+                        when (val status = response.statusCode()) {
+                            200 -> {
+                                val expectedSize = fileFromVariant(dependency, name)?.size
+                                    ?: response.headers().firstValueAsLong(HttpHeaders.ContentLength)
+                                        .takeIf { it.isPresent && it.asLong != -1L }?.asLong
+                                val size = responseBody.toByteReadChannel().readTo(writers)
 
-                            if (expectedSize != null && size != expectedSize) {
-                                throw IOException(
-                                    "Content length doesn't match for $url. Expected: $expectedSize, actual: $size"
-                                )
+                                if (expectedSize != null && size != expectedSize) {
+                                    throw IOException(
+                                        "Content length doesn't match for $url. Expected: $expectedSize, actual: $size"
+                                    )
+                                }
+
+                                if (logger.isDebugEnabled) {
+                                    logger.debug(
+                                        "Downloaded {} for the dependency {}:{}:{}",
+                                        url,
+                                        dependency.group,
+                                        dependency.module,
+                                        dependency.version
+                                    )
+                                } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
+                                    // Reports downloaded dependency to INFO (visible to user by default)
+                                    logger.info("Downloaded $url")
+                                }
+
+                                true
                             }
 
-                            if (logger.isDebugEnabled) {
-                                logger.debug("Downloaded {} for the dependency {}:{}:{}", url, dependency.group, dependency.module, dependency.version)
-                            } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
-                                // Reports downloaded dependency to INFO (visible to user by default)
-                                logger.info("Downloaded $url")
+                            404 -> {
+                                logger.debug("Not found URL: $url")
+                                false
                             }
 
-                            true
+                            else -> throw IOException(
+                                "Unexpected response code for $url. " +
+                                        "Expected: ${HttpStatusCode.OK.value}, actual: $status"
+                            )
                         }
-
-                        404 -> {
-                            logger.debug("Not found URL: $url")
-                            false
-                        }
-
-                        else -> throw IOException(
-                            "Unexpected response code for $url. " +
-                                    "Expected: ${HttpStatusCode.OK.value}, actual: $status"
-                        )
                     }
                 }
             }

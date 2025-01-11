@@ -185,8 +185,6 @@ class Resolver {
     }
 }
 
-val downloadSemaphore = Semaphore(10)
-
 private class ConflictResolver(val conflictResolutionStrategies: List<ConflictResolutionStrategy>) {
     /**
      * Maps each key (group:artifact) to the list of "similar" nodes that have that same key, and thus are potential
