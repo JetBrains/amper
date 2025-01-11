@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.amperCheckoutRoot
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
@@ -31,7 +30,7 @@ import kotlin.test.assertEquals
 class AmperProjectStructureTest {
     @Test
     fun sameVersionInEveryWrapper() {
-        val versionToFiles = amperCheckoutRoot.findWrapperFiles()
+        val versionToFiles = TestUtil.amperCheckoutRoot.findWrapperFiles()
             .map { it to extractAmperVersion(it) }
             .groupBy({ it.second }, { it.first })
             .toList()
@@ -70,12 +69,12 @@ class AmperProjectStructureTest {
     fun `list of modules is the same for gradle and standalone amper`() = runTestWithCollector {
         val backend = createAmperProjectBackend(backgroundScope)
         val standaloneModulesList = backend.modules()
-            .map { (it.source as AmperModuleFileSource).moduleDir.relativeTo(amperCheckoutRoot) }
+            .map { (it.source as AmperModuleFileSource).moduleDir.relativeTo(TestUtil.amperCheckoutRoot) }
             .map { it.toString().replace('\\', '/') }
             .sorted()
             .joinToString("\n")
 
-        val settingsGradleFile = amperCheckoutRoot.resolve("settings.gradle.kts")
+        val settingsGradleFile = TestUtil.amperCheckoutRoot.resolve("settings.gradle.kts")
         val gradleModulesList = settingsGradleFile
             .readLines()
             .mapNotNull { Regex("include\\(\"(.*)\"\\)").find(it)?.groupValues?.get(1)?.removePrefix(":")?.replace(':', '/') }
@@ -83,12 +82,12 @@ class AmperProjectStructureTest {
             .joinToString("\n")
 
         assertEquals(standaloneModulesList, gradleModulesList,
-            "Modules list in ${amperCheckoutRoot.resolve("project.yaml")} (expected) and $settingsGradleFile (actual) differ")
+            "Modules list in project.yaml (expected) and settings.gradle.kts (actual) differ")
     }
 
     private suspend fun createAmperProjectBackend(backgroundScope: CoroutineScope): AmperBackend {
         val context = CliContext.create(
-            explicitProjectRoot = amperCheckoutRoot,
+            explicitProjectRoot = TestUtil.amperCheckoutRoot,
             userCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot),
             buildOutputRoot = AmperBuildOutputRoot(tempRoot),
             currentTopLevelCommand = "n/a",

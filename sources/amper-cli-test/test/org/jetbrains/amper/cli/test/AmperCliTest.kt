@@ -6,10 +6,8 @@ package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.processes.ProcessInput
-import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.m2repository
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -255,7 +253,7 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun publish() = runTestInfinitely {
-        val groupDir = m2repository.resolve("amper/test/jvm-publish")
+        val groupDir = TestUtil.m2repository.resolve("amper/test/jvm-publish")
         groupDir.deleteRecursively()
 
         runCli("jvm-publish", "publish", "mavenLocal")
