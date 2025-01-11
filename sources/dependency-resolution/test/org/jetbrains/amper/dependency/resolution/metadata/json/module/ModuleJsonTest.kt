@@ -5,7 +5,7 @@
 package org.jetbrains.amper.dependency.resolution.metadata.json.module
 
 import org.jetbrains.amper.dependency.resolution.metadata.json.JsonTestBase
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 internal class ModuleJsonTest : JsonTestBase<Module>() {
 
     override fun getTestDataPath(name: String): Path =
-        TestUtil.amperSourcesRoot.resolve("dependency-resolution/testData/metadata/json/module/${name}.module")
+        Dirs.amperSourcesRoot.resolve("dependency-resolution/testData/metadata/json/module/${name}.module")
 
     override fun String.parse(): Module = parseMetadata()
 

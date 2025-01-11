@@ -8,7 +8,7 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
 import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
@@ -23,7 +23,7 @@ import kotlin.test.assertFailsWith
 class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
 
     private suspend fun TestCollector.setupExampleProject(testProjectName: String): CliContext =
-        setupTestProject(TestUtil.amperTestProjectsRoot.resolve(testProjectName), copyToTemp = true)
+        setupTestProject(Dirs.amperTestProjectsRoot.resolve(testProjectName), copyToTemp = true)
 
     @Test
     fun `jvm-default-compiler-settings`() = runTestWithCollector {

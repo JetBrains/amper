@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli.test
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.test.MacOnly
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.junit.jupiter.api.BeforeEach
@@ -50,7 +50,7 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     fun `all templates are covered`() {
         val methods = javaClass.declaredMethods.map { templateNameFromTestName(it.name) }.toSet()
 
-        val templatesRoot = TestUtil.amperSourcesRoot.resolve("cli/resources/templates")
+        val templatesRoot = Dirs.amperSourcesRoot.resolve("cli/resources/templates")
         val entries = templatesRoot.listDirectoryEntries()
         check(entries.size > 3) {
             "Possibly incorrect templates root: $templatesRoot"

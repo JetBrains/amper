@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
 import kotlin.test.Test
 
@@ -25,7 +25,7 @@ import kotlin.test.Test
  */
 class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 
-    private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("frontend/dr/testData/projects")
+    private val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
 
     @Test
     fun `test sync empty jvm module`() {

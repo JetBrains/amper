@@ -11,7 +11,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
@@ -30,7 +30,7 @@ import kotlin.test.assertEquals
 class AmperProjectStructureTest {
     @Test
     fun sameVersionInEveryWrapper() {
-        val versionToFiles = TestUtil.amperCheckoutRoot.findWrapperFiles()
+        val versionToFiles = Dirs.amperCheckoutRoot.findWrapperFiles()
             .map { it to extractAmperVersion(it) }
             .groupBy({ it.second }, { it.first })
             .toList()
@@ -44,7 +44,7 @@ class AmperProjectStructureTest {
 
     private fun Path.findWrapperFiles(): List<Path> {
         val filesWithWrappers = mutableListOf<Path>()
-        val gradleTestProjects = TestUtil.amperSourcesRoot.resolve("gradle-e2e-test/testData/projects")
+        val gradleTestProjects = Dirs.amperSourcesRoot.resolve("gradle-e2e-test/testData/projects")
         visitFileTree {
             onPreVisitDirectory { dir, _ ->
                 when {
@@ -69,12 +69,12 @@ class AmperProjectStructureTest {
     fun `list of modules is the same for gradle and standalone amper`() = runTestWithCollector {
         val backend = createAmperProjectBackend(backgroundScope)
         val standaloneModulesList = backend.modules()
-            .map { (it.source as AmperModuleFileSource).moduleDir.relativeTo(TestUtil.amperCheckoutRoot) }
+            .map { (it.source as AmperModuleFileSource).moduleDir.relativeTo(Dirs.amperCheckoutRoot) }
             .map { it.toString().replace('\\', '/') }
             .sorted()
             .joinToString("\n")
 
-        val settingsGradleFile = TestUtil.amperCheckoutRoot.resolve("settings.gradle.kts")
+        val settingsGradleFile = Dirs.amperCheckoutRoot.resolve("settings.gradle.kts")
         val gradleModulesList = settingsGradleFile
             .readLines()
             .mapNotNull { Regex("include\\(\"(.*)\"\\)").find(it)?.groupValues?.get(1)?.removePrefix(":")?.replace(':', '/') }
@@ -87,8 +87,8 @@ class AmperProjectStructureTest {
 
     private suspend fun createAmperProjectBackend(backgroundScope: CoroutineScope): AmperBackend {
         val context = CliContext.create(
-            explicitProjectRoot = TestUtil.amperCheckoutRoot,
-            userCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot),
+            explicitProjectRoot = Dirs.amperCheckoutRoot,
+            userCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot),
             buildOutputRoot = AmperBuildOutputRoot(tempRoot),
             currentTopLevelCommand = "n/a",
             backgroundScope = backgroundScope,

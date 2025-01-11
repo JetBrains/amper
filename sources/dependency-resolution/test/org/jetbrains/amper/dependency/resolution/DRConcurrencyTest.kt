@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
@@ -25,7 +25,7 @@ import kotlin.test.fail
 class DRConcurrencyTest : BaseDRTest() {
 
     companion object {
-        private val cacheRoot: Path = TestUtil.userCacheRoot
+        private val cacheRoot: Path = Dirs.userCacheRoot
             .resolve(UUID.randomUUID().toString().padEnd(8, '0').substring(1..8))
 
         private val annotationJvmPath = cacheRoot.resolve(".m2.cache")
@@ -122,7 +122,7 @@ class DRConcurrencyTest : BaseDRTest() {
 
     @AfterTest
     fun cleanUp() {
-        if (cacheRoot != TestUtil.userCacheRoot) {
+        if (cacheRoot != Dirs.userCacheRoot) {
             cacheRoot.deleteRecursively()
         }
     }

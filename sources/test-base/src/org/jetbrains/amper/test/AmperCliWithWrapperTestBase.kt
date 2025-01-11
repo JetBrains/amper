@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 abstract class AmperCliWithWrapperTestBase {
 
     @RegisterExtension
-    private val httpServer = HttpServerExtension(wwwRoot = TestUtil.m2repository)
+    private val httpServer = HttpServerExtension(wwwRoot = Dirs.m2repository)
 
     /**
      * The files that were downloaded by the Amper wrapper so far in the current test.
@@ -57,7 +57,7 @@ abstract class AmperCliWithWrapperTestBase {
         // tells the wrapper to download the distribution and JRE through our local HTTP server
         this["AMPER_DOWNLOAD_ROOT"] = httpServer.wwwRootUrl
         this["AMPER_JRE_DOWNLOAD_ROOT"] = httpServer.cacheRootUrl
-        this["AMPER_BOOTSTRAP_CACHE_DIR"] = TestUtil.sharedAmperCacheRoot.pathString
+        this["AMPER_BOOTSTRAP_CACHE_DIR"] = Dirs.sharedAmperCacheRoot.pathString
     }
 
     /**

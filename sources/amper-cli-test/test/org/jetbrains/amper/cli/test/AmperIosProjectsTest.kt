@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli.test
 import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.test.MacOnly
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.FilteredSpans
 import java.nio.file.Path
@@ -24,7 +24,7 @@ import kotlin.test.expect
 @MacOnly
 class AmperIosProjectsTest : AmperCliTestBase() {
     override val testDataRoot: Path
-        get() = TestUtil.amperTestProjectsRoot / "ios"
+        get() = Dirs.amperTestProjectsRoot / "ios"
 
     @Test
     fun `framework for simple for iosSimulatorArm64`() = runSlowTest {

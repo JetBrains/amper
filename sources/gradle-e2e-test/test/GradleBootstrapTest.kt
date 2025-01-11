@@ -4,7 +4,7 @@
 
 import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.tooling.GradleConnector
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.yaml.snakeyaml.Yaml
@@ -31,7 +31,7 @@ class GradleBootstrapTest {
     @Test
     fun `amper could build itself using version from sources`() {
         // given
-        val commonTemplatePath = TestUtil.amperSourcesRoot.resolve("common.module-template.yaml")
+        val commonTemplatePath = Dirs.amperSourcesRoot.resolve("common.module-template.yaml")
 
         val commonTemplate = commonTemplatePath.inputStream().use { Yaml().load<Map<String, Any>>(it) }
         val yamlSettings = commonTemplate.getValue("settings") as Map<String, Any>
@@ -56,7 +56,7 @@ class GradleBootstrapTest {
         val stderr = ByteArrayOutputStream()
 
         GradleConnector.newConnector()
-            .useGradleUserHomeDir(TestUtil.sharedGradleHome.toFile())
+            .useGradleUserHomeDir(Dirs.sharedGradleHome.toFile())
             .forProjectDirectory(projectPath.toFile())
             .connect()
             .use { projectConnection ->

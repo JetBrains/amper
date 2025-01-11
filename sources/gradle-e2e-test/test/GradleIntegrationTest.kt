@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
@@ -138,7 +138,7 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
 
     @Test
     fun `publish to maven local with custom artifact id`() {
-        val m2groupRoot = TestUtil.m2repository.resolve("com/mytestgroup")
+        val m2groupRoot = Dirs.m2repository.resolve("com/mytestgroup")
         m2groupRoot.deleteRecursively()
         GradleDaemonManager.deleteFileOrDirectoryOnExit(m2groupRoot)
 

@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import kotlin.io.path.readLines
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -44,7 +44,7 @@ class AmperVersionsCatalogTest {
     private class GradleCatalog(val versionLines: List<String>, val libraryLines: List<String>)
 
     private fun readCatalog(): GradleCatalog {
-        val catalogFile = TestUtil.amperCheckoutRoot.resolve("gradle/libs.versions.toml")
+        val catalogFile = Dirs.amperCheckoutRoot.resolve("gradle/libs.versions.toml")
         val catalogLines = catalogFile.readLines().map { it.trim() }
         val versionLines = catalogLines.extractTomlSectionLines("versions")
         val libraryLines = catalogLines.extractTomlSectionLines("libraries")

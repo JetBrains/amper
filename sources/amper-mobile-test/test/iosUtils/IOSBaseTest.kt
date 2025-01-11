@@ -7,7 +7,7 @@ package iosUtils
 import TestBase
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.processes.ProcessLeak
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
@@ -48,7 +48,7 @@ open class IOSBaseTest : TestBase() {
      * otherwise the root project is expected to be the iOS app.
      */
     internal fun testRunnerGradle(projectName: String, bundleIdentifier: String, iosAppSubprojectName: String? = null) {
-        val examplesGradleProjectsDir = TestUtil.amperCheckoutRoot.resolve("examples-gradle")
+        val examplesGradleProjectsDir = Dirs.amperCheckoutRoot.resolve("examples-gradle")
         prepareExecution(projectName, examplesGradleProjectsDir, bundleIdentifier) { projectDir ->
             buildIosAppWithGradle(projectRootDir = projectDir, projectName, iosAppSubprojectName)
         }
@@ -62,7 +62,7 @@ open class IOSBaseTest : TestBase() {
      * otherwise the root module is expected to be the iOS app.
      */
     internal fun testRunnerStandalone(projectName: String, bundleIdentifier: String, iosAppModuleName: String? = null) {
-        val examplesStandaloneProjectsDir = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
+        val examplesStandaloneProjectsDir = Dirs.amperCheckoutRoot.resolve("examples-standalone")
         prepareExecution(
             projectName = projectName,
             projectsDir = examplesStandaloneProjectsDir,

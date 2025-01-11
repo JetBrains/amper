@@ -13,7 +13,7 @@ import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestReporterExtension
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
 import java.util.*
@@ -40,7 +40,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
          * We don't want to add them to the test projects themselves, because we don't want to pollute git.
          */
         private val tempWrappersDir: Path by lazy {
-            TestUtil.tempDir.resolve("local-cli-wrappers").createDirectories().also {
+            Dirs.tempDir.resolve("local-cli-wrappers").createDirectories().also {
                 LocalAmperPublication.setupWrappersIn(it)
             }
         }
@@ -140,7 +140,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
                 addAll(args)
             },
             environment = mapOf(
-                "ANDROID_HOME" to TestUtil.androidHome.pathString,
+                "ANDROID_HOME" to Dirs.androidHome.pathString,
                 GradleDaemonShutdownHook.NO_DAEMON_ENV to "1",
             ),
             expectedExitCode = expectedExitCode,

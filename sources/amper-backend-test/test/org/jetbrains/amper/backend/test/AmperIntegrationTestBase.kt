@@ -15,7 +15,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestCollector
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level
 import java.nio.file.Path
@@ -49,7 +49,7 @@ abstract class AmperIntegrationTestBase {
         path
     }
 
-    private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
+    private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
 
     init {
         CliEnvironmentInitializer.setupCoroutinesInstrumentation()
@@ -67,9 +67,9 @@ abstract class AmperIntegrationTestBase {
         val buildDir = tempRoot.resolve("build").also { it.createDirectories() }
         val androidHomeRoot = if (useEmptyAndroidHome) {
             // in temp dir so we get a fresh one in every build on the CI
-            AndroidHomeRoot((TestUtil.tempDir / "empty-android-sdk").also { it.createDirectories() })
+            AndroidHomeRoot((Dirs.tempDir / "empty-android-sdk").also { it.createDirectories() })
         } else {
-            AndroidHomeRoot(TestUtil.androidHome)
+            AndroidHomeRoot(Dirs.androidHome)
         }
 
         return CliContext.create(

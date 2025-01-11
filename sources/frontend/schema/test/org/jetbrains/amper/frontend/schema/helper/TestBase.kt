@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.old.helper
 
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import java.nio.file.Path
@@ -20,7 +20,7 @@ abstract class TestBase(
 
     @BeforeEach
     fun beforeEach() {
-        buildDir = createTempDirectory(TestUtil.tempDir, "test-base")
+        buildDir = createTempDirectory(Dirs.tempDir, "test-base")
     }
 
     @AfterEach

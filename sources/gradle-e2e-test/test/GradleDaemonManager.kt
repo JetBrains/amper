@@ -4,7 +4,7 @@
 
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
@@ -74,7 +74,7 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
 
     private val availableGradleDaemons = ArrayBlockingQueue<GradleConnector>(numberOfDaemons).apply {
         repeat(numberOfDaemons) {
-            add(GradleConnector.newConnector().useGradleUserHomeDir(TestUtil.sharedGradleHome.toFile()))
+            add(GradleConnector.newConnector().useGradleUserHomeDir(Dirs.sharedGradleHome.toFile()))
         }
     }
 

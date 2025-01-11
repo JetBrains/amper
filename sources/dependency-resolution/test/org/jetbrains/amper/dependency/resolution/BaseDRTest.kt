@@ -6,7 +6,7 @@ package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import java.util.*
@@ -43,7 +43,7 @@ abstract class BaseDRTest {
         repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories(),
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNode =
         context(scope, platform, repositories, cacheBuilder)
@@ -62,7 +62,7 @@ abstract class BaseDRTest {
         repositories: List<String> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNode = doTest(testInfo, listOf(dependency), scope, platform, repositories, verifyMessages, expected, cacheBuilder, filterMessages)
 
@@ -75,7 +75,7 @@ abstract class BaseDRTest {
         repositories: List<String> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNode = doTestImpl(testInfo, dependency, scope, platform, repositories.toRepositories(), verifyMessages, expected, cacheBuilder, filterMessages)
 
@@ -84,7 +84,7 @@ abstract class BaseDRTest {
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories(),
-        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(TestUtil.userCacheRoot),
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
     ) = Context {
         this.scope = scope
         this.platforms = platform

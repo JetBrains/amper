@@ -10,10 +10,9 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
 import java.util.zip.ZipFile
-import kotlin.io.path.Path
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -26,7 +25,7 @@ import kotlin.test.assertTrue
 
 class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
 
-    private val testDataRoot: Path = TestUtil.amperTestProjectsRoot / "customTasks"
+    private val testDataRoot: Path = Dirs.amperTestProjectsRoot / "customTasks"
 
     private suspend fun TestCollector.setupTestDataProject(
         testProjectName: String,
@@ -83,7 +82,7 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
 
     @Test
     fun `generate artifact for publishing`() = runTestWithCollector {
-        val groupDir = TestUtil.m2repository.resolve("amper/test/generate-artifact-for-publishing")
+        val groupDir = Dirs.m2repository.resolve("amper/test/generate-artifact-for-publishing")
         groupDir.deleteRecursively()
 
         val projectContext = setupTestDataProject("generate-artifact-for-publishing")

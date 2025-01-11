@@ -93,7 +93,7 @@ class HttpServerExtension(private val wwwRoot: Path) : Extension, BeforeEachCall
 
             try {
                 runBlocking(Dispatchers.IO) {
-                    val cachedFile = Downloader.downloadFileToCacheLocation(url, AmperUserCacheRoot(TestUtil.sharedAmperCacheRoot))
+                    val cachedFile = Downloader.downloadFileToCacheLocation(url, AmperUserCacheRoot(Dirs.sharedAmperCacheRoot))
                     httpExchange.sendResponseHeaders(200, cachedFile.fileSize())
                     httpExchange.responseBody.writeFileContents(cachedFile)
                 }

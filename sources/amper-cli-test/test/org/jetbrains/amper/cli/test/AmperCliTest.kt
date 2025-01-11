@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli.test
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.test.MacOnly
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
@@ -33,7 +33,7 @@ import kotlin.time.Duration.Companion.minutes
 @Execution(ExecutionMode.CONCURRENT)
 class AmperCliTest: AmperCliTestBase() {
 
-    override val testDataRoot: Path = TestUtil.amperTestProjectsRoot
+    override val testDataRoot: Path = Dirs.amperTestProjectsRoot
 
     @Test
     fun smoke() = runSlowTest {
@@ -252,7 +252,7 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun publish() = runSlowTest {
-        val groupDir = TestUtil.m2repository.resolve("amper/test/jvm-publish")
+        val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish")
         groupDir.deleteRecursively()
 
         runCli("jvm-publish", "publish", "mavenLocal")

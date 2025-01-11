@@ -6,7 +6,7 @@ package androidUtils
 
 import TestBase
 import kotlinx.coroutines.test.runTest
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.time.Duration.Companion.minutes
@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.minutes
 open class AndroidBaseTest : TestBase() {
 
     /** Path to the directory containing E2E test projects for Gradle-based tests */
-    private val gradleE2eTestProjectsPath = TestUtil.amperSourcesRoot / "gradle-e2e-test/testData/projects"
+    private val gradleE2eTestProjectsPath = Dirs.amperSourcesRoot / "gradle-e2e-test/testData/projects"
 
     /**
      * Sets up and executes a test environment for [projectName] located in [projectsDir],
@@ -48,7 +48,7 @@ open class AndroidBaseTest : TestBase() {
         applicationId: String? = null,
         androidAppModuleName: String? = null,
     ) {
-        val androidTestProjectsPath = TestUtil.amperTestProjectsRoot / "android"
+        val androidTestProjectsPath = Dirs.amperTestProjectsRoot / "android"
 
         prepareExecution(projectName, androidTestProjectsPath, applicationId) { projectDir ->
             buildApkWithAmper(projectDir, moduleName = androidAppModuleName ?: projectName)

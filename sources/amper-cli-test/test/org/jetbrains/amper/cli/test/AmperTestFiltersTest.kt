@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Disabled
 import java.nio.file.Path
 import kotlin.test.Test
@@ -13,7 +13,7 @@ import kotlin.test.fail
 
 class AmperTestFiltersTest : AmperCliTestBase() {
 
-    override val testDataRoot: Path = TestUtil.amperTestProjectsRoot
+    override val testDataRoot: Path = Dirs.amperTestProjectsRoot
 
     @Test
     fun `include test single (jvm-cli)`() = runSlowTest {

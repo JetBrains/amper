@@ -21,7 +21,7 @@ import org.jetbrains.amper.test.LinuxOnly
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.WindowsOnly
 import org.jetbrains.amper.test.spans.assertEachKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.assertEachKotlinNativeCompilationSpan
@@ -71,7 +71,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,
     ): CliContext = setupTestProject(
-        testProjectPath = TestUtil.amperTestProjectsRoot.resolve(testProjectName),
+        testProjectPath = Dirs.amperTestProjectsRoot.resolve(testProjectName),
         copyToTemp = copyToTemp,
         programArgs = programArgs,
     )
@@ -572,7 +572,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     fun `jvm publish to maven local`() = runTestWithCollector {
-        val groupDir = TestUtil.m2repository.resolve("amper/test/jvm-publish")
+        val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish")
         groupDir.deleteRecursively()
 
         val projectContext = setupTestDataProject("jvm-publish")
@@ -655,7 +655,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     fun `jvm publish multi-module to maven local`() = runTestWithCollector {
-        val groupDir = TestUtil.m2repository.resolve("amper/test/jvm-publish-multimodule")
+        val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish-multimodule")
         groupDir.deleteRecursively()
 
         val projectContext = setupTestDataProject("jvm-publish-multimodule")

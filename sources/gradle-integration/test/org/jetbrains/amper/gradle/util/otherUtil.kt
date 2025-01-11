@@ -8,7 +8,7 @@ import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.gradle.MockModelHandle
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
@@ -42,7 +42,7 @@ fun TestBase.runGradleWithModel(model: MockModelHandle): String {
     GradleConnector.newConnector()
         // we use this instead of useGradleVersion() so that our tests benefit from the cache redirector and avoid timeouts
         .useDistribution(URI("https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-8.6-bin.zip"))
-        .useGradleUserHomeDir(TestUtil.sharedGradleHome.toFile())
+        .useGradleUserHomeDir(Dirs.sharedGradleHome.toFile())
         .forProjectDirectory(tempDir)
         .connect()
         .use { projectConnection ->

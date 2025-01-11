@@ -5,7 +5,7 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.test.MacOnly
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
 import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
@@ -28,7 +28,7 @@ import kotlin.test.assertTrue
 
 class AmperExamplesStandaloneTest: AmperCliTestBase() {
 
-    override val testDataRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
+    override val testDataRoot: Path = Dirs.amperCheckoutRoot.resolve("examples-standalone")
 
     lateinit var projectName: String
 

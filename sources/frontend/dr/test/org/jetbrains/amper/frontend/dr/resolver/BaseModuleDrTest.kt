@@ -14,7 +14,7 @@ import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -34,7 +34,7 @@ abstract class BaseModuleDrTest {
             assertTrue(messages.isEmpty(), "There must be no messages for $this: $messages")
         }
     ): DependencyNode {
-        val resolutionInputCopy = resolutionInput.copy(fileCacheBuilder = cacheBuilder(TestUtil.userCacheRoot))
+        val resolutionInputCopy = resolutionInput.copy(fileCacheBuilder = cacheBuilder(Dirs.userCacheRoot))
 
         val graph =
             with(moduleDependenciesResolver) {

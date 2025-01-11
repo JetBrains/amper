@@ -22,7 +22,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.test.OnNonCI
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
@@ -45,7 +45,7 @@ import kotlin.time.Duration.Companion.minutes
 
 class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
 
-    private val androidTestDataRoot: Path = TestUtil.amperTestProjectsRoot / "android"
+    private val androidTestDataRoot: Path = Dirs.amperTestProjectsRoot / "android"
 
     private suspend fun TestCollector.setupAndroidTestProject(
         testProjectName: String,

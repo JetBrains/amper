@@ -24,7 +24,7 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
         get() = pathRef.get()!!
 
     override fun beforeEach(context: ExtensionContext?) {
-        pathRef.set(createTempDirectory(TestUtil.tempDir, "test-dir"))
+        pathRef.set(createTempDirectory(Dirs.tempDir, "test-dir"))
     }
 
     override fun afterEach(context: ExtensionContext?) {

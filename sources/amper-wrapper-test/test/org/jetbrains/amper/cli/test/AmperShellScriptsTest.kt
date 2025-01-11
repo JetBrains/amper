@@ -14,7 +14,7 @@ import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.generateUnifiedDiff
 import org.junit.jupiter.api.AssertionFailureBuilder
 import org.junit.jupiter.api.BeforeEach
@@ -46,7 +46,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     private val tempDir: Path
         get() = tempDirExtension.path
 
-    private val shellScriptExampleProject = TestUtil.amperTestProjectsRoot / "shell-scripts"
+    private val shellScriptExampleProject = Dirs.amperTestProjectsRoot / "shell-scripts"
 
     @BeforeEach
     fun prepareScript() {
@@ -228,7 +228,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
 
     @Test
     fun `custom java home`() = runBlocking {
-        val fakeUserCacheRoot = AmperUserCacheRoot(TestUtil.sharedAmperCacheRoot)
+        val fakeUserCacheRoot = AmperUserCacheRoot(Dirs.sharedAmperCacheRoot)
         val jdkHome = JdkDownloader.getJdk(fakeUserCacheRoot).homeDir
 
         val expectedAmperVersion = cliScript

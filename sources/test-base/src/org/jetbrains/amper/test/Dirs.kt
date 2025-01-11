@@ -7,7 +7,6 @@ package org.jetbrains.amper.test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder
-import org.jetbrains.amper.test.TestUtil.sharedTestCaches
 import org.jetbrains.amper.test.android.AndroidToolsInstaller
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -15,7 +14,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
 
-object TestUtil {
+object Dirs {
 
     /**
      * The root directory of the Amper project, which is the checked out repository directory.

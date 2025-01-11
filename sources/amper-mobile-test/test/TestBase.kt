@@ -3,7 +3,7 @@ import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.SimplePrintOutputListener
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.AfterEach
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -29,7 +29,7 @@ import kotlin.io.path.writeText
  */
 open class TestBase : AmperCliWithWrapperTestBase() {
 
-    protected val amperMobileTestsRoot = TestUtil.amperSourcesRoot / "amper-mobile-test"
+    protected val amperMobileTestsRoot = Dirs.amperSourcesRoot / "amper-mobile-test"
     private val tempProjectsDir = amperMobileTestsRoot / "tempProjects"
 
     private val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
@@ -175,7 +175,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
     suspend fun assembleTargetApp(projectDir: Path, subprojectName: String? = null) {
         val gradlewFileName = if (isWindows) "gradlew.bat" else "gradlew"
         // FIXME we shouldn't rely on Amper's own wrapper, as we will stop using Gradle completely
-        val gradlewPath = TestUtil.amperCheckoutRoot.resolve(gradlewFileName)
+        val gradlewPath = Dirs.amperCheckoutRoot.resolve(gradlewFileName)
 
         if (!gradlewPath.exists()) {
             println("gradlew file does not exist in $gradlewPath")

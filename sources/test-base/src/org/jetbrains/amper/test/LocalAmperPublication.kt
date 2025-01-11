@@ -16,7 +16,7 @@ import kotlin.io.path.readText
  * Helpers to run the locally published Amper CLI distribution.
  */
 object LocalAmperPublication {
-    private val rootPublicationDir = TestUtil.m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.mavenVersion}")
+    private val rootPublicationDir = Dirs.m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.mavenVersion}")
 
     val distTgz: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-dist.tgz")
     private val wrapperBat: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")

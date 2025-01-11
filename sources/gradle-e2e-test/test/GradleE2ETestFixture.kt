@@ -6,7 +6,7 @@ import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.tooling.BuildException
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.core.AmperBuild
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.ByteArrayOutputStream
 import java.net.URI
@@ -73,7 +73,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
     ) {
         val tempDir = prepareTempDirWithProject(projectName, runWithPluginClasspath)
         val newEnv = System.getenv().toMutableMap().apply { putAll(additionalEnv) }
-        newEnv["ANDROID_HOME"] = TestUtil.androidHome.pathString
+        newEnv["ANDROID_HOME"] = Dirs.androidHome.pathString
         val runner = gradleRunner
         val projectConnector = runner
             // we use this instead of useGradleVersion() so that our tests benefit from the cache redirector and avoid timeouts
@@ -127,7 +127,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         assertTrue(originalDir.exists(), "Test project not found at $originalDir")
 
         // prepare data
-        val tempDir = createTempFile(TestUtil.tempDir, "test-", "-$projectName")
+        val tempDir = createTempFile(Dirs.tempDir, "test-", "-$projectName")
         tempDir.deleteExisting()
         GradleDaemonManager.deleteFileOrDirectoryOnExit(tempDir)
 

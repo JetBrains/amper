@@ -4,16 +4,11 @@
 
 package org.jetbrains.amper.dependency.resolution.metadata.json
 
-import org.jetbrains.amper.dependency.resolution.metadata.json.module.parseMetadata
-import org.jetbrains.amper.dependency.resolution.metadata.json.module.serialize
 import org.jetbrains.amper.dependency.resolution.nameToDependency
-import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import kotlin.io.path.readText
-import kotlin.test.Test
-import kotlin.test.assertTrue
 
 abstract class JsonTestBase<T> {
 

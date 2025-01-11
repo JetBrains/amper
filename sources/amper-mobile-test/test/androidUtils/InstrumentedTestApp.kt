@@ -3,7 +3,7 @@ package androidUtils
 import TestBase
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.SimplePrintOutputListener
-import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.nio.file.Path
 import kotlin.io.path.div
@@ -17,7 +17,7 @@ import kotlin.io.path.writeText
 object InstrumentedTestApp  {
 
     /** Path to the directory containing Gradle E2E test projects. */
-    private val gradleE2eTestProjectsPath = TestUtil.amperSourcesRoot / "gradle-e2e-test/testData/projects"
+    private val gradleE2eTestProjectsPath = Dirs.amperSourcesRoot / "gradle-e2e-test/testData/projects"
 
     /**
      * Assembles the APK containing the instrumented tests themselves, optionally using a custom [applicationId].
@@ -48,7 +48,7 @@ object InstrumentedTestApp  {
         }
 
         val gradlewFilename = if (TestBase.isWindows) "gradlew.bat" else "gradlew"
-        val gradlewPath = TestUtil.amperCheckoutRoot / gradlewFilename
+        val gradlewPath = Dirs.amperCheckoutRoot / gradlewFilename
 
         runProcessAndCaptureOutput(
             command = listOf(
