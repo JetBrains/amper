@@ -4,12 +4,9 @@
 
 package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals

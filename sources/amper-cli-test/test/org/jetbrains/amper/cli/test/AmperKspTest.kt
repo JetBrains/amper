@@ -42,7 +42,7 @@ class AmperKspTest: AmperCliTestBase() {
         )
 
         val runResult = runCli(projectRoot, "run")
-        runResult.assertStdoutContains("Hello, service!")
+        runResult.assertSomeStdoutLineContains("Hello, service!")
     }
 
     @Test
@@ -56,7 +56,7 @@ class AmperKspTest: AmperCliTestBase() {
         )
 
         val runResult = runCli(projectRoot, "run")
-        runResult.assertStdoutTextContains("""
+        runResult.assertStdoutContains("""
             My annotated classes are:
             org.sample.ksp.localprocessor.consumer.B
             org.sample.ksp.localprocessor.consumer.A
@@ -177,8 +177,8 @@ class AmperKspTest: AmperCliTestBase() {
         )
 
         val runResult = runCli(projectRoot, "run")
-        runResult.assertStdoutContains("Heater: heating...")
-        runResult.assertStdoutContains("CoffeeMaker: brewing...")
+        runResult.assertSomeStdoutLineContains("Heater: heating...")
+        runResult.assertSomeStdoutLineContains("CoffeeMaker: brewing...")
     }
 
     @Test
@@ -195,8 +195,8 @@ class AmperKspTest: AmperCliTestBase() {
         )
 
         val runResult = runCli(projectRoot, "run")
-        runResult.assertStdoutContains("Heater: heating...")
-        runResult.assertStdoutContains("CoffeeMaker: brewing...")
+        runResult.assertSomeStdoutLineContains("Heater: heating...")
+        runResult.assertSomeStdoutLineContains("CoffeeMaker: brewing...")
     }
 
     @Test
@@ -232,10 +232,10 @@ class AmperKspTest: AmperCliTestBase() {
         )
 
         val runResult = runCli(projectRoot, "run")
-        runResult.assertStdoutContains("Starting Koin...")
-        runResult.assertStdoutContains("Hello, Koin!")
-        runResult.assertStdoutContains("Heater: heating...")
-        runResult.assertStdoutContains("CoffeeMaker: brewing...")
+        runResult.assertSomeStdoutLineContains("Starting Koin...")
+        runResult.assertSomeStdoutLineContains("Hello, Koin!")
+        runResult.assertSomeStdoutLineContains("Heater: heating...")
+        runResult.assertSomeStdoutLineContains("CoffeeMaker: brewing...")
     }
 
     // TODO Enable when Koin supports KSP2

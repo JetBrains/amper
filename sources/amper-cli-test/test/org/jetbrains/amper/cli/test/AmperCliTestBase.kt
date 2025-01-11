@@ -56,12 +56,12 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         val stdout: String,
         val stderr: String,
     ) {
-        fun assertStdoutContains(text: String) {
+        fun assertSomeStdoutLineContains(text: String) {
             assertTrue("No line in stdout contains the text '$text':\n" + stdout.trim()) {
                 stdout.lineSequence().any { text in it }
             }
         }
-        fun assertStdoutTextContains(text: String) {
+        fun assertStdoutContains(text: String) {
             assertTrue("Stdout does not contain the text '$text':\n" + stdout.trim()) {
                text in stdout
             }
