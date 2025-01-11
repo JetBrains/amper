@@ -8,7 +8,6 @@ import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
@@ -37,12 +36,12 @@ class AmperCliTest: AmperCliTestBase() {
     override val testDataRoot: Path = TestUtil.amperTestProjectsRoot
 
     @Test
-    fun smoke() = runTestInfinitely {
+    fun smoke() = runSlowTest {
         runCli("jvm-kotlin-test-smoke", "tasks")
     }
 
     @Test
-    fun `run command help prints dash dash`() = runTestInfinitely {
+    fun `run command help prints dash dash`() = runSlowTest {
         val r = runCli("jvm-kotlin-test-smoke", "run", "--help")
 
         // Check that '--' is printed before program arguments
@@ -54,7 +53,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `graceful failure on unknown task name`() = runTestInfinitely {
+    fun `graceful failure on unknown task name`() = runSlowTest {
         val r = runCli("jvm-kotlin-test-smoke", "task", "unknown", expectedExitCode = 1, assertEmptyStdErr = false)
 
         val errorMessage = "ERROR: Task 'unknown' was not found in the project"
@@ -65,7 +64,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `graceful failure on unknown task name with suggestions`() = runTestInfinitely {
+    fun `graceful failure on unknown task name with suggestions`() = runSlowTest {
         val r = runCli("jvm-kotlin-test-smoke", "task", "compile", expectedExitCode = 1, assertEmptyStdErr = false)
 
         val errorMessage = """
@@ -82,7 +81,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun modules() = runTestInfinitely {
+    fun modules() = runSlowTest {
         val r = runCli("simple-multiplatform-cli", "modules")
 
         assertModulesList(r, listOf(
@@ -96,7 +95,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `failed kotlinc compilation message`() = runTestInfinitely {
+    fun `failed kotlinc compilation message`() = runSlowTest {
         val projectName = "multi-module-failed-kotlinc-compilation"
         val r = runCli(
             projectName,
@@ -116,7 +115,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `failed dependency resolution message`() = runTestInfinitely {
+    fun `failed dependency resolution message`() = runSlowTest {
         val projectName = "multi-module-failed-resolve"
         val r = runCli(
             projectName,
@@ -181,7 +180,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `init works`() = runTestInfinitely {
+    fun `init works`() = runSlowTest {
         val p = tempRoot.resolve("new").also { it.createDirectories() }
         runCli(p, "init", "multiplatform-cli")
 
@@ -214,7 +213,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `tool jdk jstack runs`() = runTestInfinitely {
+    fun `tool jdk jstack runs`() = runSlowTest {
         val p = tempRoot.resolve("new").also { it.createDirectories() }
         val result = runCli(p, "tool", "jdk", "jstack", ProcessHandle.current().pid().toString())
 
@@ -225,7 +224,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `init won't replace existing files`() = runTestInfinitely {
+    fun `init won't replace existing files`() = runSlowTest {
         val p = tempRoot.resolve("new").also { it.createDirectories() }
         val exampleFile = p.resolve("jvm-cli/module.yaml").also { it.createParentDirectories() }
         exampleFile.writeText("some text")
@@ -252,7 +251,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun publish() = runTestInfinitely {
+    fun publish() = runSlowTest {
         val groupDir = TestUtil.m2repository.resolve("amper/test/jvm-publish")
         groupDir.deleteRecursively()
 
@@ -276,7 +275,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `single-module project under an unrelated project`() = runTestInfinitely {
+    fun `single-module project under an unrelated project`() = runSlowTest {
         val resultNested = runCli(testDataRoot / "nested-project-root" / "nested-project", "modules")
         assertModulesList(resultNested, listOf("nested-project"))
 
@@ -285,25 +284,25 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `project including a deep module`() = runTestInfinitely {
+    fun `project including a deep module`() = runSlowTest {
         val result = runCli(testDataRoot / "project-root-deep-inclusion", "modules")
         assertModulesList(result, listOf("deep-module"))
     }
 
     @Test
-    fun `project with denormalized globs`() = runTestInfinitely {
+    fun `project with denormalized globs`() = runSlowTest {
         val result = runCli(testDataRoot / "project-root-denormalized-globs", "modules")
         assertModulesList(result, listOf("deep", "deep2", "sub1", "sub2", "sub3", "sub4"))
     }
 
     @Test
-    fun `project with both top-level and nested modules`() = runTestInfinitely {
+    fun `project with both top-level and nested modules`() = runSlowTest {
         val result = runCli(testDataRoot / "top-level-and-nested-modules", "modules")
         assertModulesList(result, listOf("deep-module", "top-level-and-nested-modules"))
     }
 
     @Test
-    fun `project file with path errors`() = runTestInfinitely {
+    fun `project file with path errors`() = runSlowTest {
         val r = runCli(
             backendTestProjectName = "project-file-with-errors",
             "tasks",
@@ -333,7 +332,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `invalid project root`() = runTestInfinitely {
+    fun `invalid project root`() = runSlowTest {
         val explicitRoot = testDataRoot.resolve("invalid-project-root")
         val r = runCli(
             backendTestProjectName = "invalid-project-root",
@@ -385,7 +384,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose resources demo build (android)`() = runTestInfinitely {
+    fun `compose resources demo build (android)`() = runSlowTest {
         runCli(
             backendTestProjectName = "compose-resources-demo",
             "task", ":app-android:buildAndroidDebug",
@@ -393,7 +392,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose resources demo build and run (jvm)`() = runTestInfinitely {
+    fun `compose resources demo build and run (jvm)`() = runSlowTest {
         runCli(
             backendTestProjectName = "compose-resources-demo",
             "test", "--platform=jvm",
@@ -402,7 +401,7 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose resources demo build (ios)`() = runTestInfinitely {
+    fun `compose resources demo build (ios)`() = runSlowTest {
         runCliInTempDir(
             backendTestProjectName = "compose-resources-demo",
             "build", "--platform=iosSimulatorArm64",
@@ -411,27 +410,27 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `parcelize android lib - build`() = runTestInfinitely {
+    fun `parcelize android lib - build`() = runSlowTest {
         runCli(backendTestProjectName = "parcelize-android-lib", "build")
     }
 
     @Test
-    fun `parcelize android lib - test`() = runTestInfinitely {
+    fun `parcelize android lib - test`() = runSlowTest {
         runCli(backendTestProjectName = "parcelize-android-lib", "test")
     }
 
     @Test
-    fun `parcelize android app - build`() = runTestInfinitely {
+    fun `parcelize android app - build`() = runSlowTest {
         runCli(backendTestProjectName = "parcelize-android-app", "build")
     }
 
     @Test
-    fun `parcelize with shared kmp model`() = runTestInfinitely {
+    fun `parcelize with shared kmp model`() = runSlowTest {
         runCli(backendTestProjectName = "parcelize-shared-kmp-model", "build")
     }
 
     @Test
-    fun `jvm test with JVM arg`() = runTestInfinitely {
+    fun `jvm test with JVM arg`() = runSlowTest {
         runCli(backendTestProjectName = "jvm-kotlin-test-systemprop", "test", "--jvm-args=-Dmy.system.prop=hello")
 
         // should fail without the system prop
@@ -453,7 +452,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `jvm run with JVM arg`() = runTestInfinitely {
+    fun `jvm run with JVM arg`() = runSlowTest {
         val result1 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=-Dmy.system.prop=hello")
         assertEquals("my.system.prop=hello", result1.stdout.trim().lines().last())
 

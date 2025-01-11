@@ -5,10 +5,11 @@
 package androidUtils
 
 import TestBase
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import java.nio.file.Path
 import kotlin.io.path.div
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * Main test class that provides methods to run Android tests.
@@ -28,7 +29,7 @@ open class AndroidBaseTest : TestBase() {
         projectsDir: Path,
         applicationId: String? = null,
         buildApk: suspend (projectDir: Path) -> Path,
-    ) = runTestInfinitely {
+    ) = runTest(timeout = 15.minutes) {
         val copiedProjectDir = copyProjectToTempDir(projectName, projectsDir)
         val targetApkPath = buildApk(copiedProjectDir)
         val testAppApkPath = InstrumentedTestApp.assemble(applicationId)

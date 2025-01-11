@@ -6,7 +6,6 @@ package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
 import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
@@ -50,7 +49,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-multiplatform`() = runTestInfinitely {
+    fun `compose-multiplatform`() = runSlowTest {
         val amperResult = runCliInTempDir(projectName, "tasks")
         with(amperResult) {
             (jvmBaseTasks + jvmTestTasks + iosLibraryTasks + androidTestTasks).forEach {
@@ -83,7 +82,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose-android_signing`() = runTestInfinitely {
+    fun `compose-android_signing`() = runSlowTest {
         runCli(projectName, "task", ":compose-android:bundleAndroid")
         val apk = tempRoot / "build" / "tasks" / "_compose-android_bundleAndroid" / "gradle-project-release.aab"
         JarFile(apk.toFile()).use {
@@ -92,7 +91,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose-multiplatform_r8`() = runTestInfinitely {
+    fun `compose-multiplatform_r8`() = runSlowTest {
         runCli(projectName, "task", ":android-app:bundleAndroid")
         assertTrue {
             val projectRoot = testDataRoot / projectName
@@ -103,17 +102,17 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-multiplatform_apple-tests`() = runTestInfinitely {
-         runCli(projectName, "test", "-p", "iosSimulatorArm64")
+    fun `compose-multiplatform_apple-tests`() = runSlowTest {
+        runCli(projectName, "test", "-p", "iosSimulatorArm64")
     }
 
     @Test
-    fun `compose-multiplatform_buildAndroidDebug`() = runTestInfinitely {
+    fun `compose-multiplatform_buildAndroidDebug`() = runSlowTest {
         runCli(projectName, "task", ":android-app:buildAndroidDebug")
     }
 
     @Test
-    fun `compose-desktop`() = runTestInfinitely {
+    fun `compose-desktop`() = runSlowTest {
         with(runCli(projectName, "tasks")) {
             jvmAppTasks.forEach { assertContains(stdout, ":compose-desktop:$it") }
         }
@@ -126,7 +125,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     }
 
     @Test
-    fun jvm() = runTestInfinitely {
+    fun jvm() = runSlowTest {
         with(runCli(projectName, "tasks")) {
             jvmAppTasks.forEach { assertContains(stdout, ":jvm:$it") }
         }
@@ -154,7 +153,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose-android`() = runTestInfinitely {
+    fun `compose-android`() = runSlowTest {
         with(runCli(projectName, "tasks")) {
             androidAppTasks.forEach { assertContains(stdout, ":compose-android:$it") }
         }
@@ -169,7 +168,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-ios`() = runTestInfinitely {
+    fun `compose-ios`() = runSlowTest {
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
         runCliInTempDir(projectName, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
@@ -177,7 +176,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `new-project-template`() = runTestInfinitely {
+    fun `new-project-template`() = runSlowTest {
         runCli(projectName, "build")
         // TODO Assert output
         runCli(projectName, "run")

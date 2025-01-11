@@ -8,7 +8,6 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.junit.jupiter.api.BeforeEach
@@ -67,7 +66,7 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `kmp-lib`() = runTestInfinitely {
+    fun `kmp-lib`() = runSlowTest {
         // Can't easily get rid of output associated with
         // class 'World': expect and corresponding actual are declared in the same module, which will be prohibited in Kotlin 2.0.
         // See https://youtrack.jetbrains.com/issue/KT-55177
@@ -75,12 +74,12 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `jvm-cli`() = runTestInfinitely {
+    fun `jvm-cli`() = runSlowTest {
         runCli(tempRoot, "build")
     }
 
     @Test
-    fun `multiplatform-cli`() = runTestInfinitely {
+    fun `multiplatform-cli`() = runSlowTest {
         // Can't easily get rid of output associated with
         // class 'World': expect and corresponding actual are declared in the same module, which will be prohibited in Kotlin 2.0.
         // See https://youtrack.jetbrains.com/issue/KT-55177
@@ -89,7 +88,7 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-multiplatform`() = runTestInfinitely {
+    fun `compose-multiplatform`() = runSlowTest {
         collectSpansFromCli {
             runCli(tempRoot, "build", assertEmptyStdErr = false)
         }.assertXcodeProjectIsValid()
@@ -97,7 +96,7 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-multiplatform - build debug with xcodebuild`() = runTestInfinitely {
+    fun `compose-multiplatform - build debug with xcodebuild`() = runSlowTest {
         val buildDir = tempRoot / "build" / "xcode"
         val result = runXcodebuild(
             "-project", "ios-app/module.xcodeproj",
@@ -116,7 +115,7 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-multiplatform - build release with xcodebuild`() = runTestInfinitely {
+    fun `compose-multiplatform - build release with xcodebuild`() = runSlowTest {
         val buildDir = tempRoot / "build" / "xcode"
         val result = runXcodebuild(
             "-project", "ios-app/module.xcodeproj",
@@ -138,18 +137,18 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `compose-desktop`() = runTestInfinitely {
+    fun `compose-desktop`() = runSlowTest {
         runCli(tempRoot, "build")
     }
 
     @Test
-    fun `compose-android`() = runTestInfinitely {
+    fun `compose-android`() = runSlowTest {
         runCli(tempRoot, "build")
     }
 
     @Test
     @MacOnly
-    fun `compose-ios`() = runTestInfinitely {
+    fun `compose-ios`() = runSlowTest {
         collectSpansFromCli {
             // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
             // that are treated like errors.
@@ -159,7 +158,7 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-ios - build debug with xcodebuild`() = runTestInfinitely {
+    fun `compose-ios - build debug with xcodebuild`() = runSlowTest {
         val buildDir = tempRoot / "build" / "xcode"
         val result = runXcodebuild(
             "-project", "module.xcodeproj",

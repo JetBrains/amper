@@ -7,7 +7,6 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -32,7 +31,7 @@ class AmperKspTest: AmperCliTestBase() {
     override val testDataRoot: Path = TestUtil.amperTestProjectsRoot
 
     @Test
-    fun `ksp jvm autoservice`() = runTestInfinitely {
+    fun `ksp jvm autoservice`() = runSlowTest {
         val projectRoot = testDataRoot.resolve("ksp-jvm-autoservice")
         val buildResult = runCli(projectRoot, "build")
 
@@ -46,7 +45,7 @@ class AmperKspTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `ksp jvm local processor`() = runTestInfinitely {
+    fun `ksp jvm local processor`() = runSlowTest {
         val projectRoot = testDataRoot.resolve("ksp-jvm-local-processor")
         val buildResult = runCli(projectRoot, "build")
 
@@ -64,7 +63,7 @@ class AmperKspTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `ksp kmp local processor`() = runTestInfinitely {
+    fun `ksp kmp local processor`() = runSlowTest {
         val projectRoot = testDataRoot.resolve("ksp-kmp-local-processor")
         val buildResult = runCli(projectRoot, "build")
 
@@ -164,7 +163,7 @@ class AmperKspTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `ksp jvm dagger`() = runTestInfinitely {
+    fun `ksp jvm dagger`() = runSlowTest {
         val projectRoot = testDataRoot.resolve("ksp-jvm-dagger")
         val buildResult = runCli(projectRoot, "build")
 
@@ -182,7 +181,7 @@ class AmperKspTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `ksp jvm dagger with catalog refs`() = runTestInfinitely {
+    fun `ksp jvm dagger with catalog refs`() = runSlowTest {
         val projectRoot = testDataRoot.resolve("ksp-jvm-dagger-catalog")
         val buildResult = runCli(projectRoot, "build")
 
@@ -200,7 +199,7 @@ class AmperKspTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `ksp android room`() = runTestInfinitely {
+    fun `ksp android room`() = runSlowTest {
         val projectRoot = testDataRoot.resolve("ksp-android-room")
         val generatedSchemaPath = projectRoot / "generated-db-schema"
         generatedSchemaPath.deleteRecursively()
@@ -221,7 +220,7 @@ class AmperKspTest: AmperCliTestBase() {
     // TODO Enable when Koin supports KSP2
     @Disabled("Koin doesn't support KSP2 yet: https://github.com/InsertKoinIO/koin-annotations/issues/132")
     @Test
-    fun `ksp jvm koin`() = runTestInfinitely {
+    fun `ksp jvm koin`() = runSlowTest {
         val projectRoot = testDataRoot.resolve("ksp-jvm-koin")
         val buildResult = runCli(projectRoot, "build")
 
@@ -241,7 +240,7 @@ class AmperKspTest: AmperCliTestBase() {
     // TODO Enable when Koin supports KSP2
     @Disabled("Koin doesn't support KSP2 yet: https://github.com/InsertKoinIO/koin-annotations/issues/132")
     @Test
-    fun `ksp multiplatform koin`() = runTestInfinitely {
+    fun `ksp multiplatform koin`() = runSlowTest {
         val projectRoot = testDataRoot.resolve("ksp-kmp-koin")
         val kspResult = runCli(projectRoot, "task", ":ksp-kmp-koin:kspJvm")
 
@@ -277,7 +276,7 @@ class AmperKspTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose multiplatform room`() = runTestInfinitely {
+    fun `compose multiplatform room`() = runSlowTest {
         val projectRoot = testDataRoot.resolve("compose-multiplatform-room")
         val generatedSchemaPath = projectRoot / "shared/generated-db-schema"
         generatedSchemaPath.deleteRecursively()

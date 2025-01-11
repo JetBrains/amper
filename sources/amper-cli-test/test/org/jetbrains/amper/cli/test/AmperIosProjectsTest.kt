@@ -8,7 +8,6 @@ import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.FilteredSpans
 import java.nio.file.Path
@@ -28,7 +27,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
         get() = TestUtil.amperTestProjectsRoot / "ios"
 
     @Test
-    fun `framework for simple for iosSimulatorArm64`() = runTestInfinitely {
+    fun `framework for simple for iosSimulatorArm64`() = runSlowTest {
         collectSpansFromCli {
             runCli(
                 backendTestProjectName = "interop",
@@ -39,7 +38,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `framework for simple for iosArm64`() = runTestInfinitely {
+    fun `framework for simple for iosArm64`() = runSlowTest {
         collectSpansFromCli {
             runCli(
                 backendTestProjectName = "interop",
@@ -50,7 +49,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `buildIosApp for simple for iosSimulatorArm64`() = runTestInfinitely {
+    fun `buildIosApp for simple for iosSimulatorArm64`() = runSlowTest {
         collectSpansFromCli {
             runCli(
                 backendTestProjectName = "interop",
@@ -65,7 +64,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `build for simple for iosSimulatorArm64`() = runTestInfinitely {
+    fun `build for simple for iosSimulatorArm64`() = runSlowTest {
         collectSpansFromCli {
             runCliInTempDir(
                 backendTestProjectName = "interop",
@@ -80,7 +79,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `build for outdated-xcode-proj updates the project`() = runTestInfinitely {
+    fun `build for outdated-xcode-proj updates the project`() = runSlowTest {
         collectSpansFromCli {
             runCliInTempDir(
                 backendTestProjectName = "outdated-xcode-proj",
@@ -95,7 +94,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `framework for compose for iosSimulatorArm64`() = runTestInfinitely {
+    fun `framework for compose for iosSimulatorArm64`() = runSlowTest {
         collectSpansFromCli {
             runCli(
                 backendTestProjectName = "compose",
@@ -106,7 +105,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `framework for compose for iosArm64`() = runTestInfinitely {
+    fun `framework for compose for iosArm64`() = runSlowTest {
         collectSpansFromCli {
             runCli(
                 backendTestProjectName = "compose",
@@ -117,7 +116,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `buildIosApp for compose app for iosSimulatorArm64`() = runTestInfinitely {
+    fun `buildIosApp for compose app for iosSimulatorArm64`() = runSlowTest {
         val projectPath: Path
         collectSpansFromCli {
             val result = runCliInTempDir(
@@ -141,7 +140,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `build for compose app for all ios archs (arm64 without signing)`() = runTestInfinitely {
+    fun `build for compose app for all ios archs (arm64 without signing)`() = runSlowTest {
         collectSpansFromCli {
             val result = runCliInTempDir(
                 backendTestProjectName = "compose",
@@ -163,7 +162,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `run kotlin tests in simulator`() = runTestInfinitely {
+    fun `run kotlin tests in simulator`() = runSlowTest {
         collectSpansFromCli {
             runCli(
                 backendTestProjectName = "simpleTests",
@@ -177,7 +176,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `compose-multiplatform - build debug with xcodebuild`() = runTestInfinitely {
+    fun `compose-multiplatform - build debug with xcodebuild`() = runSlowTest {
         val result = runXcodebuild(
             "-project", (testDataRoot / "non-intel" / "module.xcodeproj").pathString,
             "-scheme", "app",

@@ -9,6 +9,7 @@ test-dependencies:
   - ../cli
   - ../core
   - ../test-base
+  - $libs.kotlinx.coroutines.test
 
 tasks:
   testJvm:

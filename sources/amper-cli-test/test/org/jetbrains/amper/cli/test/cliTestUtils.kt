@@ -5,10 +5,16 @@
 package org.jetbrains.amper.cli.test
 
 import io.opentelemetry.api.common.AttributeKey
+import kotlinx.coroutines.test.TestResult
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.test.spans.FilteredSpans
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.jetbrains.amper.test.spans.spansNamed
+import kotlin.time.Duration.Companion.minutes
 
+inline fun runSlowTest(crossinline testBody: suspend TestScope.() -> Unit): TestResult =
+    runTest(timeout = 15.minutes) { testBody() }
 
 internal val SpansTestCollector.xcodebuildSpans: FilteredSpans
     get() = spansNamed("xcodebuild")

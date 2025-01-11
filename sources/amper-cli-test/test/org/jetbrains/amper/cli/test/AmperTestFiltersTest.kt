@@ -5,7 +5,6 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.junit.jupiter.api.Disabled
 import java.nio.file.Path
 import kotlin.test.Test
@@ -17,7 +16,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     override val testDataRoot: Path = TestUtil.amperTestProjectsRoot
 
     @Test
-    fun `include test single (jvm-cli)`() = runTestInfinitely {
+    fun `include test single (jvm-cli)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -30,7 +29,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include test single (shared)`() = runTestInfinitely {
+    fun `include test single (shared)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -44,7 +43,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include test multiple (jvm-cli)`() = runTestInfinitely {
+    fun `include test multiple (jvm-cli)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -59,7 +58,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include class exact single (jvm-cli)`() = runTestInfinitely {
+    fun `include class exact single (jvm-cli)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -74,7 +73,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include class exact single (shared)`() = runTestInfinitely {
+    fun `include class exact single (shared)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -88,7 +87,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include class exact multiple (jvm-cli)`() = runTestInfinitely {
+    fun `include class exact multiple (jvm-cli)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -107,7 +106,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include exact test and include exact class (jvm-cli)`() = runTestInfinitely {
+    fun `include exact test and include exact class (jvm-cli)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -124,7 +123,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include class pattern (jvm-cli)`() = runTestInfinitely {
+    fun `include class pattern (jvm-cli)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -142,7 +141,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include class pattern (shared)`() = runTestInfinitely {
+    fun `include class pattern (shared)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -157,7 +156,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
 
     // FIXME this should work. How to make JUnit accept it? It seems it doesn't consider "all tests" by default
     @Test
-    fun `exclude class exact single (jvm-cli)`() = runTestInfinitely {
+    fun `exclude class exact single (jvm-cli)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -173,7 +172,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include pattern and exclude exact (jvm-cli)`() = runTestInfinitely {
+    fun `include pattern and exclude exact (jvm-cli)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -189,7 +188,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include pattern and exclude exact (shared)`() = runTestInfinitely {
+    fun `include pattern and exclude exact (shared)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -208,7 +207,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
 
     @Disabled // not supported by JUnit Console Launcher
     @Test
-    fun `include exact and exclude class (jvm-cli)`() = runTestInfinitely {
+    fun `include exact and exclude class (jvm-cli)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -222,7 +221,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include pattern across multiple modules`() = runTestInfinitely {
+    fun `include pattern across multiple modules`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -239,7 +238,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include exact nested class (shared)`() = runTestInfinitely {
+    fun `include exact nested class (shared)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -253,7 +252,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include nested class pattern (shared)`() = runTestInfinitely {
+    fun `include nested class pattern (shared)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",
@@ -268,7 +267,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `include exact nested class method (shared)`() = runTestInfinitely {
+    fun `include exact nested class method (shared)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
             "test",

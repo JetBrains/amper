@@ -6,17 +6,14 @@ package org.jetbrains.amper.test
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestResult
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder
+import org.jetbrains.amper.test.TestUtil.sharedTestCaches
 import org.jetbrains.amper.test.android.AndroidToolsInstaller
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
-import kotlin.time.Duration
 
 object TestUtil {
 
@@ -124,6 +121,4 @@ object TestUtil {
         }
         androidSdkHome
     }
-
-    fun runTestInfinitely(testBody: suspend TestScope.() -> Unit): TestResult = runTest(timeout = Duration.INFINITE, testBody = testBody)
 }

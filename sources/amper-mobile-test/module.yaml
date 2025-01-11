@@ -4,6 +4,7 @@ product:
 
 test-dependencies:
   - ../test-base
+  - $libs.kotlinx.coroutines.test
 
 apply:
   - ../common.module-template.yaml
