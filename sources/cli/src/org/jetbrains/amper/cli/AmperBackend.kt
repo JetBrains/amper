@@ -130,7 +130,7 @@ class AmperBackend(val context: CliContext) {
             }
             .map { it.taskName }
             .toSet()
-        logger.info("Selected tasks to compile: ${formatTaskNames(taskNames)}")
+        logger.debug("Selected tasks to compile: ${formatTaskNames(taskNames)}")
         taskExecutor.runTasksAndReportOnFailure(taskNames)
     }
 
@@ -182,7 +182,7 @@ class AmperBackend(val context: CliContext) {
             userReadableError("No publish tasks were found for specified module and repository filters")
         }
 
-        logger.info("Selected tasks to publish: ${formatTaskNames(publishTasks)}")
+        logger.debug("Selected tasks to publish: ${formatTaskNames(publishTasks)}")
         taskExecutor.runTasksAndReportOnFailure(publishTasks)
     }
 

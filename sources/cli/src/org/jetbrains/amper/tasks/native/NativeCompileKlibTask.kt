@@ -134,6 +134,7 @@ class NativeCompileKlibTask(
                     include = null,
                 )
 
+                logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
                 nativeCompiler.compile(args, tempRoot, module)
             } finally {
                 for (tempPath in tempFilesToDelete) {

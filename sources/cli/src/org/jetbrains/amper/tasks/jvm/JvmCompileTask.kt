@@ -279,7 +279,7 @@ class JvmCompileTask(
             .setListAttribute("compiler-args", compilerArgs)
             .setAttribute("compiler-version", compilerVersion)
             .use {
-                logger.debug("Calling Kotlin compiler...")
+                logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
                 // TODO capture compiler errors/warnings in span (currently stdout/stderr are only logged)
                 val projectId = projectRoot.toKotlinProjectId()
                 val compilationResult = compilationService.compileJvm(

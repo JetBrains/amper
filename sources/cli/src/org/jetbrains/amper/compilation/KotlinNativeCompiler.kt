@@ -61,7 +61,6 @@ class KotlinNativeCompiler(
             .setListAttribute("args", args)
             .setAttribute("version", kotlinVersion)
             .use { span ->
-                logger.info("Calling Kotlin/Native compiler...")
                 logger.debug("konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->

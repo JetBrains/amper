@@ -169,7 +169,7 @@ class MetadataCompileTask(
             .setAttribute("compiler-version", kotlinVersion)
             .setListAttribute("compiler-args", compilerArgs)
             .use {
-                logger.info("Calling Kotlin metadata compiler...")
+                logger.info("Compiling Kotlin metadata for module '${module.userReadableName}'...")
                 val result = jdk.runJava(
                     workingDir = Path("."),
                     mainClass = "org.jetbrains.kotlin.cli.metadata.K2MetadataCompiler",

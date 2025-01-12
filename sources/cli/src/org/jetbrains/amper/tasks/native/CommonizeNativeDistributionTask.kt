@@ -80,7 +80,7 @@ class CommonizeNativeDistributionTask(
                 .setAttribute("compiler-version", kotlinVersion)
                 .setListAttribute("commonizer-args", commonizerArgs)
                 .use {
-                    logger.info("Calling Kotlin commonizer...")
+                    logger.info("Commonizing Kotlin/Native distribution...")
                     val result = jdk.runJava(
                         workingDir = Path("."),
                         mainClass = "org.jetbrains.kotlin.commonizer.cli.CommonizerCLI",

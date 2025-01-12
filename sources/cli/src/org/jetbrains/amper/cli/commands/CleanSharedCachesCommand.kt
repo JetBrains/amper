@@ -16,8 +16,10 @@ internal class CleanSharedCachesCommand : AmperSubcommand(name = "clean-shared-c
     override suspend fun run() {
         withBackend(commonOptions, commandName) { backend ->
             val root = backend.context.userCacheRoot
-            LoggerFactory.getLogger(javaClass).info("Deleting ${root.path}")
+            val logger = LoggerFactory.getLogger(javaClass)
+            logger.info("Deleting shared caches at ${root.path}...")
             root.path.deleteRecursively()
+            logger.info("Deletion complete.")
         }
     }
 }

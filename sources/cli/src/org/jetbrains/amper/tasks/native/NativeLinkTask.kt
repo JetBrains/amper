@@ -135,6 +135,11 @@ class NativeLinkTask(
                 include = includeArtifact,
             )
 
+            if (isTest) {
+                logger.debug("Linking native test executable for module '${module.userReadableName}' on platform '${platform.pretty}'...")
+            } else {
+                logger.info("Linking native '${platform.pretty}' executable for module '${module.userReadableName}'...")
+            }
             nativeCompiler.compile(args, tempRoot, module)
 
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifactPath))

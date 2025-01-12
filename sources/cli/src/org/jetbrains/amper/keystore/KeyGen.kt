@@ -43,7 +43,7 @@ object KeystoreGenerator {
         if (propertiesFile.notExists()) {
             keystoreGenerationError("$propertiesFile does not exist")
         }
-        logger.info("$propertiesFile is provided, getting data from properties file")
+        logger.debug("Getting keystore configuration from properties file {}", propertiesFile)
         val properties = Properties()
         FileInputStream(propertiesFile.toFile()).use { properties.load(it) }
 
