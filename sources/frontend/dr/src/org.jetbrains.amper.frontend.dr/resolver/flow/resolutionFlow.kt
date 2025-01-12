@@ -75,7 +75,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
 
     fun AmperModule.getValidRepositories(): List<Repository> {
         val acceptedRepositories = mutableListOf<Repository>()
-        for (repository in repositories()) {
+        for (repository in resolvableRepositories()) {
             @Suppress("HttpUrlsUsage")
             if (repository.url.startsWith("http://")) {
                 // TODO: Special --insecure-http-repositories option or some flag in project.yaml
@@ -105,11 +105,12 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         return acceptedRepositories
     }
 
-    private fun AmperModule.repositories(): List<Repository> =
+    private fun AmperModule.resolvableRepositories(): List<Repository> =
         parts
             .filterIsInstance<RepositoriesModulePart>()
             .firstOrNull()
             ?.mavenRepositories
+            ?.filter { it.resolve }
             ?.map { Repository(it.url, it.userName, it.password) }
             ?: defaultRepositories.map { Repository(it)}
 
