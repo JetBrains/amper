@@ -90,9 +90,13 @@ fun Logger.asKotlinLogger(): KotlinLogger {
 
         override fun debug(msg: String) = slf4jLogger.debug(msg)
         override fun lifecycle(msg: String) = slf4jLogger.info(msg)
-        override fun error(msg: String, throwable: Throwable?) = slf4jLogger.error(msg, throwable)
-        override fun info(msg: String) = slf4jLogger.info(msg)
         override fun warn(msg: String) = slf4jLogger.warn(msg)
+        override fun error(msg: String, throwable: Throwable?) = slf4jLogger.error(msg, throwable)
+
+        // We map the compiler info logs to Amper's debug level as a workaround for KT-74041
+        // (the Build Tools API logs compiler args at INFO levels and it spams the output)
+        // TODO replace with info() call once the Build Tools API is fixed
+        override fun info(msg: String) = slf4jLogger.debug(msg)
     }
 }
 
