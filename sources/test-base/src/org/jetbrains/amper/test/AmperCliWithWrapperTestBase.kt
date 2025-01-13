@@ -26,6 +26,7 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.pathString
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.text.ifEmpty
 
 abstract class AmperCliWithWrapperTestBase {
 
@@ -131,13 +132,16 @@ abstract class AmperCliWithWrapperTestBase {
             )
         }
 
+        val stdout = result.stdout.prependIndentWithEmptyMark("[amper out] ")
+        val stderr = result.stderr.prependIndentWithEmptyMark("[amper err] ")
+        val relevantAmperOutput = if (expectedExitCode == 0) stderr else "$stdout\n$stderr"
         assertEquals(
             expected = expectedExitCode,
             actual = result.exitCode,
-            message = "Exit code must be $expectedExitCode, but got ${result.exitCode} for Amper call: $amperScript ${args.joinToString(" ")}\nAmper STDERR:\n${result.stderr}"
+            message = "Exit code must be $expectedExitCode, but got ${result.exitCode} for Amper call (PID ${result.pid}):\n$amperScript ${args.joinToString(" ")}\nOutput:\n$relevantAmperOutput"
         )
         if (assertEmptyStdErr) {
-            assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call: $amperScript ${args.joinToString(" ")}\nAmper STDERR:\n${result.stderr}")
+            assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call:\n$amperScript ${args.joinToString(" ")}\nAmper STDERR:\n${result.stderr}")
         }
         return result
     }
@@ -154,3 +158,6 @@ private object AmperProcessOutputListener : ProcessOutputListener {
         println("[amper $pid err] $line")
     }
 }
+
+private fun String.prependIndentWithEmptyMark(indent: String): String =
+    trim().ifEmpty { "<empty>" }.prependIndent(indent)
