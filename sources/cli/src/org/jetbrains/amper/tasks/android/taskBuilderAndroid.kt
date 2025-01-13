@@ -306,6 +306,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     userCacheRoot = context.userCacheRoot,
                     projectRoot = context.projectRoot,
                     tempRoot = context.projectTempRoot,
+                    buildOutputRoot = context.buildOutputRoot,
                     taskName = testTaskName,
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,

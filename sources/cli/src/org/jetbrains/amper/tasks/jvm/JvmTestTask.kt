@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
@@ -34,6 +35,7 @@ import java.nio.file.Path
 import java.util.jar.JarFile
 import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
+import kotlin.io.path.div
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
@@ -43,6 +45,7 @@ class JvmTestTask(
     private val taskOutputRoot: TaskOutputRoot,
     private val tempRoot: AmperProjectTempRoot,
     private val projectRoot: AmperProjectRoot,
+    private val buildOutputRoot: AmperBuildOutputRoot,
     private val terminal: Terminal,
     private val commonRunSettings: CommonRunSettings,
     override val module: AmperModule,
@@ -89,7 +92,7 @@ class JvmTestTask(
         val javaExecutable = JdkDownloader.getJdk(userCacheRoot).javaExecutable
 
         cleanDirectory(taskOutputRoot.path)
-        val reportsDir = taskOutputRoot.path.resolve("reports")
+        val reportsDir = buildOutputRoot.path / "reports" / module.userReadableName / platform.schemaValue
 
         val junitArgs = buildList {
             // TODO I certainly want to have it here by default (too many real life errors when tests are skipped for a some reason)

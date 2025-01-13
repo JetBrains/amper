@@ -92,7 +92,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
         assertTrue(stdout.contains("[         0 tests failed          ]"), stdout)
 
-        val xmlReport = projectContext.buildOutputRoot.path.resolve("tasks/_jvm-kotlin-test-smoke_testJvm/reports/TEST-junit-vintage.xml")
+        val xmlReport = projectContext.buildOutputRoot.path.resolve("reports/jvm-kotlin-test-smoke/jvm/TEST-junit-vintage.xml")
             .readText()
 
         assertTrue(xmlReport.contains("<testcase name=\"smoke\" classname=\"apkg.ATest\""), xmlReport)
@@ -234,7 +234,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
         assertTrue(stdout.contains("[         0 tests failed          ]"), stdout)
 
-        val xmlReport = projectContext.buildOutputRoot.path.resolve("tasks/_jvm-test-classpath_testJvm/reports/TEST-junit-jupiter.xml")
+        val xmlReport = projectContext.buildOutputRoot.path.resolve("reports/jvm-test-classpath/jvm/TEST-junit-jupiter.xml")
             .readText()
 
         assertTrue(xmlReport.contains("<testcase name=\"smoke()\" classname=\"apkg.ATest\""), xmlReport)
