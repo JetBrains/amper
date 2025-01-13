@@ -35,7 +35,6 @@ import kotlin.io.path.notExists
 import kotlin.io.path.readBytes
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
-import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -67,27 +66,33 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
 
         val result1 = runAmper(
             workingDir = tempDir,
-            args = listOf("task", ":${tempDir.name}:runJvm"),
+            args = listOf("run"),
             bootstrapCacheDir = bootstrapCacheDir,
         )
-        assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n${result1.stdout}") {
+        assertTrue("Process output must contain 'Hello for Shell Scripts Test' the first time. Output:\n${result1.stdout}") {
             result1.stdout.contains("Hello for Shell Scripts Test")
         }
-        assertTrue("Process output must have 'Downloading ' line twice. Output:\n${result1.stdout}") {
-            result1.stdout.lines().count { it.startsWith("Downloading ") } == 2
-        }
+        val nDownloadingLines1 = result1.stdout.lines().count { it.startsWith("Downloading ") }
+        assertEquals(
+            2,
+            nDownloadingLines1,
+            "Process output must have 'Downloading ' line twice the first time, got $nDownloadingLines1. Output:\n${result1.stdout}"
+        )
 
         val result2 = runAmper(
             workingDir = tempDir,
-            args = listOf("task", ":${tempDir.name}:runJvm"),
+            args = listOf("run"),
             bootstrapCacheDir = bootstrapCacheDir,
         )
-        assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n${result2.stdout}") {
+        assertTrue("Process output must contain 'Hello for Shell Scripts Test' the second time. Output:\n${result2.stdout}") {
             result2.stdout.contains("Hello for Shell Scripts Test")
         }
-        assertTrue("Process output must not have 'Downloading ' lines. Output:\n${result2.stdout}") {
-            result2.stdout.lines().none { it.startsWith("Downloading ") }
-        }
+        val nDownloadingLines2 = result2.stdout.lines().count { it.startsWith("Downloading ") }
+        assertEquals(
+            0,
+            nDownloadingLines2,
+            "Process output must not have 'Downloading ' lines the second time, got $nDownloadingLines2. Output:\n${result2.stdout}"
+        )
 
         assertEquals(
             expected = requestedFiles,
@@ -137,9 +142,12 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             args = listOf("--version"),
             bootstrapCacheDir = bootstrapCacheDir,
         )
-        assertTrue("Process output must have 'Downloading ' line twice. Output:\n${result.stdout}") {
-            result.stdout.lines().count { it.startsWith("Downloading ") } == 2
-        }
+        val nDownloadingLines = result.stdout.lines().count { it.startsWith("Downloading ") }
+        assertEquals(
+            2,
+            nDownloadingLines,
+            "Process output must have 'Downloading ' line twice, got $nDownloadingLines. Output:\n${result.stdout}"
+        )
         assertTrue("Bootstrap cache dir should now exist") {
             bootstrapCacheDir.exists()
         }
@@ -251,9 +259,12 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             result.stdout.lines().any { it == expectedVersionStringOld || expectedVersionString.matches(it) }
         }
 
-        assertTrue("Process output must have 'Downloading ' line only once (for Amper itself). Output:\n${result.stdout}") {
-            result.stdout.lines().count { it.startsWith("Downloading ") } == 1
-        }
+        val nDownloadingLines = result.stdout.lines().count { it.startsWith("Downloading ") }
+        assertEquals(
+            1,
+            nDownloadingLines,
+            "Process output must have 'Downloading ' line only once (for Amper itself), got $nDownloadingLines. Output:\n${result.stdout}"
+        )
 
         // TODO Somehow assert that exactly this JRE is used by amper bootstrap
     }
@@ -272,9 +283,9 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         val brokenScriptName = if (OsFamily.current.isWindows) "script.bat" else "script"
         val brokenScript = tempDir.resolve(brokenScriptName)
 
-        cliScript.readLines()
-            .map { line -> checksumRegex.replace(line, "\$1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") }
-            .run { brokenScript.writeLines(this) }
+        val scriptContentWrongSha = cliScript.readText()
+            .replace(checksumRegex, "\$1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        brokenScript.writeText(scriptContentWrongSha)
         brokenScript.toFile().setExecutable(true)
         assertTrue(brokenScript.isExecutable())
 
