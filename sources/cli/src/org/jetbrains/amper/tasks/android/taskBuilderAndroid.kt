@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.android
@@ -283,8 +283,9 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     runTaskName,
                     module,
                     buildType,
+                    context.commonRunSettings,
                     androidSdkPath,
-                    AndroidLocationsSingleton.avdLocation
+                    AndroidLocationsSingleton.avdLocation,
                 ),
                 listOf(
                     AndroidTaskType.InstallSystemImage.getTaskName(module, platform, false),

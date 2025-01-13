@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.ios
@@ -107,20 +107,18 @@ fun ProjectTasksBuilder.setupIosTasks() {
                 ),
             )
 
-            // TODO: Can we launch on a real device?
-            if (platform.isIosSimulator) {
-                val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
-                tasks.registerTask(
-                    task = IosRunTask(
-                        taskName = runTaskName,
-                        platform = platform,
-                        buildType = buildType,
-                        module = module,
-                        taskOutputPath = context.getTaskOutputPath(runTaskName),
-                    ),
-                    dependsOn = listOf(buildTaskName)
-                )
-            }
+            val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
+            tasks.registerTask(
+                task = IosRunTask(
+                    taskName = runTaskName,
+                    platform = platform,
+                    buildType = buildType,
+                    module = module,
+                    commonRunSettings = context.commonRunSettings,
+                    taskOutputPath = context.getTaskOutputPath(runTaskName),
+                ),
+                dependsOn = listOf(buildTaskName)
+            )
         }
 
     allModules()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.android
@@ -26,12 +26,14 @@ import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.startLongLivedProcess
+import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
@@ -46,6 +48,7 @@ class AndroidRunTask(
     override val taskName: TaskName,
     override val module: AmperModule,
     override val buildType: BuildType,
+    private val commonRunSettings: CommonRunSettings,
     private val androidSdkPath: Path,
     private val avdPath: Path,
 ) : RunTask {
@@ -63,9 +66,16 @@ class AndroidRunTask(
             .flatMap { it.outputs.filter { it.endsWith("emulator") } }.singleOrNull()
             ?: error("Emulator not found")).resolve("emulator")
 
-        val device = adb
-            .selectOrCreateVirtualDevice(androidFragment.settings.android.targetSdk.versionNumber, emulatorExecutable)
-            .waitForBootCompleted()
+        val device = run {
+            commonRunSettings.deviceId?.let { deviceId ->
+                adb.devices.find { it.serialNumber == deviceId } ?: userReadableError(
+                    "Unable to find the device with the serial = `$deviceId`"
+                )
+            } ?: adb.selectOrCreateVirtualDevice(
+                androidTarget = androidFragment.settings.android.targetSdk.versionNumber,
+                emulatorExecutable = emulatorExecutable,
+            )
+        }.waitForBootCompleted()
 
         val apk = dependenciesResult.filterIsInstance<AndroidDelegatedGradleTask.Result>()
             .singleOrNull()?.artifacts?.firstOrNull() ?: error("Apk not found")

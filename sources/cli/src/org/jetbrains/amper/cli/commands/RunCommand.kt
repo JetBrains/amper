@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands
@@ -21,6 +21,15 @@ internal class RunCommand : AmperSubcommand(name = "run") {
 
     private val platform by leafPlatformOption(help = "Run the app on specified platform. This option is only necessary if " +
             "the module has multiple main functions for different platforms")
+
+    private val deviceId by option(
+        "-d", "--device-id",
+        help = "Platform specific device id to select the device to install and run on. " +
+                "Only Android and iOS platforms are currently supported.\n" +
+                "- Android: use `adb devices` command to list connected devices and emulators\n" +
+                "- iOS: use `xcrun devicectl list devices` command to list available devices or " +
+                "`xcrun simctl list devices` to list available simulators."
+    )
 
     private val variant by option(
         "-v",
@@ -51,6 +60,7 @@ internal class RunCommand : AmperSubcommand(name = "run") {
             commonRunSettings = CommonRunSettings(
                 programArgs = programArguments,
                 userJvmArgs = jvmArgs,
+                deviceId = deviceId,
             ),
         ) { backend ->
             backend.runApplication(moduleName = module, platform = platform, buildType = variant)

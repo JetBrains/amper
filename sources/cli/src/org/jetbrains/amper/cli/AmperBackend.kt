@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
@@ -299,6 +299,10 @@ class AmperBackend(val context: CliContext) {
 
         if (context.commonRunSettings.userJvmArgs.isNotEmpty() && task.platform != Platform.JVM) {
             logger.warn("The $UserJvmArgsOption option have no effect when running a non-JVM app")
+        }
+        if (context.commonRunSettings.deviceId != null &&
+            !task.platform.isDescendantOf(Platform.IOS) && task.platform != Platform.ANDROID) {
+            userReadableError("-d/--device-id argument is not supported for the ${task.platform.pretty} platform")
         }
         runTask(task.taskName)
     }
