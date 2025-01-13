@@ -10,6 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * The result of a completed process.
@@ -19,6 +22,10 @@ class ProcessResult(
      * The command line that was executed.
      */
     val command: List<String>,
+    /**
+     * The ID identifying this process when it was alive.
+     */
+    val pid: Long,
     /**
      * The exit code of the process.
      */
@@ -71,6 +78,7 @@ suspend fun runProcessAndCaptureOutput(
     outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
 ): ProcessResult {
     val capture = ProcessOutputListener.InMemoryCapture()
+    var pid: Long
     val exitCode = runProcess(
         workingDir = workingDir,
         command = command,
@@ -78,10 +86,12 @@ suspend fun runProcessAndCaptureOutput(
         redirectErrorStream = redirectErrorStream,
         outputListener = outputListener + capture,
         input = input,
+        onStart = { pid = it },
     )
     return ProcessResult(
         command = command,
         exitCode = exitCode,
+        pid = pid,
         stdout = capture.stdout,
         stderr = capture.stderr,
         errorStreamRedirected = redirectErrorStream,
@@ -106,6 +116,7 @@ suspend fun runProcessAndCaptureOutput(
  * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **requests the process destruction** but doesn't
  * wait for its completion (we mustn't block the JVM shutdown).
  */
+@OptIn(ExperimentalContracts::class)
 suspend fun runProcess(
     workingDir: Path? = null,
     command: List<String>,
@@ -115,6 +126,9 @@ suspend fun runProcess(
     input: ProcessInput = ProcessInput.Empty,
     onStart: (pid: Long) -> Unit = {},
 ): Int {
+    contract {
+        callsInPlace(onStart, InvocationKind.EXACTLY_ONCE)
+    }
     require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
 
     val exitCode = withContext(Dispatchers.IO) {
@@ -145,6 +159,7 @@ suspend fun runProcess(
  * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **requests the process destruction** but doesn't
  * wait for its completion (we mustn't block the JVM shutdown).
  */
+@OptIn(ExperimentalContracts::class)
 suspend fun runProcessWithInheritedIO(
     workingDir: Path? = null,
     command: List<String>,
@@ -152,6 +167,9 @@ suspend fun runProcessWithInheritedIO(
     redirectErrorStream: Boolean = false,
     onStart: (pid: Long) -> Unit = {},
 ): Int {
+    contract {
+        callsInPlace(onStart, InvocationKind.EXACTLY_ONCE)
+    }
     require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
 
     val exitCode = withContext(Dispatchers.IO) {
