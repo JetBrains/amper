@@ -67,10 +67,9 @@ abstract class AmperCliWithWrapperTestBase {
      * This function uses the OS-specific wrapper script located in [workingDir] by default, or the given
      * [customAmperScriptPath] if non-null.
      *
-     * The [bootstrapCacheDir] is the location where the Amper distribution is downloaded by the script.
-     *
-     * The [customJavaHome] path points to the home directory of the Java distribution to use for Amper.
-     * If null, the script handles the download of a suitable JRE.
+     * @param bootstrapCacheDir the location where the Amper script should download the Amper distribution and JRE
+     * @param amperJavaHomeMode defines how the test Amper process should get its JRE.
+     * See the docs on [AmperJavaHomeMode] values for more info.
      */
     protected suspend fun runAmper(
         workingDir: Path,
@@ -79,7 +78,7 @@ abstract class AmperCliWithWrapperTestBase {
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
         bootstrapCacheDir: Path? = null,
-        customJavaHome: Path? = null,
+        amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.Inherit,
         customAmperScriptPath: Path? = null,
         stdin: ProcessInput = ProcessInput.Empty,
     ): ProcessResult {
@@ -121,9 +120,13 @@ abstract class AmperCliWithWrapperTestBase {
                         this["AMPER_BOOTSTRAP_CACHE_DIR"] = it.pathString
                     }
 
-                    if (customJavaHome != null) {
-                        this["AMPER_JAVA_HOME"] = customJavaHome.pathString
+                    when (amperJavaHomeMode) {
+                        is AmperJavaHomeMode.Inherit -> {} // do nothing and just get whatever is there
+                        // explicit reset (cannot call remove because we don't have the actual env from ProcessBuilder here)
+                        is AmperJavaHomeMode.ForceUnset -> this["AMPER_JAVA_HOME"] = ""
+                        is AmperJavaHomeMode.Custom -> this["AMPER_JAVA_HOME"] = amperJavaHomeMode.jreHomePath.pathString
                     }
+
                     this["AMPER_JAVA_OPTIONS"] = extraJvmArgs.joinToString(" ")
                     putAll(environment)
                 },
@@ -145,6 +148,27 @@ abstract class AmperCliWithWrapperTestBase {
         }
         return result
     }
+}
+
+/**
+ * Defines how a test Amper process should get its JRE (especially when tests are run using Amper itself).
+ */
+sealed class AmperJavaHomeMode {
+    /**
+     * Inherit `AMPER_JAVA_HOME` from the caller's environment.
+     * When tests are run by Amper, the test Amper process will use the same JRE as the Amper process running the tests.
+     */
+    data object Inherit : AmperJavaHomeMode()
+    /**
+     * Explicitly reset AMPER_JAVA_HOME even if the caller's environment contains it (for example, when running tests
+     * with Amper itself).
+     * This forces the test Amper process to download the JRE to the AMPER_BOOTSTRAP_CACHE_DIR if not present there.
+     */
+    data object ForceUnset : AmperJavaHomeMode()
+    /**
+     * Use the given [jreHomePath] as JRE home for the test Amper process.
+     */
+    data class Custom(val jreHomePath: Path) : AmperJavaHomeMode()
 }
 
 @Suppress("ReplacePrintlnWithLogging") // these println are for test outputs and are OK here

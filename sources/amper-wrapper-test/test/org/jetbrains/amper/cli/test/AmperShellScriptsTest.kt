@@ -12,6 +12,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
+import org.jetbrains.amper.test.AmperJavaHomeMode
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.Dirs
@@ -68,6 +69,8 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             workingDir = tempDir,
             args = listOf("run"),
             bootstrapCacheDir = bootstrapCacheDir,
+            // We want to test the proper download of the JRE to the bootstrap dir, so we have to unset this
+            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
         )
         assertTrue("Process output must contain 'Hello for Shell Scripts Test' the first time. Output:\n${result1.stdout}") {
             result1.stdout.contains("Hello for Shell Scripts Test")
@@ -83,6 +86,8 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             workingDir = tempDir,
             args = listOf("run"),
             bootstrapCacheDir = bootstrapCacheDir,
+            // We want to test the check of JRE presence in the bootstrap dir, so we have to unset this
+            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
         )
         assertTrue("Process output must contain 'Hello for Shell Scripts Test' the second time. Output:\n${result2.stdout}") {
             result2.stdout.contains("Hello for Shell Scripts Test")
@@ -119,6 +124,8 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
                         workingDir = tempDir,
                         args = listOf("--version"),
                         bootstrapCacheDir = bootstrapCacheDir,
+                        // We want to test concurrent downloads of the JRE to the bootstrap dir, so we have to unset this
+                        amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
                     )
                 }
             }
@@ -126,7 +133,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     }
 
     @Test
-    fun `custom boostrap cache`() = runBlocking {
+    fun `custom bootstrap cache`() = runBlocking {
         val templatePath = shellScriptExampleProject
         assertTrue { templatePath.isDirectory() }
 
@@ -141,6 +148,8 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             workingDir = tempDir,
             args = listOf("--version"),
             bootstrapCacheDir = bootstrapCacheDir,
+            // We want to test the proper download of the JRE to the bootstrap dir, so we have to unset this
+            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
         )
         val nDownloadingLines = result.stdout.lines().count { it.startsWith("Downloading ") }
         assertEquals(
@@ -247,7 +256,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         val result = runAmper(
             workingDir = tempDir,
             args = listOf("--version"),
-            customJavaHome = jdkHome,
+            amperJavaHomeMode = AmperJavaHomeMode.Custom(jreHomePath = jdkHome),
             bootstrapCacheDir = tempDir.resolve("boot strap"),
         )
         val expectedVersionStringOld = "amper version $expectedAmperVersion"
@@ -289,13 +298,19 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         brokenScript.toFile().setExecutable(true)
         assertTrue(brokenScript.isExecutable())
 
+        val bootstrapCacheDir = tempDir.resolve("boot strap")
+        assertTrue("Bootstrap cache dir should start empty") {
+            bootstrapCacheDir.notExists() || bootstrapCacheDir.listDirectoryEntries().isEmpty()
+        }
         val result = runAmper(
             workingDir = tempDir,
             args = listOf("--version"),
             expectedExitCode = 1,
             assertEmptyStdErr = false,
-            bootstrapCacheDir = tempDir.resolve("boot strap"),
+            bootstrapCacheDir = bootstrapCacheDir,
             customAmperScriptPath = brokenScript,
+            // We want to test the failure to download the JRE to the bootstrap dir, we have to unset this
+            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
         )
         val expectedContains = "expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got"
         assertTrue("Process output must contain '$expectedContains' line. Output:\n${result.stderr}") {
