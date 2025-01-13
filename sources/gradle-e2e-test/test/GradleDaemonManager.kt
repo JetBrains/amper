@@ -3,7 +3,7 @@
  */
 
 import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.internal.consumer.DefaultGradleConnector
+import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -39,7 +39,12 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
 
         Runtime.getRuntime().addShutdownHook(thread(start = false) {
             // ensure all gradle daemons are stopped
-            DefaultGradleConnector.close()
+            try {
+                ConnectorServices.close()
+            } catch (e: Throwable) { // catch NoClassDefFoundError on purpose
+                System.err.println("Exception while trying to close Gradle daemons:")
+                e.printStackTrace()
+            }
 
             // delete our temp files
             for (path in list.toList()) {
