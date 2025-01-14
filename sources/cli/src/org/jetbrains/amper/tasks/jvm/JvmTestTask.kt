@@ -5,6 +5,10 @@
 package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
+import jetbrains.buildServer.messages.serviceMessages.TestFailed
+import jetbrains.buildServer.messages.serviceMessages.TestFinished
+import jetbrains.buildServer.messages.serviceMessages.TestIgnored
+import jetbrains.buildServer.messages.serviceMessages.TestStarted
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
@@ -25,6 +29,7 @@ import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
@@ -32,6 +37,7 @@ import org.jetbrains.amper.test.wildcardsToRegex
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
+import java.util.Date
 import java.util.jar.JarFile
 import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
@@ -39,6 +45,8 @@ import kotlin.io.path.div
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 class JvmTestTask(
     private val userCacheRoot: AmperUserCacheRoot,
@@ -95,6 +103,8 @@ class JvmTestTask(
         val reportsDir = buildOutputRoot.path / "reports" / module.userReadableName / platform.schemaValue
 
         val junitArgs = buildList {
+            add("--disable-banner")
+
             // TODO I certainly want to have it here by default (too many real life errors when tests are skipped for a some reason)
             //  but probably there should be an option to disable it
             add("--fail-if-no-tests")
@@ -107,6 +117,12 @@ class JvmTestTask(
                 filterArguments.any { it.startsWith("--include") || it.startsWith("--exclude") }) {
                 add("--scan-class-path=$testModuleClasspath")
             }
+
+            val testFormat = when (commonRunSettings.testResultsFormat) {
+                TestResultsFormat.Pretty -> "tree"
+                TestResultsFormat.TeamCity -> "testfeed"
+            }
+            add("--details=$testFormat")
         }
 
         val junitArgsFile = createTempFile(tempRoot.path, "junit-args-", ".txt")
@@ -144,7 +160,10 @@ class JvmTestTask(
                         workingDir = workingDirectory,
                         command = jvmCommand,
                         span = span,
-                        outputListener = PrintToTerminalProcessOutputListener(terminal),
+                        outputListener = when (commonRunSettings.testResultsFormat) {
+                            TestResultsFormat.Pretty -> PrintToTerminalProcessOutputListener(terminal)
+                            TestResultsFormat.TeamCity -> JUnitToTeamCityProcessOutputListener(terminal)
+                        },
                     )
 
                     // TODO exit code from junit launcher should be carefully become some kind of exit code for entire Amper run
@@ -180,10 +199,58 @@ class JvmTestTask(
 
     private fun String.slashToDollar() = replace('/', '$')
 
-    private fun jarHasClasses(jarPath: Path): Boolean =
-        JarFile(jarPath.toFile(), false).use { jar ->
-            jar.entries().asSequence().any { it.name.endsWith(".class") }
-        }
-
     class Result() : TaskResult
+}
+
+class JUnitToTeamCityProcessOutputListener(terminal: Terminal) : PrintToTerminalProcessOutputListener(terminal) {
+
+    private val startTimes = mutableMapOf<String, TimeMark>()
+
+    override fun onStdoutLine(line: String, pid: Long) {
+        val effectiveLines = transformJUnitFeedMessageToTeamCityServiceMessages(line)
+        effectiveLines.forEach {
+            super.onStdoutLine(it, pid)
+        }
+    }
+
+    private fun transformJUnitFeedMessageToTeamCityServiceMessages(line: String): List<String> {
+        // TODO remove color and use matchEntire instead?
+        val match = junitRegex.find(line) ?: return listOf(line)
+        val className = match.groups["className"]!!.value.replace(" > ", ".")
+        val methodName = match.groups["methodName"]!!.value
+        val event = match.groups["event"]!!.value
+
+        val testFqn = "${className}.$methodName"
+        val serviceMessage = when (event) {
+            "STARTED" -> {
+                markStart(testFqn)
+                listOf(TestStarted(testFqn, false, null)) // TODO capture output? location hint?
+            }
+            "SUCCESSFUL" -> listOf(TestFinished(testFqn, elapsedMillis(testFqn)))
+            "FAILED" -> listOf(
+                TestFailed(testFqn, ""), // TODO test failure message
+                TestFinished(testFqn, elapsedMillis(testFqn)),
+            )
+            "SKIPPED" -> listOf(TestIgnored(testFqn, "")) // TODO get ignore reason from JUnit?
+            else -> error("Unknown JUnit test event '$event'. Original message: $line")
+        }
+        return serviceMessage.onEach { it.setTimestamp(Date()) }.map { it.asString() }
+    }
+
+    private fun markStart(testId: String) {
+        startTimes[testId] = TimeSource.Monotonic.markNow()
+    }
+
+    private fun elapsedMillis(testId: String): Int = startTimes[testId]?.elapsedNow()?.inWholeMilliseconds?.toInt()
+        ?: error("Start time was not registered for test '$testId'")
+
+    companion object {
+
+        // Examples:
+        // JUnit Jupiter > MavenResolverTest > negativeResolveSingleCoordinates() :: STARTED
+        // JUnit Jupiter > MavenResolverTest > negativeResolveSingleCoordinates() :: SUCCESSFUL
+        // JUnit Vintage > MavenResolverTest > negativeResolvePlatformSupportWasNotFound :: SKIPPED
+        // JUnit Vintage > SomeClass > NestedClass > testMethod :: FAILED
+        val junitRegex = Regex("""JUnit \w+ > (?<className>\w+( > \w+)*) > (?<methodName>[^(]+)(\(\))? :: (?<event>\w+)""")
+    }
 }

@@ -20,6 +20,10 @@ data class CommonRunSettings(
      */
     val testFilters: List<TestFilter> = emptyList(),
     /**
+     * How the test results should be formatted.
+     */
+    val testResultsFormat: TestResultsFormat = TestResultsFormat.Pretty,
+    /**
      * The JVM args passed by the user.
      *
      * They should be used in JVMs that we launch on behalf of the user and that are exposed to the user.
@@ -31,3 +35,15 @@ data class CommonRunSettings(
      */
     val deviceId: String? = null,
 )
+
+enum class TestResultsFormat(val cliValue: String) {
+    /**
+     * Simple human-readable format for local CLI runs.
+     */
+    Pretty("pretty"),
+
+    /**
+     * TeamCity service message format, which is machine-readable and also understood by IntelliJ IDEA.
+     */
+    TeamCity("teamcity"),
+}

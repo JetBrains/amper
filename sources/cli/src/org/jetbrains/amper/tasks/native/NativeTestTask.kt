@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
@@ -51,6 +52,11 @@ class NativeTestTask(
                         if (testFilterArg != null) {
                             add(testFilterArg)
                         }
+                        val ktestLogger = when (commonRunSettings.testResultsFormat) {
+                            TestResultsFormat.Pretty -> "gtest"
+                            TestResultsFormat.TeamCity -> "teamcity"
+                        }
+                        add("--ktest_logger=$ktestLogger")
                     },
                     span = span,
                     outputListener = PrintToTerminalProcessOutputListener(terminal),

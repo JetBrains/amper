@@ -6,12 +6,15 @@ package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
 import kotlin.collections.isNotEmpty
@@ -82,6 +85,14 @@ internal class TestCommand : AmperSubcommand(name = "test") {
                 "not excluded."
     ).multiple()
 
+    private val format by option(
+        "--format",
+        metavar = "FORMAT",
+        help = "The format to use for test results. " +
+                "'pretty' is a human-readable format for local CLI runs. " +
+                "'events' is for machine readable events that can be interpreted by some CI systems and IDEs."
+    ).enum<TestResultsFormat> { it.cliValue }.default(TestResultsFormat.Pretty)
+
     override fun help(context: Context): String = "Run tests in the project"
 
     override suspend fun run() {
@@ -100,6 +111,7 @@ internal class TestCommand : AmperSubcommand(name = "test") {
             commonRunSettings = CommonRunSettings(
                 userJvmArgs = jvmArgs,
                 testFilters = allTestFilters,
+                testResultsFormat = format,
             ),
         ) { backend ->
             backend.test(
