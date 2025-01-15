@@ -118,15 +118,16 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     private suspend fun getLatestVersion(): String {
         commonOptions.terminal.println("Fetching latest Amper version info...")
         val metadataXml = fetchMavenMetadataXml()
-        return versionRegex.findAll(metadataXml)
-            .map { it.groupValues[1] }
-            .filter { useDevVersion || "dev" !in it }
-            .maxByOrNull { ComparableVersion(it) }
+        return xmlVersionElementRegex.findAll(metadataXml)
+            .mapNotNull { parseAmperVersion(it.groupValues[1]) }
+            .filter { !it.isDevVersion || (useDevVersion && !it.isSpecialBranchVersion) }
+            .maxByOrNull { ComparableVersion(it.fullMavenVersion) }
+            ?.fullMavenVersion
             ?.also {
                 val versionMoniker = if (useDevVersion) "dev version of Amper" else "Amper version"
                 commonOptions.terminal.println("Latest $versionMoniker is $it")
             }
-            ?: userReadableError("Couldn't read Amper latest version from maven-metadata.xml:\n\n$metadataXml")
+            ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$metadataXml")
     }
 
     private suspend fun fetchMavenMetadataXml(): String = try {
@@ -147,4 +148,26 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     }
 }
 
-private val versionRegex = Regex("<version>(.+?)</version>")
+private val xmlVersionElementRegex = Regex("<version>(.+?)</version>")
+
+private data class AmperVersion(
+    val versionTriplet: String,
+    val devBuildNumber: String?,
+    val branchSuffix: String?,
+    val fullMavenVersion: String,
+) {
+    val isDevVersion get() = devBuildNumber != null
+    val isSpecialBranchVersion get() = branchSuffix != null
+}
+
+private val versionRegex = Regex("""(?<versionTriplet>[^-]+)(-dev-(?<build>\d+)(-(?<branchSuffix>.*))?)?""")
+
+private fun parseAmperVersion(version: String): AmperVersion? {
+    val versionMatch = versionRegex.matchEntire(version) ?: return null
+    return AmperVersion(
+        versionTriplet = versionMatch.groups["versionTriplet"]?.value ?: error("versionTriplet is mandatory"),
+        devBuildNumber = versionMatch.groups["build"]?.value,
+        branchSuffix = versionMatch.groups["branchSuffix"]?.value,
+        fullMavenVersion = version,
+    )
+}
