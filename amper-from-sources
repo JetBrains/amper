@@ -272,7 +272,10 @@ if [ ! -f "$up_to_date_file" ] || [ "$(cat "$up_to_date_file")" != "$current" ];
   # Amper needs a published Amper Android Gradle plugin support for the delegated Gradle builds
   (cd "$script_dir" && ./amper --log-level=warn task :cli:unpackedDist && ./amper --log-level=warn publish -m gradle-plugin mavenLocal)
   current_state >"$up_to_date_file"
-  clear
+
+  if [ -n "$TERM" ] && tput clear >/dev/null 2>&1; then
+      clear
+  fi
 fi
 
 # ********** Script path detection **********
