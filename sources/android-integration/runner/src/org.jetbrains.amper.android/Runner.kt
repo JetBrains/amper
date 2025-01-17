@@ -125,7 +125,7 @@ plugins {
 }
 
 configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
-    jsonData = ${"\"\"\""}${Json.encodeToString(buildRequest)}${"\"\"\""}
+    jsonData = ${"\"\"\""}${Json.encodeToString(buildRequest).replace("$", "\${'$'}")}${"\"\"\""}
 }
 """.trimIndent()
     )
