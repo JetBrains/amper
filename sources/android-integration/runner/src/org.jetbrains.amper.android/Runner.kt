@@ -15,7 +15,9 @@ import org.gradle.tooling.model.GradleProject
 import org.jetbrains.amper.core.AmperBuild
 import java.io.BufferedOutputStream
 import java.nio.file.Path
-import java.nio.file.StandardOpenOption
+import java.nio.file.StandardOpenOption.APPEND
+import java.nio.file.StandardOpenOption.CREATE
+import java.nio.file.StandardOpenOption.WRITE
 import java.util.*
 import kotlin.collections.ArrayDeque
 import kotlin.collections.List
@@ -30,6 +32,7 @@ import kotlin.collections.mapOf
 import kotlin.collections.plus
 import kotlin.collections.toTypedArray
 import kotlin.io.path.div
+import kotlin.io.path.notExists
 import kotlin.io.path.outputStream
 import kotlin.io.path.pathString
 
@@ -46,40 +49,38 @@ fun runAndroidBuild(
     buildPath.createBuildGradle()
     buildPath.createLocalProperties(buildRequest)
 
-    val connection = GradleConnector
+    require(gradleLogStdoutPath.notExists()) {
+        "Log file for Gradle stdout already exists: ${gradleLogStdoutPath.pathString}"
+    }
+    require(gradleLogStdoutPath.notExists()) {
+        "Log file for Gradle stderr already exists: ${gradleLogStderrPath.pathString}"
+    }
+
+    GradleConnector
         .newConnector()
         .forProjectDirectory(settingsGradlePath.parent.toFile())
         .connect()
-
-    val stdout = gradleLogStdoutPath
-        .outputStream(StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)
-        .buffered()
-    val stderr = gradleLogStderrPath
-        .outputStream(StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)
-        .buffered()
-
-    connection.use {
-        val androidProjects = it.extractAndroidProjectModelsFromBuild(debug)
-        val lazyArtifacts = buildList {
-            for (target in buildRequest.targets) {
-                val androidProject = androidProjects[target] ?: continue
-                val tasks = androidProject.taskList(it, buildRequest, target)
-                androidProject.lazyArtifacts(buildRequest).also { addAll(it) }
-                try {
-                    stdout.use { stdoutStream ->
-                        stderr.use { stderrStream ->
-                            it.runBuild(tasks, eventHandler, stdoutStream, stderrStream, buildRequest, debug)
+        .use { connection ->
+            val androidProjects = connection.extractAndroidProjectModelsFromBuild(debug)
+            val lazyArtifacts = buildList {
+                for (target in buildRequest.targets) {
+                    val androidProject = androidProjects[target] ?: continue
+                    val tasks = androidProject.taskList(connection, buildRequest, target)
+                    androidProject.lazyArtifacts(buildRequest).also { addAll(it) }
+                    try {
+                        gradleLogStdoutPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stdout ->
+                            gradleLogStderrPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stderr ->
+                                connection.runBuild(tasks, eventHandler, stdout, stderr, buildRequest, debug)
+                            }
                         }
+                    } catch (t: RuntimeException) {
+                        throw IllegalStateException("Error during Gradle build", t)
                     }
-                } catch (t: RuntimeException) {
-                    throw IllegalStateException("Error during Gradle build", t)
                 }
-
             }
-        }
 
-        return lazyArtifacts.map { it.value }
-    }
+            return lazyArtifacts.map { it.value }
+        }
 }
 
 private fun Path.createBuildGradle() {
