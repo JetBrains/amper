@@ -72,8 +72,8 @@ open class AndroidBaseTest : TestBase() {
     /**
      * Runs Gradle-based tests for the Android project specified by [projectName] using Amper.
      *
-     * If [androidAppSubprojectName] is specified, the corresponding subproject is used as the Android app to test,
-     * otherwise the root project is expected to be the Android app.
+     * If [androidAppSubprojectName] is specified, the corresponding subproject is used as the Android app to test.
+     * Otherwise, the root project is expected to be the Android app.
      */
     internal fun testRunnerGradle(projectName: String, androidAppSubprojectName: String? = null) {
         prepareExecution(projectName, gradleE2eTestProjectsPath) { projectDir ->
@@ -85,8 +85,8 @@ open class AndroidBaseTest : TestBase() {
     /**
      * Builds the Android debug APK for the project in the given [projectRootDir].
      *
-     * If [androidAppSubprojectName] is specified, the corresponding subproject is used as the Android app to test,
-     * otherwise the root project is expected to be the Android app.
+     * If [androidAppSubprojectName] is specified, the corresponding subproject is used as the Android app to test.
+     * Otherwise, the root project is expected to be the Android app.
      *
      * @return the path to the built APK
      */
