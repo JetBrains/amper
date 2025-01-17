@@ -20,7 +20,7 @@ dependencies:
   - $kotlin.test.junit5
   - ../async-processes: exported # for ProcessResult in the API
   - ../core
-  - ../cli: compile-only # todo (Anton Prokhorov): think splitting cli to submodules
+  - ../cli # TODO split cli into submodules (currently used for telemetry helpers & ExecuteOnChangedInputs)
   - ../dependency-resolution
 
 apply:
