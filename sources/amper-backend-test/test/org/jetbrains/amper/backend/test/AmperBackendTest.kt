@@ -78,9 +78,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
     @Test
     fun `jvm kotlin-test smoke test`() = runTestWithCollector {
-        val projectContext = setupTestDataProject(
-            "jvm-kotlin-test-smoke",
-        )
+        val projectContext = setupTestDataProject("jvm-kotlin-test-smoke")
         AmperBackend(projectContext).runTask(TaskName(":jvm-kotlin-test-smoke:testJvm"))
 
         val testLauncherSpan = spansNamed("junit-platform-console-standalone").assertSingle()
