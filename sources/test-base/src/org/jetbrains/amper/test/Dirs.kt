@@ -6,6 +6,7 @@ package org.jetbrains.amper.test
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder
 import org.jetbrains.amper.test.android.AndroidToolsInstaller
 import java.nio.file.Path
@@ -56,7 +57,9 @@ object Dirs {
             check(!persistentCachePath.isNullOrBlank()) {
                 "'agent.persistent.cache' system property is required under TeamCity"
             }
-            Path(persistentCachePath) / "amper build"
+            // We add the OS + arch to avoid problems in case the cache is shared between different types of machines.
+            // Example: the incremental cache contains paths in Windows style on Windows, and unix style on other OSes.
+            Path(persistentCachePath) / "amper build" / DefaultSystemInfo.detect().familyArch
         } else {
             amperCheckoutRoot / "shared test caches"
         }
