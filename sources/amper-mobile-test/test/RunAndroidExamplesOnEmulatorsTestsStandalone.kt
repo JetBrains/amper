@@ -9,17 +9,17 @@ import org.junit.jupiter.api.Test
 class RunAndroidExamplesOnEmulatorsTestsStandalone : AndroidBaseTest() {
 
     @Test
-    fun composeAndroidAppGradle() = testRunnerStandalone(
+    fun simple() = testRunnerStandalone(
         projectName = "simple",
     )
 
     @Test
-    fun composeAndroidAppAppCompat() = testRunnerStandalone(
+    fun appcompat() = testRunnerStandalone(
         projectName = "appcompat",
     )
 
     @Test
-    fun parcelizeAndroidApp() = testRunnerStandalone(
+    fun parcelize() = testRunnerStandalone(
         projectName = "parcelize",
     )
 }
