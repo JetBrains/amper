@@ -27,6 +27,7 @@ import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
@@ -131,8 +132,13 @@ internal object AndroidToolsInstaller {
         commandLineToolsZip: Path,
         androidSetupCacheDir: Path,
     ) {
-        extractZip(archiveFile = commandLineToolsZip, target = targetAndroidHome / "cmdline-tools", stripRoot = true)
-        fixQuotingInScripts(targetAndroidHome)
+        val cmdlineToolsDir = targetAndroidHome / "cmdline-tools"
+        extractZip(archiveFile = commandLineToolsZip, target = cmdlineToolsDir, stripRoot = true)
+
+        // Workaround for the SDK bug https://issuetracker.google.com/issues/391118558
+        // (cmdline-tools scripts fail on directories with spaces, which we use in our tests)
+        // We need to fix the scripts so we can use the sdkmanager to install the other required Android tools
+        fixQuotingInScripts(cmdlineToolsDir / "bin")
 
         licensesToAccept.forEach { (name, hash) ->
             acceptAndroidLicense(targetAndroidHome, name, hash)
@@ -151,16 +157,24 @@ internal object AndroidToolsInstaller {
             // part of the incremental cache, and thus we avoid the 100% cache miss situation.
             targetAndroidHome.resolve("$tool.lock").createFile()
         }
+
+        // We also need to fix the 'latest' cmdline-tools scripts after installation,
+        // because these are the scripts that will actually be used in tests
+        fixQuotingInScripts(cmdlineToolsDir / "latest/bin")
     }
 
-    // Workaround for the SDK bug (doesn't support directories with spaces, which we use in our tests)
-    private fun fixQuotingInScripts(androidHome: Path) {
-        val sdkManagerFilename = if (DefaultSystemInfo.detect().family.isWindows) "sdkmanager.bat" else "sdkmanager"
-        val sdkManagerExecPath = androidHome / "cmdline-tools" / "bin" / sdkManagerFilename
-        val fixedContent = sdkManagerExecPath
-            .readText()
-            .replace("-Dcom.android.sdklib.toolsdir=\$APP_HOME", "-Dcom.android.sdklib.toolsdir=\"\$APP_HOME\"")
-        sdkManagerExecPath.writeText(fixedContent)
+    // Workaround for the SDK bug https://issuetracker.google.com/issues/391118558
+    // (cmdline-tools scripts fail on directories with spaces, which we use in our tests)
+    private fun fixQuotingInScripts(scriptsDir: Path) {
+        scriptsDir.listDirectoryEntries().forEach { script ->
+            val fixedContent = script
+                .readText()
+                .replace(
+                    oldValue = "DEFAULT_JVM_OPTS='-Dcom.android.sdklib.toolsdir=\$APP_HOME'",
+                    newValue = "DEFAULT_JVM_OPTS='-Dcom.android.sdklib.toolsdir=\"\$APP_HOME\"'"
+                )
+            script.writeText(fixedContent)
+        }
     }
 
     private fun acceptAndroidLicense(androidSdkHome: Path, name: String, hash: String) {
