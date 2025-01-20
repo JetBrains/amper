@@ -53,6 +53,7 @@ object InstrumentedTestApp  {
         runProcessAndCaptureOutput(
             command = listOf(
                 gradlewPath.pathString,
+                "--no-daemon",
                 "-p",
                 testApkAppProjectPath.pathString,
                 "createDebugAndroidTestApk"

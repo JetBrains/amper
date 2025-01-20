@@ -188,7 +188,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
             // FIXME we should use the Gradle tooling API for this and stop the daemon after the tests
             val exitCode = runProcess(
                 workingDir = projectDir,
-                command = listOf(gradlewPath.absolutePathString(), task),
+                command = listOf(gradlewPath.absolutePathString(), "--no-daemon", task),
                 redirectErrorStream = true,
                 outputListener = SimplePrintOutputListener,
                 onStart = { pid ->
