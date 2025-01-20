@@ -2,7 +2,7 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package androidUtils
+package org.jetbrains.amper.test.android
 
 import kotlinx.coroutines.delay
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -27,6 +27,7 @@ private val scriptExtension = if (DefaultSystemInfo.detect().family.isWindows) "
 
 class AndroidTools(
     private val androidHome: Path,
+    private val log: (String) -> Unit = ::println,
     /**
      * When true, the ADB server is killed on JVM shutdown.
      * This is useful if [androidHome] needs to be deleted later,
@@ -64,7 +65,7 @@ class AndroidTools(
     @OptIn(ExperimentalEncodingApi::class)
     @ProcessLeak
     suspend fun startAndAwaitEmulator(avdName: String): Long {
-        println("Starting emulator for AVD $avdName...")
+        log("Starting emulator for AVD $avdName...")
 
         val pid = startLongLivedProcess(
             command = listOf(emulatorExe.pathString, "-avd", avdName),
@@ -86,7 +87,7 @@ class AndroidTools(
         (path.map { it.pathString } + listOf(System.getenv("PATH"))).joinToString(File.pathSeparator)
 
     private suspend fun awaitEmulatorReady() {
-        println("Waiting for the emulator to boot...")
+        log("Waiting for the emulator to boot...")
         while (true) {
             val result = adb("shell", "getprop", "sys.boot_completed")
 
@@ -97,7 +98,7 @@ class AndroidTools(
             if (result.exitCode == 0 && result.stdout.trim() == "1") {
                 return
             } else {
-                println("  (still booting...)")
+                log("  (still booting...)")
                 delay(5.seconds)
             }
         }

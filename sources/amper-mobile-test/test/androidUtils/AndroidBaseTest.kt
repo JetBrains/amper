@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.SimplePrintOutputListener
+import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.nio.file.Path
 import kotlin.io.path.div
