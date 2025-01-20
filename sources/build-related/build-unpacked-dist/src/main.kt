@@ -18,11 +18,6 @@ fun main(args: Array<String>) {
     val cliRuntimeClasspath = cliRuntimeClasspathString
         .split(File.pathSeparator)
         .map { Path(it) }
-        .also {
-            check(it.size > 3) {
-                "cli runtime classpath must contain at least 3 elements, but got ${it.size}: $it"
-            }
-        }
 
     // fake build output root under our task
     val buildOutputRoot = AmperBuildOutputRoot(taskOutputDirectory)
