@@ -138,11 +138,12 @@ internal object AndroidToolsInstaller {
             suspendingRetryWithExponentialBackOff(backOffLimitMs = TimeUnit.MINUTES.toMillis(1)) {
                 installSdkPackage(packageName = tool, outputListener = SimplePrintOutputListener)
             }
+            // We also need to fix the 'latest' cmdline-tools scripts after installation, because they will be used
+            // to install other packages, and used in tests as well
+            if (tool == "cmdline-tools;latest") {
+                fixQuotingInScripts(androidHome / "cmdline-tools" / "latest/bin")
+            }
         }
-
-        // We also need to fix the 'latest' cmdline-tools scripts after installation,
-        // because these are the scripts that will actually be used in tests
-        fixQuotingInScripts(androidHome / "cmdline-tools" / "latest/bin")
     }
 
     private fun normalizeAndroidHomeDirForCaching(androidHome: Path) {
@@ -167,6 +168,9 @@ internal object AndroidToolsInstaller {
                 .readText()
                 .replace(Regex("""DEFAULT_JVM_OPTS='[^']*(?<!")\${"$"}APP_HOME(?!")[^']*'""")) { match ->
                     match.value.replace("\$APP_HOME", "\"\$APP_HOME\"")
+                }
+                .replace(Regex("""(?<!")\${"$"}JAVACMD(?!")""")) { match ->
+                    match.value.replace("\$JAVACMD", "\"\$JAVACMD\"")
                 }
             script.writeText(fixedContent)
         }
