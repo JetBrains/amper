@@ -5,6 +5,7 @@
 package org.jetbrains.amper.test.android
 
 import kotlinx.coroutines.delay
+import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessLeak
@@ -121,7 +122,12 @@ class AndroidTools(
     /**
      * Creates a new AVD with the given [name] and configuration.
      */
-    suspend fun createAvd(name: String, apiLevel: Int = 35, variant: String = "default", arch: String = "x86_64") {
+    suspend fun createAvd(
+        name: String,
+        apiLevel: Int = 35,
+        variant: String = "default",
+        arch: String = DefaultSystemInfo.detect().arch.toEmulatorArch(),
+    ) {
         // Note: this modifies .knownPackages, which might be important for caching
         avdmanager(
             "create", "avd", "-n", name, "-k", "system-images;android-$apiLevel;$variant;$arch",
@@ -227,4 +233,9 @@ class AndroidTools(
         input = input,
         outputListener = outputListener,
     )
+}
+
+fun Arch.toEmulatorArch(): String = when(this) {
+    Arch.X64 -> "x86_64"
+    Arch.Arm64 -> "arm64-v8a"
 }

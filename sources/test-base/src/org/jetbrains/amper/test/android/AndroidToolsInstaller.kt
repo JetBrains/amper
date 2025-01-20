@@ -55,7 +55,8 @@ internal object AndroidToolsInstaller {
         "build-tools;33.0.1",
         "build-tools;34.0.0",
         "build-tools;35.0.0",
-        "system-images;android-35;default;x86_64", // to create AVDs automatically in mobile-tests
+        // to create AVDs automatically in mobile-tests
+        "system-images;android-35;default;${DefaultSystemInfo.detect().arch.toEmulatorArch()}",
     )
 
     suspend fun install(androidSdkHome: Path, androidSetupCacheDir: Path): AndroidTools {
