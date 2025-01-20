@@ -5,16 +5,27 @@
 package androidUtils
 
 import TestBase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.SimplePrintOutputListener
+import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.div
+import kotlin.io.path.pathString
 import kotlin.time.Duration.Companion.minutes
 
 /**
  * Main test class that provides methods to run Android tests.
  */
 open class AndroidBaseTest : TestBase() {
+
+    private val androidTools = AndroidTools(
+        androidHome = Path(System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME not set")),
+    )
 
     /** Path to the directory containing E2E test projects for Gradle-based tests */
     private val gradleE2eTestProjectsPath = Dirs.amperSourcesRoot / "gradle-e2e-test/testData/projects"
@@ -33,10 +44,41 @@ open class AndroidBaseTest : TestBase() {
         val copiedProjectDir = copyProjectToTempDir(projectName, projectsDir)
         val targetApkPath = buildApk(copiedProjectDir)
         val testAppApkPath = InstrumentedTestApp.assemble(applicationId)
-        ApkManager.installApk(testAppApkPath)
-        ApkManager.installApk(targetApkPath)
-        ApkManager.runTestsViaAdb(applicationId)
+
+        // This dispatcher switch is not superstition. The test dispatcher skips delays by default.
+        // We interact with real external processes here, so we can't skip delays when we do retries.
+        withContext(Dispatchers.IO) {
+            androidTools.ensureEmulatorIsRunning()
+            androidTools.installApk(testAppApkPath)
+            androidTools.installApk(targetApkPath)
+            runTestsViaAdb(applicationId)
+        }
     }
+
+    private suspend fun runTestsViaAdb(applicationId: String? = null) {
+        // disable all animations on the emulator to speed up test execution.
+        adbShell("settings", "put", "global", "window_animation_scale", "0.0")
+        adbShell("settings", "put", "global", "transition_animation_scale", "0.0")
+        adbShell("settings", "put", "global", "animator_duration_scale", "0.0")
+        adbShell("settings", "put", "secure", "long_press_timeout", "1000")
+        //After it executes tests using the specified test package name,
+        // falling back to a default package if none is provided
+        val testPackage = applicationId?.let {
+            "$it.test/androidx.test.runner.AndroidJUnitRunner"
+        } ?: "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner"
+
+        val output = adbShell("am", "instrument", "-w", "-r", testPackage)
+        if (!output.contains("OK (1 test)") || output.contains("Error")) {
+            error("Test failed with output:\n$output")
+        }
+    }
+
+    /**
+     * Executes the given adb shell [command] and returns the output.
+     */
+    @OptIn(ProcessLeak::class)
+    private suspend fun adbShell(vararg command: String): String =
+        androidTools.adb("shell", *command, outputListener = SimplePrintOutputListener).checkExitCodeIsZero().stdout
 
     /**
      * Executes standalone tests for an Android project specified by [projectName],
@@ -65,6 +107,7 @@ open class AndroidBaseTest : TestBase() {
             workingDir = projectDir,
             args = listOf("task", ":$moduleName:buildAndroidDebug"),
             environment = mapOf(
+                "ANDROID_HOME" to Dirs.androidHome.pathString,
                 "AMPER_NO_GRADLE_DAEMON" to "1", // ensures we don't leak the daemon
             ),
         )
@@ -105,5 +148,18 @@ open class AndroidBaseTest : TestBase() {
         } else {
             projectRootDir / "build/outputs/apk/debug/$rootProjectName-debug.apk"
         }
+    }
+}
+
+@OptIn(ProcessLeak::class)
+private suspend fun AndroidTools.ensureEmulatorIsRunning() {
+    if (!isEmulatorRunning()) {
+        val testAvdName = "amper-test-avd"
+        // If no emulator is currently running, a new one is started before executing the command.
+        if (!listAvds().contains(testAvdName)) {
+            println("AVD $testAvdName not found, creating a new one...")
+            createAvd(testAvdName)
+        }
+        startAndAwaitEmulator(testAvdName)
     }
 }

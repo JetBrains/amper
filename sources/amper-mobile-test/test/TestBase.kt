@@ -16,6 +16,7 @@ import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
+import kotlin.io.path.pathString
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -191,6 +192,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
                 command = listOf(gradlewPath.absolutePathString(), "--no-daemon", task),
                 redirectErrorStream = true,
                 outputListener = SimplePrintOutputListener,
+                environment = mapOf("ANDROID_HOME" to Dirs.androidHome.pathString),
                 onStart = { pid ->
                     println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")
                 },

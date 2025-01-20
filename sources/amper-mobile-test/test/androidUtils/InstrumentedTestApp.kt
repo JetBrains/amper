@@ -58,6 +58,9 @@ object InstrumentedTestApp  {
                 testApkAppProjectPath.pathString,
                 "createDebugAndroidTestApk"
             ),
+            environment = mapOf(
+                "ANDROID_HOME" to Dirs.androidHome.pathString,
+            ),
             outputListener = SimplePrintOutputListener,
         ).checkExitCodeIsZero()
 
