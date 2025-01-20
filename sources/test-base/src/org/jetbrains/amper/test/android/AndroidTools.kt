@@ -4,21 +4,24 @@
 
 package org.jetbrains.amper.test.android
 
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
+import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
-import org.jetbrains.amper.processes.startLongLivedProcess
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.io.File
 import java.nio.file.Path
 import kotlin.concurrent.thread
-import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.io.path.appendLines
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
@@ -157,34 +160,47 @@ class AndroidTools(
      *
      * @return the PID of the emulator process
      */
-    @OptIn(ExperimentalEncodingApi::class)
+    @OptIn(DelicateCoroutinesApi::class)
     @ProcessLeak
-    suspend fun startAndAwaitEmulator(avdName: String): Long {
+    suspend fun startAndAwaitEmulator(avdName: String) {
         log("Starting emulator for AVD $avdName...")
 
-        val pid = startLongLivedProcess(
-            command = listOf(emulatorExe.pathString, "-avd", avdName),
-            environment = mapOf(
-                "JAVA_HOME" to javaHome.pathString,
-                "ANDROID_HOME" to androidHome.pathString,
-                // apparently, the emulator needs to have these tools on the PATH
-                "PATH" to envPathWithPrepended(
-                    androidHome / "emulator",
-                    androidHome / "platform-tools",
+        // We launch it in a long-lived coroutine to reuse the emulator between tests.
+        // It will be killed on JVM exit thanks to runProcess's default behavior.
+        val emulatorJob = GlobalScope.launch {
+            runProcess(
+                command = listOf(emulatorExe.pathString, "-avd", avdName),
+                environment = mapOf(
+                    "JAVA_HOME" to javaHome.pathString,
+                    "ANDROID_HOME" to androidHome.pathString,
+                    // apparently, the emulator needs to have these tools on the PATH
+                    "PATH" to envPathWithPrepended(
+                        androidHome / "emulator",
+                        androidHome / "platform-tools",
+                    ),
                 ),
-            ),
-        )
+                outputListener = object : ProcessOutputListener {
+                    override fun onStdoutLine(line: String, pid: Long) = Unit // ignore output
+                    override fun onStderrLine(line: String, pid: Long) {
+                        @Suppress("ReplacePrintlnWithLogging") // ok for tests
+                        println("[emulator error] $line")
+                    }
+                }
+            )
+        }
 
-        awaitEmulatorReady()
-        return pid
+        awaitEmulatorReady(emulatorJob)
     }
 
     private fun envPathWithPrepended(vararg path: Path): String =
         (path.map { it.pathString } + listOf(System.getenv("PATH"))).joinToString(File.pathSeparator)
 
-    private suspend fun awaitEmulatorReady() {
+    private suspend fun awaitEmulatorReady(emulatorJob: Job) {
         log("Waiting for the emulator to boot...")
         while (true) {
+            if (!emulatorJob.isActive) {
+                error("The emulator could not start properly, check errors above")
+            }
             val result = adb("shell", "getprop", "sys.boot_completed")
 
             // Right after starting the emulator, we first get non-zero exit codes with errors on stderr:
