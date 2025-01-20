@@ -16,6 +16,7 @@ import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.android.AndroidTools
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level
 import java.nio.file.Path
@@ -69,7 +70,7 @@ abstract class AmperIntegrationTestBase {
             // in temp dir so we get a fresh one in every build on the CI
             AndroidHomeRoot((Dirs.tempDir / "empty-android-sdk").also { it.createDirectories() })
         } else {
-            AndroidHomeRoot(Dirs.androidHome)
+            AndroidHomeRoot(AndroidTools.getOrInstallForTests().androidHome)
         }
 
         return CliContext.create(

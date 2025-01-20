@@ -4,6 +4,7 @@ import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.android.AndroidTools
 import org.junit.jupiter.api.AfterEach
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -192,7 +193,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
                 command = listOf(gradlewPath.absolutePathString(), "--no-daemon", task),
                 redirectErrorStream = true,
                 outputListener = SimplePrintOutputListener,
-                environment = mapOf("ANDROID_HOME" to Dirs.androidHome.pathString),
+                environment = mapOf("ANDROID_HOME" to AndroidTools.getOrInstallForTests().androidHome.pathString),
                 onStart = { pid ->
                     println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")
                 },

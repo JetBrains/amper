@@ -12,6 +12,7 @@ import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.processes.startLongLivedProcess
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.io.File
 import java.nio.file.Path
@@ -56,6 +57,18 @@ class AndroidTools(
                 ProcessBuilder(adbExe.pathString, "kill-server").inheritIO().start()
             })
         }
+    }
+
+    companion object {
+        /**
+         * Creates an [AndroidTools] instance backed by an Android SDK specifically provisioned for tests.
+         * If the SDK is not present, it is provisioned during the call to this function.
+         * The provisioned SDK is preserved between test runs and CI builds.
+         */
+        suspend fun getOrInstallForTests(): AndroidTools = AndroidToolsInstaller.install(
+            androidSdkHome = Dirs.androidTestCache / "sdk",
+            androidSetupCacheDir = Dirs.androidTestCache / "setup-cache",
+        )
     }
 
     private fun findCmdlineToolScript(name: String): Path {

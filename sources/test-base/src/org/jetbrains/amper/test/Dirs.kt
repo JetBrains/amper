@@ -4,11 +4,9 @@
 
 package org.jetbrains.amper.test
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder
-import org.jetbrains.amper.test.android.AndroidToolsInstaller
+import org.jetbrains.amper.test.android.AndroidTools
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -113,14 +111,10 @@ object Dirs {
         sharedAmperCacheRoot
     }
 
-    val androidHome: Path by lazy {
-        val androidSdkHome = sharedTestCaches / "android-sdk"
-        runBlocking(Dispatchers.IO) {
-            AndroidToolsInstaller.install(
-                androidSdkHome = androidSdkHome,
-                androidSetupCacheDir = sharedTestCaches / "android-setup-cache",
-            )
-        }
-        androidSdkHome
-    }
+    /**
+     * A root directory to store Android SDK data and setup caches, reused between test runs and between CI builds.
+     *
+     * **Note:** consumers should generally prefer [AndroidTools.getOrInstallForTests].
+     */
+    internal val androidTestCache: Path by lazy { sharedTestCaches / "android" }
 }

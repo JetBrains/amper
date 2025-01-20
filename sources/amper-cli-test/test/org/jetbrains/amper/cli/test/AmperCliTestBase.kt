@@ -14,6 +14,7 @@ import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestReporterExtension
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.android.AndroidTools
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
 import java.util.*
@@ -140,7 +141,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
                 addAll(args)
             },
             environment = mapOf(
-                "ANDROID_HOME" to Dirs.androidHome.pathString,
+                "ANDROID_HOME" to AndroidTools.getOrInstallForTests().androidHome.pathString,
                 GradleDaemonShutdownHook.NO_DAEMON_ENV to "1",
             ),
             expectedExitCode = expectedExitCode,

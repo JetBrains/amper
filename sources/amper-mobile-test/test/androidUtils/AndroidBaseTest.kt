@@ -6,6 +6,7 @@ package androidUtils
 
 import TestBase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.processes.ProcessLeak
@@ -24,10 +25,7 @@ import kotlin.time.Duration.Companion.minutes
  */
 open class AndroidBaseTest : TestBase() {
 
-    private val androidTools = AndroidTools(
-        androidHome = Dirs.androidHome,
-        javaHome = Path(System.getenv("JAVA_HOME") ?: error("JAVA_HOME is not set")),
-    )
+    private val androidTools = runBlocking { AndroidTools.getOrInstallForTests() }
 
     /** Path to the directory containing E2E test projects for Gradle-based tests */
     private val gradleE2eTestProjectsPath = Dirs.amperSourcesRoot / "gradle-e2e-test/testData/projects"

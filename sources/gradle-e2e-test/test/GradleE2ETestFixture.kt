@@ -2,11 +2,13 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.tooling.BuildException
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.android.AndroidTools
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.ByteArrayOutputStream
 import java.net.URI
@@ -73,7 +75,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
     ) {
         val tempDir = prepareTempDirWithProject(projectName, runWithPluginClasspath)
         val newEnv = System.getenv().toMutableMap().apply { putAll(additionalEnv) }
-        newEnv["ANDROID_HOME"] = Dirs.androidHome.pathString
+        newEnv["ANDROID_HOME"] = runBlocking { AndroidTools.getOrInstallForTests().androidHome.pathString }
         val runner = gradleRunner
         val projectConnector = runner
             // we use this instead of useGradleVersion() so that our tests benefit from the cache redirector and avoid timeouts
