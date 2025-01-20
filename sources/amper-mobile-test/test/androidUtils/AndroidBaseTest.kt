@@ -13,7 +13,6 @@ import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.pathString
 import kotlin.time.Duration.Companion.minutes
@@ -23,9 +22,7 @@ import kotlin.time.Duration.Companion.minutes
  */
 open class AndroidBaseTest : TestBase() {
 
-    private val androidTools = AndroidTools(
-        androidHome = Path(System.getenv("ANDROID_HOME") ?: error("ANDROID_HOME not set")),
-    )
+    private val androidTools = AndroidTools(Dirs.androidHome)
 
     /** Path to the directory containing E2E test projects for Gradle-based tests */
     private val gradleE2eTestProjectsPath = Dirs.amperSourcesRoot / "gradle-e2e-test/testData/projects"
