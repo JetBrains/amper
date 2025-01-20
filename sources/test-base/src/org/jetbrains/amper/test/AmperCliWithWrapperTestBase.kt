@@ -160,8 +160,8 @@ sealed class AmperJavaHomeMode {
      */
     data object Inherit : AmperJavaHomeMode()
     /**
-     * Explicitly reset AMPER_JAVA_HOME even if the caller's environment contains it (for example, when running tests
-     * with Amper itself).
+     * Explicitly reset AMPER_JAVA_HOME (make it empty) even if the caller's environment contains it (for example, when
+     * running tests with Amper itself).
      * This forces the test Amper process to download the JRE to the AMPER_BOOTSTRAP_CACHE_DIR if not present there.
      */
     data object ForceUnset : AmperJavaHomeMode()
