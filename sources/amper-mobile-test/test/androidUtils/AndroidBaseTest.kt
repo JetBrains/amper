@@ -109,7 +109,7 @@ open class AndroidBaseTest : TestBase() {
             workingDir = projectDir,
             args = listOf("task", ":$moduleName:buildAndroidDebug"),
             environment = mapOf(
-                "ANDROID_HOME" to Dirs.androidHome.pathString,
+                "ANDROID_HOME" to androidTools.androidHome.pathString,
                 "AMPER_NO_GRADLE_DAEMON" to "1", // ensures we don't leak the daemon
             ),
         )
