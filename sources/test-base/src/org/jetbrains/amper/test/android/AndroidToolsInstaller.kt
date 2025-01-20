@@ -169,10 +169,9 @@ internal object AndroidToolsInstaller {
         scriptsDir.listDirectoryEntries().forEach { script ->
             val fixedContent = script
                 .readText()
-                .replace(
-                    oldValue = "DEFAULT_JVM_OPTS='-Dcom.android.sdklib.toolsdir=\$APP_HOME'",
-                    newValue = "DEFAULT_JVM_OPTS='-Dcom.android.sdklib.toolsdir=\"\$APP_HOME\"'"
-                )
+                .replace(Regex("""DEFAULT_JVM_OPTS='[^']*(?<!")\${"$"}APP_HOME(?!")[^']*'""")) { match ->
+                    match.value.replace("\$APP_HOME", "\"\$APP_HOME\"")
+                }
             script.writeText(fixedContent)
         }
     }
