@@ -116,7 +116,7 @@ object Dirs {
     val androidHome: Path by lazy {
         val androidSdkHome = sharedTestCaches / "android-sdk"
         runBlocking(Dispatchers.IO) {
-            AndroidToolsInstaller.prepareAndroidSdkHome(
+            AndroidToolsInstaller.install(
                 androidSdkHome = androidSdkHome,
                 androidSetupCacheDir = sharedTestCaches / "android-setup-cache",
             )

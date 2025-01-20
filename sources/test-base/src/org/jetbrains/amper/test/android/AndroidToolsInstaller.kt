@@ -13,27 +13,22 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.jvm.JdkDownloader
-import org.jetbrains.amper.processes.runProcessWithInheritedIO
+import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
-import kotlin.io.path.appendLines
-import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
-import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.notExists
 import kotlin.io.path.pathString
-import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-@Suppress("ReplacePrintlnWithLogging") // these print statements are for tests, and thus OK
 internal object AndroidToolsInstaller {
 
     // from https://github.com/thyrlian/AndroidSDK/blob/master/android-sdk/license-accepter.sh
@@ -63,7 +58,7 @@ internal object AndroidToolsInstaller {
         "system-images;android-35;default;x86_64", // to create AVDs automatically in mobile-tests
     )
 
-    suspend fun prepareAndroidSdkHome(androidSdkHome: Path, androidSetupCacheDir: Path) {
+    suspend fun install(androidSdkHome: Path, androidSetupCacheDir: Path): AndroidTools {
         val commandLineToolsZip = downloadCommandLineToolsZip(androidSetupCacheDir)
 
         val configuration = mapOf(
@@ -77,7 +72,7 @@ internal object AndroidToolsInstaller {
         // (This is safe to do because it's automatically created if absent)
         androidSdkHome.resolve(".knownpackages").deleteIfExists()
 
-        ExecuteOnChangedInputs(
+        val result = ExecuteOnChangedInputs(
             buildOutputRoot = AmperBuildOutputRoot(androidSetupCacheDir),
             // We override the number here so that local changes DON'T invalidate the cache for this specific case.
             // The idea is that, the vast majority of the time, nothing changes in how we download/store the SDK
@@ -89,14 +84,17 @@ internal object AndroidToolsInstaller {
             inputs = emptyList()
         ) {
             cleanDirectory(androidSdkHome)
-            installAndroidToolsTo(
-                targetAndroidHome = androidSdkHome,
-                commandLineToolsZip = commandLineToolsZip,
-                androidSetupCacheDir = androidSetupCacheDir,
-            )
+            extractZip(archiveFile = commandLineToolsZip, target = androidSdkHome / "cmdline-tools", stripRoot = true)
 
-            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(androidSdkHome))
-        }.outputs.single()
+            // we need a JDK to run the Java-based Android command line tools
+            val jdk = JdkDownloader.getJdk(AmperUserCacheRoot(androidSetupCacheDir))
+            AndroidTools(androidSdkHome, jdk.homeDir).installToolsAndAcceptLicenses()
+
+            normalizeAndroidHomeDirForCaching(androidSdkHome)
+
+            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(androidSdkHome, jdk.homeDir))
+        }
+        return AndroidTools(androidHome = androidSdkHome, javaHome = result.outputs[1])
     }
 
     private suspend fun downloadCommandLineToolsZip(androidSetupCacheDir: Path): Path {
@@ -104,7 +102,6 @@ internal object AndroidToolsInstaller {
             OsFamily.Linux,
             OsFamily.FreeBSD,
             OsFamily.Solaris -> "commandlinetools-linux-11076708_latest.zip"
-
             OsFamily.MacOs -> "commandlinetools-mac-11076708_latest.zip"
             OsFamily.Windows -> "commandlinetools-win-11076708_latest.zip"
         }
@@ -127,40 +124,39 @@ internal object AndroidToolsInstaller {
         return revision
     }
 
-    private suspend fun installAndroidToolsTo(
-        targetAndroidHome: Path,
-        commandLineToolsZip: Path,
-        androidSetupCacheDir: Path,
-    ) {
-        val cmdlineToolsDir = targetAndroidHome / "cmdline-tools"
-        extractZip(archiveFile = commandLineToolsZip, target = cmdlineToolsDir, stripRoot = true)
-
+    private suspend fun AndroidTools.installToolsAndAcceptLicenses() {
         // Workaround for the SDK bug https://issuetracker.google.com/issues/391118558
         // (cmdline-tools scripts fail on directories with spaces, which we use in our tests)
         // We need to fix the scripts so we can use the sdkmanager to install the other required Android tools
-        fixQuotingInScripts(cmdlineToolsDir / "bin")
+        fixQuotingInScripts(androidHome / "cmdline-tools" / "bin")
 
         licensesToAccept.forEach { (name, hash) ->
-            acceptAndroidLicense(targetAndroidHome, name, hash)
+            acceptLicense(name, hash)
         }
 
-        // we need a JDK to run the Java-based Android command line tools
-        val jdk = JdkDownloader.getJdk(AmperUserCacheRoot(androidSetupCacheDir))
         for (tool in toolsToInstall) {
             suspendingRetryWithExponentialBackOff(backOffLimitMs = TimeUnit.MINUTES.toMillis(1)) {
-                installTool(tool, targetAndroidHome, jdk)
+                installSdkPackage(packageName = tool, outputListener = SimplePrintOutputListener)
             }
-            // Such lock files are generated by Amper while running tests. Creating them up front makes them
-            // part of the incremental cache, and thus we avoid the 100% cache miss situation.
-            targetAndroidHome.resolve("$tool.lock").createFile()
         }
-        // This file changes on commands like 'create avd', so we remove it to avoid a cache miss.
-        // (This is safe to do because it's automatically created if absent)
-        targetAndroidHome.resolve(".knownpackages").deleteIfExists()
 
         // We also need to fix the 'latest' cmdline-tools scripts after installation,
         // because these are the scripts that will actually be used in tests
-        fixQuotingInScripts(cmdlineToolsDir / "latest/bin")
+        fixQuotingInScripts(androidHome / "cmdline-tools" / "latest/bin")
+    }
+
+    private fun normalizeAndroidHomeDirForCaching(androidHome: Path) {
+        for (tool in toolsToInstall) {
+            // Such lock files are generated by Amper while running tests. Creating them up front makes them
+            // part of the incremental cache, and thus we avoid the 100% cache miss situation.
+            val toolLockFile = androidHome.resolve("$tool.lock")
+            if (toolLockFile.notExists()) {
+                toolLockFile.createFile()
+            }
+        }
+        // This file changes on commands like 'create avd', so we remove it to avoid a cache miss.
+        // (This is safe to do because it's automatically created if absent)
+        androidHome.resolve(".knownpackages").deleteIfExists()
     }
 
     // Workaround for the SDK bug https://issuetracker.google.com/issues/391118558
@@ -173,41 +169,6 @@ internal object AndroidToolsInstaller {
                     match.value.replace("\$APP_HOME", "\"\$APP_HOME\"")
                 }
             script.writeText(fixedContent)
-        }
-    }
-
-    private fun acceptAndroidLicense(androidSdkHome: Path, name: String, hash: String) {
-        val licenseFile = androidSdkHome / "licenses" / name
-        licenseFile.parent.createDirectories()
-
-        if (!licenseFile.exists()) {
-            licenseFile.createFile()
-        }
-        if (hash !in licenseFile.readLines()) {
-            licenseFile.appendLines(listOf(hash))
-        }
-    }
-
-    /**
-     * Installs the given [toolPackage] to the given [androidHome] using the SDK manager.
-     * The SDK manager is expected to be already present in [androidHome]. It is run using the provided [jdk].
-     */
-    private suspend fun installTool(toolPackage: String, androidHome: Path, jdk: Jdk) {
-        val sdkManagerFilename = if (DefaultSystemInfo.detect().family.isWindows) "sdkmanager.bat" else "sdkmanager"
-        val sdkManagerExecPath = androidHome / "cmdline-tools" / "bin" / sdkManagerFilename
-
-        println("Installing '$toolPackage' into '$androidHome'...")
-
-        val cmd = listOf(sdkManagerExecPath.pathString, "--sdk_root=$androidHome", toolPackage)
-        val rc = runProcessWithInheritedIO(
-            command = cmd,
-            environment = mapOf(
-                "JAVA_HOME" to jdk.homeDir.pathString,
-                "ANDROID_HOME" to androidHome.pathString,
-            ),
-        )
-        if (rc != 0) {
-            error("Android SDK Manager failed with exit code $rc while executing: ${cmd.joinToString("|")}")
         }
     }
 }

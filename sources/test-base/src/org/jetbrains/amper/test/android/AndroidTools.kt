@@ -17,14 +17,21 @@ import java.io.File
 import java.nio.file.Path
 import kotlin.concurrent.thread
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.io.path.appendLines
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
+import kotlin.io.path.readLines
 import kotlin.time.Duration.Companion.seconds
 
 private val binExtension = if (DefaultSystemInfo.detect().family.isWindows) ".exe" else ""
 private val scriptExtension = if (DefaultSystemInfo.detect().family.isWindows) ".bat" else ""
 
+/**
+ * A Kotlin API for Android SDK tools.
+ */
 class AndroidTools(
     val androidHome: Path,
     private val javaHome: Path,
@@ -38,7 +45,6 @@ class AndroidTools(
 ) {
     private val adbExe: Path = androidHome / "platform-tools/adb$binExtension"
     private val emulatorExe: Path = androidHome / "emulator/emulator$binExtension"
-    private val avdManagerScript by lazy { findAvdManagerScript(androidHome) }
 
     init {
         if (killAdbOnExit) {
@@ -51,6 +57,75 @@ class AndroidTools(
             })
         }
     }
+
+    private fun findCmdlineToolScript(name: String): Path {
+        val possibleBinDirs = listOf(
+            androidHome / "cmdline-tools/latest/bin",
+            androidHome / "cmdline-tools/bin",
+            androidHome / "tools/bin",
+        )
+        val script = "$name$scriptExtension"
+        return possibleBinDirs.map { it / script }.firstOrNull { it.exists() }
+            ?: error("$script not found in any of the searched locations:\n${possibleBinDirs.joinToString("\n")}")
+    }
+
+    /**
+     * Installs the package corresponding to the given [packageName] in this Android SDK.
+     */
+    suspend fun installSdkPackage(
+        packageName: String,
+        outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
+    ) {
+        log("Installing '$packageName' into '$androidHome'...")
+        sdkmanager("--sdk_root=$androidHome", packageName, outputListener = outputListener)
+    }
+
+    private suspend fun sdkmanager(
+        vararg args: String,
+        outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
+    ): ProcessResult = runAndroidSdkProcess(
+        executable = findCmdlineToolScript("sdkmanager"),
+        args = args,
+        outputListener = outputListener
+    )
+
+    /**
+     * Accepts the Android-related license with the given [name] and [hash].
+     */
+    fun acceptLicense(name: String, hash: String) {
+        log("Accepting license '$name'...")
+        val licenseFile = androidHome / "licenses" / name
+        licenseFile.parent.createDirectories()
+
+        if (!licenseFile.exists()) {
+            licenseFile.createFile()
+        }
+        if (hash !in licenseFile.readLines()) {
+            licenseFile.appendLines(listOf(hash))
+        }
+    }
+
+    /**
+     * Creates a new AVD with the given [name] and configuration.
+     */
+    suspend fun createAvd(name: String, apiLevel: Int = 35, variant: String = "default", arch: String = "x86_64") {
+        // Note: this modifies .knownPackages, which might be important for caching
+        avdmanager(
+            "create", "avd", "-n", name, "-k", "system-images;android-$apiLevel;$variant;$arch",
+            input = ProcessInput.Text("no\n"), // Do you wish to create a custom hardware profile? [no]
+        ).checkExitCodeIsZero()
+    }
+
+    /**
+     * Returns the list of available AVD names.
+     */
+    suspend fun listAvds(): List<String> = avdmanager("list", "avd", "-c")
+        .checkExitCodeIsZero().stdout
+        .lines()
+        .filter { it.isNotBlank() }
+
+    private suspend fun avdmanager(vararg args: String, input: ProcessInput = ProcessInput.Empty): ProcessResult =
+        runAndroidSdkProcess(executable = findCmdlineToolScript("avdmanager"), *args, input = input)
 
     /**
      * Returns whether an Android emulator is currently running.
@@ -125,32 +200,6 @@ class AndroidTools(
         outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
     ): ProcessResult = runAndroidSdkProcess(adbExe, *command, outputListener = outputListener)
 
-    /**
-     * Creates a new AVD with the given [name] and configuration.
-     */
-    suspend fun createAvd(name: String, apiLevel: Int = 35, variant: String = "default", arch: String = "x86_64") {
-        // Note: this modifies .knownPackages, which might be important for caching
-        avdmanager(
-            "create", "avd", "-n", name, "-k", "system-images;android-$apiLevel;$variant;$arch",
-            input = ProcessInput.Text("no\n"), // Do you wish to create a custom hardware profile? [no]
-        ).checkExitCodeIsZero()
-    }
-
-    /**
-     * Returns the list of available AVD names.
-     */
-    suspend fun listAvds(): List<String> = avdmanager("list", "avd", "-c")
-        .checkExitCodeIsZero().stdout
-        .lines()
-        .filter { it.isNotBlank() }
-
-    private suspend fun avdmanager(vararg args: String, input: ProcessInput = ProcessInput.Empty): ProcessResult =
-        runAndroidSdkProcess(
-            executable = avdManagerScript,
-            *args,
-            input = input,
-        )
-
     private suspend fun runAndroidSdkProcess(
         executable: Path,
         vararg args: String,
@@ -165,15 +214,4 @@ class AndroidTools(
         input = input,
         outputListener = outputListener,
     )
-}
-
-private fun findAvdManagerScript(androidHome: Path): Path {
-    val possibleBinDirs = listOf(
-        androidHome / "cmdline-tools/latest/bin",
-        androidHome / "cmdline-tools/bin",
-        androidHome / "tools/bin",
-    )
-    val scriptName = "avdmanager$scriptExtension"
-    return possibleBinDirs.map { it / scriptName }.firstOrNull { it.exists() }
-        ?: error("$scriptName not found in any of the searched locations:\n${possibleBinDirs.joinToString("\n")}")
 }
