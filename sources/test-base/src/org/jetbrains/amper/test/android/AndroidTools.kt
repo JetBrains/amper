@@ -26,7 +26,8 @@ private val binExtension = if (DefaultSystemInfo.detect().family.isWindows) ".ex
 private val scriptExtension = if (DefaultSystemInfo.detect().family.isWindows) ".bat" else ""
 
 class AndroidTools(
-    private val androidHome: Path,
+    val androidHome: Path,
+    private val javaHome: Path,
     private val log: (String) -> Unit = ::println,
     /**
      * When true, the ADB server is killed on JVM shutdown.
@@ -70,6 +71,7 @@ class AndroidTools(
         val pid = startLongLivedProcess(
             command = listOf(emulatorExe.pathString, "-avd", avdName),
             environment = mapOf(
+                "JAVA_HOME" to javaHome.pathString,
                 "ANDROID_HOME" to androidHome.pathString,
                 // apparently, the emulator needs to have these tools on the PATH
                 "PATH" to envPathWithPrepended(
@@ -156,7 +158,10 @@ class AndroidTools(
         outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
     ): ProcessResult = runProcessAndCaptureOutput(
         command = listOf(executable.pathString) + args,
-        environment = mapOf("ANDROID_HOME" to androidHome.pathString),
+        environment = mapOf(
+            "JAVA_HOME" to javaHome.pathString,
+            "ANDROID_HOME" to androidHome.pathString,
+        ),
         input = input,
         outputListener = outputListener,
     )
