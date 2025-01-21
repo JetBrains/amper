@@ -51,13 +51,6 @@ val prepareForLocalRun by tasks.creating {
     dependsOn(":sources:android-integration:gradle-plugin:publishToMavenLocal")
 }
 
-val zipDistribution by tasks.creating(Zip::class) {
-    dependsOn(unpackedDistribution)
-
-    from(unpackedDistribution.destinationDir)
-    archiveClassifier = "dist"
-}
-
 val tgzDistribution by tasks.creating(Tar::class) {
     dependsOn(unpackedDistribution)
 
@@ -174,12 +167,6 @@ val amperBatScript = tasks.register<ProcessAmperScriptTask>("amperBatScript") {
 
 configurations.create("dist")
 
-val distZipArtifact = artifacts.add("dist", zipDistribution.archiveFile) {
-    type = "zip"
-    classifier = "dist"
-    builtBy(zipDistribution)
-}
-
 val distTgzArtifact = artifacts.add("dist", tgzDistribution.archiveFile) {
     type = "tgz"
     classifier = "dist"
@@ -198,7 +185,6 @@ val batScriptArtifact = artifacts.add("dist", amperBatScript.get().outputFile) {
 
 publishing {
     publications.getByName<MavenPublication>("kotlinMultiplatform") {
-        artifact(distZipArtifact)
         artifact(distTgzArtifact)
         artifact(shellScriptArtifact)
         artifact(batScriptArtifact)

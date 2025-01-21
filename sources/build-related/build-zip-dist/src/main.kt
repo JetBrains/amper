@@ -44,11 +44,7 @@ fun main(args: Array<String>) {
 
     runBlocking {
         executeOnChangedInputs.execute("build-dist", emptyMap(), cliRuntimeClasspath) {
-            val cliZip = taskOutputDirectory.resolve("cli.zip")
             val cliTgz = taskOutputDirectory.resolve("cli.tgz")
-
-            println("Writing CLI distribution to $cliZip")
-            cliZip.writeDistZip(cliRuntimeClasspath)
 
             println("Writing CLI distribution to $cliTgz")
             cliTgz.writeDistTarGz(cliRuntimeClasspath)
@@ -60,21 +56,7 @@ fun main(args: Array<String>) {
                 windowsTemplate = windowsWrapperTemplate,
             )
 
-            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(cliZip, cliTgz) + wrappers)
-        }
-    }
-}
-
-// TODO reuse jar/zip from CLI module?
-private fun Path.writeDistZip(cliRuntimeClasspath: List<Path>) {
-    ZipOutputStream(outputStream().buffered()).use { zipStream ->
-        cliRuntimeClasspath.sortedBy { it.name }.forEach { path ->
-            val entry = ZipEntry("lib/${path.name}").also {
-                it.time = 0
-            }
-            zipStream.putNextEntry(entry)
-            path.inputStream().use { input -> input.copyTo(zipStream) }
-            zipStream.closeEntry()
+            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(cliTgz) + wrappers)
         }
     }
 }

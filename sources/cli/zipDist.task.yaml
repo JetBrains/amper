@@ -10,10 +10,6 @@ publishArtifact:
     artifactId: cli
     classifier: dist
     extension: tgz
-  - path: cli.zip
-    artifactId: cli
-    classifier: dist
-    extension: zip
   - path: amper
     artifactId: cli
     classifier: wrapper
