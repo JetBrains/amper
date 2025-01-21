@@ -95,9 +95,10 @@ object Dirs {
     }
 
     /**
-     * Path to the root directory of a cache that is reused across test runs on dev machines, but not reused on CI.
+     * Path to the root directory of a cache that is reused across test runs on dev machines, but not reused across CI
+     * builds.
      *
-     * * on dev machines: the same as [sharedTestCaches]
+     * * on dev machines: the same as [sharedAmperCacheRoot]
      * * on TeamCity: some place that is removed after the build
      */
     val userCacheRoot: Path = if (TeamCityHelper.isUnderTeamCity) {

@@ -136,14 +136,15 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         val result = runAmper(
             workingDir = projectRoot,
             args = buildList {
-                add("--build-output")
-                add(buildOutputRoot.pathString)
+                add("--build-output=$buildOutputRoot")
+                add("--shared-caches-root=${Dirs.userCacheRoot}")
                 addAll(args)
             },
             environment = mapOf(
                 "ANDROID_HOME" to AndroidTools.getOrInstallForTests().androidHome.pathString,
                 GradleDaemonShutdownHook.NO_DAEMON_ENV to "1",
             ),
+            bootstrapCacheDir = Dirs.userCacheRoot,
             expectedExitCode = expectedExitCode,
             assertEmptyStdErr = assertEmptyStdErr,
             stdin = stdin,
