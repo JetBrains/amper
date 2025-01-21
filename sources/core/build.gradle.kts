@@ -8,6 +8,7 @@ import org.eclipse.jgit.storage.file.FileBasedConfig
 import org.eclipse.jgit.util.FS
 import org.eclipse.jgit.util.SystemReader
 import java.security.MessageDigest
+import kotlin.use
 
 buildscript {
     repositories {
@@ -31,22 +32,23 @@ val generateBuildProperties by tasks.creating(WriteProperties::class.java) {
             // This is to avoid issues with people who use config parameters that are not supported by JGit.
             // For example, the 'patience' diff algorithm isn't supported.
             runWithoutGlobalGitConfig {
-                val git = Git.open(gitRoot)
-                val repo = git.repository
-                val head = repo.getReflogReader("HEAD").lastEntry
-                val shortHash = repo.newObjectReader().use { it.abbreviate(head.newId).name() }
-                property("commitHash", head.newId.name)
-                property("commitShortHash", shortHash)
-                property("commitDate", head.who.`when`.toInstant())
+                Git.open(gitRoot).use { git ->
+                    val repo = git.repository
+                    val head = repo.getReflogReader("HEAD").lastEntry
+                    val shortHash = repo.newObjectReader().use { it.abbreviate(head.newId).name() }
+                    property("commitHash", head.newId.name)
+                    property("commitShortHash", shortHash)
+                    property("commitDate", head.who.`when`.toInstant())
 
-                // When developing locally, we want to somehow capture changes to the local sources because we want to
-                // invalidate incremental state files based on this. If we don't, changing some Amper code will not
-                // cause state invalidation, and some tasks will be marked up-to-date even though their code has changed
-                // and they would produce a different output.
-                // Using the git index for this is insufficient because it only captures the paths but not the contents
-                // of the files. That's why we use a digest of the whole diff.
-                val localDiffHash = git.diff().call().map { it.newId.toObjectId().name }.hash()
-                property("localChangesHash", localDiffHash)
+                    // When developing locally, we want to somehow capture changes to the local sources because we want to
+                    // invalidate incremental state files based on this. If we don't, changing some Amper code will not
+                    // cause state invalidation, and some tasks will be marked up-to-date even though their code has changed
+                    // and they would produce a different output.
+                    // Using the git index for this is insufficient because it only captures the paths but not the contents
+                    // of the files. That's why we use a digest of the whole diff.
+                    val localDiffHash = git.diff().call().map { it.newId.toObjectId().name }.hash()
+                    property("localChangesHash", localDiffHash)
+                }
             }
         }
     }
