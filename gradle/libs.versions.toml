@@ -28,6 +28,7 @@ opentelemetry = "1.44.0"
 slf4j = "2.0.16"
 snakeyaml = "2.2"
 stacktrace-decoroutinator = "2.4.8"
+teamcity-servicemessages = "2024.12"
 tinylog = "2.7.0"
 xmlutil-serialization = "0.86.2"
 
@@ -95,6 +96,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
 stacktrace-decoroutinator = { module = "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm", version.ref = "stacktrace-decoroutinator" }
+teamcity-serviceMessages = { module = "org.jetbrains.teamcity:serviceMessages", version.ref = "teamcity-servicemessages" }
 tinylog-api = { module = "org.tinylog:tinylog-api-kotlin", version.ref = "tinylog" }
 tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
 tinylog-jul = { module = "org.tinylog:jul-tinylog", version.ref = "tinylog" }

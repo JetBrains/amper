@@ -56,7 +56,7 @@ dependencies:
   - $libs.intellij.deps.asyncProfiler
   - $libs.kotlinx.coroutines.debug
   - $libs.kotlinx.coroutines.slf4j
-  - org.jetbrains.teamcity:serviceMessages:2023.11.1
+  - $libs.teamcity.serviceMessages
   - $libs.maven.core
   - $libs.maven.resolver.connectorBasic
   - $libs.maven.resolver.transportHttp
