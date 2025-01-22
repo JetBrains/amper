@@ -2,38 +2,42 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import com.github.ajalt.clikt.command.main
+import com.github.ajalt.clikt.parameters.options.multiple
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import java.io.File
-import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 
-fun main(args: Array<String>) {
-    val (taskOutputDirectoryString, cliRuntimeClasspathString) = args
+suspend fun main(args: Array<String>) = BuildUnpackedDistCommand().main(args)
 
-    val taskOutputDirectory = Path(taskOutputDirectoryString)
-    val cliRuntimeClasspath = cliRuntimeClasspathString
-        .split(File.pathSeparator)
-        .map { Path(it) }
+class BuildUnpackedDistCommand : CacheableTaskCommand() {
 
-    // fake build output root under our task
-    val buildOutputRoot = AmperBuildOutputRoot(taskOutputDirectory)
-    val executeOnChangedInputs = ExecuteOnChangedInputs(buildOutputRoot)
+    private val cliRuntimeClasspath by option("--classpath").classpath().required()
+    private val extraClasspaths by option("--extra-dir").namedClasspath().multiple()
 
-    runBlocking {
-        executeOnChangedInputs.execute("build-unpacked-dist", emptyMap(), cliRuntimeClasspath) {
+    override suspend fun ExecuteOnChangedInputs.runCached() {
+        execute(
+            id = "build-unpacked-dist",
+            configuration = mapOf("extraDirs" to extraClasspaths.joinToString("|")),
+            inputs = cliRuntimeClasspath + extraClasspaths.flatMap { it.classpath },
+        ) {
             val distDir = taskOutputDirectory.resolve("dist")
             cleanDirectory(distDir)
             println("Copying dist files to $distDir")
 
-            val libDir = distDir.resolve("lib")
-            libDir.createDirectories()
-
+            val libDir = distDir.resolve("lib").createDirectories()
             for (path in cliRuntimeClasspath) {
                 path.copyTo(libDir.resolve(path.fileName))
+            }
+
+            extraClasspaths.forEach { (dirName, paths) ->
+                val dir = distDir.resolve(dirName).createDirectories()
+                paths.forEach { path ->
+                    path.copyTo(dir.resolve(path.fileName))
+                }
             }
 
             ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(distDir))

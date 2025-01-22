@@ -1,6 +1,7 @@
 type: jvm/external-task
 
 module: ../build-related/build-unpacked-dist
+
 programArguments:
-  - ${outputDirectory}
-  - ${module(.).runtimeClasspathJvm}
+  - --output-dir=${outputDirectory}
+  - --classpath=${module(.).runtimeClasspathJvm}

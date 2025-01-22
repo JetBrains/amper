@@ -1,0 +1,10 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../../common.module-template.yaml
+
+dependencies:
+  - $libs.clikt: exported
+  - ../../cli: exported # FIXME extract ExecuteOnChangedInputs from CLI
