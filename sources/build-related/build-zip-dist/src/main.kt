@@ -10,7 +10,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import java.util.zip.GZIPOutputStream
@@ -31,15 +30,10 @@ class BuildTgzDistCommand : CacheableTaskCommand() {
     private val extraClasspaths by option("--extra-dir").namedClasspath().multiple()
 
     override suspend fun ExecuteOnChangedInputs.runCached() {
-
         val unixWrapperTemplate = Path("resources/wrappers/amper.template.sh").toAbsolutePath()
         val windowsWrapperTemplate = Path("resources/wrappers/amper.template.bat").toAbsolutePath()
 
-        // fake build output root under our task
-        val buildOutputRoot = AmperBuildOutputRoot(taskOutputDirectory)
-        val executeOnChangedInputs = ExecuteOnChangedInputs(buildOutputRoot)
-
-        executeOnChangedInputs.execute("build-tgz-dist", emptyMap(), cliRuntimeClasspath) {
+        execute("build-tgz-dist", emptyMap(), cliRuntimeClasspath) {
             val cliTgz = taskOutputDirectory.resolve("cli.tgz")
 
             println("Writing CLI distribution to $cliTgz")
