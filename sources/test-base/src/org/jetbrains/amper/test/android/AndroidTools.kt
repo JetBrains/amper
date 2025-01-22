@@ -46,22 +46,13 @@ class AndroidTools(
      * This is useful if [androidHome] needs to be deleted later,
      * otherwise the ADB executable might be in use and prevent deletion.
      */
-    killAdbOnExit: Boolean = true,
+    private val killAdbOnExit: Boolean = true,
 ) {
     private val adbExe: Path = androidHome / "platform-tools/adb$binExtension"
     private val emulatorExe: Path = androidHome / "emulator/emulator$binExtension"
 
-    init {
-        if (killAdbOnExit) {
-            Runtime.getRuntime().addShutdownHook(thread(start = false) {
-                // We cannot use async-process helpers while the JVM is shutting down, because they are automatically
-                // cleaned up on JVM exit, so it would immediately fail.
-                // This is why we use a plain ProcessBuilder here.
-                @Suppress("SSBasedInspection")
-                ProcessBuilder(adbExe.pathString, "kill-server").inheritIO().start()
-            })
-        }
-    }
+    @Volatile
+    private var shutdownHookRegistered = false
 
     companion object {
         /**
@@ -233,7 +224,22 @@ class AndroidTools(
     suspend fun adb(
         vararg command: String,
         outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
-    ): ProcessResult = runAndroidSdkProcess(adbExe, *command, outputListener = outputListener)
+    ): ProcessResult {
+        if (!shutdownHookRegistered && killAdbOnExit) {
+            registerAdbShutdownOnExit()
+        }
+        return runAndroidSdkProcess(adbExe, *command, outputListener = outputListener)
+    }
+
+    private fun registerAdbShutdownOnExit() {
+        Runtime.getRuntime().addShutdownHook(thread(start = false) {
+            // We cannot use async-process helpers while the JVM is shutting down, because they are automatically
+            // cleaned up on JVM exit, so it would immediately fail.
+            // This is why we use a plain ProcessBuilder here.
+            @Suppress("SSBasedInspection")
+            ProcessBuilder(adbExe.pathString, "kill-server").inheritIO().start()
+        })
+    }
 
     private suspend fun runAndroidSdkProcess(
         executable: Path,
