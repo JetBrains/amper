@@ -9,9 +9,9 @@ import com.github.ajalt.clikt.parsers.CommandLineParser
 import com.github.ajalt.mordant.rendering.Theme
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.commands.RootCommand
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
-import org.jetbrains.amper.diagnostics.setListAttribute
+import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import java.time.Instant
 import kotlin.system.exitProcess
 

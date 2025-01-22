@@ -8,9 +8,9 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.prepareResources
 import java.nio.file.Path
 import kotlin.io.path.deleteRecursively

@@ -1,0 +1,16 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - $libs.kotlinx.coroutines.core
+  - $libs.opentelemetry.api: exported
+  - $libs.opentelemetry.kotlin: exported
+  - $libs.opentelemetry.sdk
+
+settings:
+  kotlin:
+    serialization: json

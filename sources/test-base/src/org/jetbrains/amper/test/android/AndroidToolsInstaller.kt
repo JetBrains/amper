@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.test.android
 
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
@@ -13,11 +12,11 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.test.SimplePrintOutputListener
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
-import java.util.Properties
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
 import kotlin.io.path.createFile
@@ -74,7 +73,7 @@ internal object AndroidToolsInstaller {
         androidSdkHome.resolve(".knownpackages").deleteIfExists()
 
         val result = ExecuteOnChangedInputs(
-            buildOutputRoot = AmperBuildOutputRoot(androidSetupCacheDir),
+            stateRoot = androidSetupCacheDir / "incremental.state",
             // We override the number here so that local changes DON'T invalidate the cache for this specific case.
             // The idea is that, the vast majority of the time, nothing changes in how we download/store the SDK
             // tools, so we don't want to re-download everything after every single change.

@@ -10,8 +10,6 @@ import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setProcessResultAttributes
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
@@ -22,6 +20,8 @@ import org.jetbrains.amper.tasks.BaseTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.tasks.native.NativeLinkTask
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 

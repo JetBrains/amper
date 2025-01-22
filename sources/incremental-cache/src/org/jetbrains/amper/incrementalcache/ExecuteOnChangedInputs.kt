@@ -1,10 +1,10 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("BlockingMethodInNonBlockingContext", "LoggingStringTemplateAsArgument")
 
-package org.jetbrains.amper.util
+package org.jetbrains.amper.incrementalcache
 
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.sync.Mutex
@@ -17,17 +17,16 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.concurrency.withReentrantLock
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.extract.readEntireFileToByteArray
 import org.jetbrains.amper.core.extract.writeFully
 import org.jetbrains.amper.core.hashing.sha256String
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
-import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.diagnostics.setMapAttribute
-import org.jetbrains.amper.util.ExecuteOnChangedInputs.Change.ChangeType
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs.Change.ChangeType
+import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.setMapAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -47,12 +46,9 @@ import kotlin.io.path.visitFileTree
 import kotlin.time.measureTimedValue
 
 class ExecuteOnChangedInputs(
-    buildOutputRoot: AmperBuildOutputRoot,
+    private val stateRoot: Path,
     private val currentAmperBuildNumber: String = AmperBuild.codeIdentifier,
 ) {
-
-    private val stateRoot = buildOutputRoot.path.resolve("incremental.state")
-
     // increment this counter if you change the state file format
     private val stateFileFormatVersion = 2
 
@@ -127,7 +123,7 @@ class ExecuteOnChangedInputs(
 
                 val oldState = cachedState?.state?.outputsState ?: mapOf()
                 val newState = getPathListState(result.outputs, failOnMissing = false)
-                
+
                 val changes = oldState compare newState
 
                 return@withLock IncrementalExecutionResult(result, changes).also {
@@ -283,7 +279,7 @@ class ExecuteOnChangedInputs(
             )
             return CachedState(state = state, outdated = true)
         }
-        
+
         val currentInputsState = getPathListState(inputs, failOnMissing = false)
         if (state.inputsState != currentInputsState) {
             logger.debug(
@@ -465,3 +461,6 @@ suspend fun ExecuteOnChangedInputs.executeForFiles(
     inputs: List<Path>,
     block: suspend () -> List<Path>,
 ): List<Path> = execute(id, configuration, inputs) { ExecuteOnChangedInputs.ExecutionResult(block()) }.outputs
+
+private fun String.ensureEndsWith(suffix: String) =
+    if (!endsWith(suffix)) (this + suffix) else this

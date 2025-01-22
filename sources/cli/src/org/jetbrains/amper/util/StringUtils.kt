@@ -6,9 +6,6 @@ import java.util.regex.Pattern
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 
-fun String.ensureEndsWith(suffix: String) =
-    if (!endsWith(suffix)) (this + suffix) else this
-
 private val logger = LoggerFactory.getLogger("TemplateSubstitution")
 
 @Suppress("SameParameterValue")

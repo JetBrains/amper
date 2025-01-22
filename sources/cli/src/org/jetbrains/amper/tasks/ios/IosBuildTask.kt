@@ -11,10 +11,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.tools.XCodeIntegrationCommand
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
 import org.jetbrains.amper.diagnostics.setAmperModule
-import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
@@ -24,6 +21,9 @@ import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path

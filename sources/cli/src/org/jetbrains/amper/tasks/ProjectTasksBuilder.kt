@@ -8,10 +8,10 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.TaskGraph
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isParentOf
 import org.jetbrains.amper.frontend.schema.ProductType

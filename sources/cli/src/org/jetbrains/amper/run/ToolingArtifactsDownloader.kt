@@ -12,8 +12,8 @@ import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.toRepositories
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 
 const val GOOGLE_REPOSITORY = "https://maven.google.com"

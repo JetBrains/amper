@@ -9,13 +9,12 @@ import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
-import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import java.text.SimpleDateFormat
 import java.util.*

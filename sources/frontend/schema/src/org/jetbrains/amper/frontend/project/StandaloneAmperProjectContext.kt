@@ -12,8 +12,6 @@ import io.opentelemetry.api.common.Attributes
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithoutCoroutines
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -21,6 +19,8 @@ import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException
 import kotlin.io.path.relativeTo

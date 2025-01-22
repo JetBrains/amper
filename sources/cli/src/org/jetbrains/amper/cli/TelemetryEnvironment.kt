@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.jetbrains.amper.core.AmperBuild
-import org.jetbrains.amper.diagnostics.toSerializable
+import org.jetbrains.amper.telemetry.toSerializable
 import org.slf4j.LoggerFactory
 import java.io.BufferedOutputStream
 import java.io.IOException

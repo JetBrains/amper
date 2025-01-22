@@ -26,8 +26,8 @@ import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.hashing.sha256String
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.nio.channels.FileChannel
@@ -38,7 +38,14 @@ import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.time.Instant
 import java.util.*
-import kotlin.io.path.*
+import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.exists
+import kotlin.io.path.fileSize
+import kotlin.io.path.inputStream
+import kotlin.io.path.moveTo
+import kotlin.io.path.pathString
+import kotlin.io.path.setLastModifiedTime
 
 // initially from intellij:community/platform/build-scripts/downloader/src/ktor.kt
 

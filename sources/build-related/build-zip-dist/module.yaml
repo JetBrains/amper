@@ -3,6 +3,7 @@ product: jvm/app
 dependencies:
   - ../task-helpers
   - ../../core
+  - ../../cli # for substituteTemplatePlaceholders
   - $libs.apacheCommons.compress
 
 apply:

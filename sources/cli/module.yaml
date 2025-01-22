@@ -14,10 +14,12 @@ dependencies:
   - ../frontend-api: exported
   - ../frontend/schema
   - ../frontend/dr
+  - ../incremental-cache
   - ../android-integration/android-sdk-detector
   - ../android-integration/runner
   - ../async-processes
   - ../compose-resources
+  - ../telemetry
   - ../xcode-model-ext
   - $libs.bouncycastle.bcprov # for keystore generation
   - $libs.bouncycastle.bcpkix # for keystore generation

@@ -6,8 +6,8 @@ apply:
   - ../common.module-template.yaml
 
 test-dependencies:
-  - ../cli
   - ../core
+  - ../telemetry
   - ../test-base
   - $libs.kotlinx.coroutines.test
 

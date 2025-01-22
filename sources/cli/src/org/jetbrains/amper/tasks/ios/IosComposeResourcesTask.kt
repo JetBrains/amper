@@ -12,11 +12,11 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesResult
 import org.jetbrains.amper.util.BuildType
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div

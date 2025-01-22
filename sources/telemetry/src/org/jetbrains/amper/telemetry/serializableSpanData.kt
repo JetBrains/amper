@@ -1,10 +1,10 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("DEPRECATION")
 
-package org.jetbrains.amper.diagnostics
+package org.jetbrains.amper.telemetry
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.AttributeType
@@ -25,9 +25,7 @@ import io.opentelemetry.sdk.trace.data.StatusData
 import java.io.Serializable
 import java.util.function.BiConsumer
 
-fun SpanData.toSerializable(): SpanData {
-    return SerializableSpanData(this)
-}
+fun SpanData.toSerializable(): SpanData = SerializableSpanData(this)
 
 private class SerializableSpanData(
     data: SpanData,

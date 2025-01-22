@@ -5,9 +5,9 @@
 package org.jetbrains.amper.cli.test
 
 import io.opentelemetry.api.common.AttributeKey
-import org.jetbrains.amper.diagnostics.getAttribute
-import org.jetbrains.amper.test.MacOnly
+import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.FilteredSpans
 import java.nio.file.Path

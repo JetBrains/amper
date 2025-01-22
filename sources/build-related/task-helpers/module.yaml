@@ -7,4 +7,4 @@ apply:
 
 dependencies:
   - $libs.clikt: exported
-  - ../../cli: exported # FIXME extract ExecuteOnChangedInputs from CLI
+  - ../../incremental-cache: exported

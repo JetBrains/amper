@@ -1,19 +1,19 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.util
+package org.jetbrains.amper.incrementalcache
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
+import kotlin.io.path.div
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
@@ -22,7 +22,7 @@ class ExecuteOnChangedInputsTest {
     @TempDir
     lateinit var tempDir: Path
 
-    private val executeOnChanged by lazy { ExecuteOnChangedInputs(AmperBuildOutputRoot(tempDir)) }
+    private val executeOnChanged by lazy { ExecuteOnChangedInputs(tempDir / "incremental.state") }
     private val executionsCount = AtomicInteger(0)
 
     @Test
@@ -59,7 +59,7 @@ class ExecuteOnChangedInputsTest {
         val file = tempDir.resolve("file.txt").also { it.writeText("a") }
 
         fun call(amperBuild: String) = runBlocking {
-            ExecuteOnChangedInputs(AmperBuildOutputRoot(tempDir), currentAmperBuildNumber = amperBuild).execute(
+            ExecuteOnChangedInputs(tempDir / "incremental.state", currentAmperBuildNumber = amperBuild).execute(
                 "1", emptyMap(), listOf(file)) {
                 executionsCount.incrementAndGet()
                 ExecuteOnChangedInputs.ExecutionResult(emptyList())

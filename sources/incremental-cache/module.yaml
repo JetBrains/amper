@@ -1,0 +1,17 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../core
+  - ../concurrency
+  - ../telemetry
+  - $libs.kotlinx.coroutines.core
+  - $libs.slf4j.api
+
+settings:
+  kotlin:
+    serialization: json

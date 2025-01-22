@@ -10,8 +10,8 @@ import org.jetbrains.amper.core.downloader.MAVEN_CENTRAL_REPOSITORY_URL
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.toRepositories
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import kotlin.io.path.name
 

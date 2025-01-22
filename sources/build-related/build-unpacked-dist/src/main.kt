@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 

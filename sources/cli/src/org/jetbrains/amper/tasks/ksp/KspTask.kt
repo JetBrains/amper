@@ -10,8 +10,6 @@ import org.jetbrains.amper.compilation.kotlinModuleName
 import org.jetbrains.amper.compilation.mergedCompilationSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
@@ -22,6 +20,8 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedJavaSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.ksp.Ksp
 import org.jetbrains.amper.ksp.KspCommonConfig
@@ -46,8 +46,8 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.native.NativeCompileKlibTask
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import org.jetbrains.amper.util.executeForFiles
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path

@@ -10,6 +10,7 @@ dependencies:
   - ../frontend/plain/toml-psi
   - ../frontend/plain/yaml-psi
   - ../frontend/plain/amper-psi
+  - ../telemetry
   - $libs.intellij.platform.util
   - $libs.intellij.platform.utilJdom
   - $libs.intellij.platform.core

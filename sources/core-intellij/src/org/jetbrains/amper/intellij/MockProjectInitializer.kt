@@ -31,10 +31,10 @@ import com.jetbrains.cidr.xcode.frameworks.AppleSdkManager
 import com.jetbrains.cidr.xcode.model.CoreXcodeWorkspace
 import com.jetbrains.cidr.xcode.model.XcodeProjectTrackers
 import com.jetbrains.cidr.xcode.xcspec.XcodeExtensionsManager
-import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.core.useWithoutCoroutines
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage

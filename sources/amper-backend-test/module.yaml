@@ -7,6 +7,7 @@ dependencies:
   - ../core
   - ../cli
   - ../core-intellij
+  - ../telemetry
 
 test-dependencies:
   - ../test-base

@@ -5,25 +5,25 @@
 package org.jetbrains.amper.tasks.ksp
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.toRepositories
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setFragments
-import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import org.jetbrains.amper.util.executeForFiles
+import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import kotlin.io.path.pathString
 

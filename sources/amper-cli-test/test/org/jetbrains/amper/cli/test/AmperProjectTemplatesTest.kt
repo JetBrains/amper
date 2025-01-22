@@ -5,9 +5,9 @@
 package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.diagnostics.getAttribute
-import org.jetbrains.amper.test.MacOnly
+import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.junit.jupiter.api.BeforeEach

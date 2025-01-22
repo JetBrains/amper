@@ -8,15 +8,12 @@ apply:
 
 dependencies:
   - ../concurrency
+  - ../telemetry
   - $libs.kotlinx.coroutines.core
   - $libs.apacheCommons.compress
   - $libs.slf4j.api
   - $libs.ktor.client
   - $libs.ktor.client.encoding
   - $libs.ktor.client.auth
-  - $libs.opentelemetry.api
-  - $libs.opentelemetry.sdk
-  - $libs.opentelemetry.sdkTrace
-  - $libs.opentelemetry.kotlin: exported
   - net.java.dev.jna:jna:5.13.0
   - net.java.dev.jna:jna-platform:5.13.0

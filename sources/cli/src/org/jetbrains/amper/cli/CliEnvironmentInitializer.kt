@@ -9,11 +9,11 @@ import dev.reformator.stacktracedecoroutinator.jvm.DecoroutinatorJvmApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.debug.DebugProbes
 import org.jetbrains.amper.core.AmperBuild
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.useWithoutCoroutines
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.DynamicFileWriter
 import org.jetbrains.amper.diagnostics.DynamicLevelConsoleWriter
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.tinylog.Level
 import org.tinylog.core.TinylogLoggingProvider
 import org.tinylog.provider.ProviderRegistry

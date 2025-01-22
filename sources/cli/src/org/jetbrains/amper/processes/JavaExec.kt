@@ -7,11 +7,11 @@ package org.jetbrains.amper.processes
 import com.intellij.execution.CommandLineWrapperUtil
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.use
-import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.diagnostics.setMapAttribute
 import org.jetbrains.amper.jvm.Jdk
+import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.setMapAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.createDirectories

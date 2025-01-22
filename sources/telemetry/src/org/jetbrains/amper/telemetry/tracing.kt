@@ -1,11 +1,10 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.core
+package org.jetbrains.amper.telemetry
 
 import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.api.metrics.Meter
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.StatusCode
@@ -15,14 +14,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ThreadContextElement
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.use
 
 private const val AMPER_SCOPE_NAME = "amper"
 
 private val tracer: Tracer
     get() = GlobalOpenTelemetry.getTracer(AMPER_SCOPE_NAME)
-
-private val meter: Meter
-    get() = GlobalOpenTelemetry.getMeter(AMPER_SCOPE_NAME)
 
 /**
  * Creates a [SpanBuilder] to configure a new span with the given [spanName].

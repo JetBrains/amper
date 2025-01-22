@@ -6,9 +6,7 @@ package org.jetbrains.amper.cli
 
 import org.jetbrains.amper.cli.commands.UserJvmArgsOption
 import org.jetbrains.amper.core.Result
-import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.core.useWithoutCoroutines
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
@@ -27,6 +25,8 @@ import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.tasks.ios.IosTaskType
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
 import org.jetbrains.amper.util.targetLeafPlatforms

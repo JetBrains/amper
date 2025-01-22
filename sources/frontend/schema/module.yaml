@@ -13,6 +13,7 @@ dependencies:
   - ../../frontend/plain/amper-psi
   - ../../core-intellij
   - ../../android-integration/android-sdk-detector
+  - ../../telemetry
   - $libs.kotlin.reflect
   - $libs.maven.artifact
   - $libs.intellij.platform.core: exported # because we expose Project in public API
