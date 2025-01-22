@@ -26,11 +26,11 @@ kotlin {
     }
 }
 
-val junitLauncherConfiguration = configurations.register("junitLauncherClasspath")
+val junitListenersConfiguration = configurations.register("junitListenersClasspath")
 
 dependencies {
     @Suppress("UnstableApiUsage")
-    junitLauncherConfiguration(project(":sources:junit-launcher"))
+    junitListenersConfiguration(project(":sources:junit-listeners"))
 }
 
 val unpackedDistribution by tasks.creating(Sync::class) {
@@ -54,21 +54,21 @@ val unpackedDistribution by tasks.creating(Sync::class) {
 }
 
 val listJUnitJars by tasks.registering {
-    dependsOn(junitLauncherConfiguration)
+    dependsOn(junitListenersConfiguration)
     val junitLauncherJarsFile = layout.buildDirectory.file("classpath.txt")
     outputs.file(junitLauncherJarsFile)
     doLast {
-        val jars = junitLauncherConfiguration.get().files.joinToString("\n") { it.name }
+        val jars = junitListenersConfiguration.get().files.joinToString("\n") { it.name }
         junitLauncherJarsFile.get().asFile.writeText(jars)
     }
 }
 
 tasks.named<ProcessResources>("jvmProcessResources") {
     from(listJUnitJars) {
-        into("junit-launcher")
+        into("junit-listeners")
     }
-    from(junitLauncherConfiguration) {
-        into("junit-launcher")
+    from(junitListenersConfiguration) {
+        into("junit-listeners")
     }
 }
 

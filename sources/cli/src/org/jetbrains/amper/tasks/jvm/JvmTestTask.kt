@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.frontend.AmperModule
@@ -65,6 +66,15 @@ class JvmTestTask(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun run(dependenciesResult: List<TaskResult>): Result {
+        // https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.1/junit-platform-console-standalone-1.10.1.jar
+        val junitConsoleUrl = Downloader.getUriForMavenArtifact(
+            mavenRepository = "https://repo1.maven.org/maven2",
+            groupId = "org.junit.platform",
+            artifactId = "junit-platform-console-standalone",
+            packaging = "jar",
+            version = "1.11.4",
+        ).toString()
+
         // test task depends on compile test task
         val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
             ?: error("${JvmCompileTask::class.simpleName} result is not found in dependencies")
@@ -80,8 +90,10 @@ class JvmTestTask(
         val testClasspath = jvmRuntimeClasspathTask.jvmRuntimeClasspath
         val testModuleClasspath = compileTask.classesOutputRoot
 
+        val junitConsole = Downloader.downloadFileToCacheLocation(junitConsoleUrl, userCacheRoot)
+
         // TODO use maven instead of packing this in the distribution?
-        val amperJUnitLauncherLib = extractJUnitLauncherClasspath()
+        val amperJUnitListenersJars = extractJUnitListenersClasspath()
 
         // TODO settings!
         val javaExecutable = JdkDownloader.getJdk(userCacheRoot).javaExecutable
@@ -91,45 +103,60 @@ class JvmTestTask(
         val reportsDir = buildOutputRoot.path / "reports" / module.userReadableName / platform.schemaValue
         cleanDirectory(reportsDir)
 
-        val testLauncherArgs = buildList {
-            add("--test-runtime-classpath=${testClasspath.joinToString(File.pathSeparator)}")
-            add("--test-discovery-classpath=$testModuleClasspath")
-            addAll(commonRunSettings.testFilters.map { it.toJUnitArgument() })
+        val junitArgs = buildList {
+            add("--disable-banner")
 
-            val testFormat = when (commonRunSettings.testResultsFormat) {
-                TestResultsFormat.Pretty -> "pretty"
-                TestResultsFormat.TeamCity -> "teamcity"
-            }
-            add("--format=$testFormat")
+            // TODO I certainly want to have it here by default (too many real life errors when tests are skipped for a some reason)
+            //  but probably there should be an option to disable it
+            add("--fail-if-no-tests")
+            add("--class-path=${(testClasspath + amperJUnitListenersJars).joinToString(File.pathSeparator)}")
             add("--reports-dir=${reportsDir}")
 
-            // We don't use inherited IO when started the test launcher process, so the mordant Terminal library
-            // inside the test launcher cannot detect the supported features of the current console.
-            // This is why we currently just "transfer" the detected features via CLI arguments.
-            // Using ProcessBuilder.inheritIO() would make any auto-detection in the test launcher work, but then the
-            // test launcher output doesn't mix well with our task progress renderer.
-            add("--ansi-level=${terminal.terminalInfo.ansiLevel}")
-            add("--ansi-hyperlinks=${if (terminal.terminalInfo.ansiHyperLinks) "on" else "off"}")
+            val filterArguments = commonRunSettings.testFilters.map { it.toJUnitArgument() }
+            addAll(filterArguments)
+            if (filterArguments.isEmpty() ||
+                filterArguments.any { it.startsWith("--include") || it.startsWith("--exclude") }) {
+                add("--scan-class-path=$testModuleClasspath")
+            }
+            add("--details=summary") // disable default console tree output, just print the summary
         }
 
-        val testLauncherArgsFile = createTempFile(tempRoot.path, "junit-args-", ".txt")
-        testLauncherArgsFile.writeText(testLauncherArgs.joinToString("\n") { arg ->
+        val junitArgsFile = createTempFile(tempRoot.path, "junit-args-", ".txt")
+        junitArgsFile.writeText(junitArgs.joinToString("\n") { arg ->
             "\"${arg.replace("\\", "\\\\").replace("\"", "\\\"")}\""
         })
 
+        val jvmArgs = buildList {
+            if (commonRunSettings.testResultsFormat == TestResultsFormat.Pretty) {
+                add("-Dorg.jetbrains.amper.junit.listener.console.enabled=true")
+                // We don't use inherited IO when started the test launcher process, so the mordant Terminal library
+                // inside the test launcher cannot detect the supported features of the current console.
+                // This is why we currently just "transfer" the detected features via CLI arguments.
+                // Using ProcessBuilder.inheritIO() would make any auto-detection in the test launcher work, but then the
+                // test launcher output doesn't mix well with our task progress renderer.
+                add("-Dorg.jetbrains.amper.junit.listener.console.ansiLevel=${terminal.terminalInfo.ansiLevel}")
+                add("-Dorg.jetbrains.amper.junit.listener.console.ansiHyperlinks=${terminal.terminalInfo.ansiHyperLinks}")
+            }
+            if (commonRunSettings.testResultsFormat == TestResultsFormat.TeamCity) {
+                add("-Dorg.jetbrains.amper.junit.listener.teamcity.enabled=true")
+
+                // TODO should it be configurable?
+                add("-Djunit.platform.output.capture.stdout=true")
+                add("-Djunit.platform.output.capture.stderr=true")
+            }
+            addAll(commonRunSettings.userJvmArgs)
+        }
+
         try {
-            val isTeamcityFormat = commonRunSettings.testResultsFormat == TestResultsFormat.TeamCity
             // TODO also support JVM system properties from module files (AMPER-3253), and maybe other options?
-            val jvmCommand = listOfNotNull(
+            val jvmCommand = listOf(
                 javaExecutable.pathString,
                 "-ea",
-                "-Djunit.platform.output.capture.stdout=true".takeIf { isTeamcityFormat }, // TODO should it be configurable?
-                "-Djunit.platform.output.capture.stderr=true".takeIf { isTeamcityFormat }, // TODO should it be configurable?
-                *commonRunSettings.userJvmArgs.toTypedArray(),
-                "-cp",
-                "${amperJUnitLauncherLib.pathString}${File.separator}*",
-                "org.jetbrains.amper.junit.launcher.MainKt",
-                "@$testLauncherArgsFile",
+                *jvmArgs.toTypedArray(),
+                "-jar",
+                junitConsole.pathString,
+                "execute",
+                "@$junitArgsFile",
             )
 
             // TODO should be customizable?
@@ -137,12 +164,12 @@ class JvmTestTask(
             // the project root is a somewhat safe choice.
             val workingDirectory = module.source.moduleDir ?: projectRoot.path
 
-            return spanBuilder("amper-junit-launcher")
-                .setAttribute("amper-junit-launcher", amperJUnitLauncherLib.pathString)
+            return spanBuilder("junit-platform-console-standalone")
+                .setAttribute("junit-platform-console-standalone", junitConsole.pathString)
                 .setAttribute("working-dir", workingDirectory.pathString)
                 .setListAttribute("tests-classpath", testClasspath.map { it.pathString })
-                .setListAttribute("jvm-args", jvmCommand)
-                .setListAttribute("test-launcher-args", testLauncherArgs)
+                .setListAttribute("jvm-args", jvmArgs)
+                .setListAttribute("junit-args", junitArgs)
                 .use { span ->
                     DeadLockMonitor.disable()
 
@@ -164,47 +191,52 @@ class JvmTestTask(
                     Result()
                 }
         } finally {
-            testLauncherArgsFile.deleteExisting()
+            junitArgsFile.deleteExisting()
         }
     }
 
-    private suspend fun extractJUnitLauncherClasspath(): Path {
-        val launcherDir = userCacheRoot.path.resolve("amper-junit-launcher").createDirectories()
-        val classpathList = javaClass.getResource("/junit-launcher/classpath.txt")?.readText()
-            ?: error("JUnit launcher classpath is not in the Amper distribution")
-        executeOnChangedInputs.execute(
-            id = "extract-junit-launcher-classpath",
-            configuration = mapOf("junit-launcher-classpath" to classpathList),
+    private suspend fun extractJUnitListenersClasspath(): List<Path> {
+        val classpathList = javaClass.getResource("/junit-listeners/classpath.txt")?.readText()
+            ?: error("JUnit listeners classpath is not in the Amper distribution")
+        val result = executeOnChangedInputs.execute(
+            id = "extract-junit-listeners-classpath",
+            configuration = mapOf("junit-listeners-classpath" to classpathList),
             inputs = emptyList(),
         ) {
+            val launcherDir = tempRoot.path.resolve("amper-junit-listeners").createDirectories()
             cleanDirectory(launcherDir) // we don't want to keep old dependencies that were potentially removed
-            classpathList.lines().forEach { jarName ->
-                val jarResource = javaClass.getResourceAsStream("/junit-launcher/$jarName")
-                    ?: error("Cannot find JUnit launcher jar in resources: $jarName")
+            val jarNames = classpathList.lines()
+            jarNames.forEach { jarName ->
+                val jarResource = javaClass.getResourceAsStream("/junit-listeners/$jarName")
+                    ?: error("Cannot find JUnit listeners jar in resources: $jarName")
                 jarResource.use {
                     launcherDir.resolve(jarName).outputStream().use { out ->
                         it.copyTo(out)
                     }
                 }
             }
-            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(launcherDir))
+            ExecuteOnChangedInputs.ExecutionResult(outputs = jarNames.map { launcherDir.resolve(it) })
         }
-        return launcherDir
+        return result.outputs
     }
 
-    class Result : TaskResult
-}
-
-private fun TestFilter.toJUnitArgument(): String =
-    when (this) {
-        is TestFilter.SpecificTestInclude -> "--select-method=${suiteFqn.slashToDollar()}#$testName"
-        is TestFilter.SuitePattern -> when (mode) {
-            FilterMode.Exclude -> "--exclude-classes=${pattern.slashToDollar().wildcardsToRegex()}"
-            FilterMode.Include -> when {
-                "*" in pattern || "?" in pattern -> "--include-classes=${pattern.slashToDollar().wildcardsToRegex()}"
-                else -> "--select-class=${pattern.slashToDollar()}"
+    private fun TestFilter.toJUnitArgument(): String =
+        when (this) {
+            // Note: using --select=nested-method:com.example.Enclosing/Nested.myTest as specified in the docs doesn't
+            // work, but using the plain --select-method with a $ sign works fine...
+            is TestFilter.SpecificTestInclude -> "--select-method=${suiteFqn.slashToDollar()}#$testName"
+            is TestFilter.SuitePattern -> when (mode) {
+                FilterMode.Exclude -> "--exclude-classname=${pattern.slashToDollar().wildcardsToRegex()}"
+                FilterMode.Include -> when {
+                    "*" in pattern || "?" in pattern -> "--include-classname=${pattern.slashToDollar().wildcardsToRegex()}"
+                    // Note: using --select=nested-class:com.example.Enclosing/Nested as specified in the docs doesn't
+                    // work, but using the plain --select-class with a $ sign works fine...
+                    else -> "--select-class=${pattern.slashToDollar()}"
+                }
             }
         }
-    }
 
-private fun String.slashToDollar() = replace('/', '$')
+    private fun String.slashToDollar() = replace('/', '$')
+
+    class Result() : TaskResult
+}

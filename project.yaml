@@ -29,7 +29,7 @@ modules:
   - sources/frontend/schema
   - sources/gradle-e2e-test
   - sources/gradle-integration
-  - sources/junit-launcher
+  - sources/junit-listeners
   - sources/incremental-cache
   - sources/telemetry
   - sources/test-base

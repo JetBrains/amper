@@ -81,7 +81,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val projectContext = setupTestDataProject("jvm-kotlin-test-smoke")
         AmperBackend(projectContext).runTask(TaskName(":jvm-kotlin-test-smoke:testJvm"))
 
-        val testLauncherSpan = spansNamed("amper-junit-launcher").assertSingle()
+        val testLauncherSpan = spansNamed("junit-platform-console-standalone").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         // not captured by default...
@@ -226,7 +226,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val projectContext = setupTestDataProject("jvm-test-classpath")
         AmperBackend(projectContext).runTask(TaskName(":jvm-test-classpath:testJvm"))
 
-        val testLauncherSpan = spansNamed("amper-junit-launcher").assertSingle()
+        val testLauncherSpan = spansNamed("junit-platform-console-standalone").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
@@ -310,7 +310,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val projectContext = setupTestDataProject("jvm-test-fragment-dependencies")
         AmperBackend(projectContext).runTask(TaskName(":root:testJvm"))
 
-        val testLauncherSpan = spansNamed("amper-junit-launcher").assertSingle()
+        val testLauncherSpan = spansNamed("junit-platform-console-standalone").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("FromExternalDependencies:OneTwo FromProject:MyUtil"), stdout)

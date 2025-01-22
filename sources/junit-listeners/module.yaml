@@ -1,0 +1,15 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+settings:
+  publishing:
+    name: amper-junit-listeners
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - $libs.junit.platform.launcher
+  - $libs.mordant
+  - $libs.teamcity.serviceMessages

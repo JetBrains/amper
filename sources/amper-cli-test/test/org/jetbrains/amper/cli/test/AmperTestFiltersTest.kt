@@ -170,14 +170,15 @@ class AmperTestFiltersTest : AmperCliTestBase() {
             assertEmptyStdErr = false, // some tests print to stderr
         )
         r.assertJUnitTestCount(expected = 4)
-        r.assertStdoutContainsLine("running JvmIntegrationTest.integrationTest")
+        r.assertStdoutContainsLine("output line 1 in JvmIntegrationTest.integrationTest")
+        r.assertStdoutContainsLine("output line 2 in JvmIntegrationTest.integrationTest")
         r.assertStdoutContainsLine("running MyClass1Test.test1")
         r.assertStdoutContainsLine("running MyClass1Test.test2")
         r.assertStdoutContainsLine("running MyClass1Test.test3")
-        assertEquals(r.stderr, """
-            error line 1 in JvmIntegrationTest.integrationTest
-            error line 2 in JvmIntegrationTest.integrationTest
-        """.trimIndent())
+        assertEquals(listOf(
+            "error line 1 in JvmIntegrationTest.integrationTest",
+            "error line 2 in JvmIntegrationTest.integrationTest",
+        ), r.stderr.trim().lines())
     }
 
     @Test
@@ -243,12 +244,13 @@ class AmperTestFiltersTest : AmperCliTestBase() {
         )
         r.assertJUnitTestCount(expected = 1)
         r.assertNativeTestCount(expected = 1)
-        r.assertStdoutContainsLine("running JvmIntegrationTest.integrationTest")
+        r.assertStdoutContainsLine("output line 1 in JvmIntegrationTest.integrationTest")
+        r.assertStdoutContainsLine("output line 2 in JvmIntegrationTest.integrationTest")
         r.assertStdoutContainsLine("running SharedIntegrationTest.integrationTest", nOccurrences = 2)
-        assertEquals(r.stderr, """
-            error line 1 in JvmIntegrationTest.integrationTest
-            error line 2 in JvmIntegrationTest.integrationTest
-        """.trimIndent())
+        assertEquals(listOf(
+            "error line 1 in JvmIntegrationTest.integrationTest",
+            "error line 2 in JvmIntegrationTest.integrationTest",
+        ), r.stderr.trim().lines())
     }
 
     @Test

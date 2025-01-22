@@ -4,8 +4,8 @@ module: ../build-related/build-unpacked-dist
 
 programArguments:
   - --output-dir=${outputDirectory}
-  - --target-dir=${outputDirectory}/gen-resources/junit-launcher
-  - --classpath=${module(../junit-launcher).runtimeClasspathJvm}
+  - --target-dir=${outputDirectory}/gen-resources/junit-listeners
+  - --classpath=${module(../junit-listeners).runtimeClasspathJvm}
   - --jar-list-file=classpath.txt
 
 addTaskOutputToSourceSet:

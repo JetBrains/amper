@@ -31,14 +31,21 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
-@Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+private const val configPropertyGroup = "org.jetbrains.amper.junit.listener.teamcity"
+
+@Suppress("unused") // used by ServiceLoader
 class TeamCityMessagesTestExecutionListener(
-    private val serviceMessagesStream: PrintStream,
+    // We need to select and store the stream early (even System.out) to prevent JUnit
+    // from capturing our service messages as test output.
+    private val serviceMessagesStream: PrintStream = System.out, // default used when loaded via ServiceLoader
 ) : TestExecutionListener {
+
+    private val enabled = System.getProperty("$configPropertyGroup.enabled", "false").toBooleanStrict()
 
     private val startTimes = mutableMapOf<UniqueId, TimeMark>()
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
+        if (!enabled) return
         when (testIdentifier.type) {
             TestDescriptor.Type.CONTAINER -> {
                 emit(TestSuiteStarted(testIdentifier.teamCityName).withFlowId(testIdentifier))
@@ -57,6 +64,7 @@ class TeamCityMessagesTestExecutionListener(
     }
 
     override fun executionSkipped(testIdentifier: TestIdentifier, reason: String) {
+        if (!enabled) return
         // Skipped tests are never reported as started/finished via this listener's executionStarted/executionFinished.
         // TeamCity also accepts testIgnored events without corresponding testStarted/testFinished, so we're good.
         // However, we still have to report the flow start/end here to tie it to the test suite.
@@ -68,6 +76,7 @@ class TeamCityMessagesTestExecutionListener(
     }
 
     override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
+        if (!enabled) return
         when (testIdentifier.type) {
             TestDescriptor.Type.CONTAINER -> {
                 emit(FlowFinished(testIdentifier.teamCityFlowId))
@@ -104,6 +113,7 @@ class TeamCityMessagesTestExecutionListener(
     }
 
     override fun reportingEntryPublished(testIdentifier: TestIdentifier, entry: ReportEntry) {
+        if (!enabled) return
         entry.keyValuePairs.forEach { (key, value) ->
             val message = when (key) {
                 "stdout" -> TestStdOut(testIdentifier.teamCityName, value)

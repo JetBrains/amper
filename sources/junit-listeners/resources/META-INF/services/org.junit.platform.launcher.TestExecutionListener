@@ -1,0 +1,2 @@
+org.jetbrains.amper.junit.listeners.ConsolePrintingTestExecutionListener
+org.jetbrains.amper.junit.listeners.TeamCityMessagesTestExecutionListener

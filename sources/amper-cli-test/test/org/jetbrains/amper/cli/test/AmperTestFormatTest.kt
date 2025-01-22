@@ -41,10 +41,16 @@ class AmperTestFormatTest : AmperCliTestBase() {
 
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
             val expectedMessages = listOf(
+                TestSuiteStarted("JUnit Platform Suite").withFlowId(0),
+                FlowStarted(flowId = "-1", parent = null),
+                FlowFinished(flowId = "-1"),
+                TestSuiteFinished("JUnit Platform Suite").withFlowId(0),
+
                 TestSuiteStarted("JUnit Jupiter").withFlowId(0),
                 FlowStarted(flowId = "0", parent = null),
                 FlowFinished(flowId = "0"),
                 TestSuiteFinished("JUnit Jupiter").withFlowId(0),
+
                 TestSuiteStarted("JUnit Vintage").withFlowId(1),
                 FlowStarted(flowId = "1", parent = null),
 
