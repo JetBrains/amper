@@ -7,7 +7,6 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsRegistrar.reporters
@@ -41,7 +40,7 @@ fun collectBuildProblems(graph: DependencyNode, problemReporter: NoOpCollectingP
 /**
  * Traverse the entire dependencies graph collecting build problems for every node.
  */
-fun collectBuildProblems(graph: DependencyNode, problemReporter: NoOpCollectingProblemReporter, level: Level, diagnosticReporters: List<DrDiagnosticsReporter>)/*: Collection<BuildProblem>*/{
+fun collectBuildProblems(graph: DependencyNode, problemReporter: NoOpCollectingProblemReporter, level: Level, diagnosticReporters: List<DrDiagnosticsReporter>){
     for (node in graph.distinctBfsSequence()) {
         //if (node is MavenDependencyNode) {
         //  node.dependency

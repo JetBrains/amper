@@ -2,6 +2,9 @@ product:
   type: lib
   platforms: [jvm]
 
+apply:
+  - ../templates/template.yaml
+
 dependencies:
   - $compose.foundation: exported
   - $compose.material3: exported
@@ -11,7 +14,3 @@ settings:
   compose:
     enabled: true
     version: 12.12.12
-  kotlin:
-    serialization:
-      enabled: true
-      version: 13.13.13

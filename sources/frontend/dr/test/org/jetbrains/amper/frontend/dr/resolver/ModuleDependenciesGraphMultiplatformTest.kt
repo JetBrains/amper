@@ -25,11 +25,9 @@ import kotlin.test.Test
  */
 class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 
-    private val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
-
     @Test
     fun `test sync empty jvm module`() {
-        val aom = getTestProjectModel("jvm-empty-project", testDataRoot)
+        val aom = getTestProjectModel("jvm-empty", testDataRoot)
 
         kotlin.test.assertEquals(aom.modules[0].fragments.map { it.name }.toSet(),  setOf("jvm", "jvmTest"), "")
 
@@ -37,15 +35,15 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
         val jvmTestFragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
-                module = "jvm-empty-project",
-                expected = """module:jvm-empty-project
-+--- dep:jvm-empty-project:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+                resolutionInput = ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
+                module = "jvm-empty",
+                expected = """module:jvm-empty
++--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
 |         \--- org.jetbrains:annotations:13.0
-+--- dep:jvm-empty-project:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-\--- dep:jvm-empty-project:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
      \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
           +--- org.jetbrains.kotlin:kotlin-test:2.0.21
           |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
@@ -80,7 +78,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "shared",
                 fragment = "ios",
                 expected = """Fragment 'shared.ios' dependencies
-+--- dep:shared:ios:org.jetbrains.compose.foundation:foundation:1.6.10
++--- shared:ios:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         +--- org.jetbrains.compose.animation:animation:1.6.10
 |         |    +--- org.jetbrains.compose.animation:animation-core:1.6.10
@@ -193,7 +191,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
 |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
 |         \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-+--- dep:shared:ios:org.jetbrains.compose.material3:material3:1.6.10
++--- shared:ios:org.jetbrains.compose.material3:material3:1.6.10
 |    \--- org.jetbrains.compose.material3:material3:1.6.10
 |         +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
 |         +--- org.jetbrains.compose.material:material-icons-core:1.6.10
@@ -222,9 +220,9 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.0.21 (*)
 |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
 |         \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-+--- dep:shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
-\--- dep:shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10
+\--- shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
      \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
              """.trimIndent()
             )
@@ -331,10 +329,10 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "shared",
                 fragment = "iosX64",
                 expected = """Fragment 'shared.iosX64' dependencies
-+--- dep:shared:iosX64:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- shared:iosX64:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
 |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.21 (c)
-+--- dep:shared:iosX64:org.jetbrains.compose.runtime:runtime:1.6.10
++--- shared:iosX64:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10
 |         \--- org.jetbrains.compose.runtime:runtime-uikitx64:1.6.10
 |              +--- org.jetbrains.compose.collection-internal:collection:1.6.10
@@ -352,7 +350,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 |                        +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
 |                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
-+--- dep:shared:iosX64:org.jetbrains.compose.foundation:foundation:1.6.10
++--- shared:iosX64:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         \--- org.jetbrains.compose.foundation:foundation-uikitx64:1.6.10
 |              +--- org.jetbrains.compose.animation:animation:1.6.10
@@ -474,7 +472,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-\--- dep:shared:iosX64:org.jetbrains.compose.material3:material3:1.6.10
+\--- shared:iosX64:org.jetbrains.compose.material3:material3:1.6.10
      \--- org.jetbrains.compose.material3:material3:1.6.10
           \--- org.jetbrains.compose.material3:material3-uikitx64:1.6.10
                +--- org.jetbrains.compose.animation:animation-core:1.6.10 (*)
@@ -559,14 +557,14 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "shared",
                 fragment = "iosX64Test",
                 expected = """Fragment 'shared.iosX64Test' dependencies
-+--- dep:shared:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- shared:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
 |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.21 (c)
-+--- dep:shared:iosX64Test:org.jetbrains.kotlin:kotlin-test:2.0.21
++--- shared:iosX64Test:org.jetbrains.kotlin:kotlin-test:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-test:2.0.21
-+--- dep:shared:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.21
++--- shared:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.21
-+--- dep:shared:iosX64Test:org.jetbrains.compose.runtime:runtime:1.6.10
++--- shared:iosX64Test:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10
 |         \--- org.jetbrains.compose.runtime:runtime-uikitx64:1.6.10
 |              +--- org.jetbrains.compose.collection-internal:collection:1.6.10
@@ -584,7 +582,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 |                        +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
 |                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
-+--- dep:shared:iosX64Test:org.jetbrains.compose.foundation:foundation:1.6.10
++--- shared:iosX64Test:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         \--- org.jetbrains.compose.foundation:foundation-uikitx64:1.6.10
 |              +--- org.jetbrains.compose.animation:animation:1.6.10
@@ -706,7 +704,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-+--- dep:shared:iosX64Test:org.jetbrains.compose.material3:material3:1.6.10
++--- shared:iosX64Test:org.jetbrains.compose.material3:material3:1.6.10
 |    \--- org.jetbrains.compose.material3:material3:1.6.10
 |         \--- org.jetbrains.compose.material3:material3-uikitx64:1.6.10
 |              +--- org.jetbrains.compose.animation:animation-core:1.6.10 (*)
@@ -740,7 +738,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |                        |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.0.21
 |                        |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
 |                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
-\--- dep:shared:iosX64Test:org.tinylog:tinylog-api-kotlin:2.6.2
+\--- shared:iosX64Test:org.tinylog:tinylog-api-kotlin:2.6.2
      \--- org.tinylog:tinylog-api-kotlin:2.6.2
           +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.32 -> 2.0.21
           \--- org.tinylog:tinylog-api:2.6.2
@@ -801,14 +799,14 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "ios-app",
                 fragment = "iosX64Test",
                 expected = """Fragment 'ios-app.iosX64Test' dependencies
-+--- dep:ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
 |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.21 (c)
-+--- dep:ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test:2.0.21
++--- ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-test:2.0.21
-+--- dep:ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.21
++--- ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.21
-+--- dep:ios-app:iosX64Test:org.jetbrains.compose.runtime:runtime:1.6.10
++--- ios-app:iosX64Test:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10
 |         \--- org.jetbrains.compose.runtime:runtime-uikitx64:1.6.10
 |              +--- org.jetbrains.compose.collection-internal:collection:1.6.10
@@ -826,7 +824,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 |                        +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
 |                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
-+--- dep:ios-app:iosX64Test:org.jetbrains.compose.foundation:foundation:1.6.10
++--- ios-app:iosX64Test:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         \--- org.jetbrains.compose.foundation:foundation-uikitx64:1.6.10
 |              +--- org.jetbrains.compose.animation:animation:1.6.10
@@ -948,7 +946,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-\--- dep:ios-app:iosX64Test:org.jetbrains.compose.material3:material3:1.6.10
+\--- ios-app:iosX64Test:org.jetbrains.compose.material3:material3:1.6.10
      \--- org.jetbrains.compose.material3:material3:1.6.10
           \--- org.jetbrains.compose.material3:material3-uikitx64:1.6.10
                +--- org.jetbrains.compose.animation:animation-core:1.6.10 (*)
@@ -1034,9 +1032,9 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "ios-app",
                 fragment = "ios",
                 expected = """Fragment 'ios-app.ios' dependencies
-+--- dep:ios-app:ios:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- ios-app:ios:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
-+--- dep:ios-app:ios:org.jetbrains.compose.runtime:runtime:1.6.10
++--- ios-app:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10
 |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2
 |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
@@ -1050,7 +1048,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |              +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10
 |              |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.23 -> 2.0.21
 |              \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-+--- dep:ios-app:ios:org.jetbrains.compose.foundation:foundation:1.6.10
++--- ios-app:ios:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         +--- org.jetbrains.compose.animation:animation:1.6.10
 |         |    +--- org.jetbrains.compose.animation:animation-core:1.6.10
@@ -1151,7 +1149,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
 |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
 |         \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-\--- dep:ios-app:ios:org.jetbrains.compose.material3:material3:1.6.10
+\--- ios-app:ios:org.jetbrains.compose.material3:material3:1.6.10
      \--- org.jetbrains.compose.material3:material3:1.6.10
           +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
           +--- org.jetbrains.compose.material:material-icons-core:1.6.10
@@ -1285,10 +1283,10 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "ios-app",
                 fragment = "iosX64",
                 expected = """Fragment 'ios-app.iosX64' dependencies
-+--- dep:ios-app:iosX64:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- ios-app:iosX64:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
 |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.21 (c)
-+--- dep:ios-app:iosX64:org.jetbrains.compose.runtime:runtime:1.6.10
++--- ios-app:iosX64:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10
 |         \--- org.jetbrains.compose.runtime:runtime-uikitx64:1.6.10
 |              +--- org.jetbrains.compose.collection-internal:collection:1.6.10
@@ -1306,7 +1304,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 |                        +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
 |                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
-+--- dep:ios-app:iosX64:org.jetbrains.compose.foundation:foundation:1.6.10
++--- ios-app:iosX64:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         \--- org.jetbrains.compose.foundation:foundation-uikitx64:1.6.10
 |              +--- org.jetbrains.compose.animation:animation:1.6.10
@@ -1428,7 +1426,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-\--- dep:ios-app:iosX64:org.jetbrains.compose.material3:material3:1.6.10
+\--- ios-app:iosX64:org.jetbrains.compose.material3:material3:1.6.10
      \--- org.jetbrains.compose.material3:material3:1.6.10
           \--- org.jetbrains.compose.material3:material3-uikitx64:1.6.10
                +--- org.jetbrains.compose.animation:animation-core:1.6.10 (*)
@@ -1516,7 +1514,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "android-app",
                 fragment = "android",
                 expected = """Fragment 'android-app.android' dependencies
-+--- dep:android-app:android:androidx.activity:activity-compose:1.7.2
++--- android-app:android:androidx.activity:activity-compose:1.7.2
 |    \--- androidx.activity:activity-compose:1.7.2
 |         +--- androidx.activity:activity-ktx:1.7.2
 |         |    +--- androidx.activity:activity:1.7.2
@@ -1749,16 +1747,16 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 -> 1.8.0 (*)
 |         +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.0 (*)
 |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.0.21 (*)
-+--- dep:android-app:android:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-+--- dep:android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21
++--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21 (*)
-+--- dep:android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21
++--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21 (*)
-+--- dep:android-app:android:org.jetbrains.compose.runtime:runtime:1.6.10
++--- android-app:android:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10
 |         \--- androidx.compose.runtime:runtime:1.6.7 (*)
-+--- dep:android-app:android:org.jetbrains.compose.foundation:foundation:1.6.10
++--- android-app:android:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         \--- androidx.compose.foundation:foundation:1.6.7
 |              \--- androidx.compose.foundation:foundation-android:1.6.7
@@ -1800,7 +1798,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |                   +--- androidx.core:core:1.12.0 (*)
 |                   +--- androidx.emoji2:emoji2:1.3.0 (*)
 |                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.21
-\--- dep:android-app:android:org.jetbrains.compose.material3:material3:1.6.10
+\--- android-app:android:org.jetbrains.compose.material3:material3:1.6.10
      \--- org.jetbrains.compose.material3:material3:1.6.10
           \--- androidx.compose.material3:material3:1.2.1
                \--- androidx.compose.material3:material3-android:1.2.1
@@ -1913,18 +1911,18 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "shared",
                 fragment = "android",
                 expected = """Fragment 'shared.android' dependencies
-+--- dep:shared:android:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- shared:android:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
 |         +--- org.jetbrains:annotations:13.0 -> 23.0.0
 |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.21 (c)
-+--- dep:shared:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21
++--- shared:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21
 |         \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-+--- dep:shared:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21
++--- shared:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21
 |         +--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
 |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21 (*)
-+--- dep:shared:android:org.jetbrains.compose.runtime:runtime:1.6.10
++--- shared:android:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10
 |         \--- androidx.compose.runtime:runtime:1.6.7
 |              \--- androidx.compose.runtime:runtime-android:1.6.7
@@ -1946,7 +1944,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |                   |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3 -> 1.8.0
 |                   |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 2.0.21 (*)
 |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 -> 1.8.0 (*)
-+--- dep:shared:android:org.jetbrains.compose.foundation:foundation:1.6.10
++--- shared:android:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         \--- androidx.compose.foundation:foundation:1.6.7
 |              \--- androidx.compose.foundation:foundation-android:1.6.7
@@ -2191,7 +2189,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |                   +--- androidx.core:core:1.12.0 (*)
 |                   +--- androidx.emoji2:emoji2:1.3.0 (*)
 |                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.21
-\--- dep:shared:android:org.jetbrains.compose.material3:material3:1.6.10
+\--- shared:android:org.jetbrains.compose.material3:material3:1.6.10
      \--- org.jetbrains.compose.material3:material3:1.6.10
           \--- androidx.compose.material3:material3:1.2.1
                \--- androidx.compose.material3:material3-android:1.2.1

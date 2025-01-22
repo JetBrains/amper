@@ -18,7 +18,7 @@ import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
-import org.jetbrains.amper.frontend.dr.resolver.logger
+import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -55,6 +55,9 @@ import java.util.concurrent.ConcurrentHashMap
  * └──────┘   └──────┘
  * ```
  */
+
+private val logger = LoggerFactory.getLogger(IdeSync::class.java)
+
 internal class IdeSync(
     dependenciesFlowType: DependenciesFlowType.IdeSyncType,
 ): AbstractDependenciesFlow<DependenciesFlowType.IdeSyncType>(dependenciesFlowType) {

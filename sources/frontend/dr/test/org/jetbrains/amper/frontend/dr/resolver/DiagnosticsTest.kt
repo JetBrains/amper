@@ -8,6 +8,9 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
@@ -19,8 +22,6 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.test.assertTrue
 
 class DiagnosticsTest: BaseModuleDrTest() {
-
-    private val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
 
     @Test
     fun `test sync diagnostics`() {
@@ -37,26 +38,26 @@ class DiagnosticsTest: BaseModuleDrTest() {
                 ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
                 module = "shared",
                 expected = """module:shared
-                    |+--- dep:shared:jvm:org.jetbrains.compose.foundation:foundation:12.12.12
+                    |+--- shared:jvm:org.jetbrains.compose.foundation:foundation:12.12.12
                     ||    \--- org.jetbrains.compose.foundation:foundation:12.12.12
-                    |+--- dep:shared:jvm:org.jetbrains.compose.material3:material3:12.12.12
+                    |+--- shared:jvm:org.jetbrains.compose.material3:material3:12.12.12
                     ||    \--- org.jetbrains.compose.material3:material3:12.12.12
-                    |+--- dep:shared:jvm:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                    |+--- shared:jvm:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                     ||    \--- org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    |+--- dep:shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+                    |+--- shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
                     ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
                     ||         \--- org.jetbrains:annotations:13.0
-                    |+--- dep:shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
+                    |+--- shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
                     ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
-                    |+--- dep:shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
                     ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-                    |+--- dep:shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21
+                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
                     ||    \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
                     ||         +--- org.jetbrains.kotlin:kotlin-test:2.0.21
                     ||         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
                     ||         \--- junit:junit:4.13.2
                     ||              \--- org.hamcrest:hamcrest-core:1.3
-                    |\--- dep:shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
+                    |\--- shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
                     |     \--- org.jetbrains.compose.runtime:runtime:12.12.12""".trimMargin(),
                 messagesCheck = { node ->
                     if (!assertDependencyError(node, "org.jetbrains.compose.foundation", "foundation")
@@ -92,18 +93,28 @@ class DiagnosticsTest: BaseModuleDrTest() {
         kotlin.test.assertEquals(5, buildProblems.size)
 
         // direct dependency on a built-in library,
-        // a version of the library is taken from settings:compose:version
-        checkDependencyBuildProblem(buildProblems, "org.jetbrains.compose.foundation", "foundation", 13)
-        checkDependencyBuildProblem(buildProblems, "org.jetbrains.compose.material3", "material3", 13)
+        // a version of the library is taken from settings:compose:version in file module.yaml
+        checkDependencyBuildProblem(buildProblems, "org.jetbrains.compose.foundation", "foundation",
+            "module.yaml",16)
+        checkDependencyBuildProblem(buildProblems, "org.jetbrains.compose.material3", "material3",
+            "module.yaml",16)
 
         // transitive dependency of built-in libraries,
-        // a version of the library is taken from resolved Gradle metadata
-        checkDependencyBuildProblem(buildProblems, "org.jetbrains.compose.runtime", "runtime", 13)
+        // a version of the library is taken from settings:compose:version in file module.yaml
+        checkDependencyBuildProblem(buildProblems, "org.jetbrains.compose.runtime", "runtime",
+            "module.yaml",16)
 
         // transitive dependency on a built-in library,
-        // a version of the library is taken from settings:serialization:version
-        checkDependencyBuildProblem(buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core", 17)
+        // a version of the library is taken from settings:serialization:version in file template.yaml
+        checkDependencyBuildProblem(buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core",
+            "..\\..\\templates\\template.yaml"
+                .let{ if (DefaultSystemInfo.detect().family != OsFamily.Windows) it.replace("\\", "/") else it },
+            5)
     }
+
+    // todo (AB) : Test the case where version is not resolved and it is default one (compose.enabled is set only)
+    // todo (AB) : (due to the network failure for instance or has a strict conflict with another dependency)
+    // todo (AB) : What is reported in this case?
 
     @OptIn(ExperimentalContracts::class)
     internal fun DependencyNode.isMavenDependency(group: String, module: String): Boolean {
@@ -122,7 +133,8 @@ class DiagnosticsTest: BaseModuleDrTest() {
         return false
     }
 
-    private fun checkDependencyBuildProblem(buildProblems: Collection<BuildProblem>, group: String, module: String, versionLineNumber: Int?) {
+    private fun checkDependencyBuildProblem(buildProblems: Collection<BuildProblem>, group: String,
+                                            module: String, filePath: String, versionLineNumber: Int?) {
         val relevantBuildProblems = buildProblems.filter {
             it is DependencyBuildProblem
                     && it.problematicDependency.isMavenDependency(group, module) }
@@ -133,7 +145,7 @@ class DiagnosticsTest: BaseModuleDrTest() {
 
             kotlin.test.assertEquals(
                 setOf("Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version}" +
-                        (if (versionLineNumber != null) ". The version ${mavenDependency.version} is defined at module.yaml:$versionLineNumber" else "")),
+                        (if (versionLineNumber != null) ". The version ${mavenDependency.version} is defined at $filePath:$versionLineNumber" else "")),
                 setOf(buildProblem.errorMessage.text)
             )
         }

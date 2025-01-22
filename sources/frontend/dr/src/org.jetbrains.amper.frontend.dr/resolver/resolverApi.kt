@@ -50,6 +50,18 @@ interface ModuleDependenciesResolver {
 
     suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNodeWithModule
 
+    /**
+     * Returned filtered dependencies graph,
+     * containing paths from the root to the maven dependency node corresponding to the given coordinates (group and module)
+     * and having the version equal to the actual resolved version of this dependency in the graph.
+     * If the resolved dependency version is enforced by constraint, then the path to that constraint is presented
+     * in a returned graph together with paths to all versions of this dependency.
+     *
+     * Every node of the returned graph is of the type [DependencyNodeWithChildren] holding the corresponding node from the original graph inside.
+     */
+    suspend fun AmperModule.dependencyInsight(group: String, module: String, resolutionInput: ResolutionInput): DependencyNode
+    fun dependencyInsight(group: String, module: String, node: DependencyNode): DependencyNode
+
     suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder
 }
 
@@ -72,10 +84,12 @@ class ModuleDependencyNodeWithModule(
 ) : DependencyNodeHolderWithNotation(name, children, templateContext, notation, parentNodes = parentNodes)
 
 class DirectFragmentDependencyNodeHolder(
-    name: String,
     val dependencyNode: DependencyNode,
     val fragment: Fragment,
     templateContext: Context,
     notation: DefaultScopedNotation,
     parentNodes: List<DependencyNode> = emptyList(),
-) : DependencyNodeHolderWithNotation(name, listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes)
+) : DependencyNodeHolderWithNotation(
+    name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${", implicit".takeIf { notation.trace == null } ?: ""}",
+    listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes
+)

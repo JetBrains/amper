@@ -10,11 +10,9 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -225,6 +223,13 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
      * As a result of conflict resolution, nodes may start referencing another version of maven dependency with a different list of children.
      * Old children could be no longer referenced by any node in a graph,
      * such nodes (both dependencies and dependencyConstraints) should no longer influence conflict resolution logic.
+     *
+     * // todo (AB) : Subgraphs of conflicting nodes could have included nodes referenced from another node in graph outside of this subgraphs
+     * // todo (AB) : Such nodes are still reachable in graph, but the list of their parents contains nodes from
+     * // todo (AB) : conflicting subgraphs that are no longer a part of the graph.
+     * // todo (AB) : It is important to note that some of those nodes might be re-added to the graph
+     * // todo (AB) : as a part of conflict resolution winning subgraph, but some will be eliminated (not reachable from the root).
+     * // todo (AB) : The question is: how to detect such "stale" parents? how to get rid of them on conflict resolution-loosing subgraphs?
      */
     private suspend fun unregisterOrphanNodes(nodes: Collection<DependencyNode>) {
         nodes.flatMap {
@@ -249,7 +254,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
     private fun DependencyNode.isThereAPathToTopBypassing(nodes: Collection<DependencyNode>): Boolean {
         if (parents.isEmpty()) return true // we reach the root
 
-        val filteredParents = parents.intersect(nodes)
+        val filteredParents = parents - nodes
         if (filteredParents.isEmpty()) return false // node has parents, but all of them are among those we should bypass along the way to root
 
         return filteredParents.any { it.isThereAPathToTopBypassing(nodes) }
@@ -386,10 +391,17 @@ interface DependencyNode {
      */
     fun prettyPrint(): String = buildString {
         val allMavenDepsKeys = distinctBfsSequence()
+            .map { it.unwrap() }
             .filterIsInstance<MavenDependencyNode>()
-            .groupBy{ it.key }
+            .groupBy { it.key }
         prettyPrint(this, allMavenDepsKeys)
     }
+
+    private fun DependencyNode.unwrap(): DependencyNode =
+        when (this) {
+            is DependencyNodeWithChildren -> node.unwrap()
+            else -> this
+        }
 
     private fun prettyPrint(
         builder: StringBuilder,
@@ -398,15 +410,16 @@ interface DependencyNode {
         visited: MutableSet<Pair<Key<*>, Any?>> = mutableSetOf(),
         addLevel: Boolean = false,
     ) {
+        val thisUnwrapped = unwrap()
         builder.append(indent).append(toString())
 
         // key doesn't include a version on purpose,
         // but different nodes referencing the same MavenDependency result in the same dependencies
         // => add no need to distinguish those while pretty printing
-        val seen = !visited.add(key to ((this as? MavenDependencyNode)?.dependency ?: (this as? MavenDependencyConstraintNode)?.dependencyConstraint))
+        val seen = !visited.add(key to ((thisUnwrapped as? MavenDependencyNode)?.dependency ?: (thisUnwrapped as? MavenDependencyConstraintNode)?.dependencyConstraint))
         if (seen && children.any { it !is MavenDependencyConstraintNode }) {
             builder.append(" (*)")
-        } else if (this is MavenDependencyConstraintNode) {
+        } else if (thisUnwrapped is MavenDependencyConstraintNode) {
             builder.append(" (c)")
         }
         builder.append('\n')
@@ -424,7 +437,7 @@ interface DependencyNode {
         }
 
         children
-            .filter { it !is MavenDependencyConstraintNode || it.isConstaintAffectingTheGraph(allMavenDepsKeys) }
+            .filter { it.unwrap().let { it !is MavenDependencyConstraintNode || it.isConstraintAffectingTheGraph(allMavenDepsKeys) } }
             .let { filteredNodes ->
                 filteredNodes.forEachIndexed { i, it ->
                     val addAnotherLevel = i < filteredNodes.size - 1
@@ -439,7 +452,7 @@ interface DependencyNode {
             }
     }
 
-    fun MavenDependencyConstraintNode.isConstaintAffectingTheGraph(
+    fun MavenDependencyConstraintNode.isConstraintAffectingTheGraph(
         allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>
     ): Boolean = (
             // If there is a dependency with the original version equal to the constraint version, then constraint is noop.

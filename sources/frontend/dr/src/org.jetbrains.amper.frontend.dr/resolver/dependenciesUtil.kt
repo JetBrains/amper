@@ -12,10 +12,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.resolveSafeOrNull
 import org.jetbrains.amper.frontend.MavenDependency
-import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
-
-internal val logger = LoggerFactory.getLogger("files.kt")
 
 @Suppress("UNUSED") // Used in Idea plugin
 val DependencyNode.fragmentDependencies: List<DirectFragmentDependencyNodeHolder>

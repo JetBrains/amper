@@ -24,7 +24,7 @@ class OverriddenDirectModuleDependencies: DrDiagnosticsReporter{
     override fun reportBuildProblemsForNode(
         node: DependencyNode,
         problemReporter: ProblemReporter,
-        level: Level
+        level: Level,
     ) {
         if (node is DirectFragmentDependencyNodeHolder
             && node.dependencyNode is MavenDependencyNode

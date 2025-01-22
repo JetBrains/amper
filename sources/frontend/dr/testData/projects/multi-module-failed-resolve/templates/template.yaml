@@ -1,0 +1,5 @@
+settings:
+  kotlin:
+    serialization:
+      enabled: true
+      version: 13.13.13

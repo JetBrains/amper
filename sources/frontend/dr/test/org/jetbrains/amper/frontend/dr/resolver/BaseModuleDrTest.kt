@@ -22,6 +22,9 @@ import kotlin.sequences.forEach
 import kotlin.test.assertTrue
 
 abstract class BaseModuleDrTest {
+
+    protected val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
+
     protected suspend fun doTest(
         aom: Model,
         resolutionInput: ResolutionInput,
@@ -65,7 +68,7 @@ abstract class BaseModuleDrTest {
         readOnlyExternalRepositories = emptyList()
     }
 
-    private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
+    protected fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
         kotlin.test.assertEquals(expected, root.prettyPrint().trimEnd())
 
     protected suspend fun downloadAndAssertFiles(

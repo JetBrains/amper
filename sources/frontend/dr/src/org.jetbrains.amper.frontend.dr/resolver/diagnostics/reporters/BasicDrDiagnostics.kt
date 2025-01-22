@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters
 
+import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
@@ -14,6 +15,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.dependency.resolution.message
+import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableVersion
@@ -33,7 +35,7 @@ class BasicDrDiagnostics: DrDiagnosticsReporter{
     override fun reportBuildProblemsForNode(
         node: DependencyNode,
         problemReporter: ProblemReporter,
-        level: Level
+        level: Level,
     ) {
         val severity = level.mapLevelToSeverity() ?: return
         val importantMessages = node.messages.filter { it.severity >= severity && it.toString().isNotBlank() }
@@ -60,16 +62,30 @@ class BasicDrDiagnostics: DrDiagnosticsReporter{
     }
 
     private fun refineErrorMessage(message: Message, node: DependencyNode, directDependency: DirectFragmentDependencyNodeHolder): Message {
+        if (message.severity < Severity.ERROR) return message
+
         // direct node could have version traces only
-        if (message.severity >= Severity.ERROR && node == directDependency.dependencyNode && node is MavenDependencyNode) {
-            val versionTrace = (directDependency.notation as? org.jetbrains.amper.frontend.MavenDependency)?.coordinates?.resolveVersionTrace()
+        if (node == directDependency.dependencyNode && node is MavenDependencyNode) {
+            val versionTrace = (directDependency.notation as? MavenDependency)
+                ?.coordinates
+                ?.resolveVersionTrace()
             if (versionTrace != null && versionTrace.value == node.dependency.version && versionTrace.trace is PsiTrace) {
+                // Version trace points to the place the version is defined
                 val psiElement = (versionTrace.trace as? PsiTrace)?.psiElement
-                if (psiElement != null && versionTrace.value == node.dependency.version) {
+                if (psiElement != null) {
                     val range = getLineAndColumnRangeInPsiFile(psiElement)
+
+                    val dependencyPsiFilePath = directDependency.notation.coordinates.trace?.extractPsiElementOrNull()?.containingFile?.virtualFile?.toNioPathOrNull()
+                    val versionFilePath = psiElement.containingFile.virtualFile.toNioPathOrNull()
+
+                    val relativeVersionFilePath =
+                        if (dependencyPsiFilePath != null && versionFilePath != null && dependencyPsiFilePath != versionFilePath)
+                            dependencyPsiFilePath.relativize(versionFilePath)
+                        else psiElement.containingFile.name
+
                     return message.copy(
                         text = message.text +
-                                ". The version ${node.dependency.version} is defined at ${psiElement.containingFile.name}:${range.start.line}"
+                                ". The version ${node.dependency.version} is defined at $relativeVersionFilePath:${range.start.line}"
                     )
                 }
             }

@@ -3,13 +3,18 @@
  */
 package org.jetbrains.amper.frontend.dr.resolver
 
+import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.Resolver
+import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger(ModuleDependenciesResolverImpl::class.java)
 
 internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
@@ -29,9 +34,11 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
             ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
             ResolutionDepth.GRAPH_FULL -> {
                 val resolver = Resolver()
-                resolver.buildGraph(this,
+                resolver.buildGraph(
+                    this,
                     level = resolutionLevel,
-                    transitive = (resolutionDepth != ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES))
+                    transitive = (resolutionDepth != ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES)
+                )
                 resolver.downloadDependencies(this, downloadSources)
             }
         }
@@ -61,4 +68,14 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
             return moduleDependenciesGraph
         }
     }
+
+    override fun dependencyInsight(group: String, module: String, graph: DependencyNode): DependencyNode =
+        filterGraph(group, module, graph)
+
+    override suspend fun AmperModule.dependencyInsight(group: String, module: String, resolutionInput: ResolutionInput): DependencyNode {
+        val graph = resolveDependencies(resolutionInput)
+        return filterGraph(group, module, graph)
+    }
 }
+
+

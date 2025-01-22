@@ -86,6 +86,9 @@ class MavenDependencyNode internal constructor(
     val module: String = dependency.module
     val version: String = dependency.version
 
+    var overriddenBy: List<DependencyNode> = emptyList()
+        internal set
+
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<MavenDependency> = Key<MavenDependency>("$group:$module")
     override val children: List<DependencyNode> by PropertyWithDependencyGeneric(
@@ -198,6 +201,9 @@ class MavenDependencyConstraintNode internal constructor(
     val group: String = dependencyConstraint.group
     val module: String = dependencyConstraint.module
     val version: Version = dependencyConstraint.version
+
+    var overriddenBy: List<DependencyNode> = emptyList()
+        internal set
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<*> = Key<MavenDependency>("$group:$module") // reusing the same key as MavenDependencyNode

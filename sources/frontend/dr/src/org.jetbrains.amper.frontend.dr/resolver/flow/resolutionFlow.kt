@@ -21,9 +21,11 @@ import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.getDefaultAmperFileCacheBuilder
-import org.jetbrains.amper.frontend.dr.resolver.logger
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
+import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
+
+private val logger = LoggerFactory.getLogger("resolutionFlow.kt")
 
 interface DependenciesFlow<T: DependenciesFlowType> {
     fun directDependenciesGraph(
@@ -55,7 +57,6 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             ?: UnresolvedMavenDependencyNode(this.coordinates.value, context)
 
         val node = DirectFragmentDependencyNodeHolder(
-            "dep:${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}",
             dependencyNode,
             notation = this,
             fragment = fragment,

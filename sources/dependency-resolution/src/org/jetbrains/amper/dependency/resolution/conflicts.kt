@@ -48,13 +48,7 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
      */
     override fun seesConflictsIn(candidates: Collection<DependencyNode>): Boolean =
         candidates.asSequence()
-            .mapNotNull {
-                when(it) {
-                    is MavenDependencyNode -> it.dependency.version
-                    is MavenDependencyConstraintNode -> it.dependencyConstraint.version.resolve()
-                    else -> null
-                }
-            }
+            .mapNotNull { it.resolvedVersion() }
             .distinct()
             .distinctBy { ComparableVersion(it) }
             .take(2)
@@ -67,27 +61,33 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
      */
     override fun resolveConflictsIn(candidates: Collection<DependencyNode>): Boolean {
         val resolvedVersion = candidates.asSequence()
-            .mapNotNull {
-                when(it) {
-                    is MavenDependencyNode -> it.dependency.version
-                    is MavenDependencyConstraintNode -> it.dependencyConstraint.version.resolve()
-                    else -> null
-                }
-            }
+            .mapNotNull { it.resolvedVersion() }
             .distinct()
-            .maxBy { ComparableVersion(it) }
+            .maxByOrNull { ComparableVersion(it) }
+            ?: error("All conflicting candidates have no resolved version")
+
+        val candidatesWithResolvedVersion = candidates.filter { it.resolvedVersion() == resolvedVersion }
 
         candidates.asSequence().forEach {
             when(it) {
                 // todo (AB) don't align strictly constraint
                 is MavenDependencyNode -> {
                     it.dependency = it.context.createOrReuseDependency(it.group, it.module, resolvedVersion)
+                    it.overriddenBy = if (it.resolvedVersion() != resolvedVersion) candidatesWithResolvedVersion else emptyList()
                 }
                 is MavenDependencyConstraintNode -> {
                     it.dependencyConstraint = it.context.createOrReuseDependencyConstraint(it.group, it.module, Version(requires = resolvedVersion))
+                    it.overriddenBy = if (it.resolvedVersion() != resolvedVersion) candidatesWithResolvedVersion else emptyList()
                 }
             }
         }
         return true
     }
 }
+
+fun DependencyNode.resolvedVersion() =
+    when(this) {
+        is MavenDependencyNode -> dependency.version
+        is MavenDependencyConstraintNode -> dependencyConstraint.version.resolve()
+        else -> null
+    }
