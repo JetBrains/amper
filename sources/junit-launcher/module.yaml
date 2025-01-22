@@ -1,0 +1,16 @@
+product: jvm/app
+
+settings:
+  publishing:
+    name: amper-junit-launcher
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - $libs.clikt
+  - $libs.junit.platform.launcher
+  - $libs.junit.platform.reporting
+  - $libs.junit.engine.jupiter: runtime-only
+  - $libs.junit.engine.vintage: runtime-only
+  - $libs.teamcity.serviceMessages

@@ -4,4 +4,5 @@ module: ../build-related/build-unpacked-dist
 
 programArguments:
   - --output-dir=${outputDirectory}
+  - --target-dir=${outputDirectory}/dist/lib
   - --classpath=${module(.).runtimeClasspathJvm}

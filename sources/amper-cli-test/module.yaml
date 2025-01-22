@@ -10,6 +10,7 @@ test-dependencies:
   - ../telemetry
   - ../test-base
   - $libs.kotlinx.coroutines.test
+  - $libs.teamcity.serviceMessages # to parse service messages in tests
 
 tasks:
   testJvm:

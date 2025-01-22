@@ -230,6 +230,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
                     commonRunSettings = context.commonRunSettings,
+                    executeOnChangedInputs = executeOnChangedInputs,
                 ),
                 listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true),

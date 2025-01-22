@@ -1,0 +1,14 @@
+type: jvm/external-task
+
+module: ../build-related/build-unpacked-dist
+
+programArguments:
+  - --output-dir=${outputDirectory}
+  - --target-dir=${outputDirectory}/gen-resources/junit-launcher
+  - --classpath=${module(../junit-launcher).runtimeClasspathJvm}
+  - --jar-list-file=classpath.txt
+
+addTaskOutputToSourceSet:
+  - taskOutputSubFolder: gen-resources
+    sourceSet: resources
+    platform: jvm

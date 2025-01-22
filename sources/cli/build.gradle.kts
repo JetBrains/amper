@@ -26,6 +26,13 @@ kotlin {
     }
 }
 
+val junitLauncherConfiguration = configurations.register("junitLauncherClasspath")
+
+dependencies {
+    @Suppress("UnstableApiUsage")
+    junitLauncherConfiguration(project(":sources:junit-launcher"))
+}
+
 val unpackedDistribution by tasks.creating(Sync::class) {
     inputs.property("up-to-date", "11")
 
@@ -44,6 +51,25 @@ val unpackedDistribution by tasks.creating(Sync::class) {
     includeEmptyDirs = false
 
     destinationDir = file("build/unpackedDistribution")
+}
+
+val listJUnitJars by tasks.registering {
+    dependsOn(junitLauncherConfiguration)
+    val junitLauncherJarsFile = layout.buildDirectory.file("classpath.txt")
+    outputs.file(junitLauncherJarsFile)
+    doLast {
+        val jars = junitLauncherConfiguration.get().files.joinToString("\n") { it.name }
+        junitLauncherJarsFile.get().asFile.writeText(jars)
+    }
+}
+
+tasks.named<ProcessResources>("jvmProcessResources") {
+    from(listJUnitJars) {
+        into("junit-launcher")
+    }
+    from(junitLauncherConfiguration) {
+        into("junit-launcher")
+    }
 }
 
 val prepareForLocalRun by tasks.creating {

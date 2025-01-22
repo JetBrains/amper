@@ -12,6 +12,9 @@ class JvmIntegrationTest {
 
     @Test
     fun integrationTest() {
-        println("running JvmIntegrationTest.integrationTest")
+        println("output line 1 in JvmIntegrationTest.integrationTest")
+        System.err.println("error line 1 in JvmIntegrationTest.integrationTest")
+        println("output line 2 in JvmIntegrationTest.integrationTest")
+        System.err.println("error line 2 in JvmIntegrationTest.integrationTest")
     }
 }

@@ -6,11 +6,15 @@ package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
+// CONCURRENT is here to test that multiple concurrent amper processes work correctly.
+@Execution(ExecutionMode.CONCURRENT)
 class AmperTestFiltersTest : AmperCliTestBase() {
 
     override val testDataRoot: Path = Dirs.amperTestProjectsRoot
@@ -163,12 +167,17 @@ class AmperTestFiltersTest : AmperCliTestBase() {
             "-m",
             "jvm-cli",
             "--exclude-classes=com.example.jvmcli.MyClass2Test",
+            assertEmptyStdErr = false, // some tests print to stderr
         )
         r.assertJUnitTestCount(expected = 4)
         r.assertStdoutContainsLine("running JvmIntegrationTest.integrationTest")
         r.assertStdoutContainsLine("running MyClass1Test.test1")
         r.assertStdoutContainsLine("running MyClass1Test.test2")
         r.assertStdoutContainsLine("running MyClass1Test.test3")
+        assertEquals(r.stderr, """
+            error line 1 in JvmIntegrationTest.integrationTest
+            error line 2 in JvmIntegrationTest.integrationTest
+        """.trimIndent())
     }
 
     @Test
@@ -230,11 +239,16 @@ class AmperTestFiltersTest : AmperCliTestBase() {
             "-m",
             "shared",
             "--include-classes=*IntegrationTest",
+            assertEmptyStdErr = false, // some tests print to stderr
         )
         r.assertJUnitTestCount(expected = 1)
         r.assertNativeTestCount(expected = 1)
         r.assertStdoutContainsLine("running JvmIntegrationTest.integrationTest")
         r.assertStdoutContainsLine("running SharedIntegrationTest.integrationTest", nOccurrences = 2)
+        assertEquals(r.stderr, """
+            error line 1 in JvmIntegrationTest.integrationTest
+            error line 2 in JvmIntegrationTest.integrationTest
+        """.trimIndent())
     }
 
     @Test
