@@ -4,16 +4,15 @@
 
 package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestReporterExtension
-import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.android.AndroidTools
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
@@ -142,7 +141,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             },
             environment = mapOf(
                 "ANDROID_HOME" to AndroidTools.getOrInstallForTests().androidHome.pathString,
-                GradleDaemonShutdownHook.NO_DAEMON_ENV to "1",
+                "AMPER_NO_GRADLE_DAEMON" to "1",
             ),
             bootstrapCacheDir = Dirs.userCacheRoot,
             expectedExitCode = expectedExitCode,

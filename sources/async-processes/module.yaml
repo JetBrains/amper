@@ -6,5 +6,7 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
-  - ../core
   - $libs.kotlinx.coroutines.core
+
+test-dependencies:
+  - ../core
