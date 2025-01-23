@@ -150,16 +150,11 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             customAmperScriptPath = customAmperScriptPath,
         )
 
-        val stdout = result.stdout.fancyPrependIndent("STDOUT: ").ifEmpty { "STDOUT: <no-output>" }
-        val stderr = result.stderr.fancyPrependIndent("STDERR: ").ifEmpty { "STDERR: <no-output>" }
-
-        // TODO also assert no ERRORs or WARNs in logs by default
-
-        val message = "Result of running Amper CLI with '${args.toList()}' on $projectRoot:\n$stdout\n$stderr"
-
-        // it should be enough to publish to junit reporter, but IDEA runner does not pick it up
-        // if tests were run from Gradle
-        testReporter.publishEntry(message)
+        testReporter.publishEntry("Amper[${result.pid}] arguments", args.joinToString(" "))
+        testReporter.publishEntry("Amper[${result.pid}] working dir", projectRoot.pathString)
+        testReporter.publishEntry("Amper[${result.pid}] exit code", result.exitCode.toString())
+        testReporter.publishEntry("Amper[${result.pid}] stdout", result.stdout.ifBlank { "<empty>" })
+        testReporter.publishEntry("Amper[${result.pid}] stderr", result.stderr.ifBlank { "<empty>" })
 
         return AmperCliResult(
             projectRoot = projectRoot,
