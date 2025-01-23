@@ -45,6 +45,29 @@ object TeamCityHelper {
             return Path(tempPath)
         }
 
+    /**
+     * A temp directory under [tempDirectory] that is guaranteed not to be reused between builds, and thus clean on
+     * every CI build.
+     *
+     * It turns out that [tempDirectory] is sometimes non-empty (e.g., locked by some process).
+     * This [cleanTempDirectory] contains the [buildId] to ensure it's clean.
+     */
+    val cleanTempDirectory: Path
+        get() = (tempDirectory / buildId).createDirectories()
+
+    /**
+     * A directory that persists across TeamCity builds. Use with caution, as it contains files from previous builds.
+     */
+    val persistentCacheDirectory: Path
+        get() {
+            requireRunUnderTeamcity()
+            val persistentCachePath = systemProperties["agent.persistent.cache"]
+            check(!persistentCachePath.isNullOrBlank()) {
+                "'agent.persistent.cache' system property is required under TeamCity"
+            }
+            return Path(persistentCachePath).createDirectories()
+        }
+
     val systemProperties: Map<String, String> by lazy {
         requireRunUnderTeamcity()
 
@@ -60,6 +83,9 @@ object TeamCityHelper {
         loadPropertiesFile(file)
     }
 
+    /**
+     * Global build counter on TC server across the entire server.
+     */
     val buildId: String
         get() = allProperties["teamcity.build.id"]
             ?: error("'teamcity.build.id' is missing in TeamCity build parameters, this should not happen")
