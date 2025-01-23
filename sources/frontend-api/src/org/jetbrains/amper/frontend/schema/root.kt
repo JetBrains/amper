@@ -8,6 +8,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -67,6 +68,7 @@ class Module : Base() {
     @SchemaDoc("Defines the names for the custom code sharing groups. [Read more](#aliases)")
     var aliases by nullableValue<Map<String, Set<TraceableEnum<Platform>>>>()
 
+    @Aliases("templates")
     @SchemaDoc("Lists the templates applied to the module. [Read more](#templates)")
     var apply by nullableValue<List<TraceablePath>>()
 

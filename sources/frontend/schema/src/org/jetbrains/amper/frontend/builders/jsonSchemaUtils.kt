@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.core.forEachEndAware
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.GradleSpecific
@@ -87,8 +88,13 @@ private fun buildSpecificsData(prop: KProperty<*>): String? {
     val productTypeSpecific = prop.findAnnotation<ProductTypeSpecific>()
     val gradleSpecific = prop.findAnnotation<GradleSpecific>()
     val standaloneSpecific = prop.findAnnotation<StandaloneSpecific>()
+    val aliases = prop.findAnnotation<Aliases>()
     val extras =
-        if (platformSpecific != null || productTypeSpecific != null || gradleSpecific != null || standaloneSpecific != null) {
+        if (platformSpecific != null
+            || productTypeSpecific != null
+            || gradleSpecific != null
+            || standaloneSpecific != null
+            || aliases != null) {
             val builder = StringBuilder("{")
             platformSpecific?.let {
                 builder.append(
@@ -115,6 +121,10 @@ private fun buildSpecificsData(prop: KProperty<*>): String? {
             standaloneSpecific?.let {
                 if (platformSpecific != null || productTypeSpecific != null || gradleSpecific != null) builder.append(",")
                 builder.append("\"standaloneSpecific\": true")
+            }
+            aliases?.let {
+                if (platformSpecific != null || productTypeSpecific != null || gradleSpecific != null || standaloneSpecific != null) builder.append(",")
+                builder.append("\"aliases\": [${aliases.values.joinToString { "\"$it\"" }}]")
             }
             builder.append("}")
             builder.toString()

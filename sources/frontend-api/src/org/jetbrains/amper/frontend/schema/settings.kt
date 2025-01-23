@@ -8,6 +8,7 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.KnownStringValues
 import org.jetbrains.amper.frontend.api.ContextAgnostic
@@ -45,6 +46,7 @@ class Settings : SchemaNode() {
             "Read more about [Compose configuration](#configuring-compose-multiplatform)")
     var compose by value(::ComposeSettings)
 
+    @Aliases("test")
     @SchemaDoc("JUnit test runner on the JVM and Android platforms. " +
             "Read more about [testing support](#tests)")
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
@@ -57,6 +59,7 @@ class Settings : SchemaNode() {
     @SchemaDoc("Publishing settings")
     var publishing by nullableValue<PublishingSettings>()
 
+    @Aliases("coverage")
     @SchemaDoc("Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)")
     var kover by nullableValue<KoverSettings>()
 
@@ -159,6 +162,7 @@ class PublishingSettings : SchemaNode() {
     @SchemaDoc("Version of the published Maven artifact")
     var version by nullableValue<String>()
 
+    @Aliases("artifact")
     @SchemaDoc("Artifact ID of the published Maven artifact")
     var name by nullableValue<String>()
 }

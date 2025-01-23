@@ -147,6 +147,7 @@
                     "scope": {
                       "x-intellij-html-description": "When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)",
                       "title": "When the dependency should be used. Read more about the dependency scopes",
+                      "x-intellij-metadata": {"aliases": ["compileOnly", "runtimeOnly"]},
                       "enum": ["compile-only","runtime-only","all"],
                       "x-intellij-enum-order-sensitive": true
                     }
@@ -189,6 +190,7 @@
                     "scope": {
                       "x-intellij-html-description": "When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)",
                       "title": "When the dependency should be used. Read more about the dependency scopes",
+                      "x-intellij-metadata": {"aliases": ["compileOnly", "runtimeOnly"]},
                       "enum": ["compile-only","runtime-only","all"],
                       "x-intellij-enum-order-sensitive": true
                     }
@@ -231,6 +233,7 @@
                     "scope": {
                       "x-intellij-html-description": "When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)",
                       "title": "When the dependency should be used. Read more about the dependency scopes",
+                      "x-intellij-metadata": {"aliases": ["compileOnly", "runtimeOnly"]},
                       "enum": ["compile-only","runtime-only","all"],
                       "x-intellij-enum-order-sensitive": true
                     }
@@ -334,7 +337,7 @@
         "junit": {
           "x-intellij-html-description": "JUnit test runner on the JVM and Android platforms. Read more about [testing support](#tests)",
           "title": "JUnit test runner on the JVM and Android platforms",
-          "x-intellij-metadata": {"platforms": ["jvm", "android"]},
+          "x-intellij-metadata": {"platforms": ["jvm", "android"],"aliases": ["test"]},
           "enum": ["junit-4","junit-5","none"]
         },
         "jvm": {
@@ -351,6 +354,7 @@
         "kover": {
           "x-intellij-html-description": "Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)",
           "title": "Kover settings for code coverage. Read more about Kover",
+          "x-intellij-metadata": {"aliases": ["coverage"]},
           "$ref": "#/$defs/KoverSettings"
         },
         "native": {
@@ -379,6 +383,7 @@
         "compileSdk": {
           "x-intellij-html-description": "The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())",
           "title": "The API level to compile the code. The code can use only the Android APIs up to that API level. )",
+          "x-intellij-metadata": {"aliases": ["compileApiLevel"]},
           "enum": ["35","34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true,
           "x-intellij-enum-metadata": {"1": "(Android 1.0)","2": "(Android 1.1)","3": "(Android 1.5, Cupcake)","4": "(Android 1.6, Donut)","5": "(Android 2.0, Eclair)","6": "(Android 2.0.1, Eclair)","7": "(Android 2.1, Eclair)","8": "(Android 2.2, Froyo)","9": "(Android 2.3-2.3.2, Gingerbread)","10": "(Android 2.3.3-2.3.7, Gingerbread)","11": "(Android 3.0, Honeycomb)","12": "(Android 3.1, Honeycomb)","13": "(Android 3.2, Honeycomb)","14": "(Android 4.0.1-4.0.2, Ice Cream Sandwich)","15": "(Android 4.0.3-4.0.4, Ice Cream Sandwich)","16": "(Android 4.1, Jelly Bean)","17": "(Android 4.2, Jelly Bean)","18": "(Android 4.3, Jelly Bean)","19": "(Android 4.4, KitKat)","20": "(Android 5.0, Lollipop)","21": "(Android 5.0, Lollipop)","22": "(Android 5.1, Lollipop)","23": "(Android 6.0, Marshmallow)","24": "(Android 7.0, Nougat)","25": "(Android 7.1, Nougat)","26": "(Android 8.0, Oreo)","27": "(Android 8.1, Oreo)","28": "(Android 9, Pie)","29": "(Android 10, Q)","30": "(Android 11, R)","31": "(Android 12, S)","32": "(Android 12L, S)","33": "(Android 13, Tiramisu)","34": "(Android 14, Upside Down Cake)","35": "(Android 15, Vanilla Ice Cream)"}
@@ -386,6 +391,7 @@
         "maxSdk": {
           "x-intellij-html-description": "Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "Maximum API level on which the application can run",
+          "x-intellij-metadata": {"aliases": ["maxApiLevel"]},
           "enum": ["35","34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true,
           "x-intellij-enum-metadata": {"1": "(Android 1.0)","2": "(Android 1.1)","3": "(Android 1.5, Cupcake)","4": "(Android 1.6, Donut)","5": "(Android 2.0, Eclair)","6": "(Android 2.0.1, Eclair)","7": "(Android 2.1, Eclair)","8": "(Android 2.2, Froyo)","9": "(Android 2.3-2.3.2, Gingerbread)","10": "(Android 2.3.3-2.3.7, Gingerbread)","11": "(Android 3.0, Honeycomb)","12": "(Android 3.1, Honeycomb)","13": "(Android 3.2, Honeycomb)","14": "(Android 4.0.1-4.0.2, Ice Cream Sandwich)","15": "(Android 4.0.3-4.0.4, Ice Cream Sandwich)","16": "(Android 4.1, Jelly Bean)","17": "(Android 4.2, Jelly Bean)","18": "(Android 4.3, Jelly Bean)","19": "(Android 4.4, KitKat)","20": "(Android 5.0, Lollipop)","21": "(Android 5.0, Lollipop)","22": "(Android 5.1, Lollipop)","23": "(Android 6.0, Marshmallow)","24": "(Android 7.0, Nougat)","25": "(Android 7.1, Nougat)","26": "(Android 8.0, Oreo)","27": "(Android 8.1, Oreo)","28": "(Android 9, Pie)","29": "(Android 10, Q)","30": "(Android 11, R)","31": "(Android 12, S)","32": "(Android 12L, S)","33": "(Android 13, Tiramisu)","34": "(Android 14, Upside Down Cake)","35": "(Android 15, Vanilla Ice Cream)"}
@@ -393,6 +399,7 @@
         "minSdk": {
           "x-intellij-html-description": "Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "Minimum API level needed to run the application",
+          "x-intellij-metadata": {"aliases": ["minApiLevel"]},
           "enum": ["35","34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true,
           "x-intellij-enum-metadata": {"1": "(Android 1.0)","2": "(Android 1.1)","3": "(Android 1.5, Cupcake)","4": "(Android 1.6, Donut)","5": "(Android 2.0, Eclair)","6": "(Android 2.0.1, Eclair)","7": "(Android 2.1, Eclair)","8": "(Android 2.2, Froyo)","9": "(Android 2.3-2.3.2, Gingerbread)","10": "(Android 2.3.3-2.3.7, Gingerbread)","11": "(Android 3.0, Honeycomb)","12": "(Android 3.1, Honeycomb)","13": "(Android 3.2, Honeycomb)","14": "(Android 4.0.1-4.0.2, Ice Cream Sandwich)","15": "(Android 4.0.3-4.0.4, Ice Cream Sandwich)","16": "(Android 4.1, Jelly Bean)","17": "(Android 4.2, Jelly Bean)","18": "(Android 4.3, Jelly Bean)","19": "(Android 4.4, KitKat)","20": "(Android 5.0, Lollipop)","21": "(Android 5.0, Lollipop)","22": "(Android 5.1, Lollipop)","23": "(Android 6.0, Marshmallow)","24": "(Android 7.0, Nougat)","25": "(Android 7.1, Nougat)","26": "(Android 8.0, Oreo)","27": "(Android 8.1, Oreo)","28": "(Android 9, Pie)","29": "(Android 10, Q)","30": "(Android 11, R)","31": "(Android 12, S)","32": "(Android 12L, S)","33": "(Android 13, Tiramisu)","34": "(Android 14, Upside Down Cake)","35": "(Android 15, Vanilla Ice Cream)"}
@@ -400,6 +407,7 @@
         "namespace": {
           "x-intellij-html-description": "A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)",
           "title": "A Kotlin or Java package name for the generated `R` and `BuildConfig` classes",
+          "x-intellij-metadata": {"aliases": ["packageName"]},
           "type": "string"
         },
         "parcelize": {
@@ -416,6 +424,7 @@
         "targetSdk": {
           "x-intellij-html-description": "The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "The target API level for the application",
+          "x-intellij-metadata": {"aliases": ["targetApiLevel"]},
           "enum": ["35","34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true,
           "x-intellij-enum-metadata": {"1": "(Android 1.0)","2": "(Android 1.1)","3": "(Android 1.5, Cupcake)","4": "(Android 1.6, Donut)","5": "(Android 2.0, Eclair)","6": "(Android 2.0.1, Eclair)","7": "(Android 2.1, Eclair)","8": "(Android 2.2, Froyo)","9": "(Android 2.3-2.3.2, Gingerbread)","10": "(Android 2.3.3-2.3.7, Gingerbread)","11": "(Android 3.0, Honeycomb)","12": "(Android 3.1, Honeycomb)","13": "(Android 3.2, Honeycomb)","14": "(Android 4.0.1-4.0.2, Ice Cream Sandwich)","15": "(Android 4.0.3-4.0.4, Ice Cream Sandwich)","16": "(Android 4.1, Jelly Bean)","17": "(Android 4.2, Jelly Bean)","18": "(Android 4.3, Jelly Bean)","19": "(Android 4.4, KitKat)","20": "(Android 5.0, Lollipop)","21": "(Android 5.0, Lollipop)","22": "(Android 5.1, Lollipop)","23": "(Android 6.0, Marshmallow)","24": "(Android 7.0, Nougat)","25": "(Android 7.1, Nougat)","26": "(Android 8.0, Oreo)","27": "(Android 8.1, Oreo)","28": "(Android 9, Pie)","29": "(Android 10, Q)","30": "(Android 11, R)","31": "(Android 12, S)","32": "(Android 12L, S)","33": "(Android 13, Tiramisu)","34": "(Android 14, Upside Down Cake)","35": "(Android 15, Vanilla Ice Cream)"}
@@ -477,6 +486,7 @@
             "propertiesFile": {
               "x-intellij-html-description": "Properties file where the keystore data is stored.",
               "title": "Properties file where the keystore data is stored",
+              "x-intellij-metadata": {"aliases": ["keystoreFile"]},
               "type": "string"
             }
           },
@@ -617,6 +627,7 @@
         "release": {
           "x-intellij-html-description": "The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used.",
           "title": "The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used",
+          "x-intellij-metadata": {"aliases": ["jdk"]},
           "enum": ["25","24","23","22","21","17","11","8"],
           "x-intellij-enum-order-sensitive": true
         }
@@ -634,6 +645,7 @@
         "apiVersion": {
           "x-intellij-html-description": "Allow using declarations only from the specified version of Kotlin bundled libraries",
           "title": "Allow using declarations only from the specified version of Kotlin bundled libraries",
+          "x-intellij-metadata": {"aliases": ["sdkVersion"]},
           "enum": ["2.0","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"],
           "x-intellij-enum-order-sensitive": true
         },
@@ -716,6 +728,7 @@
         "processorOptions": {
           "x-intellij-html-description": "Some options to pass to KSP processors. Refer to each processor documentation for details.",
           "title": "Some options to pass to KSP processors. Refer to each processor documentation for details",
+          "x-intellij-metadata": {"aliases": ["processorSettings"]},
           "type": "object",
           "items": {
             "patternProperties": {
@@ -871,6 +884,7 @@
         "name": {
           "x-intellij-html-description": "Artifact ID of the published Maven artifact",
           "title": "Artifact ID of the published Maven artifact",
+          "x-intellij-metadata": {"aliases": ["artifact"]},
           "type": "string"
         },
         "version": {

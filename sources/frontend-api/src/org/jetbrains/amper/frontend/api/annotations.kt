@@ -121,3 +121,10 @@ annotation class Shorthand
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class KnownStringValues(vararg val values: String)
+
+/**
+ * Aliases for a property. Used mainly in the IDE (code completion)
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Aliases(vararg val values: String)

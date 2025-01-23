@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -93,6 +94,7 @@ enum class ProductType(
 @SchemaDoc("Defines what should be produced out of the module. [Read more](#product-types)")
 class ModuleProduct : SchemaNode() {
 
+    @Aliases("application", "library")
     @Shorthand
     @SchemaDoc("What type of product to generate")
     var type by value<ProductType>()

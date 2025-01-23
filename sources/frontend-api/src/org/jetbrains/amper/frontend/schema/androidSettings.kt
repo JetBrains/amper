@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -98,22 +99,27 @@ enum class AndroidVersion(
 }
 
 class AndroidSettings : SchemaNode() {
+    @Aliases("minApiLevel")
     @SchemaDoc("Minimum API level needed to run the application. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
     var minSdk by value(AndroidVersion.VERSION_21)
 
+    @Aliases("maxApiLevel")
     @SchemaDoc("Maximum API level on which the application can run. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
     var maxSdk by nullableValue<AndroidVersion>()
 
+    @Aliases("targetApiLevel")
     @SchemaDoc("The target API level for the application. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
     var targetSdk by dependentValue(::compileSdk)
 
+    @Aliases("compileApiLevel")
     @SchemaDoc("The API level to compile the code. The code can use only the Android APIs up to that API level. " +
             "[Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())")
     var compileSdk by value(AndroidVersion.VERSION_35)
 
+    @Aliases("packageName")
     @SchemaDoc("A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. " +
             "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
     var namespace by value("org.example.namespace")
@@ -147,6 +153,7 @@ class AndroidSigningSettings : SchemaNode() {
     @SchemaDoc("Enable signing with keystore")
     var enabled by value(default = false)
 
+    @Aliases("keystoreFile")
     @SchemaDoc("Properties file where the keystore data is stored.")
     var propertiesFile by value<Path> { Path("keystore.properties") }
 }

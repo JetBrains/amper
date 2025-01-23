@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -34,6 +35,7 @@ sealed class Dependency : SchemaNode() {
     @SchemaDoc("Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)")
     var exported by value(false)
 
+    @Aliases("compileOnly", "runtimeOnly")
     @Shorthand
     @SchemaDoc("When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)")
     var scope by value(DependencyScope.ALL)
