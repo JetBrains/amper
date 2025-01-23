@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.test
@@ -35,14 +35,14 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
     companion object {
         fun deleteWithDiagnostics(path: Path) {
             // On Windows, directory locks might not be released instantly, so we allow some extra time
-            repeat(20) {
+            repeat(100) {
                 try {
                     path.deleteRecursively()
                     return
                 } catch (_: Throwable) {
                     // ignore exceptions
                 }
-                Thread.sleep(50)
+                Thread.sleep(100)
             }
 
             val exceptions = mutableListOf<Throwable>()
