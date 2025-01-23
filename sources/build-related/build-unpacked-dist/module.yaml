@@ -3,6 +3,7 @@ product: jvm/app
 dependencies:
   - ../task-helpers
   - ../../core
+  - $libs.slf4j.simple # incremental cache uses SLF4J logging and needs a binding
 
 apply:
   - ../../common.module-template.yaml
