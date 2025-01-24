@@ -24,6 +24,7 @@
         <option value="sources/amper-backend-test/testData/projects/jvm-run-print-systemprop" />
         <option value="sources/amper-backend-test/testData/projects/jvm-test-classpath" />
         <option value="sources/amper-backend-test/testData/projects/jvm-test-custom-engine" />
+        <option value="sources/amper-backend-test/testData/projects/jvm-test-using-reflection" />
         <option value="sources/amper-backend-test/testData/projects/kotlin-serialization-default" />
         <option value="sources/amper-backend-test/testData/projects/ksp-android-room" />
         <option value="sources/amper-backend-test/testData/projects/ksp-jvm-dagger" />
