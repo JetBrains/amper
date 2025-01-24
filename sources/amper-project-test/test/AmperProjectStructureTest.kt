@@ -42,13 +42,15 @@ class AmperProjectStructureTest {
         }
     }
 
+    private val excludedDirs = setOf("build", "build-from-sources", ".gradle", ".kotlin", ".git", "shared test caches")
+
     private fun Path.findWrapperFiles(): List<Path> {
         val filesWithWrappers = mutableListOf<Path>()
         val gradleTestProjects = Dirs.amperSourcesRoot.resolve("gradle-e2e-test/testData/projects")
         visitFileTree {
             onPreVisitDirectory { dir, _ ->
                 when {
-                    dir.name == "build" -> FileVisitResult.SKIP_SUBTREE
+                    dir.name in excludedDirs -> FileVisitResult.SKIP_SUBTREE
                     // do not reference wrappers
                     dir == gradleTestProjects -> FileVisitResult.SKIP_SUBTREE
                     dir.name == "amper-dr-test-bom-usages" -> FileVisitResult.SKIP_SUBTREE

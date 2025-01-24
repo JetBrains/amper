@@ -119,11 +119,13 @@ private fun copyDirectory(source: Path, target: Path) {
     throw lastException!!
 }
 
+private val excludedDirs = setOf("build", "build-from-sources", ".gradle", ".kotlin", ".git", "shared test caches")
+
 private fun collectFilesToCopy(source: Path): List<Path> {
     val result = mutableListOf<Path>()
     source.visitFileTree {
         onPreVisitDirectory { dir, _ ->
-            if (dir.name == "build" || dir.name == ".gradle" || dir.name == ".git" || dir.name == "shared test caches") {
+            if (dir.name in excludedDirs) {
                 FileVisitResult.SKIP_SUBTREE
             } else {
                 FileVisitResult.CONTINUE

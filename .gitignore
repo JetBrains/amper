@@ -7,6 +7,7 @@
 .kotlin
 androidTestProjects
 build
+build-from-sources
 shared test caches/
 
 local.properties

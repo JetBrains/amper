@@ -260,7 +260,7 @@ esac
 # Prints a status of all sources files impacting the Amper build
 current_state() {
   # scan sources directory
-  find "$script_dir/sources" '(' -name build -o -name .git -o -name .idea ')' -prune -o -type f -print0 | \
+  find "$script_dir/sources" '(' -name build -o -name build-from-sources -o -name .git -o -name .idea ')' -prune -o -type f -print0 | \
    xargs -0 stat "${stat_format[@]}"
   stat "${stat_format[@]}" "$script_dir/project.yaml"
 }
@@ -295,4 +295,5 @@ jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
 # shellcheck disable=SC2086
 time "$java_exe" \
   "-Damper.wrapper.path=$wrapper_path" \
-  $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+  $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt \
+  "--build-output=$script_dir/build-from-sources" "$@"

@@ -138,12 +138,15 @@ fun updateAmperWrappers() {
     }
 }
 
+private val excludedDirs = setOf("build", "build-from-sources", ".gradle", ".kotlin", ".git", "shared test caches")
+
 fun Path.forEachWrapperFile(action: (Path) -> Unit) {
     visitFileTree {
         onPreVisitDirectory { dir, _ ->
-            when (dir.name) {
-                ".kotlin", ".gradle", "build", "shared test caches" -> FileVisitResult.SKIP_SUBTREE
-                else -> FileVisitResult.CONTINUE
+            if (dir.name in excludedDirs) {
+                FileVisitResult.SKIP_SUBTREE
+            } else {
+                FileVisitResult.CONTINUE
             }
         }
         onVisitFile { file, _ ->
