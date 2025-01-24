@@ -188,11 +188,4 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             },
         )
     }
-
-    private fun String.fancyPrependIndent(prepend: String): String {
-        val trim = trim()
-        if (trim.isEmpty()) return trim
-
-        return trim.prependIndent(prepend).trim()
-    }
 }
