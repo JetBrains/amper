@@ -19,6 +19,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
+import org.jetbrains.amper.cli.TelemetryEnvironment
 import org.jetbrains.amper.cli.commands.tools.ToolCommand
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -100,6 +101,10 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
     ).path(mustExist = false, canBeFile = false, canBeDir = true)
 
     override suspend fun run() {
+        // Ensure we're writing traces to the configured user cache (we start with the default in early telemetry).
+        // For commands that have a project context, the traces will eventually be moved to the project build logs dir.
+        TelemetryEnvironment.setUserCacheRoot(sharedCachesRoot)
+
         val terminal = spanBuilder("Initialize Mordant Terminal").use {
             Terminal()
         }

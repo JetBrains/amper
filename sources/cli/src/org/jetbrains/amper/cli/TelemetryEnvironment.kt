@@ -15,31 +15,43 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
 import io.opentelemetry.sdk.trace.export.SpanExporter
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.telemetry.toSerializable
 import org.slf4j.LoggerFactory
-import java.io.BufferedOutputStream
 import java.io.IOException
 import java.io.ObjectOutputStream
-import java.io.PipedInputStream
-import java.io.PipedOutputStream
+import java.io.OutputStream
 import java.net.InetAddress
 import java.net.Socket
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption.APPEND
+import java.nio.file.StandardOpenOption.WRITE
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
+import kotlin.io.path.Path
+import kotlin.io.path.absolute
+import kotlin.io.path.createDirectories
+import kotlin.io.path.div
+import kotlin.io.path.moveTo
+import kotlin.io.path.name
 import kotlin.io.path.outputStream
 
 object TelemetryEnvironment {
 
-    private val deferredSpansFile = DeferredFile()
+    /**
+     * The filename to use for the traces file when placed in the user-level Amper cache.
+     * It has to be unique, and somehow convey which project/command it came from.
+     */
+    private val userLevelTracesFilename: String by lazy {
+        val datetime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd_HH-mm-ss_SSS"))
+        val workingDirName = Path(".").absolute().normalize().name
+        "opentelemetry_traces_${datetime}_${workingDirName.take(20)}.jsonl"
+    }
+
+    private var movableFileOutputStream: MovableFileOutputStream? = null
 
     private val resource: Resource = Resource.create(
         Attributes.builder()
@@ -53,14 +65,30 @@ object TelemetryEnvironment {
             .build()
     )
 
+    fun setUserCacheRoot(amperUserCacheRoot: AmperUserCacheRoot) {
+        moveSpansFile(newPath = userLevelTracesPath(amperUserCacheRoot))
+    }
+
     fun setLogsRootDirectory(amperBuildLogsRoot: AmperBuildLogsRoot) {
-        val spansFile = amperBuildLogsRoot.path.resolve("opentelemetry_traces.jsonl")
-        deferredSpansFile.setFile(spansFile)
+        moveSpansFile(newPath = amperBuildLogsRoot.path.createDirectories() / "opentelemetry_traces.jsonl")
+    }
+
+    private fun userLevelTracesPath(userCacheRoot: AmperUserCacheRoot): Path {
+        val userLevelTelemetryDir = (userCacheRoot.path / "telemetry").createDirectories()
+        return userLevelTelemetryDir / userLevelTracesFilename
+    }
+
+    private fun moveSpansFile(newPath: Path) {
+        movableFileOutputStream?.moveTo(newPath)
+            ?: error("Initial path for traces was not set. TelemetryEnvironment.setup() must be called first.")
     }
 
     fun setup() {
+        val initialTracesPath = userLevelTracesPath(AmperUserCacheRoot.fromCurrentUser())
+        movableFileOutputStream = MovableFileOutputStream(initialPath = initialTracesPath)
+
         val exporter = OtlpStdoutSpanExporter.builder()
-            .setOutput(deferredSpansFile.outputStream)
+            .setOutput(movableFileOutputStream)
             .setWrapperJsonObject(true)
             .build()
         val spanListenerPort = System.getProperty("amper.internal.testing.otlp.port")?.toIntOrNull()
@@ -88,36 +116,59 @@ object TelemetryEnvironment {
 }
 
 /**
- * Represents a file whose location is initially unknown.
+ * An output stream to a file that can be moved concurrently with the writes.
  *
- * Writing to [outputStream] initially writes to an in-memory buffer.
- * Once [setFile] is called, an asynchronous copy of the in-memory buffer is started, and continues to run indefinitely.
- * Data can still be written to [outputStream] concurrently and goes to the file through the buffer.
+ * The stream initially writes to [initialPath], and then [moveTo] can be used to change the path.
  */
-private class DeferredFile {
-    private val pipeEntrance = PipedOutputStream()
-    private val pipeExit = PipedInputStream(pipeEntrance)
+private class MovableFileOutputStream(initialPath: Path) : OutputStream() {
+
+    private var currentPath = initialPath
+    private var fileStream = initialPath.outputStream().buffered()
 
     /**
-     * The stream to write the data to, so it eventually gets to the file.
+     * Moves the destination file of this [MovableFileOutputStream] to the given [newPath].
+     * This is not just a path change: when this method is called, the write operations are temporarily blocked while
+     * the file is being physically moved to the new location.
+     * The subsequent write operations will append to the file in the new location.
      */
-    val outputStream = BufferedOutputStream(pipeEntrance) // this buffer should be sufficient while waiting for the file
-
-    private val fileSet = AtomicBoolean(false)
-
-    @OptIn(DelicateCoroutinesApi::class) // we do want a coroutine that lives until Amper terminates, to flush to the file
-    fun setFile(path: Path) {
-        if (fileSet.compareAndSet(false, true)) {
-            GlobalScope.launch(CoroutineName("telemetry-pipe") + Dispatchers.IO) {
-                pipeExit.use { input ->
-                    path.outputStream().use { output ->
-                        input.copyTo(output)
-                    }
-                }
-            }
-        } else {
-            error("File path has already been set.")
+    @Synchronized
+    fun moveTo(newPath: Path) {
+        if (newPath == currentPath) {
+            return
         }
+        try {
+            fileStream.flush()
+        } finally {
+            fileStream.close()
+        }
+        currentPath.moveTo(newPath)
+        currentPath = newPath
+        fileStream = newPath.outputStream(WRITE, APPEND).buffered()
+    }
+
+    @Synchronized
+    override fun write(b: Int) {
+        fileStream.write(b)
+    }
+
+    @Synchronized
+    override fun write(b: ByteArray?) {
+        fileStream.write(b)
+    }
+
+    @Synchronized
+    override fun write(b: ByteArray?, off: Int, len: Int) {
+        fileStream.write(b, off, len)
+    }
+
+    @Synchronized
+    override fun flush() {
+        fileStream.flush()
+    }
+
+    @Synchronized
+    override fun close() {
+        fileStream.close()
     }
 }
 
