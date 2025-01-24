@@ -14,3 +14,9 @@ dependencies:
   - $libs.junit.engine.jupiter: runtime-only
   - $libs.junit.engine.vintage: runtime-only
   - $libs.teamcity.serviceMessages
+  # Problem: tests that use kotlin-reflect fail with KotlinReflectionNotSupportedError because the stdlib already
+  # initialized the kotlin.reflect.Reflection class to an implementation that doesn't support reflection
+  # (kotlin.jvm.internal.ClassReference) while we were still in the junit-launcher's classloader.
+  # See: https://youtrack.jetbrains.com/issue/KT-44795/Support-loading-Kotlin-Reflection-in-separate-classloader
+  # See: https://youtrack.jetbrains.com/issue/KT-73657
+  - $kotlin.reflect # FIXME remove this horrible hack
