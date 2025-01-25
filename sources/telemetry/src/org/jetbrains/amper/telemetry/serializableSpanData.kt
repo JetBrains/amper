@@ -90,7 +90,7 @@ private class SerializableSpanData(
         data: Attributes,
     ) : Attributes, Serializable {
         private val list: List<Pair<AttributeKeyProto, Any>> = data.asMap().map { (k, v) -> AttributeKeyProto(k) to v }
-        private val map: Map<AttributeKey<*>, Any> by UnsafeTransientLazy {
+        private val map: Map<AttributeKey<*>, Any> by UnsafeTransientLazy @JvmSerializableLambda {
             // UnsafeTransientLazy is needed because the hashCodes will change with the deserialization and the map
             //  will become invalid
             list.associateBy(
