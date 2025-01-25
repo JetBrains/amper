@@ -4,16 +4,24 @@ repositories:
     publish: true
     credentials:
       file: ../local.properties
-      usernameKey: scratch.username
-      passwordKey: scratch.password
+      usernameKey: space.username
+      passwordKey: space.password
+  - id: amper-maven
+    url: https://packages.jetbrains.team/maven/p/amper/amper
+    resolve: false
+    publish: true
+    credentials:
+      file: ../local.properties
+      usernameKey: space.username
+      passwordKey: space.password
   - id: amper-maven-test
     url: https://packages.jetbrains.team/maven/p/amper/amper-maven-test
     resolve: false
     publish: true
     credentials:
       file: ../local.properties
-      usernameKey: scratch.username
-      passwordKey: scratch.password
+      usernameKey: space.username
+      passwordKey: space.password
   - id: mavenCentral
     url: https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2
   - id: googleRepo

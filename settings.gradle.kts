@@ -22,9 +22,17 @@ pluginManagement {
         maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
 
         // Create local.properties.
-        rootDir.resolve("local.properties").also {
-            if (!it.exists()) {
-                it.writeText("scratch.username=\nscratch.password=")
+        rootDir.resolve("local.properties").also { file ->
+            if (file.exists()) {
+                val contents = file.readText()
+                val newContents = contents
+                    .replace("scratch.username", "space.username")
+                    .replace("scratch.password", "space.password")
+                if (contents != newContents) {
+                    file.writeText(newContents)
+                }
+            } else {
+                file.writeText("space.username=\nspace.password=\n")
             }
         }
     }
