@@ -46,6 +46,7 @@ class TeamCityMessagesTestExecutionListener(
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
         if (!enabled) return
+        emit(FlowStarted(testIdentifier.teamCityFlowId, testIdentifier.teamCityParentFlowId))
         when (testIdentifier.type) {
             TestDescriptor.Type.CONTAINER -> {
                 emit(TestSuiteStarted(testIdentifier.teamCityName).withFlowId(testIdentifier))
@@ -60,7 +61,6 @@ class TeamCityMessagesTestExecutionListener(
                 emit(TestStarted(testIdentifier.teamCityName, captureStdOutput, locationHint).withFlowId(testIdentifier))
             }
         }
-        emit(FlowStarted(testIdentifier.teamCityFlowId, testIdentifier.teamCityParentFlowId))
     }
 
     override fun executionSkipped(testIdentifier: TestIdentifier, reason: String) {
@@ -79,7 +79,6 @@ class TeamCityMessagesTestExecutionListener(
         if (!enabled) return
         when (testIdentifier.type) {
             TestDescriptor.Type.CONTAINER -> {
-                emit(FlowFinished(testIdentifier.teamCityFlowId))
                 emit(TestSuiteFinished(testIdentifier.teamCityName).withFlowId(testIdentifier))
             }
             TestDescriptor.Type.TEST,
@@ -93,10 +92,10 @@ class TeamCityMessagesTestExecutionListener(
                         emit(testFailedMessage(testIdentifier, testExecutionResult, "Test was aborted"))
                     }
                 }
-                emit(FlowFinished(testIdentifier.teamCityFlowId))
                 emit(TestFinished(testIdentifier.teamCityName, elapsedMillis(testIdentifier)).withFlowId(testIdentifier))
             }
         }
+        emit(FlowFinished(testIdentifier.teamCityFlowId))
     }
 
     private fun testFailedMessage(
