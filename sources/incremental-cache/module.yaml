@@ -12,6 +12,9 @@ dependencies:
   - $libs.kotlinx.coroutines.core
   - $libs.slf4j.api
 
+test-dependencies:
+  - $libs.slf4j.simple
+
 settings:
   kotlin:
     serialization: json
