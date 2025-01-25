@@ -23,6 +23,7 @@ import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.MethodSource
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
+import org.junit.platform.launcher.TestPlan
 import java.io.PrintStream
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -30,6 +31,8 @@ import java.util.*
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 private const val configPropertyGroup = "org.jetbrains.amper.junit.listener.teamcity"
 
@@ -42,7 +45,34 @@ class TeamCityMessagesTestExecutionListener(
 
     private val enabled = System.getProperty("$configPropertyGroup.enabled", "false").toBooleanStrict()
 
+    /**
+     * The time at which each test or container started, to used for test duration calculations.
+     */
     private val startTimes = mutableMapOf<UniqueId, TimeMark>()
+
+    /**
+     * An opaque and unique ID for the current test plan.
+     */
+    private lateinit var testPlanId: String
+
+    @OptIn(ExperimentalUuidApi::class)
+    override fun testPlanExecutionStarted(testPlan: TestPlan?) {
+        testPlanId = Uuid.random().toHexString()
+    }
+
+    /**
+     * A flow ID to identify this test or container in TeamCity.
+     * This ID must be unique within the TeamCity build, but also be consistent
+     * (the same [TestIdentifier] should yield the same result).
+     */
+    private val TestIdentifier.teamCityFlowId: String
+        get() = "$uniqueId-$testPlanId"
+
+    /**
+     * Equivalent to [teamCityFlowId] but for the parent identifier of this test.
+     */
+    private val TestIdentifier.teamCityParentFlowId: String?
+        get() = parentId.getOrNull()?.let { "$it-$testPlanId" }
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
         if (!enabled) return
@@ -168,12 +198,6 @@ private val TestIdentifier.teamCityName: String
         is ClassSource -> s.className
         else -> displayName
     }
-
-private val TestIdentifier.teamCityFlowId: String
-    get() = uniqueId
-
-private val TestIdentifier.teamCityParentFlowId: String?
-    get() = parentId.getOrNull()
 
 // TODO find the proper format
 private fun TestIdentifier.toTeamCityLocationHint(): String? {
