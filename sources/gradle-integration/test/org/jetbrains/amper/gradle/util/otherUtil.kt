@@ -108,13 +108,7 @@ fun TestBase.assertEqualsWithResource(expectedResourceName: String, actual: Stri
         ?.readText()
         ?.replace("\$TEMP_DIR_NAME", tempDir.name)
         ?.let {
-            if (fastReplace) {
-                val toReplace = actual.replace(tempDir.name, "\$TEMP_DIR_NAME")
-                val expectedFile = File(".").absoluteFile.resolve("testResources/$expectedResourceName")
-                if (expectedFile.exists()) expectedFile.writeText(toReplace)
-            } else {
-                assertEqualsIgnoreLineSeparator(it, actual)
-            }
+            assertEqualsIgnoreLineSeparator(it, actual)
         }
         ?: error("No resource $expectedResourceName!")
 
