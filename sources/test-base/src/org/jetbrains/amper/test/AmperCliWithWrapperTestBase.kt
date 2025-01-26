@@ -17,7 +17,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.management.ManagementFactory
 import java.nio.file.Path
-import kotlin.coroutines.coroutineContext
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
@@ -26,7 +25,6 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.pathString
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.text.ifEmpty
 
 abstract class AmperCliWithWrapperTestBase {
 
@@ -101,9 +99,6 @@ abstract class AmperCliWithWrapperTestBase {
             // in the IDEA console to automatically launch and attach a remote debugger.
             if (isDebuggingTest) {
                 add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y")
-            }
-            coroutineContext[SpanListenerPortContext]?.let {
-                add("-Damper.internal.testing.otlp.port=${it.port}")
             }
         }
         val currentPlatformForIJ = if (isWindows) Platform.WINDOWS else Platform.UNIX

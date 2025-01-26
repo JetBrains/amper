@@ -8,7 +8,6 @@ import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
-import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.FilteredSpans
 import java.nio.file.Path
 import kotlin.io.path.div
@@ -28,35 +27,32 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `framework for simple for iosSimulatorArm64`() = runSlowTest {
-        collectSpansFromCli {
-            runCli(
-                backendTestProjectName = "interop",
-                "task", ":interop:frameworkIosSimulatorArm64",
-                assertEmptyStdErr = false,
-            )
-        }.konancSpans.assertZeroExitCode(times = 2)
+        val result = runCli(
+            backendTestProjectName = "interop",
+            "task", ":interop:frameworkIosSimulatorArm64",
+            assertEmptyStdErr = false,
+        )
+        result.readTelemetrySpans().konancSpans.assertZeroExitCode(times = 2)
     }
 
     @Test
     fun `framework for simple for iosArm64`() = runSlowTest {
-        collectSpansFromCli {
-            runCli(
-                backendTestProjectName = "interop",
-                "task", ":interop:frameworkIosArm64",
-                assertEmptyStdErr = false,
-            )
-        }.konancSpans.assertZeroExitCode(times = 2)
+        val result = runCli(
+            backendTestProjectName = "interop",
+            "task", ":interop:frameworkIosArm64",
+            assertEmptyStdErr = false,
+        )
+        result.readTelemetrySpans().konancSpans.assertZeroExitCode(times = 2)
     }
 
     @Test
     fun `buildIosApp for simple for iosSimulatorArm64`() = runSlowTest {
-        collectSpansFromCli {
-            runCli(
-                backendTestProjectName = "interop",
-                "task", ":interop:buildIosAppIosSimulatorArm64",
-                assertEmptyStdErr = false,
-            )
-        }.run {
+        val result = runCli(
+            backendTestProjectName = "interop",
+            "task", ":interop:buildIosAppIosSimulatorArm64",
+            assertEmptyStdErr = false,
+        )
+        result.withTelemetrySpans {
             xcodeProjectGenSpans.assertNone()
             assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
             xcodebuildSpans.assertZeroExitCode()
@@ -65,13 +61,12 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `build for simple for iosSimulatorArm64`() = runSlowTest {
-        collectSpansFromCli {
-            runCliInTempDir(
-                backendTestProjectName = "interop",
-                "build", "-p", "iosSimulatorArm64",
-                assertEmptyStdErr = false,
-            )
-        }.run {
+        val result = runCliInTempDir(
+            backendTestProjectName = "interop",
+            "build", "-p", "iosSimulatorArm64",
+            assertEmptyStdErr = false,
+        )
+        result.withTelemetrySpans {
             xcodeProjectGenSpans.assertNone()
             assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
             xcodebuildSpans.assertZeroExitCode()
@@ -80,13 +75,12 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `build for outdated-xcode-proj updates the project`() = runSlowTest {
-        collectSpansFromCli {
-            runCliInTempDir(
-                backendTestProjectName = "outdated-xcode-proj",
-                "build", "-p", "iosSimulatorArm64",
-                assertEmptyStdErr = false,
-            )
-        }.run {
+        val result = runCliInTempDir(
+            backendTestProjectName = "outdated-xcode-proj",
+            "build", "-p", "iosSimulatorArm64",
+            assertEmptyStdErr = false,
+        )
+        result.withTelemetrySpans {
             xcodeProjectGenSpans.assertNone()
             assertTrue { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
             xcodebuildSpans.assertZeroExitCode()
@@ -95,45 +89,41 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `framework for compose for iosSimulatorArm64`() = runSlowTest {
-        collectSpansFromCli {
-            runCli(
-                backendTestProjectName = "compose",
-                "task", ":compose:frameworkIosSimulatorArm64",
-                assertEmptyStdErr = false,
-            )
-        }.konancSpans.assertZeroExitCode(times = 2)
+        val result = runCli(
+            backendTestProjectName = "compose",
+            "task", ":compose:frameworkIosSimulatorArm64",
+            assertEmptyStdErr = false,
+        )
+        result.readTelemetrySpans().konancSpans.assertZeroExitCode(times = 2)
     }
 
     @Test
     fun `framework for compose for iosArm64`() = runSlowTest {
-        collectSpansFromCli {
-            runCli(
-                backendTestProjectName = "compose",
-                "task", ":compose:frameworkIosArm64",
-                assertEmptyStdErr = false,
-            )
-        }.konancSpans.assertZeroExitCode(times = 2)
+        val result = runCli(
+            backendTestProjectName = "compose",
+            "task", ":compose:frameworkIosArm64",
+            assertEmptyStdErr = false,
+        )
+        result.readTelemetrySpans().konancSpans.assertZeroExitCode(times = 2)
     }
 
     @Test
     fun `buildIosApp for compose app for iosSimulatorArm64`() = runSlowTest {
         val projectPath: Path
-        collectSpansFromCli {
-            val result = runCliInTempDir(
-                backendTestProjectName = "compose",
-                "task", ":compose:buildIosAppIosSimulatorArm64",
-                assertEmptyStdErr = false,
-            )
-            projectPath = result.projectRoot
-        }.xcodeProjectGenSpans.assertSingle()
+        val firstBuildResult = runCliInTempDir(
+            backendTestProjectName = "compose",
+            "task", ":compose:buildIosAppIosSimulatorArm64",
+            assertEmptyStdErr = false,
+        )
+        projectPath = firstBuildResult.projectRoot
+        firstBuildResult.readTelemetrySpans().xcodeProjectGenSpans.assertSingle()
 
-        collectSpansFromCli {
-            runCli(
-                projectRoot = projectPath,
-                "task", ":compose:buildIosAppIosSimulatorArm64",
-                assertEmptyStdErr = false,
-            )
-        }.run {
+        val secondBuildResult = runCli(
+            projectRoot = projectPath,
+            "task", ":compose:buildIosAppIosSimulatorArm64",
+            assertEmptyStdErr = false,
+        )
+        secondBuildResult.withTelemetrySpans {
             xcodeProjectGenSpans.assertNone()
             assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
         }
@@ -141,21 +131,20 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `build for compose app for all ios archs (arm64 without signing)`() = runSlowTest {
-        collectSpansFromCli {
-            val result = runCliInTempDir(
-                backendTestProjectName = "compose",
-                "build", // build all the platforms
-                assertEmptyStdErr = false,
-            )
+        val result = runCliInTempDir(
+            backendTestProjectName = "compose",
+            "build", // build all the platforms
+            assertEmptyStdErr = false,
+        )
 
-            expect(1) {
-                // for iosArm64
-                ("`DEVELOPMENT_TEAM` build setting is not detected in the Xcode project. " +
-                        "Adding `CODE_SIGNING_ALLOWED=NO` to disable signing. " +
-                        "You can still sign the app manually later.").toRegex(RegexOption.LITERAL)
-                    .findAll(result.stdout).count()
-            }
-        }.run {
+        expect(1) {
+            // for iosArm64
+            ("`DEVELOPMENT_TEAM` build setting is not detected in the Xcode project. " +
+                    "Adding `CODE_SIGNING_ALLOWED=NO` to disable signing. " +
+                    "You can still sign the app manually later.").toRegex(RegexOption.LITERAL)
+                .findAll(result.stdout).count()
+        }
+        result.withTelemetrySpans {
             xcodeProjectGenSpans.assertSingle()
             xcodebuildSpans.assertTimes(3)
         }
@@ -163,13 +152,12 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `run kotlin tests in simulator`() = runSlowTest {
-        collectSpansFromCli {
-            runCli(
-                backendTestProjectName = "simpleTests",
-                "test",
-                assertEmptyStdErr = false,
-            )
-        }.run {
+        val result = runCli(
+            backendTestProjectName = "simpleTests",
+            "test",
+            assertEmptyStdErr = false,
+        )
+        result.withTelemetrySpans {
             val testsStdOut = iosKotlinTests.assertZeroExitCode().getAttribute(AttributeKey.stringKey("stdout"))
             assertTrue(testsStdOut.contains("##teamcity[testSuiteFinished name='SimpleTestsKt']"))
         }

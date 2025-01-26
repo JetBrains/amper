@@ -20,7 +20,9 @@ import java.util.*
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.test.assertTrue
 
@@ -51,6 +53,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     data class AmperCliResult(
         val projectRoot: Path,
         val buildOutputRoot: Path,
+        val logsDir: Path?, // null if it doesn't exist (e.g. the command didn't write logs)
         val exitCode: Int,
         val stdout: String,
         val stderr: String,
@@ -159,6 +162,9 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         return AmperCliResult(
             projectRoot = projectRoot,
             buildOutputRoot = buildOutputRoot,
+            // Logs dirs contain the date, so max() gives the latest.
+            // This should be correct because we don't run the CLI concurrently in a single test.
+            logsDir = (buildOutputRoot / "logs").takeIf { it.exists() }?.listDirectoryEntries()?.maxOrNull(),
             stdout = result.stdout,
             stderr = result.stderr,
             exitCode = result.exitCode,

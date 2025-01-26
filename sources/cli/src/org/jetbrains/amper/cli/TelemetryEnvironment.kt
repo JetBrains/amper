@@ -9,21 +9,13 @@ import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.exporter.logging.otlp.internal.traces.OtlpStdoutSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
-import io.opentelemetry.sdk.common.CompletableResultCode
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
-import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
-import io.opentelemetry.sdk.trace.export.SpanExporter
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.telemetry.toSerializable
 import org.slf4j.LoggerFactory
-import java.io.IOException
-import java.io.ObjectOutputStream
 import java.io.OutputStream
-import java.net.InetAddress
-import java.net.Socket
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption.APPEND
 import java.nio.file.StandardOpenOption.WRITE
@@ -91,13 +83,8 @@ object TelemetryEnvironment {
             .setOutput(movableFileOutputStream)
             .setWrapperJsonObject(true)
             .build()
-        val spanListenerPort = System.getProperty("amper.internal.testing.otlp.port")?.toIntOrNull()
-        val compositeSpanExporter = if (spanListenerPort != null) {
-            SpanExporter.composite(exporter, SocketSpanExporter(port = spanListenerPort))
-        } else exporter
-
         val tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(BatchSpanProcessor.builder(compositeSpanExporter).build())
+            .addSpanProcessor(BatchSpanProcessor.builder(exporter).build())
             .setResource(resource)
             .build()
         val openTelemetry = OpenTelemetrySdk.builder()
@@ -169,35 +156,5 @@ private class MovableFileOutputStream(initialPath: Path) : OutputStream() {
     @Synchronized
     override fun close() {
         fileStream.close()
-    }
-}
-
-private class SocketSpanExporter(
-    port: Int,
-) : SpanExporter {
-    private val socket = Socket(InetAddress.getLoopbackAddress(), port)
-    private val outputStream = ObjectOutputStream(socket.getOutputStream().buffered())
-
-    override fun export(spans: Collection<SpanData>): CompletableResultCode {
-        return try {
-            spans.forEach { span ->
-                outputStream.writeObject(span.toSerializable())
-            }
-            CompletableResultCode.ofSuccess()
-        } catch (e: IOException) {
-            e.printStackTrace()
-            CompletableResultCode.ofFailure()
-        }
-    }
-
-    override fun flush(): CompletableResultCode {
-        outputStream.flush()
-        return CompletableResultCode.ofSuccess()
-    }
-
-    override fun shutdown(): CompletableResultCode {
-        outputStream.flush()
-        socket.close()
-        return CompletableResultCode.ofSuccess()
     }
 }

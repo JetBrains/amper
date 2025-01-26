@@ -8,7 +8,6 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
-import org.jetbrains.amper.test.collectSpansFromCli
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
@@ -89,9 +88,8 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-multiplatform`() = runSlowTest {
-        collectSpansFromCli {
-            runCli(tempRoot, "build", assertEmptyStdErr = false)
-        }.assertXcodeProjectIsValid()
+        val result = runCli(tempRoot, "build", assertEmptyStdErr = false)
+        result.readTelemetrySpans().assertXcodeProjectIsValid()
     }
 
     @Test
@@ -149,11 +147,10 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-ios`() = runSlowTest {
-        collectSpansFromCli {
-            // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
-            // that are treated like errors.
-            runCli(tempRoot, "build", assertEmptyStdErr = false)
-        }.assertXcodeProjectIsValid()
+        // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
+        // that are treated like errors.
+        val result = runCli(tempRoot, "build", assertEmptyStdErr = false)
+        result.readTelemetrySpans().assertXcodeProjectIsValid()
     }
 
     @Test

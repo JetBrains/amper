@@ -9,8 +9,13 @@ test-dependencies:
   - ../core
   - ../telemetry
   - ../test-base
+  - $kotlin.serialization.json
   - $libs.kotlinx.coroutines.test
   - $libs.teamcity.serviceMessages # to parse service messages in tests
+
+settings:
+  kotlin:
+    serialization: enabled
 
 tasks:
   testJvm:
