@@ -10,6 +10,7 @@ import org.bouncycastle.cert.X509v1CertificateBuilder
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
+import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.schema.KeystoreProperty
 import org.jetbrains.amper.frontend.schema.keyAlias
 import org.jetbrains.amper.frontend.schema.keyPassword
@@ -44,8 +45,7 @@ object KeystoreGenerator {
             keystoreGenerationError("$propertiesFile does not exist")
         }
         logger.debug("Getting keystore configuration from properties file {}", propertiesFile)
-        val properties = Properties()
-        FileInputStream(propertiesFile.toFile()).use { properties.load(it) }
+        val properties = propertiesFile.readProperties()
 
         val storeFile = properties.storeFile ?: errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.StoreFile)
 

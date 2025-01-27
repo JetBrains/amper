@@ -20,6 +20,7 @@ import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
 import org.jetbrains.amper.core.Result
+import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
@@ -127,11 +128,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         if (signing.enabled) {
             val path = (module.buildDir / signing.propertiesFile.pathString).normalize().absolute()
             if (path.exists()) {
-                val keystoreProperties = Properties().apply {
-                    path.reader().use { reader ->
-                        load(reader)
-                    }
-                }
+                val keystoreProperties = path.readProperties()
                 androidExtension.signingConfigs {
                     it.create(SIGNING_CONFIG_NAME) {
                         keystoreProperties.storeFile?.let { storeFile ->

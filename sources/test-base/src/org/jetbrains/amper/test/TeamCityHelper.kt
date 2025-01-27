@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.test
 
+import org.jetbrains.amper.core.properties.readProperties
 import java.nio.file.Path
-import java.util.*
 import kotlin.io.path.*
 
 @Suppress("unused")
@@ -106,7 +106,7 @@ object TeamCityHelper {
     }
 
     private fun loadPropertiesFile(file: Path): Map<String, String> {
-        return file.bufferedReader().use { val properties = Properties(); properties.load(it); properties }
+        return file.readProperties()
             .map { (k, v) -> k as String to v as String }
             .toMap()
     }

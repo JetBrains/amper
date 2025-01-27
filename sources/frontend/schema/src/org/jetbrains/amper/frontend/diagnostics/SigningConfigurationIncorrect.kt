@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
@@ -89,8 +90,7 @@ object KeystorePropertiesDoesNotContainKeyFactory : SigningConfigurationIncorrec
         val signing = android.signing
         val propertiesFile = moduleDir / signing.propertiesFile
         if (propertiesFile.exists()) {
-            val properties = Properties()
-            propertiesFile.reader().use { properties.load(it) }
+            val properties = propertiesFile.readProperties()
             for (property in KeystoreProperty.entries.toTypedArray()) {
                 if (!properties.containsKey(property.key)) {
                     problemReporter.reportMessage(
@@ -113,8 +113,7 @@ object MandatoryFieldInPropertiesFileMustBePresentFactory : SigningConfiguration
         val signing = android.signing
         val propertiesFile = moduleDir / signing.propertiesFile
         if (propertiesFile.exists()) {
-            val properties = Properties()
-            propertiesFile.reader().use { properties.load(it) }
+            val properties = propertiesFile.readProperties()
             val mandatoryFields = setOf(KeystoreProperty.StoreFile.key, KeystoreProperty.KeyAlias.key)
             for (key in mandatoryFields) {
                 val value = properties.getProperty(key)
@@ -137,8 +136,7 @@ object KeystoreMustExistFactory : SigningConfigurationIncorrect() {
         val signing = android.signing
         val propertiesFile = moduleDir / signing.propertiesFile
         if (propertiesFile.exists()) {
-            val properties = Properties()
-            propertiesFile.reader().use { properties.load(it) }
+            val properties = propertiesFile.readProperties()
             val storeFilePath = properties.storeFile ?: return
             val storeFile = (moduleDir / storeFilePath).normalize().toAbsolutePath()
             if (storeFile.notExists()) {

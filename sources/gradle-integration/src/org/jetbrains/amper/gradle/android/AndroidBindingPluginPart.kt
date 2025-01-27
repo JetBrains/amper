@@ -6,6 +6,7 @@ package org.jetbrains.amper.gradle.android
 
 import com.android.build.gradle.BaseExtension
 import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -173,11 +174,7 @@ class AndroidBindingPluginPart(
         if (signing.enabled) {
             val propertiesFile = module.moduleDir / signing.propertiesFile
             if (propertiesFile.exists()) {
-                val keystoreProperties = Properties().apply {
-                    propertiesFile.reader().use { reader ->
-                        load(reader)
-                    }
-                }
+                val keystoreProperties = propertiesFile.readProperties()
                 androidPE?.apply {
                     signingConfigs {
                         it.create(SIGNING_CONFIG_NAME) {

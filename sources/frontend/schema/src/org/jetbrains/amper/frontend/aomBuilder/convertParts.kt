@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.MetaModulePart
@@ -59,11 +60,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                         )
                         return@let null
                     } else {
-                        val credentialProperties = Properties().apply {
-                            credentials.file.reader().use { reader ->
-                                load(reader)
-                            }
-                        }
+                        val credentialProperties = credentials.file.readProperties()
 
                         fun getCredProperty(keyProperty: KProperty0<String>): String? =
                             credentialProperties.getProperty(keyProperty.get())

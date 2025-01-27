@@ -6,9 +6,9 @@ package org.jetbrains.amper.android
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.core.properties.readProperties
 import java.io.File
 import java.nio.file.Path
-import java.util.Properties
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.readText
@@ -31,8 +31,7 @@ data class OutputMetadata(val elements: List<Element>) {
 class RedirectedLazyArtifact(private val redirectFile: Path) : LazyArtifact {
     override val value: Path
         get() {
-            val properties = Properties()
-            redirectFile.toFile().inputStream().use { properties.load(it) }
+            val properties = redirectFile.readProperties()
             val listingFile = properties.getProperty("listingFile")?.let { Path(it) } ?: error("Listing file not found")
             val outputMetadataJsonFile = redirectFile.parent / listingFile
             val content = outputMetadataJsonFile.readText()
