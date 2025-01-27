@@ -44,6 +44,26 @@ class BuildGraphTest: BaseDRTest() {
     // todo (AB) : - no errors is associated with corresponding dependency
 
     /**
+     * This test checks that packaging type 'eclipse-plugin' of dependency is successfully resolved to the downloaded JAR file
+     */
+    @Test
+    fun `org_eclipse_sisu org_eclipse_sisu_inject 0_3_5`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            expected = """root
+                |\--- org.eclipse.sisu:org.eclipse.sisu.inject:0.3.5
+            """.trimMargin()
+        )
+        runBlocking {
+            downloadAndAssertFiles(
+                """org.eclipse.sisu.inject-0.3.5-sources.jar
+                |org.eclipse.sisu.inject-0.3.5.jar""".trimMargin(),
+                root, true
+            )
+        }
+    }
+
+    /**
      * This test checks that if one of the repositories fails to resolve dependency
      * and return some incorrect/unexpected response,
      * dependency should still be resolved successfully from the valid repository

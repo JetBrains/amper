@@ -383,7 +383,7 @@ class MavenDependency internal constructor(
                         }
                     packaging?.takeIf { it != "pom" }?.let {
                         val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
-                        val extension = if (it == "bundle") "jar" else it
+                        val extension = if (it == "bundle" || it.endsWith("-plugin")) "jar" else it
                         add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
                         if (extension == "jar" && withSources) {
                             add(getAutoAddedSourcesDependencyFile())
