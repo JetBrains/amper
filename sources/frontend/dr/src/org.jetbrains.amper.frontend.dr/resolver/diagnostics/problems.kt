@@ -10,24 +10,26 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsRegistrar.reporters
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.BasicDrDiagnostics
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.BasicDrPsiDiagnostics
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.BasicDrNoPsiDiagnostics
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.OverriddenDirectModuleDependencies
 
 internal object DrDiagnosticsRegistrar {
     val reporters = listOf(
-        BasicDrDiagnostics(),
+        BasicDrPsiDiagnostics(),
+        BasicDrNoPsiDiagnostics(), // used for reporting issues in tests only
         OverriddenDirectModuleDependencies()
     )
 }
 
 interface DrDiagnosticsReporter {
     /**
-     * The maximal level at which diagnostics are reported by this reporter.
-     * If requested level is higher than the level of the diagnostics reporter, then it is skipped.
+     * The most severe level at which diagnostics are reported by this reporter.
+     * If requested level is more severe than the level of the diagnostics reporter, then it is skipped.
      */
     val level: Level
 
-    fun reportBuildProblemsForNode(node: DependencyNode, problemReporter: ProblemReporter, level: Level)
+    fun reportBuildProblemsForNode(node: DependencyNode, problemReporter: ProblemReporter, level: Level, graphRoot: DependencyNode)
 }
 
 /**
@@ -55,8 +57,8 @@ fun collectBuildProblems(graph: DependencyNode, problemReporter: NoOpCollectingP
         //    }
         //}
         diagnosticReporters.forEach {
-            if (it.level >= level) {
-                it.reportBuildProblemsForNode(node, problemReporter, level)
+            if (level >= it.level) { // WARN > ERROR (by enum order)
+                it.reportBuildProblemsForNode(node, problemReporter, level, graph)
             }
         }
     }

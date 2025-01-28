@@ -8,14 +8,18 @@ import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
+import org.jetbrains.amper.core.messages.BuildProblemImpl
+import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Severity
-import org.jetbrains.amper.dependency.resolution.message
+import org.jetbrains.amper.dependency.resolution.detailedMessage
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableVersion
@@ -28,7 +32,7 @@ import org.jetbrains.amper.frontend.getLineAndColumnRangeInPsiFile
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 
-class BasicDrDiagnostics: DrDiagnosticsReporter{
+class BasicDrPsiDiagnostics: DrDiagnosticsReporter{
 
     override val level = Level.Error
 
@@ -36,6 +40,7 @@ class BasicDrDiagnostics: DrDiagnosticsReporter{
         node: DependencyNode,
         problemReporter: ProblemReporter,
         level: Level,
+        graphRoot: DependencyNode,
     ) {
         val severity = level.mapLevelToSeverity() ?: return
         val importantMessages = node.messages.filter { it.severity >= severity && it.toString().isNotBlank() }
@@ -54,7 +59,8 @@ class BasicDrDiagnostics: DrDiagnosticsReporter{
                     // todo (AB) : - improve error message about transitive dependencies
 
                     val refinedErrorMessage = refineErrorMessage(message, node, directDependency)
-                    val buildProblem = DependencyBuildProblem(node, directDependency, refinedErrorMessage, msgLevel, psiElement)
+                    val buildProblem =
+                        DependencyBuildProblem(node, directDependency, refinedErrorMessage, msgLevel, psiElement)
                     problemReporter.reportMessage(buildProblem)
                 }
             }
@@ -94,10 +100,30 @@ class BasicDrDiagnostics: DrDiagnosticsReporter{
         return message
     }
 
-
-
     private fun Traceable.resolveVersionTrace(): TraceableVersion? {
         return (this as? TraceableVersion) ?: this.trace?.computedValueTrace?.resolveVersionTrace()
+    }
+}
+
+class BasicDrNoPsiDiagnostics: DrDiagnosticsReporter{
+
+    override val level = Level.Error
+
+    @NonIdealDiagnostic
+    override fun reportBuildProblemsForNode(node: DependencyNode, problemReporter: ProblemReporter, level: Level,  graphRoot: DependencyNode) {
+        val severity = level.mapLevelToSeverity() ?: return
+        val importantMessages = node.messages.filter { it.severity >= severity && it.toString().isNotBlank() }
+
+        if (importantMessages.isEmpty()) return
+
+        if (node.fragmentDependencies.isEmpty()) {
+            for (message in importantMessages) {
+                val msgLevel = message.mapSeverityToLevel()
+                val buildProblem =
+                    BuildProblemImpl("dependency.problem.no.psi", GlobalBuildProblemSource, message.detailedMessage, msgLevel)
+                problemReporter.reportMessage(buildProblem)
+            }
+        }
     }
 }
 
@@ -113,12 +139,16 @@ class DependencyBuildProblem(
     override val buildProblemId: BuildProblemId = ID
     override val message: String
         get() = if (problematicDependency.parents.contains(directFragmentDependency)) {
-            errorMessage.message
+            errorMessage.detailedMessage
         }  else {
-            "Transitive dependency problem: ${this.errorMessage.message}"
+            SchemaBundle.message(
+                messageKey = DEPENDENCY_PROBLEM_TRANSITIVE_KEY,
+                this.errorMessage.detailedMessage
+            )
         }
 
     companion object {
         const val ID = "dependency.problem"
+        const val DEPENDENCY_PROBLEM_TRANSITIVE_KEY = "dependency.problem.transitive"
     }
 }

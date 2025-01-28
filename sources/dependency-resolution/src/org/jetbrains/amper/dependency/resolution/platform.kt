@@ -58,6 +58,11 @@ enum class ResolutionPlatform(
     ANDROID_NATIVE_X86(PlatformType.NATIVE);
 
     val nativeTarget: String? = if (type == PlatformType.NATIVE) name.lowercase() else null
+
+    // TODO Copy pasted from Platform
+    private val prettyRegex = "_.".toRegex()
+    private fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
+    val pretty get() = name.doCamelCase()
 }
 
 /**

@@ -4,8 +4,11 @@
 
 package org.jetbrains.amper.resolver
 
+import io.opentelemetry.api.trace.Span
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
@@ -13,11 +16,11 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.Severity
-import org.jetbrains.amper.dependency.resolution.detailedMessage
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
@@ -79,28 +82,40 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 root.resolveDependencies(ResolutionDepth.GRAPH_FULL, downloadSources = false)
             }
 
-            val errorNodes = mutableListOf<DependencyNode>()
-            for (node in root.distinctBfsSequence()) {
-                if (node.messages.any { it.severity == Severity.ERROR }) {
-                    errorNodes.add(node)
+            reportDiagnostics(root, span, resolveSourceMoniker)
+        }
+
+    private fun reportDiagnostics(root: DependencyNodeHolder, span: Span, resolveSourceMoniker: String) {
+        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        collectBuildProblems(root, diagnosticsReporter, Level.Warning)
+
+        val buildProblems = diagnosticsReporter.getProblems()
+
+        for (buildProblem in buildProblems) {
+            when (buildProblem.level) {
+                Level.Warning -> DoNotLogToTerminalCookie.use {
+                    logger.warn(buildProblem.message)
                 }
-            }
 
-            if (errorNodes.isNotEmpty()) {
-                val errors = errorNodes.flatMap { it.messages }.filter { it.severity == Severity.ERROR }
-
-                for (error in errors) {
-                    span.recordException(error.exception ?: MavenResolverException(error.detailedMessage))
+                Level.Error -> {
+                    val exception = (buildProblem as? DependencyBuildProblem)?.errorMessage?.exception
+                    span.recordException(exception ?: MavenResolverException(buildProblem.message))
                     DoNotLogToTerminalCookie.use {
-                        logger.error(error.detailedMessage, error.exception)
+                        logger.error(buildProblem.message, exception)
                     }
                 }
 
-                userReadableError(
-                    "Unable to resolve dependencies for $resolveSourceMoniker:\n\n" +
-                            errors.joinToString("\n") { it.detailedMessage })
+                else -> { /* do nothing */ }
             }
         }
+
+        val errors = buildProblems.filter { it.level == Level.Error }
+        if (errors.isNotEmpty()) {
+            userReadableError(
+                "Unable to resolve dependencies for $resolveSourceMoniker:\n\n" +
+                        errors.joinToString("\n") { it.message })
+        }
+    }
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

@@ -11,9 +11,12 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.originalVersion
+import org.jetbrains.amper.dependency.resolution.resolvedVersion
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
-import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 
@@ -25,6 +28,7 @@ class OverriddenDirectModuleDependencies: DrDiagnosticsReporter{
         node: DependencyNode,
         problemReporter: ProblemReporter,
         level: Level,
+        graphRoot: DependencyNode,
     ) {
         if (node is DirectFragmentDependencyNodeHolder
             && node.dependencyNode is MavenDependencyNode
@@ -37,10 +41,21 @@ class OverriddenDirectModuleDependencies: DrDiagnosticsReporter{
                     ModuleDependencyWithOverriddenVersion(
                         node.dependencyNode.version,
                         node.dependencyNode.dependency.version,
-                        node.dependencyNode.mavenCoordinates().toString(),
+                        null,
+//                        node.dependencyNode.overriddenByChain(graphRoot),  // this wordy details could be uncommented and passed instead of null and then shown in IDEA by request
+                        node.dependencyNode.key.name,
                         psiElement
                     ))
             }
+        }
+    }
+
+    private fun MavenDependencyNode.overriddenByChain(graph: DependencyNode): String? {
+        return if (originalVersion() == resolvedVersion()) {
+            null
+        } else {
+            val subgraph = moduleDependenciesResolver.dependencyInsight(this.group, this.module, graph)
+            return subgraph.prettyPrint().trimEnd()
         }
     }
 }
@@ -50,6 +65,7 @@ class ModuleDependencyWithOverriddenVersion(
     val originalVersion: String,
     @UsedInIdePlugin
     val effectiveVersion: String,
+    val overriddenBy: String?,
     @UsedInIdePlugin
     val effectiveCoordinates: String,
     @UsedInIdePlugin
@@ -57,9 +73,16 @@ class ModuleDependencyWithOverriddenVersion(
 ) : PsiBuildProblem(Level.Warning) {
     override val buildProblemId: BuildProblemId = ID
     override val message: String
-        get() = "Declared dependency version is overridden, the actual version is $effectiveVersion"
+        get() = SchemaBundle.message(
+            messageKey = ID,
+            originalVersion, effectiveCoordinates, effectiveVersion
+        )
+
+    val additionalMessage: String?
+        get() = overriddenBy?.let{ SchemaBundle.message(messageKey = ADDITIONAL_MESSAGE_KEY, it) }
 
     companion object {
         const val ID = "dependency.version.is.overridden"
+        const val ADDITIONAL_MESSAGE_KEY = "dependency.version.is.overridden.additional"
     }
 }
