@@ -99,7 +99,7 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
                             ?.filter {
                                 it.group == group && it.module == module
                                         && it.version == it.dependencyConstraint.version
-                                        && node.resolvedVersion() == it.resolvedVersion()
+                                        && node.resolvedVersion() == it.originalVersion()
                             }
                     }.flatMap { it }
                     .distinct()

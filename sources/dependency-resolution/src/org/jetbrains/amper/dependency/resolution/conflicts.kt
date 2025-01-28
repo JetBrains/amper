@@ -66,18 +66,19 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
             .maxByOrNull { ComparableVersion(it) }
             ?: error("All conflicting candidates have no resolved version")
 
-        val candidatesWithResolvedVersion = candidates.filter { it.resolvedVersion() == resolvedVersion }
+        // todo (AB) : Add test for this!
+        val candidatesWithResolvedVersion = candidates.filter { it.originalVersion() == resolvedVersion }
 
         candidates.asSequence().forEach {
             when(it) {
                 // todo (AB) don't align strictly constraint
                 is MavenDependencyNode -> {
                     it.dependency = it.context.createOrReuseDependency(it.group, it.module, resolvedVersion)
-                    it.overriddenBy = if (it.resolvedVersion() != resolvedVersion) candidatesWithResolvedVersion else emptyList()
+                    it.overriddenBy = if (it.originalVersion() != resolvedVersion) candidatesWithResolvedVersion else emptyList()
                 }
                 is MavenDependencyConstraintNode -> {
                     it.dependencyConstraint = it.context.createOrReuseDependencyConstraint(it.group, it.module, Version(requires = resolvedVersion))
-                    it.overriddenBy = if (it.resolvedVersion() != resolvedVersion) candidatesWithResolvedVersion else emptyList()
+                    it.overriddenBy = if (it.originalVersion() != resolvedVersion) candidatesWithResolvedVersion else emptyList()
                 }
             }
         }
@@ -89,5 +90,12 @@ fun DependencyNode.resolvedVersion() =
     when(this) {
         is MavenDependencyNode -> dependency.version
         is MavenDependencyConstraintNode -> dependencyConstraint.version.resolve()
+        else -> null
+    }
+
+fun DependencyNode.originalVersion() =
+    when(this) {
+        is MavenDependencyNode -> version
+        is MavenDependencyConstraintNode -> version.resolve()
         else -> null
     }
