@@ -58,7 +58,7 @@ internal object AndroidToolsInstaller {
         "system-images;android-35;default;${DefaultSystemInfo.detect().arch.toEmulatorArch()}",
     )
 
-    suspend fun install(androidSdkHome: Path, androidUserHome: Path, androidSetupCacheDir: Path): AndroidTools {
+    suspend fun install(androidSdkHome: Path, androidUserHomeParent: Path, androidSetupCacheDir: Path): AndroidTools {
         val commandLineToolsZip = downloadCommandLineToolsZip(androidSetupCacheDir)
 
         val configuration = mapOf(
@@ -88,7 +88,7 @@ internal object AndroidToolsInstaller {
 
             // we need a JDK to run the Java-based Android command line tools
             val jdk = JdkDownloader.getJdk(AmperUserCacheRoot(androidSetupCacheDir))
-            AndroidTools(androidSdkHome, androidUserHome, jdk.homeDir).installToolsAndAcceptLicenses()
+            AndroidTools(androidSdkHome, androidUserHomeParent, jdk.homeDir).installToolsAndAcceptLicenses()
 
             normalizeAndroidHomeDirForCaching(androidSdkHome)
 
@@ -96,7 +96,7 @@ internal object AndroidToolsInstaller {
         }
         return AndroidTools(
             androidSdkHome = androidSdkHome,
-            androidUserHome = androidUserHome,
+            androidUserHomeParent = androidUserHomeParent,
             javaHome = result.outputs[1],
         )
     }

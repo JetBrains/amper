@@ -40,7 +40,7 @@ private val scriptExtension = if (DefaultSystemInfo.detect().family.isWindows) "
  */
 class AndroidTools(
     val androidSdkHome: Path,
-    private val androidUserHome: Path,
+    private val androidUserHomeParent: Path,
     private val javaHome: Path,
     private val log: (String) -> Unit = ::println,
     /**
@@ -64,7 +64,7 @@ class AndroidTools(
          */
         suspend fun getOrInstallForTests(): AndroidTools = AndroidToolsInstaller.install(
             androidSdkHome = Dirs.androidTestCache / "sdk",
-            androidUserHome = Dirs.androidTestCache / "user-home",
+            androidUserHomeParent = Dirs.androidTestCache,
             androidSetupCacheDir = Dirs.androidTestCache / "setup-cache",
         )
     }
@@ -73,12 +73,16 @@ class AndroidTools(
      * Returns a map defining Android-specific environment variables corresponding to these [AndroidTools] setup.
      * This doesn't include `JAVA_HOME`, only `ANDROID_*` variables.
      */
+    // See https://developer.android.com/tools/variables
     fun environment(): Map<String, String> = mapOf(
         "ANDROID_HOME" to androidSdkHome.absolutePathString(),
-        "ANDROID_USER_HOME" to androidUserHome.absolutePathString(),
-        // Sometimes the avd location is not detected automatically by "old" tooling that expects ANDROID_SDK_HOME,
-        // but we also cannot set ANDROID_SDK_HOME because we can't use both ways at the same time...
-        "ANDROID_AVD_HOME" to (androidUserHome / "avd").absolutePathString(),
+        // We also set the old ANDROID_SDK_ROOT to prevent the outside environment from creating an inconsistent config
+        // (inconsistencies would make commands fail early instead of relying on precedence of new env vars).
+        "ANDROID_SDK_ROOT" to androidSdkHome.absolutePathString(),
+        // We also set the old ANDROID_SDK_HOME to prevent the outside environment from creating an inconsistent config
+        // (inconsistencies would make commands fail early instead of relying on precedence of new env vars).
+        "ANDROID_SDK_HOME" to androidUserHomeParent.absolutePathString(),
+        "ANDROID_USER_HOME" to (androidUserHomeParent / ".android").absolutePathString(),
     )
 
     private fun findCmdlineToolScript(name: String): Path {
