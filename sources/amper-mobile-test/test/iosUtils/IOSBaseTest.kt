@@ -8,6 +8,7 @@ import TestBase
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.MacOnly
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
@@ -19,6 +20,7 @@ import kotlin.io.path.name
  * A base class for testing iOS modules and projects, providing utilities to clean up test directories,
  * prepare project builds, and launch test processes.
  */
+@MacOnly
 open class IOSBaseTest : TestBase() {
 
     /**

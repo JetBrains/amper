@@ -11,14 +11,12 @@ import org.junit.jupiter.api.Test
 
 class RuniOSExamplesOnEmulatorsTestsGradle : IOSBaseTest() {
 
-    @MacOnly
     @Test
     fun composeiOSAppGradle() = testRunnerGradle(
         projectName = "compose-ios",
         bundleIdentifier = "iosApp.iosApp",
     )
 
-    @MacOnly
     @Test
     fun composeAndroidMultiplatformAppGradle() = testRunnerGradle(
         projectName = "compose-multiplatform",
