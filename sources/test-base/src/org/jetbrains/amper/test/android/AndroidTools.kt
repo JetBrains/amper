@@ -160,7 +160,8 @@ class AndroidTools(
         // It will be killed on JVM exit thanks to runProcess's default behavior.
         val emulatorJob = GlobalScope.launch {
             runProcess(
-                command = listOf(emulatorExe.pathString, "-avd", avdName),
+                // The -no-window option is required on CI, otherwise the device fails to start
+                command = listOf(emulatorExe.pathString, "-avd", avdName, "-no-window"),
                 environment = mapOf(
                     "JAVA_HOME" to javaHome.pathString,
                     "ANDROID_HOME" to androidHome.pathString,
@@ -171,7 +172,11 @@ class AndroidTools(
                     ),
                 ),
                 outputListener = object : ProcessOutputListener {
-                    override fun onStdoutLine(line: String, pid: Long) = Unit // ignore output
+                    // we can't ignore stdout because some startup errors are printed there (e.g. absence of window)
+                    override fun onStdoutLine(line: String, pid: Long) {
+                        @Suppress("ReplacePrintlnWithLogging")
+                        println("[emulator out] $line")
+                    }
                     override fun onStderrLine(line: String, pid: Long) {
                         @Suppress("ReplacePrintlnWithLogging") // ok for tests
                         println("[emulator error] $line")
