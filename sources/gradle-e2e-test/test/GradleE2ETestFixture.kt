@@ -74,8 +74,11 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         additionalCheck: TestResultAsserter.() -> Unit = {},
     ) {
         val tempDir = prepareTempDirWithProject(projectName, runWithPluginClasspath)
-        val newEnv = System.getenv().toMutableMap().apply { putAll(additionalEnv) }
-        newEnv["ANDROID_HOME"] = runBlocking { AndroidTools.getOrInstallForTests().androidHome.pathString }
+        val androidTools = runBlocking { AndroidTools.getOrInstallForTests() }
+        val newEnv = System.getenv().toMutableMap().apply {
+            putAll(androidTools.environment())
+            putAll(additionalEnv)
+        }
         val runner = gradleRunner
         val projectConnector = runner
             // we use this instead of useGradleVersion() so that our tests benefit from the cache redirector and avoid timeouts

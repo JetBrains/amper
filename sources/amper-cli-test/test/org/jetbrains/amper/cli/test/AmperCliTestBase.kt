@@ -142,8 +142,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
                 add("--shared-caches-root=${Dirs.userCacheRoot}")
                 addAll(args)
             },
-            environment = mapOf(
-                "ANDROID_HOME" to AndroidTools.getOrInstallForTests().androidHome.pathString,
+            environment = AndroidTools.getOrInstallForTests().environment() + mapOf(
                 "AMPER_NO_GRADLE_DAEMON" to "1",
             ),
             bootstrapCacheDir = Dirs.userCacheRoot,

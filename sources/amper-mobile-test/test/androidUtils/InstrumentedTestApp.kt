@@ -59,9 +59,7 @@ object InstrumentedTestApp  {
                 testApkAppProjectPath.pathString,
                 "createDebugAndroidTestApk"
             ),
-            environment = mapOf(
-                "ANDROID_HOME" to AndroidTools.getOrInstallForTests().androidHome.pathString,
-            ),
+            environment = AndroidTools.getOrInstallForTests().environment(),
             outputListener = SimplePrintOutputListener,
         ).checkExitCodeIsZero()
 

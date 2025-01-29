@@ -106,8 +106,7 @@ open class AndroidBaseTest : TestBase() {
         runAmper(
             workingDir = projectDir,
             args = listOf("task", ":$moduleName:buildAndroidDebug"),
-            environment = mapOf(
-                "ANDROID_HOME" to androidTools.androidHome.pathString,
+            environment = androidTools.environment() + mapOf(
                 "AMPER_NO_GRADLE_DAEMON" to "1", // ensures we don't leak the daemon
             ),
         )

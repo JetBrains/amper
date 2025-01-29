@@ -22,6 +22,7 @@ import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.io.File
 import java.nio.file.Path
 import kotlin.concurrent.thread
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.appendLines
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
@@ -38,18 +39,19 @@ private val scriptExtension = if (DefaultSystemInfo.detect().family.isWindows) "
  * A Kotlin API for Android SDK tools.
  */
 class AndroidTools(
-    val androidHome: Path,
+    val androidSdkHome: Path,
+    private val androidUserHome: Path,
     private val javaHome: Path,
     private val log: (String) -> Unit = ::println,
     /**
      * When true, the ADB server is killed on JVM shutdown.
-     * This is useful if [androidHome] needs to be deleted later,
+     * This is useful if [androidSdkHome] needs to be deleted later,
      * otherwise the ADB executable might be in use and prevent deletion.
      */
     private val killAdbOnExit: Boolean = true,
 ) {
-    private val adbExe: Path = androidHome / "platform-tools/adb$binExtension"
-    private val emulatorExe: Path = androidHome / "emulator/emulator$binExtension"
+    private val adbExe: Path = androidSdkHome / "platform-tools/adb$binExtension"
+    private val emulatorExe: Path = androidSdkHome / "emulator/emulator$binExtension"
 
     @Volatile
     private var shutdownHookRegistered = false
@@ -62,15 +64,26 @@ class AndroidTools(
          */
         suspend fun getOrInstallForTests(): AndroidTools = AndroidToolsInstaller.install(
             androidSdkHome = Dirs.androidTestCache / "sdk",
+            androidUserHome = Dirs.androidTestCache / "user-home",
             androidSetupCacheDir = Dirs.androidTestCache / "setup-cache",
         )
     }
 
+    /**
+     * Returns a map defining Android-specific environment variables corresponding to these [AndroidTools] setup.
+     * This doesn't include `JAVA_HOME`, only `ANDROID_*` variables.
+     */
+    fun environment(): Map<String, String> = mapOf(
+        "ANDROID_HOME" to androidSdkHome.absolutePathString(),
+        "ANDROID_SDK_HOME" to androidSdkHome.absolutePathString(),
+        "ANDROID_USER_HOME" to androidUserHome.absolutePathString(),
+    )
+
     private fun findCmdlineToolScript(name: String): Path {
         val possibleBinDirs = listOf(
-            androidHome / "cmdline-tools/latest/bin",
-            androidHome / "cmdline-tools/bin",
-            androidHome / "tools/bin",
+            androidSdkHome / "cmdline-tools/latest/bin",
+            androidSdkHome / "cmdline-tools/bin",
+            androidSdkHome / "tools/bin",
         )
         val script = "$name$scriptExtension"
         return possibleBinDirs.map { it / script }.firstOrNull { it.exists() }
@@ -84,8 +97,8 @@ class AndroidTools(
         packageName: String,
         outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
     ) {
-        log("Installing '$packageName' into '$androidHome'...")
-        sdkmanager("--sdk_root=$androidHome", packageName, outputListener = outputListener)
+        log("Installing '$packageName' into '$androidSdkHome'...")
+        sdkmanager("--sdk_root=$androidSdkHome", packageName, outputListener = outputListener)
     }
 
     private suspend fun sdkmanager(
@@ -102,7 +115,7 @@ class AndroidTools(
      */
     fun acceptLicense(name: String, hash: String) {
         log("Accepting license '$name'...")
-        val licenseFile = androidHome / "licenses" / name
+        val licenseFile = androidSdkHome / "licenses" / name
         licenseFile.parent.createDirectories()
 
         if (!licenseFile.exists()) {
@@ -162,13 +175,12 @@ class AndroidTools(
             runProcess(
                 // The -no-window option is required on CI, otherwise the device fails to start
                 command = listOf(emulatorExe.pathString, "-avd", avdName, "-no-window"),
-                environment = mapOf(
+                environment = environment() + mapOf(
                     "JAVA_HOME" to javaHome.pathString,
-                    "ANDROID_HOME" to androidHome.pathString,
                     // apparently, the emulator needs to have these tools on the PATH
                     "PATH" to envPathWithPrepended(
-                        androidHome / "emulator",
-                        androidHome / "platform-tools",
+                        androidSdkHome / "emulator",
+                        androidSdkHome / "platform-tools",
                     ),
                 ),
                 outputListener = object : ProcessOutputListener {
@@ -253,10 +265,7 @@ class AndroidTools(
         outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
     ): ProcessResult = runProcessAndCaptureOutput(
         command = listOf(executable.pathString) + args,
-        environment = mapOf(
-            "JAVA_HOME" to javaHome.pathString,
-            "ANDROID_HOME" to androidHome.pathString,
-        ),
+        environment = environment() + mapOf("JAVA_HOME" to javaHome.pathString),
         input = input,
         outputListener = outputListener,
     )

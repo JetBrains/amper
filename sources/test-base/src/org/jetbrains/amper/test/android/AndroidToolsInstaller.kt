@@ -58,7 +58,7 @@ internal object AndroidToolsInstaller {
         "system-images;android-35;default;${DefaultSystemInfo.detect().arch.toEmulatorArch()}",
     )
 
-    suspend fun install(androidSdkHome: Path, androidSetupCacheDir: Path): AndroidTools {
+    suspend fun install(androidSdkHome: Path, androidUserHome: Path, androidSetupCacheDir: Path): AndroidTools {
         val commandLineToolsZip = downloadCommandLineToolsZip(androidSetupCacheDir)
 
         val configuration = mapOf(
@@ -88,13 +88,17 @@ internal object AndroidToolsInstaller {
 
             // we need a JDK to run the Java-based Android command line tools
             val jdk = JdkDownloader.getJdk(AmperUserCacheRoot(androidSetupCacheDir))
-            AndroidTools(androidSdkHome, jdk.homeDir).installToolsAndAcceptLicenses()
+            AndroidTools(androidSdkHome, androidUserHome, jdk.homeDir).installToolsAndAcceptLicenses()
 
             normalizeAndroidHomeDirForCaching(androidSdkHome)
 
             ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(androidSdkHome, jdk.homeDir))
         }
-        return AndroidTools(androidHome = androidSdkHome, javaHome = result.outputs[1])
+        return AndroidTools(
+            androidSdkHome = androidSdkHome,
+            androidUserHome = androidUserHome,
+            javaHome = result.outputs[1],
+        )
     }
 
     private suspend fun downloadCommandLineToolsZip(androidSetupCacheDir: Path): Path {
@@ -128,7 +132,7 @@ internal object AndroidToolsInstaller {
         // Workaround for the SDK bug https://issuetracker.google.com/issues/391118558
         // (cmdline-tools scripts fail on directories with spaces, which we use in our tests)
         // We need to fix the scripts so we can use the sdkmanager to install the other required Android tools
-        fixQuotingInScripts(androidHome / "cmdline-tools" / "bin")
+        fixQuotingInScripts(androidSdkHome / "cmdline-tools" / "bin")
 
         licensesToAccept.forEach { (name, hash) ->
             acceptLicense(name, hash)
@@ -141,7 +145,7 @@ internal object AndroidToolsInstaller {
             // We also need to fix the 'latest' cmdline-tools scripts after installation, because they will be used
             // to install other packages, and used in tests as well
             if (tool == "cmdline-tools;latest") {
-                fixQuotingInScripts(androidHome / "cmdline-tools" / "latest/bin")
+                fixQuotingInScripts(androidSdkHome / "cmdline-tools" / "latest/bin")
             }
         }
     }

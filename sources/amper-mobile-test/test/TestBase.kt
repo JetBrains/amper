@@ -193,7 +193,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
                 command = listOf(gradlewPath.absolutePathString(), "--no-daemon", task),
                 redirectErrorStream = true,
                 outputListener = SimplePrintOutputListener,
-                environment = mapOf("ANDROID_HOME" to AndroidTools.getOrInstallForTests().androidHome.pathString),
+                environment = AndroidTools.getOrInstallForTests().environment(),
                 onStart = { pid ->
                     println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")
                 },

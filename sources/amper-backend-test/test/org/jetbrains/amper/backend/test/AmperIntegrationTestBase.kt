@@ -70,7 +70,7 @@ abstract class AmperIntegrationTestBase {
             // in temp dir so we get a fresh one in every build on the CI
             AndroidHomeRoot((Dirs.tempDir / "empty-android-sdk").also { it.createDirectories() })
         } else {
-            AndroidHomeRoot(AndroidTools.getOrInstallForTests().androidHome)
+            AndroidHomeRoot(AndroidTools.getOrInstallForTests().androidSdkHome)
         }
 
         return CliContext.create(
