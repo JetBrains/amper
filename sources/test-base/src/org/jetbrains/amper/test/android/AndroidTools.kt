@@ -75,8 +75,10 @@ class AndroidTools(
      */
     fun environment(): Map<String, String> = mapOf(
         "ANDROID_HOME" to androidSdkHome.absolutePathString(),
-        "ANDROID_SDK_HOME" to androidSdkHome.absolutePathString(),
         "ANDROID_USER_HOME" to androidUserHome.absolutePathString(),
+        // Sometimes the avd location is not detected automatically by "old" tooling that expects ANDROID_SDK_HOME,
+        // but we also cannot set ANDROID_SDK_HOME because we can't use both ways at the same time...
+        "ANDROID_AVD_HOME" to (androidUserHome / "avd").absolutePathString(),
     )
 
     private fun findCmdlineToolScript(name: String): Path {
