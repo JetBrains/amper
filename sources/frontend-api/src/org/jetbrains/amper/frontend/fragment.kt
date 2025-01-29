@@ -116,6 +116,14 @@ val Fragment.friends: List<Fragment>
 val Fragment.refinedFragments: List<Fragment>
     get() = fragmentDependencies.filter { it.type == FragmentDependencyType.REFINE }.map { it.target }
 
+/**
+ * The fragment together with all fragments (within the same module) that this fragment depends on with the REFINE relationship transitively.
+ * The fragment depends on all external dependencies declared for its complete refined fragments as well as on its own.
+ */
+val Fragment.withAllFragmentDependencies: Sequence<Fragment>
+    get() = allFragmentDependencies(true)
+
+
 private val Fragment.directModuleCompileDependencies: List<AmperModule>
     get() = externalDependencies.filterIsInstance<LocalModuleDependency>().filter { it.compile }.map { it.module }
 
@@ -136,6 +144,7 @@ val Fragment.allSourceFragmentCompileDependencies: List<Fragment>
     get() {
         val fragmentsFromThisModule = fragmentDependencies.map { it.target }
         val fragmentsFromOtherModules = directModuleCompileDependencies.flatMap { module ->
+            // todo (AB) : Note that test fragments couldn't reference test fragments from another module
             module.fragments.filter { it.platforms.containsAll(platforms) }
         }
 

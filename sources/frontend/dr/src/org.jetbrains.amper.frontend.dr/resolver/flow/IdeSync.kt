@@ -14,6 +14,8 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.allFragmentDependencies
+import org.jetbrains.amper.frontend.allRefinedFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
@@ -107,13 +109,18 @@ internal class IdeSync(
             platforms = platforms.mapNotNull { it.toResolutionPlatform() }.toSet(),
             includeNonExportedNative = false,
             isTest = isTest)
-        ).directDependenciesGraph(module, fileCacheBuilder)
-
-        val directDependencies = externalDependencies
-            .filterIsInstance<MavenDependency>()
-            .map { it.toGraph(this, repositories, fileCacheBuilder) }
+        ).directDependenciesGraph(this, fileCacheBuilder)
 
         if (hasSinglePlatformDependenciesOnly(moduleDependencies)) {
+            val directDependencies = allFragmentDependencies(true)
+                .flatMap { externalDependencies }
+                .filterIsInstance<MavenDependency>()
+                .distinct()
+                .map { it.toGraph(this, repositories, fileCacheBuilder) }
+                .toList()
+            // In single-platform case we could rely on IDE dependencies resolution.
+            // Exported dependencies of the fragment on other modules will be taken into account by IDE while preparing
+            // fragment-related IDE module compilation classpath.
             return directDependencies
         }
 

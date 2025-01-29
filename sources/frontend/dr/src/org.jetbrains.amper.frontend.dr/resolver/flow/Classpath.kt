@@ -11,11 +11,17 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.allFragmentDependencies
+import org.jetbrains.amper.frontend.allRefinedFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DependencyNodeHolderWithNotation
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.fragmentsTargeting
+import java.util.EnumSet
 
 /**
  * Performs the initial resolution of module classpath dependencies.
@@ -67,12 +73,23 @@ internal class Classpath(
         return module.fragmentsModuleDependencies(flowType, parentContext)
     }
 
+    internal fun directDependenciesGraph(fragment: Fragment, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
+        val parentContext = Context {
+            this.scope = flowType.scope
+            this.platforms = flowType.platforms
+            this.cache = fileCacheBuilder
+        }
+
+        return fragment.module.fragmentsModuleDependencies(flowType, parentContext, initialFragment = fragment)
+    }
+
     private fun AmperModule.fragmentsModuleDependencies(
         flowType: DependenciesFlowType.ClassPathType,
         parentContext: Context,
         directDependencies: Boolean = true,
         notation: DefaultScopedNotation? = null,
-        visitedModules: MutableSet<AmperModule> = mutableSetOf()
+        visitedModules: MutableSet<AmperModule> = mutableSetOf(),
+        initialFragment: Fragment? = null
     ): ModuleDependencyNodeWithModule {
 
         visitedModules.add(this)
@@ -84,7 +101,20 @@ internal class Classpath(
         // test fragments couldn't reference test fragments of transitive (non-direct) module dependencies
         val includeTestFragments = directDependencies && flowType.isTest
 
-        val dependencies = fragmentsTargeting(resolutionPlatforms.map { it.toPlatform() }.toSet() , includeTestFragments = includeTestFragments)
+        val platforms = resolutionPlatforms.map { it.toPlatform() }.toSet()
+        val allMatchingFragments = this.fragmentsTargeting(platforms, includeTestFragments)
+
+        if (initialFragment != null && initialFragment.module.userReadableName != this.userReadableName)
+            error ("Given initialFragment doesn't belong to given module")
+
+        val fragments = initialFragment
+            ?.allFragmentDependencies(true)
+            ?.filter { it.name in allMatchingFragments.map { it.name }}
+            ?.toList()
+            ?: allMatchingFragments
+
+        val dependencies = fragments
+            .sortedForClasspath(platforms)
             .flatMap { it.toDependencyNode(resolutionPlatforms, directDependencies, moduleContext, visitedModules, flowType) }
             .sortedByDescending { it.notation?.exported == true }
 
@@ -151,5 +181,28 @@ internal class Classpath(
             // runtime-only dependencies are not included in the compilation classpath graph
             ResolutionScope.COMPILE -> compile && (directDependencies || exported || (flowType.includeNonExportedNative && platforms.all { it.nativeTarget != null } ))
             ResolutionScope.RUNTIME -> runtime
+        }
+
+    /**
+     * Returns all fragments in this module that target the given [platform].
+     * If [includeTestFragments] is false, only production fragments are returned.
+     */
+    private fun Collection<Fragment>.sortedForClasspath(platforms: Set<Platform>): List<Fragment> =
+        this
+            .sortedBy { it.name }
+            .ensureFirstFragment(platforms)
+
+    private fun List<Fragment>.ensureFirstFragment(platforms: Set<Platform>) =
+        if (this.isEmpty() || this[0].platforms == platforms)
+            this
+        else {
+            val fragmentWithPlatform = this.firstOrNull { it.platforms == platforms }
+            if (fragmentWithPlatform == null) {
+                this
+            } else
+                buildList {
+                    add(fragmentWithPlatform)
+                    addAll(this@ensureFirstFragment - fragmentWithPlatform)
+                }
         }
 }

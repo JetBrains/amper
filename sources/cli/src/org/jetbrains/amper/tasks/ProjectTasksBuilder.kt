@@ -69,13 +69,6 @@ data class ModuleDependencySequenceCtx(
     val buildType: BuildType = BuildType.Debug,
 )
 
-/**
- * Returns all fragments in this module that target the given [platform].
- * If [includeTestFragments] is false, only production fragments are returned.
- */
-internal fun AmperModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
-    fragments.filter { (includeTestFragments || !it.isTest) && it.platforms.contains(platform) }
-
 class ProjectTasksBuilder(
     val context: CliContext,
     val model: Model

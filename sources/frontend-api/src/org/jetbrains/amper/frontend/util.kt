@@ -19,12 +19,20 @@ val AmperModule.mavenRepositories: List<RepositoriesModulePart.Repository>
  *
  * TODO: maybe generalize [ancestralPath] to use instead of this?
  */
-fun Fragment.allFragmentDependencies(
+fun Fragment.allRefinedFragmentDependencies(
     includeSelf: Boolean = false,
-    traverseType: FragmentDependencyType = FragmentDependencyType.REFINE,
 ): Sequence<Fragment> {
     val allDependencies = allFragmentDependencies(
-        traverseTypes = EnumSet.of(traverseType),
+        EnumSet.of(FragmentDependencyType.REFINE)
+    ).map { it.target }
+    return if (includeSelf) sequenceOf(this) + allDependencies else allDependencies
+}
+
+fun Fragment.allFragmentDependencies(
+    includeSelf: Boolean = false
+): Sequence<Fragment> {
+    val allDependencies = allFragmentDependencies(
+        null
     ).map { it.target }
     return if (includeSelf) sequenceOf(this) + allDependencies else allDependencies
 }
@@ -34,17 +42,18 @@ fun Fragment.allFragmentDependencies(
  *
  * TODO: maybe generalize [ancestralPath] to use instead of this?
  */
-fun Fragment.allFragmentDependencies(
-    traverseTypes: Set<FragmentDependencyType>,
+private fun Fragment.allFragmentDependencies(
+    traverseTypes: Set<FragmentDependencyType>? = null,
 ): Sequence<FragmentLink> = sequence {
     val traversed = hashSetOf<FragmentLink>()
     val stack = ArrayList<FragmentLink>(fragmentDependencies)
     while(stack.isNotEmpty()) {
         val link = stack.removeLast()
-        if (link.type !in traverseTypes) continue
-        check(traversed.add(link)) { "Cyclic dependency!" }
-        yield(link)
-        stack.addAll(link.target.fragmentDependencies)
+        if (traverseTypes != null && link.type !in traverseTypes) continue
+        if (traversed.add(link)) {
+            yield(link)
+            stack.addAll(link.target.fragmentDependencies)
+        }
     }
 }
 

@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.getDefaultAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
+import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 
@@ -114,30 +115,6 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             ?.filter { it.resolve }
             ?.map { Repository(it.url, it.userName, it.password) }
             ?: defaultRepositories.map { Repository(it)}
-
-    /**
-     * Returns all fragments in this module that target the given [platform].
-     * If [includeTestFragments] is false, only production fragments are returned.
-     */
-    protected fun AmperModule.fragmentsTargeting(platforms: Set<Platform>, includeTestFragments: Boolean): List<Fragment> =
-        fragments
-            .filter { (includeTestFragments || !it.isTest) && it.platforms.containsAll(platforms) }
-            .sortedBy { it.name }
-            .ensureFirstFragment(platforms)
-
-    private fun List<Fragment>.ensureFirstFragment(platforms: Set<Platform>) =
-        if (this.isEmpty() || this[0].platforms == platforms)
-            this
-        else {
-            val fragmentWithPlatform = this.firstOrNull { it.platforms == platforms }
-            if (fragmentWithPlatform == null) {
-                this
-            } else
-                buildList {
-                    add(fragmentWithPlatform)
-                    addAll(this@ensureFirstFragment - fragmentWithPlatform)
-                }
-        }
 
     companion object {
         private val alreadyReportedHttpRepositories = ConcurrentHashMap<String, Boolean>()

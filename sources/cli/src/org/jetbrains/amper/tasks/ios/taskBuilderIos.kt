@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.ios
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -14,7 +15,6 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
 import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
-import org.jetbrains.amper.tasks.fragmentsTargeting
 import org.jetbrains.amper.tasks.getModuleDependencies
 import org.jetbrains.amper.tasks.native.NativeTaskType
 import org.jetbrains.amper.util.BuildType

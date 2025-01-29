@@ -147,3 +147,13 @@ interface AmperModule {
 
     val customTasks: List<CustomTaskDescription>
 }
+
+/**
+ * Returns all fragments in this module that target the given [platforms].
+ * If [includeTestFragments] is false, only production fragments are returned.
+ */
+fun AmperModule.fragmentsTargeting(platforms: Set<Platform>, includeTestFragments: Boolean): List<Fragment> =
+    fragments.filter { (includeTestFragments || !it.isTest) && it.platforms.containsAll(platforms) }
+
+fun AmperModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
+    fragmentsTargeting(setOf(platform), includeTestFragments)

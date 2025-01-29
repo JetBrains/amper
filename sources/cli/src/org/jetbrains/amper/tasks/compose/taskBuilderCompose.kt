@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.compose
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.allFragmentDependencies
+import org.jetbrains.amper.frontend.allRefinedFragmentDependencies
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -132,7 +132,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                         useActualModifier = shouldSeparateExpectActual,
                         executeOnChangedInputs = executeOnChangedInputs,
                     ),
-                    dependsOn = fragment.allFragmentDependencies()
+                    dependsOn = fragment.allRefinedFragmentDependencies()
                         .map { ComposeFragmentTaskType.ComposeResourcesGenerateAccessors.getTaskName(it) }
                         .toList(),
                 )
