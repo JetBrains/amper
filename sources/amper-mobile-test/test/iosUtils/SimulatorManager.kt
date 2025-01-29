@@ -22,7 +22,7 @@ object SimulatorManager {
      * Launches the iOS Simulator with the specified device.
      */
     @ProcessLeak
-    suspend fun launchSimulator(deviceName: String = "iPhone 15") {
+    suspend fun launchSimulator(deviceName: String = "iPhone 16") {
         if (!simulatorPath.exists()) {
             error("Simulator app not found at $simulatorPath")
         }
