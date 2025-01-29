@@ -4,18 +4,13 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
 import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
-import org.jetbrains.amper.tasks.getModuleDependencies
 import org.jetbrains.amper.tasks.native.NativeTaskType
 import org.jetbrains.amper.util.BuildType
 
@@ -58,19 +53,20 @@ fun ProjectTasksBuilder.setupIosTasks() {
         .filterModuleType { it == ProductType.IOS_APP }
         .withEach {
             val composeResourcesTaskName = IosTaskType.PrepareComposeResources.getTaskName(module, platform)
-                    .takeIf { isComposeEnabledFor(module) }
-                    ?.also { taskName ->
-                        tasks.registerTask(
-                            task = IosComposeResourcesTask(
-                                taskName = taskName,
-                                leafFragment = module.leafFragments.single {
-                                    it.platform == platform && !it.isTest
-                                },
-                                buildOutputRoot = context.buildOutputRoot,
-                                executeOnChangedInputs = executeOnChangedInputs,
-                            ),
-                        )
-                    }
+                .takeIf { isComposeEnabledFor(module) }
+                ?.also { taskName ->
+                    tasks.registerTask(
+                        task = IosComposeResourcesTask(
+                            taskName = taskName,
+                            leafFragment = module.leafFragments.single {
+                                it.platform == platform && !it.isTest
+                            },
+                            buildOutputRoot = context.buildOutputRoot,
+                            executeOnChangedInputs = executeOnChangedInputs,
+                            userCacheRoot = context.userCacheRoot,
+                        ),
+                    )
+                }
 
             val preBuildTaskName = IosTaskType.PreBuildIosApp.getTaskName(module, platform)
             tasks.registerTask(
@@ -120,50 +116,6 @@ fun ProjectTasksBuilder.setupIosTasks() {
                 dependsOn = listOf(buildTaskName)
             )
         }
-
-    allModules()
-        .alsoPlatforms(Platform.IOS)
-        .alsoTests()
-        .filterModuleType { it == ProductType.IOS_APP }
-        .filter { isComposeEnabledFor(it.module) }
-        .withEach {
-            // include local resources (self)
-            includeComposeResources(
-                from = module,
-                into = module,
-                forPlatform = platform,
-            )
-
-            // include resources from dependencies
-            module.getModuleDependencies(
-                isTest = isTest,
-                platform = platform,
-                dependencyReason = ResolutionScope.RUNTIME,
-                userCacheRoot = context.userCacheRoot,
-            ).filter(::isComposeEnabledFor).forEach { dependencyModule ->
-                includeComposeResources(
-                    from = dependencyModule,
-                    into = module,
-                    forPlatform = platform,
-                )
-            }
-        }
-}
-
-private fun ProjectTasksBuilder.includeComposeResources(
-    from: AmperModule,
-    into: AmperModule,
-    forPlatform: Platform,
-) {
-    from.fragmentsTargeting(
-        platform = forPlatform,
-        includeTestFragments = false,
-    ).forEach { fragment ->
-        tasks.registerDependency(
-            taskName = IosTaskType.PrepareComposeResources.getTaskName(into, forPlatform),
-            dependsOn = ComposeFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment),
-        )
-    }
 }
 
 internal enum class IosTaskType(override val prefix: String) : PlatformTaskType {

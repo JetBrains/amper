@@ -5,74 +5,47 @@
 package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.LeafFragment
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCollectorsPath
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.tasks.AdditionalSourcesProvider
-import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
+import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
+import org.jetbrains.amper.tasks.artifacts.Selectors
+import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.compose.resources.generateActualResourceCollectors
-import kotlin.io.path.deleteRecursively
-import kotlin.io.path.pathString
+import kotlin.io.path.createDirectory
 
 /**
  * See [generateActualResourceCollectors] step.
  */
 class GenerateActualResourceCollectorsTask(
-    override val taskName: TaskName,
-    private val fragment: LeafFragment,
+    buildOutputRoot: AmperBuildOutputRoot,
+    fragment: LeafFragment,
     private val packageName: String,
-    private val shouldGenerateCode: () -> Boolean,
-    private val buildOutputRoot: AmperBuildOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val makeAccessorsPublic: Boolean,
     private val useActualModifier: Boolean,
-) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
+    private val shouldGenerateCode: Boolean,
+) : PureArtifactTaskBase(buildOutputRoot) {
+    private val accessorsDirs by Selectors.fromFragment(
+        type = ComposeResourcesAccessorsDirArtifact::class,
+        fragment = fragment,
+        quantifier = Quantifier.Any,
+    )
 
-        if (!shouldGenerateCode()) {
-            codeDir.deleteRecursively()
-            return Result(emptyList())
-        }
+    private val codeDir by KotlinJavaSourceDirArtifact(
+        buildOutputRoot = buildOutputRoot,
+        fragment = fragment,
+        conventionPath = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path),
+    )
 
-        val resourceAccessorDirs = dependenciesResult
-            .filterIsInstance<GenerateResourceAccessorsTask.Result>()
-            .flatMap { result -> result.sourceRoots.map { it.path } }
-
-        val config = mapOf(
-            "packageName" to packageName,
-            "makeAccessorsPublic" to makeAccessorsPublic.toString(),
-            "useActualModifier" to useActualModifier.toString(),
-            "outputSourceDirectory" to codeDir.pathString,
-        )
-        executeOnChangedInputs.execute(taskName.name, inputs = resourceAccessorDirs, configuration = config) {
-            cleanDirectory(codeDir)
+    override suspend fun run() {
+        if (shouldGenerateCode) {
             generateActualResourceCollectors(
                 packageName = packageName,
                 makeAccessorsPublic = makeAccessorsPublic,
-                accessorDirectories = resourceAccessorDirs,
-                outputSourceDirectory = codeDir,
+                accessorDirectories = accessorsDirs.map { it.path },
+                outputSourceDirectory = codeDir.path.createDirectory(),
                 useActualModifier = useActualModifier,
             )
-            ExecuteOnChangedInputs.ExecutionResult(
-                outputs = listOf(codeDir),
-            )
         }
-
-        return Result(
-            sourceRoots = listOf(
-                AdditionalSourcesProvider.SourceRoot(
-                    fragmentName = fragment.name,
-                    path = codeDir,
-                ),
-            ),
-        )
     }
-
-    private class Result(
-        override val sourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
-    ) : TaskResult, AdditionalSourcesProvider
 }

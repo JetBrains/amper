@@ -42,6 +42,10 @@ import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
+import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
+import org.jetbrains.amper.tasks.artifacts.Selectors
+import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.resourcesFor
 import org.jetbrains.amper.tasks.sourcesFor
@@ -77,13 +81,21 @@ class JvmCompileTask(
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
     override val buildType: BuildType? = null,
     override val platform: Platform = Platform.JVM,
-): BuildTask {
+): ArtifactTaskBase(), BuildTask {
 
     init {
         require(platform == Platform.JVM || platform == Platform.ANDROID) {
             "Illegal platform for JvmCompileTask: $platform"
         }
     }
+
+    private val kotlinJavaSourceDirs by Selectors.fromMatchingFragments(
+        type = KotlinJavaSourceDirArtifact::class,
+        module = module,
+        isTest = isTest,
+        hasPlatforms = setOf(platform),
+        quantifier = Quantifier.AnyOrNone,
+    )
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         require(fragments.isNotEmpty()) {
@@ -112,7 +124,14 @@ class JvmCompileTask(
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>().flatMap { it.compileClasspath }
         val classpath = compileModuleDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
-        val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>().sourcesFor(fragments)
+        val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>().sourcesFor(fragments) +
+                kotlinJavaSourceDirs.map { artifact ->
+                    AdditionalSourcesProvider.SourceRoot(
+                        fragmentName = artifact.fragmentName,
+                        path = artifact.path,
+                    )
+                }
+
         val additionalResources = dependenciesResult.filterIsInstance<AdditionalResourcesProvider>().resourcesFor(fragments)
 
         // TODO settings

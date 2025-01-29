@@ -1,28 +1,28 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.AdditionalResourcesProvider
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesResult
+import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
+import org.jetbrains.amper.tasks.artifacts.Selectors
+import org.jetbrains.amper.tasks.artifacts.api.Quantifier
+import org.jetbrains.amper.tasks.compose.PreparedComposeResourcesDirArtifact
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
+import kotlin.io.path.isDirectory
 
 /**
  * Provides prepared Compose Resources as java resources to be placed into the classpath.
- *
- * **Inputs**:
- * - [PrepareComposeResourcesResult]
  *
  * **Output**: [AdditionalResourcesProvider]
  */
@@ -30,26 +30,38 @@ class JvmComposeResourcesTask(
     override val taskName: TaskName,
     private val fragment: Fragment,
     private val taskOutputRoot: TaskOutputRoot,
-) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val outputRoot = taskOutputRoot.path.apply(::cleanDirectory)
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+) : ArtifactTaskBase() {
+    private val preparedResources by Selectors.fromFragment(
+        type = PreparedComposeResourcesDirArtifact::class,
+        fragment = fragment,
+        quantifier = Quantifier.Single,
+    )
 
-        val result = when(val r = dependenciesResult.requireSingleDependency<PrepareComposeResourcesResult>()) {
-            PrepareComposeResourcesResult.NoResources -> {
-                outputRoot.deleteRecursively()
-                return Result(emptyList())
-            }
-            is PrepareComposeResourcesResult.Prepared -> r
+    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+        val outputRoot = taskOutputRoot.path
+
+        val dir = preparedResources.path
+        if (!dir.isDirectory()) {
+            outputRoot.deleteRecursively()
+            return Result(emptyList())
         }
 
-        val finalOutputDir = outputRoot / result.relativePackagingPath
+        executeOnChangedInputs.execute(taskName.name, emptyMap(), inputs = listOf(dir)) {
+            cleanDirectory(outputRoot)
+            val finalOutputDir = outputRoot / preparedResources.packagingDir
 
-        // FIXME: Maybe don't copy the files,
-        //  but introduce a `relativePackagingPath` for the `AdditionalResourcesProvider`?
-        BuildPrimitives.copy(
-            from = result.outputDir,
-            to = finalOutputDir.createDirectories(),
-        )
+            // FIXME: Maybe don't copy the files,
+            //  but introduce a `relativePackagingPath` for the `AdditionalResourcesProvider`?
+            BuildPrimitives.copy(
+                from = dir,
+                to = finalOutputDir.createDirectories(),
+            )
+
+            ExecuteOnChangedInputs.ExecutionResult(
+                outputs = listOf(finalOutputDir)
+            )
+        }
 
         return Result(
             resourceRoots = listOf(

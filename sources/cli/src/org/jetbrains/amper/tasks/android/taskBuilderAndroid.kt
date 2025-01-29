@@ -28,7 +28,6 @@ import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskOutputRoot
-import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
 import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
@@ -226,13 +225,11 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
     allModules().alsoPlatforms(Platform.ANDROID).withEach {
         if (isComposeEnabledFor(module)) {
             module.fragments.filter { Platform.ANDROID in it.platforms }.forEach { fragment ->
-                val prepareTaskName = ComposeFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment)
-                val prepareForAndroid = AndroidFragmentTaskType.PrepareComposeResources.getTaskName(fragment)
                 tasks.registerTask(
                     task = AndroidComposeResourcesTask(
-                        taskName = prepareForAndroid,
+                        taskName = AndroidFragmentTaskType.PrepareComposeResources.getTaskName(fragment),
+                        fragment = fragment,
                     ),
-                    dependsOn = prepareTaskName,
                 )
             }
         }

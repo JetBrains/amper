@@ -1,69 +1,42 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCommonResClassPath
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.tasks.AdditionalSourcesProvider
-import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
+import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
 import org.jetbrains.compose.resources.generateResClass
-import kotlin.io.path.deleteRecursively
-import kotlin.io.path.pathString
+import kotlin.io.path.createDirectory
 
 /**
  * See [generateResClass] step.
  */
 class GenerateResClassTask(
-    override val taskName: TaskName,
-    private val rootFragment: Fragment,
-    private val shouldGenerateCode: () -> Boolean,
+    rootFragment: Fragment,
+    buildOutputRoot: AmperBuildOutputRoot,
     private val packageName: String,
     private val makeAccessorsPublic: Boolean,
     private val packagingDir: String,
-    private val buildOutputRoot: AmperBuildOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
-) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val codeDir = rootFragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot.path)
+    private val shouldGenerateCode: Boolean,
+) : PureArtifactTaskBase(buildOutputRoot) {
+    private val codeDir by KotlinJavaSourceDirArtifact(
+        buildOutputRoot = buildOutputRoot,
+        fragment = rootFragment,
+        conventionPath = rootFragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot.path),
+    )
 
-        if (!shouldGenerateCode()) {
-            codeDir.deleteRecursively()
-            return Result(emptyList())
-        }
-
-        val config = mapOf(
-            "packageName" to packageName,
-            "packagingDir" to packagingDir,
-            "isPublic" to makeAccessorsPublic.toString(),
-            "outputSourceDirectory" to codeDir.pathString,
-        )
-
-        executeOnChangedInputs.execute(taskName.name, inputs = emptyList(), configuration = config) {
-            cleanDirectory(codeDir)
+    override suspend fun run() {
+        if (shouldGenerateCode) {
             generateResClass(
                 packageName = packageName,
                 packagingDir = packagingDir,
                 isPublic = makeAccessorsPublic,
-                outputSourceDirectory = codeDir,
+                outputSourceDirectory = codeDir.path.createDirectory(),
             )
-            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(codeDir))
         }
-
-        return Result(
-            sourceRoots = listOf(
-                AdditionalSourcesProvider.SourceRoot(rootFragment.name, codeDir),
-            ),
-        )
     }
-
-    private class Result(
-        override val sourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
-    ) : TaskResult, AdditionalSourcesProvider
 }

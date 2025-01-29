@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.native
@@ -26,6 +26,10 @@ import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
+import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
+import org.jetbrains.amper.tasks.artifacts.Selectors
+import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.sourcesFor
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -45,13 +49,21 @@ class NativeCompileKlibTask(
     override val isTest: Boolean,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
-): BuildTask {
+): ArtifactTaskBase(), BuildTask {
     init {
         require(platform.isLeaf)
         require(platform.isDescendantOf(Platform.NATIVE))
     }
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): Result {
+    private val kotlinJavaSourceDirs by Selectors.fromMatchingFragments(
+        type = KotlinJavaSourceDirArtifact::class,
+        module = module,
+        isTest = isTest,
+        hasPlatforms = setOf(platform),
+        quantifier = Quantifier.AnyOrNone,
+    )
+
+    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val fragments = module.fragments.filter {
             it.platforms.contains(platform) && it.isTest == isTest
         }
@@ -95,7 +107,12 @@ class NativeCompileKlibTask(
         val libraryPaths = compiledModuleDependencies + externalDependencies
 
         val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>()
-            .sourcesFor(fragments)
+            .sourcesFor(fragments) + kotlinJavaSourceDirs.map { artifact ->
+            AdditionalSourcesProvider.SourceRoot(
+                fragmentName = artifact.fragmentName,
+                path = artifact.path,
+            )
+        }
 
         val sources = fragments.map { it.src } + additionalSources.map { it.path }
         val inputs = sources + libraryPaths

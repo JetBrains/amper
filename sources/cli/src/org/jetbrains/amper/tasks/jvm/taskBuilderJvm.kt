@@ -15,7 +15,6 @@ import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
-import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
 import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.tasks.compose.isHotReloadEnabledFor
 import org.jetbrains.amper.tasks.getModuleDependencies
@@ -149,15 +148,14 @@ fun ProjectTasksBuilder.setupJvmTasks() {
     allModules().alsoPlatforms(Platform.JVM).withEach {
         if (isComposeEnabledFor(module)) {
             module.fragments.filter { Platform.JVM in it.platforms }.forEach { fragment ->
-                val prepareTaskName = ComposeFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment)
                 val prepareForJvm = JvmFragmentTaskType.PrepareComposeResources.getTaskName(fragment)
                 tasks.registerTask(
                     task = JvmComposeResourcesTask(
                         taskName = prepareForJvm,
                         fragment = fragment,
                         taskOutputRoot = context.getTaskOutputPath(prepareForJvm),
+                        executeOnChangedInputs = executeOnChangedInputs,
                     ),
-                    dependsOn = prepareTaskName,
                 )
             }
         }

@@ -1,57 +1,50 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.compose
 
-import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.tasks.TaskOutputRoot
-import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
+import org.jetbrains.amper.tasks.artifacts.Selectors
+import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.compose.resources.prepareResources
-import java.nio.file.Path
-import kotlin.io.path.deleteRecursively
-import kotlin.io.path.pathString
+import kotlin.io.path.createDirectory
+import kotlin.io.path.isHidden
+import kotlin.io.path.walk
 
 /**
  * See [prepareResources] step.
  */
 class PrepareComposeResourcesTask(
-    override val taskName: TaskName,
-    private val fragment: Fragment,
-    private val packagingDir: String,
-    private val originalResourcesDir: Path,
-    private val taskOutputRoot: TaskOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
-) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val outputDir = taskOutputRoot.path
+    buildOutputRoot: AmperBuildOutputRoot,
+    fragment: Fragment,
+    packagingDir: String,
+) : PureArtifactTaskBase(buildOutputRoot) {
+    private val sourceDirs by Selectors.fromFragment(
+        type = ComposeResourcesSourceDirArtifact::class,
+        fragment = fragment,
+        quantifier = Quantifier.Any,
+    )
 
-        if (!fragment.hasAnyComposeResources) {
-            outputDir.deleteRecursively()
-            return PrepareComposeResourcesResult.NoResources
+    private val prepared by PreparedComposeResourcesDirArtifact(
+        buildOutputRoot = buildOutputRoot,
+        fragment = fragment,
+        packagingDir = packagingDir,
+    )
+
+    override suspend fun run() {
+        if (!sourceDirs.all { sourceDir -> sourceDir.path.walk().any { !it.isHidden() } }) {
+            return
         }
 
-        val config = mapOf(
-            // "qualifier" - doesn't change
-            // "originalResourcesDir" - inputs
-            "outputDirectory" to outputDir.pathString,
-        )
-        executeOnChangedInputs.execute(taskName.name, inputs = listOf(originalResourcesDir), configuration = config) {
-            cleanDirectory(outputDir)
+        for (sourceDirArtifact in sourceDirs) {
             prepareResources(
-                qualifier = fragment.name,
-                originalResourcesDir = originalResourcesDir,
-                outputDirectory = outputDir,
+                qualifier = prepared.fragmentName,
+                originalResourcesDir = sourceDirArtifact.path,
+                outputDirectory = prepared.path.createDirectory(),
             )
-            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(outputDir))
         }
-        return PrepareComposeResourcesResult.Prepared(
-            outputDir = outputDir,
-            relativePackagingPath = packagingDir,
-        )
     }
 }

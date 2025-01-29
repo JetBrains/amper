@@ -1,25 +1,26 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.ios
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.compose.PrepareComposeResourcesResult
+import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
+import org.jetbrains.amper.tasks.artifacts.Selectors
+import org.jetbrains.amper.tasks.artifacts.api.Quantifier
+import org.jetbrains.amper.tasks.compose.MergedPreparedComposeResourcesDirArtifact
 import org.jetbrains.amper.util.BuildType
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
-import kotlin.io.path.div
+import kotlin.io.path.isDirectory
 
 /**
  * Assembles all the required resources into the [IosConventions.getComposeResourcesDirectory]
@@ -30,7 +31,15 @@ class IosComposeResourcesTask(
     private val leafFragment: LeafFragment,
     private val buildOutputRoot: AmperBuildOutputRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
-) : Task {
+    userCacheRoot: AmperUserCacheRoot,
+) : ArtifactTaskBase() {
+    private val dependenciesMerged by Selectors.fromModuleWithDependencies(
+        type = MergedPreparedComposeResourcesDirArtifact::class,
+        leafFragment = leafFragment,
+        userCacheRoot = userCacheRoot,
+        quantifier = Quantifier.Any,
+    )
+
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val outputPath = IosConventions(
             buildRootPath = buildOutputRoot.path,
@@ -39,27 +48,22 @@ class IosComposeResourcesTask(
             platform = leafFragment.platform,
         ).getComposeResourcesDirectory()
 
-        val results = dependenciesResult.filterIsInstance<PrepareComposeResourcesResult.Prepared>()
+        val results = dependenciesMerged.filter { it.path.isDirectory() }
         if (results.isEmpty()) {
             outputPath.deleteRecursively()
             return EmptyTaskResult
         }
 
-        val config = mapOf(
-            "paths" to Json.encodeToString(results.map { it.relativePackagingPath }),
-        )
-
         executeOnChangedInputs.execute(
             id = taskName.name,
-            configuration = config,
-            inputs = results.map { it.outputDir },
+            configuration = emptyMap(),
+            inputs = results.map { it.path },
         ) {
             cleanDirectory(outputPath)
             results.forEach { result ->
-                val targetDir = outputPath / result.relativePackagingPath
                 BuildPrimitives.copy(
-                    from = result.outputDir,
-                    to = targetDir.createDirectories(),
+                    from = result.path,
+                    to = outputPath.createDirectories(),
                 )
             }
             ExecuteOnChangedInputs.ExecutionResult(listOf(outputPath))
