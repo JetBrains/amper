@@ -15,9 +15,8 @@ import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.div
-import kotlin.io.path.pathString
+import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
 /**
@@ -68,8 +67,10 @@ open class AndroidBaseTest : TestBase() {
         } ?: "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner"
 
         val output = adbShell("am", "instrument", "-w", "-r", testPackage)
-        if (!output.contains("OK (1 test)") || output.contains("Error")) {
-            error("Test failed with output:\n$output")
+        if (!output.contains("OK (1 test)")) {
+            fail("Test output doesn't contain 'OK (1 test)':\n$output")
+        } else if (output.contains("Error")) {
+            fail("Test failed with 'Error':\n$output")
         }
     }
 
