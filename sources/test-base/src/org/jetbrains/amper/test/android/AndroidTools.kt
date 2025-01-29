@@ -175,8 +175,9 @@ class AndroidTools(
         // It will be killed on JVM exit thanks to runProcess's default behavior.
         val emulatorJob = GlobalScope.launch {
             runProcess(
-                // The -no-window option is required on CI, otherwise the device fails to start
-                command = listOf(emulatorExe.pathString, "-avd", avdName, "-no-window"),
+                // -no-window: required on CI, otherwise the device fails to start because of the absence of UI
+                // -no-metrics: needs to be explicitly disabled to avoid interactive prompts in the future
+                command = listOf(emulatorExe.pathString, "-avd", avdName, "-no-window", "-no-metrics"),
                 environment = environment() + mapOf(
                     "JAVA_HOME" to javaHome.pathString,
                     // apparently, the emulator needs to have these tools on the PATH
