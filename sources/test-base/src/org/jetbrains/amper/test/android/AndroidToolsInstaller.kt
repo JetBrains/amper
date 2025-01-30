@@ -14,7 +14,7 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.JdkDownloader
-import org.jetbrains.amper.test.SimplePrintOutputListener
+import org.jetbrains.amper.test.PrefixPrintOutputListener
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -140,7 +140,7 @@ internal object AndroidToolsInstaller {
 
         for (tool in toolsToInstall) {
             suspendingRetryWithExponentialBackOff(backOffLimitMs = TimeUnit.MINUTES.toMillis(1)) {
-                installSdkPackage(packageName = tool, outputListener = SimplePrintOutputListener)
+                installSdkPackage(packageName = tool, outputListener = PrefixPrintOutputListener("sdkmanager"))
             }
             // We also need to fix the 'latest' cmdline-tools scripts after installation, because they will be used
             // to install other packages, and used in tests as well

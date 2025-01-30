@@ -2,8 +2,8 @@ import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
-import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.PrefixPrintOutputListener
 import org.jetbrains.amper.test.android.AndroidTools
 import org.junit.jupiter.api.AfterEach
 import java.io.FileNotFoundException
@@ -192,7 +192,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
                 workingDir = projectDir,
                 command = listOf(gradlewPath.absolutePathString(), "--no-daemon", task),
                 redirectErrorStream = true,
-                outputListener = SimplePrintOutputListener,
+                outputListener = PrefixPrintOutputListener("gradle"),
                 environment = AndroidTools.getOrInstallForTests().environment(),
                 onStart = { pid ->
                     println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")

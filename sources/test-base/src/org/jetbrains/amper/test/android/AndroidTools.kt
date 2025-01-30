@@ -17,6 +17,7 @@ import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.PrefixPrintOutputListener
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.io.File
 import java.nio.file.Path
@@ -104,6 +105,7 @@ class AndroidTools(
     ) {
         log("Installing '$packageName' into '$androidSdkHome'...")
         sdkmanager("--sdk_root=$androidSdkHome", packageName, outputListener = outputListener)
+            .checkExitCodeIsZero()
     }
 
     private suspend fun sdkmanager(
@@ -188,17 +190,8 @@ class AndroidTools(
                         androidSdkHome / "platform-tools",
                     ),
                 ),
-                outputListener = object : ProcessOutputListener {
-                    // we can't ignore stdout because some startup errors are printed there (e.g. absence of window)
-                    override fun onStdoutLine(line: String, pid: Long) {
-                        @Suppress("ReplacePrintlnWithLogging")
-                        println("[emulator out] $line")
-                    }
-                    override fun onStderrLine(line: String, pid: Long) {
-                        @Suppress("ReplacePrintlnWithLogging") // ok for tests
-                        println("[emulator error] $line")
-                    }
-                }
+                // we can't ignore stdout because some startup errors are printed there (e.g. absence of window)
+                outputListener = PrefixPrintOutputListener("emulator"),
             )
         }
 
@@ -234,7 +227,10 @@ class AndroidTools(
      */
     suspend fun installApk(apkPath: Path) {
         check(apkPath.exists()) { "APK file not found at path: $apkPath" }
-        adb("install", "-r", apkPath.pathString)  // "-r" flag allows reinstalling the APK if it's already installed
+        adb(
+            "install", "-r", apkPath.pathString,  // "-r" flag allows reinstalling the APK if it's already installed
+            outputListener = PrefixPrintOutputListener("adb install"),
+        ).checkExitCodeIsZero()
     }
 
     /**

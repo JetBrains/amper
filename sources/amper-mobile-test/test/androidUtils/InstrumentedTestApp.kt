@@ -2,8 +2,8 @@ package androidUtils
 
 import TestBase
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
-import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.PrefixPrintOutputListener
 import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.nio.file.Path
@@ -60,7 +60,7 @@ object InstrumentedTestApp  {
                 "createDebugAndroidTestApk"
             ),
             environment = AndroidTools.getOrInstallForTests().environment(),
-            outputListener = SimplePrintOutputListener,
+            outputListener = PrefixPrintOutputListener("gradle (test-apk)"),
         ).checkExitCodeIsZero()
 
         // Restore the original content of the test file and build.gradle.kts

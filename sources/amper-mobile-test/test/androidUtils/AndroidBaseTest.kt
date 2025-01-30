@@ -10,10 +10,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.test.SimplePrintOutputListener
+import org.jetbrains.amper.test.PrefixPrintOutputListener
 import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.nio.file.Path
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.io.path.div
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
@@ -47,8 +49,11 @@ open class AndroidBaseTest : TestBase() {
         // We interact with real external processes here, so we can't skip delays when we do retries.
         withContext(Dispatchers.IO) {
             androidTools.ensureEmulatorIsRunning()
+            println("Installing test app containing instrumented tests ($testAppApkPath)")
             androidTools.installApk(testAppApkPath)
+            println("Installing target app from test project ($targetApkPath)")
             androidTools.installApk(targetApkPath)
+            println("Running tests via adb...")
             runTestsViaAdb(applicationId)
         }
     }
@@ -59,26 +64,34 @@ open class AndroidBaseTest : TestBase() {
         adbShell("settings", "put", "global", "transition_animation_scale", "0.0")
         adbShell("settings", "put", "global", "animator_duration_scale", "0.0")
         adbShell("settings", "put", "secure", "long_press_timeout", "1000")
-        //After it executes tests using the specified test package name,
+        // After it executes tests using the specified test package name,
         // falling back to a default package if none is provided
-        val testPackage = applicationId?.let {
-            "$it.test/androidx.test.runner.AndroidJUnitRunner"
-        } ?: "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner"
+        val testAppPackage = applicationId ?: "com.jetbrains.sample.app"
+        val testRunnerFqn = "$testAppPackage.test/androidx.test.runner.AndroidJUnitRunner"
 
-        val output = adbShell("am", "instrument", "-w", "-r", testPackage)
+        val output = adbShell("am", "instrument", "-w", "-r", testRunnerFqn)
         if (!output.contains("OK (1 test)")) {
-            fail("Test output doesn't contain 'OK (1 test)':\n$output")
+            failTestWithAppDiagnostics(output, "Test output doesn't contain 'OK (1 test)'")
         } else if (output.contains("Error")) {
-            fail("Test failed with 'Error':\n$output")
+            failTestWithAppDiagnostics(output, "Test failed with 'Error'")
         }
+    }
+
+    private suspend fun failTestWithAppDiagnostics(output: String, message: String): Nothing {
+        val nSecondsAgo = 15L
+        val formattedTime = LocalDateTime.now().minusSeconds(nSecondsAgo)
+            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS"))
+        val logCatOutput = androidTools.adb("logcat", "*:W", "-d", "-t", formattedTime).checkExitCodeIsZero()
+        fail("$message\n\nEmulator errors/warnings in the last $nSecondsAgo seconds of logs:\n\n${logCatOutput.stdout}\n\nTest output:\n\n$output")
     }
 
     /**
      * Executes the given adb shell [command] and returns the output.
      */
-    @OptIn(ProcessLeak::class)
     private suspend fun adbShell(vararg command: String): String =
-        androidTools.adb("shell", *command, outputListener = SimplePrintOutputListener).checkExitCodeIsZero().stdout
+        androidTools.adb("shell", *command, outputListener = PrefixPrintOutputListener("adb shell"))
+            .checkExitCodeIsZero()
+            .stdout
 
     /**
      * Executes standalone tests for an Android project specified by [projectName],
@@ -159,5 +172,7 @@ private suspend fun AndroidTools.ensureEmulatorIsRunning() {
             createAvd(testAvdName)
         }
         startAndAwaitEmulator(testAvdName)
+    } else {
+        println("An emulator is already running, using this one for the tests...")
     }
 }
