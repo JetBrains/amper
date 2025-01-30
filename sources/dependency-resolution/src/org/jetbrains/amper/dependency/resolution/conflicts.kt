@@ -66,7 +66,6 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
             .maxByOrNull { ComparableVersion(it) }
             ?: error("All conflicting candidates have no resolved version")
 
-        // todo (AB) : Add test for this!
         val candidatesWithResolvedVersion = candidates.filter { it.originalVersion() == resolvedVersion }
 
         candidates.asSequence().forEach {

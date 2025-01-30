@@ -8,12 +8,13 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Repository
+import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
@@ -22,7 +23,6 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.getDefaultAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
-import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 
@@ -50,6 +50,8 @@ interface DependenciesFlow<T: DependenciesFlowType> {
 abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     val flowType: T,
 ): DependenciesFlow<T> {
+
+    private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
 
     protected fun MavenDependency.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
         val coordinates = parseCoordinates()
@@ -116,6 +118,29 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             ?.map { Repository(it.url, it.userName, it.password) }
             ?: defaultRepositories.map { Repository(it)}
 
+    protected fun AmperModule.resolveModuleContext(
+        platforms: Set<ResolutionPlatform>,
+        scope: ResolutionScope,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+    ): Context {
+        val repositories = getValidRepositories()
+        val context = contextMap.computeIfAbsent(
+            ContextKey(
+                scope,
+                platforms,
+                repositories.toSet()
+            )
+        ) { key ->
+            Context {
+                this.scope = key.scope
+                this.platforms = key.platforms
+                this.repositories = repositories
+                this.cache = fileCacheBuilder
+            }
+        }
+        return context
+    }
+
     companion object {
         private val alreadyReportedHttpRepositories = ConcurrentHashMap<String, Boolean>()
         private val alreadyReportedNonHttpsRepositories = ConcurrentHashMap<String, Boolean>()
@@ -126,4 +151,10 @@ private val defaultRepositories = listOf(
     "https://repo1.maven.org/maven2",
     "https://maven.google.com/",
     "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+)
+
+private data class ContextKey(
+    val scope: ResolutionScope,
+    val platforms: Set<ResolutionPlatform>,
+    val repositories: Set<Repository>
 )

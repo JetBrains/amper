@@ -11,17 +11,14 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.allFragmentDependencies
-import org.jetbrains.amper.frontend.allRefinedFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DependencyNodeHolderWithNotation
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.fragmentsTargeting
-import java.util.EnumSet
 
 /**
  * Performs the initial resolution of module classpath dependencies.
@@ -64,38 +61,25 @@ internal class Classpath(
 ): AbstractDependenciesFlow<DependenciesFlowType.ClassPathType>(dependenciesFlowType) {
 
     override fun directDependenciesGraph(module: AmperModule, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
-        val parentContext = Context {
-            this.scope = flowType.scope
-            this.platforms = flowType.platforms
-            this.cache = fileCacheBuilder
-        }
-
-        return module.fragmentsModuleDependencies(flowType, parentContext)
+        return module.fragmentsModuleDependencies(flowType, fileCacheBuilder = fileCacheBuilder)
     }
 
     internal fun directDependenciesGraph(fragment: Fragment, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
-        val parentContext = Context {
-            this.scope = flowType.scope
-            this.platforms = flowType.platforms
-            this.cache = fileCacheBuilder
-        }
-
-        return fragment.module.fragmentsModuleDependencies(flowType, parentContext, initialFragment = fragment)
+        return fragment.module.fragmentsModuleDependencies(flowType, initialFragment = fragment, fileCacheBuilder = fileCacheBuilder)
     }
 
     private fun AmperModule.fragmentsModuleDependencies(
         flowType: DependenciesFlowType.ClassPathType,
-        parentContext: Context,
         directDependencies: Boolean = true,
         notation: DefaultScopedNotation? = null,
         visitedModules: MutableSet<AmperModule> = mutableSetOf(),
-        initialFragment: Fragment? = null
+        initialFragment: Fragment? = null,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit
     ): ModuleDependencyNodeWithModule {
 
         visitedModules.add(this)
 
-        val moduleContext = parentContext.copyWithNewNodeCache(emptyList(), this.getValidRepositories())
-
+        val moduleContext = resolveModuleContext(flowType.platforms, flowType.scope, fileCacheBuilder)
         val resolutionPlatforms = moduleContext.settings.platforms
 
         // test fragments couldn't reference test fragments of transitive (non-direct) module dependencies
@@ -116,7 +100,7 @@ internal class Classpath(
 
         val dependencies = fragments
             .sortedForClasspath(platforms)
-            .flatMap { it.toDependencyNode(resolutionPlatforms, directDependencies, moduleContext, visitedModules, flowType) }
+            .flatMap { it.toDependencyNode(resolutionPlatforms, directDependencies, moduleContext, visitedModules, flowType, fileCacheBuilder) }
             .sortedByDescending { it.notation?.exported == true }
 
         val node = ModuleDependencyNodeWithModule(
@@ -136,6 +120,7 @@ internal class Classpath(
         moduleContext: Context,
         visitedModules: MutableSet<AmperModule>,
         flowType: DependenciesFlowType.ClassPathType,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit
     ): List<DependencyNodeHolderWithNotation> {
         val fragmentDependencies = externalDependencies
             .distinct()
@@ -154,7 +139,7 @@ internal class Classpath(
                             val includeDependency = dependency.shouldBeAdded(platforms, directDependencies, flowType)
                             if (includeDependency) {
                                 resolvedDependencyModule.fragmentsModuleDependencies(
-                                    flowType, moduleContext, directDependencies = false, notation = dependency, visitedModules = visitedModules
+                                    flowType, directDependencies = false, notation = dependency, visitedModules = visitedModules, fileCacheBuilder = fileCacheBuilder
                                 )
                             } else null
                         } else null
@@ -185,8 +170,7 @@ internal class Classpath(
         }
 
     /**
-     * Returns all fragments in this module that target the given [platform].
-     * If [includeTestFragments] is false, only production fragments are returned.
+     * Returns all fragments in this module that target the given [platforms].
      */
     private fun Collection<Fragment>.sortedForClasspath(platforms: Set<Platform>): List<Fragment> =
         this

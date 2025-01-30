@@ -6,9 +6,15 @@ package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.originalVersion
+import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.junit.jupiter.api.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class DependencyInsightsTest : BaseModuleDrTest() {
     @Test
@@ -95,7 +101,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                 aom,
                 ResolutionInput(
                     DependenciesFlowType.ClassPathType(
-                        scope = ResolutionScope.COMPILE, 
+                        scope = ResolutionScope.COMPILE,
                         platforms = setOf(ResolutionPlatform.IOS_ARM64),
                         isTest = false),
                     ResolutionDepth.GRAPH_FULL
@@ -435,6 +441,26 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     """.trimMargin()
             )
 
+            // Assert that all nodes representing different versions
+            // of the library "org.jetbrains.kotlin:kotlin-stdlib-common" in the graph have correct overriddenBy
+            sharedModuleIosArm64Graph
+                .distinctBfsSequence()
+                .filterIsInstance<MavenDependencyNode>()
+                .filter { it.group == "org.jetbrains.kotlin" && it.module == "kotlin-stdlib-common"  }
+                .forEach {
+                    if (it.originalVersion() == it.resolvedVersion()) {
+                        assertNull(it.overriddenBy)
+                    } else {
+                        assertNotNull(it.overriddenBy,
+                            "Expected non-null 'overriddenBy' since ${it.resolvedVersion()} doesn't match ${it.originalVersion()}")
+                        val constraintNode = it.overriddenBy.singleOrNull() as? MavenDependencyConstraintNode
+                        assertNotNull(constraintNode,
+                            "Expected the only dependency constraint node in 'overriddenBy', but found ${ it.overriddenBy.map { it::class.simpleName }.toSet() }")
+                        kotlin.test.assertEquals(constraintNode.key.name, "org.jetbrains.kotlin:kotlin-stdlib-common",
+                            "Unexpected constraint ${constraintNode.key}")
+                    }
+                }
+
             assertInsight(
                 group = "org.jetbrains.kotlinx",
                 module = "kotlinx-coroutines-core",
@@ -530,7 +556,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
         }
     }
 
-    private suspend fun assertInsight(group: String, module: String, graph: DependencyNode, expected: String) {
+    private fun assertInsight(group: String, module: String, graph: DependencyNode, expected: String) {
         with(moduleDependenciesResolver) {
             val subGraph = dependencyInsight(group, module, graph)
             assertEquals(expected, subGraph)

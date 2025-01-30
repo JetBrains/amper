@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.dr.resolver.flow
 
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
-import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
@@ -15,13 +14,11 @@ import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.allFragmentDependencies
-import org.jetbrains.amper.frontend.allRefinedFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.slf4j.LoggerFactory
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Performs the resolution of direct module dependencies.
@@ -64,17 +61,13 @@ internal class IdeSync(
     dependenciesFlowType: DependenciesFlowType.IdeSyncType,
 ): AbstractDependenciesFlow<DependenciesFlowType.IdeSyncType>(dependenciesFlowType) {
 
-    private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
-
     override fun directDependenciesGraph(module: AmperModule, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule =
         module.toGraph(fileCacheBuilder)
 
     private fun AmperModule.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
-        val repositories = getValidRepositories()
-
         val node = ModuleDependencyNodeWithModule(
             name = "module:${userReadableName}",
-            children = fragments.flatMap { it.toGraph(repositories, fileCacheBuilder) },
+            children = fragments.flatMap { it.toGraph(fileCacheBuilder) },
             module = this,
             templateContext = emptyContext(fileCacheBuilder)
         )
@@ -103,7 +96,7 @@ internal class IdeSync(
     * Resolution of the complete COMPILE maven dependencies graph is performed by [Classpath] flow with COMPILE resolution scope.
     * (flag 'exported' takes effect in the case of native modules during graph resolution)
     */
-    private fun Fragment.toGraph(repositories: List<Repository>, fileCacheBuilder: FileCacheBuilder.() -> Unit): List<DirectFragmentDependencyNodeHolder> {
+    private fun Fragment.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit): List<DirectFragmentDependencyNodeHolder> {
         val moduleDependencies = Classpath(DependenciesFlowType.ClassPathType(
             scope = ResolutionScope.COMPILE,
             platforms = platforms.mapNotNull { it.toResolutionPlatform() }.toSet(),
@@ -116,7 +109,7 @@ internal class IdeSync(
                 .flatMap { externalDependencies }
                 .filterIsInstance<MavenDependency>()
                 .distinct()
-                .map { it.toGraph(this, repositories, fileCacheBuilder) }
+                .map { it.toGraph(this, fileCacheBuilder) }
                 .toList()
             // In single-platform case we could rely on IDE dependencies resolution.
             // Exported dependencies of the fragment on other modules will be taken into account by IDE while preparing
@@ -132,7 +125,7 @@ internal class IdeSync(
             .distinctBy { it.dependencyNode }
             .map {
                 val mavenDependencyNotation = it.notation as MavenDependency
-                val context = mavenDependencyNotation.resolveContext(this, fileCacheBuilder, repositories)
+                val context = mavenDependencyNotation.resolveFragmentContext(this, fileCacheBuilder)
                 mavenDependencyNotation.toFragmentDirectDependencyNode(this, context)
             }.toList()
 
@@ -154,42 +147,22 @@ internal class IdeSync(
         return false
     }
 
-    private fun MavenDependency.toGraph(fragment: Fragment, repositories: List<Repository>, fileCacheBuilder: FileCacheBuilder.() -> Unit): DirectFragmentDependencyNodeHolder {
-        val context = resolveContext(fragment, fileCacheBuilder, repositories)
+    private fun MavenDependency.toGraph(fragment: Fragment, fileCacheBuilder: FileCacheBuilder.() -> Unit): DirectFragmentDependencyNodeHolder {
+        val context = resolveFragmentContext(fragment, fileCacheBuilder)
         val node = toFragmentDirectDependencyNode(fragment, context)
         return node
     }
 
-    private fun MavenDependency.resolveContext(
+    private fun MavenDependency.resolveFragmentContext(
         fragment: Fragment,
-        fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        repositories: List<Repository>
-    ): Context {
-        val context = contextMap.computeIfAbsent(
-            ContextKey(
-                // Todo (AB) : Prefer COMPILE here (and don't use Ide module dependencies as a runtime classpath)
-                if (runtime) ResolutionScope.RUNTIME else ResolutionScope.COMPILE,
-                fragment.resolutionPlatforms,
-            )
-        ) { key ->
-            Context {
-                this.scope = key.scope
-                this.platforms = key.platforms
-                this.cache = fileCacheBuilder
-            }
-        }.let {
-            if (repositories.toSet() != it.settings.repositories.toSet()) {
-                it.copyWithNewNodeCache(emptyList(), repositories)
-            } else it
-        }
-        return context
-    }
+        fileCacheBuilder: FileCacheBuilder.() -> Unit
+    ): Context = fragment.module.resolveModuleContext(
+        fragment.resolutionPlatforms,
+        // Todo (AB) : Prefer COMPILE here (and don't use Ide module dependencies as a runtime classpath)
+        if (runtime) ResolutionScope.RUNTIME else ResolutionScope.COMPILE,
+        fileCacheBuilder
+    )
 }
-
-private data class ContextKey(
-    val scope: ResolutionScope,
-    val platforms: Set<ResolutionPlatform>
-)
 
 private val Fragment.resolutionPlatforms: Set<ResolutionPlatform>
     get() = (platforms.mapNotNull {
