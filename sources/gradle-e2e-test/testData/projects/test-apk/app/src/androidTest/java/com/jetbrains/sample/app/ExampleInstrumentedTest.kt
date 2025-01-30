@@ -47,7 +47,6 @@ class AppOpenTest {
     @Test
     fun checkAppOpens() {
         // Check that the app has opened by verifying that a view in the app is displayed
-        // FIXME DISABLED BECAUSE OF BROKEN TESTS ON CI RIGHT NOW
-        // assertThat(device.findObject(By.pkg(sampleAppPackage)), notNullValue())
+        assertThat(device.findObject(By.pkg(sampleAppPackage)), notNullValue())
     }
 }
