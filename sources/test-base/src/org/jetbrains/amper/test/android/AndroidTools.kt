@@ -40,6 +40,8 @@ private val scriptExtension = if (DefaultSystemInfo.detect().family.isWindows) "
  */
 class AndroidTools(
     val androidSdkHome: Path,
+    // We have to specify the parent directory so we can align the "old" ANDROID_SDK_HOME with ANDROID_USER_HOME.
+    // See below how this is used
     private val androidUserHomeParent: Path,
     private val javaHome: Path,
     private val log: (String) -> Unit = ::println,
@@ -50,6 +52,7 @@ class AndroidTools(
      */
     private val killAdbOnExit: Boolean = true,
 ) {
+    private val androidUserHome: Path = androidUserHomeParent / ".android"
     private val adbExe: Path = androidSdkHome / "platform-tools/adb$binExtension"
     private val emulatorExe: Path = androidSdkHome / "emulator/emulator$binExtension"
 
@@ -76,13 +79,14 @@ class AndroidTools(
     // See https://developer.android.com/tools/variables
     fun environment(): Map<String, String> = mapOf(
         "ANDROID_HOME" to androidSdkHome.absolutePathString(),
-        // We also set the old ANDROID_SDK_ROOT to prevent the outside environment from creating an inconsistent config
-        // (inconsistencies would make commands fail early instead of relying on precedence of new env vars).
+        "ANDROID_USER_HOME" to androidUserHome.absolutePathString(),
+        // ANDROID_HOME and ANDROID_USER_HOME should be sufficient if everything else is set to default values.
+        // However, the outside environment running the tests might have set more precise env vars (overrides).
+        // This could interfere with our test config, so we need to override them here again.
         "ANDROID_SDK_ROOT" to androidSdkHome.absolutePathString(),
-        // We also set the old ANDROID_SDK_HOME to prevent the outside environment from creating an inconsistent config
-        // (inconsistencies would make commands fail early instead of relying on precedence of new env vars).
         "ANDROID_SDK_HOME" to androidUserHomeParent.absolutePathString(),
-        "ANDROID_USER_HOME" to (androidUserHomeParent / ".android").absolutePathString(),
+        "ANDROID_EMULATOR_HOME" to androidUserHome.absolutePathString(),
+        "ANDROID_AVD_HOME" to (androidUserHome / "avd").absolutePathString(),
     )
 
     private fun findCmdlineToolScript(name: String): Path {
