@@ -30,6 +30,16 @@ data class CommonRunSettings(
      * Namely, JVMs used to run the user's JVM application or to run some JVM tests.
      */
     val userJvmArgs: List<String> = emptyList(),
+
+    /**
+     *  The JVM main class passed by the user
+     *  
+     *  It's required to override the effective main class set by the configuration for two main reasons:
+     *  1. For the IDE to be able to run any class by gutter icon
+     *  2. For hot-reload using dev entry point (especially for Compose libs, where you have no jvm app to run)
+     */
+    val userJvmMainClass: String? = null,
+
     /**
      * User provided platform-specific string that identifies the device (physical or emulator) to run on.
      */

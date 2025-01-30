@@ -46,6 +46,8 @@ internal class RunCommand : AmperSubcommand(name = "run") {
                 "If the $UserJvmArgsOption option is repeated, the arguments contained in all occurrences are passed " +
                 "to the JVM in the order they were specified. The JVM decides how it handles duplicate arguments."
     )
+    
+    private val jvmMainClass by option("--main-class", help = "Specifies the main class to run. This option is only applicable for JVM applications.")
 
     private val programArguments by argument(name = "app_arguments").multiple()
 
@@ -60,6 +62,7 @@ internal class RunCommand : AmperSubcommand(name = "run") {
             commonRunSettings = CommonRunSettings(
                 programArgs = programArguments,
                 userJvmArgs = jvmArgs,
+                userJvmMainClass = jvmMainClass,
                 deviceId = deviceId,
             ),
         ) { backend ->

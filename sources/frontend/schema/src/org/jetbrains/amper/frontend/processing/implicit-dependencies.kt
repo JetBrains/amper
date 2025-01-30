@@ -118,7 +118,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
         add(kotlinStdlibJdk8)
     }
     
-    if (platforms == setOf(Platform.JVM) && settings.compose.enabled && settings.compose.experimental.hotReload.enabled) {
+    if (settings.compose.enabled && settings.compose.experimental.hotReload.enabled) {
         add(hotReloadDependency)
     }
 

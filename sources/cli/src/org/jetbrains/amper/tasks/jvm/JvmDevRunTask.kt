@@ -1,0 +1,83 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.amper.tasks.jvm
+
+import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.jvm.Jdk
+import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.run.ToolingArtifactsDownloader
+import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.util.BuildType
+import kotlin.io.path.pathString
+import java.nio.file.Path
+
+class JvmDevRunTask(
+    taskName: TaskName,
+    module: AmperModule,
+    userCacheRoot: AmperUserCacheRoot,
+    projectRoot: AmperProjectRoot,
+    tempRoot: AmperProjectTempRoot,
+    terminal: Terminal,
+    commonRunSettings: CommonRunSettings,
+    executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val toolingArtifactsDownloader: ToolingArtifactsDownloader = ToolingArtifactsDownloader(
+        userCacheRoot,
+        executeOnChangedInputs
+    ),
+) : AbstractJvmRunTask(
+    taskName,
+    module,
+    userCacheRoot,
+    projectRoot,
+    tempRoot,
+    terminal,
+    commonRunSettings,
+    executeOnChangedInputs
+) {
+
+    override val buildType: BuildType
+        get() = BuildType.Debug
+
+    override suspend fun jvmArgs(): List<String> {
+        val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
+        val agent = agentClasspath.singleOrNull { it.pathString.contains("hot-reload-agent") }
+            ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
+
+        val devToolsClasspath = toolingArtifactsDownloader.downloadDevTools()
+
+        val amperJvmArgs = buildList {
+            add("-ea")
+//                add("-agentlib:jdwp=transport=dt_socket,server=n,address=localhost:5007,suspend=y")
+            add("-XX:+AllowEnhancedClassRedefinition")
+            add("-XX:HotswapAgent=external")
+            add("-javaagent:${agent.pathString}")
+            add("-Dcompose.reload.devToolsClasspath=${devToolsClasspath.joinToString(":")}")
+            add("-Dcompose.reload.buildSystem=Amper")
+            add("-Damper.build.root=${projectRoot.path}")
+            add("-Damper.build.task=${HotReloadTaskType.Reload.getTaskName(module, platform, isTest = false).name}")
+        }
+
+        return amperJvmArgs + commonRunSettings.userJvmArgs
+    }
+
+    override suspend fun finalClasspath(classpath: List<Path>): List<Path> {
+        val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
+        val agent = agentClasspath.singleOrNull { it.pathString.contains("hot-reload-agent") }
+            ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
+        val filteredAgentClasspath = agentClasspath.filter { !it.pathString.contains(agent.pathString) }
+
+        return classpath + filteredAgentClasspath
+    }
+
+    override suspend fun getJdk(): Jdk {
+        return JdkDownloader.getJbr(userCacheRoot)
+    }
+}
