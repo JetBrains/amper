@@ -109,6 +109,7 @@ internal class Classpath(
 
         val fragments = initialFragment
             ?.allFragmentDependencies(true)
+            // it would be better to use simple intersect with allMatchingFragments here, but Fragment.equals is not correctly defined yet
             ?.filter { it.name in allMatchingFragments.map { it.name }}
             ?.toList()
             ?: allMatchingFragments
