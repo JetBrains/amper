@@ -6,12 +6,12 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.ancestralPath
+import org.jetbrains.amper.frontend.aomBuilder.DefaultFragment
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
@@ -61,7 +61,11 @@ private fun composeResourcesDependency(composeVersion: TraceableString) = MavenD
  * Add automatically-added implicit dependencies to default module impl.
  */
 internal fun DefaultModule.addImplicitDependencies() {
-    fragments = fragments.map { it.withImplicitDependencies() }
+    fragments.associateWith {
+        // Precompute allExternalMavenDependencies because addImplicitDependencies would affect these.
+        it.allExternalMavenDependencies().mapTo(hashSetOf()) { it.groupAndArtifact }
+    }.forEach { (fragment, deps) -> fragment.addImplicitDependencies(deps) }
+
     parts = parts.map {
         if (it is RepositoriesModulePart) {
             it.withImplicitMavenRepositories(fragments)
@@ -71,14 +75,15 @@ internal fun DefaultModule.addImplicitDependencies() {
     }.toClassBasedSet()
 }
 
-private fun Fragment.withImplicitDependencies(): Fragment {
+private fun Fragment.addImplicitDependencies(
+    explicitMavenDependencies: Set<String>,
+) {
     val implicitDependencies = calculateImplicitDependencies()
     if (implicitDependencies.isEmpty()) {
-        return this
+        return
     }
 
     // we don't add an implicit dependency if it is already defined explicitly by the user (in any version)
-    val explicitMavenDependencies = allExternalMavenDependencies().map { it.groupAndArtifact }.toSet()
     val nonOverriddenImplicitDeps = implicitDependencies.filterNot { it.groupAndArtifact in explicitMavenDependencies }
 
     // TODO report cases where explicit dependencies only partially override a group of related implicit dependencies.
@@ -90,18 +95,9 @@ private fun Fragment.withImplicitDependencies(): Fragment {
     //  Example: the user adds kotlin-test:1.8.20, should we add kotlin-test-junit at all? (the version could mismatch)
 
     val newExternalDependencies = externalDependencies + nonOverriddenImplicitDeps
-    return when (this) {
-        is LeafFragment -> object : LeafFragment by this {
-            override val externalDependencies = newExternalDependencies
-            override fun equals(other: Any?) = other != null && other is LeafFragment && name == other.name
-            override fun hashCode() = name.hashCode()
-        }
-        else -> object : Fragment by this {
-            override val externalDependencies = newExternalDependencies
-            override fun equals(other: Any?) = other != null && other is LeafFragment && name == other.name
-            override fun hashCode() = name.hashCode()
-        }
-    }
+
+    // TODO: Write this in a way that doesn't require mutable list references
+    (this as DefaultFragment).externalDependencies = newExternalDependencies
 }
 
 private fun Fragment.allExternalMavenDependencies() = ancestralPath()

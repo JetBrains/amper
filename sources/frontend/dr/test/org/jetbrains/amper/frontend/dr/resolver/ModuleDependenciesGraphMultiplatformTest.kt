@@ -5,8 +5,6 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.test.Dirs
-import java.nio.file.Path
 import kotlin.test.Test
 
 /**
@@ -84,25 +82,29 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "shared",
                 fragment = "ios",
                 expected = """Fragment 'shared.ios' dependencies
++--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10
+|         +--- org.jetbrains.kotlinx:atomicfu:0.23.2
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+|         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+|         |    +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
+|         \--- org.jetbrains.compose.collection-internal:collection:1.6.10
+|              +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.23 -> 2.0.21
+|              +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10
+|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.23 -> 2.0.21
+|              \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 +--- shared:ios:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         +--- org.jetbrains.compose.animation:animation:1.6.10
 |         |    +--- org.jetbrains.compose.animation:animation-core:1.6.10
-|         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-|         |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
-|         |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
-|         |    |    +--- org.jetbrains.compose.collection-internal:collection:1.6.10
-|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.23 -> 2.0.21
-|         |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.23 -> 2.0.21
-|         |    |    |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-|         |    |    +--- org.jetbrains.compose.runtime:runtime:1.6.10
-|         |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
-|         |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
-|         |    |    |    \--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
+|         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
+|         |    |    +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
+|         |    |    +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui:1.6.10
 |         |    |    |    +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
@@ -197,39 +199,35 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
 |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
 |         \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-+--- shared:ios:org.jetbrains.compose.material3:material3:1.6.10
-|    \--- org.jetbrains.compose.material3:material3:1.6.10
-|         +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
-|         +--- org.jetbrains.compose.material:material-icons-core:1.6.10
-|         |    +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
-|         |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21 (*)
-|         |    +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
-|         |    \--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
-|         +--- org.jetbrains.compose.material:material-ripple:1.6.10
-|         |    +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
-|         |    +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-|         |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21 (*)
-|         |    +--- org.jetbrains.compose.animation:animation:1.6.10 (*)
-|         |    \--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-|         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-|         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
-|         +--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
-|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21 (*)
-|         +--- org.jetbrains.compose.animation:animation-core:1.6.10 (*)
-|         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-|         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
-|         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
-|         +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
-|         +--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
-|         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
-|         |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
-|         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.0.21 (*)
-|         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
-|         \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-+--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
-\--- shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
-     \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+\--- shared:ios:org.jetbrains.compose.material3:material3:1.6.10
+     \--- org.jetbrains.compose.material3:material3:1.6.10
+          +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
+          +--- org.jetbrains.compose.material:material-icons-core:1.6.10
+          |    +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
+          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21 (*)
+          |    +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
+          |    \--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+          +--- org.jetbrains.compose.material:material-ripple:1.6.10
+          |    +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
+          |    +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21 (*)
+          |    +--- org.jetbrains.compose.animation:animation:1.6.10 (*)
+          |    \--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
+          +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+          +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
+          +--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
+          +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 -> 2.0.21 (*)
+          +--- org.jetbrains.compose.animation:animation-core:1.6.10 (*)
+          +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
+          +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
+          +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+          +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
+          +--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
+          |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
+          |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
+          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.0.21 (*)
+          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21
+          \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
              """.trimIndent()
             )
         }

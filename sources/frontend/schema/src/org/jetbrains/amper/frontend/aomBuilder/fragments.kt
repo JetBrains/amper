@@ -39,7 +39,7 @@ open class DefaultFragment(
     seed: FragmentSeed,
     final override val module: AmperModule,
     final override val isTest: Boolean,
-    override val externalDependencies: List<Notation>,
+    override var externalDependencies: List<Notation>,
     relevantSettings: Settings?,
     moduleFile: VirtualFile,
 ) : Fragment {

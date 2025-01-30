@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.maven
 
@@ -7,12 +7,12 @@ import org.apache.maven.model.Dependency
 import org.apache.maven.model.Model
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer
 import org.codehaus.plexus.util.WriterFactory
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.DefaultScopedNotation
+import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.ancestralPath
 import java.nio.file.Path
 import kotlin.io.path.readText
@@ -56,7 +56,7 @@ private fun generatePomModel(module: AmperModule, platform: Platform): Model {
     val coords = module.publicationCoordinates(platform)
     val fragment = module.singleProductionFragmentOrNull(platform)
         ?: error("Cannot generate pom for module '${module.userReadableName}': expected a single fragment for platform $platform")
-    val dependencies = fragment.ancestralPath().flatMap { it.externalDependencies }
+    val dependencies = fragment.ancestralPath().flatMap { it.externalDependencies }.distinct()
 
     val model = Model()
     model.modelVersion = "4.0.0"
