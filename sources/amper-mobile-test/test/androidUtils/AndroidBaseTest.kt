@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.SimplePrintOutputListener
 import org.jetbrains.amper.test.android.AndroidTools
@@ -151,7 +150,6 @@ open class AndroidBaseTest : TestBase() {
     }
 }
 
-@OptIn(ProcessLeak::class)
 private suspend fun AndroidTools.ensureEmulatorIsRunning() {
     if (!isEmulatorRunning()) {
         val testAvdName = "amper-test-avd"

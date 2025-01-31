@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.processes.ProcessInput
-import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcess
@@ -171,7 +170,6 @@ class AndroidTools(
      * @return the PID of the emulator process
      */
     @OptIn(DelicateCoroutinesApi::class)
-    @ProcessLeak
     suspend fun startAndAwaitEmulator(avdName: String) {
         log("Starting emulator for AVD $avdName...")
 
