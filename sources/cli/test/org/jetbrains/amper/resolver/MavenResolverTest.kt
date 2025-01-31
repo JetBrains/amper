@@ -167,7 +167,6 @@ class MavenResolverTest {
     }
 
     @Test
-    @Ignore("AMPER-580 DR: Fail resolve if platform support was not found")
     fun negativeResolvePlatformSupportWasNotFound() = runTest(timeout = Duration.INFINITE ) {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
@@ -183,7 +182,7 @@ class MavenResolverTest {
             message = "kotlinx-datetime-macosx64-0.2.1.klib must be found in resolve result: ${macosX64.toList()}")
 
         // kotlinx-datetime:0.2.1 is NOT available for macos_arm64
-        val t = assertThrows<MavenResolverException> {
+        val t = assertThrows<UserReadableError> {
             runBlocking {
                 resolver.resolve(
                     coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
@@ -195,7 +194,11 @@ class MavenResolverTest {
             }
         }
         assertEquals(
-            "some good explanation that macos_arm64 support is missing, but it's available for the following list of platforms: LIST",
+            """
+               Unable to resolve dependencies for test:
+
+               No variant for the platform macosArm64 is provided by the library org.jetbrains.kotlinx:kotlinx-datetime:0.2.1
+               """.trimIndent(),
             t.message
         )
     }

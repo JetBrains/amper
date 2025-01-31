@@ -117,9 +117,9 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
         }
     } + noneFilterableNodes
 
-    nodesWithDecisiveParents.addAll(nodes)
+    val addedNodes = nodes.filter { nodesWithDecisiveParents.add(it) }
 
-    nodes.forEach {
+    addedNodes.forEach {
         // todo (AB) : Some parents might be obsolete (unreachable from the root) in case those are left from canceled conflicting subgraph
         it.parents.toSet().addDecisiveParents(nodesWithDecisiveParents, graph)
     }

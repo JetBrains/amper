@@ -156,24 +156,25 @@ class DependencyFileTest {
         }
     }
 
+    /**
+     * Test checks that DR fails if library doesn't declare variant for required platform
+     * 'org.jetbrains.skiko:skiko-awt-runtime-macos-arm64:0.8.22' depends on 'org.jetbrains.skiko:skiko-awt:0.8.22'
+     * that define jvm-related variants only
+     */
     @Test
-    fun `skiko-awt-runtime-macos-arm64-0_8_4_jar hash`() {
+    fun `skiko-awt-runtime-macos-arm64-0_8_22_jar hash`() {
         Context {
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
                 readOnlyExternalRepositories = emptyList()
             }
-            repositories = listOf(
-                REDIRECTOR_MAVEN_CENTRAL,
-                REDIRECTOR_MAVEN_GOOGLE,
-                REDIRECTOR_COMPOSE_DEV
-            ).toRepositories()
-            platforms = setOf(ResolutionPlatform.IOS_ARM64)
+            repositories = listOf(REDIRECTOR_COMPOSE_DEV).toRepositories()
+            platforms = setOf(ResolutionPlatform.MACOS_ARM64)
         }.use { context ->
             val dependency = MavenDependency(
                 context.settings,
-                "org.jetbrains.skiko", "skiko-awt-runtime-macos-arm64", "0.8.4"
+                "org.jetbrains.skiko", "skiko-awt-runtime-macos-arm64", "0.8.22"
             )
             val root = MavenDependencyNode(context, dependency)
             runBlocking {
@@ -183,7 +184,15 @@ class DependencyFileTest {
             }
             root.distinctBfsSequence().forEach {
                 val messages = it.messages.filter { "Downloaded " !in it.text }
-                assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
+                if (it is MavenDependencyNode && it.module == "skiko-awt") {
+                    assertEquals(1, messages.size,
+                        "There must be the only error messages instead of ${messages.size}: $messages")
+                    assertEquals(messages.single().detailedMessage,
+                        "No variant for the platform macosArm64 is provided by the library org.jetbrains.skiko:skiko-awt:0.8.22",
+                        "Unexpected error message")
+                } else {
+                    assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
+                }
             }
         }
     }

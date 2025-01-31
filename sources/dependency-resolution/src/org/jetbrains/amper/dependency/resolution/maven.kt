@@ -555,58 +555,87 @@ class MavenDependency internal constructor(
             )
         }
 
-        if (context.settings.platforms.size == 1) {
-            val platform = context.settings.platforms.single()
-            val validVariants = resolveVariants(moduleMetadata, context.settings, platform)
+        val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata, level, diagnosticsReporter)
+        if (processedAsSpecialCase) {
+            // Do nothing, dependency was already processed
+        } else {
+            if (context.settings.platforms.size == 1) {
+                val platform = context.settings.platforms.single()
+                val validVariants = resolveVariants(moduleMetadata, context.settings, platform)
 
-            validVariants.also {
-                variants = it
-                if (it.withoutDocumentationAndMetadata.size > 1) {
+                if (validVariants.isEmpty()) {
                     diagnosticsReporter.addMessage(
                         Message(
-                            "More than a single variant provided for $this",
-                            it.withoutDocumentationAndMetadata.joinToString { it.name },
-                            Severity.WARNING,
-                    ))
-                }
-            }
-            // One platform case
-            validVariants
-                .withoutDocumentationAndMetadata
-                .let { variants ->
-                    variants.flatMap {
-                        it.dependencies(context, moduleMetadata, level, diagnosticsReporter) + listOfNotNull(it.`available-at`?.asDependency())
-                    }.mapNotNull {
-                        it.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
-                    }.let {
-                        children = it
+                            "No variant for the platform ${platform.pretty} is provided by the library $this",
+                            severity = Severity.ERROR,
+                        )
+                    )
+                } else {
+                    validVariants.also {
+                        variants = it
+                        if (it.withoutDocumentationAndMetadata.size > 1) {
+                            diagnosticsReporter.addMessage(
+                                Message(
+                                    "More than a single variant provided for $this",
+                                    it.withoutDocumentationAndMetadata.joinToString { it.name },
+                                    Severity.WARNING,
+                                )
+                            )
+                        }
                     }
+                    // One platform case
+                    validVariants
+                        .withoutDocumentationAndMetadata
+                        .let { variants ->
+                            variants.flatMap {
+                                it.dependencies(
+                                    context,
+                                    moduleMetadata,
+                                    level,
+                                    diagnosticsReporter
+                                ) + listOfNotNull(it.`available-at`?.asDependency())
+                            }.mapNotNull {
+                                it.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
+                            }.let {
+                                children = it
+                            }
 
-                    variants.flatMap {
-                        it.dependencyConstraints
-                    }.mapNotNull {
-                        it.toMavenDependencyConstraint(context)
-                    }.let {
-                        dependencyConstraints = it
-                    }
+                            variants.flatMap {
+                                it.dependencyConstraints
+                            }.mapNotNull {
+                                it.toMavenDependencyConstraint(context)
+                            }.let {
+                                dependencyConstraints = it
+                            }
+                        }
                 }
-        } else {
-            // Multiplatform case
-            val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata, level, diagnosticsReporter)
-            if (processedAsSpecialCase) {
-                // Do nothing, dependency was already processed
             } else {
+                // Multiplatform case
                 val (kotlinMetadataVariant, kmpMetadataFile) =
-                    detectKotlinMetadataLibrary(context, ResolutionPlatform.COMMON, moduleMetadata, level, diagnosticsReporter)
+                    detectKotlinMetadataLibrary(
+                        context,
+                        ResolutionPlatform.COMMON,
+                        moduleMetadata,
+                        level,
+                        diagnosticsReporter
+                    )
                         ?: return  // children list is empty in case kmp common variant is not resolved
 
-                resolveKmpLibrary(kmpMetadataFile, context, moduleMetadata, level, kotlinMetadataVariant, diagnosticsReporter)
+                resolveKmpLibrary(
+                    kmpMetadataFile,
+                    context,
+                    moduleMetadata,
+                    level,
+                    kotlinMetadataVariant,
+                    diagnosticsReporter
+                )
 
                 // Add KMP sources
-                val sourcesDependencyFile = getKotlinMetadataSourcesVariant(moduleMetadata.variants, ResolutionPlatform.COMMON)
-                    ?.let { getKotlinMetadataFile(it, diagnosticsReporter) }
-                    ?.let { getDependencyFile(this, it) }
-                    ?: getAutoAddedSourcesDependencyFile()
+                val sourcesDependencyFile =
+                    getKotlinMetadataSourcesVariant(moduleMetadata.variants, ResolutionPlatform.COMMON)
+                        ?.let { getKotlinMetadataFile(it, diagnosticsReporter) }
+                        ?.let { getDependencyFile(this, it) }
+                        ?: getAutoAddedSourcesDependencyFile()
 
                 sourceSetsFiles = sourceSetsFiles.toMutableList() + listOf(sourcesDependencyFile)
             }

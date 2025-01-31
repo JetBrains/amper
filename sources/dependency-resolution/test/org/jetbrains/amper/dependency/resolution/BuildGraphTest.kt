@@ -491,6 +491,7 @@ class BuildGraphTest: BaseDRTest() {
                 |          |    |    |    |              +--- org.jetbrains:annotations:23.0.0
                 |          |    |    |    |              +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
                 |          |    |    |    |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 2.0.20
+                |          |    |    |    |              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
                 |          |    |    |    |              \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22
                 |          |    |    |    |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
                 |          |    |    |    |                   \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22
@@ -1437,9 +1438,6 @@ class BuildGraphTest: BaseDRTest() {
         val contexts = listOf(
             context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories),
             context(platform = setOf(ResolutionPlatform.ANDROID), repositories = repositories),
-            context(platform = setOf(ResolutionPlatform.IOS_X64), repositories = repositories),
-            context(platform = setOf(ResolutionPlatform.IOS_ARM64), repositories = repositories),
-            context(platform = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64), repositories = repositories),
         )
 
         val root = DependencyNodeHolder(
@@ -1541,97 +1539,98 @@ class BuildGraphTest: BaseDRTest() {
             scope = ResolutionScope.RUNTIME,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, "https://packages.jetbrains.team/maven/p/amper/amper"),
             expected = """root
-                |\--- org.jetbrains.amper:amper-dr-test-bom-usages:1.0
-                |     +--- io.ktor:ktor-bom:2.3.9
-                |     |    \--- io.ktor:ktor-client-core-jvm:2.3.9 (c)
-                |     +--- io.ktor:ktor-io-jvm:2.3.9
-                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22
-                |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20
-                |     |    |         +--- org.jetbrains:annotations:13.0 -> 23.0.0
-                |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (c)
-                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22
-                |     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
-                |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1
-                |     |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1
-                |     |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1
-                |     |    |    |         +--- org.jetbrains:annotations:23.0.0
-                |     |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
-                |     |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 2.0.20
-                |     |    |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
-                |     |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
-                |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
-                |     |    +--- org.slf4j:slf4j-api:1.7.36
-                |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
-                |     +--- io.ktor:ktor-client-core-jvm:2.3.8 -> 2.3.9
-                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                |     |    +--- org.slf4j:slf4j-api:1.7.36
-                |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |     |    +--- io.ktor:ktor-http:2.3.9
-                |     |    |    \--- io.ktor:ktor-http-jvm:2.3.9
-                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                |     |    |         +--- org.slf4j:slf4j-api:1.7.36
-                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |     |    |         +--- io.ktor:ktor-utils:2.3.9
-                |     |    |         |    \--- io.ktor:ktor-utils-jvm:2.3.9
-                |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                |     |    |         |         +--- org.slf4j:slf4j-api:1.7.36
-                |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |     |    |         |         +--- io.ktor:ktor-io:2.3.9
-                |     |    |         |         |    \--- io.ktor:ktor-io-jvm:2.3.9 (*)
-                |     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
-                |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
-                |     |    +--- io.ktor:ktor-events:2.3.9
-                |     |    |    \--- io.ktor:ktor-events-jvm:2.3.9
-                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                |     |    |         +--- org.slf4j:slf4j-api:1.7.36
-                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |     |    |         +--- io.ktor:ktor-http:2.3.9 (*)
-                |     |    |         +--- io.ktor:ktor-utils:2.3.9 (*)
-                |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
-                |     |    +--- io.ktor:ktor-websocket-serialization:2.3.9
-                |     |    |    \--- io.ktor:ktor-websocket-serialization-jvm:2.3.9
-                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                |     |    |         +--- org.slf4j:slf4j-api:1.7.36
-                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |     |    |         +--- io.ktor:ktor-http:2.3.9 (*)
-                |     |    |         +--- io.ktor:ktor-serialization:2.3.9
-                |     |    |         |    \--- io.ktor:ktor-serialization-jvm:2.3.9
-                |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                |     |    |         |         +--- org.slf4j:slf4j-api:1.7.36
-                |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |     |    |         |         +--- io.ktor:ktor-http:2.3.9 (*)
-                |     |    |         |         +--- io.ktor:ktor-websockets:2.3.9
-                |     |    |         |         |    \--- io.ktor:ktor-websockets-jvm:2.3.9
-                |     |    |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                |     |    |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                |     |    |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                |     |    |         |         |         +--- org.slf4j:slf4j-api:1.7.36
-                |     |    |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |     |    |         |         |         +--- io.ktor:ktor-http:2.3.9 (*)
-                |     |    |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
-                |     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
-                |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
-                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
-                |     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.1
-                |     |         +--- org.slf4j:slf4j-api:1.7.32 -> 1.7.36
-                |     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
-                |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
-                |     \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
+               |\--- org.jetbrains.amper:amper-dr-test-bom-usages:1.0
+               |     +--- io.ktor:ktor-bom:2.3.9
+               |     |    \--- io.ktor:ktor-client-core-jvm:2.3.9 (c)
+               |     +--- io.ktor:ktor-io-jvm:2.3.9
+               |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22
+               |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20
+               |     |    |         +--- org.jetbrains:annotations:13.0 -> 23.0.0
+               |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (c)
+               |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22
+               |     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
+               |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+               |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1
+               |     |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1
+               |     |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1
+               |     |    |    |         +--- org.jetbrains:annotations:23.0.0
+               |     |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+               |     |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 2.0.20
+               |     |    |    |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
+               |     |    |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+               |     |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+               |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+               |     |    +--- org.slf4j:slf4j-api:1.7.36
+               |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+               |     +--- io.ktor:ktor-client-core-jvm:2.3.8 -> 2.3.9
+               |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+               |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+               |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+               |     |    +--- org.slf4j:slf4j-api:1.7.36
+               |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |     |    +--- io.ktor:ktor-http:2.3.9
+               |     |    |    \--- io.ktor:ktor-http-jvm:2.3.9
+               |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+               |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+               |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+               |     |    |         +--- org.slf4j:slf4j-api:1.7.36
+               |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |     |    |         +--- io.ktor:ktor-utils:2.3.9
+               |     |    |         |    \--- io.ktor:ktor-utils-jvm:2.3.9
+               |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+               |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+               |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+               |     |    |         |         +--- org.slf4j:slf4j-api:1.7.36
+               |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |     |    |         |         +--- io.ktor:ktor-io:2.3.9
+               |     |    |         |         |    \--- io.ktor:ktor-io-jvm:2.3.9 (*)
+               |     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+               |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+               |     |    +--- io.ktor:ktor-events:2.3.9
+               |     |    |    \--- io.ktor:ktor-events-jvm:2.3.9
+               |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+               |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+               |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+               |     |    |         +--- org.slf4j:slf4j-api:1.7.36
+               |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |     |    |         +--- io.ktor:ktor-http:2.3.9 (*)
+               |     |    |         +--- io.ktor:ktor-utils:2.3.9 (*)
+               |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+               |     |    +--- io.ktor:ktor-websocket-serialization:2.3.9
+               |     |    |    \--- io.ktor:ktor-websocket-serialization-jvm:2.3.9
+               |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+               |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+               |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+               |     |    |         +--- org.slf4j:slf4j-api:1.7.36
+               |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |     |    |         +--- io.ktor:ktor-http:2.3.9 (*)
+               |     |    |         +--- io.ktor:ktor-serialization:2.3.9
+               |     |    |         |    \--- io.ktor:ktor-serialization-jvm:2.3.9
+               |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+               |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+               |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+               |     |    |         |         +--- org.slf4j:slf4j-api:1.7.36
+               |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |     |    |         |         +--- io.ktor:ktor-http:2.3.9 (*)
+               |     |    |         |         +--- io.ktor:ktor-websockets:2.3.9
+               |     |    |         |         |    \--- io.ktor:ktor-websockets-jvm:2.3.9
+               |     |    |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+               |     |    |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+               |     |    |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+               |     |    |         |         |         +--- org.slf4j:slf4j-api:1.7.36
+               |     |    |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |     |    |         |         |         +--- io.ktor:ktor-http:2.3.9 (*)
+               |     |    |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+               |     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+               |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+               |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+               |     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.1
+               |     |         +--- org.slf4j:slf4j-api:1.7.32 -> 1.7.36
+               |     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+               |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+               |     \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
             """.trimMargin()
         )
     }
@@ -1796,6 +1795,7 @@ class BuildGraphTest: BaseDRTest() {
                 |          +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
                 |          |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-macosarm64:1.6.2
                 |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21
+                |          |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
                 |          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
                 |          \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
             """.trimMargin()
@@ -1816,9 +1816,10 @@ class BuildGraphTest: BaseDRTest() {
                 |\--- org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2
                 |     \--- org.jetbrains.kotlinx:kotlinx-serialization-json-macosarm64:1.7.2
                 |          +--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20
+                |          |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20
                 |          +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.2
                 |          |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-macosarm64:1.7.2
-                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (*)
                 |          |         \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20
                 |          \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20
             """.trimMargin()
@@ -2120,6 +2121,7 @@ class BuildGraphTest: BaseDRTest() {
             ||              \--- org.apiguardian:apiguardian-api:1.1.0
             |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
             |\--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20
+            |     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
         """.trimMargin(),
                 root
             )
@@ -2140,20 +2142,21 @@ class BuildGraphTest: BaseDRTest() {
             runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
             assertEquals(
                 """root
-            |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
-            ||    +--- org.jetbrains:annotations:13.0
-            ||    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20 (c)
-            |+--- org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-            ||    \--- org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.4.0
-            ||         +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.0 -> 1.9.20 (*)
-            ||         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.0 -> 1.9.20
-            |+--- org.jetbrains.kotlin:kotlin-test:1.9.0 -> 1.9.20
-            ||    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
-            |+--- org.jetbrains.kotlin:kotlin-test-junit:1.9.20
-            ||    +--- org.jetbrains.kotlin:kotlin-test:1.9.20 (*)
-            ||    \--- junit:junit:4.13.2
-            ||         \--- org.hamcrest:hamcrest-core:1.3
-            |\--- junit:junit:4.12 -> 4.13.2 (*)
+               |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+               ||    +--- org.jetbrains:annotations:13.0
+               ||    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20 (c)
+               |+--- org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+               ||    \--- org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.4.0
+               ||         +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.0 -> 1.9.20 (*)
+               ||         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.0 -> 1.9.20
+               ||              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+               |+--- org.jetbrains.kotlin:kotlin-test:1.9.0 -> 1.9.20
+               ||    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+               |+--- org.jetbrains.kotlin:kotlin-test-junit:1.9.20
+               ||    +--- org.jetbrains.kotlin:kotlin-test:1.9.20 (*)
+               ||    \--- junit:junit:4.13.2
+               ||         \--- org.hamcrest:hamcrest-core:1.3
+               |\--- junit:junit:4.12 -> 4.13.2 (*)
         """.trimMargin(),
                 root
             )
@@ -2283,6 +2286,8 @@ class BuildGraphTest: BaseDRTest() {
 //        )
 //    }
 
+
+
     @Test
     fun `org_jetbrains_compose_material3 material3-uikitarm64 1_6_10`(testInfo: TestInfo) {
         doTest(
@@ -2307,6 +2312,7 @@ class BuildGraphTest: BaseDRTest() {
                |     |         |    \--- org.jetbrains.compose.runtime:runtime-uikitarm64:1.6.10
                |     |         |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
                |     |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.23
                |     |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2
                |     |         |         |    \--- org.jetbrains.kotlinx:atomicfu-iosarm64:0.23.2
                |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.23
@@ -2348,7 +2354,7 @@ class BuildGraphTest: BaseDRTest() {
                |     |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10
                |     |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitarm64:1.6.10
                |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-               |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10
                |     |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitarm64:1.6.10
                |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
@@ -2356,8 +2362,8 @@ class BuildGraphTest: BaseDRTest() {
                |     |         |         |         |    \--- org.jetbrains.compose.ui:ui-util-uikitarm64:1.6.10
                |     |         |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.6.10
                |     |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-uikit-uikitarm64:1.6.10
-               |     |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
-               |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
+               |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10
                |     |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitarm64:1.6.10
                |     |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
@@ -2370,9 +2376,9 @@ class BuildGraphTest: BaseDRTest() {
                |     |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
                |     |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
                |     |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4
                |     |         |         |              \--- org.jetbrains.skiko:skiko-iosarm64:0.8.4
                |     |         |         |                   +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
@@ -2387,20 +2393,20 @@ class BuildGraphTest: BaseDRTest() {
                |     |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
                |     |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
                |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
                |     |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
                |     |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.6.10 (*)
                |     |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
                |     |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
                |     |         |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
                |     |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
                |     +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
@@ -2416,12 +2422,12 @@ class BuildGraphTest: BaseDRTest() {
                |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
                |     |         |         |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
                |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
                |     |         |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
                |     |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
                |     |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
@@ -2429,7 +2435,7 @@ class BuildGraphTest: BaseDRTest() {
                |     |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
                |     +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
@@ -2438,25 +2444,25 @@ class BuildGraphTest: BaseDRTest() {
                |     |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
-               |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     +--- org.jetbrains.compose.material:material-ripple:1.6.10
                |     |    \--- org.jetbrains.compose.material:material-ripple-uikitarm64:1.6.10
                |     |         +--- org.jetbrains.compose.animation:animation:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
                |     |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
                |     +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
                |     +--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
                |     +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
-               |     +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
+               |     +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23 (*)
                |     +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     \--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
                |          \--- org.jetbrains.kotlinx:kotlinx-datetime-iosarm64:0.5.0
                |               +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
                |               |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-iosarm64:1.6.2
-               |               |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 1.9.23
+               |               |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 1.9.23 (*)
                |               |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.23
                |               \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.23
             """.trimMargin()
