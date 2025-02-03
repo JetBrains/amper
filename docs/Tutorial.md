@@ -494,8 +494,8 @@ fun ViewController() = ComposeUIViewController {
 ```
 
 And the last step, copy
-the [AndroidManifest.xml file from an example project](../examples-gradle/compose-multiplatform/android-app/src@android/AndroidManifest.xml)
-into `android-app/src@android` folder, and the [iosApp.swift file](../examples-gradle/compose-multiplatform/ios-app/src/iosApp.swift) into the `ios-app/src`.
+the [AndroidManifest.xml file from an example project](../examples-gradle/compose-multiplatform/android-app/src/AndroidManifest.xml)
+into `android-app/src` folder, and the [iosApp.swift file](../examples-gradle/compose-multiplatform/ios-app/src/iosApp.swift) into the `ios-app/src`.
 These files bind the Compose UI code with the native application entry points.
 
 Make sure that your project structure looks like this:
