@@ -21,7 +21,11 @@ class DependencyInsightsTest : BaseModuleDrTest() {
     fun `test sync empty jvm module`() {
         val aom = getTestProjectModel("jvm-empty", testDataRoot)
 
-        kotlin.test.assertEquals(aom.modules[0].fragments.map { it.name }.toSet(),  setOf("jvm", "jvmTest"), "")
+        kotlin.test.assertEquals(
+            setOf("common", "commonTest", "jvm", "jvmTest"),
+            aom.modules[0].fragments.map { it.name }.toSet(),
+            "",
+        )
 
         val jvmEmptyModuleGraph = runBlocking {
             doTest(
@@ -29,19 +33,25 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                 resolutionInput = ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
                 module = "jvm-empty",
                 expected = """
-                    |module:jvm-empty
-                    |+--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
-                    ||         \--- org.jetbrains:annotations:13.0
-                    |+--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-                    |\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
-                    |     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
-                    |          +--- org.jetbrains.kotlin:kotlin-test:2.0.21
-                    |          |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-                    |          \--- junit:junit:4.13.2
-                    |               \--- org.hamcrest:hamcrest-core:1.3"""
-                    .trimMargin()
+module:jvm-empty
++--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+|         \--- org.jetbrains:annotations:13.0
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
+|         +--- org.jetbrains.kotlin:kotlin-test:2.0.21
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+|         \--- junit:junit:4.13.2
+|              \--- org.hamcrest:hamcrest-core:1.3
++--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
++--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21 (*)
+""".trimIndent()
             )
         }
 
@@ -51,35 +61,45 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                 module = "kotlin-stdlib",
                 graph = jvmEmptyModuleGraph,
                 expected = """
-                    |module:jvm-empty
-                    |+--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
-                    |+--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
-                    |\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
-                    |     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
-                    |          \--- org.jetbrains.kotlin:kotlin-test:2.0.21
-                    |               \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21""".trimMargin()
+module:jvm-empty
++--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
+|         \--- org.jetbrains.kotlin:kotlin-test:2.0.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21 (*)""".trimIndent()
                 )
             assertInsight(
                 group = "org.hamcrest",
                 module = "hamcrest-core",
                 graph = jvmEmptyModuleGraph,
                 expected = """
-                    |module:jvm-empty
-                    |\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
-                    |     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
-                    |          \--- junit:junit:4.13.2
-                    |               \--- org.hamcrest:hamcrest-core:1.3""".trimMargin()
+module:jvm-empty
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
+|         \--- junit:junit:4.13.2
+|              \--- org.hamcrest:hamcrest-core:1.3
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21 (*)""".trimIndent()
             )
             assertInsight(
                 group = "org.jetbrains.kotlin",
                 module = "kotlin-test-junit",
                 graph = jvmEmptyModuleGraph,
                 expected = """
-                    |module:jvm-empty
-                    |\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
-                    |     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21""".trimMargin()
+module:jvm-empty
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21""".trimIndent()
             )
             assertInsight(
                 group = "org.jetbrains.kotlin", module = "XXX", graph = jvmEmptyModuleGraph,
@@ -286,13 +306,21 @@ class DependencyInsightsTest : BaseModuleDrTest() {
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
 +--- shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
++--- shared:apple:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
++--- shared:apple:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
 +--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
 +--- shared:common:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
 +--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
-\--- shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
++--- shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
++--- shared:native:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+\--- shared:native:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
      \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
              """.trimIndent()
             )
@@ -460,15 +488,23 @@ class DependencyInsightsTest : BaseModuleDrTest() {
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
 +--- shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
++--- shared:apple:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
++--- shared:apple:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
 +--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
 +--- shared:common:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
 +--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-\--- shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
++--- shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
++--- shared:native:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+\--- shared:native:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
      \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    """.trimIndent()
+""".trimIndent()
             )
 
             // Assert that all dependencies "org.jetbrains.kotlin:kotlin-stdlib-common" have correct overriddenBy
@@ -495,92 +531,96 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                 module = "kotlinx-coroutines-core",
                 graph = sharedModuleIosArm64Graph,
                 expected = """
-                    |shared:COMPILE:IOS_ARM64
-                    |+--- shared:common:org.jetbrains.compose.foundation:foundation:1.6.10
-                    ||    \--- org.jetbrains.compose.foundation:foundation:1.6.10
-                    ||         \--- org.jetbrains.compose.foundation:foundation-uikitarm64:1.6.10
-                    ||              +--- org.jetbrains.compose.animation:animation:1.6.10
-                    ||              |    \--- org.jetbrains.compose.animation:animation-uikitarm64:1.6.10
-                    ||              |         +--- org.jetbrains.compose.animation:animation-core:1.6.10
-                    ||              |         |    \--- org.jetbrains.compose.animation:animation-core-uikitarm64:1.6.10
-                    ||              |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10
-                    ||              |         |         |    \--- org.jetbrains.compose.runtime:runtime-uikitarm64:1.6.10
-                    ||              |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-                    ||              |         |         +--- org.jetbrains.compose.ui:ui:1.6.10
-                    ||              |         |         |    \--- org.jetbrains.compose.ui:ui-uikitarm64:1.6.10
-                    ||              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.0
-                    ||              |         |         |         |    \--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitarm64:2.8.0
-                    ||              |         |         |         |         \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10
-                    ||              |         |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitarm64:1.6.10
-                    ||              |         |         |         |         \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10
-                    ||              |         |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitarm64:1.6.10
-                    ||              |         |         |         |         \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10
-                    ||              |         |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitarm64:1.6.10
-                    ||              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
-                    ||              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10
-                    ||              |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-unit-uikitarm64:1.6.10
-                    ||              |         |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              |         |         |         |         |         \--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
-                    ||              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4
-                    ||              |         |         |         |              \--- org.jetbrains.skiko:skiko-iosarm64:0.8.4
-                    ||              |         |         |         |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-                    ||              |         |         |         +--- org.jetbrains.compose.ui:ui-text:1.6.10
-                    ||              |         |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitarm64:1.6.10
-                    ||              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10 (*)
-                    ||              |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
-                    ||              |         |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
-                    ||              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
-                    ||              |         |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-                    ||              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-                    ||              |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
-                    ||              |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-                    ||              |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-                    ||              |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
-                    ||              |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-                    ||              |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10
-                    ||              |         |    \--- org.jetbrains.compose.foundation:foundation-layout-uikitarm64:1.6.10
-                    ||              |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              |         |         \--- org.jetbrains.compose.ui:ui:1.6.10 (*)
-                    ||              |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
-                    ||              |         \--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
-                    ||              \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-                    |+--- shared:common:org.jetbrains.compose.material3:material3:1.6.10
-                    ||    \--- org.jetbrains.compose.material3:material3:1.6.10
-                    ||         \--- org.jetbrains.compose.material3:material3-uikitarm64:1.6.10
-                    ||              +--- org.jetbrains.compose.animation:animation-core:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.material:material-icons-core:1.6.10
-                    ||              |    \--- org.jetbrains.compose.material:material-icons-core-uikitarm64:1.6.10
-                    ||              |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
-                    ||              |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
-                    ||              |         \--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.material:material-ripple:1.6.10
-                    ||              |    \--- org.jetbrains.compose.material:material-ripple-uikitarm64:1.6.10
-                    ||              |         +--- org.jetbrains.compose.animation:animation:1.6.10 (*)
-                    ||              |         +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
-                    ||              |         \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    ||              +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
-                    ||              \--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
-                    |+--- shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
-                    ||    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    |+--- shared:common:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
-                    ||    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    |\--- shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
-                    |     \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
-                    """.trimMargin()
+shared:COMPILE:IOS_ARM64
++--- shared:common:org.jetbrains.compose.foundation:foundation:1.6.10
+|    \--- org.jetbrains.compose.foundation:foundation:1.6.10
+|         \--- org.jetbrains.compose.foundation:foundation-uikitarm64:1.6.10
+|              +--- org.jetbrains.compose.animation:animation:1.6.10
+|              |    \--- org.jetbrains.compose.animation:animation-uikitarm64:1.6.10
+|              |         +--- org.jetbrains.compose.animation:animation-core:1.6.10
+|              |         |    \--- org.jetbrains.compose.animation:animation-core-uikitarm64:1.6.10
+|              |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10
+|              |         |         |    \--- org.jetbrains.compose.runtime:runtime-uikitarm64:1.6.10
+|              |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+|              |         |         +--- org.jetbrains.compose.ui:ui:1.6.10
+|              |         |         |    \--- org.jetbrains.compose.ui:ui-uikitarm64:1.6.10
+|              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.0
+|              |         |         |         |    \--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitarm64:2.8.0
+|              |         |         |         |         \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10
+|              |         |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitarm64:1.6.10
+|              |         |         |         |         \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10
+|              |         |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitarm64:1.6.10
+|              |         |         |         |         \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10
+|              |         |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitarm64:1.6.10
+|              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
+|              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10
+|              |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-unit-uikitarm64:1.6.10
+|              |         |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              |         |         |         |         |         \--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
+|              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4
+|              |         |         |         |              \--- org.jetbrains.skiko:skiko-iosarm64:0.8.4
+|              |         |         |         |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+|              |         |         |         +--- org.jetbrains.compose.ui:ui-text:1.6.10
+|              |         |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitarm64:1.6.10
+|              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10 (*)
+|              |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
+|              |         |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
+|              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+|              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
+|              |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+|              |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+|              |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
+|              |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+|              |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+|              |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10
+|              |         |    \--- org.jetbrains.compose.foundation:foundation-layout-uikitarm64:1.6.10
+|              |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              |         |         \--- org.jetbrains.compose.ui:ui:1.6.10 (*)
+|              |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
+|              |         \--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
+|              +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
+|              +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
+|              +--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
+|              \--- org.jetbrains.skiko:skiko:0.8.4 (*)
++--- shared:common:org.jetbrains.compose.material3:material3:1.6.10
+|    \--- org.jetbrains.compose.material3:material3:1.6.10
+|         \--- org.jetbrains.compose.material3:material3-uikitarm64:1.6.10
+|              +--- org.jetbrains.compose.animation:animation-core:1.6.10 (*)
+|              +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
+|              +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
+|              +--- org.jetbrains.compose.material:material-icons-core:1.6.10
+|              |    \--- org.jetbrains.compose.material:material-icons-core-uikitarm64:1.6.10
+|              |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
+|              |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
+|              |         \--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+|              +--- org.jetbrains.compose.material:material-ripple:1.6.10
+|              |    \--- org.jetbrains.compose.material:material-ripple-uikitarm64:1.6.10
+|              |         +--- org.jetbrains.compose.animation:animation:1.6.10 (*)
+|              |         +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
+|              |         \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+|              +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
+|              \--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
++--- shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
++--- shared:apple:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
++--- shared:common:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
++--- shared:ios:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+\--- shared:native:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+     \--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+""".trimIndent()
             )
         }
     }

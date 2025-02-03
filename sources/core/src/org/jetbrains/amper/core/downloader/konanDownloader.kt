@@ -7,6 +7,7 @@ package org.jetbrains.amper.core.downloader
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.extract.ExtractOptions
+import org.jetbrains.amper.core.extract.extractFileToCacheLocation
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
 import java.nio.file.Path

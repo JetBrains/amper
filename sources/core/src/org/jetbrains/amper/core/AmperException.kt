@@ -4,10 +4,6 @@
 
 package org.jetbrains.amper.core
 
-class AmperException : RuntimeException {
-    constructor(): super()
-    constructor(message: String): super(message)
-    constructor(message: String, cause: Throwable): super(message, cause)
-}
+class AmperException : RuntimeException()
 
 fun <T> amperFailure(): Result<T> = Result.failure(AmperException())

@@ -7,13 +7,13 @@ package org.jetbrains.amper.tasks.android
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jar.writeZip
-import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask

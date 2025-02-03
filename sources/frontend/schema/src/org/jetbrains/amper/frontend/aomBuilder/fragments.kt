@@ -1,19 +1,16 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.mapStartAware
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Notation
-import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
@@ -47,21 +44,16 @@ open class DefaultFragment(
     moduleFile: VirtualFile,
 ) : Fragment {
 
-    private val isCommon = seed.modifiersAsStrings == setOf(Platform.COMMON.pretty)
-
     /**
      * Modifier that is used to reference this fragment in the module file or within source directory.
      */
-    private val modifier = if (isCommon) "" else "@" + seed.modifiersAsStrings.joinToString(separator = "+")
+    private val modifier = seed.modifier
 
     final override val fragmentDependencies = mutableListOf<FragmentLink>()
 
     override val fragmentDependants = mutableListOf<FragmentLink>()
 
-    final override val name = seed.modifiersAsStrings
-        .mapStartAware { isStart, it -> if (isStart) it else it.doCapitalize() }
-        .joinToString() +
-            if (isTest) "Test" else ""
+    final override val name = seed.modifier.removePrefix("@").ifBlank { "common" } + if (isTest) "Test" else ""
 
     final override val platforms = seed.platforms
 
@@ -71,32 +63,16 @@ open class DefaultFragment(
 
     override val isDefault = true
 
-    private val srcOnlyOwner by lazy {
-        !isCommon && fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }
-    }
-
     override val src: Path by lazy {
-        val srcStringPrefix = if (isTest) "test" else "src"
-        val srcPathString =
-            if (srcOnlyOwner) srcStringPrefix
-            else "$srcStringPrefix$modifier"
-        moduleFile.parent.toNioPath().resolve(srcPathString)
+        moduleFile.parent.toNioPath().resolve("${if (isTest) "test" else "src"}$modifier")
     }
 
     override val resourcesPath: Path by lazy {
-        val resourcesStringPrefix = if (isTest) "testResources" else "resources"
-        val resourcesPathString =
-            if (srcOnlyOwner) resourcesStringPrefix
-            else "$resourcesStringPrefix$modifier"
-        moduleFile.parent.toNioPath().resolve(resourcesPathString)
+        moduleFile.parent.toNioPath().resolve("${if (isTest) "testResources" else "resources"}$modifier")
     }
 
     override val composeResourcesPath: Path by lazy {
-        val resourcesStringPrefix = if (isTest) "testComposeResources" else "composeResources"
-        val resourcesPathString =
-            if (srcOnlyOwner) resourcesStringPrefix
-            else "$resourcesStringPrefix$modifier"
-        moduleFile.parent.toNioPath().resolve(resourcesPathString)
+        moduleFile.parent.toNioPath().resolve("${if (isTest) "testComposeResources" else "composeResources"}$modifier")
     }
 
     override val hasAnyComposeResources: Boolean by lazy {
@@ -205,7 +181,8 @@ fun createFragments(
 
     fun FragmentSeed.toFragment(isTest: Boolean, externalDependencies: List<Notation>): DefaultFragment {
         // Merge test settings ang non-test settings for test fragments.
-        val fragmentSettings = if (isTest) mergeSettingsFrom(relevantSettings, relevantTestSettings) else relevantSettings
+        val fragmentSettings =
+            if (isTest) mergeSettingsFrom(seedSettings, seedTestSettings) else seedSettings
         val fragmentCtor = if (isLeaf) ::DefaultLeafFragment else ::DefaultFragment
         return fragmentCtor(
             this,
@@ -221,7 +198,7 @@ fun createFragments(
     val initial = seeds.associateWith {
         FragmentBundle(
             // TODO Report unresolved dependencies
-            it.toFragment(false, it.relevantDependencies?.mapNotNull { resolveDependency(it) }.orEmpty()),
+            it.toFragment(false, it.seedDependencies?.mapNotNull { resolveDependency(it) }.orEmpty()),
             it.toFragment(true, it.relevantTestDependencies?.mapNotNull { resolveDependency(it) }.orEmpty()),
         )
     }

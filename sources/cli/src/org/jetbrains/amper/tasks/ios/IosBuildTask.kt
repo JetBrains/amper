@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.ios
@@ -12,13 +12,13 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.tools.XCodeIntegrationCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.setAmperModule
+import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
-import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.jvm
@@ -25,6 +25,7 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setFragments
+import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
@@ -37,7 +38,6 @@ import org.jetbrains.amper.processes.withJavaArgFile
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.AdditionalResourcesProvider
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
-import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -49,7 +49,6 @@ import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
-import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
 import org.jetbrains.kotlin.buildtools.api.CompilationService
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
@@ -124,7 +123,7 @@ class JvmCompileTask(
             "kotlin.version" to kotlinVersion,
             "user.settings" to Json.encodeToString(userSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
-            "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
+            "target.platforms" to module.leafPlatforms.map { it.name }.sorted().joinToString(),
         )
 
         val sources = fragments.map { it.src.toAbsolutePath() } + additionalSources.map { it.path }
@@ -203,7 +202,7 @@ class JvmCompileTask(
         if (kotlinFilesToCompile.isNotEmpty()) {
             // Enable multi-platform support only if targeting other than JVM platforms
             // or having a common and JVM fragments (like src and src@jvm directories)
-            val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty() || sourceDirectories.size > 1
+            val isMultiplatform = (module.leafPlatforms - Platform.JVM).isNotEmpty() || sourceDirectories.size > 1
 
             compileKotlinSources(
                 compilerVersion = kotlinVersion,

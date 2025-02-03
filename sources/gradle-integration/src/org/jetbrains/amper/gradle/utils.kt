@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle
@@ -154,10 +154,10 @@ fun SourceDirectorySet.tryAdd(toAdd: Path): SourceDirectorySet {
     return this
 }
 
-fun SourceDirectorySet.tryRemove(toRemove: (File) -> Boolean): SourceDirectorySet {
+fun SourceDirectorySet.tryRemove(toRemove: (Any) -> Boolean): SourceDirectorySet {
     val delegate = ReflectionSourceDirectorySet.tryWrap(this)
-    if (delegate != null) with(delegate.mutableSources) {
-        removeIf { (it as? File)?.let(toRemove) == true }
-    }
+    if (delegate != null) with(delegate.mutableSources) { removeIf(toRemove) }
     return this
 }
+
+val SourceDirectorySet.mutableSources get() = ReflectionSourceDirectorySet.tryWrap(this)?.mutableSources!!

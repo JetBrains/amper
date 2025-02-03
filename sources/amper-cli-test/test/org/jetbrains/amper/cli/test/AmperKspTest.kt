@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -85,7 +85,7 @@ class AmperKspTest: AmperCliTestBase() {
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
         )
 
-        buildResult.generatedFilesDir(module = "consumer", fragment = "mingw").assertContainsRelativeFiles(
+        buildResult.generatedFilesDir(module = "consumer", fragment = "mingwX64").assertContainsRelativeFiles(
             "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyMingwClassGenerated.kt",
@@ -93,7 +93,7 @@ class AmperKspTest: AmperCliTestBase() {
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyNativeClassGenerated.kt",
         )
 
-        buildResult.generatedFilesDir(module = "consumer", fragment = "linux").assertContainsRelativeFiles(
+        buildResult.generatedFilesDir(module = "consumer", fragment = "linuxX64").assertContainsRelativeFiles(
             "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyCommonClassGenerated.kt",
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyLinuxX64ClassGenerated.kt",
@@ -132,13 +132,13 @@ class AmperKspTest: AmperCliTestBase() {
             com.sample.ksp.localprocessor.consumer.MyAndroidClass
         """.trimIndent())
         // mingw (and not mingwX64) because of how we collapse fragments right now
-        generatedResourceFor(fragment = "mingw").assertContentEquals("""
+        generatedResourceFor(fragment = "mingwX64").assertContentEquals("""
             com.sample.ksp.localprocessor.consumer.MyNativeClass
             com.sample.ksp.localprocessor.consumer.MyMingwX64Class
             com.sample.ksp.localprocessor.consumer.MyMingwClass
             com.sample.ksp.localprocessor.consumer.MyCommonClass
         """.trimIndent())
-        generatedResourceFor(fragment = "linux").assertContentEquals("""
+        generatedResourceFor(fragment = "linuxX64").assertContentEquals("""
             com.sample.ksp.localprocessor.consumer.MyNativeClass
             com.sample.ksp.localprocessor.consumer.MyLinuxX64Class
             com.sample.ksp.localprocessor.consumer.MyCommonClass

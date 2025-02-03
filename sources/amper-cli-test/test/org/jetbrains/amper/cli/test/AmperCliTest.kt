@@ -1,13 +1,13 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.processes.ProcessInput
-import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
@@ -71,6 +71,8 @@ class AmperCliTest: AmperCliTestBase() {
             ERROR: Task 'compile' was not found in the project, maybe you meant one of:
                :jvm-kotlin-test-smoke:compileJvm
                :jvm-kotlin-test-smoke:compileJvmTest
+               :jvm-kotlin-test-smoke:compileMetadataCommon
+               :jvm-kotlin-test-smoke:compileMetadataCommonTest
                :jvm-kotlin-test-smoke:compileMetadataJvm
                :jvm-kotlin-test-smoke:compileMetadataJvmTest
         """.trimIndent()

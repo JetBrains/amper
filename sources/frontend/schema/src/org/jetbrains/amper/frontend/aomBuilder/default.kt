@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
@@ -7,6 +7,10 @@ package org.jetbrains.amper.frontend.aomBuilder
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleFileSource
+import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
+import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.CompositeString
 import org.jetbrains.amper.frontend.CustomTaskDescription
@@ -15,10 +19,6 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleFileSource
-import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
-import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.VersionCatalog
@@ -62,7 +62,6 @@ class DefaultAddToModuleRootsFromCustomTask(
     override val platform: Platform,
 ): AddToModuleRootsFromCustomTask
 
-context(ProblemReporterContext)
 class DefaultCustomTaskDescription(
     override val name: TaskName,
     override val source: Path,

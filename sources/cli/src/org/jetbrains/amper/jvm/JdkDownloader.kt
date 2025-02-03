@@ -6,8 +6,8 @@ package org.jetbrains.amper.jvm
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
-import org.jetbrains.amper.core.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.core.extract.ExtractOptions
+import org.jetbrains.amper.core.extract.extractFileToCacheLocation
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
 import java.net.URL

@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.api
 
 import com.intellij.psi.PsiElement
+import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.VersionCatalog
 import java.nio.file.Path
 
@@ -54,21 +55,19 @@ data class BuiltinCatalogTrace(
 }
 
 fun <V> Trace.withPrecedingValue(precedingValue: ValueBase<V>?): Trace =
-    if (precedingValue == null)
-        this
-    else {
-        when(this) {
-            is PsiTrace -> this.copy(precedingValue = precedingValue)
-            is DefaultValueDependentTrace -> this.copy(precedingValue = precedingValue)
-            is BuiltinCatalogTrace -> this
-        }
+    when {
+        precedingValue == null -> this
+        this is PsiTrace -> this.copy(precedingValue = precedingValue)
+        this is DefaultValueDependentTrace -> this.copy(precedingValue = precedingValue)
+        this is BuiltinCatalogTrace -> this
+        else -> this
     }
 
 fun Trace.withComputedValueTrace(computedValueTrace: Traceable?): Trace =
     if (computedValueTrace == null)
         this
     else {
-        when(this) {
+        when (this) {
             is PsiTrace -> this.copy(computedValueTrace = computedValueTrace)
             is DefaultValueDependentTrace -> this.copy(computedValueTrace = computedValueTrace)
             is BuiltinCatalogTrace -> this.copy(computedValueTrace = computedValueTrace)
@@ -89,45 +88,24 @@ interface Traceable {
 }
 
 /**
- * A string value that can persist its trace.
+ * A value that can persist its trace.
  */
-open class TraceableString(
-    val value: String
-) : Traceable {
+abstract class TraceableValue<T : Any>(val value: T) : Traceable {
     override var trace: Trace? = null
-
-    override fun toString(): String {
-        return value
-    }
-
+    override fun toString() = value.toString()
     override fun hashCode() = value.hashCode()
-    override fun equals(other: Any?) =
-        this === other || (other as? TraceableString)?.value == value
+    override fun equals(other: Any?) = this === other || other?.asSafely<TraceableValue<*>>()?.value == value
 }
 
-class TraceablePath(
-    val value: Path
-) : Traceable {
-    override var trace: Trace? = null
+open class TraceableString(value: String) : TraceableValue<String>(value)
 
-    override fun toString(): String {
-        return value.toString()
-    }
-
-    override fun hashCode() = value.hashCode()
-    override fun equals(other: Any?) =
-        this === other || (other as? TraceablePath)?.value == value
-}
-
-class TraceableVersion(value: String, source: ValueBase<String?>?): TraceableString(value) {
+class TraceableVersion(value: String, source: ValueBase<String?>?) : TraceableString(value) {
     init {
         trace = source?.trace
     }
-
-    override fun hashCode() = value.hashCode()
-    override fun equals(other: Any?) =
-        this === other || (other as? TraceableString)?.value == this.value
 }
+
+class TraceablePath(value: Path) : TraceableValue<Path>(value)
 
 fun <T : Traceable> T.withTraceFrom(other: Traceable?): T = apply { trace = other?.trace }
 

@@ -27,22 +27,25 @@ import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.startLongLivedProcess
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
-import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+
+
+const val headlessEmulatorModePropertyName = "org.jetbrains.amper.android.emulator.headless"
 
 class AndroidRunTask(
     override val taskName: TaskName,
@@ -59,7 +62,8 @@ class AndroidRunTask(
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val adb = waitForAdbConnection()
-        val androidFragment = fragments.singleOrNull() ?: error("Only one $platform fragment is expected")
+        val androidFragment = fragments.filterIsInstance<LeafFragment>().singleOrNull()
+            ?: error("Only one $platform fragment is expected")
 
         val emulatorExecutable = (dependenciesResult
             .filterIsInstance<GetAndroidPlatformFileFromPackageTask.Result>()

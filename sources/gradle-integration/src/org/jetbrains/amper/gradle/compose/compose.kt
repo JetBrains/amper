@@ -1,9 +1,10 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.compose
 
+import com.intellij.util.asSafely
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
@@ -36,7 +37,7 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
         project.plugins.apply("org.jetbrains.compose")
 
         // Clean old resources from source sets.
-        kotlinMPE.sourceSets.all { it.resources.tryRemove { it.endsWith("composeResources") } }
+        kotlinMPE.sourceSets.all { it.resources.tryRemove { it.asSafely<File>()?.endsWith("composeResources") == true } }
 
         // Adjust task.
         adjustGenerateRClassTask(project, composeResourcesDir)

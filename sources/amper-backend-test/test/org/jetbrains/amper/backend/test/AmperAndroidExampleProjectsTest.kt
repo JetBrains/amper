@@ -19,11 +19,11 @@ import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.android.headlessEmulatorModePropertyName
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.OnNonCI
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
-import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
 import java.nio.file.Path

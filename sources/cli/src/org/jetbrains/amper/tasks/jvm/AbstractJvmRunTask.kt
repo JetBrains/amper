@@ -10,6 +10,7 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
+import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
@@ -20,7 +21,6 @@ import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory

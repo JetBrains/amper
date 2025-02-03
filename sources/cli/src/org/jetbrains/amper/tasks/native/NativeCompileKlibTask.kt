@@ -16,13 +16,13 @@ import org.jetbrains.amper.compilation.mergedKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
-import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult

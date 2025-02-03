@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.compose
@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.compose
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCollectorsPath
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
@@ -22,7 +22,7 @@ import kotlin.io.path.pathString
  */
 class GenerateActualResourceCollectorsTask(
     override val taskName: TaskName,
-    private val fragment: Fragment,
+    private val fragment: LeafFragment,
     private val packageName: String,
     private val shouldGenerateCode: () -> Boolean,
     private val buildOutputRoot: AmperBuildOutputRoot,

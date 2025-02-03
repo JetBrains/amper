@@ -1,5 +1,5 @@
 Fragments:
-  jvm
+  common
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3, compile=true, runtime=true, exported=false)
@@ -81,7 +81,7 @@ Fragments:
       publishing: <default> null
     }
 
-  jvmTest
+  commonTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.21, compile=true, runtime=true, exported=false)
@@ -89,6 +89,174 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.7.3, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
+      common (FRIEND)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
+        signing: <default> {
+          enabled: <default> false
+          propertiesFile: <default> keystore.properties
+        }
+        targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
+      }
+      compose: <default> {
+        enabled: <default> false
+        experimental: <default> {
+          hotReload: <default> {
+            enabled: <default> false
+          }
+        }
+        resources: <default> {
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        release: <default> VERSION_17
+      }
+      kotlin: {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 2.0
+        debug: <default> true
+        freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.1.0-1.0.29
+        }
+        languageFeatures: <default> null
+        languageVersion: <default> 2.0
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: {
+          enabled: true
+          format: hocon
+          version: <default> 1.7.3
+        }
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+
+  jvm
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.7.3, compile=true, runtime=true, exported=false)
+    Src folder: src@jvm
+    Fragment dependencies:
+      common (REFINE)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
+        signing: <default> {
+          enabled: <default> false
+          propertiesFile: <default> keystore.properties
+        }
+        targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
+      }
+      compose: <default> {
+        enabled: <default> false
+        experimental: <default> {
+          hotReload: <default> {
+            enabled: <default> false
+          }
+        }
+        resources: <default> {
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        release: <default> VERSION_17
+      }
+      kotlin: {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 2.0
+        debug: <default> true
+        freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.1.0-1.0.29
+        }
+        languageFeatures: <default> null
+        languageVersion: <default> 2.0
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: {
+          enabled: true
+          format: hocon
+          version: <default> 1.7.3
+        }
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+
+  jvmTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.21, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.21, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.7.3, compile=true, runtime=true, exported=false)
+    Src folder: test@jvm
+    Fragment dependencies:
+      commonTest (REFINE)
       jvm (FRIEND)
     Settings: {
       android: <default> {

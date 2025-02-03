@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.android
@@ -14,13 +14,13 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.util.BuildType
-import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -31,6 +31,9 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
+
+private val AndroidSettings.repr: String
+    get() = "AndroidSettings(minSdk=$minSdk, maxSdk=$maxSdk, targetSdk=$targetSdk, compileSdk=$compileSdk, namespace='$namespace', applicationId='$applicationId')"
 
 abstract class AndroidDelegatedGradleTask(
     private val module: AmperModule,

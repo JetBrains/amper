@@ -5,6 +5,7 @@
 package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
@@ -12,7 +13,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
-import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ios.IosConventions
 import java.io.File
 import java.nio.file.Path

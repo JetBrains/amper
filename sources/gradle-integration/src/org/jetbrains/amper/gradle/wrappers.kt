@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle
@@ -30,31 +30,8 @@ class AmperModuleWrapper(
     override val leafFragments = passedModule.fragments.filterIsInstance<LeafFragment>().map { it.wrappedLeaf }
     override val rootFragment = passedModule.rootFragment.wrapped
     override val rootTestFragment = passedModule.rootTestFragment.wrapped
-    val leafNonTestFragments = leafFragments
-        .filter { !it.isTest }
-    val leafTestFragments = leafFragments
-        .filter { it.isTest }
-
-    fun sharedPlatformFragment(platform: Platform, test: Boolean): FragmentWrapper? {
-        // find the most common fragment
-        val commonFragment = passedModule.fragments.firstOrNull { it.fragmentDependencies.isEmpty() } ?: return null
-
-        // dfs
-        val queue = ArrayDeque<Fragment>()
-        queue.add(commonFragment)
-        while (queue.isNotEmpty()) {
-            val fragment = queue.removeFirst()
-            if (fragment.platforms == setOf(platform) && fragment.isTest == test) {
-                return fragment.wrapped
-            }
-
-            fragment.fragmentDependants.forEach {
-                queue.add(it.target)
-            }
-        }
-
-        return null
-    }
+    val leafNonTestFragments = leafFragments.filter { !it.isTest }
+    val leafTestFragments = leafFragments.filter { it.isTest }
 }
 
 fun Artifact.wrap(module: AmperModuleWrapper) =

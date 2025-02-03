@@ -1,9 +1,10 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.kmpp
 
+import com.intellij.util.asSafely
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.attributes.Attribute
@@ -42,6 +43,7 @@ import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
 import org.jetbrains.amper.gradle.kotlin.configureCompilerOptions
 import org.jetbrains.amper.gradle.kotlin.configureFrom
 import org.jetbrains.amper.gradle.layout
+import org.jetbrains.amper.gradle.mutableSources
 import org.jetbrains.amper.gradle.replacePenultimatePaths
 import org.jetbrains.amper.gradle.tryAdd
 import org.jetbrains.amper.gradle.tryRemove
@@ -58,6 +60,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import org.jetbrains.kotlin.konan.target.Family
 import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.relativeTo
 
 
@@ -164,8 +167,9 @@ class KMPPBindingPluginPart(
 
                 // Do AMPER specific.
                 layout == Layout.AMPER && fragment != null -> {
-                    sourceSet.kotlin.tryAdd(fragment.src).tryRemove { it.endsWith("kotlin") }
-                    sourceSet.resources.tryAdd(fragment.resourcesPath).tryRemove { it.endsWith("resources") }
+                    // Clear all previous explicit mappings and set the correct ones.
+                    sourceSet.kotlin.tryRemove { it is File || it is Path }.tryAdd(fragment.src)
+                    sourceSet.resources.tryRemove { it is File || it is Path }.tryAdd(fragment.resourcesPath)
                 }
 
                 layout == Layout.AMPER && fragment == null -> {

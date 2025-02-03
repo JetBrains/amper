@@ -1,0 +1,6 @@
+product:
+  type: lib
+  platforms: [jvm]
+
+aliases:
+  myAlias: [ jvm, <![Error] Alias uses a platform iosArm64, that is undeclared in the current product.!>iosArm64<!> ]

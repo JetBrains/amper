@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.diagnostics.setProcessResultAttributes
+import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
@@ -18,7 +19,6 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.BaseTaskResult
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use

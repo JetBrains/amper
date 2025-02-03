@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.native
@@ -17,12 +17,12 @@ import org.jetbrains.amper.compilation.mergedKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
@@ -28,8 +28,9 @@ class DiagnosticsTest: BaseModuleDrTest() {
         val aom = getTestProjectModel("multi-module-failed-resolve", testDataRoot)
 
         kotlin.test.assertEquals(
+            setOf("common", "commonTest", "jvm", "jvmTest"),
             aom.modules.single{it.userReadableName == "shared"}.fragments.map { it.name }.toSet(),
-            setOf("jvm", "jvmTest"), ""
+            ""
         )
 
         val sharedTestFragmentDeps = runBlocking {
@@ -38,25 +39,35 @@ class DiagnosticsTest: BaseModuleDrTest() {
                 ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
                 module = "shared",
                 expected = """module:shared
-                    |+--- shared:jvm:org.jetbrains.compose.foundation:foundation:12.12.12
+                    |+--- shared:common:org.jetbrains.compose.foundation:foundation:12.12.12
                     ||    \--- org.jetbrains.compose.foundation:foundation:12.12.12
-                    |+--- shared:jvm:org.jetbrains.compose.material3:material3:12.12.12
+                    |+--- shared:common:org.jetbrains.compose.material3:material3:12.12.12
                     ||    \--- org.jetbrains.compose.material3:material3:12.12.12
-                    |+--- shared:jvm:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                    |+--- shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                     ||    \--- org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    |+--- shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+                    |+--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
                     ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
                     ||         \--- org.jetbrains:annotations:13.0
-                    |+--- shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
+                    |+--- shared:common:org.jetbrains.compose.runtime:runtime:12.12.12
                     ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
-                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+                    |+--- shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
                     ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+                    |+--- shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
                     ||    \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
                     ||         +--- org.jetbrains.kotlin:kotlin-test:2.0.21
                     ||         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
                     ||         \--- junit:junit:4.13.2
                     ||              \--- org.hamcrest:hamcrest-core:1.3
+                    |+--- shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12
+                    ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
+                    |+--- shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+                    |+--- shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
+                    ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
+                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+                    ||    \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21 (*)
                     |\--- shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
                     |     \--- org.jetbrains.compose.runtime:runtime:12.12.12""".trimMargin(),
                 messagesCheck = { node ->
@@ -90,7 +101,7 @@ class DiagnosticsTest: BaseModuleDrTest() {
         collectBuildProblems(sharedTestFragmentDeps, diagnosticsReporter, Level.Error)
         val buildProblems = diagnosticsReporter.getProblems()
 
-        kotlin.test.assertEquals(5, buildProblems.size)
+        kotlin.test.assertEquals(7, buildProblems.size)
 
         // direct dependency on a built-in library,
         // a version of the library is taken from settings:compose:version in file module.yaml

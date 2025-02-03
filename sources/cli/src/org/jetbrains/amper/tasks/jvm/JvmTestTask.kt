@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.jvm
@@ -14,6 +14,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
+import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -24,7 +25,6 @@ import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestResultsFormat
-import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
@@ -33,6 +33,7 @@ import org.jetbrains.amper.test.TestFilter
 import org.jetbrains.amper.test.wildcardsToRegex
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.util.*
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempFile

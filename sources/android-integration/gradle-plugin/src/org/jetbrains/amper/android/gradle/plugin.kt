@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.android.gradle
 
@@ -120,6 +120,12 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             .filterIsInstance<LeafFragment>()
             .firstOrNull { it.platforms.contains(Platform.ANDROID) } ?: return
 
+        // This is the case when the whole fragment tree is a simple 2-element bamboo:
+        // `common` <- `android`. Then we allow placing AndroidManifest in `src` directory.
+        val manifestFragment = if (module.rootFragment.platforms.firstOrNull() == Platform.ANDROID) {
+            module.rootFragment
+        } else androidFragment
+
         val androidSettings = androidFragment.settings.android
         androidExtension.compileSdkVersion(androidSettings.compileSdk.versionNumber)
 
@@ -194,7 +200,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             ?.associate { it.modulePath to it } ?: mapOf()
 
         androidExtension.sourceSets.matching { it.name == "main" }.all {
-            it.manifest.srcFile(androidFragment.src.resolve("AndroidManifest.xml"))
+            it.manifest.srcFile(manifestFragment.src.resolve("AndroidManifest.xml"))
             it.res.setSrcDirs(setOf(module.buildDir.resolve("res")))
         }
 

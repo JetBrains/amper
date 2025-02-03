@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.ksp
@@ -13,6 +13,7 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedClassesPath
@@ -91,7 +92,9 @@ internal class KspTask(
         val compileLibraries =
             externalDependencies + compileJvmModuleDependencies + compileNativeModuleDependencies + additionalClasspath
 
-        val leafFragment = fragments.find { it.platforms == setOf(platform) }
+        val leafFragment = fragments
+            .filterIsInstance<LeafFragment>()
+            .find { it.platform == platform }
             ?: error("Cannot find leaf fragment for platform $platform")
 
         val kspOutputs = KspOutputPaths(

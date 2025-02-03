@@ -11,6 +11,8 @@ import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.jetbrains.amper.concurrency.withDoubleLock
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.hashing.sha256String
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream
@@ -25,8 +27,32 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFilePermissions
 import java.time.Instant
-import kotlin.io.path.*
+import kotlin.io.path.Path
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createParentDirectories
+import kotlin.io.path.createSymbolicLinkPointingTo
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.exists
+import kotlin.io.path.inputStream
+import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.setLastModifiedTime
+import kotlin.io.path.setPosixFilePermissions
 
+suspend fun extractFileToCacheLocation(
+    archiveFile: Path,
+    amperUserCacheRoot: AmperUserCacheRoot,
+    vararg options: ExtractOptions
+): Path = withContext(Dispatchers.IO) {
+    val cachePath = amperUserCacheRoot.extractCache
+    val hash = "$archiveFile${getExtractOptionsShortString(options)}".sha256String().take(6)
+    val directoryName = "${archiveFile.fileName}.${hash}.d"
+    val targetDirectory = cachePath.resolve(directoryName)
+    val flagFile = cachePath.resolve("${directoryName}.flag")
+    extractFileWithFlag(archiveFile, targetDirectory, flagFile, *options)
+}
 
 // initially from intellij:community/platform/build-scripts/downloader/src/org/jetbrains/intellij/build/dependencies/BuildDependenciesDownloader.kt
 

@@ -1,12 +1,11 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
 
 import java.util.*
 import kotlin.collections.AbstractMap
-import kotlin.collections.ArrayDeque
 import kotlin.reflect.KMutableProperty0
 
 fun String.doCapitalize() = replaceFirstChar { it.titlecase() }
@@ -47,7 +46,7 @@ private fun Fragment.allFragmentDependencies(
 ): Sequence<FragmentLink> = sequence {
     val traversed = hashSetOf<FragmentLink>()
     val stack = ArrayList<FragmentLink>(fragmentDependencies)
-    while(stack.isNotEmpty()) {
+    while (stack.isNotEmpty()) {
         val link = stack.removeLast()
         if (traverseTypes != null && link.type !in traverseTypes) continue
         if (traversed.add(link)) {
@@ -77,7 +76,7 @@ fun Fragment.ancestralPath(): Sequence<Fragment> = sequence {
 
     val queue = ArrayDeque<Fragment>()
     queue.add(this@ancestralPath)
-    while(queue.isNotEmpty()) {
+    while (queue.isNotEmpty()) {
         val fragment = queue.removeFirst()
         yield(fragment)
         fragment.fragmentDependencies.forEach { link ->
@@ -103,13 +102,12 @@ abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
     valuesGetter: () -> Array<EnumT>,
     private val key: EnumT.() -> KeyT,
 ) : AbstractMap<KeyT, EnumT>() {
-    val enumClass = valuesGetter().first()::class
-    override val entries = valuesGetter().associateBy { it.key() }.entries
+    override val entries = valuesGetter().associateBy { it.key() }.entries.toMutableSet()
 }
 
 /**
- * A class, that every enum, participating in
- * schema building should inherit.
+ * A class that every enum, participating in
+ * schema building, should inherit.
  */
 interface SchemaEnum {
     val schemaValue: String

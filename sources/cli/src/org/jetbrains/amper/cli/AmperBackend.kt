@@ -7,8 +7,11 @@ package org.jetbrains.amper.cli
 import org.jetbrains.amper.cli.commands.UserJvmArgsOption
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.engine.BuildTask
+import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
+import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
@@ -18,18 +21,14 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
-import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask
-import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
-import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.annotations.TestOnly
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -323,8 +322,8 @@ class AmperBackend(val context: CliContext) {
             "Unable to resolve a module with the module directory '$moduleDir'"
         }
 
-        if (platform !in module.targetLeafPlatforms) {
-            val availablePlatformsForModule = module.targetLeafPlatforms.sorted().joinToString(" ")
+        if (platform !in module.leafPlatforms) {
+            val availablePlatformsForModule = module.leafPlatforms.sorted().joinToString(" ")
             userReadableError("""
                     Platform '${platform.pretty}' is not found for iOS module '${module.userReadableName}'.
                     The module has declared platforms: $availablePlatformsForModule.

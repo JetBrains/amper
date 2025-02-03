@@ -25,7 +25,6 @@ import org.jetbrains.amper.tasks.ksp.setupKspTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import org.jetbrains.amper.util.targetLeafPlatforms
 import kotlin.io.path.div
 
 internal interface TaskType {
@@ -94,7 +93,7 @@ class ProjectTasksBuilder(
     fun allModules() = model.modules.asSequence().map { ModuleSequenceCtx(it) }
 
     fun Sequence<ModuleSequenceCtx>.alsoPlatforms(parent: Platform? = null) = flatMap { ctx ->
-        ctx.module.targetLeafPlatforms.filter { parent?.isParentOf(it) ?: true }.map { ctx.copy(platform = it) }
+        ctx.module.leafPlatforms.filter { parent?.isParentOf(it) ?: true }.map { ctx.copy(platform = it) }
     }
 
     fun Sequence<ModuleSequenceCtx>.alsoTests() = flatMap {

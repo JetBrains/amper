@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.backend.test
 
@@ -605,6 +605,12 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
               <name>jvm-publish</name>
               <dependencies>
                 <dependency>
+                  <groupId>org.jetbrains.kotlin</groupId>
+                  <artifactId>kotlin-stdlib</artifactId>
+                  <version>${UsedVersions.kotlinVersion}</version>
+                  <scope>runtime</scope>
+                </dependency>
+                <dependency>
                   <groupId>io.ktor</groupId>
                   <artifactId>ktor-client-core</artifactId>
                   <version>2.3.9</version>
@@ -639,12 +645,6 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                   <artifactId>kotlinx-serialization-cbor</artifactId>
                   <version>1.6.3</version>
                   <scope>compile</scope>
-                </dependency>
-                <dependency>
-                  <groupId>org.jetbrains.kotlin</groupId>
-                  <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.kotlinVersion}</version>
-                  <scope>runtime</scope>
                 </dependency>
               </dependencies>
             </project>
@@ -700,6 +700,12 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
               <name>main-lib</name>
               <dependencies>
                 <dependency>
+                  <groupId>org.jetbrains.kotlin</groupId>
+                  <artifactId>kotlin-stdlib</artifactId>
+                  <version>${UsedVersions.kotlinVersion}</version>
+                  <scope>runtime</scope>
+                </dependency>
+                <dependency>
                   <groupId>amper.test.jvm-publish-multimodule</groupId>
                   <artifactId>jvm-lib</artifactId>
                   <version>1.2.3</version>
@@ -709,12 +715,6 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                   <groupId>amper.test.jvm-publish-multimodule</groupId>
                   <artifactId>kmp-lib-jvm</artifactId>
                   <version>1.2.3</version>
-                  <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                  <groupId>org.jetbrains.kotlin</groupId>
-                  <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.kotlinVersion}</version>
                   <scope>runtime</scope>
                 </dependency>
               </dependencies>

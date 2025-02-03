@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.java
@@ -153,29 +153,26 @@ class JavaBindingPluginPart(
     }
 
     private fun adjustSourceDirs() {
-        javaPE.sourceSets.all { sourceSet ->
-            val fragment = sourceSet.amperFragment
-            when {
-                // Do GRADLE_JVM specific.
-                layout == Layout.GRADLE_JVM -> {
-                    if (sourceSet.name == "main") {
-                        replacePenultimatePaths(sourceSet.java, sourceSet.resources, "main")
-                    } else if (sourceSet.name == "test") {
-                        replacePenultimatePaths(sourceSet.java, sourceSet.resources, "test")
-                    }
+        val onlyJavaFragments = module.fragments.filter { it.platforms.firstOrNull() == Platform.JVM }
+        javaPE.sourceSets.findByName("main")?.apply {
+            when (layout) {
+                Layout.GRADLE_JVM -> replacePenultimatePaths(java, resources, "main")
+                Layout.AMPER -> onlyJavaFragments.filter { !it.isTest }.let {
+                    java.setSrcDirs(it.map { it.src })
+                    resources.setSrcDirs(emptyList<File>())
                 }
+                else -> Unit
+            }
+        }
 
-                // Do AMPER specific.
-                layout == Layout.AMPER && fragment != null -> {
-                    sourceSet.java.setSrcDirs(listOf(fragment.src))
-//                    sourceSet.resources.setSrcDirs(listOf(fragment.resourcesPath))
-                    sourceSet.resources.setSrcDirs(emptyList<File>())
+        javaPE.sourceSets.findByName("test")?.apply {
+            when (layout) {
+                Layout.GRADLE_JVM -> replacePenultimatePaths(java, resources, "test")
+                Layout.AMPER -> onlyJavaFragments.filter { !it.isTest }.let {
+                    java.setSrcDirs(it.map { it.src })
+                    resources.setSrcDirs(emptyList<File>())
                 }
-
-                layout == Layout.AMPER && fragment == null -> {
-                    sourceSet.java.setSrcDirs(emptyList<File>())
-                    sourceSet.resources.setSrcDirs(emptyList<File>())
-                }
+                else -> Unit
             }
         }
     }

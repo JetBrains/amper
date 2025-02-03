@@ -145,6 +145,8 @@ interface AmperModule {
 
     val rootTestFragment: Fragment get() = fragments.first { it.isTest && it.fragmentDependencies.size == 1 }
 
+    val leafPlatforms: Set<Platform> get() = leafFragments.map { it.platform }.toSet()
+
     val customTasks: List<CustomTaskDescription>
 }
 

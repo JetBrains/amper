@@ -4,11 +4,10 @@
 
 package org.jetbrains.amper.maven
 
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
-import org.jetbrains.amper.util.targetLeafPlatforms
 
 internal fun AmperModule.publicationCoordinates(platform: Platform): MavenCoordinates = when {
     // for JVM-only libraries, we use the root publication format (without -jvm suffix)
@@ -17,8 +16,7 @@ internal fun AmperModule.publicationCoordinates(platform: Platform): MavenCoordi
     else -> error("Cannot generate Maven coordinates for $platform: only COMMON and leaf platforms are supported")
 }
 
-private val AmperModule.isJvmOnly
-    get() = targetLeafPlatforms == setOf(Platform.JVM)
+private val AmperModule.isJvmOnly get() = leafPlatforms == setOf(Platform.JVM)
 
 private fun AmperModule.rootPublicationCoordinates(): MavenCoordinates {
     val commonFragment = fragments.find { !it.isTest && it.fragmentDependencies.isEmpty() }

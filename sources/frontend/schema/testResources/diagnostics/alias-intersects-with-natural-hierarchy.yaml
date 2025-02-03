@@ -1,0 +1,4 @@
+product: ios/app
+
+<![Error] Alias myAlias is the same as natural hierarchy platform IOS. Please use it instead.!>aliases:
+  myAlias: [ iosArm64, iosSimulatorArm64, iosX64 ]<!>

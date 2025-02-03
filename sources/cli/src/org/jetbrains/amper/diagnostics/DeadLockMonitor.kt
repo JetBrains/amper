@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.diagnostics
@@ -15,11 +15,12 @@ import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.intellij.ThreadDumper
-import org.jetbrains.amper.util.isUnderTeamCity
 import java.io.PrintStream
 import kotlin.io.path.createDirectories
 import kotlin.io.path.pathString
 import kotlin.time.Duration.Companion.minutes
+
+private val isUnderTeamCity: Boolean = System.getenv("TEAMCITY_VERSION") != null
 
 object DeadLockMonitor {
     // we probably need to think of better mechanism of deadlock detection disabled

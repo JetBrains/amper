@@ -8,11 +8,14 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.diagnostics.DeadLockMonitor
+import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.tasks.compose.isHotReloadEnabledFor
 import org.jetbrains.amper.util.BuildType
@@ -28,13 +31,13 @@ class JvmRunTask(
     commonRunSettings: CommonRunSettings,
     executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : AbstractJvmRunTask(
-    taskName, 
-    module, 
-    userCacheRoot, 
-    projectRoot, 
-    tempRoot, 
-    terminal, 
-    commonRunSettings, 
+    taskName,
+    module,
+    userCacheRoot,
+    projectRoot,
+    tempRoot,
+    terminal,
+    commonRunSettings,
     executeOnChangedInputs
 ) {
     override val buildType: BuildType =

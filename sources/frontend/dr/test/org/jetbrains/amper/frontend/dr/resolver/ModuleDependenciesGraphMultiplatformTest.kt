@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
@@ -29,7 +29,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
     fun `test sync empty jvm module`() {
         val aom = getTestProjectModel("jvm-empty", testDataRoot)
 
-        kotlin.test.assertEquals(aom.modules[0].fragments.map { it.name }.toSet(),  setOf("jvm", "jvmTest"), "")
+        kotlin.test.assertEquals(setOf("common", "commonTest", "jvm", "jvmTest"), aom.modules[0].fragments.map { it.name }.toSet(), "")
 
 
         val jvmTestFragmentDeps = runBlocking {
@@ -38,17 +38,23 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 resolutionInput = ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
                 module = "jvm-empty",
                 expected = """module:jvm-empty
-+--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
++--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
 |         \--- org.jetbrains:annotations:13.0
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
+|         +--- org.jetbrains.kotlin:kotlin-test:2.0.21
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+|         \--- junit:junit:4.13.2
+|              \--- org.hamcrest:hamcrest-core:1.3
++--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
 +--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
 \--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.0.21, implicit
-     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21
-          +--- org.jetbrains.kotlin:kotlin-test:2.0.21
-          |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-          \--- junit:junit:4.13.2
-               \--- org.hamcrest:hamcrest-core:1.3"""
+     \--- org.jetbrains.kotlin:kotlin-test-junit:2.0.21 (*)"""
             )
         }
 
@@ -1520,20 +1526,46 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 module = "android-app",
                 fragment = "android",
                 expected = """Fragment 'android-app.android' dependencies
++--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21
+|         +--- org.jetbrains:annotations:13.0 -> 23.0.0
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.21 (c)
++--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
++--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21 (*)
++--- android-app:android:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
+|    \--- org.jetbrains.compose.runtime:runtime:1.6.10
+|         \--- androidx.compose.runtime:runtime:1.6.7
+|              \--- androidx.compose.runtime:runtime-android:1.6.7
+|                   +--- androidx.collection:collection:1.4.0
+|                   |    \--- androidx.collection:collection-jvm:1.4.0
+|                   |         +--- androidx.annotation:annotation:1.7.0 -> 1.8.0
+|                   |         |    \--- androidx.annotation:annotation-jvm:1.8.0
+|                   |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.0.21 (*)
+|                   |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.21 (*)
+|                   |         \--- androidx.collection:collection-ktx:1.4.0 (c)
+|                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.21 (*)
+|                   +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.21
+|                   |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+|                   +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1 -> 1.7.3
+|                   |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0
+|                   |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0
+|                   |    |         +--- org.jetbrains:annotations:23.0.0
+|                   |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
+|                   |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21 (*)
+|                   |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3 -> 1.8.0
+|                   |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 2.0.21 (*)
+|                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 -> 1.8.0 (*)
 +--- android-app:android:androidx.activity:activity-compose:1.7.2
 |    \--- androidx.activity:activity-compose:1.7.2
 |         +--- androidx.activity:activity-ktx:1.7.2
 |         |    +--- androidx.activity:activity:1.7.2
-|         |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.8.0
-|         |    |    |    \--- androidx.annotation:annotation-jvm:1.8.0
-|         |    |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.0.21
-|         |    |    |              +--- org.jetbrains:annotations:13.0 -> 23.0.0
-|         |    |    |              \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.21 (c)
-|         |    |    +--- androidx.collection:collection:1.0.0 -> 1.4.0
-|         |    |    |    \--- androidx.collection:collection-jvm:1.4.0
-|         |    |    |         +--- androidx.annotation:annotation:1.7.0 -> 1.8.0 (*)
-|         |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.21 (*)
-|         |    |    |         \--- androidx.collection:collection-ktx:1.4.0 (c)
+|         |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.8.0 (*)
+|         |    |    +--- androidx.collection:collection:1.0.0 -> 1.4.0 (*)
 |         |    |    +--- androidx.core:core:1.8.0 -> 1.12.0
 |         |    |    |    +--- androidx.annotation:annotation:1.6.0 -> 1.8.0 (*)
 |         |    |    |    +--- androidx.annotation:annotation-experimental:1.3.0 -> 1.4.0
@@ -1556,11 +1588,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |         |    |    |    |         |    \--- androidx.lifecycle:lifecycle-common-jvm:2.8.0
 |         |    |    |    |         |         +--- androidx.annotation:annotation:1.8.0 (*)
 |         |    |    |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.21 (*)
-|         |    |    |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0
-|         |    |    |    |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0
-|         |    |    |    |         |         |         +--- org.jetbrains:annotations:23.0.0
-|         |    |    |    |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
-|         |    |    |    |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.0.21 (*)
+|         |    |    |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |    |    |    |         |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.0 (c)
 |         |    |    |    |         |         +--- androidx.lifecycle:lifecycle-process:2.8.0 (c)
 |         |    |    |    |         |         +--- androidx.lifecycle:lifecycle-runtime-ktx:2.8.0 (c)
@@ -1575,13 +1603,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |         |    |    |    |         |    |         \--- androidx.annotation:annotation:1.1.0 -> 1.8.0 (*)
 |         |    |    |    |         |    \--- com.google.guava:listenablefuture:1.0
 |         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.21 (*)
-|         |    |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3
-|         |    |    |    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
-|         |    |    |    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3 -> 1.8.0
-|         |    |    |    |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 2.0.21
-|         |    |    |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-|         |    |    |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21
-|         |    |    |    |         |              \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
+|         |    |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |    |    |    |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.0 (c)
 |         |    |    |    |         +--- androidx.lifecycle:lifecycle-process:2.8.0 (c)
 |         |    |    |    |         +--- androidx.lifecycle:lifecycle-runtime-ktx:2.8.0 (c)
@@ -1659,14 +1681,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |         |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
 |         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.0.21 (*)
 |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.0.21 (*)
-|         +--- androidx.compose.runtime:runtime:1.0.1 -> 1.6.7
-|         |    \--- androidx.compose.runtime:runtime-android:1.6.7
-|         |         +--- androidx.collection:collection:1.4.0 (*)
-|         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.21 (*)
-|         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.21
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-|         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1 -> 1.7.3 (*)
-|         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 -> 1.8.0 (*)
+|         +--- androidx.compose.runtime:runtime:1.0.1 -> 1.6.7 (*)
 |         +--- androidx.compose.runtime:runtime-saveable:1.0.1 -> 1.6.7
 |         |    \--- androidx.compose.runtime:runtime-saveable-android:1.6.7
 |         |         +--- androidx.annotation:annotation:1.1.0 -> 1.8.0 (*)
@@ -1754,15 +1769,6 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
 |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 -> 1.8.0 (*)
 |         +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.0 (*)
 |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.0.21 (*)
-+--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib:2.0.21, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.21 (*)
-+--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21 (*)
-+--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21 (*)
-+--- android-app:android:org.jetbrains.compose.runtime:runtime:1.6.10, implicit
-|    \--- org.jetbrains.compose.runtime:runtime:1.6.10
-|         \--- androidx.compose.runtime:runtime:1.6.7 (*)
 +--- android-app:android:org.jetbrains.compose.foundation:foundation:1.6.10
 |    \--- org.jetbrains.compose.foundation:foundation:1.6.10
 |         \--- androidx.compose.foundation:foundation:1.6.7

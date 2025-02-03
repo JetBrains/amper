@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -28,7 +28,7 @@ class PropagateTest {
         }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
         val jvmSeed = seeds.assertSingleSeed(Platform.JVM)
-        assertEquals(KotlinVersion.Kotlin19, jvmSeed.relevantSettings?.kotlin?.languageVersion)
+        assertEquals(KotlinVersion.Kotlin19, jvmSeed.seedSettings?.kotlin?.languageVersion)
     }
 
     @Test
@@ -44,7 +44,7 @@ class PropagateTest {
         }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
         val darwinFragment = seeds.assertSingleSeed(Platform.APPLE)
-        assertEquals(KotlinVersion.Kotlin19, darwinFragment.relevantSettings?.kotlin?.languageVersion)
+        assertEquals(KotlinVersion.Kotlin19, darwinFragment.seedSettings?.kotlin?.languageVersion)
     }
 
     @Test
@@ -59,7 +59,7 @@ class PropagateTest {
         }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
         val jvmFragment = seeds.assertSingleSeed(Platform.JVM)
-        assertEquals(KotlinVersion.Kotlin20, jvmFragment.relevantSettings?.kotlin?.apiVersion)
+        assertEquals(KotlinVersion.Kotlin20, jvmFragment.seedSettings?.kotlin?.apiVersion)
     }
 
     @Test
@@ -70,7 +70,7 @@ class PropagateTest {
         }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
         val jvmFragment = seeds.assertSingleSeed(Platform.JVM)
-        assertEquals(KotlinVersion.Kotlin20, jvmFragment.relevantSettings?.kotlin?.apiVersion)
+        assertEquals(KotlinVersion.Kotlin20, jvmFragment.seedSettings?.kotlin?.apiVersion)
     }
 
     @Test
@@ -85,7 +85,7 @@ class PropagateTest {
         }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
         val androidFragment = seeds.assertSingleSeed(Platform.ANDROID)
-        assertEquals("namespace", androidFragment.relevantSettings?.android?.namespace)
+        assertEquals("namespace", androidFragment.seedSettings?.android?.namespace)
     }
 
     @Test
@@ -105,7 +105,7 @@ class PropagateTest {
         }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
         val androidFragment = seeds.assertSingleSeed(Platform.ANDROID)
-        val androidSettings = androidFragment.relevantSettings?.android
+        val androidSettings = androidFragment.seedSettings?.android
 
         assertEquals("com.example.applicationid", androidSettings?.applicationId)
         assertEquals("com.example.namespace", androidSettings?.namespace)
@@ -147,7 +147,7 @@ class PropagateTest {
         val seeds = adjustSeedsDependencies.propagateSettingsForSeeds()
 
 
-        val kotlinSettings = seeds.assertSingleSeed(Platform.MACOS_ARM64).relevantSettings?.kotlin
+        val kotlinSettings = seeds.assertSingleSeed(Platform.MACOS_ARM64).seedSettings?.kotlin
 
         assertEquals(
             listOfTraceable("kotlin.contracts.ExperimentalContracts"),
@@ -164,8 +164,7 @@ class PropagateTest {
     }
 
     private fun Collection<FragmentSeed>.assertSingleSeed(platform: Platform): FragmentSeed {
-        val modifiers: Set<String> = setOf(platform.pretty)
-        return singleOrNull { it.platforms == platform.leaves && it.modifiersAsStrings == modifiers }
+        return singleOrNull { it.platforms == platform.leaves && it.modifier == "@${platform.pretty}" }
             ?: fail("Expected a single fragment seed with platform '$platform'")
     }
 
@@ -173,10 +172,9 @@ class PropagateTest {
      * Add a seed by specifying the natural hierarchy platform.
      */
     private fun MutableSet<FragmentSeed>.seed(platform: Platform, init: Settings.() -> Unit = {}): Boolean {
-        val platforms = if (platform == Platform.COMMON) Platform.values.filter { it.isLeaf }.toSet()
-        else platform.leaves
-        return add(FragmentSeed(platforms, setOf(platform.pretty)).apply {
-            relevantSettings = Settings().apply(init)
+        val platforms = if (platform == Platform.COMMON) Platform.leafPlatforms else platform.leaves
+        return add(FragmentSeed(platforms, "@${platform.pretty}", platform).apply {
+            seedSettings = Settings().apply(init)
         })
     }
 
@@ -188,8 +186,8 @@ class PropagateTest {
         modifier: String,
         init: Settings.() -> Unit = {}
     ): Boolean {
-        return add(FragmentSeed(leafPlatforms, setOf(modifier)).apply {
-            relevantSettings = Settings().apply(init)
+        return add(FragmentSeed(leafPlatforms, modifier, null).apply {
+            seedSettings = Settings().apply(init)
         })
     }
 }

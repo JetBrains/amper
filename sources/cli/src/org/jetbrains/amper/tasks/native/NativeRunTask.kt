@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.native
@@ -8,6 +8,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
+import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -15,7 +16,6 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder

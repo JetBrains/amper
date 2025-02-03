@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
@@ -28,10 +28,10 @@ private fun FragmentSeed.withMergedSettingsFromAncestors(): FragmentSeed {
     val ancestralPath = ancestralPath().toList().reversed()
 
     val result = this.copy()
-    result.relevantDependencies = relevantDependencies
+    result.seedDependencies = seedDependencies
     result.relevantTestDependencies = relevantTestDependencies
-    result.relevantSettings = mergeSettingsFrom(ancestralPath.map { it.relevantSettings })
-    result.relevantTestSettings = mergeSettingsFrom(ancestralPath.map { it.relevantTestSettings })
+    result.seedSettings = mergeSettingsFrom(ancestralPath.map { it.seedSettings })
+    result.seedTestSettings = mergeSettingsFrom(ancestralPath.map { it.seedTestSettings })
     return result
 }
 
