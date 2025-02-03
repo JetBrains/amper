@@ -23,7 +23,6 @@ abstract class ArtifactBase(
     protected abstract fun idComponents() : List<String>
     protected open val conventionPath: Path? get() = null
 
-    @delegate:Transient
     override val path: Path by lazy {
         conventionPath ?: idComponents()
             .fold(buildOutputRoot.path / "artifacts" / javaClass.simpleName, Path::resolve)
@@ -68,5 +67,5 @@ abstract class PlatformScopedArtifact(
 open class KotlinJavaSourceDirArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
     fragment: Fragment,
-    @Transient override val conventionPath: Path? = null,
+    override val conventionPath: Path? = null,
 ) : FragmentScopedArtifact(buildOutputRoot, fragment)

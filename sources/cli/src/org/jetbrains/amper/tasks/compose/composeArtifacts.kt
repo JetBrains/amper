@@ -19,7 +19,7 @@ import java.nio.file.Path
 open class ComposeResourcesSourceDirArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
     fragment: Fragment,
-    @Transient override val conventionPath: Path? = null,
+    override val conventionPath: Path? = null,
 ) : FragmentScopedArtifact(buildOutputRoot, fragment)
 
 /**

@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.tasks.artifacts
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
@@ -12,41 +15,54 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.api.Artifact
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.NotSerializableException
-import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.nio.file.Path
-import java.util.*
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
+import kotlin.reflect.KProperty
 
 /**
  * "Pure" artifact-based task. Such a task features the following traits:
- * - automatically cacheable based on input/output artifacts (using [ExecuteOnChangedInputs] internally)
+ * - automatically cacheable based on input/output artifacts and extra inputs (using [ExecuteOnChangedInputs] internally)
  * = automatically cleans its output before the action
- * - automatically tracks its additional configuration inputs via the serialization mechanism
  *
  * If one doesn't want the restrictions imposed by this class, subclass the [ArtifactTaskBase] instead.
  */
 abstract class PureArtifactTaskBase(
     buildOutputRoot: AmperBuildOutputRoot,
 ) : ArtifactTaskBase(), Serializable {
-    @Transient
     private val executeOnChangedInputs = ExecuteOnChangedInputs(buildOutputRoot)
-    @Transient
+    private val extraInputs = mutableMapOf<String, String>()
     private lateinit var inputPaths: List<Path>
 
-    @delegate:Transient
     override val taskName: TaskName by lazy {
         val output = produces.single()
         val path = output.path.relativeTo(buildOutputRoot.path)
         TaskName.fromHierarchy(listOf(path.pathString))
     }
+
+    private fun extraInput(key: String, value: String) {
+        checkConfigurationNotCompleted()
+        check(extraInputs.put(key, value) == null) { "Key $key is already present" }
+    }
+
+    protected inner class ExtraInputDelegate<T>(
+        private val value: T,
+        private val serializer: KSerializer<T>,
+    ) {
+        operator fun provideDelegate(thisRef: PureArtifactTaskBase, property: KProperty<*>) = apply {
+            thisRef.extraInput(property.name, Json.encodeToString(serializer, value))
+        }
+
+        @Suppress("unused")
+        operator fun getValue(thisRef: Any, prop: Any) = value
+    }
+
+    protected inline fun <reified T> extraInput(value: T) = ExtraInputDelegate(value, serializer())
 
     final override fun injectConsumes(artifacts: Map<ArtifactSelector<*, *>, List<Artifact>>) {
         super.injectConsumes(artifacts)
@@ -61,10 +77,8 @@ abstract class PureArtifactTaskBase(
     ): TaskResult {
         executeOnChangedInputs.execute(
             id = taskName.name,
-            configuration = mapOf(
-                "fingerprint" to generateConfigurationFingerprint(),
-                "outputs" to produces.joinToString(File.pathSeparator) { it.path.pathString },
-            ),
+            configuration = extraInputs +
+                    ("%outputs%" to produces.joinToString(File.pathSeparator) { it.path.pathString }),
             inputs = inputPaths,
         ) {
             for (path in produces.map { it.path }) {
@@ -78,19 +92,5 @@ abstract class PureArtifactTaskBase(
         }
 
         return EmptyTaskResult
-    }
-
-    private fun generateConfigurationFingerprint(): String {
-        // The general idea here is to serialize the task object as an additional "input" so the
-        // incremental engine tracks it. If any captured inputs change, then the task will be no up-to-date.
-        val out = ByteArrayOutputStream()
-        ObjectOutputStream(out).use {
-            try {
-                it.writeObject(this@PureArtifactTaskBase)
-            } catch (e: NotSerializableException) {
-                throw RuntimeException("$taskName: not serializable: ${e.message}", e)
-            }
-        }
-        return Base64.getEncoder().encodeToString(out.toByteArray())
     }
 }

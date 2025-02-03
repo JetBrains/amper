@@ -20,7 +20,9 @@ import kotlin.reflect.KClass
  * Common shortcuts for [ArtifactSelector]s.
  *
  * NOTE: `type` argument is specified explicitly instead of relying on `inline` with `reified` because
- * Kotlin has weird inference semantics concerning return type inference.
+ * Kotlin deduces the `T` as an intersection type of explicitly specified property type and the upper `T`'s bound.
+ * And for the reified type it "decays" into a common supertype, which becomes out of type bounds.
+ * This is a deprecated behavior, but it still allowed in the current Kotlin version.
  */
 object Selectors {
     /**

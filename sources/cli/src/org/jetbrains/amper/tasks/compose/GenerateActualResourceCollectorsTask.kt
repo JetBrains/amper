@@ -20,11 +20,16 @@ import kotlin.io.path.createDirectory
 class GenerateActualResourceCollectorsTask(
     buildOutputRoot: AmperBuildOutputRoot,
     fragment: LeafFragment,
-    private val packageName: String,
-    private val makeAccessorsPublic: Boolean,
-    private val useActualModifier: Boolean,
-    private val shouldGenerateCode: Boolean,
+    packageName: String,
+    makeAccessorsPublic: Boolean,
+    useActualModifier: Boolean,
+    shouldGenerateCode: Boolean,
 ) : PureArtifactTaskBase(buildOutputRoot) {
+    private val packageName by extraInput(packageName)
+    private val makeAccessorsPublic by extraInput(makeAccessorsPublic)
+    private val useActualModifier by extraInput(useActualModifier)
+    private val shouldGenerateCode by extraInput(shouldGenerateCode)
+
     private val accessorsDirs by Selectors.fromFragment(
         type = ComposeResourcesAccessorsDirArtifact::class,
         fragment = fragment,

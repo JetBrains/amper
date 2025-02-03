@@ -18,10 +18,14 @@ import kotlin.io.path.createDirectory
 class GenerateExpectResourceCollectorsTask(
     rootFragment: Fragment,
     buildOutputRoot: AmperBuildOutputRoot,
-    private val packageName: String,
-    private val makeAccessorsPublic: Boolean,
-    private val shouldGenerateCode: Boolean,
+    packageName: String,
+    makeAccessorsPublic: Boolean,
+    shouldGenerateCode: Boolean,
 ) : PureArtifactTaskBase(buildOutputRoot) {
+    private val packageName by extraInput(packageName)
+    private val makeAccessorsPublic by extraInput(makeAccessorsPublic)
+    private val shouldGenerateCode by extraInput(shouldGenerateCode)
+
     private val codeDir by KotlinJavaSourceDirArtifact(
         buildOutputRoot,
         rootFragment,

@@ -20,13 +20,9 @@ import kotlin.reflect.cast
  * To write a hybrid task that still has to deal with unmanaged dependencies via [TaskResult]s subclass this class.
  */
 abstract class ArtifactTaskBase : ArtifactTask {
-    @Transient
     private val _consumes = mutableListOf<ArtifactSelector<*, *>>()
-    @Transient
     private val _produces = mutableListOf<Artifact>()
-    @Transient
     private var configurationCompleted = false
-    @Transient
     private var inputs: Map<ArtifactSelector<*, *>, List<Artifact>>? = null
 
     final override val consumes: List<ArtifactSelector<*, *>>
@@ -39,22 +35,22 @@ abstract class ArtifactTaskBase : ArtifactTask {
         inputs = artifacts
     }
 
-    /**
-     * Adds the selector to [consumes]. Not allowed to call after the configuration is finalized.
-     */
-    fun addConsumes(selector: ArtifactSelector<*, *>) {
+    private fun addConsumes(selector: ArtifactSelector<*, *>) {
+        checkConfigurationNotCompleted()
         _consumes += selector
     }
 
-    /**
-     * Adds the artifact to [produces]. Not allowed to call after the configuration is finalized.
-     */
-    fun <T : Artifact> addProduces(artifact: T) = artifact.also {
+    private fun <T : Artifact> addProduces(artifact: T) = artifact.also {
+        checkConfigurationNotCompleted()
         _produces += artifact
     }
 
-    internal fun rawInputs() = checkNotNull(inputs) {
+    private fun rawInputs() = checkNotNull(inputs) {
         "Input artifacts are not yet injected"
+    }
+
+    protected fun checkConfigurationNotCompleted() {
+        check(!configurationCompleted) { "Can't use this API after task configuration is complete" }
     }
 
     // DSL

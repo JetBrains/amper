@@ -20,10 +20,14 @@ import kotlin.io.path.exists
 class GenerateResourceAccessorsTask(
     buildOutputRoot: AmperBuildOutputRoot,
     fragment: Fragment,
-    private val packageName: String,
-    private val packagingDir: String,
-    private val makeAccessorsPublic: Boolean,
+    packageName: String,
+    packagingDir: String,
+    makeAccessorsPublic: Boolean,
 ) : PureArtifactTaskBase(buildOutputRoot) {
+    private val packageName by extraInput(packageName)
+    private val makeAccessorsPublic by extraInput(makeAccessorsPublic)
+    private val packagingDir by extraInput(packagingDir)
+
     private val prepared by Selectors.fromFragment(
         type = PreparedComposeResourcesDirArtifact::class,
         fragment = fragment,

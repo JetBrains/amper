@@ -17,8 +17,10 @@ import kotlin.io.path.isDirectory
 class MergePreparedComposeResourcesTask(
     buildOutputRoot: AmperBuildOutputRoot,
     fragment: LeafFragment,
-    private val packagingDir: String,
+    packagingDir: String,
 ) : PureArtifactTaskBase(buildOutputRoot) {
+    private val packagingDir by extraInput(packagingDir)
+
     private val preparedDirs by Selectors.fromFragmentWithDependencies(
         type = PreparedComposeResourcesDirArtifact::class,
         fragment = fragment,
