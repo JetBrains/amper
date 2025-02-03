@@ -5,13 +5,14 @@ package com.jetbrains.sample.app
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
+import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import org.hamcrest.CoreMatchers.notNullValue
-import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.CoreMatchers.*
+import org.hamcrest.MatcherAssert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,16 +33,22 @@ class AppOpenTest {
         device.pressHome()
 
         // Wait for launcher
-        val launcherPackage = device.launcherPackageName
+        val launcherPackage = "com.android.launcher3" // device.launcherPackageName is unreliable
         assertThat(launcherPackage, notNullValue())
-        device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), launchTimeout)
+        val launcherAppeared = device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), launchTimeout)
+        assertThat("Launcher '$launcherPackage' should be present but isn't", launcherAppeared, `is`(true))
 
         // Launch the app using adb monkey and sampleAppPackage
-        val monkeyCommand = "monkey -p $sampleAppPackage -c android.intent.category.LAUNCHER 1"
-        device.executeShellCommand(monkeyCommand)
+        // Note:
+        // 1) "am start -n $sampleAppPackage/.MainActivity" doesn't work for external projects, even with the
+        // overridden sampleAppPackage value, because it needs the FQN of the activity. Better simulate a click.
+        // 2) the monkey command needs "--pct-syskeys 0" otherwise it fails on macOS with missing physical keys
+        val appStartCommand = "monkey -p $sampleAppPackage -c android.intent.category.LAUNCHER --pct-syskeys 0 1"
+        val appStartCommandOutput = device.executeShellCommand(appStartCommand)
 
         // Wait for the app to appear
-        device.wait(Until.hasObject(By.pkg(sampleAppPackage).depth(0)), launchTimeout)
+        val appAppeared = device.wait(Until.hasObject(By.pkg(sampleAppPackage).depth(0)), launchTimeout)
+        assertThat("App should be present but isn't", appAppeared, `is`(true))
     }
 
     @Test
