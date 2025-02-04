@@ -162,7 +162,12 @@ class AndroidTools(
         .filter { it.isNotBlank() }
 
     private suspend fun avdmanager(vararg args: String, input: ProcessInput = ProcessInput.Empty): ProcessResult =
-        runAndroidSdkProcess(executable = findCmdlineToolScript("avdmanager"), *args, input = input)
+        runAndroidSdkProcess(
+            executable = findCmdlineToolScript("avdmanager"),
+            *args,
+            input = input,
+            outputListener = PrefixPrintOutputListener("avdmanager"),
+        )
 
     /**
      * Returns whether an Android emulator is currently running.
