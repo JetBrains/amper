@@ -161,7 +161,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
         )
         result.withTelemetrySpans {
             val testsStdOut = iosKotlinTests.assertZeroExitCode().getAttribute(AttributeKey.stringKey("stdout"))
-            assertTrue(testsStdOut.contains("##teamcity[testSuiteFinished name='SimpleTestsKt']"))
+            assertTrue(testsStdOut.contains("##teamcity[testSuiteFinished name='SimpleTest']"))
         }
     }
 
