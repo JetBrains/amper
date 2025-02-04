@@ -130,6 +130,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         assertEmptyStdErr: Boolean = true,
         stdin: ProcessInput = ProcessInput.Empty,
         customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
+        environment: Map<String, String> = emptyMap(),
     ): AmperCliResult {
         println("Running Amper CLI with '${args.toList()}' on $projectRoot")
 
@@ -142,9 +143,11 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
                 add("--shared-caches-root=${Dirs.userCacheRoot}")
                 addAll(args)
             },
-            environment = AndroidTools.getOrInstallForTests().environment() + mapOf(
-                "AMPER_NO_GRADLE_DAEMON" to "1",
-            ),
+            environment = AndroidTools.getOrInstallForTests().environment()
+                    + mapOf(
+                        "AMPER_NO_GRADLE_DAEMON" to "1",
+                      )
+                    + environment,
             bootstrapCacheDir = Dirs.userCacheRoot,
             expectedExitCode = expectedExitCode,
             assertEmptyStdErr = assertEmptyStdErr,

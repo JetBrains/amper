@@ -12,7 +12,9 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
@@ -47,14 +49,7 @@ class CommonizeNativeDistributionTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val kotlinVersion = UsedVersions.kotlinVersion
 
-        val sharedPlatformSets = model
-            .modules
-            .flatMap { it.fragments }
-            .map { it.platforms }
-            .filter { it.isNotEmpty() }
-            // Filter out all leaf fragments.
-            .filterNot { it.singleOrNull()?.isLeaf == true }
-            .toSet()
+        val sharedPlatformSets = model.nativePlatformSetsToCommonize()
 
         val sharedPlatforms = sharedPlatformSets.map { set ->
             set.joinToString(prefix = "(", separator = ",", postfix = ")") { it.nameForCompiler }
@@ -97,6 +92,19 @@ class CommonizeNativeDistributionTask(
         }
 
         return EmptyTaskResult
+    }
+
+    private fun Model.nativePlatformSetsToCommonize(): Set<List<Platform>> {
+        val sharedPlatformSets = mutableSetOf<List<Platform>>()
+        for (module in modules) {
+            for (fragment in module.fragments) {
+                val platforms = fragment.platforms.filter { it.isDescendantOf(Platform.NATIVE) }
+                if (platforms.size > 1) {
+                    sharedPlatformSets += platforms.toList()
+                }
+            }
+        }
+        return sharedPlatformSets
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
