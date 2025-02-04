@@ -24,7 +24,7 @@ class MergePreparedComposeResourcesTask(
     private val preparedDirs by Selectors.fromFragmentWithDependencies(
         type = PreparedComposeResourcesDirArtifact::class,
         fragment = fragment,
-        quantifier = Quantifier.Any,
+        quantifier = Quantifier.AtLeastOne,
     )
 
     private val mergedPreparedDir by MergedPreparedComposeResourcesDirArtifact(

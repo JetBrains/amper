@@ -18,7 +18,7 @@ sealed interface Quantifier {
     /**
      * At least one artifact is expected
      */
-    data object Any : Multiple
+    data object AtLeastOne : Multiple
 
     /**
      * Exactly one artifact is expected

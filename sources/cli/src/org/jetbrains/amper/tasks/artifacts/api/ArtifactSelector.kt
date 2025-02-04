@@ -27,7 +27,7 @@ data class ArtifactSelector<T : Artifact, out Q : Quantifier>(
         val quantifierString = when (val q: Quantifier = quantifier) {
             Quantifier.Single -> "single artifact"
             Quantifier.AnyOrNone -> "any/none artifacts"
-            Quantifier.Any -> "at least one artifact"
+            Quantifier.AtLeastOne -> "at least one artifact"
         }
         return "$quantifierString matching type $type, $description"
     }

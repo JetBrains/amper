@@ -25,7 +25,7 @@ class PrepareComposeResourcesTask(
     private val sourceDirs by Selectors.fromFragment(
         type = ComposeResourcesSourceDirArtifact::class,
         fragment = fragment,
-        quantifier = Quantifier.Any,
+        quantifier = Quantifier.AtLeastOne,
     )
 
     private val prepared by PreparedComposeResourcesDirArtifact(

@@ -26,6 +26,7 @@ interface ArtifactTask : Task {
 
     /**
      * Called by the engine with the resolved artifacts.
+     * This happens immediately after the task graph is built.
      *
      * @param artifacts each nested list corresponds to the element in the [consumes] list
      */

@@ -33,7 +33,7 @@ class GenerateActualResourceCollectorsTask(
     private val accessorsDirs by Selectors.fromFragment(
         type = ComposeResourcesAccessorsDirArtifact::class,
         fragment = fragment,
-        quantifier = Quantifier.Any,
+        quantifier = Quantifier.AtLeastOne,
     )
 
     private val codeDir by KotlinJavaSourceDirArtifact(

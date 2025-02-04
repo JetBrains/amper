@@ -37,7 +37,7 @@ class IosComposeResourcesTask(
         type = MergedPreparedComposeResourcesDirArtifact::class,
         leafFragment = leafFragment,
         userCacheRoot = userCacheRoot,
-        quantifier = Quantifier.Any,
+        quantifier = Quantifier.AtLeastOne,
     )
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {

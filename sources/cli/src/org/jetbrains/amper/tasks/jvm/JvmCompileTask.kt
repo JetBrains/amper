@@ -89,7 +89,7 @@ class JvmCompileTask(
         }
     }
 
-    private val kotlinJavaSourceDirs by Selectors.fromMatchingFragments(
+    private val additionalKotlinJavaSourceDirs by Selectors.fromMatchingFragments(
         type = KotlinJavaSourceDirArtifact::class,
         module = module,
         isTest = isTest,
@@ -125,7 +125,7 @@ class JvmCompileTask(
         val classpath = compileModuleDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
         val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>().sourcesFor(fragments) +
-                kotlinJavaSourceDirs.map { artifact ->
+                additionalKotlinJavaSourceDirs.map { artifact ->
                     AdditionalSourcesProvider.SourceRoot(
                         fragmentName = artifact.fragmentName,
                         path = artifact.path,

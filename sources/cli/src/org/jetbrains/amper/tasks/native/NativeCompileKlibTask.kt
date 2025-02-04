@@ -55,7 +55,7 @@ class NativeCompileKlibTask(
         require(platform.isDescendantOf(Platform.NATIVE))
     }
 
-    private val kotlinJavaSourceDirs by Selectors.fromMatchingFragments(
+    private val additionalKotlinJavaSourceDirs by Selectors.fromMatchingFragments(
         type = KotlinJavaSourceDirArtifact::class,
         module = module,
         isTest = isTest,
@@ -107,7 +107,7 @@ class NativeCompileKlibTask(
         val libraryPaths = compiledModuleDependencies + externalDependencies
 
         val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>()
-            .sourcesFor(fragments) + kotlinJavaSourceDirs.map { artifact ->
+            .sourcesFor(fragments) + additionalKotlinJavaSourceDirs.map { artifact ->
             AdditionalSourcesProvider.SourceRoot(
                 fragmentName = artifact.fragmentName,
                 path = artifact.path,

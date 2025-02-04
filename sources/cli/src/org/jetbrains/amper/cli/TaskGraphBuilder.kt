@@ -35,6 +35,10 @@ class TaskGraphBuilder {
         dependencies[taskName] = dependencies.getOrDefault(taskName, emptySet()) + dependsOn
     }
 
+    /**
+     * Registers a "builtin" artifact that is not built by any task but is expected to be already present
+     * in the filesystem, e.g., a Kotlin source directory for the user-provided sources.
+     */
     fun registerBuiltinArtifact(artifact: Artifact) {
         builtinArtifacts += artifact
     }
@@ -77,7 +81,7 @@ class TaskGraphBuilder {
             resolvedConsumes.forEach { (selector, resolved) ->
                 when(selector.quantifier) {
                     Quantifier.Single -> check(resolved.size == 1) { "Expected $selector, got ${resolved.size} artifacts" }
-                    Quantifier.Any -> check(resolved.isNotEmpty()) { "Expected $selector, got ${resolved.size} artifacts" }
+                    Quantifier.AtLeastOne -> check(resolved.isNotEmpty()) { "Expected $selector, got ${resolved.size} artifacts" }
                     Quantifier.AnyOrNone -> Unit // always okay
                 }
             }

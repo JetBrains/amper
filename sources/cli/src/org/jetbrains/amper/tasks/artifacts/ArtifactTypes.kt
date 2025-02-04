@@ -20,7 +20,16 @@ import kotlin.io.path.div
 abstract class ArtifactBase(
     buildOutputRoot: AmperBuildOutputRoot,
 ) : Artifact, Serializable {
+    /**
+     * Components that uniquely identify the artifact among the others of the same type.
+     * These are used to automatically generate the artifact's path.
+     */
     protected abstract fun idComponents() : List<String>
+
+    /**
+     * An optional explicitly specified path that should be used instead of auto-generated one.
+     * If this is specified, [idComponents] are not used.
+     */
     protected open val conventionPath: Path? get() = null
 
     override val path: Path by lazy {
