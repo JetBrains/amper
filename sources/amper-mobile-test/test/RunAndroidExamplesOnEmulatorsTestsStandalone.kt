@@ -5,9 +5,7 @@
 
 import androidUtils.AndroidBaseTest
 import org.junit.jupiter.api.Test
-import kotlin.test.Ignore
 
-@Ignore("Disabled temporarily because these tests are broken and block MRs")
 class RunAndroidExamplesOnEmulatorsTestsStandalone : AndroidBaseTest() {
 
     @Test
