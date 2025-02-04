@@ -7,20 +7,22 @@
 package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.compilation.KotlinNativeCompiler
+import org.jetbrains.amper.concurrency.withDoubleLock
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.Serializable
 import kotlin.io.path.createFile
+import kotlin.io.path.createParentDirectories
+import kotlin.io.path.div
 import kotlin.io.path.isDirectory
-
 
 // Copied from https://github.com/JetBrains/kotlin/blob/master/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/native/internal/NativeDistributionCommonizerCache.kt
 // to preserve commonizer caching logic (with additional changes).
 // Yet it is not an ideal solution, but adding dependency on a related kotlin library is more support consuming.
-// See: [NativeDistributionCommonizerLock], [CommonizeNativeDistributionTask]
+// See: [CommonizeNativeDistributionTask]
 class NativeDistributionCommonizerCache(private val konan: KotlinNativeCompiler) : Serializable {
 
-    private val commonizedDir by lazy { konan.commonizedPath.toFile() }
+    private val commonizedDir by lazy { konan.commonizedPath }
 
     /**
      * Calls [writeCacheAction] for uncached targets and marks them as cached if it succeeds
@@ -28,22 +30,25 @@ class NativeDistributionCommonizerCache(private val konan: KotlinNativeCompiler)
     suspend fun writeCacheForUncachedTargets(
         outputTargets: Set<String>,
         writeCacheAction: suspend (todoTargets: Set<String>) -> Unit
-    ) = lock.withLock {
-        val todoOutputTargets = todoTargets(outputTargets)
-        if (todoOutputTargets.isEmpty()) return@withLock
+    ) {
+        val lockFile = commonizedDir / ".lock"
+        lockFile.createParentDirectories()
+        withDoubleLock(outputTargets.hashCode(), lockFile) {
+            val todoOutputTargets = todoTargets(outputTargets)
+            if (todoOutputTargets.isEmpty()) return@withDoubleLock
 
-        writeCacheAction(todoOutputTargets)
+            writeCacheAction(todoOutputTargets)
 
-        todoOutputTargets
-            .map { outputTarget -> konan.commonizedPath.resolve(outputTarget) }
-            .filter { commonizedDirectory -> commonizedDirectory.isDirectory() }
-            .forEach { commonizedDirectory -> commonizedDirectory.resolve(".success").createFile() }
+            todoOutputTargets
+                .map { outputTarget -> konan.commonizedPath.resolve(outputTarget) }
+                .filter { commonizedDirectory -> commonizedDirectory.isDirectory() }
+                .forEach { commonizedDirectory -> commonizedDirectory.resolve(".success").createFile() }
+        }
     }
 
     private fun todoTargets(
         outputTargets: Set<String>
     ): Set<String> {
-        lock.checkLocked(commonizedDir)
         logInfo("Calculating cache state for $outputTargets")
 
         val cachedOutputTargets = outputTargets
@@ -69,13 +74,6 @@ class NativeDistributionCommonizerCache(private val konan: KotlinNativeCompiler)
         val successMarkerFile = directory.resolve(".success")
         return successMarkerFile.isFile
     }
-
-    /**
-     * Re-entrant lock implementation capable of locking a given output directory
-     * even between multiple processes.
-     */
-    @Transient
-    private var lock = NativeDistributionCommonizerLock(commonizedDir, ::logInfo)
 
     private fun logInfo(message: String) = logger.info(message)
 
