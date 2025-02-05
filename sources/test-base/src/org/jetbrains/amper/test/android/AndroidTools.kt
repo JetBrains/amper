@@ -21,6 +21,8 @@ import org.jetbrains.amper.test.PrefixPrintOutputListener
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.io.File
 import java.nio.file.Path
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.concurrent.thread
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.appendLines
@@ -251,6 +253,15 @@ class AndroidTools(
     }
 
     /**
+     * Returns the last [nSeconds] seconds of logcat output at warning level or above.
+     */
+    suspend fun logcatLastNSeconds(nSeconds: Int): String {
+        val formattedTime = LocalDateTime.now().minusSeconds(nSeconds.toLong())
+            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS"))
+        return adb("logcat", "*:W", "-d", "-t", formattedTime).checkExitCodeIsZero().stdout
+    }
+
+    /**
      * Runs the given ADB [command].
      *
      * The exit code and entire output is captured in the returned [ProcessResult].
@@ -280,7 +291,7 @@ class AndroidTools(
         executable: Path,
         vararg args: String,
         input: ProcessInput = ProcessInput.Empty,
-        outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
+        outputListener: ProcessOutputListener,
     ): ProcessResult = runProcessAndCaptureOutput(
         command = listOf(executable.pathString) + args,
         environment = environment() + mapOf("JAVA_HOME" to javaHome.pathString),

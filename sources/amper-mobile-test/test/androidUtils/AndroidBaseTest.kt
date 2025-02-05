@@ -14,8 +14,6 @@ import org.jetbrains.amper.test.PrefixPrintOutputListener
 import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.checkExitCodeIsZero
 import java.nio.file.Path
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.io.path.div
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
@@ -78,11 +76,9 @@ open class AndroidBaseTest : TestBase() {
     }
 
     private suspend fun failTestWithAppDiagnostics(output: String, message: String): Nothing {
-        val nSecondsAgo = 15L
-        val formattedTime = LocalDateTime.now().minusSeconds(nSecondsAgo)
-            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS"))
-        val logCatOutput = androidTools.adb("logcat", "*:W", "-d", "-t", formattedTime).checkExitCodeIsZero()
-        fail("$message\n\nEmulator errors/warnings in the last $nSecondsAgo seconds of logs:\n\n${logCatOutput.stdout}\n\nTest output:\n\n$output")
+        val nSecondsAgo = 15
+        val logCatOutput = androidTools.logcatLastNSeconds(nSecondsAgo).prependIndent("[logcat] ")
+        fail("$message\n\nEmulator errors/warnings in the last $nSecondsAgo seconds of logs:\n\n${logCatOutput}\n\nTest output:\n\n$output")
     }
 
     /**
