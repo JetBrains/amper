@@ -1,11 +1,4 @@
 repositories:
-  - id: scratch
-    url: https://packages.jetbrains.team/maven/p/amper/amper
-    publish: true
-    credentials:
-      file: ../local.properties
-      usernameKey: space.username
-      passwordKey: space.password
   - id: amper-maven
     url: https://packages.jetbrains.team/maven/p/amper/amper
     resolve: false
