@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -31,6 +31,7 @@ enum class KotlinVersion(override val schemaValue: String, override val outdated
     Kotlin18("1.8"),
     Kotlin19("1.9"),
     Kotlin20("2.0"),
+    Kotlin21("2.1"),
     ;
 
     override fun toString(): String = schemaValue
@@ -40,7 +41,7 @@ enum class KotlinVersion(override val schemaValue: String, override val outdated
 class KotlinSettings : SchemaNode() {
 
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
-    var languageVersion by value(KotlinVersion.Kotlin20)
+    var languageVersion by value(KotlinVersion.Kotlin21)
 
     @Aliases("sdkVersion")
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")

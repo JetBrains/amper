@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.compilation
@@ -91,6 +91,7 @@ fun Logger.asKotlinLogger(): KotlinLogger {
         override fun debug(msg: String) = slf4jLogger.debug(msg)
         override fun lifecycle(msg: String) = slf4jLogger.info(msg)
         override fun warn(msg: String) = slf4jLogger.warn(msg)
+        override fun warn(msg: String, throwable: Throwable?) = slf4jLogger.warn(msg, throwable)
         override fun error(msg: String, throwable: Throwable?) = slf4jLogger.error(msg, throwable)
 
         // We map the compiler info logs to Amper's debug level as a workaround for KT-74041
@@ -116,6 +117,7 @@ private class CombiningKotlinLogger(vararg logger: KotlinLogger): KotlinLogger {
     override fun info(msg: String) = loggers.forEach { it.info(msg) }
     override fun lifecycle(msg: String) = loggers.forEach { it.lifecycle(msg) }
     override fun warn(msg: String) = loggers.forEach { it.warn(msg) }
+    override fun warn(msg: String, throwable: Throwable?) = loggers.forEach { it.warn(msg, throwable) }
 }
 
 @ThreadSafe
@@ -138,4 +140,5 @@ class ErrorsCollectorKotlinLogger: KotlinLogger {
     override fun info(msg: String) = Unit
     override fun lifecycle(msg: String) = Unit
     override fun warn(msg: String) = Unit
+    override fun warn(msg: String, throwable: Throwable?) = Unit
 }

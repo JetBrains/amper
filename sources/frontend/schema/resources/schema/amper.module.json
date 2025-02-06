@@ -727,7 +727,7 @@
           "x-intellij-html-description": "Allow using declarations only from the specified version of Kotlin bundled libraries",
           "title": "Allow using declarations only from the specified version of Kotlin bundled libraries",
           "x-intellij-metadata": {"aliases": ["sdkVersion"]},
-          "enum": ["2.0","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"],
+          "enum": ["2.1","2.0","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"],
           "x-intellij-enum-order-sensitive": true
         },
         "debug": {
@@ -761,7 +761,7 @@
         "languageVersion": {
           "x-intellij-html-description": "Source compatibility with the specified version of Kotlin",
           "title": "Source compatibility with the specified version of Kotlin",
-          "enum": ["2.0","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"],
+          "enum": ["2.1","2.0","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"],
           "x-intellij-enum-order-sensitive": true
         },
         "linkerOpts": {

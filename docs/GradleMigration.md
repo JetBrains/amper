@@ -56,9 +56,9 @@ Certain plugins come preconfigured and their versions can't be changed:
 
 | Plugin                                      | Version |
 |---------------------------------------------|---------|
-| `org.jetbrains.kotlin.multiplatform`        | 2.1.0  |
-| `org.jetbrains.kotlin.android`              | 2.1.0  |
-| `org.jetbrains.kotlin.plugin.serialization` | 2.1.0  |
+| `org.jetbrains.kotlin.multiplatform`        | 2.1.10  |
+| `org.jetbrains.kotlin.android`              | 2.1.10  |
+| `org.jetbrains.kotlin.plugin.serialization` | 2.1.10  |
 | `com.android.library`                       | 8.2.0   |
 | `com.android.application`                   | 8.2.0   |
 | `org.jetbrains.compose`                     | 1.6.10  |

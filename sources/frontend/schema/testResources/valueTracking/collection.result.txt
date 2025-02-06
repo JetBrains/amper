@@ -14,7 +14,7 @@
 
    kotlin:
       allWarningsAsErrors: false [default]
-      apiVersion: 2.0 [Inherited from 'languageVersion']
+      apiVersion: 2.1 [Inherited from 'languageVersion']
       debug: true [default]
       freeCompilerArgs: [
          foobar [collection.module-template.yaml],
@@ -25,7 +25,7 @@
          processors: (empty) [default]
          version: 2.1.0-1.0.29 [default]
 
-      languageVersion: 2.0 [default]
+      languageVersion: 2.1 [default]
       progressiveMode: false [default]
       serialization:
          enabled: false [Enabled when 'format' is specified]

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.compilation
@@ -38,7 +38,7 @@ internal data class CompilerPlugin(
             jarPath = jarPath,
             options = listOf(
                 Option(name = "featureFlag", value = "OptimizeNonSkippingGroups"), 
-                // TODO: enable this option when use patched compose compiler 
+                // TODO: enable this option when upgrade to 2.1.20
 //                Option(name = "generateFunctionKeyMetaAnnotations", value = "function"),
             )
         )

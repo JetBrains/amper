@@ -52,14 +52,14 @@ class PropagateTest {
         val seeds = buildSet {
             seed(Platform.COMMON) {
                 kotlin = KotlinSettings().apply {
-                    languageVersion = KotlinVersion.Kotlin20
+                    languageVersion = KotlinVersion.Kotlin21
                 }
             }
             seed(Platform.JVM)
         }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
         val jvmFragment = seeds.assertSingleSeed(Platform.JVM)
-        assertEquals(KotlinVersion.Kotlin20, jvmFragment.seedSettings?.kotlin?.apiVersion)
+        assertEquals(KotlinVersion.Kotlin21, jvmFragment.seedSettings?.kotlin?.apiVersion)
     }
 
     @Test
@@ -70,7 +70,7 @@ class PropagateTest {
         }.adjustSeedsDependencies().propagateSettingsForSeeds()
 
         val jvmFragment = seeds.assertSingleSeed(Platform.JVM)
-        assertEquals(KotlinVersion.Kotlin20, jvmFragment.seedSettings?.kotlin?.apiVersion)
+        assertEquals(KotlinVersion.Kotlin21, jvmFragment.seedSettings?.kotlin?.apiVersion)
     }
 
     @Test

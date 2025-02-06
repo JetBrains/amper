@@ -130,7 +130,7 @@ KotlinSettings
 	freeCompilerArgs: List<String> - Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly
 	ksp: KspSettings - [KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.
 	languageFeatures: List<String>
-	languageVersion: KotlinVersion, default: 2.0 - Source compatibility with the specified version of Kotlin
+	languageVersion: KotlinVersion, default: 2.1 - Source compatibility with the specified version of Kotlin
 	linkerOpts: List<String>
 	optIns: List<String> - Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name
 	progressiveMode: Boolean, default: false - Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)
