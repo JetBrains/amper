@@ -109,12 +109,6 @@ open class TestBase : AmperCliWithWrapperTestBase() {
     private suspend fun gitClone(repoUrl: String, tempDir: Path) {
         val result = runProcessAndCaptureOutput(
             command = listOf("git", "clone", repoUrl, tempDir.toAbsolutePath().toString()),
-            environment = buildMap {
-                if (isRunningInTeamCity()) {
-                    this["GIT_SSH_COMMAND"] =
-                        "ssh -i ~/temp/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-                }
-            },
             redirectErrorStream = true,
         )
         if (result.exitCode != 0) {
