@@ -31,6 +31,10 @@ class NativeDistributionCommonizerCache(private val konan: KotlinNativeCompiler)
         outputTargets: Set<String>,
         writeCacheAction: suspend (todoTargets: Set<String>) -> Unit
     ) {
+        // The same lock file is used by the Gradle KMP plugin.
+        // Using the same lock file allows to be protected against concurrent commonization
+        // that potentially can happen in Amper and Gradle.
+        // Do not use another file for locking without a reason.
         val lockFile = commonizedDir / ".lock"
         lockFile.createParentDirectories()
         withDoubleLock(outputTargets.hashCode(), lockFile) {
