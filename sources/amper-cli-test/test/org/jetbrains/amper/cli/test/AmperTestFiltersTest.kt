@@ -33,6 +33,19 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `include test single with parentheses (jvm-cli)`() = runSlowTest {
+        val r = runCli(
+            "multiplatform-tests",
+            "test",
+            "-m",
+            "jvm-cli",
+            "--include-test=com.example.jvmcli.MyClass1Test.test1()",
+        )
+        r.assertJUnitTestCount(expected = 1)
+        r.assertStdoutContainsLine("running MyClass1Test.test1")
+    }
+
+    @Test
     fun `include test single (shared)`() = runSlowTest {
         val r = runCli(
             "multiplatform-tests",
@@ -44,6 +57,65 @@ class AmperTestFiltersTest : AmperCliTestBase() {
         r.assertJUnitTestCount(expected = 1)
         r.assertNativeTestCount(expected = 1)
         r.assertStdoutContainsLine("running WorldTest.doTest", nOccurrences = 2) // jvm + current platform
+    }
+
+    @Test
+    fun `include test single with parentheses (shared)`() = runSlowTest {
+        val r = runCli(
+            "multiplatform-tests",
+            "test",
+            "-m",
+            "shared",
+            "--include-test=com.example.shared.WorldTest.doTest()",
+        )
+        r.assertJUnitTestCount(expected = 1)
+        r.assertNativeTestCount(expected = 1)
+        r.assertStdoutContainsLine("running WorldTest.doTest", nOccurrences = 2) // jvm + current platform
+    }
+
+    @Test
+    fun `include test single with 0 params (jvm-tests-with-params)`() = runSlowTest {
+        val r = runCli(
+            "jvm-tests-with-params",
+            "test",
+            "--include-test=com.example.testswithparams.OverloadsTest.test()",
+        )
+        r.assertJUnitTestCount(expected = 1)
+        r.assertStdoutContainsLine("running OverloadsTest.test()")
+    }
+
+    @Test
+    fun `include test single with 1 param (jvm-tests-with-params)`() = runSlowTest {
+        val r = runCli(
+            "jvm-tests-with-params",
+            "test",
+            "--include-test=com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)",
+        )
+        r.assertJUnitTestCount(expected = 1)
+        r.assertStdoutContainsLine("running OverloadsTest.test(TestInfo)")
+    }
+
+    @Test
+    fun `include test single with 2 params (jvm-tests-with-params)`() = runSlowTest {
+        val r = runCli(
+            "jvm-tests-with-params",
+            "test",
+            "--include-test=com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo,org.junit.jupiter.api.TestReporter)",
+        )
+        r.assertJUnitTestCount(expected = 1)
+        r.assertStdoutContainsLine("running OverloadsTest.test(TestInfo, TestReporter)")
+    }
+
+    @Test
+    fun `run all parameterized tests (jvm-tests-with-params)`() = runSlowTest {
+        val r = runCli(
+            "jvm-tests-with-params",
+            "test",
+        )
+        r.assertJUnitTestCount(expected = 3)
+        r.assertStdoutContainsLine("running OverloadsTest.test()")
+        r.assertStdoutContainsLine("running OverloadsTest.test(TestInfo)")
+        r.assertStdoutContainsLine("running OverloadsTest.test(TestInfo, TestReporter)")
     }
 
     @Test

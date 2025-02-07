@@ -91,11 +91,16 @@ private data class KNativeTestFilter(val pattern: String, val mode: FilterMode)
 
 private fun TestFilter.toKNativeTestFilter(): KNativeTestFilter = when (this) {
     is TestFilter.SpecificTestInclude -> KNativeTestFilter(
-        pattern = "${suiteFqn.replace('/', '.')}.$testName",
+        pattern = toKotlinNativeFormat(),
         mode = FilterMode.Include,
     )
     is TestFilter.SuitePattern -> KNativeTestFilter(
         pattern = "${pattern.replace('/', '.')}.*",
         mode = mode,
     )
+}
+
+private fun TestFilter.SpecificTestInclude.toKotlinNativeFormat(): String {
+    val nestedClassSuffix = if (nestedClassName != null) ".$nestedClassName" else ""
+    return "$suiteFqn$nestedClassSuffix.$testName"
 }

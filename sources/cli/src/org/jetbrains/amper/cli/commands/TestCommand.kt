@@ -19,6 +19,13 @@ import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
 import kotlin.collections.isNotEmpty
 
+/**
+ * The Unicode Next Line character, to add new lines in help texts while still respecting the terminal width.
+ *
+ * See https://ajalt.github.io/clikt/documenting/#manual-line-breaks
+ */
+private const val NEL = '\u0085'
+
 internal class TestCommand : AmperSubcommand(name = "test") {
 
     private val platforms by leafPlatformOption(help = "only run tests for the specified platform. The option can be repeated to test several platforms.")
@@ -27,10 +34,13 @@ internal class TestCommand : AmperSubcommand(name = "test") {
     // Note: we can't use patterns for test methods because JUnit Console Launcher only supports literals for this
     private val includeTestFilters by option("--include-test",
         metavar = "TEST_FQN",
-        help = "Only run the given test. The option can be repeated to run multiple specific tests. " +
+        help = "Only run the given test. The option can be repeated to run multiple specific tests.$NEL" +
                 "The value should be the fully qualified name of a test method, including its package, containing " +
-                "class (or top-level test suite function), and optionally its containing nested class using the '/' " +
-                "separator. Example: 'com.example.MyTest/MyNestedClass.myTestMethod'. " +
+                "class (or top-level test suite function), and optionally a list of parameter types. If the test is " +
+                "in a nested class, use '/' to separate the containing class from the nested class name.$NEL" +
+                "$NEL" +
+                "Example: 'com.example.MyTest/MyNestedClass.myTestMethod(com.example.Param1Type,com.example.Param2Type)'.$NEL" +
+                "$NEL" +
                 "If some --include-classes options are provided, the given specific test is run in addition to the " +
                 "tests matched via the patterns.",
     )

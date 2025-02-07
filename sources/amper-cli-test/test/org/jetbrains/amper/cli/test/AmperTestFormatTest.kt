@@ -31,7 +31,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     override val testDataRoot: Path = Dirs.amperTestProjectsRoot
 
     @Test
-    fun `junit tests should print teamcity service messages`() {
+    fun `junit 4 tests should print teamcity service messages`() {
         runSlowTest {
             val r = runCli(
                 backendTestProjectName = "multiplatform-tests",
@@ -42,8 +42,8 @@ class AmperTestFormatTest : AmperCliTestBase() {
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
             val expectedMessages = listOf(
                 FlowStarted(flowId = "-1", parent = null),
-                TestSuiteStarted("JUnit Platform Suite").withFlowId(0),
-                TestSuiteFinished("JUnit Platform Suite").withFlowId(0),
+                TestSuiteStarted("JUnit Platform Suite").withFlowId(-1),
+                TestSuiteFinished("JUnit Platform Suite").withFlowId(-1),
                 FlowFinished(flowId = "-1"),
 
                 FlowStarted(flowId = "0", parent = null),
@@ -107,6 +107,58 @@ class AmperTestFormatTest : AmperCliTestBase() {
 
                 TestSuiteFinished("JUnit Vintage").withFlowId(1),
                 FlowFinished(flowId = "1"),
+            )
+
+            assertServiceMessagesEqual(expectedMessages, serviceMessages)
+        }
+    }
+
+    @Test
+    fun `junit 5 tests with params should print teamcity service messages`() {
+        runSlowTest {
+            val r = runCli(
+                backendTestProjectName = "jvm-tests-with-params",
+                "test", "--format=teamcity",
+                assertEmptyStdErr = false,
+            )
+
+            val serviceMessages = parseTeamCityServiceMessages(r.stdout)
+            val expectedMessages = listOf(
+                FlowStarted(flowId = "0", parent = null),
+                TestSuiteStarted("JUnit Platform Suite").withFlowId(0),
+                TestSuiteFinished("JUnit Platform Suite").withFlowId(0),
+                FlowFinished(flowId = "0"),
+
+                FlowStarted(flowId = "1", parent = null),
+                TestSuiteStarted("JUnit Jupiter").withFlowId(1),
+
+                FlowStarted(flowId = "2", parent = "1"),
+                TestSuiteStarted("com.example.testswithparams.OverloadsTest").withFlowId(2),
+                FlowStarted(flowId = "3", parent = "2"),
+                TestStarted("com.example.testswithparams.OverloadsTest.test()", false, null).withFlowId(3),
+                TestStdOut("com.example.testswithparams.OverloadsTest.test()", "running OverloadsTest.test()$NL").withFlowId(3).withSomeTimestamp(),
+                TestFinished("com.example.testswithparams.OverloadsTest.test()", 42).withFlowId(3),
+                FlowFinished(flowId = "3"),
+                FlowStarted(flowId = "4", parent = "2"),
+                TestStarted("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)", false, null).withFlowId(4),
+                TestStdOut("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)", "running OverloadsTest.test(TestInfo)$NL").withFlowId(4).withSomeTimestamp(),
+                TestFinished("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)", 42).withFlowId(4),
+                FlowFinished(flowId = "4"),
+                FlowStarted(flowId = "5", parent = "2"),
+                TestStarted("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)", false, null).withFlowId(5),
+                TestStdOut("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)", "running OverloadsTest.test(TestInfo, TestReporter)$NL").withFlowId(5).withSomeTimestamp(),
+                TestFinished("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)", 42).withFlowId(5),
+                FlowFinished(flowId = "5"),
+                TestSuiteFinished("com.example.testswithparams.OverloadsTest").withFlowId(2),
+                FlowFinished(flowId = "2"),
+
+                TestSuiteFinished("JUnit Jupiter").withFlowId(1),
+                FlowFinished(flowId = "1"),
+
+                FlowStarted(flowId = "100", parent = null),
+                TestSuiteStarted("JUnit Vintage").withFlowId(100),
+                TestSuiteFinished("JUnit Vintage").withFlowId(100),
+                FlowFinished(flowId = "100"),
             )
 
             assertServiceMessagesEqual(expectedMessages, serviceMessages)

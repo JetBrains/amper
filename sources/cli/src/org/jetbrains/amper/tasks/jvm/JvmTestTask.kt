@@ -33,7 +33,6 @@ import org.jetbrains.amper.test.TestFilter
 import org.jetbrains.amper.test.wildcardsToRegex
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.util.*
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempFile
@@ -130,7 +129,7 @@ class JvmTestTask(
         val jvmArgs = buildList {
             if (commonRunSettings.testResultsFormat == TestResultsFormat.Pretty) {
                 add("-Dorg.jetbrains.amper.junit.listener.console.enabled=true")
-                // We don't use inherited IO when started the test launcher process, so the mordant Terminal library
+                // We don't use inherited IO when starting the test launcher process, so the Mordant Terminal library
                 // inside the test launcher cannot detect the supported features of the current console.
                 // This is why we currently just "transfer" the detected features via CLI arguments.
                 // Using ProcessBuilder.inheritIO() would make any auto-detection in the test launcher work, but then the
@@ -223,9 +222,7 @@ class JvmTestTask(
 
     private fun TestFilter.toJUnitArgument(): String =
         when (this) {
-            // Note: using --select=nested-method:com.example.Enclosing/Nested.myTest as specified in the docs doesn't
-            // work, but using the plain --select-method with a $ sign works fine...
-            is TestFilter.SpecificTestInclude -> "--select-method=${suiteFqn.slashToDollar()}#$testName"
+            is TestFilter.SpecificTestInclude -> toJUnitSelectArgument()
             is TestFilter.SuitePattern -> when (mode) {
                 FilterMode.Exclude -> "--exclude-classname=${pattern.slashToDollar().wildcardsToRegex()}"
                 FilterMode.Include -> when {
@@ -236,6 +233,14 @@ class JvmTestTask(
                 }
             }
         }
+
+    private fun TestFilter.SpecificTestInclude.toJUnitSelectArgument(): String {
+        // Note: using --select=nested-method:com.example.Enclosing/Nested.myTest as specified in the docs doesn't
+        // work, but using the plain --select-method with a $ sign to separate the nested class works fine...
+        val nestedClassSuffix = if (nestedClassName != null) "\$$nestedClassName" else ""
+        val paramsList = if (paramTypes != null) "(${paramTypes.joinToString(",")})" else ""
+        return "--select-method=$suiteFqn$nestedClassSuffix#$testName$paramsList"
+    }
 
     private fun String.slashToDollar() = replace('/', '$')
 

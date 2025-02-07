@@ -5,7 +5,6 @@
 package com.example.shared
 
 import kotlin.test.Test
-import kotlin.test.assertTrue
 
 class SharedIntegrationTest {
 

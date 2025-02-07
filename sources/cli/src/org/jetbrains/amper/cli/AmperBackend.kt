@@ -149,7 +149,6 @@ class AmperBackend(val context: CliContext) {
         }
     }
 
-    @TestOnly
     fun modules(): List<AmperModule> = resolvedModel.modules
 
     fun showModules() {

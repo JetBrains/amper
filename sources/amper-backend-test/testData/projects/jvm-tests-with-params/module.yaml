@@ -1,0 +1,7 @@
+product:
+  type: jvm/app
+
+settings:
+  junit: junit-5
+  jvm:
+    mainClass: package1.Program1Kt

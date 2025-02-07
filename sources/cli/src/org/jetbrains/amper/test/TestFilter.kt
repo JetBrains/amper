@@ -22,9 +22,17 @@ sealed class TestFilter {
          */
         val suiteFqn: String,
         /**
+         * The simple name of the nested class (under [suiteFqn]) that contains the test to match, if any.
+         */
+        val nestedClassName: String?,
+        /**
          * The simple name of the test method/function to match, excluding the containing class and package.
          */
         val testName: String,
+        /**
+         * The list of parameter types of the test method (for parameterized tests, or tests with injected services).
+         */
+        val paramTypes: List<String>?,
     ): TestFilter()
 
     /**
@@ -52,22 +60,40 @@ sealed class TestFilter {
 
         private val logger = LoggerFactory.getLogger(TestFilter::class.java)
 
-        // Note: Kotlin identifiers may contain spaces and other symbols like `^$(){}+-=_#%&`.
-        // This regex is therefore lenient on purpose.
-        private val testFqnRegex = Regex("""(?<suiteFqn>.+)\.(?<method>[^.]+)""")
+        /**
+         * A regex to parse the value of --include-test.
+         *
+         * **WARNING**: Kotlin identifiers may contain spaces and other symbols like `_-(){}'",=+|*&^%$#@!~€` (when the
+         * name is enclosed in backticks). This regex is therefore lenient on purpose.
+         * Forbidden characters (at least on JVM) are `.<>:/[]` and the backtick.
+         *
+         * Examples of weird stuff that is allowed:
+         * * a class name can contain parentheses or dollars
+         * * a method name can end with `(something)`, it happens in real life and can be confused with a param list
+         */
+        // TODO maybe we could eliminate some of the weirdness if we asked users to use `backticks` in weird cases
+        private val testFqnRegex = Regex("""(?<suiteFqn>[^/]+?)(/(?<nestedClass>[^.]+))?\.(?<method>[^.`]+?)(\((?<params>[^)]*)\))?""")
 
         fun includeTest(testFqn: String): TestFilter {
+            if ('*' in testFqn || '?' in testFqn) {
+                logger.warn("When matching a specific test method, '*' and '?' are treated literally.")
+            }
             val match = requireNotNull(testFqnRegex.matchEntire(testFqn)) {
                 "invalid test name '$testFqn'. Expected a fully qualified method name including the package and class name. " +
                         "Nested classes, if present, should be separated from the containing class using the '/' separator." +
                         "The name should be literal, without wildcards."
             }
-            val suiteFqnFilter = match.groups["suiteFqn"]!!.value
-            val methodFilter = match.groups["method"]!!.value
-            if ("*" in suiteFqnFilter || "*" in methodFilter || "?" in suiteFqnFilter || "?" in methodFilter) {
-                logger.warn("When matching a specific test method, '*' and '?' are treated literally.")
-            }
-            return SpecificTestInclude(suiteFqn = suiteFqnFilter, testName = methodFilter)
+            return SpecificTestInclude(
+                suiteFqn = match.groups["suiteFqn"]?.value
+                    ?: error("Internal error: 'suiteFqn' group should always be present in the regex match result"),
+                nestedClassName = match.groups["nestedClass"]?.value,
+                testName = match.groups["method"]?.value
+                    ?: error("Internal error: 'method' group should always be present in the regex match result"),
+                paramTypes = match.groups["params"]?.value
+                    ?.split(',')
+                    ?.map { it.trim() }
+                    ?.filter { it.isNotEmpty() },
+            )
         }
 
         fun includeOrExcludeSuite(pattern: String, mode: FilterMode): TestFilter =
