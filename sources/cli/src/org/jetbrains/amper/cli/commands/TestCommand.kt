@@ -97,13 +97,6 @@ internal class TestCommand : AmperSubcommand(name = "test") {
 
     override suspend fun run() {
         val allTestFilters = includeTestFilters + includeClassFilters + excludeClassFilters
-        if (allTestFilters.isNotEmpty() && includeModules.isEmpty() && excludeModules.isEmpty()) {
-            userReadableError(
-                "When using test filters, it is required to use --include-module or --exclude-module to also select " +
-                        "the modules where matching tests are expected. " +
-                        "Including modules with no matching tests will result in an error.")
-        }
-
         withBackend(
             commonOptions = commonOptions,
             currentCommand = commandName,
@@ -114,6 +107,13 @@ internal class TestCommand : AmperSubcommand(name = "test") {
                 testResultsFormat = format,
             ),
         ) { backend ->
+            if (allTestFilters.isNotEmpty() && includeModules.isEmpty() && excludeModules.isEmpty() && backend.modules().size > 1) {
+                userReadableError(
+                    "When using test filters, it is required to use --include-module or --exclude-module to also select " +
+                            "the modules where matching tests are expected. " +
+                            "Including modules with no matching tests will result in an error.")
+            }
+
             backend.test(
                 requestedPlatforms = platforms.ifEmpty { null }?.toSet(),
                 includeModules = if (includeModules.isNotEmpty()) includeModules.toSet() else null,
