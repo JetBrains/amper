@@ -28,6 +28,7 @@ import java.io.PrintStream
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
@@ -46,9 +47,9 @@ class TeamCityMessagesTestExecutionListener(
     private val enabled = System.getProperty("$configPropertyGroup.enabled", "false").toBooleanStrict()
 
     /**
-     * The time at which each test or container started, to used for test duration calculations.
+     * The time at which each test or container started, to use for test duration calculations.
      */
-    private val startTimes = mutableMapOf<UniqueId, TimeMark>()
+    private val startTimes = ConcurrentHashMap<UniqueId, TimeMark>()
 
     /**
      * An opaque and unique ID for the current test plan.
