@@ -27,6 +27,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.outputStream
@@ -128,7 +129,10 @@ private class MovableFileOutputStream(initialPath: Path) : OutputStream() {
         } finally {
             fileStream.close()
         }
-        currentPath.moveTo(newPath)
+        // if nothing has been written so far, the file might not exist at all
+        if (currentPath.exists()) {
+            currentPath.moveTo(newPath)
+        }
         currentPath = newPath
         fileStream = newPath.outputStream(WRITE, APPEND).buffered()
     }
@@ -139,12 +143,12 @@ private class MovableFileOutputStream(initialPath: Path) : OutputStream() {
     }
 
     @Synchronized
-    override fun write(b: ByteArray?) {
+    override fun write(b: ByteArray) {
         fileStream.write(b)
     }
 
     @Synchronized
-    override fun write(b: ByteArray?, off: Int, len: Int) {
+    override fun write(b: ByteArray, off: Int, len: Int) {
         fileStream.write(b, off, len)
     }
 
