@@ -29,10 +29,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.android.findAndroidManifestFragment
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.startLongLivedProcess
 import org.jetbrains.amper.tasks.CommonRunSettings
@@ -130,8 +130,8 @@ class AndroidRunTask(
         return adb
     }
 
-    private fun findActivityToLaunch(androidFragment: Fragment): String? =
-        parseManifest(androidFragment.src.resolve("AndroidManifest.xml"))
+    private fun findActivityToLaunch(androidFragment: LeafFragment): String? =
+        parseManifest(androidFragment.findAndroidManifestFragment().src.resolve("AndroidManifest.xml"))
             .application
             .activities
             .firstOrNull {

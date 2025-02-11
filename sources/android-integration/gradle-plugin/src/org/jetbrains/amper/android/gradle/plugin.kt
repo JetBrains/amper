@@ -21,12 +21,13 @@ import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.properties.readProperties
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.LocalModuleDependency
-import org.jetbrains.amper.frontend.AmperModuleFileSource
+import org.jetbrains.amper.frontend.android.findAndroidManifestFragment
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -36,7 +37,6 @@ import org.jetbrains.amper.frontend.schema.storeFile
 import org.jetbrains.amper.frontend.schema.storePassword
 import java.io.File
 import java.nio.file.Path
-import java.util.*
 import javax.inject.Inject
 import javax.xml.stream.XMLEventFactory
 import javax.xml.stream.XMLInputFactory
@@ -47,7 +47,6 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isSameFileAs
 import kotlin.io.path.pathString
-import kotlin.io.path.reader
 import kotlin.io.path.relativeTo
 
 
@@ -120,11 +119,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             .filterIsInstance<LeafFragment>()
             .firstOrNull { it.platforms.contains(Platform.ANDROID) } ?: return
 
-        // This is the case when the whole fragment tree is a simple 2-element bamboo:
-        // `common` <- `android`. Then we allow placing AndroidManifest in `src` directory.
-        val manifestFragment = if (module.rootFragment.platforms.firstOrNull() == Platform.ANDROID) {
-            module.rootFragment
-        } else androidFragment
+        val manifestFragment = androidFragment.findAndroidManifestFragment()
 
         val androidSettings = androidFragment.settings.android
         androidExtension.compileSdkVersion(androidSettings.compileSdk.versionNumber)
