@@ -123,7 +123,7 @@ class LocalRepositoryTest: BaseDRTest() {
     }
 
     private fun initEtalonGradleLocalStorage(cacheRoot: Path): LocalRepository {
-        // Installing maven local repository at custom location
+        // Installing Gradle local repository at the custom location
         cacheRoot.createDirectories()
 
         val gradleLocal = GradleLocalRepository(cacheRoot)
@@ -134,7 +134,7 @@ class LocalRepositoryTest: BaseDRTest() {
     }
 
     private fun initEtalonMavenLocalStorage(cacheRoot: Path): LocalRepository {
-        // Installing maven local repository at custom location
+        // Installing maven local repository at the custom location
         cacheRoot.createDirectories()
 
         val mavenLocal = MavenLocalRepository(cacheRoot)
@@ -177,7 +177,7 @@ class LocalRepositoryTest: BaseDRTest() {
 
         val cacheRoot = cacheRoot()
 
-        // Installing maven local repository at custom location
+        // Installing maven local repository at the custom location
         val localExternalRepository = initLocalRepository(cacheRoot)
 
         // Initialize resolution context

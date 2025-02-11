@@ -30,18 +30,33 @@ data class AmperUserCacheRoot(val path: Path) {
 
     companion object {
         fun fromCurrentUser(): AmperUserCacheRoot {
-            val userHome = Path(System.getProperty("user.home"))
+            val cacheRoot = parseFromSystemSettings()
+                ?: parseFromEnvSettings()
+                ?: run {
+                    val userHome = Path(System.getProperty("user.home"))
+                    val localAppData = when (OsFamily.current) {
+                        OsFamily.Windows -> getWindowsLocalAppData()
+                        OsFamily.MacOs -> userHome / "Library/Caches"
+                        OsFamily.Linux,
+                        OsFamily.FreeBSD,
+                        OsFamily.Solaris -> System.getenv("XDG_CACHE_HOME")?.takeIf { it.isNotBlank() }
+                            ?.let { Path(it) }
+                            ?: (userHome / ".cache")
+                    }
+                    localAppData.resolve("Amper")
+                }
 
-            val localAppData = when (OsFamily.current) {
-                OsFamily.Windows -> getWindowsLocalAppData()
-                OsFamily.MacOs -> userHome / "Library/Caches"
-                OsFamily.Linux,
-                OsFamily.FreeBSD,
-                OsFamily.Solaris -> System.getenv("XDG_CACHE_HOME")?.takeIf { it.isNotBlank() }?.let { Path(it) }
-                    ?: (userHome / ".cache")
-            }
+            return AmperUserCacheRoot(cacheRoot)
+        }
 
-            return AmperUserCacheRoot(localAppData.resolve("Amper"))
+        private fun parseFromSystemSettings(): Path? {
+            val amperRepoLocal = System.getProperty("amper.repo.local")?.takeIf { it.isNotBlank() } ?: return null
+            return Path(amperRepoLocal)
+        }
+
+        private fun parseFromEnvSettings(): Path? {
+            val amperRepoLocal = System.getenv("AMPER_REPO_LOCAL")?.takeIf { it.isNotBlank() } ?: return null
+            return Path(amperRepoLocal)
         }
 
         private fun getWindowsLocalAppData(): Path {

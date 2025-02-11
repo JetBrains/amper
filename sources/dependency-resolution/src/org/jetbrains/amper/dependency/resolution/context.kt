@@ -130,6 +130,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
  */
 class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
     var amperCache: Path = Path(System.getProperty("user.home"), ".amper")
+        internal set
     var readOnlyExternalRepositories: List<LocalRepository> = defaultReadOnlyExternalRepositories()
     var localRepository: LocalRepository = defaultLocalRepository(amperCache)
 
