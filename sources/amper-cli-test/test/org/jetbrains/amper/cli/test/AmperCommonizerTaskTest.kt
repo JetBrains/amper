@@ -79,7 +79,7 @@ class AmperCommonizerTaskTest: AmperCliTestBase() {
         assertCommonizedPlatformSets(expectedPlatformSets, commonizedRootDir)
     }
 
-    private suspend fun AmperCommonizerTaskTest.runCommonizerTask(projectRoot: Path): Path {
+    private suspend fun runCommonizerTask(projectRoot: Path): Path {
         val konanDataDir = tempRoot / UUID.randomUUID().toString()
         konanDataDir.createDirectories()
 
