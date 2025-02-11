@@ -565,6 +565,8 @@ class MavenDependency internal constructor(
 
                 if (validVariants.isEmpty()) {
                     diagnosticsReporter.addMessage(
+                        // todo (AB) : Describe what variants we have and why they doesn't match, see example of the explanation in
+                        // todo (AB) : https://youtrack.jetbrains.com/issue/AMPER-3842/#focus=Comments-27-11433793.0-0
                         Message(
                             "No variant for the platform ${platform.pretty} is provided by the library $this",
                             severity = Severity.ERROR,

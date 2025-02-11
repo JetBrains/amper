@@ -184,6 +184,7 @@ suspend fun <T> produceResultWithDoubleLock(
     // return already produced file without locking if allowed, otherwise proceed with file production
     getAlreadyProducedResult()?.let { return it }
 
+    // todo (AB) : Maybe store it in <storage.root>/lock and never remove? (in order to resolve deletion failures attempts)
     val tempLockFile = tempLockFile(tempDir, targetFileName)
 
     // First lock locks the stuff inside one JVM process

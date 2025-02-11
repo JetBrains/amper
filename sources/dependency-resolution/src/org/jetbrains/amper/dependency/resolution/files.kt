@@ -5,8 +5,9 @@
 package org.jetbrains.amper.dependency.resolution
 
 import io.ktor.http.*
-import io.ktor.utils.io.*
-import io.ktor.utils.io.jvm.javaio.*
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.jvm.javaio.toByteReadChannel
+import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
@@ -28,6 +29,7 @@ import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.io.InputStream
 import java.net.URI
 import java.net.http.HttpClient.Redirect
 import java.net.http.HttpClient.Version
@@ -725,6 +727,7 @@ open class DependencyFile(
                                     ?: response.headers().firstValueAsLong(HttpHeaders.ContentLength)
                                         .takeIf { it.isPresent && it.asLong != -1L }?.asLong
                                 val size = responseBody.toByteReadChannel().readTo(writers)
+//                                val size = responseBody.readTo(writers)
 
                                 if (expectedSize != null && size != expectedSize) {
                                     throw IOException(
@@ -952,6 +955,30 @@ private suspend fun ByteReadChannel.readTo(writers: Collection<Writer>): Long {
         size += data.position()
         data.clear()
     }
+    return size
+}
+
+/**
+ * This could be used as a replacement of the channel-based function above
+ * if we decide to remove ktor dependencies from DR.
+ */
+@Suppress("unused")
+private fun InputStream.readTo(writers: Collection<Writer>): Long {
+    var size = 0L
+    val chunk = ByteArray(1024)
+    do {
+        val readLength = read(chunk)
+        if (readLength == -1) break
+
+        size += readLength
+
+        val buffer = ByteBuffer.wrap(chunk, 0, readLength)
+        writers.forEach {
+            it.write(buffer)
+            buffer.flip()
+        }
+    } while (true)
+
     return size
 }
 
