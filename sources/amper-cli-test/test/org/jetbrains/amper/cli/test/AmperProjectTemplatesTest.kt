@@ -4,13 +4,10 @@
 
 package org.jetbrains.amper.cli.test
 
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.spans.SpansTestCollector
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import kotlin.io.path.div
@@ -24,8 +21,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.expect
 
-private const val SUPPLEMENTAL_TAG = "supplemental"
-
 class AmperProjectTemplatesTest : AmperCliTestBase() {
     // Please add as many checks as possible to template tests
 
@@ -34,18 +29,7 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
 
     private fun templateNameFromTestName(name: String) = name.substringBefore(' ')
 
-    @BeforeEach
-    fun createFromTemplateAndBuild(testInfo: TestInfo) {
-        if (testInfo.tags.contains(SUPPLEMENTAL_TAG)) return
-
-        runBlocking {
-            val templateName = templateNameFromTestName(testInfo.testMethod.get().name)
-            runCli(tempRoot, "init", templateName)
-        }
-    }
-
     @Test
-    @Tag(SUPPLEMENTAL_TAG)
     fun `all templates are covered`() {
         val methods = javaClass.declaredMethods.map { templateNameFromTestName(it.name) }.toSet()
 
@@ -65,7 +49,8 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `kmp-lib`() = runSlowTest {
+    fun `kmp-lib`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
         // Can't easily get rid of output associated with
         // class 'World': expect and corresponding actual are declared in the same module, which will be prohibited in Kotlin 2.0.
         // See https://youtrack.jetbrains.com/issue/KT-55177
@@ -73,12 +58,14 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `jvm-cli`() = runSlowTest {
+    fun `jvm-cli`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
         runCli(tempRoot, "build")
     }
 
     @Test
-    fun `multiplatform-cli`() = runSlowTest {
+    fun `multiplatform-cli`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
         // Can't easily get rid of output associated with
         // class 'World': expect and corresponding actual are declared in the same module, which will be prohibited in Kotlin 2.0.
         // See https://youtrack.jetbrains.com/issue/KT-55177
@@ -87,14 +74,17 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-multiplatform`() = runSlowTest {
+    fun `compose-multiplatform`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
         val result = runCli(tempRoot, "build", assertEmptyStdErr = false)
         result.readTelemetrySpans().assertXcodeProjectIsValid()
     }
 
     @Test
     @MacOnly
-    fun `compose-multiplatform - build debug with xcodebuild`() = runSlowTest {
+    fun `compose-multiplatform - build debug with xcodebuild`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
+
         val buildDir = tempRoot / "build" / "xcode"
         val result = runXcodebuild(
             "-project", "ios-app/module.xcodeproj",
@@ -113,7 +103,9 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-multiplatform - build release with xcodebuild`() = runSlowTest {
+    fun `compose-multiplatform - build release with xcodebuild`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
+
         val buildDir = tempRoot / "build" / "xcode"
         val result = runXcodebuild(
             "-project", "ios-app/module.xcodeproj",
@@ -135,18 +127,21 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `compose-desktop`() = runSlowTest {
+    fun `compose-desktop`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
         runCli(tempRoot, "build")
     }
 
     @Test
-    fun `compose-android`() = runSlowTest {
+    fun `compose-android`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
         runCli(tempRoot, "build")
     }
 
     @Test
     @MacOnly
-    fun `compose-ios`() = runSlowTest {
+    fun `compose-ios`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
         val result = runCli(tempRoot, "build", assertEmptyStdErr = false)
@@ -155,7 +150,8 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-ios - build debug with xcodebuild`() = runSlowTest {
+    fun `compose-ios - build debug with xcodebuild`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
         val buildDir = tempRoot / "build" / "xcode"
         val result = runXcodebuild(
             "-project", "module.xcodeproj",
@@ -170,6 +166,10 @@ class AmperProjectTemplatesTest : AmperCliTestBase() {
             val appPath = buildDir / "Build" / "Products" / "Debug-iphonesimulator" / "compose-ios.app"
             appPath.isDirectory()
         }
+    }
+
+    private suspend fun runInitForTemplateFromTestName(testInfo: TestInfo) {
+        runCli(tempRoot, "init", templateNameFromTestName(testInfo.testMethod.get().name))
     }
 
     private fun SpansTestCollector.assertXcodeProjectIsValid() {
