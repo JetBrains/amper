@@ -50,12 +50,12 @@ data class AmperUserCacheRoot(val path: Path) {
         }
 
         private fun parseFromSystemSettings(): Path? {
-            val amperRepoLocal = System.getProperty("amper.repo.local")?.takeIf { it.isNotBlank() } ?: return null
+            val amperRepoLocal = System.getProperty("amper.cache.root")?.takeIf { it.isNotBlank() } ?: return null
             return Path(amperRepoLocal)
         }
 
         private fun parseFromEnvSettings(): Path? {
-            val amperRepoLocal = System.getenv("AMPER_REPO_LOCAL")?.takeIf { it.isNotBlank() } ?: return null
+            val amperRepoLocal = System.getenv("AMPER_CACHE_ROOT")?.takeIf { it.isNotBlank() } ?: return null
             return Path(amperRepoLocal)
         }
 

@@ -31,14 +31,10 @@ class AmperLocalRepositoryPathTest {
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
-        try {
-            val cacheRoot = cacheRoot()
-            systemProperties.set("amper.repo.local", "$cacheRoot")
-            val repo = AmperUserCacheRoot.fromCurrentUser()
-            kotlin.test.assertEquals(repo.path, cacheRoot)
-        } finally {
-            System.clearProperty("amper.repo.local")
-        }
+        val cacheRoot = cacheRoot()
+        systemProperties.set("amper.cache.root", "$cacheRoot")
+        val repo = AmperUserCacheRoot.fromCurrentUser()
+        kotlin.test.assertEquals(repo.path, cacheRoot)
     }
 
     @Test
@@ -47,14 +43,10 @@ class AmperLocalRepositoryPathTest {
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
-        try {
-            val cacheRoot = cacheRoot()
-            environmentVariables.set("AMPER_REPO_LOCAL", "$cacheRoot")
-            val repo = AmperUserCacheRoot.fromCurrentUser()
-            kotlin.test.assertEquals(repo.path, cacheRoot)
-        } finally {
-            System.clearProperty("amper.repo.local")
-        }
+        val cacheRoot = cacheRoot()
+        environmentVariables.set("AMPER_CACHE_ROOT", "$cacheRoot")
+        val repo = AmperUserCacheRoot.fromCurrentUser()
+        kotlin.test.assertEquals(repo.path, cacheRoot)
     }
 
     /**
