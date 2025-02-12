@@ -17,8 +17,8 @@ import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.test.PrefixPrintOutputListener
-import org.jetbrains.amper.test.checkExitCodeIsZero
+import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
+import org.jetbrains.amper.test.processes.checkExitCodeIsZero
 import java.io.File
 import java.nio.file.Path
 import java.time.LocalDateTime

@@ -10,9 +10,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.test.PrefixPrintOutputListener
+import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import org.jetbrains.amper.test.android.AndroidTools
-import org.jetbrains.amper.test.checkExitCodeIsZero
+import org.jetbrains.amper.test.processes.checkExitCodeIsZero
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.test.fail

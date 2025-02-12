@@ -14,7 +14,7 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.JdkDownloader
-import org.jetbrains.amper.test.PrefixPrintOutputListener
+import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.TimeUnit

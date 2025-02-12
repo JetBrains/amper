@@ -3,7 +3,7 @@ import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.test.PrefixPrintOutputListener
+import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import org.jetbrains.amper.test.android.AndroidTools
 import org.junit.jupiter.api.AfterEach
 import java.io.FileNotFoundException
