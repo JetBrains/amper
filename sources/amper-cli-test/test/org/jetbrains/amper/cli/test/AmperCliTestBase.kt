@@ -21,7 +21,6 @@ import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.test.assertTrue
@@ -48,7 +47,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         }
     }
 
-    protected abstract val testDataRoot: Path
+    protected fun testProject(name: String): Path = Dirs.amperTestProjectsRoot.resolve(name)
 
     data class AmperCliResult(
         val projectRoot: Path,
@@ -78,66 +77,29 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     }
 
     protected suspend fun runCli(
-        backendTestProjectName: String,
-        vararg args: String,
-        expectedExitCode: Int = 0,
-        assertEmptyStdErr: Boolean = true,
-        stdin: ProcessInput = ProcessInput.Empty,
-    ): AmperCliResult {
-        val projectRoot = testDataRoot.resolve(backendTestProjectName)
-        check(projectRoot.isDirectory()) {
-            "Project root is not a directory: $projectRoot"
-        }
-
-        return runCli(
-            projectRoot,
-            *args,
-            expectedExitCode = expectedExitCode,
-            assertEmptyStdErr = assertEmptyStdErr,
-            stdin = stdin,
-        )
-    }
-
-    protected suspend fun runCliInTempDir(
-        backendTestProjectName: String,
-        vararg args: String,
-        expectedExitCode: Int = 0,
-        assertEmptyStdErr: Boolean = true,
-        stdin: ProcessInput = ProcessInput.Empty,
-    ): AmperCliResult {
-        val projectRoot = testDataRoot.resolve(backendTestProjectName)
-        check(projectRoot.isDirectory()) {
-            "Project root is not a directory: $projectRoot"
-        }
-
-        val tempProjectDir = tempRoot / UUID.randomUUID().toString() / projectRoot.fileName
-        tempProjectDir.createDirectories()
-        projectRoot.copyToRecursively(target = tempProjectDir, overwrite = false, followLinks = true)
-
-        return runCli(
-            projectRoot = tempProjectDir,
-            args = args,
-            expectedExitCode = expectedExitCode,
-            assertEmptyStdErr = assertEmptyStdErr,
-            stdin = stdin,
-        )
-    }
-
-    protected suspend fun runCli(
         projectRoot: Path,
         vararg args: String,
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
+        copyToTempDir: Boolean = false,
         stdin: ProcessInput = ProcessInput.Empty,
         customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
         environment: Map<String, String> = emptyMap(),
     ): AmperCliResult {
         println("Running Amper CLI with '${args.toList()}' on $projectRoot")
 
+        val effectiveProjectRoot = if (copyToTempDir) {
+            val tempProjectDir = tempRoot / UUID.randomUUID().toString() / projectRoot.fileName
+            tempProjectDir.createDirectories()
+            projectRoot.copyToRecursively(target = tempProjectDir, overwrite = false, followLinks = true)
+        } else {
+            projectRoot
+        }
+
         val buildOutputRoot = tempRoot.resolve("build")
 
         val result = runAmper(
-            workingDir = projectRoot,
+            workingDir = effectiveProjectRoot,
             args = buildList {
                 add("--build-output=$buildOutputRoot")
                 add("--shared-caches-root=${Dirs.userCacheRoot}")
@@ -156,13 +118,13 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         )
 
         testReporter.publishEntry("Amper[${result.pid}] arguments", args.joinToString(" "))
-        testReporter.publishEntry("Amper[${result.pid}] working dir", projectRoot.pathString)
+        testReporter.publishEntry("Amper[${result.pid}] working dir", effectiveProjectRoot.pathString)
         testReporter.publishEntry("Amper[${result.pid}] exit code", result.exitCode.toString())
         testReporter.publishEntry("Amper[${result.pid}] stdout", result.stdout.ifBlank { "<empty>" })
         testReporter.publishEntry("Amper[${result.pid}] stderr", result.stderr.ifBlank { "<empty>" })
 
         return AmperCliResult(
-            projectRoot = projectRoot,
+            projectRoot = effectiveProjectRoot,
             buildOutputRoot = buildOutputRoot,
             // Logs dirs contain the date, so max() gives the latest.
             // This should be correct because we don't run the CLI concurrently in a single test.

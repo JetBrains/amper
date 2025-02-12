@@ -6,10 +6,8 @@ package org.jetbrains.amper.cli.test
 
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
 import org.jetbrains.amper.cli.test.teamcity.buildServiceMessages
-import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
-import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -20,13 +18,11 @@ private val NL = System.lineSeparator()
 @Execution(ExecutionMode.CONCURRENT)
 class AmperTestFormatTest : AmperCliTestBase() {
 
-    override val testDataRoot: Path = Dirs.amperTestProjectsRoot
-
     @Test
     fun `junit 4 tests should print teamcity service messages`() {
         runSlowTest {
             val r = runCli(
-                backendTestProjectName = "multiplatform-tests",
+                projectRoot = testProject("multiplatform-tests"),
                 "test", "-m", "jvm-cli", "--format=teamcity", "--include-classes=com.example.jvmcli.OrderedTestSuite",
                 assertEmptyStdErr = false,
             )
@@ -76,7 +72,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     fun `junit 5 tests with params should print teamcity service messages`() {
         runSlowTest {
             val r = runCli(
-                backendTestProjectName = "jvm-tests-with-params",
+                projectRoot = testProject("jvm-tests-with-params"),
                 "test", "--format=teamcity",
                 assertEmptyStdErr = false,
             )

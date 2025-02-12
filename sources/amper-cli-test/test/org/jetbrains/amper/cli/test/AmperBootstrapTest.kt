@@ -6,14 +6,10 @@ package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.test.Dirs
-import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.minutes
 
 class AmperBootstrapTest : AmperCliTestBase() {
-
-    override val testDataRoot: Path
-        get() = error("testDataRoot shouldn't be used")
 
     @Test
     fun `amper can build itself`() = runTest(timeout = 30.minutes) {

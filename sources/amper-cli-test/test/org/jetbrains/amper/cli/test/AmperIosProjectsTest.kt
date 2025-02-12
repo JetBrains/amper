@@ -9,7 +9,6 @@ import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.spans.FilteredSpans
-import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.pathString
 import kotlin.test.Ignore
@@ -23,13 +22,11 @@ import kotlin.test.expect
 
 @MacOnly
 class AmperIosProjectsTest : AmperCliTestBase() {
-    override val testDataRoot: Path
-        get() = Dirs.amperTestProjectsRoot / "ios"
 
     @Test
     fun `framework for simple for iosSimulatorArm64`() = runSlowTest {
         val result = runCli(
-            backendTestProjectName = "interop",
+            projectRoot = testProject("ios/interop"),
             "task", ":interop:frameworkIosSimulatorArm64",
             assertEmptyStdErr = false,
         )
@@ -39,7 +36,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     @Test
     fun `framework for simple for iosArm64`() = runSlowTest {
         val result = runCli(
-            backendTestProjectName = "interop",
+            projectRoot = testProject("ios/interop"),
             "task", ":interop:frameworkIosArm64",
             assertEmptyStdErr = false,
         )
@@ -49,7 +46,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     @Test
     fun `buildIosApp for simple for iosSimulatorArm64`() = runSlowTest {
         val result = runCli(
-            backendTestProjectName = "interop",
+            projectRoot = testProject("ios/interop"),
             "task", ":interop:buildIosAppIosSimulatorArm64",
             assertEmptyStdErr = false,
         )
@@ -62,10 +59,11 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `build for simple for iosSimulatorArm64`() = runSlowTest {
-        val result = runCliInTempDir(
-            backendTestProjectName = "interop",
+        val result = runCli(
+            projectRoot = testProject("ios/interop"),
             "build", "-p", "iosSimulatorArm64",
             assertEmptyStdErr = false,
+            copyToTempDir = true,
         )
         result.withTelemetrySpans {
             xcodeProjectGenSpans.assertNone()
@@ -76,10 +74,11 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `build for outdated-xcode-proj updates the project`() = runSlowTest {
-        val result = runCliInTempDir(
-            backendTestProjectName = "outdated-xcode-proj",
+        val result = runCli(
+            projectRoot = testProject("ios/outdated-xcode-proj"),
             "build", "-p", "iosSimulatorArm64",
             assertEmptyStdErr = false,
+            copyToTempDir = true,
         )
         result.withTelemetrySpans {
             xcodeProjectGenSpans.assertNone()
@@ -91,7 +90,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     @Test
     fun `framework for compose for iosSimulatorArm64`() = runSlowTest {
         val result = runCli(
-            backendTestProjectName = "compose",
+            projectRoot = testProject("ios/compose"),
             "task", ":compose:frameworkIosSimulatorArm64",
             assertEmptyStdErr = false,
         )
@@ -101,7 +100,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     @Test
     fun `framework for compose for iosArm64`() = runSlowTest {
         val result = runCli(
-            backendTestProjectName = "compose",
+            projectRoot = testProject("ios/compose"),
             "task", ":compose:frameworkIosArm64",
             assertEmptyStdErr = false,
         )
@@ -110,17 +109,16 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `buildIosApp for compose app for iosSimulatorArm64`() = runSlowTest {
-        val projectPath: Path
-        val firstBuildResult = runCliInTempDir(
-            backendTestProjectName = "compose",
+        val firstBuildResult = runCli(
+            projectRoot = testProject(name = "ios/compose"),
             "task", ":compose:buildIosAppIosSimulatorArm64",
             assertEmptyStdErr = false,
+            copyToTempDir = true,
         )
-        projectPath = firstBuildResult.projectRoot
         firstBuildResult.readTelemetrySpans().xcodeProjectGenSpans.assertSingle()
 
         val secondBuildResult = runCli(
-            projectRoot = projectPath,
+            projectRoot = firstBuildResult.projectRoot, // new root in temp dir
             "task", ":compose:buildIosAppIosSimulatorArm64",
             assertEmptyStdErr = false,
         )
@@ -132,10 +130,11 @@ class AmperIosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `build for compose app for all ios archs (arm64 without signing)`() = runSlowTest {
-        val result = runCliInTempDir(
-            backendTestProjectName = "compose",
+        val result = runCli(
+            projectRoot = testProject("ios/compose"),
             "build", // build all the platforms
             assertEmptyStdErr = false,
+            copyToTempDir = true,
         )
 
         expect(1) {
@@ -155,7 +154,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     @Ignore("until AMPER-4070 is fixed")
     fun `run kotlin tests in simulator`() = runSlowTest {
         val result = runCli(
-            backendTestProjectName = "simpleTests",
+            projectRoot = testProject("ios/simpleTests"),
             "test",
             assertEmptyStdErr = false,
         )
@@ -168,7 +167,7 @@ class AmperIosProjectsTest : AmperCliTestBase() {
     @Test
     fun `compose-multiplatform - build debug with xcodebuild`() = runSlowTest {
         val result = runXcodebuild(
-            "-project", (testDataRoot / "non-intel" / "module.xcodeproj").pathString,
+            "-project", (Dirs.amperTestProjectsRoot / "ios/non-intel/module.xcodeproj").pathString,
             "-scheme", "app",
             "-configuration", "Debug",
             "-arch", "x86_64",

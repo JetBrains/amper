@@ -10,7 +10,6 @@ import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
-import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteRecursively
@@ -33,16 +32,14 @@ import kotlin.time.Duration.Companion.minutes
 @Execution(ExecutionMode.CONCURRENT)
 class AmperCliTest: AmperCliTestBase() {
 
-    override val testDataRoot: Path = Dirs.amperTestProjectsRoot
-
     @Test
     fun smoke() = runSlowTest {
-        runCli("jvm-kotlin-test-smoke", "tasks")
+        runCli(testProject("jvm-kotlin-test-smoke"), "tasks")
     }
 
     @Test
     fun `run command help prints dash dash`() = runSlowTest {
-        val r = runCli("jvm-kotlin-test-smoke", "run", "--help")
+        val r = runCli(testProject("jvm-kotlin-test-smoke"), "run", "--help")
 
         // Check that '--' is printed before program arguments
         val string = "Usage: amper run [<options>] -- [<app_arguments>]..."
@@ -54,7 +51,12 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun `graceful failure on unknown task name`() = runSlowTest {
-        val r = runCli("jvm-kotlin-test-smoke", "task", "unknown", expectedExitCode = 1, assertEmptyStdErr = false)
+        val r = runCli(
+            projectRoot = testProject("jvm-kotlin-test-smoke"),
+            "task", "unknown",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
 
         val errorMessage = "ERROR: Task 'unknown' was not found in the project"
 
@@ -65,7 +67,12 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun `graceful failure on unknown task name with suggestions`() = runSlowTest {
-        val r = runCli("jvm-kotlin-test-smoke", "task", "compile", expectedExitCode = 1, assertEmptyStdErr = false)
+        val r = runCli(
+            projectRoot = testProject("jvm-kotlin-test-smoke"),
+            "task", "compile",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
 
         val errorMessage = """
             ERROR: Task 'compile' was not found in the project, maybe you meant one of:
@@ -84,7 +91,7 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun modules() = runSlowTest {
-        val r = runCli("simple-multiplatform-cli", "modules")
+        val r = runCli(testProject("simple-multiplatform-cli"), "modules")
 
         assertModulesList(r, listOf(
             "jvm-cli",
@@ -98,9 +105,8 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun `failed kotlinc compilation message`() = runSlowTest {
-        val projectName = "multi-module-failed-kotlinc-compilation"
         val r = runCli(
-            projectName,
+            projectRoot = testProject("multi-module-failed-kotlinc-compilation"),
             "build",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -108,7 +114,7 @@ class AmperCliTest: AmperCliTestBase() {
 
         val lastLines = r.stderr.lines().filter { it.isNotBlank() }.takeLast(2)
 
-        val file = testDataRoot.resolve(projectName).resolve("shared/src/World.kt").toUri()
+        val file = r.projectRoot.resolve("shared/src/World.kt").toUri()
 
         assertEquals("""
             ERROR: Task ':shared:compileJvm' failed: Kotlin compilation failed:
@@ -118,9 +124,8 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun `failed dependency resolution message`() = runSlowTest {
-        val projectName = "multi-module-failed-resolve"
         val r = runCli(
-            projectName,
+            projectRoot = testProject("multi-module-failed-resolve"),
             "build",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -257,7 +262,7 @@ class AmperCliTest: AmperCliTestBase() {
         val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish")
         groupDir.deleteRecursively()
 
-        runCli("jvm-publish", "publish", "mavenLocal")
+        runCli(projectRoot = testProject("jvm-publish"), "publish", "mavenLocal")
 
         val files = groupDir.walk()
             .onEach {
@@ -278,35 +283,35 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun `single-module project under an unrelated project`() = runSlowTest {
-        val resultNested = runCli(testDataRoot / "nested-project-root" / "nested-project", "modules")
+        val resultNested = runCli(testProject("nested-project-root") / "nested-project", "modules")
         assertModulesList(resultNested, listOf("nested-project"))
 
-        val resultRoot = runCli(testDataRoot / "nested-project-root", "modules")
+        val resultRoot = runCli(testProject("nested-project-root"), "modules")
         assertModulesList(resultRoot, listOf("included-module"))
     }
 
     @Test
     fun `project including a deep module`() = runSlowTest {
-        val result = runCli(testDataRoot / "project-root-deep-inclusion", "modules")
+        val result = runCli(testProject("project-root-deep-inclusion"), "modules")
         assertModulesList(result, listOf("deep-module"))
     }
 
     @Test
     fun `project with denormalized globs`() = runSlowTest {
-        val result = runCli(testDataRoot / "project-root-denormalized-globs", "modules")
+        val result = runCli(testProject("project-root-denormalized-globs"), "modules")
         assertModulesList(result, listOf("deep", "deep2", "sub1", "sub2", "sub3", "sub4"))
     }
 
     @Test
     fun `project with both top-level and nested modules`() = runSlowTest {
-        val result = runCli(testDataRoot / "top-level-and-nested-modules", "modules")
+        val result = runCli(testProject("top-level-and-nested-modules"), "modules")
         assertModulesList(result, listOf("deep-module", "top-level-and-nested-modules"))
     }
 
     @Test
     fun `project file with path errors`() = runSlowTest {
         val r = runCli(
-            backendTestProjectName = "project-file-with-errors",
+            projectRoot = testProject("project-file-with-errors"),
             "tasks",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -335,9 +340,9 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun `invalid project root`() = runSlowTest {
-        val explicitRoot = testDataRoot.resolve("invalid-project-root")
+        val explicitRoot = testProject("invalid-project-root")
         val r = runCli(
-            backendTestProjectName = "invalid-project-root",
+            projectRoot = explicitRoot,
             "--root",
             explicitRoot.pathString,
             "tasks",
@@ -352,7 +357,7 @@ class AmperCliTest: AmperCliTestBase() {
     @Test
     fun `run works with input for jvm`() = runTest(timeout = 10.minutes) {
         val r = runCli(
-            backendTestProjectName = "multiplatform-input",
+            projectRoot = testProject("multiplatform-input"),
             "run", "--module", "jvm-app",
             stdin = ProcessInput.Text("Hello World!\nBye World."),
         )
@@ -363,7 +368,7 @@ class AmperCliTest: AmperCliTestBase() {
     @Test
     fun `build command produces a jar for jvm`() = runTest(timeout = 10.minutes) {
         runCli(
-            backendTestProjectName = "multiplatform-input",
+            projectRoot = testProject("multiplatform-input"),
             "build", "-p", "jvm",
         )
 
@@ -377,7 +382,7 @@ class AmperCliTest: AmperCliTestBase() {
     @MacOnly
     fun `run works with input for native`() = runTest(timeout = 10.minutes) {
         val r = runCli(
-            backendTestProjectName = "multiplatform-input",
+            projectRoot = testProject("multiplatform-input"),
             "run", "--module", "macos-app",
             stdin = ProcessInput.Text("Hello World!\nBye World."),
         )
@@ -388,7 +393,7 @@ class AmperCliTest: AmperCliTestBase() {
     @Test
     fun `compose resources demo build (android)`() = runSlowTest {
         runCli(
-            backendTestProjectName = "compose-resources-demo",
+            projectRoot = testProject("compose-resources-demo"),
             "task", ":app-android:buildAndroidDebug",
         )
     }
@@ -396,7 +401,7 @@ class AmperCliTest: AmperCliTestBase() {
     @Test
     fun `compose resources demo build and run (jvm)`() = runSlowTest {
         runCli(
-            backendTestProjectName = "compose-resources-demo",
+            projectRoot = testProject("compose-resources-demo"),
             "test", "--platform=jvm",
         )
     }
@@ -404,40 +409,42 @@ class AmperCliTest: AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose resources demo build (ios)`() = runSlowTest {
-        runCliInTempDir(
-            backendTestProjectName = "compose-resources-demo",
+        runCli(
+            projectRoot = testProject("compose-resources-demo"),
             "build", "--platform=iosSimulatorArm64",
             assertEmptyStdErr = false,  // xcodebuild prints a bunch of warnings (unrelated to resources) for now :(
+            copyToTempDir = true,
         )
     }
 
     @Test
     fun `parcelize android lib - build`() = runSlowTest {
-        runCli(backendTestProjectName = "parcelize-android-lib", "build")
+        runCli(testProject("parcelize-android-lib"), "build")
     }
 
     @Test
     fun `parcelize android lib - test`() = runSlowTest {
-        runCli(backendTestProjectName = "parcelize-android-lib", "test")
+        runCli(testProject("parcelize-android-lib"), "test")
     }
 
     @Test
     fun `parcelize android app - build`() = runSlowTest {
-        runCli(backendTestProjectName = "parcelize-android-app", "build")
+        runCli(testProject("parcelize-android-app"), "build")
     }
 
     @Test
     fun `parcelize with shared kmp model`() = runSlowTest {
-        runCli(backendTestProjectName = "parcelize-shared-kmp-model", "build")
+        runCli(testProject("parcelize-shared-kmp-model"), "build")
     }
 
     @Test
     fun `jvm test with JVM arg`() = runSlowTest {
-        runCli(backendTestProjectName = "jvm-kotlin-test-systemprop", "test", "--jvm-args=-Dmy.system.prop=hello")
+        val testProject = testProject("jvm-kotlin-test-systemprop")
+        runCli(testProject, "test", "--jvm-args=-Dmy.system.prop=hello")
 
         // should fail without the system prop
         runCli(
-            backendTestProjectName = "jvm-kotlin-test-systemprop",
+            projectRoot = testProject,
             "test",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -445,7 +452,7 @@ class AmperCliTest: AmperCliTestBase() {
 
         // should fail with an incorrect value for the system prop
         runCli(
-            backendTestProjectName = "jvm-kotlin-test-systemprop",
+            projectRoot = testProject,
             "test",
             "--jvm-args=-Dmy.system.prop=WRONG",
             expectedExitCode = 1,
@@ -455,13 +462,14 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun `jvm run with JVM arg`() = runSlowTest {
-        val result1 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=-Dmy.system.prop=hello")
+        val testProject = testProject("jvm-run-print-systemprop")
+        val result1 = runCli(testProject, "run", "--jvm-args=-Dmy.system.prop=hello")
         assertEquals("my.system.prop=hello", result1.stdout.trim().lines().last())
 
-        val result2 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=\"-Dmy.system.prop=hello world\"")
+        val result2 = runCli(testProject, "run", "--jvm-args=\"-Dmy.system.prop=hello world\"")
         assertEquals("my.system.prop=hello world", result2.stdout.trim().lines().last())
 
-        val result3 = runCli(backendTestProjectName = "jvm-run-print-systemprop", "run", "--jvm-args=-Dmy.system.prop=hello\\ world")
+        val result3 = runCli(testProject, "run", "--jvm-args=-Dmy.system.prop=hello\\ world")
         assertEquals("my.system.prop=hello world", result3.stdout.trim().lines().last())
     }
 

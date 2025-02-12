@@ -9,7 +9,6 @@ import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.junit.jupiter.api.TestInfo
-import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
@@ -23,9 +22,6 @@ import kotlin.test.expect
 
 class AmperProjectTemplatesTest : AmperCliTestBase() {
     // Please add as many checks as possible to template tests
-
-    override val testDataRoot: Path
-        get() = throw UnsupportedOperationException() // these tests don't use test projects
 
     private fun templateNameFromTestName(name: String) = name.substringBefore(' ')
 

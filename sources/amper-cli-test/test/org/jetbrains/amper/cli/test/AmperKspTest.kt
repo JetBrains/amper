@@ -6,7 +6,6 @@ package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -28,11 +27,9 @@ import kotlin.test.assertTrue
 @Execution(ExecutionMode.CONCURRENT)
 class AmperKspTest: AmperCliTestBase() {
 
-    override val testDataRoot: Path = Dirs.amperTestProjectsRoot
-
     @Test
     fun `ksp jvm autoservice`() = runSlowTest {
-        val projectRoot = testDataRoot.resolve("ksp-jvm-autoservice")
+        val projectRoot = testProject("ksp-jvm-autoservice")
         val buildResult = runCli(projectRoot, "build")
 
         val generatedFilesDir = buildResult.generatedFilesDir(module = "service-impl", fragment = "jvm")
@@ -46,7 +43,7 @@ class AmperKspTest: AmperCliTestBase() {
 
     @Test
     fun `ksp jvm local processor`() = runSlowTest {
-        val projectRoot = testDataRoot.resolve("ksp-jvm-local-processor")
+        val projectRoot = testProject("ksp-jvm-local-processor")
         val buildResult = runCli(projectRoot, "build")
 
         val generatedFilesDir = buildResult.generatedFilesDir(module = "consumer", fragment = "jvm")
@@ -64,7 +61,7 @@ class AmperKspTest: AmperCliTestBase() {
 
     @Test
     fun `ksp kmp local processor`() = runSlowTest {
-        val projectRoot = testDataRoot.resolve("ksp-kmp-local-processor")
+        val projectRoot = testProject("ksp-kmp-local-processor")
         val buildResult = runCli(projectRoot, "build")
 
         buildResult.generatedFilesDir(module = "consumer", fragment = "jvm").assertContainsRelativeFiles(
@@ -164,7 +161,7 @@ class AmperKspTest: AmperCliTestBase() {
 
     @Test
     fun `ksp jvm dagger`() = runSlowTest {
-        val projectRoot = testDataRoot.resolve("ksp-jvm-dagger")
+        val projectRoot = testProject("ksp-jvm-dagger")
         val buildResult = runCli(projectRoot, "build")
 
         val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-jvm-dagger", fragment = "jvm")
@@ -182,7 +179,7 @@ class AmperKspTest: AmperCliTestBase() {
 
     @Test
     fun `ksp jvm dagger with catalog refs`() = runSlowTest {
-        val projectRoot = testDataRoot.resolve("ksp-jvm-dagger-catalog")
+        val projectRoot = testProject("ksp-jvm-dagger-catalog")
         val buildResult = runCli(projectRoot, "build")
 
         val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-jvm-dagger-catalog", fragment = "jvm")
@@ -200,7 +197,7 @@ class AmperKspTest: AmperCliTestBase() {
 
     @Test
     fun `ksp android room`() = runSlowTest {
-        val projectRoot = testDataRoot.resolve("ksp-android-room")
+        val projectRoot = testProject("ksp-android-room")
         val generatedSchemaPath = projectRoot / "generated-db-schema"
         generatedSchemaPath.deleteRecursively()
 
@@ -221,7 +218,7 @@ class AmperKspTest: AmperCliTestBase() {
     @Disabled("Koin doesn't support KSP2 yet: https://github.com/InsertKoinIO/koin-annotations/issues/132")
     @Test
     fun `ksp jvm koin`() = runSlowTest {
-        val projectRoot = testDataRoot.resolve("ksp-jvm-koin")
+        val projectRoot = testProject("ksp-jvm-koin")
         val buildResult = runCli(projectRoot, "build")
 
         val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-jvm-koin", fragment = "jvm")
@@ -241,8 +238,7 @@ class AmperKspTest: AmperCliTestBase() {
     @Disabled("Koin doesn't support KSP2 yet: https://github.com/InsertKoinIO/koin-annotations/issues/132")
     @Test
     fun `ksp multiplatform koin`() = runSlowTest {
-        val projectRoot = testDataRoot.resolve("ksp-kmp-koin")
-        val kspResult = runCli(projectRoot, "task", ":ksp-kmp-koin:kspJvm")
+        val kspResult = runCli(testProject("ksp-kmp-koin"), "task", ":ksp-kmp-koin:kspJvm")
 
         kspResult.generatedFilesDir(module = "ksp-kmp-koin", fragment = "jvm").assertContainsRelativeFiles(
             "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
@@ -277,7 +273,7 @@ class AmperKspTest: AmperCliTestBase() {
 
     @Test
     fun `compose multiplatform room`() = runSlowTest {
-        val projectRoot = testDataRoot.resolve("compose-multiplatform-room")
+        val projectRoot = testProject("compose-multiplatform-room")
         val generatedSchemaPath = projectRoot / "shared/generated-db-schema"
         generatedSchemaPath.deleteRecursively()
 

@@ -4,16 +4,12 @@
 
 package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.test.Dirs
-import java.nio.file.Path
 import kotlin.test.Test
 
 class AmperTestBasicTest : AmperCliTestBase() {
 
-    override val testDataRoot: Path = Dirs.amperTestProjectsRoot
-
     @Test
     fun `test using reflection`() = runSlowTest {
-        runCli(backendTestProjectName = "jvm-test-using-reflection", "test", "--platform=jvm")
+        runCli(testProject("jvm-test-using-reflection"), "test", "--platform=jvm")
     }
 }

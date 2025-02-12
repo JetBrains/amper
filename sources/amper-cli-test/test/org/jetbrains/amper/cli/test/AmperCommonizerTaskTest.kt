@@ -5,7 +5,6 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.core.UsedVersions.kotlinVersion
-import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
@@ -24,14 +23,10 @@ import kotlin.test.assertTrue
 @Execution(ExecutionMode.CONCURRENT)
 class AmperCommonizerTaskTest: AmperCliTestBase() {
 
-    override val testDataRoot: Path = Dirs.amperTestProjectsRoot / "commonizer"
-
     @Test
     @MacOnly
     fun `commonize ios`() = runSlowTest {
-        val projectRoot = testDataRoot / "kmp-mobile"
-
-        val commonizedRootDir = runCommonizerTask(projectRoot)
+        val commonizedRootDir = runCommonizerTask(projectName = "kmp-mobile")
 
         val expectedPlatformSets = listOf(
             listOf("ios_arm64", "ios_simulator_arm64", "ios_x64")
@@ -41,9 +36,7 @@ class AmperCommonizerTaskTest: AmperCliTestBase() {
 
     @Test
     fun `commonize one windows and one linux`() = runSlowTest {
-        val projectRoot = testDataRoot / "win-and-linuxX64"
-
-        val commonizedRootDir = runCommonizerTask(projectRoot)
+        val commonizedRootDir = runCommonizerTask(projectName = "win-and-linuxX64")
 
         val expectedPlatformSets = listOf(
             listOf("linux_x64", "mingw_x64")
@@ -54,9 +47,7 @@ class AmperCommonizerTaskTest: AmperCliTestBase() {
     @Test
     @MacOnly
     fun `commonize ios and two linuxes`() = runSlowTest {
-        val projectRoot = testDataRoot / "ios-and-two-linux"
-
-        val commonizedRootDir = runCommonizerTask(projectRoot)
+        val commonizedRootDir = runCommonizerTask(projectName = "ios-and-two-linux")
 
         val expectedPlatformSets = listOf(
             listOf("ios_arm64", "ios_simulator_arm64", "ios_x64"), // for the 'ios' fragment
@@ -68,9 +59,7 @@ class AmperCommonizerTaskTest: AmperCliTestBase() {
 
     @Test
     fun `commonize one windows and two linuxes`() = runSlowTest {
-        val projectRoot = testDataRoot / "win-and-two-linux"
-
-        val commonizedRootDir = runCommonizerTask(projectRoot)
+        val commonizedRootDir = runCommonizerTask(projectName = "win-and-two-linux")
 
         val expectedPlatformSets = listOf(
             listOf("linux_arm64", "linux_x64"),  // for the 'linux' fragment
@@ -79,14 +68,14 @@ class AmperCommonizerTaskTest: AmperCliTestBase() {
         assertCommonizedPlatformSets(expectedPlatformSets, commonizedRootDir)
     }
 
-    private suspend fun runCommonizerTask(projectRoot: Path): Path {
+    private suspend fun runCommonizerTask(projectName: String): Path {
         val konanDataDir = tempRoot / UUID.randomUUID().toString()
         konanDataDir.createDirectories()
 
         val runResult = runCli(
-            projectRoot, "task", "commonizeNativeDistribution", environment = mapOf(
-                "KONAN_DATA_DIR" to konanDataDir.toString()
-            )
+            projectRoot = testProject("commonizer/$projectName"),
+            "task", "commonizeNativeDistribution",
+            environment = mapOf("KONAN_DATA_DIR" to konanDataDir.toString())
         )
 
         assertEquals(runResult.exitCode, 0, "The commonizer task failed with exit code ${runResult.exitCode}")
