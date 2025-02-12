@@ -136,6 +136,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
             }
 
             // custom task roots
+            // TODO: Remove once fully migrated to artifacts
             module.customTasks.forEach { customTask ->
                 customTask.addToModuleRootsFromCustomTask.forEach { add ->
                     if (platform.pathToParent.contains(add.platform) && isTest == add.isTest) {

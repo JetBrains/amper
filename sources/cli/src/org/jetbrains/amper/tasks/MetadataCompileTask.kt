@@ -30,6 +30,10 @@ import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
+import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
+import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
+import org.jetbrains.amper.tasks.artifacts.Selectors
+import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
@@ -52,10 +56,16 @@ class MetadataCompileTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
-): BuildTask {
+): ArtifactTaskBase(), BuildTask {
 
     override val platform: Platform = Platform.COMMON
     override val isTest: Boolean = fragment.isTest
+
+    private val additionalKotlinJavaSourceDirs by Selectors.fromFragment(
+        type = KotlinJavaSourceDirArtifact::class,
+        fragment = fragment,
+        quantifier = Quantifier.AnyOrNone,
+    )
 
     override suspend fun run(dependenciesResult: List<TaskResult>): Result {
         logger.debug("compile metadata for '${module.userReadableName}' -- ${fragment.name}")
@@ -65,7 +75,6 @@ class MetadataCompileTask(
         val kotlinSettings = listOf(fragment).mergedKotlinSettings()
 
         val dependencyResolutionResults = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>()
-        val additionalSourceRoots = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>().sourcesFor(listOf(fragment))
 
         // TODO extract deps only for our fragment/platforms
         val mavenClasspath = dependencyResolutionResults.flatMap { it.compileClasspath }
@@ -88,7 +97,7 @@ class MetadataCompileTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val sourceDirs = fragment.src.toAbsolutePath() + additionalSourceRoots.map { it.path }
+        val sourceDirs = fragment.src.toAbsolutePath() + additionalKotlinJavaSourceDirs.map { it.path }
         val inputs = sourceDirs + classpath + refinesPaths + friendPaths
 
         executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
@@ -106,7 +115,7 @@ class MetadataCompileTask(
                     kotlinVersion = kotlinVersion,
                     kotlinUserSettings = kotlinSettings,
                     sourceDirectories = sourceDirs,
-                    additionalSourceRoots = additionalSourceRoots,
+                    additionalSourceRoots = additionalKotlinJavaSourceDirs.map { SourceRoot(it.fragmentName, it.path) },
                     classpath = classpath,
                     friendPaths = friendPaths,
                     refinesPaths = refinesPaths,
@@ -137,7 +146,7 @@ class MetadataCompileTask(
         kotlinVersion: String,
         kotlinUserSettings: KotlinUserSettings,
         sourceDirectories: List<Path>,
-        additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
+        additionalSourceRoots: List<SourceRoot>,
         classpath: List<Path>,
         friendPaths: List<Path>,
         refinesPaths: List<Path>,

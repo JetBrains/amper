@@ -1,20 +1,21 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.custom
 
 import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.CompositeString
 import org.jetbrains.amper.frontend.CompositeStringPart
 import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.KnownCurrentTaskProperty
 import org.jetbrains.amper.frontend.KnownModuleProperty
+import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -23,9 +24,12 @@ import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.AdditionalResourcesProvider
-import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
+import org.jetbrains.amper.tasks.artifacts.api.Artifact
+import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
+import org.jetbrains.amper.tasks.artifacts.api.ArtifactTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -41,9 +45,24 @@ internal class CustomTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val tempRoot: AmperProjectTempRoot,
     private val terminal: Terminal,
-): Task {
+    buildOutputRoot: AmperBuildOutputRoot,
+): ArtifactTask {
     override val taskName: TaskName
         get() = custom.name
+
+    override val consumes get() = emptyList<Nothing>()
+
+    override val produces: List<Artifact> = custom.addToModuleRootsFromCustomTask
+        .filter { it.type == AddToModuleRootsFromCustomTask.Type.SOURCES }
+        .map {
+            KotlinJavaSourceDirArtifact(
+                buildOutputRoot,
+                fragment = it.resolveFragment(),
+                conventionPath = it.resolvePath(),
+            )
+        }
+
+    override fun injectConsumes(artifacts: Map<ArtifactSelector<*, *>, List<Artifact>>) = Unit
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         // do not clean custom task output
@@ -86,30 +105,16 @@ internal class CustomTask(
             userReadableError(message)
         }
 
-        val additionalSources = mutableListOf<AdditionalSourcesProvider.SourceRoot>()
         val additionalResources = mutableListOf<AdditionalResourcesProvider.ResourceRoot>()
         custom.addToModuleRootsFromCustomTask.forEach { addToSourceSet ->
-            val path = taskOutputRoot.path.resolve(addToSourceSet.taskOutputRelativePath).normalize()
-            if (!path.startsWith(taskOutputRoot.path)) {
-                // TODO Move to frontend and BuildProblems?
-                userReadableError("Task output relative path '${addToSourceSet.taskOutputRelativePath}'" +
-                        "must be under task output '${taskOutputRoot.path}', but got: $path")
-            }
-
+            val path = addToSourceSet.resolvePath()
             if (!path.exists()) {
                 userReadableError("After running a custom task '${custom.name.name}' output file or folder '$path'" +
                         "is not found, but required for module source sets")
             }
-            val fragment = custom.module.leafFragments.find { it.platform == addToSourceSet.platform }
-            if (fragment == null) {
-                userReadableError("Custom task '${custom.name.name}' cannot add sources to platform " +
-                        "'${addToSourceSet.platform.pretty}' because it's not targeted by module " +
-                        "'${custom.module.userReadableName}'")
-            }
+            val fragment = addToSourceSet.resolveFragment()
             when (addToSourceSet.type) {
-                AddToModuleRootsFromCustomTask.Type.SOURCES -> additionalSources.add(
-                    AdditionalSourcesProvider.SourceRoot(fragmentName = fragment.name, path = path)
-                )
+                AddToModuleRootsFromCustomTask.Type.SOURCES -> Unit // Handled as an artifact
                 AddToModuleRootsFromCustomTask.Type.RESOURCES -> additionalResources.add(
                     AdditionalResourcesProvider.ResourceRoot(fragmentName = fragment.name, path = path)
                 )
@@ -134,9 +139,28 @@ internal class CustomTask(
         return Result(
             outputDirectory = taskOutputRoot.path,
             artifactsToPublish = custom.publishArtifacts,
-            sourceRoots = additionalSources,
             resourceRoots = additionalResources,
         )
+    }
+
+    private fun AddToModuleRootsFromCustomTask.resolvePath(): Path {
+        val path = taskOutputRoot.path.resolve(taskOutputRelativePath).normalize()
+        if (!path.startsWith(taskOutputRoot.path)) {
+            // TODO Move to frontend and BuildProblems?
+            userReadableError("Task output relative path '${taskOutputRelativePath}'" +
+                    "must be under task output '${taskOutputRoot.path}', but got: $path")
+        }
+        return path
+    }
+
+    private fun AddToModuleRootsFromCustomTask.resolveFragment(): LeafFragment {
+        val fragment = custom.module.leafFragments.find { it.platform == platform }
+        if (fragment == null) {
+            userReadableError("Custom task '${custom.name.name}' cannot add sources to platform " +
+                    "'${platform.pretty}' because it's not targeted by module " +
+                    "'${custom.module.userReadableName}'")
+        }
+        return fragment
     }
 
     private fun interpolateString(compositeString: CompositeString, dependencies: List<TaskResult>): String {
@@ -190,9 +214,8 @@ internal class CustomTask(
     class Result(
         val outputDirectory: Path,
         val artifactsToPublish: List<PublishArtifactFromCustomTask>,
-        override val sourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
         override val resourceRoots: List<AdditionalResourcesProvider.ResourceRoot>,
-    ): TaskResult, AdditionalSourcesProvider, AdditionalResourcesProvider
+    ): TaskResult, AdditionalResourcesProvider
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

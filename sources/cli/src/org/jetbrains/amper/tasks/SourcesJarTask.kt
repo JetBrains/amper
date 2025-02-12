@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks
@@ -33,6 +33,7 @@ class SourcesJarTask(
             .sortedBy { it.name }
             // To match current KMP publications, sources for common should be in "/commonMain", jvm in "/jvmMain" etc.
             // TODO check whether this is necessary, or if using the src directory name would be understood by IDEs
+            // TODO: Migrate to KotlinJavaSourcesDirArtifact
             .map { ZipInput(path = it.src, destPathInArchive = Path("${it.name}Main")) }
             .filter { it.path.exists() }
             .toList()

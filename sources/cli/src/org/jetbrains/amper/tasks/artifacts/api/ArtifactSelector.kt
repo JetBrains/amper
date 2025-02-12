@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.artifacts.api
 
-import java.io.Serializable
 import kotlin.reflect.cast
 
 /**
@@ -17,7 +16,7 @@ data class ArtifactSelector<T : Artifact, out Q : Quantifier>(
     val predicate: (T) -> Boolean,
     val description: String,
     val quantifier: Q,
-) : Serializable {
+) {
     fun matches(artifact: Artifact): Boolean {
         return type.clazz.java.isAssignableFrom(artifact.javaClass) && predicate(type.clazz.cast(artifact))
     }
@@ -31,6 +30,4 @@ data class ArtifactSelector<T : Artifact, out Q : Quantifier>(
         }
         return "$quantifierString matching type $type, $description"
     }
-
-    companion object
 }

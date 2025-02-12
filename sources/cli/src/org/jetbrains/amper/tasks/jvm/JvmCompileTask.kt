@@ -37,9 +37,9 @@ import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.withJavaArgFile
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.AdditionalResourcesProvider
-import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
+import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
@@ -48,7 +48,6 @@ import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.resourcesFor
-import org.jetbrains.amper.tasks.sourcesFor
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
@@ -124,13 +123,12 @@ class JvmCompileTask(
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>().flatMap { it.compileClasspath }
         val classpath = compileModuleDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
-        val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>().sourcesFor(fragments) +
-                additionalKotlinJavaSourceDirs.map { artifact ->
-                    AdditionalSourcesProvider.SourceRoot(
-                        fragmentName = artifact.fragmentName,
-                        path = artifact.path,
-                    )
-                }
+        val additionalSources = additionalKotlinJavaSourceDirs.map { artifact ->
+            SourceRoot(
+                fragmentName = artifact.fragmentName,
+                path = artifact.path,
+            )
+        }
 
         val additionalResources = dependenciesResult.filterIsInstance<AdditionalResourcesProvider>().resourcesFor(fragments)
 
@@ -202,7 +200,7 @@ class JvmCompileTask(
     private suspend fun compileSources(
         jdk: Jdk,
         sourceDirectories: List<Path>,
-        additionalSources: List<AdditionalSourcesProvider.SourceRoot>,
+        additionalSources: List<SourceRoot>,
         kotlinVersion: String,
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
@@ -258,7 +256,7 @@ class JvmCompileTask(
         classpath: List<Path>,
         jdk: Jdk,
         sourceDirectories: List<Path>,
-        additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
+        additionalSourceRoots: List<SourceRoot>,
         friendPaths: List<Path>,
     ) {
         // TODO should we download this in a separate task?

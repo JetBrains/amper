@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.ksp
@@ -98,11 +98,6 @@ fun ProjectTasksBuilder.setupKspTasks() {
                     }
                 },
             )
-
-            // compilation of this module depends on KSP-generated code
-            compilationTaskNamesFor(module, platform, isTest = isTest).forEach {
-                tasks.registerDependency(taskName = it, dependsOn = kspTaskName)
-            }
         }
 
     // TODO register KSP tasks on common fragments

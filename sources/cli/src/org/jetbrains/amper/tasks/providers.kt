@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks
@@ -18,24 +18,6 @@ internal interface AdditionalClasspathProvider {
 }
 
 /**
- * Provides additional source directories that should be considered for an existing fragment.
- */
-internal interface AdditionalSourcesProvider {
-    val sourceRoots: List<SourceRoot>
-
-    data class SourceRoot(
-        /** The name of the existing fragment that the sources should be associated to. */
-        val fragmentName: String,
-        /** The absolute path to the directory containing the sources. */
-        val path: Path,
-    ) {
-        init {
-            require(path.isAbsolute) { "Source root path should be absolute, got '$path'" }
-        }
-    }
-}
-
-/**
  * Provides additional resource directories that should be considered for an existing fragment.
  */
 internal interface AdditionalResourcesProvider {
@@ -51,14 +33,6 @@ internal interface AdditionalResourcesProvider {
             require(path.isAbsolute) { "Resource root path should be absolute, got '$path'" }
         }
     }
-}
-
-/**
- * Get the sources from these [AdditionalSourcesProvider]s that correspond to the given [fragments].
- */
-internal fun List<AdditionalSourcesProvider>.sourcesFor(fragments: Iterable<Fragment>): List<AdditionalSourcesProvider.SourceRoot> {
-    val fragmentNames = fragments.mapTo(mutableSetOf()) { it.name }
-    return flatMap { it.sourceRoots }.filter { it.fragmentName in fragmentNames }
 }
 
 /**

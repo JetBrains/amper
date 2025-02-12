@@ -22,15 +22,14 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
+import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
-import org.jetbrains.amper.tasks.sourcesFor
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.createTempFile
@@ -106,9 +105,8 @@ class NativeCompileKlibTask(
 
         val libraryPaths = compiledModuleDependencies + externalDependencies
 
-        val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>()
-            .sourcesFor(fragments) + additionalKotlinJavaSourceDirs.map { artifact ->
-            AdditionalSourcesProvider.SourceRoot(
+        val additionalSources = additionalKotlinJavaSourceDirs.map { artifact ->
+            SourceRoot(
                 fragmentName = artifact.fragmentName,
                 path = artifact.path,
             )

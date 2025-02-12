@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.compilation
@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.KotlinVersion
-import org.jetbrains.amper.tasks.AdditionalSourcesProvider
+import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.ios.IosConventions
 import java.io.File
 import java.nio.file.Path
@@ -27,7 +27,7 @@ private fun kotlinCommonCompilerArgs(
     isMultiplatform: Boolean,
     kotlinUserSettings: KotlinUserSettings,
     fragments: List<Fragment>,
-    additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
+    additionalSourceRoots: List<SourceRoot>,
     compilerPlugins: List<CompilerPlugin>,
 ): List<String> = buildList {
     if (isMultiplatform) {
@@ -97,7 +97,7 @@ internal fun kotlinJvmCompilerArgs(
     outputPath: Path,
     friendPaths: List<Path>,
     fragments: List<Fragment>,
-    additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
+    additionalSourceRoots: List<SourceRoot>,
 ): List<String> = buildList {
     if (userSettings.jvmRelease != null) {
         add("-Xjdk-release=${userSettings.jvmRelease.releaseNumber}")
@@ -166,7 +166,7 @@ internal fun kotlinNativeCompilerArgs(
     exportedLibraryPaths: List<Path>,
     fragments: List<Fragment>,
     sourceFiles: List<Path>,
-    additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
+    additionalSourceRoots: List<SourceRoot>,
     outputPath: Path,
     compilationType: KotlinCompilationType,
     include: Path?,
@@ -240,7 +240,7 @@ internal fun kotlinMetadataCompilerArgs(
     refinesPaths: List<Path>,
     fragments: List<Fragment>,
     sourceFiles: List<Path>,
-    additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
+    additionalSourceRoots: List<SourceRoot>,
 ): List<String> = buildList {
     // TODO full module path including entire hierarchy? -Xshort-module-name)
     add("-module-name")
