@@ -4,21 +4,18 @@
 
 package org.jetbrains.amper.test
 
+import org.junit.jupiter.api.TestReporter
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
 import org.junit.jupiter.api.extension.ExtensionContext
 import java.util.concurrent.atomic.AtomicReference
 
-class TestReporterExtension: Extension, BeforeEachCallback, AfterEachCallback {
+class TestReporterExtension: Extension, BeforeEachCallback, AfterEachCallback, TestReporter {
     private val currentContext = AtomicReference<ExtensionContext>()
 
-    fun publishEntry(message: String) {
-        currentContext.get()!!.publishReportEntry(message)
-    }
-
-    fun publishEntry(key: String, value: String) {
-        currentContext.get()!!.publishReportEntry(key, value)
+    override fun publishEntry(map: MutableMap<String, String>?) {
+        currentContext.get()!!.publishReportEntry(map)
     }
 
     override fun beforeEach(context: ExtensionContext) {
