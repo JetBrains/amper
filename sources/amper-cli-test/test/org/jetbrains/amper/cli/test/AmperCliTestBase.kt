@@ -14,6 +14,7 @@ import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestReporterExtension
 import org.jetbrains.amper.test.android.AndroidTools
+import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
 import java.util.*
@@ -115,13 +116,12 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             assertEmptyStdErr = assertEmptyStdErr,
             stdin = stdin,
             customAmperScriptPath = customAmperScriptPath,
+            outputListener = TestReporterProcessOutputListener("amper", testReporter),
         )
 
         testReporter.publishEntry("Amper[${result.pid}] arguments", args.joinToString(" "))
         testReporter.publishEntry("Amper[${result.pid}] working dir", effectiveProjectRoot.pathString)
         testReporter.publishEntry("Amper[${result.pid}] exit code", result.exitCode.toString())
-        testReporter.publishEntry("Amper[${result.pid}] stdout", result.stdout.ifBlank { "<empty>" })
-        testReporter.publishEntry("Amper[${result.pid}] stderr", result.stderr.ifBlank { "<empty>" })
 
         return AmperCliResult(
             projectRoot = effectiveProjectRoot,
