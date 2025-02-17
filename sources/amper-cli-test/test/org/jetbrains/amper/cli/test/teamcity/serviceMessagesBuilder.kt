@@ -79,14 +79,14 @@ class ServiceMessagesBuilder {
         }
     }
 
-    fun testStdOut(output: String) {
+    fun testStdOut(output: String, withTimestamp: Boolean = false) {
         val testName = currentTest ?: error("Not in a test")
-        messages.add(TestStdOut(testName, output).withFlowId(currentFlowId).withSomeTimestamp())
+        messages.add(TestStdOut(testName, output).withFlowId(currentFlowId).apply { if (withTimestamp) withSomeTimestamp() })
     }
 
-    fun testStdErr(output: String) {
+    fun testStdErr(output: String, withTimestamp: Boolean = false) {
         val testName = currentTest ?: error("Not in a test")
-        messages.add(TestStdErr(testName, output).withFlowId(currentFlowId).withSomeTimestamp())
+        messages.add(TestStdErr(testName, output).withFlowId(currentFlowId).apply { if (withTimestamp) withSomeTimestamp() })
     }
 }
 

@@ -24,6 +24,7 @@ import org.junit.platform.engine.support.descriptor.MethodSource
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.TestPlan
+import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -41,6 +42,31 @@ class TeamCityMessagesTestExecutionListener(
     // from capturing our service messages as test output.
     private val serviceMessagesStream: PrintStream = System.out, // default used when loaded via ServiceLoader
 ) : TestExecutionListener {
+
+    private val currentTest = InheritableThreadLocal<TestIdentifier?>()
+
+    private val watchedStdout = watchedStream(
+        original = System.out,
+        serviceMessagesStream = serviceMessagesStream,
+        currentTest = currentTest,
+    ) { testId, output ->
+        emit(TestStdOut(testId.teamCityName, output).withFlowId(testId))
+    }
+
+    private val watchedStderr = watchedStream(
+        original = System.err,
+        serviceMessagesStream = serviceMessagesStream,
+        currentTest = currentTest,
+    ) { testId, output ->
+        emit(TestStdErr(testId.teamCityName, output).withFlowId(testId))
+    }
+
+    init {
+        // we don't use the built-in stream capture of JUnit because it only reports it at the end of each test
+        // (it doesn't stream it). See https://github.com/junit-team/junit5/issues/4317
+        System.setOut(watchedStdout)
+        System.setErr(watchedStderr)
+    }
 
     private val enabled = System.getProperty("$configPropertyGroup.enabled", "false").toBooleanStrict()
 
@@ -75,12 +101,14 @@ class TeamCityMessagesTestExecutionListener(
     override fun executionStarted(testIdentifier: TestIdentifier) {
         if (!enabled) return
         emit(FlowStarted(testIdentifier.teamCityFlowId, testIdentifier.teamCityParentFlowId))
+        @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
         when (testIdentifier.type) {
             TestDescriptor.Type.CONTAINER -> {
                 emit(TestSuiteStarted(testIdentifier.teamCityName).withFlowId(testIdentifier))
             }
             TestDescriptor.Type.TEST,
             TestDescriptor.Type.CONTAINER_AND_TEST -> {
+                currentTest.set(testIdentifier)
                 markStart(testIdentifier)
                 // disable automatic stdout/stderr capture between start&stop messages
                 // (we use proper service messages to report it, so no need for guesswork)
@@ -105,6 +133,10 @@ class TeamCityMessagesTestExecutionListener(
 
     override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
         if (!enabled) return
+        // make sure partial output at the end of the tests is reported
+        watchedStdout.forceFlush()
+        watchedStderr.forceFlush()
+        currentTest.set(null)
         when (testIdentifier.type) {
             TestDescriptor.Type.CONTAINER -> {
                 emit(TestSuiteFinished(testIdentifier.teamCityName).withFlowId(testIdentifier))
@@ -142,14 +174,18 @@ class TeamCityMessagesTestExecutionListener(
     override fun reportingEntryPublished(testIdentifier: TestIdentifier, entry: ReportEntry) {
         if (!enabled) return
         entry.keyValuePairs.forEach { (key, value) ->
+            // We don't use the standard `stdout` and `stderr` keys (from the stream capture feature of JUnit)
+            // in any special way anymore. We can't use them for TC reporting, because we want to report these
+            // line-by-line as they come, but the default stream capture just sends one `stdout` event at the end of the
+            // test (it was meant for XML reporting initially). See: https://github.com/junit-team/junit5/issues/4317.
+            // Because of this, we have our own standard stream watchers, so we must not report 'stdout'/'stderr'
+            // entries, otherwise we'll double the output.
             val message = when (key) {
-                "stdout" -> TestStdOut(testIdentifier.teamCityName, value)
-                "stderr" -> TestStdErr(testIdentifier.teamCityName, value)
-                else -> TestMetadata(
-                    testName = testIdentifier.teamCityName,
-                    name = key,
-                    value = value,
-                )
+                // Using custom keys because there is currently no standard key to represent streaming output.
+                // See https://github.com/junit-team/junit5/issues/4323
+                StreamingOutputKeys.STDOUT -> TestStdOut(testIdentifier.teamCityName, value)
+                StreamingOutputKeys.STDERR -> TestStdErr(testIdentifier.teamCityName, value)
+                else -> TestMetadata(testName = testIdentifier.teamCityName, name = key, value = value)
             }
             emit(message.withFlowId(testIdentifier).withTimestamp(entry.timestamp))
         }
@@ -166,6 +202,38 @@ class TeamCityMessagesTestExecutionListener(
     private fun elapsedMillis(test: TestIdentifier): Int =
         startTimes[test.uniqueIdObject]?.elapsedNow()?.inWholeMilliseconds?.toInt()
             ?: error("Start time was not registered for test ${test.uniqueId} ('${test.displayName}')")
+}
+
+/**
+ * Wraps the given [original] stream in a [ThreadAwareEavesdroppingPrintStream] that associate output to tests using the
+ * given [currentTest] thread local.
+ *
+ * **Note:** this is not a 100% reliable solution, as it only associate the output with the test if it is printed from
+ * the test's original thread, or a child of that thread.
+ */
+private fun watchedStream(
+    original: PrintStream,
+    serviceMessagesStream: PrintStream,
+    currentTest: ThreadLocal<TestIdentifier?>,
+    onLinePrinted: (TestIdentifier, String) -> Unit,
+): ThreadAwareEavesdroppingPrintStream<TestIdentifier?> = ThreadAwareEavesdroppingPrintStream(
+    original = original,
+    // When the service messages stream is the same as the original stream, we can't print a service message after
+    // a partial line of output, because the ##teamcity mark must be at the start of a line.
+    // A `print("something")` must not result in `something##teamcity[stdOut ... "something"]`.
+    // This is why, in this case, we only flush when we have a complete line because it means the original stream
+    // also has a complete line, thus ensuring proper interlacing of output lines and service messages.
+    // Nevertheless, we use forceFlush() at the end of a test to report a potential trailing partial line.
+    allowPartialLineFlush = serviceMessagesStream != original,
+    threadLocalKey = currentTest,
+) { testId, output ->
+    if (testId != null) {
+        if (serviceMessagesStream == original && !output.endsWith('\n')) {
+            // terminate the output line before printing the service message (to avoid ##teamcity in the middle)
+            serviceMessagesStream.println()
+        }
+        onLinePrinted(testId, output)
+    }
 }
 
 private fun ServiceMessage.withTimestamp(datetime: LocalDateTime): ServiceMessage {

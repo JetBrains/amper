@@ -139,10 +139,6 @@ class JvmTestTask(
             }
             if (commonRunSettings.testResultsFormat == TestResultsFormat.TeamCity) {
                 add("-Dorg.jetbrains.amper.junit.listener.teamcity.enabled=true")
-
-                // TODO should it be configurable?
-                add("-Djunit.platform.output.capture.stdout=true")
-                add("-Djunit.platform.output.capture.stderr=true")
             }
             addAll(commonRunSettings.userJvmArgs)
         }

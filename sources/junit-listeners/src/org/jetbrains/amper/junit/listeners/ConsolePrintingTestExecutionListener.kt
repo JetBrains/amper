@@ -75,8 +75,24 @@ class ConsolePrintingTestExecutionListener(
         if (shouldIgnore(testIdentifier)) {
             return
         }
-        printEvent(event = TestEvent.Reported, testIdentifier)
-        printlnMessage(TestEvent.Reported.style, "Reported values", entry.toString())
+        val (outputEntries, reportEntries) = entry.keyValuePairs.entries.partition {
+            it.key in setOf(StreamingOutputKeys.STDOUT, StreamingOutputKeys.STDERR)
+        }
+
+        outputEntries.forEach {
+            @Suppress("ReplacePrintlnWithLogging")
+            when (it.key) {
+                StreamingOutputKeys.STDOUT -> println(it.value)
+                StreamingOutputKeys.STDERR -> System.err.println(it.value)
+            }
+        }
+
+        if (reportEntries.isNotEmpty()) {
+            printEvent(event = TestEvent.Reported, testIdentifier)
+            reportEntries.forEach { (key, value) ->
+                printlnMessage(TestEvent.Reported.style, key, value)
+            }
+        }
     }
 
     private fun shouldIgnore(testIdentifier: TestIdentifier): Boolean =

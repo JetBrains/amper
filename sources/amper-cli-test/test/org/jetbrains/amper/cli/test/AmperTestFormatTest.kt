@@ -35,8 +35,12 @@ class AmperTestFormatTest : AmperCliTestBase() {
                     suiteWithFlow("com.example.jvmcli.OrderedTestSuite") {
                         suiteWithFlow("com.example.jvmcli.JvmIntegrationTest") {
                             testWithFlow("com.example.jvmcli.JvmIntegrationTest.integrationTest()") {
-                                testStdOut("output line 1 in JvmIntegrationTest.integrationTest${NL}output line 2 in JvmIntegrationTest.integrationTest$NL")
-                                testStdErr("error line 1 in JvmIntegrationTest.integrationTest${NL}error line 2 in JvmIntegrationTest.integrationTest$NL")
+                                testStdOut("output line 1 in JvmIntegrationTest.integrationTest$NL")
+                                testStdErr("error line 1 in JvmIntegrationTest.integrationTest")
+                                testStdErr(NL)
+                                testStdOut("output line 2 in JvmIntegrationTest.integrationTest$NL")
+                                testStdErr("error line 2 in JvmIntegrationTest.integrationTest")
+                                testStdErr(NL)
                             }
                         }
                         suiteWithFlow("com.example.jvmcli.MyClass1Test") {
