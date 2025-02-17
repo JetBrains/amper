@@ -27,7 +27,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
         runSlowTest {
             val r = runCli(
                 backendTestProjectName = "multiplatform-tests",
-                "test", "-m", "jvm-cli", "--format=teamcity",
+                "test", "-m", "jvm-cli", "--format=teamcity", "--include-classes=com.example.jvmcli.OrderedTestSuite",
                 assertEmptyStdErr = false,
             )
 
@@ -36,32 +36,34 @@ class AmperTestFormatTest : AmperCliTestBase() {
                 suiteWithFlow("JUnit Platform Suite")
                 suiteWithFlow("JUnit Jupiter")
                 suiteWithFlow("JUnit Vintage") {
-                    suiteWithFlow("com.example.jvmcli.JvmIntegrationTest") {
-                        testWithFlow("com.example.jvmcli.JvmIntegrationTest.integrationTest()") {
-                            testStdOut("output line 1 in JvmIntegrationTest.integrationTest${NL}output line 2 in JvmIntegrationTest.integrationTest$NL")
-                            testStdErr("error line 1 in JvmIntegrationTest.integrationTest${NL}error line 2 in JvmIntegrationTest.integrationTest$NL")
+                    suiteWithFlow("com.example.jvmcli.OrderedTestSuite") {
+                        suiteWithFlow("com.example.jvmcli.JvmIntegrationTest") {
+                            testWithFlow("com.example.jvmcli.JvmIntegrationTest.integrationTest()") {
+                                testStdOut("output line 1 in JvmIntegrationTest.integrationTest${NL}output line 2 in JvmIntegrationTest.integrationTest$NL")
+                                testStdErr("error line 1 in JvmIntegrationTest.integrationTest${NL}error line 2 in JvmIntegrationTest.integrationTest$NL")
+                            }
                         }
-                    }
-                    suiteWithFlow("com.example.jvmcli.MyClass1Test") {
-                        testWithFlow("com.example.jvmcli.MyClass1Test.test1()") {
-                            testStdOut("running MyClass1Test.test1$NL")
+                        suiteWithFlow("com.example.jvmcli.MyClass1Test") {
+                            testWithFlow("com.example.jvmcli.MyClass1Test.test1()") {
+                                testStdOut("running MyClass1Test.test1$NL")
+                            }
+                            testWithFlow("com.example.jvmcli.MyClass1Test.test2()") {
+                                testStdOut("running MyClass1Test.test2$NL")
+                            }
+                            testWithFlow("com.example.jvmcli.MyClass1Test.test3()") {
+                                testStdOut("running MyClass1Test.test3$NL")
+                            }
                         }
-                        testWithFlow("com.example.jvmcli.MyClass1Test.test2()") {
-                            testStdOut("running MyClass1Test.test2$NL")
-                        }
-                        testWithFlow("com.example.jvmcli.MyClass1Test.test3()") {
-                            testStdOut("running MyClass1Test.test3$NL")
-                        }
-                    }
-                    suiteWithFlow("com.example.jvmcli.MyClass2Test") {
-                        testWithFlow("com.example.jvmcli.MyClass2Test.test1()") {
-                            testStdOut("running MyClass2Test.test1$NL")
-                        }
-                        testWithFlow("com.example.jvmcli.MyClass2Test.test2()") {
-                            testStdOut("running MyClass2Test.test2$NL")
-                        }
-                        testWithFlow("com.example.jvmcli.MyClass2Test.test3()") {
-                            testStdOut("running MyClass2Test.test3$NL")
+                        suiteWithFlow("com.example.jvmcli.MyClass2Test") {
+                            testWithFlow("com.example.jvmcli.MyClass2Test.test1()") {
+                                testStdOut("running MyClass2Test.test1$NL")
+                            }
+                            testWithFlow("com.example.jvmcli.MyClass2Test.test2()") {
+                                testStdOut("running MyClass2Test.test2$NL")
+                            }
+                            testWithFlow("com.example.jvmcli.MyClass2Test.test3()") {
+                                testStdOut("running MyClass2Test.test3$NL")
+                            }
                         }
                     }
                 }
