@@ -52,7 +52,9 @@ internal suspend fun Process.awaitListening(outputListener: ProcessOutputListene
 
     // This is async: onExit() runs on the ForkJoinPool so it doesn't hold the current thread.
     // This is why we only really need 2 threads in the current dispatcher (to consume stdout and stderr).
-    onExit().await().exitValue()
+    onExit().await().exitValue().also { exitCode ->
+        outputListener.onProcessTerminated(exitCode, pid)
+    }
 }
 
 /**

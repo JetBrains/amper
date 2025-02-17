@@ -7,6 +7,7 @@ package org.jetbrains.amper.processes
 interface ProcessOutputListener {
     fun onStdoutLine(line: String, pid: Long)
     fun onStderrLine(line: String, pid: Long)
+    fun onProcessTerminated(exitCode: Int, pid: Long) {}
 
     object NOOP : ProcessOutputListener {
         override fun onStdoutLine(line: String, pid: Long) = Unit
@@ -50,5 +51,9 @@ private class CompositeProcessOutputListener(val listeners: List<ProcessOutputLi
 
     override fun onStderrLine(line: String, pid: Long) {
         listeners.forEach { it.onStderrLine(line, pid) }
+    }
+
+    override fun onProcessTerminated(exitCode: Int, pid: Long) {
+        listeners.forEach { it.onProcessTerminated(exitCode, pid) }
     }
 }
