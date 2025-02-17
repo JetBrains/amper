@@ -13,6 +13,7 @@ import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
+import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.management.ManagementFactory
@@ -79,6 +80,7 @@ abstract class AmperCliWithWrapperTestBase {
         amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.Inherit,
         customAmperScriptPath: Path? = null,
         stdin: ProcessInput = ProcessInput.Empty,
+        outputListener: ProcessOutputListener = PrefixPrintOutputListener("amper")
     ): ProcessResult {
         check(workingDir.exists()) { "Cannot run Amper: the specified working directory $workingDir does not exist." }
         check(workingDir.isDirectory()) { "Cannot run Amper: the specified working directory $workingDir is not a directory." }
@@ -126,7 +128,7 @@ abstract class AmperCliWithWrapperTestBase {
                     putAll(environment)
                 },
                 input = stdin,
-                outputListener = AmperProcessOutputListener,
+                outputListener = outputListener,
             )
         }
 
@@ -164,18 +166,6 @@ sealed class AmperJavaHomeMode {
      * Use the given [jreHomePath] as JRE home for the test Amper process.
      */
     data class Custom(val jreHomePath: Path) : AmperJavaHomeMode()
-}
-
-@Suppress("ReplacePrintlnWithLogging") // these println are for test outputs and are OK here
-private object AmperProcessOutputListener : ProcessOutputListener {
-
-    override fun onStdoutLine(line: String, pid: Long) {
-        println("[amper $pid out] $line")
-    }
-
-    override fun onStderrLine(line: String, pid: Long) {
-        println("[amper $pid err] $line")
-    }
 }
 
 private fun String.prependIndentWithEmptyMark(indent: String): String =
