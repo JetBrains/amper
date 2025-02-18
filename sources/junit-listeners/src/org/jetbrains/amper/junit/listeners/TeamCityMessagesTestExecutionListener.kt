@@ -32,8 +32,6 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 private const val configPropertyGroup = "org.jetbrains.amper.junit.listener.teamcity"
 
@@ -56,9 +54,8 @@ class TeamCityMessagesTestExecutionListener(
      */
     private lateinit var testPlanId: String
 
-    @OptIn(ExperimentalUuidApi::class)
     override fun testPlanExecutionStarted(testPlan: TestPlan?) {
-        testPlanId = Uuid.random().toHexString()
+        testPlanId = UUID.randomUUID().toString()
     }
 
     /**
