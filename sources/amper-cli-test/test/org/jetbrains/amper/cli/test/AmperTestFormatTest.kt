@@ -4,20 +4,12 @@
 
 package org.jetbrains.amper.cli.test
 
-import jetbrains.buildServer.messages.serviceMessages.MessageWithAttributes
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
-import jetbrains.buildServer.messages.serviceMessages.ServiceMessageTypes
-import jetbrains.buildServer.messages.serviceMessages.TestFinished
-import jetbrains.buildServer.messages.serviceMessages.TestStarted
-import jetbrains.buildServer.messages.serviceMessages.TestStdErr
-import jetbrains.buildServer.messages.serviceMessages.TestStdOut
-import jetbrains.buildServer.messages.serviceMessages.TestSuiteFinished
-import jetbrains.buildServer.messages.serviceMessages.TestSuiteStarted
+import org.jetbrains.amper.cli.test.teamcity.buildServiceMessages
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
-import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -40,75 +32,40 @@ class AmperTestFormatTest : AmperCliTestBase() {
             )
 
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
-            val expectedMessages = listOf(
-                FlowStarted(flowId = "-1", parent = null),
-                TestSuiteStarted("JUnit Platform Suite").withFlowId(-1),
-                TestSuiteFinished("JUnit Platform Suite").withFlowId(-1),
-                FlowFinished(flowId = "-1"),
-
-                FlowStarted(flowId = "0", parent = null),
-                TestSuiteStarted("JUnit Jupiter").withFlowId(0),
-                TestSuiteFinished("JUnit Jupiter").withFlowId(0),
-                FlowFinished(flowId = "0"),
-
-                FlowStarted(flowId = "1", parent = null),
-                TestSuiteStarted("JUnit Vintage").withFlowId(1),
-
-                FlowStarted(flowId = "2", parent = "1"),
-                TestSuiteStarted("com.example.jvmcli.JvmIntegrationTest").withFlowId(2),
-                FlowStarted(flowId = "3", parent = "2"),
-                TestStarted("com.example.jvmcli.JvmIntegrationTest.integrationTest()", false, null).withFlowId(3),
-                TestStdOut("com.example.jvmcli.JvmIntegrationTest.integrationTest()", "output line 1 in JvmIntegrationTest.integrationTest${NL}output line 2 in JvmIntegrationTest.integrationTest$NL").withFlowId(3).withSomeTimestamp(),
-                TestStdErr("com.example.jvmcli.JvmIntegrationTest.integrationTest()", "error line 1 in JvmIntegrationTest.integrationTest${NL}error line 2 in JvmIntegrationTest.integrationTest$NL").withFlowId(3).withSomeTimestamp(),
-                TestFinished("com.example.jvmcli.JvmIntegrationTest.integrationTest()", 42).withFlowId(3),
-                FlowFinished(flowId = "3"),
-                TestSuiteFinished("com.example.jvmcli.JvmIntegrationTest").withFlowId(2),
-                FlowFinished(flowId = "2"),
-
-                FlowStarted(flowId = "4", parent = "1"),
-                TestSuiteStarted("com.example.jvmcli.MyClass1Test").withFlowId(4),
-                FlowStarted(flowId = "5", parent = "4"),
-                TestStarted("com.example.jvmcli.MyClass1Test.test1()", false, null).withFlowId(5),
-                TestStdOut("com.example.jvmcli.MyClass1Test.test1()", "running MyClass1Test.test1$NL").withFlowId(5).withSomeTimestamp(),
-                TestFinished("com.example.jvmcli.MyClass1Test.test1()", 42).withFlowId(5),
-                FlowFinished(flowId = "5"),
-                FlowStarted(flowId = "6", parent = "4"),
-                TestStarted("com.example.jvmcli.MyClass1Test.test2()", false, null).withFlowId(6),
-                TestStdOut("com.example.jvmcli.MyClass1Test.test2()", "running MyClass1Test.test2$NL").withFlowId(6).withSomeTimestamp(),
-                TestFinished("com.example.jvmcli.MyClass1Test.test2()", 42).withFlowId(6),
-                FlowFinished(flowId = "6"),
-                FlowStarted(flowId = "7", parent = "4"),
-                TestStarted("com.example.jvmcli.MyClass1Test.test3()", false, null).withFlowId(7),
-                TestStdOut("com.example.jvmcli.MyClass1Test.test3()", "running MyClass1Test.test3$NL").withFlowId(7).withSomeTimestamp(),
-                TestFinished("com.example.jvmcli.MyClass1Test.test3()", 42).withFlowId(7),
-                FlowFinished(flowId = "7"),
-                TestSuiteFinished("com.example.jvmcli.MyClass1Test").withFlowId(4),
-                FlowFinished(flowId = "4"),
-
-                FlowStarted(flowId = "8", parent = "1"),
-                TestSuiteStarted("com.example.jvmcli.MyClass2Test").withFlowId(8),
-                FlowStarted(flowId = "9", parent = "8"),
-                TestStarted("com.example.jvmcli.MyClass2Test.test1()", false, null).withFlowId(9),
-                TestStdOut("com.example.jvmcli.MyClass2Test.test1()", "running MyClass2Test.test1$NL").withFlowId(9).withSomeTimestamp(),
-                TestFinished("com.example.jvmcli.MyClass2Test.test1()", 42).withFlowId(9),
-                FlowFinished(flowId = "9"),
-                FlowStarted(flowId = "10", parent = "8"),
-                TestStarted("com.example.jvmcli.MyClass2Test.test2()", false, null).withFlowId(10),
-                TestStdOut("com.example.jvmcli.MyClass2Test.test2()", "running MyClass2Test.test2$NL").withFlowId(10).withSomeTimestamp(),
-                TestFinished("com.example.jvmcli.MyClass2Test.test2()", 42).withFlowId(10),
-                FlowFinished(flowId = "10"),
-                FlowStarted(flowId = "11", parent = "8"),
-                TestStarted("com.example.jvmcli.MyClass2Test.test3()", false, null).withFlowId(11),
-                TestStdOut("com.example.jvmcli.MyClass2Test.test3()", "running MyClass2Test.test3$NL").withFlowId(11).withSomeTimestamp(),
-                TestFinished("com.example.jvmcli.MyClass2Test.test3()", 42).withFlowId(11),
-                FlowFinished(flowId = "11"),
-                TestSuiteFinished("com.example.jvmcli.MyClass2Test").withFlowId(8),
-                FlowFinished(flowId = "8"),
-
-                TestSuiteFinished("JUnit Vintage").withFlowId(1),
-                FlowFinished(flowId = "1"),
-            )
-
+            val expectedMessages = buildServiceMessages {
+                suiteWithFlow("JUnit Platform Suite")
+                suiteWithFlow("JUnit Jupiter")
+                suiteWithFlow("JUnit Vintage") {
+                    suiteWithFlow("com.example.jvmcli.JvmIntegrationTest") {
+                        testWithFlow("com.example.jvmcli.JvmIntegrationTest.integrationTest()") {
+                            testStdOut("output line 1 in JvmIntegrationTest.integrationTest${NL}output line 2 in JvmIntegrationTest.integrationTest$NL")
+                            testStdErr("error line 1 in JvmIntegrationTest.integrationTest${NL}error line 2 in JvmIntegrationTest.integrationTest$NL")
+                        }
+                    }
+                    suiteWithFlow("com.example.jvmcli.MyClass1Test") {
+                        testWithFlow("com.example.jvmcli.MyClass1Test.test1()") {
+                            testStdOut("running MyClass1Test.test1$NL")
+                        }
+                        testWithFlow("com.example.jvmcli.MyClass1Test.test2()") {
+                            testStdOut("running MyClass1Test.test2$NL")
+                        }
+                        testWithFlow("com.example.jvmcli.MyClass1Test.test3()") {
+                            testStdOut("running MyClass1Test.test3$NL")
+                        }
+                    }
+                    suiteWithFlow("com.example.jvmcli.MyClass2Test") {
+                        testWithFlow("com.example.jvmcli.MyClass2Test.test1()") {
+                            testStdOut("running MyClass2Test.test1$NL")
+                        }
+                        testWithFlow("com.example.jvmcli.MyClass2Test.test2()") {
+                            testStdOut("running MyClass2Test.test2$NL")
+                        }
+                        testWithFlow("com.example.jvmcli.MyClass2Test.test3()") {
+                            testStdOut("running MyClass2Test.test3$NL")
+                        }
+                    }
+                }
+            }
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
         }
     }
@@ -123,44 +80,23 @@ class AmperTestFormatTest : AmperCliTestBase() {
             )
 
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
-            val expectedMessages = listOf(
-                FlowStarted(flowId = "0", parent = null),
-                TestSuiteStarted("JUnit Platform Suite").withFlowId(0),
-                TestSuiteFinished("JUnit Platform Suite").withFlowId(0),
-                FlowFinished(flowId = "0"),
-
-                FlowStarted(flowId = "1", parent = null),
-                TestSuiteStarted("JUnit Jupiter").withFlowId(1),
-
-                FlowStarted(flowId = "2", parent = "1"),
-                TestSuiteStarted("com.example.testswithparams.OverloadsTest").withFlowId(2),
-                FlowStarted(flowId = "3", parent = "2"),
-                TestStarted("com.example.testswithparams.OverloadsTest.test()", false, null).withFlowId(3),
-                TestStdOut("com.example.testswithparams.OverloadsTest.test()", "running OverloadsTest.test()$NL").withFlowId(3).withSomeTimestamp(),
-                TestFinished("com.example.testswithparams.OverloadsTest.test()", 42).withFlowId(3),
-                FlowFinished(flowId = "3"),
-                FlowStarted(flowId = "4", parent = "2"),
-                TestStarted("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)", false, null).withFlowId(4),
-                TestStdOut("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)", "running OverloadsTest.test(TestInfo)$NL").withFlowId(4).withSomeTimestamp(),
-                TestFinished("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)", 42).withFlowId(4),
-                FlowFinished(flowId = "4"),
-                FlowStarted(flowId = "5", parent = "2"),
-                TestStarted("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)", false, null).withFlowId(5),
-                TestStdOut("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)", "running OverloadsTest.test(TestInfo, TestReporter)$NL").withFlowId(5).withSomeTimestamp(),
-                TestFinished("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)", 42).withFlowId(5),
-                FlowFinished(flowId = "5"),
-                TestSuiteFinished("com.example.testswithparams.OverloadsTest").withFlowId(2),
-                FlowFinished(flowId = "2"),
-
-                TestSuiteFinished("JUnit Jupiter").withFlowId(1),
-                FlowFinished(flowId = "1"),
-
-                FlowStarted(flowId = "100", parent = null),
-                TestSuiteStarted("JUnit Vintage").withFlowId(100),
-                TestSuiteFinished("JUnit Vintage").withFlowId(100),
-                FlowFinished(flowId = "100"),
-            )
-
+            val expectedMessages = buildServiceMessages {
+                suiteWithFlow("JUnit Platform Suite")
+                suiteWithFlow("JUnit Jupiter") {
+                    suiteWithFlow("com.example.testswithparams.OverloadsTest") {
+                        testWithFlow("com.example.testswithparams.OverloadsTest.test()") {
+                            testStdOut("running OverloadsTest.test()$NL")
+                        }
+                        testWithFlow("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)") {
+                            testStdOut("running OverloadsTest.test(TestInfo)$NL")
+                        }
+                        testWithFlow("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)") {
+                            testStdOut("running OverloadsTest.test(TestInfo, TestReporter)$NL")
+                        }
+                    }
+                }
+                suiteWithFlow("JUnit Vintage")
+            }
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
         }
     }
@@ -180,16 +116,6 @@ private fun assertServiceMessagesEqual(expected: List<ServiceMessage>, actual: L
     if (expected.size > actual.size) {
         fail("Missing service messages, expected ${expected.size - actual.size} more:\n${expected.drop(actual.size).joinToString("\n")}")
     }
-}
-
-private fun ServiceMessage.withFlowId(n: Int): ServiceMessage {
-    setFlowId(n.toString())
-    return this
-}
-
-private fun ServiceMessage.withSomeTimestamp(): ServiceMessage {
-    setTimestamp(Date())
-    return this
 }
 
 private fun ServiceMessage.normalized(): String {
@@ -212,28 +138,3 @@ private fun ServiceMessage.normalized(): String {
         .replace(Regex("timestamp='[^']+'"), "timestamp='<normalized>'")
         .replace(Regex("duration='[^']+'"), "duration='<normalized>'")
 }
-
-/**
- * Represents a "flow started" message as defined in
- * [the TeamCity docs](https://www.jetbrains.com/help/teamcity/2024.12/service-messages.html#Message+FlowId).
- */
-private class FlowStarted(flowId: String, parent: String? = null) : MessageWithAttributes(
-    ServiceMessageTypes.FLOW_STARTED,
-    buildMap {
-        put("flowId", flowId)
-        if (parent != null) {
-            put("parent", parent)
-        }
-    },
-)
-
-/**
- * Represents a "flow finished" message as defined in
- * [the TeamCity docs](https://www.jetbrains.com/help/teamcity/2024.12/service-messages.html#Message+FlowId).
- */
-private class FlowFinished(flowId: String) : MessageWithAttributes(
-    ServiceMessageTypes.FLOW_FINSIHED,
-    buildMap {
-        put("flowId", flowId)
-    },
-)
