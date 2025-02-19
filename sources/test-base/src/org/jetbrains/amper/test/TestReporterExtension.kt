@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference
 class TestReporterExtension: Extension, BeforeEachCallback, AfterEachCallback, TestReporter {
     private val currentContext = AtomicReference<ExtensionContext>()
 
-    override fun publishEntry(map: MutableMap<String, String>?) {
+    override fun publishEntry(map: Map<String, String>) {
         currentContext.get()!!.publishReportEntry(map)
     }
 
