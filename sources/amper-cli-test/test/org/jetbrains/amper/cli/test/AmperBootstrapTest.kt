@@ -4,9 +4,11 @@
 
 package org.jetbrains.amper.cli.test
 
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.minutes
 
 class AmperBootstrapTest : AmperCliTestBase() {
 
@@ -14,12 +16,10 @@ class AmperBootstrapTest : AmperCliTestBase() {
         get() = error("testDataRoot shouldn't be used")
 
     @Test
-    fun `amper can build itself`() {
-        runSlowTest {
-            // We don't want to run the 'test' command because that would amount to run the whole test suite twice.
-            // Testing that the project compiles with the new sources is good enough, as the tests will be covered
-            // in the build of the MR that bumps Amper in Amper.
-            runCli(projectRoot = Dirs.amperCheckoutRoot, "build")
-        }
+    fun `amper can build itself`() = runTest(timeout = 30.minutes) {
+        // We don't want to run the 'test' command because that would amount to run the whole test suite twice.
+        // Testing that the project compiles with the new sources is good enough, as the tests will be covered
+        // in the build of the MR that bumps Amper in Amper.
+        runCli(projectRoot = Dirs.amperCheckoutRoot, "build")
     }
 }
