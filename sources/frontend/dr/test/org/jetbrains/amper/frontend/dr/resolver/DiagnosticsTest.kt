@@ -10,14 +10,14 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.message
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
-import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
-import java.nio.file.Path
+import org.junit.jupiter.api.fail
 import kotlin.contracts.ExperimentalContracts
 import kotlin.test.assertTrue
 
@@ -105,27 +105,80 @@ class DiagnosticsTest: BaseModuleDrTest() {
 
         // direct dependency on a built-in library,
         // a version of the library is taken from settings:compose:version in file module.yaml
-        checkDependencyBuildProblem(buildProblems, "org.jetbrains.compose.foundation", "foundation",
+        checkBuiltInDependencyBuildProblem(buildProblems, "org.jetbrains.compose.foundation", "foundation",
             "module.yaml",16)
-        checkDependencyBuildProblem(buildProblems, "org.jetbrains.compose.material3", "material3",
+        checkBuiltInDependencyBuildProblem(buildProblems, "org.jetbrains.compose.material3", "material3",
             "module.yaml",16)
 
         // transitive dependency of built-in libraries,
         // a version of the library is taken from settings:compose:version in file module.yaml
-        checkDependencyBuildProblem(buildProblems, "org.jetbrains.compose.runtime", "runtime",
+        checkBuiltInDependencyBuildProblem(buildProblems, "org.jetbrains.compose.runtime", "runtime",
             "module.yaml",16)
 
         // transitive dependency on a built-in library,
         // a version of the library is taken from settings:serialization:version in file template.yaml
-        checkDependencyBuildProblem(buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core",
+        checkBuiltInDependencyBuildProblem(buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core",
             "..\\..\\templates\\template.yaml"
                 .let{ if (DefaultSystemInfo.detect().family != OsFamily.Windows) it.replace("\\", "/") else it },
             5)
     }
 
-    // todo (AB) : Test the case where version is not resolved and it is default one (compose.enabled is set only)
-    // todo (AB) : (due to the network failure for instance or has a strict conflict with another dependency)
-    // todo (AB) : What is reported in this case?
+    @Test
+    fun `test invalid dependency coordinates`() {
+        val aom = getTestProjectModel("jvm-invalid-dependencies", testDataRoot)
+
+        kotlin.test.assertEquals(
+            setOf("common", "commonTest", "jvm", "jvmTest"),
+            aom.modules.single().fragments.map { it.name }.toSet(),
+            ""
+        )
+
+        val commonFragmentDeps = runBlocking {
+            doTest(
+                aom,
+                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
+                module = "jvm-invalid-dependencies",
+                fragment = "common",
+                expected = """Fragment 'jvm-invalid-dependencies.common' dependencies
+                    |+--- jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
+                    ||    \--- com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
+                    |+--- jvm-invalid-dependencies:common:com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
+                    ||    \--- com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
+                    |+--- jvm-invalid-dependencies:common:com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
+                    ||    \--- com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
+                    |+--- jvm-invalid-dependencies:common:com.fasterxml.jackson.core, unresolved
+                    ||    \--- com.fasterxml.jackson.core, unresolved
+                    |\--- jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.10, implicit
+                    |     \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10
+                    |          \--- org.jetbrains:annotations:13.0""".trimMargin(),
+                verifyMessages = false
+            )
+        }
+
+        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Error)
+        val buildProblems = diagnosticsReporter.getProblems()
+
+        kotlin.test.assertEquals(4, buildProblems.size)
+
+        buildProblems.forEach {
+            val buildProblem = it as DependencyBuildProblem
+            val dependency = buildProblem.problematicDependency as UnresolvedMavenDependencyNode
+            val expectedError = when(dependency.coordinates) {
+                "com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared" ->
+                    "Maven coordinates should not contain spaces, but got ${dependency.coordinates}"
+                "com.fasterxml.     jackson.core:jackson-core:2.17.2" ->
+                    "Maven coordinates should not contain spaces, but got ${dependency.coordinates}"
+                "com.fasterx/ml.jackson.core:jackson-core:2.17.2" ->
+                    "Maven coordinates should not contain parts with slashes, but got ${dependency.coordinates}"
+                "com.fasterxml.jackson.core" ->
+                    "Maven coordinates should contain at least 3 parts separated by :, but got ${dependency.coordinates}"
+                else -> fail ("Unexpected dependency coordinates: ${dependency.coordinates}")
+            }
+
+            kotlin.test.assertEquals(expectedError, buildProblem.errorMessage.message)
+        }
+    }
 
     @OptIn(ExperimentalContracts::class)
     internal fun DependencyNode.isMavenDependency(group: String, module: String): Boolean {
@@ -144,8 +197,10 @@ class DiagnosticsTest: BaseModuleDrTest() {
         return false
     }
 
-    private fun checkDependencyBuildProblem(buildProblems: Collection<BuildProblem>, group: String,
-                                            module: String, filePath: String, versionLineNumber: Int?) {
+    private fun checkBuiltInDependencyBuildProblem(
+        buildProblems: Collection<BuildProblem>, group: String,
+        module: String, filePath: String, versionLineNumber: Int?
+    ) {
         val relevantBuildProblems = buildProblems.filter {
             it is DependencyBuildProblem
                     && it.problematicDependency.isMavenDependency(group, module) }

@@ -54,10 +54,12 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
 
     protected fun MavenDependency.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
-        val coordinates = parseCoordinates()
-        val dependencyNode = coordinates
-            ?.let { context.toMavenDependencyNode(coordinates) }
-            ?: UnresolvedMavenDependencyNode(this.coordinates.value, context)
+        val dependencyNode = try {
+            val coordinates = parseCoordinates()
+            coordinates.let { context.toMavenDependencyNode(coordinates) }
+        } catch (e: Exception) {
+            UnresolvedMavenDependencyNode(this.coordinates.value, context, reason = e.message)
+        }
 
         val node = DirectFragmentDependencyNodeHolder(
             dependencyNode,

@@ -305,22 +305,36 @@ open class DependencyFile(
         diagnosticsReporter: DiagnosticReporter,
     ): Path? {
         return withContext(Dispatchers.IO) {
-            produceResultWithDoubleLock(
-                tempDir = getTempDir(),
-                fileName,
-                getAlreadyProducedResult = {
-                    getPath()?.takeIf { isDownloadedWithVerification(expectedHash) }
+            try {
+                produceResultWithDoubleLock(
+                    tempDir = getTempDir(),
+                    fileName,
+                    getAlreadyProducedResult = {
+                        getPath()?.takeIf { isDownloadedWithVerification(expectedHash) }
+                    }
+                ) { tempFilePath, fileChannel ->
+                    expectedHash
+                          // First, try to resolve artifact from external local storage if the actual hash is known
+                        ?.let { resolveFromExternalLocalRepository(tempFilePath, fileChannel, expectedHash, cache, diagnosticsReporter) }
+                          // Download an artifact from external remote storage if it has not been resolved from the local cache
+                        ?: downloadAndVerifyHash(fileChannel, tempFilePath, repositories, progress, cache, expectedHash, diagnosticsReporter)
                 }
-            ) { tempFilePath, fileChannel ->
-                expectedHash
-                      // First, try to resolve artifact from external local storage if actual hash is known
-                    ?.let { resolveFromExternalLocalRepository(tempFilePath, fileChannel, expectedHash, cache, diagnosticsReporter) }
-                      // Download artifact from external remote storage if it has not been resolved from local cache
-                    ?: downloadAndVerifyHash(fileChannel, tempFilePath, repositories, progress, cache, expectedHash, diagnosticsReporter)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                diagnosticsReporter.addMessage(
+                    Message(
+                        "Unexpected error occurred on attempt to download $fileName for dependency $dependency. " +
+                                "${t::class.simpleName}: ${t.message}",
+                        exception = t,
+                        severity = Severity.ERROR
+                    )
+                )
+                null
             }
-
         }
     }
+
 
     /**
      * Resolve a dependency file in an external local repository.
@@ -386,7 +400,7 @@ open class DependencyFile(
 
         val messages = if (path != null) {
             nestedDownloadReporter.getMessages()
-                .takeIf { it.all { it.severity <= Severity.INFO } }
+                .takeIf { messages -> messages.all { it.severity <= Severity.INFO } }
                 ?: emptyList()
         } else if (verify) {
             listOf(
@@ -1004,9 +1018,9 @@ internal interface DiagnosticReporter {
 }
 
 internal class CollectingDiagnosticReporter: DiagnosticReporter {
-    val diagnostics: MutableList<Message> = CopyOnWriteArrayList<Message>()
+    val diagnostics: MutableList<Message> = CopyOnWriteArrayList()
 
-    val current: MutableList<Message> = CopyOnWriteArrayList<Message>()
+    val current: MutableList<Message> = CopyOnWriteArrayList()
 
     override fun addMessage(message: Message): Boolean {
         return diagnostics.add(message)

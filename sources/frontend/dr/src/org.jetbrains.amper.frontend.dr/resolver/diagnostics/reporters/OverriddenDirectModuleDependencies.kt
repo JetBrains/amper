@@ -15,6 +15,7 @@ import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
+import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
@@ -73,13 +74,13 @@ class ModuleDependencyWithOverriddenVersion(
 ) : PsiBuildProblem(Level.Warning) {
     override val buildProblemId: BuildProblemId = ID
     override val message: String
-        get() = SchemaBundle.message(
+        get() = FrontendDrBundle.message(
             messageKey = ID,
             originalVersion, effectiveCoordinates, effectiveVersion
         )
 
     val additionalMessage: String?
-        get() = overriddenBy?.let{ SchemaBundle.message(messageKey = ADDITIONAL_MESSAGE_KEY, it) }
+        get() = overriddenBy?.let{ FrontendDrBundle.message(messageKey = ADDITIONAL_MESSAGE_KEY, it) }
 
     companion object {
         const val ID = "dependency.version.is.overridden"

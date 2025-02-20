@@ -136,7 +136,8 @@ class MavenDependencyNode internal constructor(
 class UnresolvedMavenDependencyNode(
     val coordinates: String,
     templateContext: Context,
-    parentNodes: List<DependencyNode> = emptyList()
+    parentNodes: List<DependencyNode> = emptyList(),
+    private val reason: String?
 ) : DependencyNode {
     override val context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<*> = Key<UnresolvedMavenDependencyNode>(coordinates)
@@ -145,43 +146,8 @@ class UnresolvedMavenDependencyNode(
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) { }
     override suspend fun downloadDependencies(downloadSources: Boolean) { }
 
-    private fun getMessage(): Message {
-        return if (parseGradleScope(coordinates) != null) {
-            return Message("Dependency coordinates in a Gradle format are not supported. Please change it to an Amper-compatible format.", severity = Severity.ERROR)
-        } else {
-            Message("Unresolved dependency coordinates", severity = Severity.ERROR)
-        }
-    }
-
-    companion object {
-        fun parseGradleScope(coordinates: String): Pair<GradleScope, String>? =
-            GradleScope.entries
-                .firstOrNull { coordinates.startsWith("${it.name}(") }
-                ?.let { gradleScope ->
-                    val gradleScopePrefix = "${gradleScope.name}("
-                    val coordinates = trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix\"", "\")")
-                        ?: trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix'", "')")
-                        ?: return@let null
-                    gradleScope to coordinates
-                }
-
-        fun trimPrefixAndSuffixOrNull(coordinates: String, prefix: String, suffix: String): String? =
-            coordinates
-                .takeIf { it.startsWith(prefix) && it.endsWith(suffix) }
-                ?.substringAfter(prefix)
-                ?.substringBefore(suffix)
-    }
-
-    enum class GradleScope {
-        api,
-        implementation, compile,
-        testImplementation, testCompile,
-        compileOnly,
-        compileOnlyApi,
-        testCompileOnly,
-        runtimeOnly, runtime,
-        testRuntimeOnly, testRuntime
-    }
+    private fun getMessage() = Message(reason ?: "Unresolved dependency coordinates", severity = Severity.ERROR)
+    override fun toString(): String = "$coordinates, unresolved"
 }
 
 class MavenDependencyConstraintNode internal constructor(

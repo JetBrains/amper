@@ -24,6 +24,7 @@ import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
+import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.mapLevelToSeverity
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.mapSeverityToLevel
@@ -141,7 +142,7 @@ class DependencyBuildProblem(
         get() = if (problematicDependency.parents.contains(directFragmentDependency)) {
             errorMessage.detailedMessage
         }  else {
-            SchemaBundle.message(
+            FrontendDrBundle.message(
                 messageKey = DEPENDENCY_PROBLEM_TRANSITIVE_KEY,
                 this.errorMessage.detailedMessage
             )

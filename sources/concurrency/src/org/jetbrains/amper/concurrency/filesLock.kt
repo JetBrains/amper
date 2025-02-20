@@ -53,9 +53,9 @@ suspend fun <T> withDoubleLock(
     options: Array<out OpenOption> = arrayOf(StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE),
     block: suspend (lockFileChannel: FileChannel) -> T
 ) : T {
-    // First lock locks the stuff inside one JVM process
+    // The first lock locks the stuff inside one JVM process
     return filesLock.withLock(hash, owner) {
-        // Second, lock locks a flagFile across all processes on the system
+        // The second lock locks a flagFile across all processes on the system
         file.withFileChannelLock(*options) {
             block(it)
         }
@@ -152,7 +152,7 @@ suspend fun produceFileWithDoubleLockAndHash(
 
 /**
  * Create a target file once and reuse it as a result of further invocations until it is resolved and returned by
- * given function <code>getAlreadyProducedResult<code>
+ *  the given function <code>getAlreadyProducedResult<code>
  *
  * Method could be used safely from different JVM threads and from different processes.
  *
@@ -167,7 +167,7 @@ suspend fun produceFileWithDoubleLockAndHash(
  *
  * The following two restrictions are applied on the input parameters for correct locking logic:
  *  - [MUST] the same temporary directory is used for the given target file no matter how many times the method is called
- *           (in case target file is produced by given <code>block<code>);
+ *           (in case a target file is produced by given <code>block<code>);
  *  - [SHOULD] different target files with the same file names correspond to different temp directories
  *             (if this is not met, some contention might be observed during downloading of such files)
  *
@@ -181,15 +181,15 @@ suspend fun <T> produceResultWithDoubleLock(
     getAlreadyProducedResult: suspend () -> T?,
     block: suspend (Path, FileChannel) -> T,
 ) : T {
-    // return already produced file without locking if allowed, otherwise proceed with file production
+    // returns the already produced file without locking if allowed, otherwise proceed with file production
     getAlreadyProducedResult()?.let { return it }
 
     // todo (AB) : Maybe store it in <storage.root>/lock and never remove? (in order to resolve deletion failures attempts)
     val tempLockFile = tempLockFile(tempDir, targetFileName)
 
-    // First lock locks the stuff inside one JVM process
+    // The first lock locks the stuff inside one JVM process
     return filesLock.withLock(tempLockFile.hashCode()) {
-        // Second lock locks a flagFile across all processes on the system
+        // The second lock locks a flagFile across all processes on the system
         produceResultWithFileLock(tempDir, targetFileName, block, getAlreadyProducedResult)
     }
 }
@@ -202,16 +202,19 @@ private suspend fun <T> produceResultWithFileLock(
 ) : T {
     getAlreadyProducedResult()?.let { return it }
 
+    val tempLockFile = tempLockFile(tempDir, targetFileName)
+    tempLockFile.parent.createDirectories()
+
     while (true) {
         return try {
-            // Open temporary lock file channel
-            doWithFileLock(tempDir, targetFileName, getAlreadyProducedResult, block)
+            // Open a temporary lock file channel
+            doWithFileLock(tempDir, targetFileName, tempLockFile, getAlreadyProducedResult, block)
         } catch (e: NoSuchFileException) {
-            // Another process deleted temp file before we were able to get the lock on it => Try again.
+            // Another process deleted the temp file before we were able to get the lock on it => Try again.
             logger.debug("NoSuchFileException from doWithFileLock on {}", e.file, e)
             continue
         } catch (e: ClosedChannelException) {
-            // Another process deleted temp file before we were able to get the lock on it => Try again.
+            // Another process deleted the temp file before we were able to get the lock on it => Try again.
             logger.debug("ClosedChannelException from doWithFileLock on {}", targetFileName, e)
             continue
         }
@@ -221,14 +224,10 @@ private suspend fun <T> produceResultWithFileLock(
 private suspend fun <T> doWithFileLock(
     tempDir: Path,
     targetFileName: String,
+    tempLockFile: Path,
     getAlreadyProducedResult: suspend () -> T?,
     block: suspend (Path, FileChannel) -> T,
 ): T {
-
-    val tempLockFile = tempLockFile(tempDir, targetFileName)
-
-    tempLockFile.parent.createDirectories()
-
     return tempLockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) {
         val tempFileNameSuffix = UUID.randomUUID().toString().let { it.substring(0, min(8, it.length))}
         val tempFile = tempDir.resolve("~${targetFileName}.$tempFileNameSuffix")

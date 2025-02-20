@@ -5,14 +5,19 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.messages.MessageBundle
+import org.jetbrains.amper.dependency.resolution.AmperDependencyResolutionException
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
-import org.jetbrains.amper.dependency.resolution.resolveSafeOrNull
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.SchemaBundle
+import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
+
+object FrontendDrBundle : MessageBundle("messages.FrontendDr")
 
 @Suppress("UNUSED") // Used in Idea plugin
 val DependencyNode.fragmentDependencies: List<DirectFragmentDependencyNodeHolder>
@@ -41,19 +46,91 @@ private fun <T: DependencyNode> DependencyNode.findParentsImpl(
     }
 }
 
-internal fun parseCoordinates(coordinates: String): MavenCoordinates? {
-    val parts = coordinates.split(":")
+internal fun parseCoordinates(coordinates: String): MavenCoordinates {
+    val parts = coordinates.trim().split(":")
     if (parts.size < 3) {
-        return null
+        coordinatesError(coordinates) {
+            AmperDependencyResolutionException(
+                FrontendDrBundle.message("dependency.coordinates.have.too.few.parts", coordinates))
+        }
     }
-    if (parts.any { resolveSafeOrNull{ Path(it) } == null } ) {
-        // Check if resolved parts don't contain illegal characters
-        return null
+    parts.forEach {
+        // it throws InvalidPathException in case coordinates contain some restricted symbols
+        try {
+            Path(it)
+        } catch (e: InvalidPathException) {
+            coordinatesError(coordinates) { e }
+        }
+
+        if (it.contains("\n") || it.contains("\r")) {
+            throw AmperDependencyResolutionException(
+                FrontendDrBundle.message("dependency.coordinates.contains.multiline.parts", coordinates))
+        }
+        if (it.trim().contains(" ")) {
+            throw AmperDependencyResolutionException(
+                FrontendDrBundle.message("dependency.coordinates.contains.parts.with.spaces", coordinates))
+        }
+        if (it.trim().endsWith(".")) {
+            // Coordinates are used for building paths to the artifacts in the Amper local storage,
+            // Windows strips the trailing dots while creating directories,
+            // this way path to artifacts of dependencies with coordinates 'A:B:v1' and 'A...:B.:v1..' are not distinguishable.
+            // See https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file?redirectedfrom=MSDN
+            throw AmperDependencyResolutionException(
+                FrontendDrBundle.message("dependency.coordinates.contains.parts.ending.with.dots", coordinates))
+        }
+        if (it.contains("/") || it.contains("\\")) {
+            // Coordinates are used for building paths to the artifacts in the Amper local storage, slashes will affect the path
+            throw AmperDependencyResolutionException(
+                FrontendDrBundle.message("dependency.coordinates.contains.parts.ending.with.slashes", coordinates))
+        }
     }
-    return MavenCoordinates(parts[0], parts[1], parts[2], classifier = if (parts.size > 3) parts[3] else null)
+
+    val groupId = parts[0].trim()
+    val artifactId = parts[1].trim()
+    val version = parts[2].trim()
+    val classifier = if (parts.size > 3) parts[3].trim() else null
+
+    return MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier)
 }
 
-internal fun MavenDependency.parseCoordinates(): MavenCoordinates? {
+private fun coordinatesError(coordinates: String, exception: () -> Exception) {
+    if (parseGradleScope(coordinates) != null) {
+        throw AmperDependencyResolutionException(
+            FrontendDrBundle.message("dependency.coordinates.in.gradle.format", coordinates))
+    } else {
+        throw exception()
+    }
+}
+
+private fun parseGradleScope(coordinates: String): Pair<GradleScope, String>? =
+    GradleScope.entries
+        .firstOrNull { coordinates.startsWith("${it.name}(") }
+        ?.let { gradleScope ->
+            val gradleScopePrefix = "${gradleScope.name}("
+            val coordinates = trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix\"", "\")")
+                ?: trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix'", "')")
+                ?: return@let null
+            gradleScope to coordinates
+        }
+
+private fun trimPrefixAndSuffixOrNull(coordinates: String, prefix: String, suffix: String): String? =
+    coordinates
+        .takeIf { it.startsWith(prefix) && it.endsWith(suffix) }
+        ?.substringAfter(prefix)
+        ?.substringBefore(suffix)
+
+private enum class GradleScope {
+    api,
+    implementation, compile,
+    testImplementation, testCompile,
+    compileOnly,
+    compileOnlyApi,
+    testCompileOnly,
+    runtimeOnly, runtime,
+    testRuntimeOnly, testRuntime
+}
+
+internal fun MavenDependency.parseCoordinates(): MavenCoordinates {
     return parseCoordinates(this.coordinates.value)
 }
 

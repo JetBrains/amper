@@ -5,8 +5,11 @@
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
+import kotlin.sequences.forEach
+import kotlin.test.assertTrue
 
 class ResolverTest: BaseDRTest() {
 
@@ -125,5 +128,43 @@ class ResolverTest: BaseDRTest() {
                 root = root
             )
         }
+    }
+
+    @Test
+    fun `invalid version is correctly reported`(testInfo: TestInfo) {
+        val library = "com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared"
+
+        val root = doTest(
+            testInfo,
+            dependency = listOf(library),
+            platform = setOf(ResolutionPlatform.JVM),
+            expected = """root
+                |\--- com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared
+            """.trimMargin(),
+            verifyMessages = false,
+        )
+
+        val node = root.distinctBfsSequence().filterIsInstance<MavenDependencyNode>().single()
+        kotlin.test.assertEquals(
+            1, node.messages.size,
+            "There must be the only error messages instead of ${node.messages.size}: ${node.messages}"
+        )
+        
+        val expectedErrorPath = Dirs.userCacheRoot.resolve(".m2.cache/com/fasterxml/jackson/core/jackson-core/2.17.2 - ../shared")
+        
+        kotlin.test.assertEquals(
+            node.messages.single().message,
+            "Unable to resolve dependency com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared (https://cache-redirector.jetbrains.com/repo1.maven.org/maven2)",
+            "Unexpected error message"
+        )
+
+        assertTrue(
+            // Windows
+            node.messages.single().detailedMessage.contains("NoSuchFileException: $expectedErrorPath")
+                    || node.messages.single().detailedMessage.contains("AccessDeniedException:")
+                    // Linux, MacOS
+                    || node.messages.single().detailedMessage.contains("java.lang.IllegalArgumentException: Illegal character in path at index"),
+            "Unexpected detailed error message: \n ${node.messages.single().detailedMessage}"
+        )
     }
 }
