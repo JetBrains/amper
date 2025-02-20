@@ -84,6 +84,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         assertEmptyStdErr: Boolean = true,
         copyToTempDir: Boolean = false,
         stdin: ProcessInput = ProcessInput.Empty,
+        amperJvmArgs: List<String> = emptyList(),
         customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
         environment: Map<String, String> = emptyMap(),
     ): AmperCliResult {
@@ -115,6 +116,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             expectedExitCode = expectedExitCode,
             assertEmptyStdErr = assertEmptyStdErr,
             stdin = stdin,
+            amperJvmArgs = amperJvmArgs,
             customAmperScriptPath = customAmperScriptPath,
             outputListener = TestReporterProcessOutputListener("amper", testReporter),
         )

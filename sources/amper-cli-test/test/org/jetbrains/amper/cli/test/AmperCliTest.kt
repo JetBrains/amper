@@ -6,13 +6,12 @@ package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.processes.ProcessInput
-import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
-import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.fileSize
@@ -259,10 +258,14 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun publish() = runSlowTest {
-        val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish")
-        groupDir.deleteRecursively()
+        val mavenLocalForTest = tempRoot.resolve(".m2.test").also { it.createDirectories() }
+        val groupDir = mavenLocalForTest.resolve("amper/test/jvm-publish")
 
-        runCli(projectRoot = testProject("jvm-publish"), "publish", "mavenLocal")
+        runCli(
+            projectRoot = testProject("jvm-publish"),
+            "publish", "mavenLocal",
+            amperJvmArgs = listOf("-Dmaven.repo.local=\"${mavenLocalForTest.absolutePathString()}\""),
+        )
 
         val files = groupDir.walk()
             .onEach {

@@ -77,6 +77,7 @@ abstract class AmperCliWithWrapperTestBase {
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
         bootstrapCacheDir: Path? = null,
+        amperJvmArgs: List<String> = emptyList(),
         amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.Inherit,
         customAmperScriptPath: Path? = null,
         stdin: ProcessInput = ProcessInput.Empty,
@@ -102,6 +103,7 @@ abstract class AmperCliWithWrapperTestBase {
             if (isDebuggingTest) {
                 add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y")
             }
+            addAll(amperJvmArgs)
         }
         val currentPlatformForIJ = if (isWindows) Platform.WINDOWS else Platform.UNIX
         val result = amperProcessSemaphore.withPermit {
