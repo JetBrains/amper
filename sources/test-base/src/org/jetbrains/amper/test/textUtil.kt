@@ -8,8 +8,11 @@ import com.github.difflib.DiffUtils
 import com.github.difflib.UnifiedDiffUtils
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.readText
+import kotlin.io.path.readLines
 
+/**
+ * Generates a user-readable diff between the given [original] and [revised] lines in the Unified Diff format.
+ */
 fun generateUnifiedDiff(
     original: List<String>,
     originalName: String,
@@ -17,22 +20,16 @@ fun generateUnifiedDiff(
     revisedName: String
 ): String {
     val patch = DiffUtils.diff(original, revised)
-    val diffLines = UnifiedDiffUtils.generateUnifiedDiff(
-        originalName, revisedName,
-        original,
-        patch, 2
-    )
-
+    val diffLines = UnifiedDiffUtils.generateUnifiedDiff(originalName, revisedName, original, patch, 2)
     return diffLines.joinToString("\n")
 }
 
-fun generateUnifiedDiff(originalFile: Path, revisedFile: Path): String {
-    fun Path.normalizedLines() = readText().split("\n").map { it.trimEnd('\r') }
-
-    return generateUnifiedDiff(
-        original = originalFile.normalizedLines(),
-        originalName = originalFile.absolutePathString(),
-        revised = revisedFile.normalizedLines(),
-        revisedName = revisedFile.absolutePathString(),
-    )
-}
+/**
+ * Generates a user-readable diff between the given [originalFile] and [revisedFile] in the Unified Diff format.
+ */
+fun generateUnifiedDiff(originalFile: Path, revisedFile: Path): String = generateUnifiedDiff(
+    original = originalFile.readLines(),
+    originalName = originalFile.absolutePathString(),
+    revised = revisedFile.readLines(),
+    revisedName = revisedFile.absolutePathString(),
+)
