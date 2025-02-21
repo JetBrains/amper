@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.dependency.resolution.AmperDependencyResolutionException
 import org.jetbrains.amper.dependency.resolution.Context
@@ -94,7 +95,7 @@ internal fun parseCoordinates(coordinates: String): MavenCoordinates {
 }
 
 private fun coordinatesError(coordinates: String, exception: () -> Exception) {
-    if (parseGradleScope(coordinates) != null) {
+    if (GradleScope.parseGradleScope(coordinates) != null) {
         throw AmperDependencyResolutionException(
             FrontendDrBundle.message("dependency.coordinates.in.gradle.format", coordinates))
     } else {
@@ -102,24 +103,8 @@ private fun coordinatesError(coordinates: String, exception: () -> Exception) {
     }
 }
 
-private fun parseGradleScope(coordinates: String): Pair<GradleScope, String>? =
-    GradleScope.entries
-        .firstOrNull { coordinates.startsWith("${it.name}(") }
-        ?.let { gradleScope ->
-            val gradleScopePrefix = "${gradleScope.name}("
-            val coordinates = trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix\"", "\")")
-                ?: trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix'", "')")
-                ?: return@let null
-            gradleScope to coordinates
-        }
-
-private fun trimPrefixAndSuffixOrNull(coordinates: String, prefix: String, suffix: String): String? =
-    coordinates
-        .takeIf { it.startsWith(prefix) && it.endsWith(suffix) }
-        ?.substringAfter(prefix)
-        ?.substringBefore(suffix)
-
-private enum class GradleScope {
+@UsedInIdePlugin
+enum class GradleScope {
     api,
     implementation, compile,
     testImplementation, testCompile,
@@ -127,7 +112,26 @@ private enum class GradleScope {
     compileOnlyApi,
     testCompileOnly,
     runtimeOnly, runtime,
-    testRuntimeOnly, testRuntime
+    testRuntimeOnly, testRuntime;
+
+    companion object {
+        fun parseGradleScope(coordinates: String): Pair<GradleScope, String>? =
+            GradleScope.entries
+                .firstOrNull { coordinates.startsWith("${it.name}(") }
+                ?.let { gradleScope ->
+                    val gradleScopePrefix = "${gradleScope.name}("
+                    val coordinates = trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix\"", "\")")
+                        ?: trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix'", "')")
+                        ?: return@let null
+                    gradleScope to coordinates
+                }
+
+        private fun trimPrefixAndSuffixOrNull(coordinates: String, prefix: String, suffix: String): String? =
+            coordinates
+                .takeIf { it.startsWith(prefix) && it.endsWith(suffix) }
+                ?.substringAfter(prefix)
+                ?.substringBefore(suffix)
+    }
 }
 
 internal fun MavenDependency.parseCoordinates(): MavenCoordinates {
