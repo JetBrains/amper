@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.jar
@@ -9,6 +9,7 @@ import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.io.path.PathWalkOption
 import kotlin.io.path.div
 import kotlin.io.path.inputStream
 import kotlin.io.path.isDirectory
@@ -17,6 +18,8 @@ import kotlin.io.path.pathString
 import kotlin.io.path.readAttributes
 import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
+
+typealias ZipEntryName = String
 
 @Serializable
 data class ZipConfig(
@@ -67,8 +70,9 @@ fun Path.writeZip(inputs: List<ZipInput>, config: ZipConfig = ZipConfig()) {
 }
 
 internal fun ZipOutputStream.writeZip(inputDirs: List<ZipInput>, config: ZipConfig) {
+    var entriesWritten = setOf<ZipEntryName>()
     inputDirs.forEach { input ->
-        writeInput(input, config)
+        entriesWritten = writeInput(input, config, entriesWritten)
     }
 }
 
@@ -76,17 +80,28 @@ internal fun ZipOutputStream.writeZip(inputDirs: List<ZipInput>, config: ZipConf
  * Writes all files from the given [input] (recursively) to this [ZipOutputStream].
  * The path of the files within the zip is their original path relative to [input].
  */
-private fun ZipOutputStream.writeInput(input: ZipInput, config: ZipConfig) {
+private fun ZipOutputStream.writeInput(input: ZipInput, config: ZipConfig, entriesWritten: Set<ZipEntryName> = setOf()): Set<ZipEntryName> {
     val filesToRelativePaths: Sequence<Pair<Path, Path>> = when {
-        input.path.isDirectory() -> input.path.walk().sortedIf(config.reproducibleFileOrder).map {
-            it to it.relativeTo(input.path)
-        }
+        input.path.isDirectory() -> input
+            .path
+            .walk(PathWalkOption.INCLUDE_DIRECTORIES)
+            .sortedIf(config.reproducibleFileOrder).map {
+                it to it.relativeTo(input.path)
+            }
+            .filter { it.second.pathString != "" }
+
         else -> sequenceOf(input.path to input.path.fileName)
     }
-    filesToRelativePaths.forEach { (file, relativePathInInputDir) ->
-        val entryPathInZip = input.destPathInArchive / relativePathInInputDir
-        val entryName = entryPathInZip.normalize().joinToString("/") // ensures / is used even on Windows
-        writeZipEntry(entryName = entryName, file = file, config)
+    return buildSet {
+        addAll(entriesWritten)
+        filesToRelativePaths.forEach { (file, relativePathInInputDir) ->
+            val entryPathInZip = input.destPathInArchive / relativePathInInputDir
+            val entryName = entryPathInZip.normalize().joinToString("/") // ensures / is used even on Windows
+            val normalizedEntryName = if (file.isDirectory()) "$entryName/" else entryName
+            if (normalizedEntryName in this) return@forEach
+            writeZipEntry(entryName = normalizedEntryName, file = file, config)
+            add(normalizedEntryName)
+        }
     }
 }
 
@@ -106,8 +121,13 @@ private fun ZipOutputStream.writeZipEntry(entryName: String, file: Path, config:
         zipEntry.lastModifiedTime = fileAttributes.lastModifiedTime()
     }
     putNextEntry(zipEntry)
+    writeFile(file)
+    closeEntry()
+}
+
+private fun ZipOutputStream.writeFile(file: Path) {
+    if (file.isDirectory()) return
     file.inputStream().use {
         it.copyTo(this)
     }
-    closeEntry()
 }

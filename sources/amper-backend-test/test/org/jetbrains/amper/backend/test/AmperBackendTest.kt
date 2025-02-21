@@ -254,8 +254,11 @@ class AmperBackendTest : AmperIntegrationTestBase() {
             val entryNames = jar.entries().asSequence().map { it.name }.toList()
             val expectedEntriesInOrder = listOf(
                 "META-INF/MANIFEST.MF",
+                "META-INF/",
                 "META-INF/main.kotlin_module",
+                "apkg/",
                 "apkg/AClass.class",
+                "bpkg/",
                 "bpkg/BClass.class",
                 "bpkg/MainKt.class",
             )
