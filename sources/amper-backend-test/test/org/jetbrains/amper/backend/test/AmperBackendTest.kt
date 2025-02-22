@@ -1019,9 +1019,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             jarPath = backend.context.taskOutputPath(sourcesJarJvm) / "shared-jvm-sources.jar",
             expectedEntries = listOf(
                 "META-INF/MANIFEST.MF",
+                "commonMain/",
                 "commonMain/World.kt",
                 "commonMain/program1.kt",
                 "commonMain/program2.kt",
+                "jvmMain/",
                 "jvmMain/Jvm.java",
                 "jvmMain/World.kt",
             )
@@ -1030,9 +1032,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             jarPath = backend.context.taskOutputPath(sourcesJarLinuxArm64Task) / "shared-linuxarm64-sources.jar",
             expectedEntries = listOf(
                 "META-INF/MANIFEST.MF",
+                "commonMain/",
                 "commonMain/World.kt",
                 "commonMain/program1.kt",
                 "commonMain/program2.kt",
+                "linuxMain/",
                 "linuxMain/World.kt",
             )
         )
@@ -1040,9 +1044,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             jarPath = backend.context.taskOutputPath(sourcesJarLinuxX64Task) / "shared-linuxx64-sources.jar",
             expectedEntries = listOf(
                 "META-INF/MANIFEST.MF",
+                "commonMain/",
                 "commonMain/World.kt",
                 "commonMain/program1.kt",
                 "commonMain/program2.kt",
+                "linuxMain/",
                 "linuxMain/World.kt",
             )
         )
@@ -1050,9 +1056,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             jarPath = backend.context.taskOutputPath(sourcesJarMingwX64Task) / "shared-mingwx64-sources.jar",
             expectedEntries = listOf(
                 "META-INF/MANIFEST.MF",
+                "commonMain/",
                 "commonMain/World.kt",
                 "commonMain/program1.kt",
                 "commonMain/program2.kt",
+                "mingwMain/",
                 "mingwMain/World.kt",
             )
         )
@@ -1060,9 +1068,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             jarPath = backend.context.taskOutputPath(sourcesJarMacosArm64Task) / "shared-macosarm64-sources.jar",
             expectedEntries = listOf(
                 "META-INF/MANIFEST.MF",
+                "commonMain/",
                 "commonMain/World.kt",
                 "commonMain/program1.kt",
                 "commonMain/program2.kt",
+                "macosMain/",
                 "macosMain/World.kt",
             )
         )

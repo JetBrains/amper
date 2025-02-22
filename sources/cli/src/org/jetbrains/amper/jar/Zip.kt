@@ -14,12 +14,9 @@ import kotlin.io.path.div
 import kotlin.io.path.inputStream
 import kotlin.io.path.isDirectory
 import kotlin.io.path.outputStream
-import kotlin.io.path.pathString
 import kotlin.io.path.readAttributes
 import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
-
-typealias ZipEntryName = String
 
 @Serializable
 data class ZipConfig(
@@ -37,15 +34,21 @@ data class ZipConfig(
 )
 
 /**
- * An input directory for a zip creation.
+ * An input file or directory to place in a zip file.
  */
 data class ZipInput(
     /**
-     * The path to this input directory (where the input files are located) or a file.
+     * The path to this input file or directory to add to the zip.
      */
     val path: Path,
     /**
-     * The directory where the file(s) should be placed in the zip, relative to the root of the zip.
+     * The corresponding path in the zip, relative to the root of the zip.
+     *
+     * If [path] is a file, then [destPathInArchive] is the destination path of the file in the zip.
+     *
+     * If [path] is a directory, all children will recursively be placed in the [destPathInArchive] directory in the
+     * zip. The destination path of each file relative to [destPathInArchive] is the same as their original path
+     * relative to [path].
      */
     val destPathInArchive: Path,
 ) {
@@ -60,8 +63,7 @@ data class ZipInput(
  * Creates a zip file at this [Path] and writes all files from the given [inputs] into that zip.
  * Parts of this process can be configured using the given [config].
  *
- * The inputs are added to the zip in the order of the given [inputs] list.
- * Files within an input directory are added to the archive in an order that depends on the given [config].
+ * Files and directories are added to the archive in an order that depends on [ZipConfig.reproducibleFileOrder].
  */
 fun Path.writeZip(inputs: List<ZipInput>, config: ZipConfig = ZipConfig()) {
     ZipOutputStream(outputStream()).use { out ->
@@ -69,45 +71,43 @@ fun Path.writeZip(inputs: List<ZipInput>, config: ZipConfig = ZipConfig()) {
     }
 }
 
-internal fun ZipOutputStream.writeZip(inputDirs: List<ZipInput>, config: ZipConfig) {
-    var entriesWritten = setOf<ZipEntryName>()
-    inputDirs.forEach { input ->
-        entriesWritten = writeInput(input, config, entriesWritten)
-    }
+/**
+ * Writes all files from the given [inputs] (recursively) to this [ZipOutputStream].
+ * Parts of this process can be configured using the given [config].
+ *
+ * Files and directories are added to the archive in an order that depends on [ZipConfig.reproducibleFileOrder].
+ */
+internal fun ZipOutputStream.writeZip(inputs: List<ZipInput>, config: ZipConfig) {
+    inputs
+        .asSequence()
+        .flatMap { it.findEntriesToAdd() }
+        .sortedIf(config.reproducibleFileOrder)
+        .distinctBy { it.entryName }
+        .forEach { spec ->
+            writeZipEntry(spec.entryName, spec.inputFile, config)
+        }
 }
 
 /**
- * Writes all files from the given [input] (recursively) to this [ZipOutputStream].
- * The path of the files within the zip is their original path relative to [input].
+ * Finds all the entries that should be included from this [ZipInput].
+ * If this input is a file, then just one entry is returned for this file.
+ * If this input is a directory, it is recursively traversed, and entries are returned for each file or directory.
  */
-private fun ZipOutputStream.writeInput(input: ZipInput, config: ZipConfig, entriesWritten: Set<ZipEntryName> = setOf()): Set<ZipEntryName> {
-    val filesToRelativePaths: Sequence<Pair<Path, Path>> = when {
-        input.path.isDirectory() -> input
-            .path
-            .walk(PathWalkOption.INCLUDE_DIRECTORIES)
-            .sortedIf(config.reproducibleFileOrder).map {
-                it to it.relativeTo(input.path)
-            }
-            .filter { it.second.pathString != "" }
+private fun ZipInput.findEntriesToAdd(): Sequence<ZipEntrySpec> = path
+    .walk(PathWalkOption.INCLUDE_DIRECTORIES)
+    .map { ZipEntrySpec(entryName = entryNameFor(it), inputFile = it) }
+    .filter { it.entryName != "/" } // the top-level dir doesn't need to be registered as an entry
 
-        else -> sequenceOf(input.path to input.path.fileName)
-    }
-    return buildSet {
-        addAll(entriesWritten)
-        filesToRelativePaths.forEach { (file, relativePathInInputDir) ->
-            val entryPathInZip = input.destPathInArchive / relativePathInInputDir
-            val entryName = entryPathInZip.normalize().joinToString("/") // ensures / is used even on Windows
-            val normalizedEntryName = if (file.isDirectory()) "$entryName/" else entryName
-            if (normalizedEntryName in this) return@forEach
-            writeZipEntry(entryName = normalizedEntryName, file = file, config)
-            add(normalizedEntryName)
-        }
-    }
+private fun ZipInput.entryNameFor(child: Path): String {
+    val entryPathInZip = destPathInArchive / child.relativeTo(path)
+    val entryName = entryPathInZip.normalize().joinToString("/") // ensures / is used even on Windows
+    return if (child.isDirectory()) "$entryName/" else entryName
 }
 
-// sorting the Paths themselves is not consistent across OS-es, we need to use the pathStrings
-private fun Sequence<Path>.sortedIf(condition: Boolean): Sequence<Path> =
-    if (condition) sortedBy { it.pathString } else this
+private data class ZipEntrySpec(val entryName: String, val inputFile: Path)
+
+private fun Sequence<ZipEntrySpec>.sortedIf(condition: Boolean): Sequence<ZipEntrySpec> =
+    if (condition) sortedBy { it.entryName } else this
 
 /**
  * Writes the contents of the given [file] as a new zip entry called [entryName].
@@ -121,12 +121,13 @@ private fun ZipOutputStream.writeZipEntry(entryName: String, file: Path, config:
         zipEntry.lastModifiedTime = fileAttributes.lastModifiedTime()
     }
     putNextEntry(zipEntry)
-    writeFile(file)
+    if (!file.isDirectory()) {
+        writeFileContents(file)
+    }
     closeEntry()
 }
 
-private fun ZipOutputStream.writeFile(file: Path) {
-    if (file.isDirectory()) return
+private fun ZipOutputStream.writeFileContents(file: Path) {
     file.inputStream().use {
         it.copyTo(this)
     }

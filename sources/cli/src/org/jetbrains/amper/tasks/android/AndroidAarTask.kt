@@ -26,6 +26,7 @@ import kotlin.io.path.createTempDirectory
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
+import kotlin.io.path.name
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
@@ -98,11 +99,11 @@ class AndroidAarTask(
                     inputs = buildList {
                         this += ZipInput(
                             path = jarResult.jarPath,
-                            destPathInArchive = Path("libs"),
+                            destPathInArchive = Path("libs") / jarResult.jarPath.name,
                         )
                         this += ZipInput(
                             path = manifestStubFile,
-                            destPathInArchive = Path("."),
+                            destPathInArchive = manifestStubFile.fileName,
                         )
                         additionalAssets.forEach { asset ->
                             asset.assetsRoots.forEach { assetsRoot ->
