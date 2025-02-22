@@ -259,15 +259,55 @@ wrapper_path=$(realpath "$0")
 
 # ********** Launch Amper **********
 
+# In this section we construct the command line by prepending arguments from biggest to lowest precedence:
+#   1. basic main class and classpath
+#   2. user JVM args (AMPER_JAVA_OPTIONS)
+#   3. default JVM args (prepended last, which means they appear first, so they are overridden by user args)
+
+# 1. Prepend basic launch arguments
 if [ "$simpleOs" = "windows" ]; then
   # Can't cygpath the '*' so it has to be outside
   classpath="$(cygpath -w "$amper_target_dir")\lib\*"
 else
   classpath="$amper_target_dir/lib/*"
 fi
-jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
-# shellcheck disable=SC2086
-exec "$java_exe" \
-  "-Damper.wrapper.dist.sha256=$amper_sha256" \
-  "-Damper.wrapper.path=$wrapper_path" \
-  $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+
+set -- -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+
+# 2. Prepend user JVM args from AMPER_JAVA_OPTS
+#
+# We use "xargs" to parse quoted JVM args from inside AMPER_JAVA_OPTS.
+# With -n1 it outputs one arg per line, with the quotes and backslashes removed.
+#
+# In Bash we could simply go:
+#
+#   readarray ARGS < <( xargs -n1 <<<"$var" ) &&
+#   set -- "${ARGS[@]}" "$@"
+#
+# but POSIX shell has neither arrays nor command substitution, so instead we
+# post-process each arg (as a line of input to sed) to backslash-escape any
+# character that might be a shell metacharacter, then use eval to reverse
+# that process (while maintaining the separation between arguments), and wrap
+# the whole thing up as a single "set" statement.
+#
+# This will of course break if any of these variables contains a newline or
+# an unmatched quote.
+if [ -n "${AMPER_JAVA_OPTIONS:-}" ]; then
+  eval "set -- $(
+    printf '%s\n' "$AMPER_JAVA_OPTIONS" |
+    xargs -n1 |
+    sed ' s~[^-[:alnum:]+,./:=@_]~\\&~g; ' |
+    tr '\n' ' '
+  )" '"$@"'
+fi
+
+# 3. Prepend default JVM args
+set -- \
+    "-ea" \
+    "-XX:+EnableDynamicAgentLoading" \
+    "-Damper.wrapper.dist.sha256=$amper_sha256" \
+    "-Damper.wrapper.path=$wrapper_path" \
+    "$@"
+
+# Then we can launch with the overridden $@ arguments
+exec "$java_exe" "$@"

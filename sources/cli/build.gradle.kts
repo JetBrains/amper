@@ -136,7 +136,7 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
             .joinToString(if (outputWindowsLineEndings) "\r\n" else "\n")
 
         val escapedPlaceHolder = Pattern.quote(placeholder)
-        val regex = Regex("$escapedPlaceHolder.+$escapedPlaceHolder")
+        val regex = Regex("$escapedPlaceHolder\\S+$escapedPlaceHolder")
         val unsubstituted = result
             .splitToSequence('\n')
             .mapIndexed { line, s -> "line ${line + 1}: $s" }
