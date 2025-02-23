@@ -1,10 +1,9 @@
 [versions]
 # The AGP is used in standalone Amper to delegate Android builds to Gradle. It can be in any version.
 agp-forStandalone = "8.5.0"
-android-ddms = "25.3.0"
 # The AGP used in Gradle-based Amper, on the other hand, will only work in Fleet up to a certain version.
 android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
-android-tools = "31.6.1"
+android-tools = "31.8.1"
 apache-commons = "1.24.0"
 bouncycastle = "1.78.1"
 clikt = "5.0.1"
@@ -45,7 +44,7 @@ android-gradle-plugin-forGradleBased = { module = "com.android.tools.build:gradl
 android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "agp-forStandalone" }
 android-tools-builder-model = { module = "com.android.tools.build:builder-model", version.ref= "agp-forStandalone" }
 android-tools-common = { module = "com.android.tools:common", version.ref = "android-tools" }
-android-tools-ddmlib = { module = "com.android.tools.ddms:ddmlib", version.ref = "android-ddms" }
+android-tools-ddmlib = { module = "com.android.tools.ddms:ddmlib", version.ref = "android-tools" }
 android-tools-sdkCommon = { module = "com.android.tools:sdk-common", version.ref = "android-tools" }
 android-tools-sdklib = { module = "com.android.tools:sdklib", version.ref = "android-tools" }
 apacheCommons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons" }

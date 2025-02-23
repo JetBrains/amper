@@ -16,7 +16,7 @@ test-dependencies:
   - com.android.tools.apkparser:binary-resources:31.2.0
 
   - $libs.gradle.toolingApi: compile-only
-  - com.android.tools.ddms:ddmlib:25.3.0: compile-only
+  - $libs.android.tools.ddmlib: compile-only
 
 apply:
   - ../common.module-template.yaml
