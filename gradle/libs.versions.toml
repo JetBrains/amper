@@ -1,8 +1,8 @@
 [versions]
-# The AGP is used in standalone Amper to delegate Android builds to Gradle. It can be in any version.
+# The version of AGP used in Gradle-based Amper. Can't be bumped - check syncVersions.main.kts.
+agp-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
+# The version of AGP used in standalone Amper to delegate Android builds to Gradle
 agp-forStandalone = "8.5.0"
-# The AGP used in Gradle-based Amper, on the other hand, will only work in Fleet up to a certain version.
-android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 android-tools = "31.8.1"
 apache-commons = "1.24.0"
 bouncycastle = "1.78.1"
@@ -40,7 +40,7 @@ xmlutil-serialization = "0.86.2"
 # For example, we use intellij-platform-core and intellij-parsing-core as opposed to intellijPlatform-core and
 # intellijParsing-core, because the intellij umbrella feels natural but they don't share the same version.
 [libraries]
-android-gradle-plugin-forGradleBased = { module = "com.android.tools.build:gradle", version.ref = "android-forGradleBased" }
+android-gradle-plugin-forGradleBased = { module = "com.android.tools.build:gradle", version.ref = "agp-forGradleBased" }
 android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "agp-forStandalone" }
 android-tools-builder-model = { module = "com.android.tools.build:builder-model", version.ref= "agp-forStandalone" }
 android-tools-common = { module = "com.android.tools:common", version.ref = "android-tools" }
