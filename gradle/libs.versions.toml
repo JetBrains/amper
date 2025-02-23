@@ -4,7 +4,7 @@ agp-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RE
 # The version of AGP used in standalone Amper to delegate Android builds to Gradle
 agp-forStandalone = "8.5.0"
 android-tools = "31.8.1"
-apache-commons = "1.24.0"
+apache-commons = "1.27.1"
 bouncycastle = "1.78.1"
 clikt = "5.0.1"
 compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
