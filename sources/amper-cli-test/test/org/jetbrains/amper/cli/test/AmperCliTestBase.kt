@@ -12,7 +12,6 @@ import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
-import org.jetbrains.amper.test.TestReporterExtension
 import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -29,9 +28,6 @@ import kotlin.test.assertTrue
 abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     @RegisterExtension
     private val tempDirExtension = TempDirExtension()
-
-    @RegisterExtension
-    private val testReporter = TestReporterExtension()
 
     protected val tempRoot: Path
         get() = tempDirExtension.path
@@ -118,7 +114,6 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             stdin = stdin,
             amperJvmArgs = amperJvmArgs,
             customAmperScriptPath = customAmperScriptPath,
-            outputListener = TestReporterProcessOutputListener("amper", testReporter),
         )
 
         testReporter.publishEntry("Amper[${result.pid}] arguments", args.joinToString(" "))
@@ -149,15 +144,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
                 "build",
             ),
             environment = baseEnvironmentForWrapper(),
-            outputListener = object : ProcessOutputListener {
-                override fun onStdoutLine(line: String, pid: Long) {
-                    println("[xcodebuild out / $pid] $line")
-                }
-
-                override fun onStderrLine(line: String, pid: Long) {
-                    println("[xcodebuild err / $pid] $line")
-                }
-            },
+            outputListener = TestReporterProcessOutputListener("xcodebuild", testReporter),
         )
     }
 }

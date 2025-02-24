@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import org.jetbrains.amper.test.android.AndroidTools
+import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.jetbrains.amper.test.processes.checkExitCodeIsZero
 import java.nio.file.Path
 import kotlin.io.path.div
@@ -41,7 +42,7 @@ open class AndroidBaseTest : TestBase() {
     ) = runTest(timeout = 15.minutes) {
         val copiedProjectDir = copyProjectToTempDir(projectName, projectsDir)
         val targetApkPath = buildApk(copiedProjectDir)
-        val testAppApkPath = InstrumentedTestApp.assemble(applicationId)
+        val testAppApkPath = InstrumentedTestApp.assemble(applicationId, testReporter)
 
         // This dispatcher switch is not superstition. The test dispatcher skips delays by default.
         // We interact with real external processes here, so we can't skip delays when we do retries.
@@ -84,10 +85,10 @@ open class AndroidBaseTest : TestBase() {
     /**
      * Executes the given adb shell [command] and returns the output.
      */
-    private suspend fun adbShell(vararg command: String): String =
-        androidTools.adb("shell", *command, outputListener = PrefixPrintOutputListener("adb shell"))
-            .checkExitCodeIsZero()
-            .stdout
+    private suspend fun adbShell(vararg command: String): String {
+        val outputListener = TestReporterProcessOutputListener("adb shell", testReporter)
+        return androidTools.adb("shell", *command, outputListener = outputListener).checkExitCodeIsZero().stdout
+    }
 
     /**
      * Executes standalone tests for an Android project specified by [projectName],

@@ -8,7 +8,10 @@ import org.gradle.tooling.BuildException
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.TestReporterExtension
 import org.jetbrains.amper.test.android.AndroidTools
+import org.jetbrains.amper.test.processes.err
+import org.jetbrains.amper.test.processes.out
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.ByteArrayOutputStream
 import java.net.URI
@@ -20,7 +23,6 @@ import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
 import kotlin.io.path.name
-import kotlin.io.path.pathString
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeLines
@@ -34,6 +36,9 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
     @Suppress("unused") // JUnit5 extension.
     @field:RegisterExtension
     val daemonManagerExtension = GradleDaemonManager
+
+    @RegisterExtension
+    private val testReporter = TestReporterExtension()
 
     /**
      * Daemon, used to run this test.
@@ -93,8 +98,8 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
                 .setEnvironmentVariables(newEnv)
                 // --no-build-cache: do not get a build result from shared Gradle cache
                 .withArguments(*buildArguments, "--stacktrace", "--no-build-cache")
-                .setStandardOutput(TeeOutputStream(System.out, stdout))
-                .setStandardError(TeeOutputStream(System.err, stderr))
+                .setStandardOutput(TeeOutputStream(testReporter.out(linePrefix = "[gradle out] "), stdout))
+                .setStandardError(TeeOutputStream(testReporter.err(linePrefix = "[gradle err] "), stderr))
 //                .addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
                 .run()
         } catch (t: BuildException) {

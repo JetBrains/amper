@@ -1,10 +1,10 @@
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
-import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
+import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.android.AndroidTools
+import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.junit.jupiter.api.AfterEach
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -17,7 +17,6 @@ import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
-import kotlin.io.path.pathString
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -186,7 +185,7 @@ open class TestBase : AmperCliWithWrapperTestBase() {
                 workingDir = projectDir,
                 command = listOf(gradlewPath.absolutePathString(), "--no-daemon", task),
                 redirectErrorStream = true,
-                outputListener = PrefixPrintOutputListener("gradle"),
+                outputListener = TestReporterProcessOutputListener(cmdName = "gradle", testReporter),
                 environment = AndroidTools.getOrInstallForTests().environment(),
                 onStart = { pid ->
                     println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")

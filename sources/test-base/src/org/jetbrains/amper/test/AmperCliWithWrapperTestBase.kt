@@ -10,10 +10,9 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessInput
-import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
-import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
+import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.management.ManagementFactory
@@ -31,6 +30,9 @@ abstract class AmperCliWithWrapperTestBase {
 
     @RegisterExtension
     private val httpServer = HttpServerExtension(wwwRoot = Dirs.m2repository)
+
+    @RegisterExtension
+    protected val testReporter = TestReporterExtension()
 
     /**
      * The files that were downloaded by the Amper wrapper so far in the current test.
@@ -81,7 +83,6 @@ abstract class AmperCliWithWrapperTestBase {
         amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.Inherit,
         customAmperScriptPath: Path? = null,
         stdin: ProcessInput = ProcessInput.Empty,
-        outputListener: ProcessOutputListener = PrefixPrintOutputListener("amper")
     ): ProcessResult {
         check(workingDir.exists()) { "Cannot run Amper: the specified working directory $workingDir does not exist." }
         check(workingDir.isDirectory()) { "Cannot run Amper: the specified working directory $workingDir is not a directory." }
@@ -130,7 +131,7 @@ abstract class AmperCliWithWrapperTestBase {
                     putAll(environment)
                 },
                 input = stdin,
-                outputListener = outputListener,
+                outputListener = TestReporterProcessOutputListener("amper", testReporter),
             )
         }
 

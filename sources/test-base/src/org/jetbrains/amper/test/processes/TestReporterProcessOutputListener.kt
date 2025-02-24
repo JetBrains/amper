@@ -13,10 +13,10 @@ class TestReporterProcessOutputListener(
 ) : ProcessOutputListener {
 
     override fun onStdoutLine(line: String, pid: Long) {
-        testReporter.publishEntry("stdout-stream", "[$cmdName $pid out] $line\n")
+        testReporter.publishEntry(AmperJUnitReporterKeys.STDOUT, "[$cmdName $pid out] $line\n")
     }
 
     override fun onStderrLine(line: String, pid: Long) {
-        testReporter.publishEntry("stderr-stream", "[$cmdName $pid err] $line\n")
+        testReporter.publishEntry(AmperJUnitReporterKeys.STDERR, "[$cmdName $pid err] $line\n")
     }
 }
