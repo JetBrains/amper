@@ -35,7 +35,7 @@ val amperInternalJbrVersion = "21.0.4b509.26"
 
 val kotlinVersion = "2.1.10"
 val kotlinxSerializationVersion = "1.7.3"
-val kspVersion = "2.1.0-1.0.29" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
+val kspVersion = "2.1.10-1.0.30" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
 val composeVersion = "1.6.10"
 val hotReloadVersion = "1.0.0-dev-39"
 

@@ -23,7 +23,7 @@
       ksp:
          processorOptions: {} [default]
          processors: (empty) [default]
-         version: 2.1.0-1.0.29 [default]
+         version: 2.1.10-1.0.30 [default]
 
       languageVersion: 2.1 [default]
       progressiveMode: false [default]
