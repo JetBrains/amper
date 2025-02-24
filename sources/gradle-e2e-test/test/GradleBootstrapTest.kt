@@ -5,7 +5,11 @@
 import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.TestReporterExtension
+import org.jetbrains.amper.test.processes.err
+import org.jetbrains.amper.test.processes.out
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
 import org.yaml.snakeyaml.Yaml
 import java.io.ByteArrayOutputStream
@@ -26,6 +30,9 @@ class GradleBootstrapTest {
 
     @TempDir
     lateinit var projectPath: Path
+
+    @RegisterExtension
+    private val testReporter = TestReporterExtension()
 
     @Suppress("UNCHECKED_CAST")
     @Test
@@ -66,8 +73,8 @@ class GradleBootstrapTest {
                         // --no-build-cache to actually build stuff instead of getting it from cache since cache is shared between runs
                         "assemble", "testClasses", "--stacktrace", "--no-build-cache", "-PinBootstrapMode=true"
                     )
-                    .setStandardOutput(TeeOutputStream(System.out, stdout))
-                    .setStandardError(TeeOutputStream(System.err, stderr))
+                    .setStandardOutput(TeeOutputStream(testReporter.out(linePrefix = "[gradle out] "), stdout))
+                    .setStandardError(TeeOutputStream(testReporter.err(linePrefix = "[gradle err] "), stderr))
                     .run()
             }
         val output = (stdout.toByteArray().decodeToString() + "\n" + stderr.toByteArray().decodeToString()).replace("\r", "")
