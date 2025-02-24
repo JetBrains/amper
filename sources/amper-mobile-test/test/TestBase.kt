@@ -1,15 +1,12 @@
-import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.android.AndroidTools
-import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
+import org.jetbrains.amper.test.gradle.runGradle
 import org.junit.jupiter.api.AfterEach
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
@@ -168,47 +165,16 @@ open class TestBase : AmperCliWithWrapperTestBase() {
      * Assembles the target app in the specified [projectDir] using Gradle’s `assemble` task.
      */
     suspend fun assembleTargetApp(projectDir: Path, subprojectName: String? = null) {
-        val gradlewFileName = if (isWindows) "gradlew.bat" else "gradlew"
-        // FIXME we shouldn't rely on Amper's own wrapper, as we will stop using Gradle completely
-        val gradlewPath = Dirs.amperCheckoutRoot.resolve(gradlewFileName)
-
-        if (!gradlewPath.exists()) {
-            println("gradlew file does not exist in $gradlewPath")
-            throw FileNotFoundException("gradlew file does not exist in ${gradlewPath.absolutePathString()}")
-        }
-
         val task = if (subprojectName == null) "assemble" else ":$subprojectName:assemble"
-        try {
-            println("Executing '$task' in ${projectDir.name}")
-            // FIXME we should use the Gradle tooling API for this and stop the daemon after the tests
-            val exitCode = runProcess(
-                workingDir = projectDir,
-                command = listOf(gradlewPath.absolutePathString(), "--no-daemon", task),
-                redirectErrorStream = true,
-                outputListener = TestReporterProcessOutputListener(cmdName = "gradle", testReporter),
-                environment = AndroidTools.getOrInstallForTests().environment(),
-                onStart = { pid ->
-                    println("Started './gradlew $task' with process id: $pid in ${projectDir.name}")
-                },
-            )
-            println("Finished './gradlew $task' with exit code: $exitCode in ${projectDir.name}")
-            if (exitCode != 0) {
-                println("Error executing './gradlew $task' in ${projectDir.name}")
-                error("Execution of './gradlew $task' failed in ${projectDir.name}")
-            }
-        } catch (e: IOException) {
-            println("IOException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
-            throw RuntimeException("Execution of './gradlew $task' failed in ${projectDir.name}", e)
-        } catch (e: InterruptedException) {
-            println("InterruptedException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
-            throw RuntimeException("Execution of './gradlew $task' was interrupted in ${projectDir.name}", e)
-        }
-    }
-    companion object {
-        val isWindows: Boolean = System.getProperty("os.name").contains("Windows")
-    }
-}
 
-private fun isRunningInTeamCity(): Boolean {
-    return System.getenv("TEAMCITY_VERSION") != null
+        println("Executing 'gradle $task' in ${projectDir.name}")
+        runGradle(
+            projectDir = projectDir,
+            args = listOf(task),
+            cmdName = "gradle",
+            testReporter = testReporter,
+            additionalEnv = AndroidTools.getOrInstallForTests().environment(),
+        )
+        println("Finished 'gradle $task' in ${projectDir.name}")
+    }
 }
