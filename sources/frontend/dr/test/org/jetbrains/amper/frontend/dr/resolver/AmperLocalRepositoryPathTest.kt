@@ -53,8 +53,8 @@ class AmperLocalRepositoryPathTest {
      * Temporarily resets custom amper settings of the local machine to control the test configuration completely.
      */
     private fun clearLocalAmperCacheOverrides(systemProperties: SystemProperties, environmentVariables: EnvironmentVariables) {
-        systemProperties.set("amper.repo.local", "")
+        systemProperties.set("amper.cache.root", "")
         systemProperties.set("user.home", Path("nothing-to-see-here").absolutePathString())
-        environmentVariables.set("AMPER_REPO_LOCAL", "")
+        environmentVariables.set("AMPER_CACHE_ROOT", "")
     }
 }
