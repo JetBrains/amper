@@ -45,7 +45,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     fun `compose-multiplatform`() = runSlowTest {
         val tasksResult = runCli(
             projectRoot = exampleProject("compose-multiplatform"),
-            "tasks",
+            "show", "tasks",
             copyToTempDir = true,
         )
         with(tasksResult) {
@@ -109,7 +109,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     @Test
     fun `compose-desktop`() = runSlowTest {
         val projectRoot = exampleProject("compose-desktop")
-        with(runCli(projectRoot, "tasks")) {
+        with(runCli(projectRoot, "show", "tasks")) {
             jvmAppTasks.forEach { assertContains(stdout, ":compose-desktop:$it") }
         }
 
@@ -122,7 +122,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     @Test
     fun jvm() = runSlowTest {
         val projectRoot = exampleProject("jvm")
-        with(runCli(projectRoot, "tasks")) {
+        with(runCli(projectRoot, "show", "tasks")) {
             jvmAppTasks.forEach { assertContains(stdout, ":jvm:$it") }
         }
 
@@ -151,7 +151,7 @@ class AmperExamplesStandaloneTest: AmperCliTestBase() {
     @Test
     fun `compose-android`() = runSlowTest {
         val projectRoot = exampleProject("compose-android")
-        with(runCli(projectRoot, "tasks")) {
+        with(runCli(projectRoot, "show", "tasks")) {
             androidAppTasks.forEach { assertContains(stdout, ":compose-android:$it") }
         }
 

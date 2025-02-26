@@ -33,7 +33,7 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun smoke() = runSlowTest {
-        runCli(testProject("jvm-kotlin-test-smoke"), "tasks")
+        runCli(testProject("jvm-kotlin-test-smoke"), "show", "tasks")
     }
 
     @Test
@@ -90,7 +90,7 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun modules() = runSlowTest {
-        val r = runCli(testProject("simple-multiplatform-cli"), "modules")
+        val r = runCli(testProject("simple-multiplatform-cli"), "show", "modules")
 
         assertModulesList(r, listOf(
             "jvm-cli",
@@ -286,28 +286,28 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun `single-module project under an unrelated project`() = runSlowTest {
-        val resultNested = runCli(testProject("nested-project-root") / "nested-project", "modules")
+        val resultNested = runCli(testProject("nested-project-root") / "nested-project", "show", "modules")
         assertModulesList(resultNested, listOf("nested-project"))
 
-        val resultRoot = runCli(testProject("nested-project-root"), "modules")
+        val resultRoot = runCli(testProject("nested-project-root"), "show", "modules")
         assertModulesList(resultRoot, listOf("included-module"))
     }
 
     @Test
     fun `project including a deep module`() = runSlowTest {
-        val result = runCli(testProject("project-root-deep-inclusion"), "modules")
+        val result = runCli(testProject("project-root-deep-inclusion"), "show", "modules")
         assertModulesList(result, listOf("deep-module"))
     }
 
     @Test
     fun `project with denormalized globs`() = runSlowTest {
-        val result = runCli(testProject("project-root-denormalized-globs"), "modules")
+        val result = runCli(testProject("project-root-denormalized-globs"), "show", "modules")
         assertModulesList(result, listOf("deep", "deep2", "sub1", "sub2", "sub3", "sub4"))
     }
 
     @Test
     fun `project with both top-level and nested modules`() = runSlowTest {
-        val result = runCli(testProject("top-level-and-nested-modules"), "modules")
+        val result = runCli(testProject("top-level-and-nested-modules"), "show", "modules")
         assertModulesList(result, listOf("deep-module", "top-level-and-nested-modules"))
     }
 
@@ -315,7 +315,7 @@ class AmperCliTest: AmperCliTestBase() {
     fun `project file with path errors`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("project-file-with-errors"),
-            "tasks",
+            "show", "tasks",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
@@ -348,7 +348,7 @@ class AmperCliTest: AmperCliTestBase() {
             projectRoot = explicitRoot,
             "--root",
             explicitRoot.pathString,
-            "tasks",
+            "show", "tasks",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )

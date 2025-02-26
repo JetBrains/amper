@@ -1,8 +1,8 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli.commands
+package org.jetbrains.amper.cli.commands.show
 
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.mordant.rendering.TextAlign
@@ -10,6 +10,7 @@ import com.github.ajalt.mordant.rendering.Whitespace
 import com.github.ajalt.mordant.terminal.info
 import com.github.ajalt.mordant.widgets.Text
 import org.jetbrains.amper.cli.CliProblemReporterContext
+import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
