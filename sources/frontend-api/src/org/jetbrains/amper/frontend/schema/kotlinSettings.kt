@@ -20,18 +20,19 @@ import org.jetbrains.amper.frontend.api.TraceableString
 @EnumOrderSensitive(reverse = true)
 @EnumValueFilter("outdated", isNegated = true)
 enum class KotlinVersion(override val schemaValue: String, override val outdated: Boolean = false) : SchemaEnum {
-    Kotlin10("1.0"),
-    Kotlin11("1.1"),
-    Kotlin12("1.2"),
-    Kotlin13("1.3"),
-    Kotlin14("1.4"),
-    Kotlin15("1.5"),
+    Kotlin10("1.0", outdated = true),
+    Kotlin11("1.1", outdated = true),
+    Kotlin12("1.2", outdated = true),
+    Kotlin13("1.3", outdated = true),
+    Kotlin14("1.4", outdated = true),
+    Kotlin15("1.5", outdated = true), // no longer supported in Kotlin 2.1.10
     Kotlin16("1.6"),
     Kotlin17("1.7"),
     Kotlin18("1.8"),
     Kotlin19("1.9"),
     Kotlin20("2.0"),
     Kotlin21("2.1"),
+    Kotlin22("2.2"), // already supported (experimental) in Kotlin 2.1.10
     ;
 
     override fun toString(): String = schemaValue
