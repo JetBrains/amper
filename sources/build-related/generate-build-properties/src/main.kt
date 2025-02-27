@@ -4,7 +4,6 @@ import org.eclipse.jgit.api.Git
 import org.yaml.snakeyaml.Yaml
 import java.io.StringWriter
 import java.nio.file.Path
-import java.security.MessageDigest
 import java.util.Properties
 import kotlin.collections.component1
 import kotlin.io.path.Path
@@ -44,7 +43,7 @@ fun main(args: Array<String>) {
                 val shortHash = repo.newObjectReader().use { it.abbreviate(head.newId).name() }
                 properties["commitHash"] = head.newId.name
                 properties["commitShortHash"] = shortHash
-                properties["commitDate"] = head.who.`when`.toInstant().toString()
+                properties["commitDate"] = head.who.whenAsInstant.toString()
 
                 // When developing locally, we want to somehow capture changes to the local sources because we want to
                 // invalidate incremental state files based on this. If we don't, changing some Amper code will not
@@ -65,10 +64,9 @@ fun main(args: Array<String>) {
     }.toString().lines()
         .map { it.trim() }
         // remove datetime
-        .filter { it.isNotBlank() && !it.startsWith("#")}
+        .filter { it.isNotBlank() && !it.startsWith("#") }
         .sorted()
-        .map { it + "\n" }
-        .joinToString("")
+        .joinToString("\n")
 
     writeContentIfChanged(taskOutputDirectory.resolve("build.properties"), propertiesString.toByteArray())
 }

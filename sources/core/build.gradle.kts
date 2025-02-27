@@ -15,7 +15,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r")
+        classpath("org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r")
     }
 }
 
@@ -32,13 +32,13 @@ val generateBuildProperties by tasks.creating(WriteProperties::class.java) {
             // This is to avoid issues with people who use config parameters that are not supported by JGit.
             // For example, the 'patience' diff algorithm isn't supported.
             runWithoutGlobalGitConfig {
-                Git.open(gitRoot).use { git ->
+                Git.open(rootProject.projectDir).use { git ->
                     val repo = git.repository
                     val head = repo.getReflogReader("HEAD").lastEntry
                     val shortHash = repo.newObjectReader().use { it.abbreviate(head.newId).name() }
                     property("commitHash", head.newId.name)
                     property("commitShortHash", shortHash)
-                    property("commitDate", head.who.`when`.toInstant())
+                    property("commitDate", head.who.whenAsInstant)
 
                     // When developing locally, we want to somehow capture changes to the local sources because we want to
                     // invalidate incremental state files based on this. If we don't, changing some Amper code will not
