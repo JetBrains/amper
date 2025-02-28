@@ -4,9 +4,10 @@
 
 package org.jetbrains.amper.cli
 
-import com.intellij.util.namedChildScope
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
@@ -48,8 +49,7 @@ internal suspend fun <T> withBackend(
             }
         }
 
-        @Suppress("UnstableApiUsage")
-        val backgroundScope = namedChildScope("project background scope", supervisor = true)
+        val backgroundScope = childScope("project background scope")
         commonOptions.terminal.println(AmperBuild.banner)
 
         val cliContext = spanBuilder("Create CLI context").use {
@@ -100,6 +100,9 @@ internal suspend fun <T> withBackend(
         }
     }
 }
+
+private fun CoroutineScope.childScope(name: String): CoroutineScope =
+    CoroutineScope(coroutineContext + SupervisorJob(parent = coroutineContext.job) + CoroutineName(name))
 
 private fun String.replaceWhitespaces() = replace(" ", "%20")
 
