@@ -12,7 +12,6 @@ import com.google.devrel.gmscore.tools.apk.arsc.ResourceTableChunk
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
 import org.junit.jupiter.api.parallel.Execution
@@ -38,7 +37,7 @@ import kotlin.test.fail
 class AndroidExampleProjectsTest : AmperCliTestBase() {
 
     @Test
-    fun `simple tests debug`() = runTestWithCollector {
+    fun `simple tests debug`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("android/simple"),
             "task", ":simple:testAndroidTestDebug",
@@ -47,7 +46,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `simple tests release`() = runTestWithCollector {
+    fun `simple tests release`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("android/simple"),
             "task", ":simple:testAndroidTestRelease",
@@ -56,7 +55,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `apk contains dependencies`() = runTestWithCollector {
+    fun `apk contains dependencies`() = runSlowTest {
         val taskName = ":simple:buildAndroidDebug"
         val result = runCli(
             projectRoot = testProject("android/simple"),
@@ -67,7 +66,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `appcompat compiles successfully and contains dependencies`() = runTestWithCollector {
+    fun `appcompat compiles successfully and contains dependencies`() = runSlowTest {
         val taskName = ":appcompat:buildAndroidDebug"
         val result = runCli(projectRoot = testProject("android/appcompat"), "task", taskName)
         val apkPath = result.getArtifactPath(taskName)
@@ -75,7 +74,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runTestWithCollector {
+    fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runSlowTest {
         val taskName = ":appcompat:buildAndroidDebug"
         val result = runCli(projectRoot = testProject("android/appcompat"), "task", taskName)
         val apkPath = result.getArtifactPath(taskName)
@@ -86,7 +85,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `should fail when license is not accepted`() = runTestWithCollector {
+    fun `should fail when license is not accepted`() = runSlowTest {
         val androidSdkHome = (Dirs.tempDir / "empty-android-sdk").also { it.createDirectories() }
         val result = runCli(
             projectRoot = testProject("android/simple"),
@@ -118,7 +117,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     """.trimIndent()
 
     @Test
-    fun `bundle without signing enabled has no signature`() = runTestWithCollector {
+    fun `bundle without signing enabled has no signature`() = runSlowTest {
         val taskName = ":simple:bundleAndroid"
         val result = runCli(projectRoot = testProject("android/simple"), "task", taskName)
         val bundlePath = result.getArtifactPath(taskName, "aab")
@@ -126,7 +125,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `bundle with signing enabled and properties file has signature`() = runTestWithCollector {
+    fun `bundle with signing enabled and properties file has signature`() = runSlowTest {
         val taskName = ":signed:bundleAndroid"
         val result = runCli(projectRoot = testProject("android/signed"), "task", taskName)
         val bundlePath = result.getArtifactPath(taskName, "aab")
@@ -134,7 +133,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `task graph is correct for downloading and installing android sdk components`() = runTestWithCollector {
+    fun `task graph is correct for downloading and installing android sdk components`() = runSlowTest {
         val result = runCli(projectRoot = testProject("android/simple"), "show", "tasks")
         // debug
         result.assertStdoutContains("task :simple:buildAndroidDebug -> :simple:runtimeClasspathAndroid")

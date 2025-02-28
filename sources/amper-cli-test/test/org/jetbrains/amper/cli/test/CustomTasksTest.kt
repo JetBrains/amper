@@ -5,7 +5,6 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import java.util.zip.ZipFile
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
@@ -16,10 +15,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class AmperBackendCustomTasksTest : AmperCliTestBase() {
+class CustomTasksTest : AmperCliTestBase() {
 
     @Test
-    fun `generate versions file`() = runTestWithCollector {
+    fun `generate versions file`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("customTasks/generate-versions-file"),
             "run",
@@ -33,7 +32,7 @@ class AmperBackendCustomTasksTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `generate resources`() = runTestWithCollector {
+    fun `generate resources`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("customTasks/generate-resources"),
             "run",
@@ -47,7 +46,7 @@ class AmperBackendCustomTasksTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `generate dist`() = runTestWithCollector {
+    fun `generate dist`() = runSlowTest {
         val taskName = ":generate-dist:dist"
         val result = runCli(projectRoot = testProject("customTasks/generate-dist"), "task", taskName)
         val output = result.getTaskOutputPath(taskName)
@@ -65,7 +64,7 @@ class AmperBackendCustomTasksTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `generate artifact for publishing`() = runTestWithCollector {
+    fun `generate artifact for publishing`() = runSlowTest {
         val groupDir = Dirs.m2repository.resolve("amper/test/generate-artifact-for-publishing")
         groupDir.deleteRecursively()
 
