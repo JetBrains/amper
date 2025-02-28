@@ -25,7 +25,7 @@ import kotlin.test.assertTrue
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
-class AmperKspTest: AmperCliTestBase() {
+class KspTest: AmperCliTestBase() {
 
     @Test
     fun `ksp jvm autoservice`() = runSlowTest {

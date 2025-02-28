@@ -2,10 +2,10 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package com.example.amper.springboot;
+package com.example.springboot;
 
 
-import com.example.amper.springboot.service.AmperService;
+import com.example.springboot.service.AmperService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -21,7 +21,7 @@ import kotlin.test.assertTrue
 import kotlin.test.expect
 
 @MacOnly
-class AmperIosProjectsTest : AmperCliTestBase() {
+class IosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `framework for simple for iosSimulatorArm64`() = runSlowTest {

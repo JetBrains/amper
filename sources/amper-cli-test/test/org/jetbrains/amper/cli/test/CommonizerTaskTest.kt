@@ -21,7 +21,7 @@ import kotlin.test.assertTrue
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
-class AmperCommonizerTaskTest: AmperCliTestBase() {
+class CommonizerTaskTest: AmperCliTestBase() {
 
     @Test
     @MacOnly

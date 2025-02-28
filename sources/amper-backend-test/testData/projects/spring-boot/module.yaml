@@ -5,4 +5,4 @@ dependencies:
 
 settings:
   jvm:
-    mainClass: com.example.amper.springboot.Main
+    mainClass: com.example.springboot.Main

@@ -23,7 +23,7 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
 
-class AmperExamplesStandaloneTest: AmperCliTestBase() {
+class ExamplesStandaloneTest: AmperCliTestBase() {
 
     private val examplesStandaloneDir = Dirs.amperCheckoutRoot.resolve("examples-standalone")
 

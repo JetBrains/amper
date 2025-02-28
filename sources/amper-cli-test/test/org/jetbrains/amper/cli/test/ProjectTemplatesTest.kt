@@ -20,7 +20,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.expect
 
-class AmperProjectTemplatesTest : AmperCliTestBase() {
+class ProjectTemplatesTest : AmperCliTestBase() {
     // Please add as many checks as possible to template tests
 
     private fun templateNameFromTestName(name: String) = name.substringBefore(' ')
