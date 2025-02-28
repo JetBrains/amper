@@ -13,6 +13,15 @@ import kotlin.test.Test
 class AmperTestBasicTest : AmperCliTestBase() {
 
     @Test
+    fun `jvm-failed-test`() = runSlowTest {
+        val projectRoot = testProject("jvm-failed-test")
+        val result = runCli(projectRoot = projectRoot, "test", assertEmptyStdErr = false, expectedExitCode = 1)
+        result.assertStderrContains("ERROR: JVM tests failed for module 'jvm-failed-test' with exit code 1 (see errors above)")
+        result.assertStdoutContains("MethodSource [className = 'FailedTest', methodName = 'shouldFail', methodParameterTypes = '']")
+        result.assertStdoutContains("=> java.lang.AssertionError: Expected value to be true.")
+    }
+
+    @Test
     fun `test using reflection`() = runSlowTest {
         runCli(testProject("jvm-test-using-reflection"), "test", "--platform=jvm")
     }

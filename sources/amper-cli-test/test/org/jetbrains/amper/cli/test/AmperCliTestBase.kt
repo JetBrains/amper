@@ -64,6 +64,11 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
                text in stdout
             }
         }
+        fun assertStderrContains(text: String) {
+            assertTrue("Stdout does not contain the text '$text':\n" + stderr.trim()) {
+               text in stderr
+            }
+        }
         fun assertStdoutContainsLine(expectedLine: String, nOccurrences: Int = 1) {
             val suffix = if (nOccurrences > 1) " $nOccurrences times" else " once"
             val count = stdout.lines().count { it == expectedLine }
