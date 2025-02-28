@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
     require(System.getenv("AAA") == "BB") {
         "Env \$AAA must be 'BB, but got: ${System.getenv("AAA")}"
     }
-    System.err.println("Got the following args: [${args.joinToString(", ")}]")
+    println("Got the following args: [${args.joinToString(", ")}]")
     val (demoString, taskOutput, moduleVersion) = args
     check(demoString == "DEMO-STRING")
     File(taskOutput, "ProgramInfo.kt").writeText("""
