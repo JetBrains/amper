@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.cli.test
 
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.parallel.Execution
@@ -13,7 +12,6 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.minutes
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
@@ -49,7 +47,7 @@ class AmperRunTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `run works with stdin for jvm`() = runTest(timeout = 10.minutes) {
+    fun `run works with stdin for jvm`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("multiplatform-input"),
             "run", "--module", "jvm-app",
@@ -61,7 +59,7 @@ class AmperRunTest : AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `run works with stdin for native`() = runTest(timeout = 10.minutes) {
+    fun `run works with stdin for native`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("multiplatform-input"),
             "run", "--module", "macos-app",
