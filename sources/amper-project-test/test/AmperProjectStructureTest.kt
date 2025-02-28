@@ -4,14 +4,14 @@
 
 import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModuleFileSource
-import org.jetbrains.amper.test.TempDirExtension
-import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.TempDirExtension
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
@@ -68,7 +68,7 @@ class AmperProjectStructureTest {
     }
 
     @Test
-    fun `list of modules is the same for gradle and standalone amper`() = runTestWithCollector {
+    fun `list of modules is the same for gradle and standalone amper`() = runTest {
         val backend = createAmperProjectBackend(backgroundScope)
         val standaloneModulesList = backend.modules()
             .map { (it.source as AmperModuleFileSource).moduleDir.relativeTo(Dirs.amperCheckoutRoot) }
