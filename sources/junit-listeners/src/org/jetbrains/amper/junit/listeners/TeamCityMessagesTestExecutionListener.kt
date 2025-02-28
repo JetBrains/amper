@@ -43,6 +43,8 @@ class TeamCityMessagesTestExecutionListener(
     private val serviceMessagesStream: PrintStream = System.out, // default used when loaded via ServiceLoader
 ) : TestExecutionListener {
 
+    private val enabled = System.getProperty("$configPropertyGroup.enabled", "false").toBooleanStrict()
+
     private val currentTest = InheritableThreadLocal<TestIdentifier?>()
 
     private val watchedStdout = watchedStream(
@@ -61,15 +63,6 @@ class TeamCityMessagesTestExecutionListener(
         emit(TestStdErr(testId.teamCityName, output).withFlowId(testId))
     }
 
-    init {
-        // we don't use the built-in stream capture of JUnit because it only reports it at the end of each test
-        // (it doesn't stream it). See https://github.com/junit-team/junit5/issues/4317
-        System.setOut(watchedStdout)
-        System.setErr(watchedStderr)
-    }
-
-    private val enabled = System.getProperty("$configPropertyGroup.enabled", "false").toBooleanStrict()
-
     /**
      * The time at which each test or container started, to use for test duration calculations.
      */
@@ -79,6 +72,15 @@ class TeamCityMessagesTestExecutionListener(
      * An opaque and unique ID for the current test plan.
      */
     private lateinit var testPlanId: String
+
+    init {
+        if (enabled) {
+            // we don't use the built-in stream capture of JUnit because it only reports it at the end of each test
+            // (it doesn't stream it). See https://github.com/junit-team/junit5/issues/4317
+            System.setOut(watchedStdout)
+            System.setErr(watchedStderr)
+        }
+    }
 
     override fun testPlanExecutionStarted(testPlan: TestPlan?) {
         testPlanId = UUID.randomUUID().toString()
