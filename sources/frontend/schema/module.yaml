@@ -20,6 +20,7 @@ dependencies:
   - $libs.intellij.platform.coreImpl
   - $libs.intellij.platform.ideCore
   - $libs.intellij.platform.util
+  - $libs.kotlinx.collections
 
 test-dependencies:
   - ../../test-base

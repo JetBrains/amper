@@ -16,11 +16,12 @@ gradle-api-forStandalone = "8.9"
 hot-reload-version = "1.0.0-dev-39" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
-intellij-platform = "233.13763.11"
+intellij-platform = "243.24978.46"
 intellij-xcodemodel = "241.14980"
 junit-jupiter = "5.11.4"
 junit-platform = "1.11.4"
 kotlin = "2.1.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
+kotlinx-collections = "0.3.8" # aligned with IntelliJ platform - UPDATE WITH CARE
 kotlinx-coroutines = "1.8.0" # aligned with IntelliJ platform - UPDATE WITH CARE
 ktor = "3.0.3" # aligned with IntelliJ platform - UPDATE WITH CARE
 maven = "3.9.9"
@@ -77,6 +78,7 @@ kotlin-compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+kotlinx-collections = { module="org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm", version.ref="kotlinx-collections" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-debug", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j", version.ref = "kotlinx-coroutines" }
