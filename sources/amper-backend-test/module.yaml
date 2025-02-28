@@ -11,10 +11,6 @@ dependencies:
 
 test-dependencies:
   - ../test-base
-  - org.smali:dexlib2:2.5.2 # todo: use apkanalyzer API to get rid of this dependency
-  - com.android.tools.apkparser:apkanalyzer:31.2.0
-  - com.android.tools.apkparser:binary-resources:31.2.0
-
   - $libs.gradle.toolingApi: compile-only
   - $libs.android.tools.ddmlib: compile-only
 

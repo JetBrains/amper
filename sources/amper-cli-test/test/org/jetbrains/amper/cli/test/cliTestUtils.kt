@@ -14,6 +14,8 @@ import org.jetbrains.amper.cli.test.otlp.serialization.decodeOtlpTraces
 import org.jetbrains.amper.test.spans.FilteredSpans
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.jetbrains.amper.test.spans.spansNamed
+import java.nio.file.Path
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.readLines
 import kotlin.test.assertTrue
@@ -22,6 +24,11 @@ import kotlin.time.Duration.Companion.minutes
 
 inline fun runSlowTest(crossinline testBody: suspend TestScope.() -> Unit): TestResult =
     runTest(timeout = 15.minutes) { testBody() }
+
+// FIXME this should never be needed, because task output paths should be internal.
+//  User-visible artifacts should be placed in user-visible directories (use some convention).
+internal fun AmperCliTestBase.AmperCliResult.getTaskOutputPath(taskName: String): Path =
+    buildOutputRoot / "tasks" / taskName.replace(':', '_')
 
 internal fun AmperCliTestBase.AmperCliResult.readTelemetrySpans(): SpansTestCollector {
     val tracesFile = logsDir?.resolve("opentelemetry_traces.jsonl")
