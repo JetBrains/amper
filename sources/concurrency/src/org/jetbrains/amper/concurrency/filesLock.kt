@@ -208,60 +208,63 @@ private suspend fun <T> produceResultWithFileLock(
     while (true) {
         return try {
             // Open a temporary lock file channel
-            doWithFileLock(tempDir, targetFileName, tempLockFile, getAlreadyProducedResult, block)
+            tempLockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) {
+                logger.trace("### ${System.currentTimeMillis()} {} {} : locked, getAlreadyProducedResult()={}",
+                    tempLockFile.hashCode(), tempLockFile.name, getAlreadyProducedResult()
+                )
+                try {
+                    produceResultWithTempFile(tempDir, targetFileName, getAlreadyProducedResult, block)
+                } finally {
+                    tempLockFile.deleteIfExistsWithLogging("Temp lock file was deleted under the lock")
+                }
+            }.also {
+                logger.trace("### ${System.currentTimeMillis()} {} {}: unlocked", tempLockFile.hashCode(), tempLockFile.name)
+            }
         } catch (e: NoSuchFileException) {
             // Another process deleted the temp file before we were able to get the lock on it => Try again.
-            logger.debug("NoSuchFileException from doWithFileLock on {}", e.file, e)
+            logger.debug("NoSuchFileException from withFileChannelLock on {}", e.file, e)
             continue
         } catch (e: ClosedChannelException) {
             // Another process deleted the temp file before we were able to get the lock on it => Try again.
-            logger.debug("ClosedChannelException from doWithFileLock on {}", targetFileName, e)
+            logger.debug("ClosedChannelException from withFileChannelLock on {}", targetFileName, e)
             continue
         }
     }
 }
 
-private suspend fun <T> doWithFileLock(
+suspend fun <T> produceResultWithTempFile(
     tempDir: Path,
     targetFileName: String,
-    tempLockFile: Path,
     getAlreadyProducedResult: suspend () -> T?,
     block: suspend (Path, FileChannel) -> T,
 ): T {
-    return tempLockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) {
-        val tempFileNameSuffix = UUID.randomUUID().toString().let { it.substring(0, min(8, it.length))}
-        val tempFile = tempDir.resolve("~${targetFileName}.$tempFileNameSuffix")
+    val tempFileNameSuffix = UUID.randomUUID().toString().let { it.substring(0, min(8, it.length)) }
+    val tempFile = tempDir.resolve("~${targetFileName}.$tempFileNameSuffix")
 
-        logger.trace("### ${System.currentTimeMillis()} ${tempLockFile.name}: locked")
-        try {
-            getAlreadyProducedResult()
-                ?: run {
-                    FileChannel.open(
-                        tempFile,
-                        StandardOpenOption.READ,
-                        StandardOpenOption.WRITE,
-                        StandardOpenOption.CREATE_NEW,
-                    ).use { fileChannel ->
-                        block(tempFile, fileChannel)
-                    }
-                } // temp file was moved inside the block to target file location - there is no need to delete it.
-        } catch (t: Throwable) {
-            tempFile.deleteIfExistsWithLogging("Exception occurred, temp file was deleted under lock", t)
-            throw t
-        } finally {
-            tempLockFile.deleteIfExistsWithLogging("Exception occurred, temp lock file was deleted under lock")
-        }
-    }.also {
-        logger.trace("### ${System.currentTimeMillis()} {}: unlocked", tempLockFile.name)
+    return try {
+        getAlreadyProducedResult()
+            ?: run {
+                FileChannel.open(
+                    tempFile,
+                    StandardOpenOption.READ,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.CREATE_NEW,
+                ).use { fileChannel ->
+                    block(tempFile, fileChannel)
+                }
+            } // temp file was moved inside the block to target file location - there is no need to delete it.
+    } catch (t: Throwable) {
+        tempFile.deleteIfExistsWithLogging("Exception occurred, temp file was deleted", t)
+        throw t
     }
 }
 
-private fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, t: Throwable? = null) {
+fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, t: Throwable? = null) {
     try {
         deleteIfExists()
         logger.trace("### ${ System.currentTimeMillis() } $name: $onSuccessMessage")
     } catch (_t: Throwable) {
-        logger.debug("### ${ System.currentTimeMillis() } $name: failed to delete temp file under lock${ t?.let { "(After ${it::class.simpleName})" } ?: "" }", _t)
+        logger.debug("### ${ System.currentTimeMillis() } $name: failed to delete file ${ t?.let { "(After ${it::class.simpleName})" } ?: "" }", _t)
     }
 }
 

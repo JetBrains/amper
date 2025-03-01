@@ -1446,12 +1446,8 @@ class BuildGraphTest: BaseDRTest() {
             context()
         )
 
-        val resolver = Resolver()
-        runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
-        root.verifyGraphConnectivity()
-        root.distinctBfsSequence().forEach {
-            val messages = it.messages.filter { "Downloaded " !in it.text }
-            assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
+        runBlocking {
+            doTest(root, verifyMessages = true)
         }
     }
 

@@ -16,10 +16,10 @@ import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.message
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
+
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import kotlin.contracts.ExperimentalContracts
-import kotlin.test.assertTrue
 
 class DiagnosticsTest: BaseModuleDrTest() {
 
@@ -76,8 +76,7 @@ class DiagnosticsTest: BaseModuleDrTest() {
                         && !assertDependencyError(node, "org.jetbrains.compose.runtime", "runtime")
                         && !assertDependencyError(node, "org.jetbrains.kotlinx", "kotlinx-serialization-core"))
                     {
-                        val messages = node.messages.defaultFilterMessages()
-                        assertTrue(messages.isEmpty(), "There must be no messages for $this: $messages")
+                        node.verifyOwnMessages()
                     }
                 }
             )

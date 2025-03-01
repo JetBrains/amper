@@ -8,7 +8,6 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
-import kotlin.sequences.forEach
 import kotlin.test.assertTrue
 
 class ResolverTest: BaseDRTest() {

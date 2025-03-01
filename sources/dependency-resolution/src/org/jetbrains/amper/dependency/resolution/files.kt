@@ -25,12 +25,15 @@ import org.jetbrains.amper.concurrency.produceResultWithDoubleLock
 import org.jetbrains.amper.concurrency.readTextWithRetry
 import org.jetbrains.amper.concurrency.withRetry
 import org.jetbrains.amper.concurrency.withRetryOnAccessDenied
+import org.jetbrains.amper.concurrency.produceResultWithTempFile
+import org.jetbrains.amper.concurrency.deleteIfExistsWithLogging
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream
 import java.net.URI
+import java.net.http.HttpClient
 import java.net.http.HttpClient.Redirect
 import java.net.http.HttpClient.Version
 import java.net.http.HttpRequest
@@ -253,31 +256,22 @@ open class DependencyFile(
 
     override fun toString(): String = getPathBlocking()?.toString() ?: "[missing path]/$fileName"
 
-    open suspend fun isDownloaded(): Boolean = withContext(Dispatchers.IO) { getPath()?.exists() == true }
+    open suspend fun isDownloaded(): Boolean = getPath()?.exists() == true
 
-    internal suspend fun hasMatchingChecksum(level: ResolutionLevel, context: Context, diagnosticsReporter: DiagnosticReporter = this.diagnosticsReporter): Boolean =
-        withContext(Dispatchers.IO) {
-            hasMatchingChecksum(level, context.settings.repositories, context.settings.progress, context.resolutionCache, diagnosticsReporter)
-        }
-
-    private suspend fun hasMatchingChecksum(
-        level: ResolutionLevel,
-        repositories: List<Repository>,
-        progress: Progress,
-        cache: Cache,
-        diagnosticsReporter: DiagnosticReporter,
+    internal suspend fun hasMatchingChecksumLocally(
+        diagnosticsReporter: DiagnosticReporter = this.diagnosticsReporter,
+        level: ResolutionLevel = ResolutionLevel.NETWORK
     ): Boolean {
         val path = getPath() ?: return false
         val hashers = path.computeHash()
-        for (repository in repositories) {
-            val result = verify(hashers, repository, progress, cache, diagnosticsReporter, requestedLevel = level)
-            return when (result) {
-                VerificationResult.PASSED -> true
-                VerificationResult.FAILED -> false
-                else -> continue
-            }
+        val result = verifyHashes(hashers, diagnosticsReporter, level)
+        return when (result) {
+            VerificationResult.PASSED -> true
+            VerificationResult.FAILED -> false
+            // todo (AB) : Check behavior, it is not clear,
+            // todo (AB) : why dependency should be considered resolved if it has no matching checksum.
+            VerificationResult.UNKNOWN -> level < ResolutionLevel.NETWORK
         }
-        return level < ResolutionLevel.NETWORK
     }
 
     private suspend fun hasMatchingChecksum(expectedHash: Hash): Boolean {
@@ -301,23 +295,51 @@ open class DependencyFile(
         repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
-        expectedHash: Hash?,
+        verify: Boolean,
         diagnosticsReporter: DiagnosticReporter,
     ): Path? {
+        val expectedHashBeforeLocking = if (verify) {
+            getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
+        } else null
+
         return withContext(Dispatchers.IO) {
             try {
                 produceResultWithDoubleLock(
                     tempDir = getTempDir(),
                     fileName,
                     getAlreadyProducedResult = {
-                        getPath()?.takeIf { isDownloadedWithVerification(expectedHash) }
+                        if (verify) {
+                            getPath().takeIf {
+                                isDownloadedWithVerification {
+                                    expectedHashBeforeLocking ?: getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
+                                }
+                            }
+                        } else null
                     }
                 ) { tempFilePath, fileChannel ->
+                    // under lock.
+                    val expectedHash = if (verify) {
+                        val expectedHashResolved = expectedHashBeforeLocking
+                            ?: getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
+                            ?: downloadHash(repositories, progress, cache, diagnosticsReporter)
+                            // if hash is not resolved, but we still need to verify it, then we can't proceed with downloading
+                            ?: return@produceResultWithDoubleLock null
+                        expectedHashResolved.also {
+                            if (isDownloadedWithVerification(expectedHashResolved)) {
+                                return@produceResultWithDoubleLock getPath()
+                            }
+                        }
+                    } else null
+
                     expectedHash
                           // First, try to resolve artifact from external local storage if the actual hash is known
                         ?.let { resolveFromExternalLocalRepository(tempFilePath, fileChannel, expectedHash, cache, diagnosticsReporter) }
                           // Download an artifact from external remote storage if it has not been resolved from the local cache
-                        ?: downloadAndVerifyHash(fileChannel, tempFilePath, repositories, progress, cache, expectedHash, diagnosticsReporter)
+                        ?: run {
+                            // trying the same repo where hash was downloaded from at first
+                            val optimizedRepositories = repositories.ensureFirst(dependency.repository)
+                            downloadAndVerifyHash(fileChannel, tempFilePath, optimizedRepositories, progress, cache, expectedHash, diagnosticsReporter)
+                        }
                 }
             } catch (e: CancellationException) {
                 throw e
@@ -335,11 +357,10 @@ open class DependencyFile(
         }
     }
 
-
     /**
      * Resolve a dependency file in an external local repository.
-     * The resolved file is copied to the primary artifact storage from external one if the actual checksum of the file
-     * is equal to the checksum downloaded from external remote repository and stored in the primary artifact storage.
+     * The resolved file is copied to the primary artifact storage from an external one if the actual checksum of the file
+     * is equal to the checksum downloaded from the external remote repository and stored in the primary artifact storage.
      */
     private suspend fun resolveFromExternalLocalRepository(
         temp: Path, tempFileChannel: FileChannel, expectedHash: Hash,
@@ -362,10 +383,14 @@ open class DependencyFile(
 
     internal fun DependencyFile.getTempDir() = getCacheDirectory().getTempDir(dependency)
 
-    private suspend fun DependencyFile.isDownloadedWithVerification(expectedHash: Hash?) =
-        isDownloaded()
-                && (isChecksum() && readText().sanitize() != null
-                || expectedHash != null && hasMatchingChecksum(expectedHash))
+    private suspend fun DependencyFile.isDownloadedWithVerification(expectedHash: Hash) =
+        isDownloadedWithVerification { expectedHash }
+
+    private suspend fun DependencyFile.isDownloadedWithVerification(expectedHashFn: suspend () -> Hash?) =
+        isDownloaded() && expectedHashFn()?.let { hasMatchingChecksum(it) } == true
+
+    private suspend fun DependencyFile.isDownloadedValidHash() =
+        isDownloaded() && isChecksum() && readText().sanitize() != null
 
     fun DependencyFile.isChecksum() = hashAlgorithms.any { extension.endsWith(".$it", true) }
 
@@ -377,39 +402,26 @@ open class DependencyFile(
         diagnosticsReporter: DiagnosticReporter,
     ): Boolean {
         val nestedDownloadReporter = CollectingDiagnosticReporter()
-        val path = if (verify) {
-            val expectedHash = getOrDownloadExpectedHash(repositories, progress, cache, nestedDownloadReporter)
-            if (expectedHash == null) {
-                diagnosticsReporter.addMessages(nestedDownloadReporter.getMessages())
-                return false
-            }
 
-            if (isDownloadedWithVerification(expectedHash)) {
-                return true
-            }
-
-            val optimizedRepositories = repositories.ensureFirst(dependency.repository) // first, try the same repo hash was downloaded from
-            downloadUnderFileLock(optimizedRepositories, progress, cache, expectedHash, nestedDownloadReporter)
-        } else {
-            if (isDownloadedWithVerification(null)) {
-                return true
-            }
-
-            downloadUnderFileLock(repositories, progress, cache, null, nestedDownloadReporter)
-        }
+        val path = downloadUnderFileLock(repositories, progress, cache, verify, nestedDownloadReporter)
 
         val messages = if (path != null) {
             nestedDownloadReporter.getMessages()
                 .takeIf { messages -> messages.all { it.severity <= Severity.INFO } }
                 ?: emptyList()
         } else if (verify) {
-            listOf(
-                Message(
-                    "Unable to download file $fileName for dependency $dependency",
-                    repositories.joinToString(),
-                    if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
-                    suppressedMessages = nestedDownloadReporter.diagnostics
-            ))
+            if (nestedDownloadReporter.diagnostics.singleOrNull()?.message?.startsWith("Unable to download checksums") == true) {
+                nestedDownloadReporter.diagnostics
+            } else {
+                listOf(
+                    Message(
+                        "Unable to download file $fileName for dependency $dependency",
+                        repositories.joinToString(),
+                        if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
+                        suppressedMessages = nestedDownloadReporter.diagnostics
+                    )
+                )
+            }
         } else nestedDownloadReporter.getMessages()
 
         diagnosticsReporter.addMessages(messages)
@@ -450,6 +462,7 @@ open class DependencyFile(
                 continue
             }
             if (hasher != null) {
+                // todo (AB) : [AMPER-4149]: Download hash file if expectedHash was resolved locally and doesn't match
                 val result = checkHash(hasher, expectedHash, diagnosticsReporter)
                 if (result > VerificationResult.PASSED) {
                     channel.truncate(0)
@@ -532,58 +545,39 @@ open class DependencyFile(
         actualHash : Hasher
     ): Boolean = checkHash(actualHash, expectedHash) > VerificationResult.PASSED
 
-    private suspend fun verify(
+    /**
+     * Check that the hashes of this artifact file match the expected ones taken from the local artifact storage.
+     * The actual hashes of the artifact file are computed using the given [hashers].
+     */
+    private suspend fun verifyHashes(
         hashers: Collection<Hasher>,
-        repository: Repository,
-        progress: Progress,
-        cache: Cache,
         diagnosticsReporter: DiagnosticReporter,
-        requestedLevel: ResolutionLevel = ResolutionLevel.NETWORK
+        requestedLevel: ResolutionLevel
     ): VerificationResult {
-        // Let's first check hashes available on disk.
-        val levelToHasher = setOf(ResolutionLevel.LOCAL, requestedLevel)
-            .flatMap { level -> hashers.filterWellKnownBrokenHashes(repository.url).map { level to it } }
-        for ((level, hasher) in levelToHasher) {
+        for (hasher in hashers) {
             val algorithm = hasher.algorithm
-            val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, diagnosticsReporter, level)
-                ?: continue
-            val actualHash = hasher.hash
-            if (!expectedHash.equals(actualHash, true)) {
-                if (requestedLevel != ResolutionLevel.NETWORK) {
-                    diagnosticsReporter.addMessage(
-                        Message(
-                            "Hashes stored in a local artifacts storage don't match for $algorithm",
-                            "expected: $expectedHash, actual: $actualHash",
-                            severity = Severity.ERROR,
-                        )
-                    )
-                }
-                return VerificationResult.FAILED
-            } else {
-                return VerificationResult.PASSED
-            }
+            val expectedHash = getExpectedHash(algorithm) ?: continue
+            return checkHash(
+                hasher,
+                expectedHash = object : Hash {
+                    override val hash: String = expectedHash
+                    override val algorithm = algorithm
+                },
+                diagnosticsReporter.takeIf { requestedLevel != ResolutionLevel.NETWORK })
         }
         return VerificationResult.UNKNOWN
     }
 
     /**
-     * @return hash and repository where it was downloaded from (the latter is null if hash was found locally)
+     * @return hash of the artifact resolved from a local artifacts storage
      */
-    private suspend fun getOrDownloadExpectedHash(
-        repositories: List<Repository>,
-        progress: Progress,
-        cache: Cache,
-        diagnosticsReporter: DiagnosticReporter,
-        requestedLevel: ResolutionLevel = ResolutionLevel.NETWORK,
-    ): Hash? {
+    private suspend fun getExpectedHash(diagnosticsReporter: DiagnosticReporter, requestedLevel: ResolutionLevel): Hash? {
         val hashers = createHashers()
 
-        val nestedDownloadReporter = CollectingDiagnosticReporter()
-
-        // First, try to find cache locally
+        // Trying to find the hash locally
         for (hasher in hashers) {
             val algorithm = hasher.algorithm
-            val expectedHash = getOrDownloadExpectedHash(algorithm, null, progress, cache, nestedDownloadReporter, ResolutionLevel.LOCAL)
+            val expectedHash = getExpectedHash(algorithm)
             if (expectedHash != null) {
                 return object : Hash {
                     override val hash: String = expectedHash
@@ -592,28 +586,50 @@ open class DependencyFile(
             }
         }
 
-        // Then, try to download hash from given repositories
-        if (requestedLevel != ResolutionLevel.LOCAL) {
-            for (hasher in hashers) {
-                val algorithm = hasher.algorithm
-                for (repository in repositories) {
-                    if (!hasher.isWellKnownBrokenHashIn(repository.url)) {
-                        val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, nestedDownloadReporter, requestedLevel)
-                        if (expectedHash != null) {
-                            return object : Hash {
-                                override val hash: String = expectedHash
-                                override val algorithm = algorithm
-                            }
-                        }
-                    }
+        if (requestedLevel != ResolutionLevel.NETWORK) {
+            diagnosticsReporter.addMessage(
+                Message(
+                    "Unable to resolve checksums of file $fileName for dependency $dependency",
+                    severity = if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR
+                )
+            )
+        }
+
+        return null
+    }
+
+    /**
+     * Downloads hash from one of the specified repositories.
+     * It tries to download sha512 checksum from all provided repositories, the first found is returned.
+     * If nothing is found, then it tries sha256, sha1 and then md5 consequently.
+     */
+    private suspend fun downloadHash(
+        repositories: List<Repository>,
+        progress: Progress,
+        cache: Cache,
+        diagnosticsReporter: DiagnosticReporter
+    ): Hash? {
+        val hashers = createHashers()
+
+        val nestedDownloadReporter = CollectingDiagnosticReporter()
+
+        // Try to download hash from given repositories
+        for (hasher in hashers) {
+            val algorithm = hasher.algorithm
+            val validRepositories = repositories.filter { !hasher.isWellKnownBrokenHashIn(it.url) }
+            val expectedHash =
+                downloadHash(algorithm, validRepositories, progress, cache, nestedDownloadReporter)
+            if (expectedHash != null) {
+                return object : Hash {
+                    override val hash: String = expectedHash
+                    override val algorithm = algorithm
                 }
             }
         }
 
         diagnosticsReporter.addMessage(
             Message(
-                "Unable to ${if (requestedLevel == ResolutionLevel.NETWORK) "download" else "resolve"} " +
-                        "checksums of file $fileName for dependency $dependency",
+                "Unable to download checksums of file $fileName for dependency $dependency",
                 repositories.joinToString(),
                 if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
                 suppressedMessages = nestedDownloadReporter.diagnostics
@@ -621,9 +637,6 @@ open class DependencyFile(
 
         return null
     }
-
-    private fun Collection<Hasher>.filterWellKnownBrokenHashes(repository: String) =
-        filterNot { it.isWellKnownBrokenHashIn(repository) }
 
     private fun Hasher.isWellKnownBrokenHashIn(repository: String) : Boolean {
         if (repository == "https://plugins.gradle.org/m2/") {
@@ -635,14 +648,14 @@ open class DependencyFile(
 
     enum class VerificationResult { PASSED, UNKNOWN, FAILED }
 
-    internal suspend fun getOrDownloadExpectedHash(
-        algorithm: String,
-        repository: Repository?,
-        progress: Progress,
-        cache: Cache,
-        diagnosticsReporter: DiagnosticReporter,
-        level: ResolutionLevel = ResolutionLevel.NETWORK
-    ): String? {
+    /**
+     * Tries to find hash of the given type in the local artifact storage.
+     * Being found, it is supposed to be valid (taken from a verified location).
+     * The cache calculated from the actual artifact (either downloaded or resolved from external local storage) - should match it.
+     */
+    internal suspend fun getExpectedHash(algorithm: String): String? {
+        // todo (AB) : Prefer hash from separate file if any (or better always resolve both
+        // todo (AB) : and check that at least one corresponds to the actual downloaded file hash)?
         val hashFromVariant = when (algorithm) {
             "sha512" -> fileFromVariant(dependency, fileName)?.sha512?.fixOldGradleHash(128)
             "sha256" -> fileFromVariant(dependency, fileName)?.sha256?.fixOldGradleHash(64)
@@ -658,14 +671,47 @@ open class DependencyFile(
             return hashFromGradle
         }
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
-            it.isDownloadedWithVerification(null)
-                    || level == ResolutionLevel.NETWORK
-                    && repository != null && it.download(listOf(repository), progress, cache, verify = false, diagnosticsReporter)
+            it.isDownloadedValidHash()
         }
-        val hashFromRepository = hashFile?.readText()
-        if (hashFromRepository != null) {
-            return hashFromRepository.sanitize()
+        val hashFromLocalRepository = hashFile?.readText()
+        if (hashFromLocalRepository != null) {
+            return hashFromLocalRepository.sanitize()
         }
+        return null
+    }
+
+    /**
+     * Downloads hash of a particular type from one of the specified repositories.
+     * Returns <code>null</code> if the hash was not found.
+     */
+    internal suspend fun downloadHash(
+        algorithm: String,
+        repositories: List<Repository>,
+        progress: Progress,
+        cache: Cache,
+        diagnosticsReporter: DiagnosticReporter
+    ): String? {
+        val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm")
+
+        for (repository in repositories) {
+            // We need to iterate repositories one by one, because some invalid repo could return some invalid response
+            // that will be validated and sanitized, in this case we should try other repositories
+            val expectedHashPath = produceResultWithTempFile(
+                tempDir = getTempDir(),
+                targetFileName = hashFile.fileName,
+                { hashFile.takeIf { it.isDownloadedValidHash() }?.getPath() },
+            ) { tempFilePath, fileChannel ->
+                hashFile.downloadAndVerifyHash(fileChannel, tempFilePath, listOf(repository), progress, cache, null, diagnosticsReporter)
+            }
+
+            val hashFromRepository = expectedHashPath?.readTextWithRetry()?.sanitize()
+            if (hashFromRepository != null) {
+                return hashFromRepository
+            } else {
+                expectedHashPath?.deleteIfExistsWithLogging("Successfully deleted invalid checksum file $expectedHashPath")
+            }
+        }
+
         return null
     }
 
@@ -696,16 +742,8 @@ open class DependencyFile(
     ): Boolean {
         logger.trace("Trying to download {} from {}", nameWithoutExtension, repository)
 
-        val client = cache.computeIfAbsent(httpClientKey) {
-            java.net.http.HttpClient.newBuilder()
-                .version(Version.HTTP_1_1)
-                .followRedirects(Redirect.NORMAL)
-                .sslContext(SSLContext.getDefault())
-                .connectTimeout(Duration.ofSeconds(20))
-//                .proxy(ProxySelector.of(InetSocketAddress("proxy.example.com", 80)))
-//                .authenticator(Authenticator.getDefault())
-                .build()
-        }
+        val client = cache.computeIfAbsent(httpClientKey) { HttpClientProvider.getHttpClient() }
+
         val name = getNamePart(repository, nameWithoutExtension, extension, progress, cache, diagnosticsReporter)
         val url = repository.url.trimEnd('/') +
                 "/${dependency.group.replace('.', '/')}" +
@@ -722,7 +760,7 @@ open class DependencyFile(
             ) {
                 val request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    // Without user agent header, we don't get snapshot versions in maven-metadata.xml.
+                    // Without a user agent header, we don't get snapshot versions in maven-metadata.xml.
                     // I hope this blows your mind.
                     .header(HttpHeaders.UserAgent, "JetBrains Amper")
                     .withBasicAuth(repository)
@@ -831,7 +869,7 @@ open class DependencyFile(
             val algorithm = hasher.algorithm
             val actualHash = hasher.hash
             if (expectedHash.algorithm != algorithm) {
-                error("Expected hash type is ${expectedHash.hash}, but $algorithm was calculated") // should never happen
+                error("Expected hash type is ${expectedHash.algorithm}, but $algorithm was calculated") // should never happen
             } else if (!expectedHash.hash.equals(actualHash,true)) {
                 diagnosticsReporter?.addMessage(
                     Message(
@@ -889,7 +927,7 @@ class SnapshotDependencyFile(
         return snapshotVersion.takeIf { it?.isNotEmpty() == true }
     }
 
-    override suspend fun isDownloaded(): Boolean = withContext(Dispatchers.IO) { isSnapshotDownloaded() }
+    override suspend fun isDownloaded(): Boolean = isSnapshotDownloaded()
 
     private suspend fun isSnapshotDownloaded(): Boolean {
         val path = getPath()
@@ -1006,7 +1044,62 @@ fun <T> resolveSafeOrNull(block: () -> T?): T? {
     }
 }
 
-internal val httpClientKey = Key<java.net.http.HttpClient>("httpClient")
+/**
+ * This is a way to inject custom HttpClient via resolution [Context].
+ * The injected client is not closed after resolution is finished;
+ * it is a responsibility of the calling side that provides the custom client to handle its lifecycle.
+ *
+ * If the [Context] doesn't provide a custom client, then the default one is taken from [HttpClientProvider]
+ */
+internal val httpClientKey = Key<HttpClient>("httpClient")
+
+internal object HttpClientProvider {
+
+    @kotlin.concurrent.Volatile
+    var client: HttpClient? = null
+
+    fun getHttpClient(): HttpClient = client
+        ?: synchronized(this) {
+            client
+                ?: HttpClient.newBuilder()
+                    .version(Version.HTTP_2)
+                    .followRedirects(Redirect.NORMAL)
+                    .sslContext(SSLContext.getDefault())
+                    .connectTimeout(Duration.ofSeconds(20))
+//                .proxy(ProxySelector.of(InetSocketAddress("proxy.example.com", 80)))
+//                .authenticator(Authenticator.getDefault())
+                    .build()
+                    .also { client = it }
+        }
+
+    /**
+     * This is unsued now but left for the reference for future.
+     * It might be a good practice to reinitialize HTTP Client from time to time after an idle period for
+     * the connections leak prophylactics,
+     * and in that case the old instance of a client should be properly shutdown.
+     */
+    private fun closeHttpClient() {
+        val client = this.client
+        this.client = null
+        try {
+            // In java 21 HttpClient is AutoClosable,
+            // but it has an issue that prevents it from shutting down https://bugs.openjdk.org/browse/JDK-8316580
+            // Calling 'HttpClient.shutdownNow' is a workaround
+            client
+                ?.let {
+                    HttpClient::class.java.declaredMethods.firstOrNull { it.name == "shutdownNow" && it.parameterTypes.isEmpty() }
+                        ?: HttpClient::class.java.declaredMethods.firstOrNull { it.name == "shutdown" && it.parameterTypes.isEmpty() }
+                }
+                ?.let {
+                    logger.debug("Calling ${it.declaringClass.name}.${it.name} (on closing DR context)")
+                    it.invoke(client)
+                }
+                ?: (client as? AutoCloseable)?.close()
+        } catch (e: Exception) {
+            logger.warn("Failed to close DR context resource", e)
+        }
+    }
+}
 
 internal interface DiagnosticReporter {
     fun addMessage(message: Message): Boolean

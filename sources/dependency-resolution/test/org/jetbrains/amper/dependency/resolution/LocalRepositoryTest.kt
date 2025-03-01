@@ -184,7 +184,6 @@ class LocalRepositoryTest: BaseDRTest() {
         val cacheBuilder = withLocalRepository(cacheRoot, localExternalRepository)
         val cache = FileCacheBuilder(cacheBuilder).build()
         val context = context(ResolutionScope.COMPILE, cacheBuilder = cacheBuilder)
-
         val httpClient = createTestHttpClient(
             filesThatShouldNotBeDownloaded.map { "$urlPrefix/$it" }
         )
@@ -204,13 +203,15 @@ class LocalRepositoryTest: BaseDRTest() {
             doTest(
                 root,
                 expected = """root
-        |\--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2""".trimMargin()
+                        |\--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2""".trimMargin()
             )
         }
 
         assertTrue(
-            (cache.localRepository as MavenLocalRepository).repository.resolve("org/jetbrains/kotlinx/atomicfu-jvm").exists(),
-            "Local repository should not contain atomicfu-jvm")
+            (cache.localRepository as MavenLocalRepository).repository.resolve("org/jetbrains/kotlinx/atomicfu-jvm")
+                .exists(),
+            "Local repository should not contain atomicfu-jvm"
+        )
 
         runBlocking {
             downloadAndAssertFiles("""atomicfu-jvm-0.23.2.jar""".trimMargin(), root)

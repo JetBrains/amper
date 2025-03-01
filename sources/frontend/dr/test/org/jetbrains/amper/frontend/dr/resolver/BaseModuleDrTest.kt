@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
+import org.jetbrains.amper.dependency.resolution.detailedMessage
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
@@ -34,7 +35,7 @@ abstract class BaseModuleDrTest {
         fragment: String? = null,
         messagesCheck: (DependencyNode) -> Unit = { node ->
             val messages = node.messages.defaultFilterMessages()
-            assertTrue(messages.isEmpty(), "There must be no messages for $this: $messages")
+            assertTrue(messages.isEmpty(), "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}")
         }
     ): DependencyNode {
         val resolutionInputCopy = resolutionInput.copy(fileCacheBuilder = cacheBuilder(Dirs.userCacheRoot))
@@ -92,7 +93,7 @@ abstract class BaseModuleDrTest {
         files: String, root: DependencyNode,
         withSources: Boolean = false,
         checkExistence: Boolean = false,// could be set to true only in case dependency files were downloaded by caller already
-        checkAutoAddedDocumentation: Boolean = true // auto added documentation files are skipped fom check if this flag is false.
+        checkAutoAddedDocumentation: Boolean = true // auto-added documentation files are skipped fom check if this flag is false.
     ) {
         root.distinctBfsSequence()
             .filterIsInstance<MavenDependencyNode>()
@@ -118,5 +119,13 @@ abstract class BaseModuleDrTest {
 
         fun List<Message>.defaultFilterMessages(): List<Message> =
             filter { "Downloaded " !in it.text && "Resolved " !in it.text }
+
+        internal fun DependencyNode.verifyOwnMessages(filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }) {
+            val messages = this.messages.filterMessages()
+            assertTrue(
+                messages.isEmpty(),
+                "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}"
+            )
+        }
     }
 }

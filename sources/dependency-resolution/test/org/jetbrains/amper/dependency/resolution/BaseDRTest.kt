@@ -26,10 +26,7 @@ abstract class BaseDRTest {
         resolver.buildGraph(root, ResolutionLevel.NETWORK)
         root.verifyGraphConnectivity()
         if (verifyMessages) {
-            root.distinctBfsSequence().forEach {
-                val messages = it.messages.filterMessages()
-                assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
-            }
+            root.verifyMessages(filterMessages)
         }
         expected?.let { assertEquals(expected, root) }
         return root
@@ -64,7 +61,17 @@ abstract class BaseDRTest {
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
-    ): DependencyNode = doTest(testInfo, listOf(dependency), scope, platform, repositories, verifyMessages, expected, cacheBuilder, filterMessages)
+    ): DependencyNode = doTest(
+        testInfo,
+        listOf(dependency),
+        scope,
+        platform,
+        repositories,
+        verifyMessages,
+        expected,
+        cacheBuilder,
+        filterMessages
+    )
 
 
     protected fun doTest(
@@ -77,7 +84,17 @@ abstract class BaseDRTest {
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
-    ): DependencyNode = doTestImpl(testInfo, dependency, scope, platform, repositories.toRepositories(), verifyMessages, expected, cacheBuilder, filterMessages)
+    ): DependencyNode = doTestImpl(
+        testInfo,
+        dependency,
+        scope,
+        platform,
+        repositories.toRepositories(),
+        verifyMessages,
+        expected,
+        cacheBuilder,
+        filterMessages
+    )
 
 
     protected fun context(
@@ -112,7 +129,7 @@ abstract class BaseDRTest {
         kotlin.test.assertEquals(expected, root.prettyPrint().trimEnd())
 
     protected fun List<String>.toRootNode(context: Context) =
-        DependencyNodeHolder(name ="root", children = map { it.toMavenNode(context) }, context)
+        DependencyNodeHolder(name = "root", children = map { it.toMavenNode(context) }, context)
 
     private fun String.toMavenNode(context: Context): MavenDependencyNode {
         val (group, module, version) = split(":")
@@ -123,7 +140,7 @@ abstract class BaseDRTest {
         files: String, root: DependencyNode,
         withSources: Boolean = false,
         checkExistence: Boolean = false,// could be set to true only in case dependency files were downloaded by caller already
-        checkAutoAddedDocumentation: Boolean = true // auto added documentation files are skipped fom check if this flag is false.
+        checkAutoAddedDocumentation: Boolean = true // auto-added documentation files are skipped fom check if this flag is false.
     ) {
         root.distinctBfsSequence()
             .filterIsInstance<MavenDependencyNode>()
@@ -144,19 +161,50 @@ abstract class BaseDRTest {
             }
     }
 
-    protected suspend fun downloadAndAssertFiles(files: String, root: DependencyNode, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true) {
+    protected suspend fun downloadAndAssertFiles(
+        files: String, root: DependencyNode, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true,
+        verifyMessages: Boolean = false, filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+    ) {
         Resolver().downloadDependencies(root, withSources)
-        assertFiles(files, root, withSources, checkExistence = true, checkAutoAddedDocumentation = checkAutoAddedDocumentation)
+        if (verifyMessages) {
+            root.verifyMessages(filterMessages)
+        }
+        assertFiles(files, root, withSources, checkExistence = true,  checkAutoAddedDocumentation = checkAutoAddedDocumentation)
     }
 
     companion object {
         internal const val REDIRECTOR_MAVEN_CENTRAL = "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2"
         internal const val REDIRECTOR_MAVEN_GOOGLE = "https://cache-redirector.jetbrains.com/maven.google.com"
-        internal const val REDIRECTOR_DL_GOOGLE_ANDROID = "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2"
-        internal const val REDIRECTOR_COMPOSE_DEV = "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev"
-        internal const val REDIRECTOR_JETBRAINS_KPM_PUBLIC = "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public"
+        internal const val REDIRECTOR_DL_GOOGLE_ANDROID =
+            "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2"
+        internal const val REDIRECTOR_COMPOSE_DEV =
+            "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev"
+        internal const val REDIRECTOR_JETBRAINS_KPM_PUBLIC =
+            "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public"
 
         fun List<Message>.defaultFilterMessages(): List<Message> =
-            filter { "Downloaded " !in it.text && "Resolved " !in it.text }
+            filter { it.severity > Severity.INFO }
+
+        internal fun DependencyNode.verifyMessages(filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }) {
+            distinctBfsSequence().forEach {
+                it.verifyOwnMessages(filterMessages)
+            }
+        }
+
+        internal fun DependencyNode.verifyOwnMessages(filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }) {
+            val messages = this.messages.filterMessages()
+            assertTrue(
+                messages.isEmpty(),
+                "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}"
+            )
+        }
+
+        internal fun MavenDependency.verifyOwnMessages(filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }) {
+            val messages = this.messages.filterMessages()
+            assertTrue(
+                messages.isEmpty(),
+                "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}"
+            )
+        }
     }
 }

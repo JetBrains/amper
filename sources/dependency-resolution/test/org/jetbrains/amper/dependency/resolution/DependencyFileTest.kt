@@ -8,6 +8,9 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_COMPOSE_DEV
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_MAVEN_CENTRAL
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_MAVEN_GOOGLE
+import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.defaultFilterMessages
+import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyMessages
+import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyOwnMessages
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -66,7 +69,7 @@ class DependencyFileTest {
             assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(gradleLocalPath) })
 
             val downloaded = runBlocking { dependencyFile.isDownloaded() }
-            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksumLocally() }
             assertTrue(dependency.messages.isEmpty(), "There must be no messages: ${dependency.messages}")
             assertTrue(downloaded, "File must be downloaded as it was created above")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
@@ -90,8 +93,7 @@ class DependencyFileTest {
                 dependency.resolveChildren(context, ResolutionLevel.NETWORK)
                 dependency.downloadDependencies(context)
             }
-            val messages = dependency.messages.filter { "Downloaded " !in it.text }
-            assertTrue(messages.isEmpty(), "There must be no messages for $dependency: $messages")
+            dependency.verifyOwnMessages()
         }
     }
 
@@ -113,7 +115,7 @@ class DependencyFileTest {
                 dependency.resolveChildren(context, ResolutionLevel.NETWORK)
                 dependency.downloadDependencies(context)
             }
-            val messages = dependency.messages.filter { "Downloaded " !in it.text }
+            val messages = dependency.messages.defaultFilterMessages()
             assertEquals(
                 setOf("Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 ($REDIRECTOR_MAVEN_CENTRAL, $REDIRECTOR_COMPOSE_DEV)"),
                 messages.map{ it.message }.toSet(),
@@ -148,7 +150,7 @@ class DependencyFileTest {
                 dependency.resolveChildren(context, ResolutionLevel.LOCAL)
                 dependency.downloadDependencies(context)
             }
-            val messages = dependency.messages.filter { "Downloaded " !in it.text }.map{ it.message }.toSet()
+            val messages = dependency.messages.defaultFilterMessages().map{ it.message }.toSet()
             assertEquals(
                 setOf("Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 ($REDIRECTOR_MAVEN_CENTRAL, $REDIRECTOR_COMPOSE_DEV)"),
                 messages,
@@ -183,15 +185,15 @@ class DependencyFileTest {
                 resolver.downloadDependencies(root)
             }
             root.distinctBfsSequence().forEach {
-                val messages = it.messages.filter { "Downloaded " !in it.text }
                 if (it is MavenDependencyNode && it.module == "skiko-awt") {
+                    val messages = it.messages.defaultFilterMessages()
                     assertEquals(1, messages.size,
                         "There must be the only error messages instead of ${messages.size}: $messages")
                     assertEquals(messages.single().detailedMessage,
                         "No variant for the platform macosArm64 is provided by the library org.jetbrains.skiko:skiko-awt:0.8.22",
                         "Unexpected error message")
                 } else {
-                    assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
+                    it.verifyOwnMessages()
                 }
             }
         }
@@ -222,10 +224,7 @@ class DependencyFileTest {
                 resolver.buildGraph(root)
                 resolver.downloadDependencies(root)
             }
-            root.distinctBfsSequence().forEach {
-                val messages = it.messages.filter { "Downloaded " !in it.text }
-                assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
-            }
+            root.verifyMessages()
         }
     }
 
@@ -271,10 +270,7 @@ class DependencyFileTest {
                     resolver.buildGraph(root)
                     resolver.downloadDependencies(root)
                 }
-                root.distinctBfsSequence().forEach {
-                    val messages = it.messages.filter { "Downloaded " !in it.text }
-                    assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
-                }
+                root.verifyMessages()
             }
         }
     }
@@ -303,10 +299,7 @@ class DependencyFileTest {
                     resolver.buildGraph(root)
                     resolver.downloadDependencies(root)
                 }
-                root.distinctBfsSequence().forEach {
-                    val messages = it.messages.filter { "Downloaded " !in it.text }
-                    assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
-                }
+                root.verifyMessages()
             }
         }
     }
@@ -359,7 +352,7 @@ class DependencyFileTest {
             assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(mavenLocalPath) })
 
             val downloaded = runBlocking { dependencyFile.isDownloaded() }
-            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksumLocally() }
             assertTrue(downloaded, "File must be downloaded as it was created above")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
         }
@@ -392,19 +385,19 @@ class DependencyFileTest {
             assertTrue(path.startsWith(mavenLocalPath))
 
             val downloaded = runBlocking { dependencyFile.isDownloaded() }
-            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksumLocally() }
             assertTrue(downloaded, "File must have be downloaded")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was just downloaded")
 
             // Update the locally stored file so that its checksum is no longer correct
             path.appendText("Now artifact from local storage have incorrect checksum and should be re-downloaded")
-            val hasMatchingChecksumAfterCorruption = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            val hasMatchingChecksumAfterCorruption = runBlocking { dependencyFile.hasMatchingChecksumLocally() }
             assertFalse (hasMatchingChecksumAfterCorruption, "File was corrupted, checksum check should have failed")
 
             // Check that artifact was successfully re-downloaded
             runBlocking { Resolver().downloadDependencies(dependencyNode) }
             assertTrue(dependencyNode.dependency.messages.none { it.severity == Severity.ERROR }, "There must be no errors: ${dependencyNode.dependency.messages}")
-            val hasMatchingChecksumAfterReDownloading = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            val hasMatchingChecksumAfterReDownloading = runBlocking { dependencyFile.hasMatchingChecksumLocally() }
             assertTrue(hasMatchingChecksumAfterReDownloading, "File must have been re-downloaded and should have valid checksum")
         }
     }
@@ -436,13 +429,13 @@ class DependencyFileTest {
             assertTrue(path.startsWith(mavenLocalPath))
 
             val downloaded = runBlocking { dependencyFile.isDownloaded() }
-            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksumLocally() }
             assertTrue(downloaded, "File must have be downloaded")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was just downloaded")
 
             // Update the locally stored file so that its checksum is no longer correct
             path.appendText("Now artifact from local storage have incorrect checksum and should be re-downloaded")
-            val hasMatchingChecksumAfterCorruption = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            val hasMatchingChecksumAfterCorruption = runBlocking { dependencyFile.hasMatchingChecksumLocally() }
             assertFalse (hasMatchingChecksumAfterCorruption, "File was corrupted, checksum check should have failed")
 
             val dependencyNodeDuplicate = MavenDependencyNode(context,
@@ -457,7 +450,7 @@ class DependencyFileTest {
             // Check that artifact was successfully re-downloaded after NETWORK run and no errors are left
             runBlocking { Resolver().buildGraph(dependencyNodeDuplicate, level = ResolutionLevel.NETWORK) }
             assertTrue(dependencyNodeDuplicate.dependency.messages.none { it.severity == Severity.ERROR }, "There must be no errors: ${dependencyNodeDuplicate.dependency.messages}")
-            val hasMatchingChecksumAfterReDownloading = runBlocking { dependencyFileDuplicate.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            val hasMatchingChecksumAfterReDownloading = runBlocking { dependencyFileDuplicate.hasMatchingChecksumLocally() }
             assertTrue(hasMatchingChecksumAfterReDownloading, "File must have been re-downloaded and should have valid checksum")
         }
     }
@@ -488,7 +481,7 @@ class DependencyFileTest {
             assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(mavenLocalPath) })
 
             val downloaded = runBlocking { dependencyFile.isDownloaded() }
-            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksumLocally() }
             assertTrue(downloaded, "File must be downloaded as it was created above")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
         }

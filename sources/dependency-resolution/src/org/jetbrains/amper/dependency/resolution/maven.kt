@@ -975,9 +975,7 @@ class MavenDependency internal constructor(
         val module = kmpMetadataFile.dependency.module
         val version = kmpMetadataFile.dependency.version
         // kmpMetadataFile hash
-        val sha1 = kmpMetadataFile.getOrDownloadExpectedHash(
-            "sha1", null, context.settings.progress, context.resolutionCache, diagnosticsReporter, level
-        )
+        val sha1 = kmpMetadataFile.getExpectedHash("sha1")
             ?: kmpMetadataFile.getPath()?.let {
                 computeHash(it, "sha1").hash
             }
@@ -1358,7 +1356,7 @@ class MavenDependency internal constructor(
             }
 
     private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context, diagnosticsReporter: DiagnosticReporter) =
-        isDownloaded() && hasMatchingChecksum(level, context, diagnosticsReporter)
+        isDownloaded() && hasMatchingChecksumLocally(diagnosticsReporter, level)
                 || level == ResolutionLevel.NETWORK && download(context, diagnosticsReporter)
 
     private val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant>
@@ -1384,7 +1382,7 @@ class MavenDependency internal constructor(
             .filter {
                 (context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
                         || it.kmpSourceSet == null) // (except for artifact with all sources that is not marked with any kmpSourceSet)
-                        && !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context))
+                        && !(it.isDownloaded() && it.hasMatchingChecksumLocally())
             }
 
         notDownloaded.forEach {
