@@ -1383,7 +1383,7 @@ class   MavenDependency internal constructor(
         isDownloaded() && hasMatchingChecksumLocally(diagnosticsReporter, level)
                 || level == ResolutionLevel.NETWORK && download(context, diagnosticsReporter)
 
-    private val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant>
+    internal val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant>
         get() = filterNot { it.isDocumentationOrMetadata }
 
     private val Variant.isDocumentationOrMetadata: Boolean
