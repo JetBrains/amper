@@ -7,7 +7,9 @@
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.diagnostics.setAmperModule
@@ -17,6 +19,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
@@ -124,11 +127,20 @@ class ResolveExternalDependenciesTask(
                         val compileClasspath = root.children[0].dependencyPaths()
                         val runtimeClasspath = if (root.children.size == 2) root.children[1].dependencyPaths() else emptyList()
 
+                        val compileDirectSinglePlatformDependencies = root.children[0].children.getDirectDependenciesPublicationInfo()
+                        val runtimeDirectSinglePlatformDependencies = if (root.children.size == 2)
+                            root.children[1].children.getDirectDependenciesPublicationInfo(
+                                directDependencyCondition = { notation?.compile == false }
+                            )
+                        else emptyList()
+
                         return@execute ExecuteOnChangedInputs.ExecutionResult(
                             (compileClasspath + runtimeClasspath).toSet().sorted(),
                             outputProperties = mapOf(
                                 "compile" to compileClasspath.joinToString(File.pathSeparator),
                                 "runtime" to runtimeClasspath.joinToString(File.pathSeparator),
+                                "publicationInfo" to (compileDirectSinglePlatformDependencies + runtimeDirectSinglePlatformDependencies)
+                                    .joinToString(File.pathSeparator)
                             ),
                         )
                     }
@@ -158,6 +170,8 @@ class ResolveExternalDependenciesTask(
                 val runtimeClasspath =
                     result.outputProperties["runtime"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
                         .map { Path(it) }
+                val publicationInfo =
+                    result.outputProperties["publicationInfo"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
 
                 logger.debug("resolve dependencies ${module.userReadableName} -- " +
                         "${fragments.userReadableList()} -- " +
@@ -172,19 +186,43 @@ class ResolveExternalDependenciesTask(
                         }"
                 )
 
-                // todo (AB) : output should contain placehoder for every module (in a correct place in the list!!!
+                // todo (AB) : output should contain placeholder for every module (in a correct place in the list!!!
                 // todo (AB) : It might be replaced with the path to compiled module later in order to form complete correctly ordered classpath)
                 Result(
                     compileClasspath = compileClasspath,
                     runtimeClasspath = runtimeClasspath,
+                    publicationInfo = publicationInfo,
                 )
             }
 
     }
 
+    private fun List<DependencyNode>.getDirectDependenciesPublicationInfo(
+        directDependencyCondition: DirectFragmentDependencyNodeHolder.() -> Boolean = { true }
+    ): List<String> = this
+        .filterIsInstance<DirectFragmentDependencyNodeHolder>()
+        .filter { it.dependencyNode is MavenDependencyNode }
+        .filter { it.directDependencyCondition() }
+        .mapNotNull { directMavenDependency ->
+            val node = directMavenDependency.dependencyNode as MavenDependencyNode
+            directMavenDependency.notation?.let { notation ->
+                val coordinatesOriginal = node.getOriginalMavenCoordinates()
+                val coordinatesForPublishing = node.getMavenCoordinatesForPublishing()
+                if (coordinatesOriginal != coordinatesForPublishing) {
+                    "$coordinatesOriginal=[" +
+                            "coordinates=$coordinatesForPublishing," +
+                            "compile=${notation.compile}," +
+                            "runtime=${notation.runtime}," +
+                            "exported=${notation.exported}" +
+                            "]"
+                } else null
+            }
+        }
+
     class Result(
         val compileClasspath: List<Path>,
         val runtimeClasspath: List<Path>,
+        val publicationInfo: List<String> = emptyList(),
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

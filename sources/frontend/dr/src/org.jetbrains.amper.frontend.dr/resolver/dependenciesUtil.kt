@@ -11,10 +11,10 @@ import org.jetbrains.amper.dependency.resolution.AmperDependencyResolutionExcept
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.MavenDependency
-import org.jetbrains.amper.frontend.SchemaBundle
 import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
 
@@ -139,25 +139,9 @@ internal fun MavenDependency.parseCoordinates(): MavenCoordinates {
 }
 
 fun MavenDependencyNode.mavenCoordinates(suffix: String? = null): MavenCoordinates {
-    return MavenCoordinates(
-        groupId = this.dependency.group,
-        artifactId = if (suffix == null) dependency.module else "${dependency.module}:${suffix}",
-        version = this.dependency.version,
-    )
-}
-
-/**
- * Describes coordinates of a Maven artifact.
- */
-data class MavenCoordinates(
-    val groupId: String,
-    val artifactId: String,
-    val version: String,
-    val classifier: String? = null
-) {
-    override fun toString(): String {
-        return "$groupId:$artifactId:$version${if (classifier != null) ":$classifier" else ""}"
-    }
+    return this.dependency
+        .coordinates
+        .let { if (suffix == null) it else it.copy(artifactId = "${it.artifactId}:${suffix}") }
 }
 
 fun getDefaultAmperFileCacheBuilder(): FileCacheBuilder.() -> Unit = getAmperFileCacheBuilder(AmperUserCacheRoot.fromCurrentUser())

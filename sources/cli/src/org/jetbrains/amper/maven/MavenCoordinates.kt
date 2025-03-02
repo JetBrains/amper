@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.maven
 
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 
 internal fun AmperModule.publicationCoordinates(platform: Platform): MavenCoordinates = when {
     // for JVM-only libraries, we use the root publication format (without -jvm suffix)

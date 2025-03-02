@@ -17,7 +17,6 @@ import java.io.File
 import kotlin.io.path.fileSize
 import kotlin.io.path.name
 import kotlin.io.path.relativeTo
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

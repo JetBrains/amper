@@ -572,6 +572,30 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
+    fun `jvm resolve dependencies task provide direct dependencies info`() = runTestWithCollector {
+        val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish")
+        groupDir.deleteRecursively()
+
+        val projectContext = setupTestDataProject("jvm-publish")
+        val backend = AmperBackend(projectContext)
+        val result = backend.runTask(TaskName(":jvm-publish:resolveDependenciesJvm"))
+            ?.getOrNull() as? ResolveExternalDependenciesTask.Result
+
+        assertNotNull(result, "resolveDependenciesJvm task must succeed and return a result object")
+        assertEquals(
+            listOf(
+                "io.ktor:ktor-client-core:2.3.9=[coordinates=io.ktor:ktor-client-core-jvm:2.3.9,compile=true,runtime=true,exported=true]",
+                "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.6.3=[coordinates=org.jetbrains.kotlinx:kotlinx-serialization-cbor-jvm:1.6.3,compile=true,runtime=false,exported=true]",
+                "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0=[coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1,compile=true,runtime=true,exported=false]",
+                "org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3=[coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.3,compile=true,runtime=true,exported=false]",
+                "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3=[coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3,compile=true,runtime=false,exported=false]",
+                "io.ktor:ktor-client-java:2.3.9=[coordinates=io.ktor:ktor-client-java-jvm:2.3.9,compile=false,runtime=true,exported=false]"
+            ).joinToString("\n"),
+            result.publicationInfo.joinToString("\n")
+        )
+    }
+
+    @Test
     fun `jvm publish to maven local`() = runTestWithCollector {
         val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish")
         groupDir.deleteRecursively()

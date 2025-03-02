@@ -6,7 +6,7 @@ package org.jetbrains.amper.maven
 
 import org.eclipse.aether.artifact.Artifact
 import org.eclipse.aether.artifact.DefaultArtifact
-import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import java.nio.file.Path
 import kotlin.io.path.extension
 

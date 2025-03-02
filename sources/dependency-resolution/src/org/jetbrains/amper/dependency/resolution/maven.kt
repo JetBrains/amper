@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory
 import parseSettings
 import java.nio.file.Path
 import java.util.concurrent.CancellationException
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -130,6 +129,27 @@ class MavenDependencyNode internal constructor(
     private fun DependencyNode.isDescendantOf(parent: DependencyNode): Boolean {
         return parents.any { it.key == parent.key }
                 || parents.any { it.isDescendantOf(parent) }
+    }
+
+    fun getOriginalMavenCoordinates(): MavenCoordinates = dependency.coordinates.copy(version = version)
+
+    fun getMavenCoordinatesForPublishing(): MavenCoordinates {
+        if (context.settings.platforms.size == 1) {
+            if (dependency.files(false).isEmpty()) { // todo (AB) : Replace with isKmpLibrary() condition
+                val childrenOriginalCoordinates = children
+                    .filterIsInstance<MavenDependencyNode>()
+                    .mapNotNull { nested ->
+                        nested.originalVersion()?.let { nested.dependency.coordinates.copy(version = it) }
+                    }
+                val singlePlatformCoordinates = with (dependency) { variants.withoutDocumentationAndMetadata }
+                    .mapNotNull { it.`available-at`?.toCoordinates() }
+                    .singleOrNull { it in childrenOriginalCoordinates }
+
+                if (singlePlatformCoordinates != null) return singlePlatformCoordinates
+            }
+        }
+
+        return getOriginalMavenCoordinates()
     }
 }
 
@@ -261,12 +281,16 @@ data class MavenDependencyConstraint(
  *
  * @see [DependencyFile]
  */
-class MavenDependency internal constructor(
+class   MavenDependency internal constructor(
     val settings: Settings,
-    val group: String,
-    val module: String,
-    val version: String
+    val coordinates: MavenCoordinates
 ) {
+    internal constructor(settings: Settings, groupId: String, artifactId: String, version: String)
+            : this(settings, MavenCoordinates(groupId, artifactId, version))
+
+    val group: String = coordinates.groupId
+    val module: String = coordinates.artifactId
+    val version: String = coordinates.version
 
     @Volatile
     var state: ResolutionState = ResolutionState.INITIAL
@@ -1119,7 +1143,7 @@ class MavenDependency internal constructor(
     ): List<Variant> {
         val initiallyFilteredVariants = module
             .variants
-            // todo (AB) : Why filtering against capabilities?
+            // todo (AB) : Why filtering against capabilities? See https://github.com/gradlex-org/jvm-dependency-conflict-resolution
             .filter { it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions() }
             .filter { nativeTargetMatches(it, platform) }
 
@@ -1439,6 +1463,22 @@ class MavenDependency internal constructor(
     private fun DependencyFile.isSourcesDependencyFile(): Boolean =
         !files(withSources = false).map { it.fileName }.contains(this.fileName)
 }
+
+/**
+ * Describes coordinates of a Maven artifact.
+ */
+data class MavenCoordinates(
+    val groupId: String,
+    val artifactId: String,
+    val version: String,
+    val classifier: String? = null
+) {
+    override fun toString(): String {
+        return "$groupId:$artifactId:$version${if (classifier != null) ":$classifier" else ""}"
+    }
+}
+
+internal fun AvailableAt.toCoordinates() = MavenCoordinates(group, module, version)
 
 private fun Dependency.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
 
