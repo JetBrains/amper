@@ -140,7 +140,7 @@ class ResolveExternalDependenciesTask(
                                 "compile" to compileClasspath.joinToString(File.pathSeparator),
                                 "runtime" to runtimeClasspath.joinToString(File.pathSeparator),
                                 "publicationInfo" to (compileDirectSinglePlatformDependencies + runtimeDirectSinglePlatformDependencies)
-                                    .joinToString(File.pathSeparator)
+                                    .joinToString(File.separator)
                             ),
                         )
                     }
@@ -171,7 +171,7 @@ class ResolveExternalDependenciesTask(
                     result.outputProperties["runtime"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
                         .map { Path(it) }
                 val publicationInfo =
-                    result.outputProperties["publicationInfo"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
+                    result.outputProperties["publicationInfo"]!!.split(File.separator).filter { it.isNotEmpty() }
 
                 logger.debug("resolve dependencies ${module.userReadableName} -- " +
                         "${fragments.userReadableList()} -- " +
