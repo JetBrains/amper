@@ -6,7 +6,8 @@ package org.jetbrains.amper.maven
 import org.apache.maven.model.Dependency
 import org.apache.maven.model.Model
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer
-import org.codehaus.plexus.util.WriterFactory
+import org.codehaus.plexus.util.xml.XmlStreamWriter
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.LocalModuleDependency
@@ -18,10 +19,15 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-fun Path.writePomFor(module: AmperModule, platform: Platform, gradleMetadataComment: Boolean) {
-    val model = generatePomModel(module, platform)
-    
-    WriterFactory.newXmlWriter(toFile()).use { writer ->
+fun Path.writePomFor(
+    module: AmperModule,
+    platform: Platform,
+    publicationCoordsOverrides: PublicationCoordinatesOverrides,
+    gradleMetadataComment: Boolean,
+) {
+    val model = generatePomModel(module, platform, publicationCoordsOverrides)
+
+    XmlStreamWriter(toFile()).use { writer ->
         MavenXpp3Writer().write(writer, model)
     }
 
@@ -52,7 +58,11 @@ private fun Path.insertGradleMetadataComment() {
     writeText(contentWithGradleMetadataComment)
 }
 
-private fun generatePomModel(module: AmperModule, platform: Platform): Model {
+private fun generatePomModel(
+    module: AmperModule,
+    platform: Platform,
+    publicationCoordsOverrides: PublicationCoordinatesOverrides,
+): Model {
     val coords = module.publicationCoordinates(platform)
     val fragment = module.singleProductionFragmentOrNull(platform)
         ?: error("Cannot generate pom for module '${module.userReadableName}': expected a single fragment for platform $platform")
@@ -71,7 +81,7 @@ private fun generatePomModel(module: AmperModule, platform: Platform): Model {
     model.artifactId = coords.artifactId
     model.version = coords.version
 
-    model.dependencies.addAll(dependencies.map { it.toPomDependency(platform) })
+    model.dependencies.addAll(dependencies.map { it.toPomDependency(platform, publicationCoordsOverrides) })
 
     // TODO add description for Maven Central compatibility
     // TODO add url for Maven Central compatibility
@@ -82,8 +92,11 @@ private fun generatePomModel(module: AmperModule, platform: Platform): Model {
     return model
 }
 
-private fun Notation.toPomDependency(platform: Platform): Dependency = when (this) {
-    is MavenDependency -> toPomDependency()
+private fun Notation.toPomDependency(
+    platform: Platform,
+    publicationCoordsOverrides: PublicationCoordinatesOverrides,
+): Dependency = when (this) {
+    is MavenDependency -> toPomDependency(publicationCoordsOverrides)
     is LocalModuleDependency -> toPomDependency(platform)
     is DefaultScopedNotation -> error("Dependency type ${this::class.simpleName} is not supported for pom.xml publication")
 }
@@ -105,18 +118,29 @@ private fun AmperModule.singleProductionFragmentOrNull(platform: Platform) = if 
     leafFragments.singleOrNull { !it.isTest && it.platforms == setOf(platform) }
 }
 
-private fun MavenDependency.toPomDependency(): Dependency {
-    // TODO the knowledge of this representation should live in the frontend only, and the components should be
-    //  accessible in a type-safe way directly on the MavenDependency type.
-    val parts = coordinates.value.split(":")
+private fun MavenDependency.toPomDependency(publicationCoordsOverrides: PublicationCoordinatesOverrides): Dependency {
+    val coords = readMavenCoordinates()
+    val effectiveCoordinates = publicationCoordsOverrides.actualCoordinatesFor(coords)
 
     val dependency = Dependency()
-    dependency.groupId = parts.getOrNull(0) ?: error("Missing group in dependency notation '${coordinates.value}'")
-    dependency.artifactId = parts.getOrNull(1) ?: error("Missing artifact ID in dependency notation '${coordinates.value}'")
-    dependency.version = parts.getOrNull(2) ?: error("Missing version in dependency notation '${coordinates.value}'")
-    dependency.classifier = parts.getOrNull(3)
+    dependency.groupId = effectiveCoordinates.groupId
+    dependency.artifactId = effectiveCoordinates.artifactId
+    dependency.version = effectiveCoordinates.version
+    dependency.classifier = effectiveCoordinates.classifier
     dependency.scope = mavenScopeName()
     return dependency
+}
+
+// TODO the knowledge of this representation should live in the frontend only, and the components should be
+//  accessible in a type-safe way directly on the MavenDependency type.
+private fun MavenDependency.readMavenCoordinates(): MavenCoordinates {
+    val parts = coordinates.value.split(":")
+    return MavenCoordinates(
+        groupId = parts.getOrNull(0) ?: error("Missing group in dependency notation '${coordinates.value}'"),
+        artifactId = parts.getOrNull(1) ?: error("Missing artifact ID in dependency notation '${coordinates.value}'"),
+        version = parts.getOrNull(2) ?: error("Missing version in dependency notation '${coordinates.value}'"),
+        classifier = parts.getOrNull(3),
+    )
 }
 
 /**

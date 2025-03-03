@@ -572,113 +572,6 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm resolve dependencies task provide direct dependencies info`() = runTestWithCollector {
-        val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish")
-        groupDir.deleteRecursively()
-
-        val projectContext = setupTestDataProject("jvm-publish")
-        val backend = AmperBackend(projectContext)
-        val result = backend.runTask(TaskName(":jvm-publish:resolveDependenciesJvm"))
-            ?.getOrNull() as? ResolveExternalDependenciesTask.Result
-
-        assertNotNull(result, "resolveDependenciesJvm task must succeed and return a result object")
-        assertEquals(
-            listOf(
-                "io.ktor:ktor-client-core:2.3.9=[coordinates=io.ktor:ktor-client-core-jvm:2.3.9,compile=true,runtime=true,exported=true]",
-                "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.6.3=[coordinates=org.jetbrains.kotlinx:kotlinx-serialization-cbor-jvm:1.6.3,compile=true,runtime=false,exported=true]",
-                "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0=[coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1,compile=true,runtime=true,exported=false]",
-                "org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3=[coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.3,compile=true,runtime=true,exported=false]",
-                "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3=[coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3,compile=true,runtime=false,exported=false]",
-                "io.ktor:ktor-client-java:2.3.9=[coordinates=io.ktor:ktor-client-java-jvm:2.3.9,compile=false,runtime=true,exported=false]"
-            ).joinToString("\n"),
-            result.publicationInfo.joinToString("\n")
-        )
-    }
-
-    @Test
-    fun `jvm publish to maven local`() = runTestWithCollector {
-        val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish")
-        groupDir.deleteRecursively()
-
-        val projectContext = setupTestDataProject("jvm-publish")
-        val backend = AmperBackend(projectContext)
-        backend.runTask(TaskName(":jvm-publish:publishJvmToMavenLocal"))
-
-        val files = groupDir.walk()
-            .onEach {
-                check(it.fileSize() > 0) { "File should not be empty: $it" }
-            }
-            .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
-            .sorted()
-        assertEquals(
-            """
-                artifactName/2.2/_remote.repositories
-                artifactName/2.2/artifactName-2.2-sources.jar
-                artifactName/2.2/artifactName-2.2.jar
-                artifactName/2.2/artifactName-2.2.pom
-                artifactName/maven-metadata-local.xml
-            """.trimIndent(), files.joinToString("\n")
-        )
-
-        val pom = groupDir / "artifactName/2.2/artifactName-2.2.pom"
-        assertEquals(expected = """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <modelVersion>4.0.0</modelVersion>
-              <groupId>amper.test.jvm-publish</groupId>
-              <artifactId>artifactName</artifactId>
-              <version>2.2</version>
-              <name>jvm-publish</name>
-              <dependencies>
-                <dependency>
-                  <groupId>org.jetbrains.kotlin</groupId>
-                  <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.kotlinVersion}</version>
-                  <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                  <groupId>io.ktor</groupId>
-                  <artifactId>ktor-client-core</artifactId>
-                  <version>2.3.9</version>
-                  <scope>compile</scope>
-                </dependency>
-                <dependency>
-                  <groupId>io.ktor</groupId>
-                  <artifactId>ktor-client-java</artifactId>
-                  <version>2.3.9</version>
-                  <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                  <groupId>org.jetbrains.kotlinx</groupId>
-                  <artifactId>kotlinx-coroutines-core</artifactId>
-                  <version>1.6.0</version>
-                  <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                  <groupId>org.jetbrains.kotlinx</groupId>
-                  <artifactId>kotlinx-serialization-core</artifactId>
-                  <version>1.6.3</version>
-                  <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                  <groupId>org.jetbrains.kotlinx</groupId>
-                  <artifactId>kotlinx-serialization-json</artifactId>
-                  <version>1.6.3</version>
-                  <scope>provided</scope>
-                </dependency>
-                <dependency>
-                  <groupId>org.jetbrains.kotlinx</groupId>
-                  <artifactId>kotlinx-serialization-cbor</artifactId>
-                  <version>1.6.3</version>
-                  <scope>compile</scope>
-                </dependency>
-              </dependencies>
-            </project>
-        """.trimIndent(), pom.readText().trim())
-    }
-
-    @Test
     fun `jvm publish multi-module to maven local`() = runTestWithCollector {
         val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish-multimodule")
         groupDir.deleteRecursively()
@@ -1013,7 +906,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         val projectContext = setupTestDataProject("custom-task-dependencies")
         AmperBackend(projectContext).showTasks()
 
-        assertStdoutContains("task :main-lib:publishJvmToMavenLocal -> :main-lib:jarJvm, :main-lib:sourcesJarJvm, :utils:testJvm, :main-lib:testJvm")
+        assertStdoutContains("task :main-lib:publishJvmToMavenLocal -> :main-lib:jarJvm, :main-lib:resolveDependenciesJvm, :main-lib:sourcesJarJvm, :utils:testJvm, :main-lib:testJvm")
     }
 
     private val specialCmdChars = "&()[]{}^=;!'+,`~"

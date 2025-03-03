@@ -6,6 +6,8 @@
 
 package org.jetbrains.amper.tasks
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
@@ -25,6 +27,8 @@ import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.maven.PublicationCoordinatesOverride
+import org.jetbrains.amper.maven.PublicationCoordinatesOverrides
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
@@ -124,23 +128,21 @@ class ResolveExternalDependenciesTask(
                             resolveSourceMoniker = resolveSourceMoniker,
                         )
 
-                        val compileClasspath = root.children[0].dependencyPaths()
-                        val runtimeClasspath = if (root.children.size == 2) root.children[1].dependencyPaths() else emptyList()
+                        val compileDependenciesRootNode = root.children[0]
+                        val runtimeDependenciesRootNode = if (root.children.size == 2) root.children[1] else null
 
-                        val compileDirectSinglePlatformDependencies = root.children[0].children.getDirectDependenciesPublicationInfo()
-                        val runtimeDirectSinglePlatformDependencies = if (root.children.size == 2)
-                            root.children[1].children.getDirectDependenciesPublicationInfo(
-                                directDependencyCondition = { notation?.compile == false }
-                            )
-                        else emptyList()
+                        val compileClasspath = compileDependenciesRootNode.dependencyPaths()
+                        val runtimeClasspath = runtimeDependenciesRootNode?.dependencyPaths() ?: emptyList()
+
+                        val publicationCoordsOverrides =
+                            getPublicationCoordinatesOverrides(compileDependenciesRootNode, runtimeDependenciesRootNode)
 
                         return@execute ExecuteOnChangedInputs.ExecutionResult(
                             (compileClasspath + runtimeClasspath).toSet().sorted(),
                             outputProperties = mapOf(
                                 "compile" to compileClasspath.joinToString(File.pathSeparator),
                                 "runtime" to runtimeClasspath.joinToString(File.pathSeparator),
-                                "publicationInfo" to (compileDirectSinglePlatformDependencies + runtimeDirectSinglePlatformDependencies)
-                                    .joinToString(File.separator)
+                                "publicationCoordsOverrides" to Json.encodeToString(publicationCoordsOverrides),
                             ),
                         )
                     }
@@ -170,8 +172,8 @@ class ResolveExternalDependenciesTask(
                 val runtimeClasspath =
                     result.outputProperties["runtime"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
                         .map { Path(it) }
-                val publicationInfo =
-                    result.outputProperties["publicationInfo"]!!.split(File.separator).filter { it.isNotEmpty() }
+                val publicationCoordsOverrides =
+                    Json.decodeFromString<PublicationCoordinatesOverrides>(result.outputProperties["publicationCoordsOverrides"]!!)
 
                 logger.debug("resolve dependencies ${module.userReadableName} -- " +
                         "${fragments.userReadableList()} -- " +
@@ -191,15 +193,27 @@ class ResolveExternalDependenciesTask(
                 Result(
                     compileClasspath = compileClasspath,
                     runtimeClasspath = runtimeClasspath,
-                    publicationInfo = publicationInfo,
+                    coordinateOverridesForPublishing = publicationCoordsOverrides,
                 )
             }
 
     }
 
-    private fun List<DependencyNode>.getDirectDependenciesPublicationInfo(
+    private fun getPublicationCoordinatesOverrides(
+        compileDependenciesRootNode: DependencyNode,
+        runtimeDependenciesRootNode: DependencyNode?,
+    ): PublicationCoordinatesOverrides {
+        val compileOverrides = compileDependenciesRootNode.children.getOverridesForDirectDeps()
+        val runtimeOverrides = runtimeDependenciesRootNode
+            ?.children
+            ?.getOverridesForDirectDeps(directDependencyCondition = { notation?.compile == false })
+            ?: emptyList()
+        return PublicationCoordinatesOverrides(compileOverrides + runtimeOverrides)
+    }
+
+    private fun List<DependencyNode>.getOverridesForDirectDeps(
         directDependencyCondition: DirectFragmentDependencyNodeHolder.() -> Boolean = { true }
-    ): List<String> = this
+    ): List<PublicationCoordinatesOverride> = this
         .filterIsInstance<DirectFragmentDependencyNodeHolder>()
         .filter { it.dependencyNode is MavenDependencyNode }
         .filter { it.directDependencyCondition() }
@@ -209,20 +223,20 @@ class ResolveExternalDependenciesTask(
                 val coordinatesOriginal = node.getOriginalMavenCoordinates()
                 val coordinatesForPublishing = node.getMavenCoordinatesForPublishing()
                 if (coordinatesOriginal != coordinatesForPublishing) {
-                    "$coordinatesOriginal=[" +
-                            "coordinates=$coordinatesForPublishing," +
-                            "compile=${notation.compile}," +
-                            "runtime=${notation.runtime}," +
-                            "exported=${notation.exported}" +
-                            "]"
-                } else null
+                    PublicationCoordinatesOverride(
+                        originalCoordinates = coordinatesOriginal,
+                        variantCoordinates = coordinatesForPublishing,
+                    )
+                } else {
+                    null
+                }
             }
         }
 
     class Result(
         val compileClasspath: List<Path>,
         val runtimeClasspath: List<Path>,
-        val publicationInfo: List<String> = emptyList(),
+        val coordinateOverridesForPublishing: PublicationCoordinatesOverrides = PublicationCoordinatesOverrides(),
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

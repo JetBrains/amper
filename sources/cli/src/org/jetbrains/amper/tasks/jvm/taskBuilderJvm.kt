@@ -208,7 +208,11 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         targetRepository = repository,
                         tempRoot = context.projectTempRoot,
                     ),
-                    CommonTaskType.Jar.getTaskName(module, platform, isTest = false),
+                    dependsOn = listOf(
+                        CommonTaskType.Jar.getTaskName(module, platform, isTest = false),
+                        // we need dependencies to get publication coordinate overrides (e.g. -jvm variant)
+                        CommonTaskType.Dependencies.getTaskName(module, platform, isTest = false),
+                    )
                 )
 
                 // Publish task should depend on publishing of modules which this module depends on

@@ -10,6 +10,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.Serializable
 import localRepository
 import org.jetbrains.amper.concurrency.computeHash
 import org.jetbrains.amper.concurrency.produceFileWithDoubleLockAndHash
@@ -1467,6 +1468,7 @@ class   MavenDependency internal constructor(
 /**
  * Describes coordinates of a Maven artifact.
  */
+@Serializable
 data class MavenCoordinates(
     val groupId: String,
     val artifactId: String,

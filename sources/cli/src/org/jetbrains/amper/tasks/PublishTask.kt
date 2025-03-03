@@ -30,6 +30,8 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.maven.PublicationCoordinatesOverrides
+import org.jetbrains.amper.maven.merge
 import org.jetbrains.amper.maven.publicationCoordinates
 import org.jetbrains.amper.maven.toMavenArtifact
 import org.jetbrains.amper.maven.writePomFor
@@ -122,22 +124,31 @@ class PublishTask(
     }
 
     private fun createArtifactsToDeploy(dependenciesResult: List<TaskResult>): List<Artifact> {
+        val overrides = dependenciesResult
+            .filterIsInstance<ResolveExternalDependenciesTask.Result>()
+            .map { it.coordinateOverridesForPublishing }
+            .merge()
+
         // we only publish JVM for now
         val coords = module.publicationCoordinates(Platform.JVM)
-        val pomPath = generatePomFile(module, Platform.JVM)
+        val pomPath = generatePomFile(module, Platform.JVM, overrides)
 
         // Note: this will break if we have multiple dependency tasks with the same type, because we'll try to publish
         //  different files with identical artifact coordinates (including classifier).
         return dependenciesResult.flatMap { it.toMavenArtifact(coords) } + pomPath.toMavenArtifact(coords)
     }
 
-    private fun generatePomFile(module: AmperModule, platform: Platform): Path {
+    private fun generatePomFile(
+        module: AmperModule,
+        platform: Platform,
+        overrides: PublicationCoordinatesOverrides,
+    ): Path {
         tempRoot.path.createDirectories()
         val tempPath = createTempFile(tempRoot.path, "maven-deploy", ".pom")
         tempPath.toFile().deleteOnExit() // FIXME delete the file when done with upload instead of deleteOnExit
 
         // TODO publish Gradle metadata
-        tempPath.writePomFor(module, platform, gradleMetadataComment = false)
+        tempPath.writePomFor(module, platform, overrides, gradleMetadataComment = false)
         return tempPath
     }
 
@@ -167,6 +178,7 @@ class PublishTask(
                 )
             }
         }
+        is ResolveExternalDependenciesTask.Result, // we ignore this, it's just for overrides, not extra artifacts
         is Result -> emptyList()
         else -> error("Unsupported dependency result: ${javaClass.name}")
     }
