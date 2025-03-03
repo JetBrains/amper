@@ -10,9 +10,6 @@ repositories:
   - https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies
 
 dependencies:
-  - $libs.intellij.platform.coreImpl:
-      exported: true
-  - $libs.intellij.platform.core:
-      exported: true
-  - $libs.intellij.platform.utilEx:
-      exported: true
+  - $libs.intellij.platform.coreImpl: exported
+  - $libs.intellij.platform.core: exported
+  - $libs.intellij.platform.utilEx: exported
