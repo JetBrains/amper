@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -16,35 +16,24 @@ import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import kotlin.reflect.jvm.javaField
 
 object UselessSettingValue : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId
         get() = "setting.value.overrides.nothing"
 
     context(ProblemReporterContext) override fun AmperModule.analyze() {
-        val reportedPlaces = mutableSetOf<PsiElement>()
         val visitor = object : SchemaValuesVisitor() {
+            private val reportedPlaces = mutableSetOf<PsiElement>()
+
             override fun visitValue(it: ValueBase<*>) {
                 val psiTrace = it.trace as? PsiTrace
                 val precedingValue = psiTrace?.precedingValue
                 val isDefault = precedingValue == null && it.value == it.default?.value
-                if (psiTrace != null && reportedPlaces.add(psiTrace.psiElement) && accepts(it, isDefault)) {
-                    if (isDefault || precedingValue?.value == it.value) {
-                        problemReporter.reportMessage(
-                            UselessSetting(it, precedingValue)
-                        )
-                    }
+                val matchesPreceding = precedingValue?.value == it.value
+                if (psiTrace != null && (isDefault || matchesPreceding) && reportedPlaces.add(psiTrace.psiElement)) {
+                    problemReporter.reportMessage(UselessSetting(it, precedingValue))
                 }
                 super.visitValue(it)
-            }
-
-            private fun accepts(base: ValueBase<*>, isDefault: Boolean): Boolean {
-                // a hack for the serialization settings section,
-                // its presence changes semantics, so we don't report "useless" defaults for it,
-                // see https://youtrack.jetbrains.com/issue/AMPER-910 for details
-                return !isDefault
-                        || base.property.javaField?.declaringClass?.canonicalName != "org.jetbrains.amper.frontend.schema.SerializationSettings"
             }
         }
         fragments.forEach { fragment ->
@@ -65,13 +54,15 @@ private class UselessSetting(
         UselessSettingValue.diagnosticId
 
     override val message: String
-        get() = when  {
+        get() = when {
             precedingValue?.trace == null -> SchemaBundle.message(
                 messageKey = "setting.value.is.same.as.default",
             )
+
             isInheritedFromCommon() -> SchemaBundle.message(
                 messageKey = "setting.value.is.same.as.common",
             )
+
             else -> SchemaBundle.message(
                 messageKey = "setting.value.is.same.as.base",
                 formatLocation()
@@ -80,11 +71,9 @@ private class UselessSetting(
 
     private fun formatLocation(): String? {
         val precedingPsiElement = (precedingValue?.trace as? PsiTrace)?.psiElement ?: return "default"
-        if (precedingPsiElement.containingFile?.name != "module.yaml"
-            && precedingPsiElement.containingFile?.name != "module.amper") {
-            return precedingPsiElement.containingFile?.name
-        }
-        return precedingPsiElement.containingFile.parent?.name
+        val precedingFile = precedingPsiElement.containingFile ?: return "default"
+        val precedingLocation = precedingFile.takeIf { it.name != "module.yaml" && it.name != "module.amper" } ?: precedingFile.parent
+        return precedingLocation?.name
     }
 
     private fun isInheritedFromCommon() =
