@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.test.gradle
 
-import org.gradle.tooling.BuildLauncher
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.processes.out

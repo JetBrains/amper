@@ -4,22 +4,21 @@
 
 package org.jetbrains.amper.gradle.kmpp
 
-import com.intellij.util.asSafely
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.Layout
+import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
-import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.KotlinSettings
@@ -35,15 +34,14 @@ import org.jetbrains.amper.gradle.closureSources
 import org.jetbrains.amper.gradle.findEntryPoint
 import org.jetbrains.amper.gradle.java.JavaBindingPluginPart
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.amperFragment
-import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.targetCompilation
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSetName
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.mostCommonNearestAmperFragment
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
+import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.targetCompilation
 import org.jetbrains.amper.gradle.kotlin.configureCompilerOptions
 import org.jetbrains.amper.gradle.kotlin.configureFrom
 import org.jetbrains.amper.gradle.layout
-import org.jetbrains.amper.gradle.mutableSources
 import org.jetbrains.amper.gradle.replacePenultimatePaths
 import org.jetbrains.amper.gradle.tryAdd
 import org.jetbrains.amper.gradle.tryRemove

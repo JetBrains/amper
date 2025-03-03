@@ -20,10 +20,7 @@ import com.github.ajalt.clikt.parameters.types.path
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.TelemetryEnvironment
-import org.jetbrains.amper.cli.commands.show.ModulesCommand
-import org.jetbrains.amper.cli.commands.show.SettingsCommand
 import org.jetbrains.amper.cli.commands.show.ShowCommand
-import org.jetbrains.amper.cli.commands.show.TasksCommand
 import org.jetbrains.amper.cli.commands.tools.ToolCommand
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot

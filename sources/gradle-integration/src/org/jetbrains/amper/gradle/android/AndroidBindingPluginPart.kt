@@ -26,13 +26,9 @@ import org.jetbrains.amper.gradle.layout
 import org.jetbrains.amper.gradle.moduleDir
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import java.io.File
-import java.util.Properties
-import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
-import kotlin.io.path.pathString
-import kotlin.io.path.reader
 
 const val SIGNING_CONFIG_NAME = "sign"
 

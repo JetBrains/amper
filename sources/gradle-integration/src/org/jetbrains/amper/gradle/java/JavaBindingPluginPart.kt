@@ -19,7 +19,6 @@ import org.jetbrains.amper.gradle.base.SpecificPlatformPluginPart
 import org.jetbrains.amper.gradle.closureSources
 import org.jetbrains.amper.gradle.contains
 import org.jetbrains.amper.gradle.findEntryPoint
-import org.jetbrains.amper.gradle.java.JavaAmperNamingConvention.amperFragment
 import org.jetbrains.amper.gradle.java.JavaAmperNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention

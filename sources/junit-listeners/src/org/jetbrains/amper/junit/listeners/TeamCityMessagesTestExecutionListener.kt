@@ -24,7 +24,6 @@ import org.junit.platform.engine.support.descriptor.MethodSource
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.TestPlan
-import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.time.LocalDateTime
 import java.time.ZoneOffset

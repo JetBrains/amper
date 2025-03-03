@@ -5,14 +5,8 @@
 package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
-import kotlin.reflect.KProperty0
 
 /**
  * Factory for providing diagnostics on an ISM [Module].

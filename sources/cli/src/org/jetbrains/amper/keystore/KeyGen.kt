@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.keystore
@@ -17,7 +17,6 @@ import org.jetbrains.amper.frontend.schema.keyPassword
 import org.jetbrains.amper.frontend.schema.storeFile
 import org.jetbrains.amper.frontend.schema.storePassword
 import org.slf4j.LoggerFactory
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.math.BigInteger
 import java.nio.file.Path

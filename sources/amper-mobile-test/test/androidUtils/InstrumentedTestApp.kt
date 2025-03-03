@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package androidUtils
 
 import org.jetbrains.amper.test.Dirs
@@ -6,7 +10,6 @@ import org.jetbrains.amper.test.gradle.runGradle
 import org.junit.jupiter.api.TestReporter
 import java.nio.file.Path
 import kotlin.io.path.div
-import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 

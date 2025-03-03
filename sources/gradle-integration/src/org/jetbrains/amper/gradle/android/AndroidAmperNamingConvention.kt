@@ -5,7 +5,6 @@
 package org.jetbrains.amper.gradle.android
 
 import com.android.build.api.dsl.AndroidSourceSet
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.gradle.FragmentWrapper
 
 @Suppress("UnstableApiUsage")

@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import kotlin.reflect.KMutableProperty0
-import kotlin.reflect.KProperty1
 
 
 /**
