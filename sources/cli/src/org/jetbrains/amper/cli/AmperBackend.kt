@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.commands.UserJvmArgsOption
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.engine.BuildTask
+import org.jetbrains.amper.engine.PackageTask
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
@@ -130,6 +131,69 @@ class AmperBackend(val context: CliContext) {
             .map { it.taskName }
             .toSet()
         logger.debug("Selected tasks to compile: ${formatTaskNames(taskNames)}")
+        taskExecutor.runTasksAndReportOnFailure(taskNames)
+    }
+
+    /**
+     * Called by the 'package' command.
+     * Packages artifacts for distribution for all included modules/platforms/buildTypes.
+     *
+     * If [platforms] is specified, only packaging for those platforms should be run.
+     *
+     * If [modules] is specified, only packaging for those modules should be run.
+     *
+     * If [buildTypes] are specified, only packaging for those build types should be run.
+     *
+     * If [formats] is specified, only packaging in those formats should be run.
+     */
+    suspend fun `package`(
+        platforms: Set<Platform>? = null,
+        modules: Set<String>? = null,
+        buildTypes: Set<BuildType>? = null,
+        formats: Set<PackageTask.Format>? = null,
+    ) {
+        if (platforms != null) {
+            logger.info("Packaging for platforms: ${platforms.map { it.name }.sorted().joinToString(" ")}")
+        }
+        if (modules != null) {
+            logger.info("Packaging modules: ${modules.sorted().joinToString(" ")}")
+        }
+        if (buildTypes != null) {
+            logger.info("Packaging variants: ${buildTypes.map { it.value }.sorted().joinToString(" ")}")
+        }
+        if (formats != null) {
+            logger.info("Packaging formats: ${formats.map { it.value }.sorted().joinToString(" ")}")
+        }
+
+        val possiblePlatforms = if (OsFamily.current.isMac) {
+            Platform.leafPlatforms
+        } else {
+            // Apple targets could be packaged only on Mac OS X due to legal obstacles
+            Platform.leafPlatforms.filter { !it.isDescendantOf(Platform.APPLE) }.toSet()
+        }
+
+        val platformsToPackage = platforms ?: possiblePlatforms
+        val modulesToPackage = (modules?.map { resolveModule(it) } ?: modules()).toSet()
+        val buildTypesToPackage = buildTypes ?: BuildType.entries.toSet()
+        val formatsToPackage = formats ?: PackageTask.Format.entries.toSet()
+
+        val taskNames = taskGraph
+            .tasks
+            .filterIsInstance<PackageTask>()
+            .filter {
+                it.module in modulesToPackage &&
+                it.platform in platformsToPackage &&
+                it.format in formatsToPackage &&
+                it.buildType in buildTypesToPackage
+            }
+            .map { it.taskName }
+            .toSet()
+
+        if (taskNames.isEmpty()) {
+            userReadableError("No package tasks were found")
+        }
+
+        logger.debug("Selected tasks to package: ${formatTaskNames(taskNames)}")
         taskExecutor.runTasksAndReportOnFailure(taskNames)
     }
 

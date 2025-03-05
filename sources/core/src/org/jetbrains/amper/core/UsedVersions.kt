@@ -20,4 +20,6 @@ object UsedVersions {
     /*magic_replacement*/ val kspVersion = "2.1.10-1.0.30"
 
     /*magic_replacement*/ val hotReloadVersion = "1.0.0-dev-39"
+
+    /*magic_replacement*/ val springBootVersion = "3.4.3"
 }

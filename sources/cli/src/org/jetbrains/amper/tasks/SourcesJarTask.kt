@@ -26,7 +26,7 @@ class SourcesJarTask(
     executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : AbstractJarTask(taskName, executeOnChangedInputs) {
 
-    override fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput> =
+    override suspend fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput> =
         module.fragments
             .asSequence()
             .filter { !it.isTest && platform in it.platforms }

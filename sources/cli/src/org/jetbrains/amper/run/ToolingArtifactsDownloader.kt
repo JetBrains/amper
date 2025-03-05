@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.run
@@ -46,6 +46,11 @@ class ToolingArtifactsDownloader(
             "https://packages.jetbrains.team/maven/p/firework/dev"
         ).toRepositories()
     )
+
+    suspend fun downloadSpringBootLoader(): Path = downloadToolingArtifacts(
+        listOf("org.springframework.boot:spring-boot-loader:${UsedVersions.springBootVersion}"),
+        listOf(MAVEN_CENTRAL_REPOSITORY_URL).toRepositories()
+    ).single()
 
     private suspend fun downloadToolingArtifacts(coordinates: List<String>, repositories: List<Repository>): List<Path> =
         executeOnChangedInputs.execute("resolve-$coordinates", emptyMap(), emptyList()) {

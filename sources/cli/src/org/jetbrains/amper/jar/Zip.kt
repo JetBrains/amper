@@ -7,7 +7,9 @@ package org.jetbrains.amper.jar
 import kotlinx.serialization.Serializable
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.zip.CRC32
 import java.util.zip.ZipEntry
+import java.util.zip.ZipEntry.STORED
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.PathWalkOption
 import kotlin.io.path.div
@@ -17,6 +19,20 @@ import kotlin.io.path.outputStream
 import kotlin.io.path.readAttributes
 import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
+
+/**
+ * Compression strategy for zip entries
+ */
+enum class CompressionStrategy {
+    /** Compress all entries */
+    CompressAll,
+
+    /** Store all entries uncompressed */
+    StoreAll,
+
+    /** Compress most entries but store specific entries (like lib/ for Spring Boot) uncompressed */
+    Selective
+}
 
 @Serializable
 data class ZipConfig(
@@ -31,6 +47,20 @@ data class ZipConfig(
      * This must be disabled in order to get reproducible archives.
      */
     val preserveFileTimestamps: Boolean = false,
+
+    /**
+     * Defines the compression strategy for entries in the archive.
+     * Default is CompressAll for regular zip/jar files.
+     * Use SELECTIVE for Spring Boot executable jars to keep lib/ entries uncompressed.
+     * Use STORE_ALL if all entries should be stored without compression.
+     */
+    val compressionStrategy: CompressionStrategy = CompressionStrategy.CompressAll,
+
+    /**
+     * Patterns for entry paths that should be stored uncompressed when using Selective compression strategy.
+     * Default includes pattern for Spring Boot's BOOT-INF/lib/ directory entries.
+     */
+    val uncompressedEntryPatterns: List<String> = listOf("^BOOT-INF/lib/.+")
 )
 
 /**
@@ -96,6 +126,7 @@ internal fun ZipOutputStream.writeZip(inputs: List<ZipInput>, config: ZipConfig)
 private fun ZipInput.findEntriesToAdd(): Sequence<ZipEntrySpec> = path
     .walk(PathWalkOption.INCLUDE_DIRECTORIES)
     .map { ZipEntrySpec(entryName = entryNameFor(it), inputFile = it) }
+    .filter { it.entryName != "META-INF/MANIFEST.MF" } // we write manifest from our configuration, so explicitly drop it off
     .filter { it.entryName != "/" } // the top-level dir doesn't need to be registered as an entry
 
 private fun ZipInput.entryNameFor(child: Path): String {
@@ -110,21 +141,60 @@ private fun Sequence<ZipEntrySpec>.sortedIf(condition: Boolean): Sequence<ZipEnt
     if (condition) sortedBy { it.entryName } else this
 
 /**
+ * Determines if an entry should be stored uncompressed based on the compression strategy.
+ */
+private fun shouldStoreUncompressed(entryName: String, config: ZipConfig): Boolean {
+    return when (config.compressionStrategy) {
+        CompressionStrategy.StoreAll -> true
+        CompressionStrategy.CompressAll -> false
+        CompressionStrategy.Selective -> config.uncompressedEntryPatterns.any { entryName.matches(it.toRegex()) }
+    }
+}
+
+/**
  * Writes the contents of the given [file] as a new zip entry called [entryName].
  */
 private fun ZipOutputStream.writeZipEntry(entryName: String, file: Path, config: ZipConfig) {
     val zipEntry = ZipEntry(entryName)
+
+    // Determine if this entry should be stored uncompressed
+    val storeUncompressed = shouldStoreUncompressed(entryName, config)
+
+    if (storeUncompressed && !file.isDirectory()) {
+        // For uncompressed entries, we need to pre-calculate CRC and size
+        zipEntry.method = STORED
+        // STORED method requires calculating the size and crc32
+        val attributes = file.readAttributes<BasicFileAttributes>()
+        zipEntry.size = attributes.size()
+        zipEntry.crc = file.crc32
+    }
+
     if (config.preserveFileTimestamps) {
         val fileAttributes = file.readAttributes<BasicFileAttributes>()
         zipEntry.creationTime = fileAttributes.creationTime()
         zipEntry.lastAccessTime = fileAttributes.lastAccessTime()
         zipEntry.lastModifiedTime = fileAttributes.lastModifiedTime()
     }
+
     putNextEntry(zipEntry)
+
     if (!file.isDirectory()) {
         writeFileContents(file)
     }
+
     closeEntry()
+}
+
+private val Path.crc32: Long get() {
+    val crc = CRC32()
+    inputStream().use { input ->
+        val buffer = ByteArray(8192)
+        var bytesRead: Int
+        while (input.read(buffer).also { bytesRead = it } != -1) {
+            crc.update(buffer, 0, bytesRead)
+        }
+    }
+    return crc.value
 }
 
 private fun ZipOutputStream.writeFileContents(file: Path) {

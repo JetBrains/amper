@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:JvmName("TasksKt")
@@ -20,6 +20,25 @@ interface Task {
 interface RunTask : Task {
     val platform: Platform
     val buildType: BuildType
+    val module: AmperModule
+}
+
+interface PackageTask : Task {
+    enum class Format(val value: String) {
+        Jar("jar"),
+        ExecutableJar("executable-jar"),
+        Aab("aab"),
+        DistZip("dist-zip");
+
+        companion object {
+            val formatStrings: Set<String> = Format.entries.map { it.value }.toSet()
+            fun byValue(value: String): Format? = Format.entries.associateBy { it.value }[value]
+        }
+    }
+
+    val platform: Platform
+    val buildType: BuildType
+    val format: Format
     val module: AmperModule
 }
 

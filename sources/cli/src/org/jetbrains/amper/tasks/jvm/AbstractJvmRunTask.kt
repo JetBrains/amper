@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.Jdk
+import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
@@ -34,34 +35,26 @@ abstract class AbstractJvmRunTask(
     protected val tempRoot: AmperProjectTempRoot,
     protected val terminal: Terminal,
     protected val commonRunSettings: CommonRunSettings,
-    protected val executeOnChangedInputs: ExecuteOnChangedInputs,
+    protected val executeOnChangedInputs: ExecuteOnChangedInputs?,
 ) : RunTask {
     override val platform = Platform.JVM
     override val buildType: BuildType
         get() = BuildType.Debug
 
     protected val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
-
-    protected abstract suspend fun jvmArgs(): List<String>
-    protected abstract suspend fun finalClasspath(classpath: List<Path>): List<Path>
+    protected val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         DeadLockMonitor.disable()
 
-        val runtimeClasspathTask = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>().singleOrNull()
-            ?: error("Could not find a single ${JvmRuntimeClasspathTask.Result::class.simpleName} in dependencies of ${taskName.name}")
-
         val workingDir = module.source.moduleDir ?: projectRoot.path
-
-        val jvmArgs = jvmArgs()
-        val classpath = finalClasspath(runtimeClasspathTask.jvmRuntimeClasspath)
 
         val result = getJdk().runJava(
             workingDir = workingDir,
-            mainClass = commonRunSettings.userJvmMainClass ?: fragments.getEffectiveJvmMainClass(),
-            classpath = classpath,
+            mainClass = getMainClass(dependenciesResult),
+            classpath = getClasspath(dependenciesResult),
             programArgs = commonRunSettings.programArgs,
-            jvmArgs = jvmArgs,
+            jvmArgs = getJvmArgs(dependenciesResult),
             outputListener = PrintToTerminalProcessOutputListener(terminal),
             tempRoot = tempRoot,
             input = ProcessInput.Inherit,
@@ -79,7 +72,17 @@ abstract class AbstractJvmRunTask(
         return object : TaskResult {}
     }
 
-    protected abstract suspend fun getJdk(): Jdk
+    protected open suspend fun getJdk(): Jdk = JdkDownloader.getJdk(userCacheRoot)
 
-    protected val logger = LoggerFactory.getLogger(javaClass)
+    protected open suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> = 
+        listOf("-ea") + commonRunSettings.userJvmArgs
+
+    protected open suspend fun getClasspath(dependenciesResult: List<TaskResult>): List<Path> {
+        val runtimeClasspathTask = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>().singleOrNull()
+            ?: error("Could not find a single ${JvmRuntimeClasspathTask.Result::class.simpleName} in dependencies of ${taskName.name}")
+        return runtimeClasspathTask.jvmRuntimeClasspath
+    }
+
+    protected open suspend fun getMainClass(dependenciesResult: List<TaskResult>): String =
+        commonRunSettings.userJvmMainClass ?: fragments.getEffectiveJvmMainClass()
 }

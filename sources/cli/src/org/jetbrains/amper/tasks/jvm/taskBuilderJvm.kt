@@ -182,18 +182,50 @@ fun ProjectTasksBuilder.setupJvmTasks() {
             }
 
             if (module.type.isApplication()) {
+                if (!(isComposeEnabledFor(module) && isHotReloadEnabledFor(module))) {
+                    tasks.registerTask(
+                        JvmRunTask(
+                            module = module,
+                            userCacheRoot = context.userCacheRoot,
+                            projectRoot = context.projectRoot,
+                            taskName = CommonTaskType.Run.getTaskName(module, platform),
+                            commonRunSettings = context.commonRunSettings,
+                            terminal = context.terminal,
+                            tempRoot = context.projectTempRoot,
+                            executeOnChangedInputs = executeOnChangedInputs,
+                        ),
+                        CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
+                    )
+                }
+
+                val executableJarTaskName = JvmSpecificTaskType.ExecutableJar.getTaskName(module, platform)
                 tasks.registerTask(
-                    JvmRunTask(
+                    ExecutableJarTask(
+                        taskName = executableJarTaskName,
                         module = module,
+                        executeOnChangedInputs = executeOnChangedInputs,
+                        userCacheRoot = context.userCacheRoot,
+                        taskOutputRoot = context.getTaskOutputPath(executableJarTaskName),
+                    ),
+                    dependsOn = buildList {
+                        add(CommonTaskType.Compile.getTaskName(module, platform, isTest = false))
+                        add(CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest = false))
+                    }
+                )
+                
+                // Register a task to run the executable jar
+                val executableJarRunTaskName = JvmSpecificTaskType.RunExecutableJar.getTaskName(module, platform)
+                tasks.registerTask(
+                    ExecutableJarRunTask(
+                        taskName = executableJarRunTaskName,
+                        module = module, 
                         userCacheRoot = context.userCacheRoot,
                         projectRoot = context.projectRoot,
-                        taskName = CommonTaskType.Run.getTaskName(module, platform),
-                        commonRunSettings = context.commonRunSettings,
-                        terminal = context.terminal,
                         tempRoot = context.projectTempRoot,
-                        executeOnChangedInputs = executeOnChangedInputs,
+                        terminal = context.terminal,
+                        commonRunSettings = context.commonRunSettings,
                     ),
-                    CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
+                    dependsOn = listOf(executableJarTaskName)
                 )
             }
 
@@ -277,4 +309,10 @@ private enum class JvmFragmentTaskType(
 internal enum class HotReloadTaskType(override val prefix: String) : PlatformTaskType {
     Classes("classes"),
     Reload("reload"),
+}
+
+// Adding a specific task type for JVM-specific tasks
+internal enum class JvmSpecificTaskType(override val prefix: String) : PlatformTaskType {
+    ExecutableJar("executableJar"),
+    RunExecutableJar("runExecutableJar"),
 }

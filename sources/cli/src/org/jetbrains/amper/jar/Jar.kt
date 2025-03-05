@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.jar
@@ -24,6 +24,12 @@ data class JarConfig(
      * This is necessary to create executable jars.
      */
     val mainClassFqn: String? = null,
+
+    /**
+     * Additional manifest properties
+     */
+
+    val manifestProperties: Map<String, String> = mapOf(),
 )
 
 /**
@@ -40,5 +46,9 @@ private fun createManifest(config: JarConfig): Manifest = Manifest().apply {
     mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
     if (config.mainClassFqn != null) {
         mainAttributes[Attributes.Name.MAIN_CLASS] = config.mainClassFqn
+    }
+
+    config.manifestProperties.forEach { (key, value) ->
+        mainAttributes[Attributes.Name(key)] = value
     }
 }

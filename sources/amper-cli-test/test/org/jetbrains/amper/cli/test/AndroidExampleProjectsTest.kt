@@ -170,6 +170,14 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
         result.assertStdoutContains("task :simple:installSystemImageAndroidTest -> :simple:checkAndroidSdkLicenseAndroid")
     }
 
+    @Test
+    fun `package command produce aab bundle`() = runSlowTest {
+        val taskName = ":signed:bundleAndroid"
+        val result = runCli(projectRoot = testProject("android/signed"), "package")
+        val bundlePath = result.getArtifactPath(taskName, "aab")
+        assertFileContainsInBundle("ALIAS.RSA", bundlePath)
+    }
+
     @AfterTest
     fun tearDown() {
         ConnectorServices.reset()

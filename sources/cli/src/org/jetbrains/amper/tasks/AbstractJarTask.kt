@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks
@@ -21,7 +21,7 @@ abstract class AbstractJarTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
 
-    protected abstract fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput>
+    protected abstract suspend fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput>
     protected abstract fun outputJarPath(): Path
     protected abstract fun jarConfig(): JarConfig
 
@@ -38,6 +38,7 @@ abstract class AbstractJarTask(
             "inputDirsDestPaths" to inputDirs.map { it.destPathInArchive }.toString(),
             "outputJarPath" to outputJarPath.pathString,
         )
+
         executeOnChangedInputs.execute(taskName.name, configuration, inputDirs.map { it.path }) {
             outputJarPath.createParentDirectories().writeJar(inputDirs, jarConfig)
             ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(outputJarPath))

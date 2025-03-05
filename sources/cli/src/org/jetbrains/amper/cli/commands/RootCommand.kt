@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands
@@ -46,6 +46,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
             CleanSharedCachesCommand(),
             SuspendingCompletionCommand(help = "Generate a tab-completion script for the Amper command for the given shell"),
             InitCommand(),
+            PackageCommand(),
             PublishCommand(),
             RunCommand(),
             ShowCommand(),

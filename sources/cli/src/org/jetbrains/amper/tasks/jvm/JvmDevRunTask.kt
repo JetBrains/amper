@@ -15,6 +15,7 @@ import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.run.ToolingArtifactsDownloader
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import kotlin.io.path.pathString
 import java.nio.file.Path
@@ -46,7 +47,7 @@ class JvmDevRunTask(
     override val buildType: BuildType
         get() = BuildType.Debug
 
-    override suspend fun jvmArgs(): List<String> {
+    override suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> {
         val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
         val agent = agentClasspath.singleOrNull { it.pathString.contains("hot-reload-agent") }
             ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
@@ -68,7 +69,8 @@ class JvmDevRunTask(
         return amperJvmArgs + commonRunSettings.userJvmArgs
     }
 
-    override suspend fun finalClasspath(classpath: List<Path>): List<Path> {
+    override suspend fun getClasspath(dependenciesResult: List<TaskResult>): List<Path> {
+        val classpath = super.getClasspath(dependenciesResult)
         val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
         val agent = agentClasspath.singleOrNull { it.pathString.contains("hot-reload-agent") }
             ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")

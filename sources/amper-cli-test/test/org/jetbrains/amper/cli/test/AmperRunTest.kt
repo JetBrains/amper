@@ -47,6 +47,11 @@ class AmperRunTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `run executable jar`() = runSlowTest {
+        runCli(testProject("spring-boot"), "run", "-v", "release")
+    }
+
+    @Test
     fun `run works with stdin for jvm`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("multiplatform-input"),
