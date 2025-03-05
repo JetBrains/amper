@@ -1293,8 +1293,6 @@ class   MavenDependency internal constructor(
             context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
         }
 
-        val importedDependencyManagement = resolveImportedDependencyManagement(context, resolutionLevel, diagnosticsReporter, depth, origin)
-
         val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter))) {
             val text = parentNode.pom.readText()
             val parentProject = text.parsePom().resolve(context, resolutionLevel, diagnosticsReporter, depth + 1, origin)
@@ -1303,12 +1301,27 @@ class   MavenDependency internal constructor(
                 artifactId = artifactId ?: parentProject.artifactId,
                 version = version ?: parentProject.version,
                 dependencies = dependencies + parentProject.dependencies,
-                // Dependencies declared directly in pom.xml dependencyManagement section take precedence over directly imported dependencies,
-                // both in turn take precedence over parent dependencyManagement
-                dependencyManagement = dependencyManagement + importedDependencyManagement + parentProject.dependencyManagement,
                 properties = properties + parentProject.properties,
-            )
+            ).let {
+                val importedDependencyManagement = it.resolveImportedDependencyManagement(
+                    context,
+                    resolutionLevel,
+                    diagnosticsReporter,
+                    depth
+                )
+                it.copy(
+                    // Dependencies declared directly in pom.xml dependencyManagement section take precedence over directly imported dependencies,
+                    // both in turn take precedence over parent dependencyManagement
+                    dependencyManagement = dependencyManagement + importedDependencyManagement + parentProject.dependencyManagement,
+                )
+            }
         } else if (parent != null && (groupId == null || artifactId == null || version == null)) {
+            val importedDependencyManagement = resolveImportedDependencyManagement(
+                context,
+                resolutionLevel,
+                diagnosticsReporter,
+                depth
+            )
             copy(
                 groupId = groupId ?: parent.groupId,
                 artifactId = artifactId ?: parent.artifactId,
@@ -1316,6 +1329,12 @@ class   MavenDependency internal constructor(
                 dependencyManagement = dependencyManagement + importedDependencyManagement,
             )
         } else {
+            val importedDependencyManagement = resolveImportedDependencyManagement(
+                context,
+                resolutionLevel,
+                diagnosticsReporter,
+                depth
+            )
             copy(
                 dependencyManagement = dependencyManagement + importedDependencyManagement,
             )
@@ -1376,7 +1395,6 @@ class   MavenDependency internal constructor(
         resolutionLevel: ResolutionLevel,
         diagnosticsReporter: DiagnosticReporter,
         depth: Int,
-        origin: Project,
     ): DependencyManagement? = dependencyManagement
             ?.dependencies
             ?.dependencies
@@ -1386,7 +1404,7 @@ class   MavenDependency internal constructor(
                     val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
                     if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter)) {
                         val text = dependency.pom.readText()
-                        val dependencyProject = text.parsePom().resolve(context, resolutionLevel, diagnosticsReporter, depth + 1, origin)
+                        val dependencyProject = text.parsePom().resolve(context, resolutionLevel, diagnosticsReporter, depth + 1)
                         dependencyProject.dependencyManagement
                     } else {
                         null

@@ -57,6 +57,106 @@ class BuildGraphTest: BaseDRTest() {
         }
     }
 
+    /**
+     * This test checks that a POM file of dependency could use properties defined in the parent POM
+     * (or in any of its parents).
+     *
+     * In this example,
+     * library 'org.springframework.data:spring-data-jpa:3.4.2' has a parent POM:
+     * `org.springframework.data:spring-data-jpa-parent:3.4.2`
+     * which in turn defines the 'dependencyManagement' section
+     * where 'org.testcontainers:testcontainers-bom' is imported.
+     * The version of 'testcontainers-bom' is defined as '${testcontainers}'.
+     * And the value of the property 'testcontainers' is defined in the parent POM in turn:
+     * in `org.springframework.data.build:spring-data-parent:3.4.2`.
+     *
+     * The test ensures that the value of the property 'testcontainers' is correctly resolved from the parent POM
+     * when it comes to resolving the 'dependencyManagement' section in the child project.
+     *
+     * Note: 'dependencyManagement' sections declared in the project parents POMs should be resolved,
+     * to further use it for resolving the dependencies' versions of the
+     * project module being processed.
+     */
+    @Test
+    fun `org_springframework_data spring-data-jpa 3_4_2`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            expected = """root
+               |\--- org.springframework.data:spring-data-jpa:3.4.2
+               |     +--- org.springframework.data:spring-data-commons:3.4.2
+               |     |    +--- org.springframework:spring-core:6.2.2
+               |     |    |    \--- org.springframework:spring-jcl:6.2.2
+               |     |    +--- org.springframework:spring-beans:6.2.2
+               |     |    |    \--- org.springframework:spring-core:6.2.2 (*)
+               |     |    \--- org.slf4j:slf4j-api:2.0.2
+               |     +--- org.springframework:spring-orm:6.2.2
+               |     |    +--- org.springframework:spring-beans:6.2.2 (*)
+               |     |    +--- org.springframework:spring-core:6.2.2 (*)
+               |     |    +--- org.springframework:spring-jdbc:6.2.2
+               |     |    |    +--- org.springframework:spring-beans:6.2.2 (*)
+               |     |    |    +--- org.springframework:spring-core:6.2.2 (*)
+               |     |    |    \--- org.springframework:spring-tx:6.2.2
+               |     |    |         +--- org.springframework:spring-beans:6.2.2 (*)
+               |     |    |         \--- org.springframework:spring-core:6.2.2 (*)
+               |     |    \--- org.springframework:spring-tx:6.2.2 (*)
+               |     +--- org.springframework:spring-context:6.2.2
+               |     |    +--- org.springframework:spring-aop:6.2.2
+               |     |    |    +--- org.springframework:spring-beans:6.2.2 (*)
+               |     |    |    \--- org.springframework:spring-core:6.2.2 (*)
+               |     |    +--- org.springframework:spring-beans:6.2.2 (*)
+               |     |    +--- org.springframework:spring-core:6.2.2 (*)
+               |     |    +--- org.springframework:spring-expression:6.2.2
+               |     |    |    \--- org.springframework:spring-core:6.2.2 (*)
+               |     |    \--- io.micrometer:micrometer-observation:1.14.3
+               |     |         \--- io.micrometer:micrometer-commons:1.14.3
+               |     +--- org.springframework:spring-aop:6.2.2 (*)
+               |     +--- org.springframework:spring-tx:6.2.2 (*)
+               |     +--- org.springframework:spring-beans:6.2.2 (*)
+               |     +--- org.springframework:spring-core:6.2.2 (*)
+               |     +--- org.antlr:antlr4-runtime:4.13.0
+               |     +--- jakarta.annotation:jakarta.annotation-api:2.0.0
+               |     \--- org.slf4j:slf4j-api:2.0.2
+            """.trimMargin()
+        )
+        runBlocking {
+            downloadAndAssertFiles(
+                """antlr4-runtime-4.13.0-sources.jar
+               |antlr4-runtime-4.13.0.jar
+               |jakarta.annotation-api-2.0.0-sources.jar
+               |jakarta.annotation-api-2.0.0.jar
+               |micrometer-commons-1.14.3-sources.jar
+               |micrometer-commons-1.14.3.jar
+               |micrometer-observation-1.14.3-sources.jar
+               |micrometer-observation-1.14.3.jar
+               |slf4j-api-2.0.2-sources.jar
+               |slf4j-api-2.0.2.jar
+               |spring-aop-6.2.2-sources.jar
+               |spring-aop-6.2.2.jar
+               |spring-beans-6.2.2-sources.jar
+               |spring-beans-6.2.2.jar
+               |spring-context-6.2.2-sources.jar
+               |spring-context-6.2.2.jar
+               |spring-core-6.2.2-sources.jar
+               |spring-core-6.2.2.jar
+               |spring-data-commons-3.4.2-sources.jar
+               |spring-data-commons-3.4.2.jar
+               |spring-data-jpa-3.4.2-sources.jar
+               |spring-data-jpa-3.4.2.jar
+               |spring-expression-6.2.2-sources.jar
+               |spring-expression-6.2.2.jar
+               |spring-jcl-6.2.2-sources.jar
+               |spring-jcl-6.2.2.jar
+               |spring-jdbc-6.2.2-sources.jar
+               |spring-jdbc-6.2.2.jar
+               |spring-orm-6.2.2-sources.jar
+               |spring-orm-6.2.2.jar
+               |spring-tx-6.2.2-sources.jar
+               |spring-tx-6.2.2.jar""".trimMargin(),
+                root, true, verifyMessages = true
+            )
+        }
+    }
+
     @Test
     fun `org_jetbrains_kotlin kotlin-test 1_9_10`(testInfo: TestInfo) {
         val root = doTest(
