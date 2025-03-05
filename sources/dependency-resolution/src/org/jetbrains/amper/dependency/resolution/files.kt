@@ -38,6 +38,7 @@ import java.net.http.HttpClient.Redirect
 import java.net.http.HttpClient.Version
 import java.net.http.HttpRequest
 import java.net.http.HttpRequest.Builder
+import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -331,15 +332,37 @@ open class DependencyFile(
                         }
                     } else null
 
-                    expectedHash
-                          // First, try to resolve artifact from external local storage if the actual hash is known
-                        ?.let { resolveFromExternalLocalRepository(tempFilePath, fileChannel, expectedHash, cache, diagnosticsReporter) }
-                          // Download an artifact from external remote storage if it has not been resolved from the local cache
-                        ?: run {
-                            // trying the same repo where hash was downloaded from at first
-                            val optimizedRepositories = repositories.ensureFirst(dependency.repository)
-                            downloadAndVerifyHash(fileChannel, tempFilePath, optimizedRepositories, progress, cache, expectedHash, diagnosticsReporter)
+                    val artifactPath = expectedHash
+                        ?.let {
+                            // First, try to resolve artifact from external local storage if the actual hash is known
+                            resolveFromExternalLocalRepository(tempFilePath, fileChannel, expectedHash, cache, diagnosticsReporter)
                         }
+                        ?: run {
+                            // Download an artifact from external remote storage if it has not been resolved from the local cache
+                            // trying at first the same repo where hash was downloaded from
+                            val optimizedRepositories = repositories.ensureFirst(dependency.repository)
+                            downloadAndVerifyHash(fileChannel, tempFilePath, optimizedRepositories, progress, cache, expectedHash, diagnosticsReporter, deleteTempFileOnFinish = false)
+                        }
+                        ?: expectedHash?.let {
+                            // Downloading an artifact from external storage might have failed if checksum
+                            // resolved from Gradle metadata is invalid (a pretty rare case though).
+                            // In this case we should take actual checksum downloaded from the external repository
+                            // and perform one more downloading attempt.
+                            val expectedHashIgnoringMetadata = getExpectedHash(
+                                diagnosticsReporter, ResolutionLevel.NETWORK, false)
+                                ?: downloadHash(repositories, progress, cache, diagnosticsReporter)
+                            if (expectedHashIgnoringMetadata != null && expectedHashIgnoringMetadata.hash != expectedHash.hash) {
+                                // Expected checksum was taken from metadata on the previous download attempt, not from the checksum file.
+                                // Trying to download the artifact one more time with the checksum downloaded from the remote repository.
+                                val optimizedRepositories = repositories.ensureFirst(dependency.repository)
+                                return@let downloadAndVerifyHash(fileChannel, tempFilePath, optimizedRepositories, progress, cache, expectedHashIgnoringMetadata, diagnosticsReporter)
+                            }
+                            null
+                        }
+
+                    tempFilePath.deleteIfExists()
+
+                    artifactPath
                 }
             } catch (e: CancellationException) {
                 throw e
@@ -449,6 +472,7 @@ open class DependencyFile(
         cache: Cache,
         expectedHash: Hash?,      // this should be passed for all files being downloaded, except when hash files are downloaded itself
         diagnosticsReporter: DiagnosticReporter,
+        deleteTempFileOnFinish: Boolean = true,
     ): Path? {
         for (repository in repositories) {
             val hasher = expectedHash?.let { Hasher(it.algorithm) }
@@ -476,7 +500,9 @@ open class DependencyFile(
             }
         }
 
-        temp.deleteIfExists()
+        if (deleteTempFileOnFinish) {
+            temp.deleteIfExists()
+        }
 
         return null
     }
@@ -571,22 +597,12 @@ open class DependencyFile(
     /**
      * @return hash of the artifact resolved from a local artifacts storage
      */
-    private suspend fun getExpectedHash(diagnosticsReporter: DiagnosticReporter, requestedLevel: ResolutionLevel): Hash? {
-        val hashers = createHashers()
+    private suspend fun getExpectedHash(
+        diagnosticsReporter: DiagnosticReporter, requestedLevel: ResolutionLevel, searchInMetadata: Boolean = true
+    ): Hash? {
+        val hash = LocalStorageHashSource.getExpectedHash(this, searchInMetadata)
 
-        // Trying to find the hash locally
-        for (hasher in hashers) {
-            val algorithm = hasher.algorithm
-            val expectedHash = getExpectedHash(algorithm)
-            if (expectedHash != null) {
-                return object : Hash {
-                    override val hash: String = expectedHash
-                    override val algorithm = algorithm
-                }
-            }
-        }
-
-        if (requestedLevel != ResolutionLevel.NETWORK) {
+        if (hash == null && requestedLevel != ResolutionLevel.NETWORK) {
             diagnosticsReporter.addMessage(
                 Message(
                     "Unable to resolve checksums of file $fileName for dependency $dependency",
@@ -595,7 +611,7 @@ open class DependencyFile(
             )
         }
 
-        return null
+        return hash
     }
 
     /**
@@ -651,34 +667,18 @@ open class DependencyFile(
     /**
      * Tries to find hash of the given type in the local artifact storage.
      * Being found, it is supposed to be valid (taken from a verified location).
-     * The cache calculated from the actual artifact (either downloaded or resolved from external local storage) - should match it.
+     *
+     * The hash calculated from the actual artifact (either downloaded or resolved from external local storage) should match the found one.
+     *
+     * If checksums were found locally both in a metadata file and in a separate checksum file, the latter is preferred.
+     * Usually, the checksum from the metadata file is enough for resolution,
+     * and checksum files are not even downloaded from the external repository.
+     * But sometimes checksums declared in the metadata file are invalid, and in this case DR downloads checksum files and
+     * uses them for verification.
+     * This way, the checksum file is presented in local storage only in case metadata contains invalid data or is completely missing.
      */
-    internal suspend fun getExpectedHash(algorithm: String): String? {
-        // todo (AB) : Prefer hash from separate file if any (or better always resolve both
-        // todo (AB) : and check that at least one corresponds to the actual downloaded file hash)?
-        val hashFromVariant = when (algorithm) {
-            "sha512" -> fileFromVariant(dependency, fileName)?.sha512?.fixOldGradleHash(128)
-            "sha256" -> fileFromVariant(dependency, fileName)?.sha256?.fixOldGradleHash(64)
-            "sha1" -> fileFromVariant(dependency, fileName)?.sha1?.fixOldGradleHash(40)
-            "md5" -> fileFromVariant(dependency, fileName)?.md5?.fixOldGradleHash(32)
-            else -> null
-        }
-        if (hashFromVariant != null) {
-            return hashFromVariant
-        }
-        val hashFromGradle = getHashFromGradleCacheDirectory(algorithm)
-        if (hashFromGradle != null) {
-            return hashFromGradle
-        }
-        val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
-            it.isDownloadedValidHash()
-        }
-        val hashFromLocalRepository = hashFile?.readText()
-        if (hashFromLocalRepository != null) {
-            return hashFromLocalRepository.sanitize()
-        }
-        return null
-    }
+    internal suspend fun getExpectedHash(algorithm: String, searchInMetadata: Boolean = true): String? =
+        LocalStorageHashSource.getExpectedHash(this, algorithm, searchInMetadata)
 
     /**
      * Downloads hash of a particular type from one of the specified repositories.
@@ -715,15 +715,6 @@ open class DependencyFile(
         return null
     }
 
-    private val checkSumRegex = "^[A-Fa-f0-9]+$".toRegex()
-
-    /**
-     * Sometimes files with checksums have additional information, e.g., a path to a file.
-     * We expect that at least the first word in a file is a hash.
-     */
-    private fun String.sanitize() = split("\\s".toRegex()).getOrNull(0)
-        ?.takeIf { it.isNotEmpty() && checkSumRegex.matches(it) }
-
     private suspend fun getHashFromGradleCacheDirectory(algorithm: String) =
         if (getCacheDirectory() is GradleLocalRepository && algorithm == "sha1") {
             getPath()?.parent?.name?.fixOldGradleHash(40)
@@ -750,6 +741,11 @@ open class DependencyFile(
                 "/${dependency.module}" +
                 "/${dependency.version}" +
                 "/$name"
+
+        fun getContentLengthHeaderValue(response: HttpResponse<InputStream>): Long? = response.headers()
+            .firstValueAsLong(HttpHeaders.ContentLength)
+            .takeIf { it.isPresent && it.asLong != -1L }?.asLong
+
         try {
 
             // todo (AB) : Use exponential retry here
@@ -776,31 +772,39 @@ open class DependencyFile(
                         when (val status = response.statusCode()) {
                             200 -> {
                                 val expectedSize = fileFromVariant(dependency, name)?.size
-                                    ?: response.headers().firstValueAsLong(HttpHeaders.ContentLength)
-                                        .takeIf { it.isPresent && it.asLong != -1L }?.asLong
+                                    ?: getContentLengthHeaderValue(response)
                                 val size = responseBody.toByteReadChannel().readTo(writers)
 //                                val size = responseBody.readTo(writers)
 
-                                if (expectedSize != null && size != expectedSize) {
-                                    throw IOException(
-                                        "Content length doesn't match for $url. Expected: $expectedSize, actual: $size"
-                                    )
+                                val isSuccessfullyDownloaded = if (expectedSize != null && size != expectedSize) {
+                                    val sizeFromResponse = getContentLengthHeaderValue(response)
+                                    // If Content-Length is presented and differs from the actual content length, then it is an error
+                                    // Otherwise, it might be an incorrect record in Gradle metadata.
+                                    // That happens, we just report an INFO message and proceed with checksum verification in that case.
+                                    val severity = if (sizeFromResponse != null && size != sizeFromResponse) Severity.ERROR else Severity.INFO
+                                    diagnosticsReporter.addMessage(Message(
+                                        "Content length doesn't match for $url. Expected size: $sizeFromResponse, actual: $size",
+                                        severity = severity))
+
+                                    severity != Severity.ERROR
+                                } else {
+                                    if (logger.isDebugEnabled) {
+                                        logger.debug(
+                                            "Downloaded {} for the dependency {}:{}:{}",
+                                            url,
+                                            dependency.group,
+                                            dependency.module,
+                                            dependency.version
+                                        )
+                                    } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
+                                        // Reports downloaded dependency to INFO (visible to user by default)
+                                        logger.info("Downloaded $url")
+                                    }
+
+                                    true
                                 }
 
-                                if (logger.isDebugEnabled) {
-                                    logger.debug(
-                                        "Downloaded {} for the dependency {}:{}:{}",
-                                        url,
-                                        dependency.group,
-                                        dependency.module,
-                                        dependency.version
-                                    )
-                                } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
-                                    // Reports downloaded dependency to INFO (visible to user by default)
-                                    logger.info("Downloaded $url")
-                                }
-
-                                true
+                                isSuccessfullyDownloaded
                             }
 
                             404 -> {
@@ -858,7 +862,67 @@ open class DependencyFile(
         this.dependency.repository = repository
     }
 
+    private enum class LocalStorageHashSource {
+        File {
+            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, ) =
+                artifact.getHashFromGradleCacheDirectory(algorithm)
+                    ?: getDependencyFile(artifact.dependency, artifact.nameWithoutExtension, "${artifact.extension}.$algorithm")
+                        .takeIf { it.isDownloaded() }
+                        ?.readText()
+                        ?.sanitize()
+        },
+        MetadataInfo{
+            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String) =
+                with(artifact) {
+                    when (algorithm) {
+                        "sha512" -> fileFromVariant(dependency, fileName)?.sha512?.fixOldGradleHash(128)
+                        "sha256" -> fileFromVariant(dependency, fileName)?.sha256?.fixOldGradleHash(64)
+                        "sha1" -> fileFromVariant(dependency, fileName)?.sha1?.fixOldGradleHash(40)
+                        "md5" -> fileFromVariant(dependency, fileName)?.md5?.fixOldGradleHash(32)
+                        else -> null
+                    }
+                }
+        };
+
+        protected abstract suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String): String?
+
+        private suspend fun getExpectedHash(artifact: DependencyFile): Hash? {
+            for (hashAlgorithm in hashAlgorithms) {
+                val expectedHash = getExpectedHash(artifact, hashAlgorithm)
+                if (expectedHash != null) {
+                    return object : Hash {
+                        override val hash: String = expectedHash
+                        override val algorithm = hashAlgorithm
+                    }
+                }
+            }
+            return null
+        }
+
+        companion object {
+            suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, searchInMetadata: Boolean) =
+                File.getExpectedHash(artifact, algorithm)
+                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, algorithm) else null
+
+            /**
+             * @return hash of the artifact resolved from a local artifacts storage
+             */
+            suspend fun getExpectedHash(artifact: DependencyFile, searchInMetadata: Boolean = true): Hash? =
+                File.getExpectedHash(artifact)
+                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact) else null
+        }
+    }
+
     companion object {
+
+        private val checkSumRegex = "^[A-Fa-f0-9]+$".toRegex()
+
+        /**
+         * Sometimes files with checksums have additional information, e.g., a path to a file.
+         * We expect that at least the first word in a file is a hash.
+         */
+        private fun String.sanitize() = split("\\s".toRegex()).getOrNull(0)
+            ?.takeIf { it.isNotEmpty() && checkSumRegex.matches(it) }
 
         private fun checkHash(
             hasher: Hasher,

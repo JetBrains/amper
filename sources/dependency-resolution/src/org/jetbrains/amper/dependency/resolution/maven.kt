@@ -134,6 +134,26 @@ class MavenDependencyNode internal constructor(
 
     fun getOriginalMavenCoordinates(): MavenCoordinates = dependency.coordinates.copy(version = version)
 
+    /**
+     * Publishing of a KMP library involves publishing various variants of this library for different platforms.
+     * JVM single-platform variant might be consumed by a simple Maven/Gradle project that is not aware of KMP at all.
+     * That means, JVM variant, when it comes to declaring dependencies during publication, should not refer to other KMP libraries,
+     * but instead it should declare dependencies on JVM-specific variants of those libraries.
+     *
+     * This method provides coordinates of platform-specific variant for the KMP library.
+     *
+     * Method is supposed to be called on a maven dependency node from the resolved dependencies graph.
+     * If the dependency is a KMP library, but resolution is done in a single-platform context,
+     * then this method returns coordinates of the platform-specific library variant.
+     * Otherwise (non KMP dependency or multi-platform resolution context), the original dependency coordinates are returned.
+     *
+     * Returned coordinates should be used while declaring dependency of the platform-specific variant being published
+     * instead of the reference on the KMP library itself.
+     *
+     * Note: Returned maven coordinates contain an original dependency version, which is declared in the configuration file,
+     * not the actual one that might have been changed due to a conflict resolution process.
+     * This is because declared dependencies are published, not resolved ones.
+     */
     fun getMavenCoordinatesForPublishing(): MavenCoordinates {
         if (context.settings.platforms.size == 1) {
             if (dependency.files(false).isEmpty()) { // todo (AB) : Replace with isKmpLibrary() condition

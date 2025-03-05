@@ -5,7 +5,13 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import kotlin.test.Test
+import kotlin.test.assertNotNull
 
 /**
  * Resolved module dependencies graph for the test project 'compose-multiplatform' is almost identical to what Gradle resolves*.
@@ -2308,4 +2314,72 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
             sharedAndroidFragmentDeps
         )
     }
+
+    /**
+     * Publishing of a KMP library involves publishing various variants of this library for different platforms.
+     * DR provides API [MavenDependencyNode.getMavenCoordinatesForPublishing]
+     * for getting coordinates of the platform-specific variants of KMP libraries.
+     * Those coordinates are used for the module publishing instead of references on KMP libraries.
+     *
+     * This test verifies that DR API provides correct coordinates of the platform-specific
+     * variants for KMP libraries.
+     */
+    @Test
+    fun `test publication of shared KMP module for single platform`() {
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
+
+        val sharedModuleDeps = runBlocking {
+            doTest(
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.ClassPathType(
+                        ResolutionScope.COMPILE,
+                        setOf(ResolutionPlatform.JVM),
+                        isTest = false,
+                        includeNonExportedNative = false
+                    ),
+                    ResolutionDepth.GRAPH_FULL
+                ),
+                module = "shared"
+            ) as ModuleDependencyNodeWithModule
+        }
+
+        sharedModuleDeps.assertMapping(
+            mapOf(
+                "org.jetbrains.kotlin:kotlin-stdlib:2.1.10" to "org.jetbrains.kotlin:kotlin-stdlib:2.1.10",
+                "org.jetbrains.compose.runtime:runtime:1.6.10" to "org.jetbrains.compose.runtime:runtime-desktop:1.6.10",
+                "org.jetbrains.compose.foundation:foundation:1.6.10" to "org.jetbrains.compose.foundation:foundation-desktop:1.6.10",
+                "org.jetbrains.compose.material3:material3:1.6.10" to "org.jetbrains.compose.material3:material3-desktop:1.6.10",
+            )
+        )
+    }
+
+    private fun ModuleDependencyNodeWithModule.assertMapping(
+        expectedMapping: Map<String, String>
+    ) {
+        val expectedCoordinatesMapping = expectedMapping.map{ it.key.toMavenCoordinates() to it.value.toMavenCoordinates() }.toMap()
+        this
+            .children
+            .filterIsInstance<DirectFragmentDependencyNodeHolder>()
+            .filter { it.dependencyNode is MavenDependencyNode }
+            .forEach { directMavenDependency ->
+                val node = directMavenDependency.dependencyNode as MavenDependencyNode
+
+                val originalCoordinates = node.getOriginalMavenCoordinates()
+                val expectedCoordinatesForPublishing = expectedCoordinatesMapping[originalCoordinates]
+                val actualCoordinatesForPublishing = node.getMavenCoordinatesForPublishing()
+
+                assertNotNull(
+                    expectedCoordinatesForPublishing,
+                    "Library with coordinates [$originalCoordinates] is absent among direct module dependencies."
+                ) {}
+                kotlin.test.assertEquals(
+                    expectedCoordinatesForPublishing, actualCoordinatesForPublishing,
+                    "Unexpected coordinates for publishing were resolved for the library [$originalCoordinates]"
+                )
+            }
+    }
+
+    private fun String.toMavenCoordinates() =
+        split(":").let { MavenCoordinates(it[0], it[1], it[2]) }
 }

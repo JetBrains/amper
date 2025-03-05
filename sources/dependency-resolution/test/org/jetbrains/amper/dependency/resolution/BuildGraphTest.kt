@@ -9,11 +9,53 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.TestInfo
 import kotlin.io.path.extension
 import kotlin.io.path.name
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class BuildGraphTest: BaseDRTest() {
+
+    /**
+     * This test checks that wrong artifact checksum declared in the Gradle module metadata won't cause DR error if
+     * valid checksum is published as a separate file in an external repository.
+     *
+     * Library 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.18.2' declares jvm variant that
+     * provides the following invalid sha1 checksum for the artifact 'jackson-datatype-jdk8-2.18.2.jar':
+     * 'd85b6fb492cde96f937b62270113ed40698560de'.
+     * The valid one is published in the maven central repository in the file 'jackson-datatype-jdk8-2.18.2.jar.sha1':
+     * '9ed6d538ebcc66864e114a7040953dce6ab6ea53'
+      */
+    @Test
+    fun `com_fasterxml_jackson_datatype jackson-datatype-jdk8 2_18_2`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            expected = """root
+               |\--- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.18.2
+               |     +--- com.fasterxml.jackson.core:jackson-core:2.18.2
+               |     |    \--- com.fasterxml.jackson:jackson-bom:2.18.2
+               |     +--- com.fasterxml.jackson.core:jackson-databind:2.18.2
+               |     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.18.2
+               |     |    |    \--- com.fasterxml.jackson:jackson-bom:2.18.2
+               |     |    +--- com.fasterxml.jackson.core:jackson-core:2.18.2 (*)
+               |     |    \--- com.fasterxml.jackson:jackson-bom:2.18.2
+               |     \--- com.fasterxml.jackson:jackson-bom:2.18.2
+            """.trimMargin()
+        )
+        runBlocking {
+            downloadAndAssertFiles(
+                """jackson-annotations-2.18.2-sources.jar
+               |jackson-annotations-2.18.2.jar
+               |jackson-core-2.18.2-sources.jar
+               |jackson-core-2.18.2.jar
+               |jackson-databind-2.18.2-sources.jar
+               |jackson-databind-2.18.2.jar
+               |jackson-datatype-jdk8-2.18.2-sources.jar
+               |jackson-datatype-jdk8-2.18.2.jar""".trimMargin(),
+                root, true, verifyMessages = true
+            )
+        }
+    }
 
     @Test
     fun `org_jetbrains_kotlin kotlin-test 1_9_10`(testInfo: TestInfo) {
@@ -222,7 +264,7 @@ class BuildGraphTest: BaseDRTest() {
     }
 
     /**
-     * It checks that single version interval is supported.
+     * It checks that a single version interval is supported.
      * `com.google.android.gms:play-services-measurement-api:22.1.0` depends on version `[22.1.0]` of
      * `com.google.android.gms:play-services-measurement-base`
      */
