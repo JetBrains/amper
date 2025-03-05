@@ -5,6 +5,10 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.parameters.groups.default
+import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
+import com.github.ajalt.clikt.parameters.groups.single
+import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -26,6 +30,11 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.system.exitProcess
 
+private sealed class DesiredVersion {
+    data class Latest(val includeDevVersions: Boolean) : DesiredVersion()
+    data class SpecificVersion(val version: String) : DesiredVersion()
+}
+
 internal class UpdateCommand : AmperSubcommand(name = "update") {
 
     private val repository by option(
@@ -33,15 +42,16 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         help = "URL of the maven repository to download the Amper scripts from",
     ).default("https://packages.jetbrains.team/maven/p/amper/amper")
 
-    private val useDevVersion by option(
-        "--dev",
-        help = "Use the latest development version instead of the official release",
-    ).flag(default = false)
-
-    private val targetVersion by option(
-        "--target-version", // avoid --version to avoid confusion with the "./amper --version" command
-        help = "The specific version to update to. By default, the latest version is used.",
+    private val desiredVersion by mutuallyExclusiveOptions(
+        option("--dev", help = "Use the latest development version instead of the official release")
+            .flag()
+            .convert { DesiredVersion.Latest(includeDevVersions = it) },
+        // avoid --version to avoid confusion with the "./amper --version" command
+        option("--target-version", help = "The specific version to update to. By default, the latest version is used.")
+            .convert { DesiredVersion.SpecificVersion(it) },
     )
+        .single() // fail if both --dev and --target-version are used at the same time
+        .default(DesiredVersion.Latest(includeDevVersions = false))
 
     override fun help(context: Context): String = "Update Amper to the latest version"
 
@@ -56,7 +66,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         checkDirectories(amperBashPath, amperBatPath)
         confirmUpdateOnMissingWrappers(amperBashPath, amperBatPath)
 
-        val version = targetVersion ?: getLatestVersion()
+        val version = desiredVersion.resolve()
 
         commonOptions.terminal.println("Downloading Amper scripts...")
         // it's ok to load the whole wrapper content in memory (it's quite small)
@@ -115,16 +125,21 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         }
     }
 
-    private suspend fun getLatestVersion(): String {
+    private suspend fun DesiredVersion.resolve() = when (this) {
+        is DesiredVersion.Latest -> getLatestVersion(includeDevVersions = includeDevVersions)
+        is DesiredVersion.SpecificVersion -> version
+    }
+
+    private suspend fun getLatestVersion(includeDevVersions: Boolean): String {
         commonOptions.terminal.println("Fetching latest Amper version info...")
         val metadataXml = fetchMavenMetadataXml()
         return xmlVersionElementRegex.findAll(metadataXml)
             .mapNotNull { parseAmperVersion(it.groupValues[1]) }
-            .filter { !it.isDevVersion || (useDevVersion && !it.isSpecialBranchVersion) }
+            .filter { !it.isDevVersion || (includeDevVersions && !it.isSpecialBranchVersion) }
             .maxByOrNull { ComparableVersion(it.fullMavenVersion) }
             ?.fullMavenVersion
             ?.also {
-                val versionMoniker = if (useDevVersion) "dev version of Amper" else "Amper version"
+                val versionMoniker = if (includeDevVersions) "dev version of Amper" else "Amper version"
                 commonOptions.terminal.println("Latest $versionMoniker is $it")
             }
             ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$metadataXml")
