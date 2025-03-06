@@ -15,6 +15,8 @@ import com.intellij.mock.MockApplication
 import com.intellij.mock.MockProject
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.impl.CoreProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.Registry
@@ -32,6 +34,9 @@ import com.jetbrains.cidr.xcode.frameworks.AppleSdkManager
 import com.jetbrains.cidr.xcode.model.CoreXcodeWorkspace
 import com.jetbrains.cidr.xcode.model.XcodeProjectTrackers
 import com.jetbrains.cidr.xcode.xcspec.XcodeExtensionsManager
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.telemetry.spanBuilder
@@ -91,6 +96,7 @@ object MockProjectInitializer {
             ourDisposable = disposable
             appEnv.registerLangAppServices()
             @Suppress("UnstableApiUsage")
+            appEnv.application.registerService(ProgressManager::class.java, MockProgressManager::class.java)
             appEnv.application.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
             intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)
 
@@ -121,6 +127,14 @@ object MockProjectInitializer {
 
         LanguageParserDefinitions.INSTANCE.addExplicitExtension(AmperLanguage.INSTANCE, AmperParserDefinition())
         registerFileType(AmperFileType.INSTANCE, "amper")
+    }
+
+    private class MockProgressManager : CoreProgressManager() {
+        override fun doCheckCanceled() {
+            runBlocking {
+                currentCoroutineContext().ensureActive()
+            }
+        }
     }
 
     // Copy-pasted from IDEA (lack of this service causes PSI Scalar elements textValue calculation failure)
