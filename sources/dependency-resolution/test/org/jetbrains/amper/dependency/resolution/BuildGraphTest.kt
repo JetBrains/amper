@@ -9,7 +9,6 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.TestInfo
 import kotlin.io.path.extension
 import kotlin.io.path.name
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -1628,6 +1627,51 @@ class BuildGraphTest: BaseDRTest() {
             root,
             true
         )
+    }
+
+    /**
+     * This test checks that guava dependency is added to the graph in spite of it defines several
+     * capabilities, while Amper doesn't allow such libraries in the graph
+     * (apart from several exceptional cases, including a guava library).
+     *
+     * Allowing libraries with multiple capabilities in a graph would lead to a potential runtime conflict
+     * (when libraries with the same capabilities are added to the runtime).
+     * Resolution of conflict between libraries with the same capability should be explicitly supported in Amper DR.
+     * Until that, such libraries are denied.
+     */
+    @Test
+    fun `com_google_guava guava 32_1_1-jre`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            expected = """root
+                |\--- com.google.guava:guava:32.1.1-jre
+                |     +--- com.google.guava:guava-parent:32.1.1-jre
+                |     +--- com.google.guava:failureaccess:1.0.1
+                |     +--- com.google.code.findbugs:jsr305:3.0.2
+                |     +--- org.checkerframework:checker-qual:3.33.0
+                |     +--- com.google.errorprone:error_prone_annotations:2.18.0
+                |     \--- com.google.j2objc:j2objc-annotations:2.8
+            """.trimMargin()
+        )
+        runBlocking {
+            downloadAndAssertFiles(
+                """checker-qual-3.33.0-javadoc.jar
+                |checker-qual-3.33.0-sources.jar
+                |checker-qual-3.33.0.jar
+                |error_prone_annotations-2.18.0-sources.jar
+                |error_prone_annotations-2.18.0.jar
+                |failureaccess-1.0.1-sources.jar
+                |failureaccess-1.0.1.jar
+                |guava-32.1.1-jre-sources.jar
+                |guava-32.1.1-jre.jar
+                |j2objc-annotations-2.8-sources.jar
+                |j2objc-annotations-2.8.jar
+                |jsr305-3.0.2-sources.jar
+                |jsr305-3.0.2.jar
+            """.trimMargin(),
+                root, true, verifyMessages = true
+            )
+        }
     }
 
     @Test

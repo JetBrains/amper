@@ -1164,8 +1164,7 @@ class   MavenDependency internal constructor(
     ): List<Variant> {
         val initiallyFilteredVariants = module
             .variants
-            // todo (AB) : Why filtering against capabilities? See https://github.com/gradlex-org/jvm-dependency-conflict-resolution
-            .filter { it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions() }
+            .filter { capabilityMatches(it) }
             .filter { nativeTargetMatches(it, platform) }
 
         val validVariants = initiallyFilteredVariants
@@ -1196,10 +1195,10 @@ class   MavenDependency internal constructor(
         group == "org.jetbrains.kotlin" && module == "kotlin-stdlib-common"
 
     private fun Variant.isGuavaException() =
-        isGuava() && capabilities.sortedBy { it.name } == listOf(
-            Capability("com.google.collections", "google-collections", version),
-            toCapability()
-        ) && attributes["org.gradle.jvm.environment"] == when (version.substringAfterLast('-')) {
+        isGuava()
+                && capabilities.contains(Capability("com.google.collections", "google-collections", version))
+                && capabilities.contains(toCapability())
+                && attributes["org.gradle.jvm.environment"] == when (version.substringAfterLast('-')) {
             "android" -> "android"
             "jre" -> "standard-jvm"
             else -> null
@@ -1213,6 +1212,20 @@ class   MavenDependency internal constructor(
         variant.attributes["org.jetbrains.kotlin.platform.type"] != PlatformType.NATIVE.value
                 || variant.attributes["org.jetbrains.kotlin.native.target"] == null
                 || variant.attributes["org.jetbrains.kotlin.native.target"] == platform.nativeTarget
+
+    /**
+     * Check that either dependency defines no capability, or its capability is equal to the library itself,
+     * multiple capabilities are prohibited (apart from several well-known exceptional cases).
+     *
+     * Allowing libraries with multiple capabilities in a graph would lead to a potential runtime conflict
+     * (when libraries with the same capabilities are added to the runtime).
+     * Resolution of conflict between libraries with the same capability should be explicitly supported in Amper DR.
+     * Until that, such libraries are denied.
+     *
+     * todo (AB): Why filtering against capabilities, how to make it right? See https://github.com/gradlex-org/jvm-dependency-conflict-resolution
+     */
+    private fun capabilityMatches(variant: Variant) =
+        variant.capabilities.isEmpty() || variant.capabilities == listOf(toCapability()) || variant.isOneOfExceptions()
 
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
 
