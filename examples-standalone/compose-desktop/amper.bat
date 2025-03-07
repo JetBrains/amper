@@ -16,9 +16,9 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.6.0-dev-2515
+set amper_version=0.6.0-dev-2520
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=b49df0f7e6f4d09b14e62557d373b04b0472a37865c2dd0a8a13b92ce27c2c3f
+set amper_sha256=6e02264b3e84798e43fe35f8d9035c046f09327e3a37a420c05b058c5d572846
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -50,6 +50,8 @@ if exist "%flag_file%" (
 @rem  - we need to support both .zip and .tar.gz archives (for the Amper distribution and the JBR)
 @rem  - tar should be present in all Windows machines since 2018 (and usable from both cmd and powershell)
 @rem  - tar requires the destination dir to exist
+@rem  - We use (New-Object Net.WebClient).DownloadFile instead of Invoke-WebRequest for performance. See the issue
+@rem    https://github.com/PowerShell/PowerShell/issues/16914, which is still not fixed in Windows PowerShell 5.1
 @rem  - DownloadFile requires the directories in the destination file's path to exist
 set download_and_extract_ps1= ^
 Set-StrictMode -Version 3.0; ^
