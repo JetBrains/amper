@@ -37,8 +37,7 @@ class ToolingArtifactsDownloader(
     suspend fun downloadDevTools(): List<Path> = downloadToolingArtifacts(
         listOf(
             "org.jetbrains.compose:hot-reload-devtools:${UsedVersions.hotReloadVersion}",
-            // TODO: use UsedVersions.composeVersion when AMPER-3764 will be resolved
-            "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${/*UsedVersions.composeVersion */ "1.7.1"}"
+            "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}"
         ),
         listOf(
             MAVEN_CENTRAL_REPOSITORY_URL,

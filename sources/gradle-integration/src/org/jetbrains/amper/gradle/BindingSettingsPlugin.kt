@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle
@@ -13,13 +13,11 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
 import org.gradle.api.invocation.Gradle
 import org.jetbrains.amper.core.Result
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
-import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import kotlin.io.path.absolutePathString
@@ -58,8 +56,6 @@ class BindingSettingsPlugin : Plugin<Settings> {
                 settings.gradle.knownModel = model
                 setGradleProjectsToAmperModuleMappings(projects, model.modules, settings.gradle)
 
-                settings.setupComposePlugin(model)
-
                 projects.forEach { project ->
                     if (project.amperModule != null) {
                         configureProjectForAmper(project)
@@ -88,22 +84,6 @@ class BindingSettingsPlugin : Plugin<Settings> {
             val module = amperModulesByDir[project.projectDir.absolutePath] ?: return@forEach
             project.amperModule = AmperModuleWrapper(module)
             gradle.moduleFilePathToProjectPath[module.moduleDir] = project.path
-        }
-    }
-
-    private fun Settings.setupComposePlugin(model: Model) {
-        val chosenComposeVersion = chooseComposeVersion(model)
-        // We don't need to use the dynamic plugin mechanism if the user wants the embedded Compose version (because
-        // it's already on the classpath). Using dynamic plugins relies on unreliable internal Gradle APIs, which are
-        // absent in (or incompatible with) recent Gradle versions, so we only use this if absolutely necessary.
-        if (chosenComposeVersion != null && chosenComposeVersion != UsedVersions.composeVersion) {
-            setupDynamicPlugins(
-                "org.jetbrains.compose:compose-gradle-plugin:$chosenComposeVersion",
-            ) {
-                mavenCentral()
-                // For compose dev versions.
-                maven { it.setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
-            }
         }
     }
 

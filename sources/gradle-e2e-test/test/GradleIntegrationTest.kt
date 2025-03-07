@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 import org.jetbrains.amper.test.Dirs
@@ -475,14 +475,15 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     fun `compose dev version change`() = test(
         projectName = "compose-dev-version-change",
         "assemble",
-        expectOutputToHave = "BUILD SUCCESSFUL",
+        expectOutputToHave = "Gradle-based Amper does not support Compose version 1.6.0-dev1397. The only supported version is 1.6.10. Either switch to Standalone version of Amper or set the Compose version to 1.6.10 explicitly.",
+        shouldSucceed = false,
     )
 
     @Test
     fun `compose dev version change with Gradle 8_7 should fail`() = test(
         projectName = "compose-dev-version-change",
         "assemble",
-        expectOutputToHave = "Amper does not support custom Compose versions with Gradle > 8.6 (current is 8.7)",
+        expectOutputToHave = "Gradle-based Amper does not support Compose version 1.6.0-dev1397. The only supported version is 1.6.10. Either switch to Standalone version of Amper or set the Compose version to 1.6.10 explicitly.",
         shouldSucceed = false,
         gradleVersion = "8.7",
     )

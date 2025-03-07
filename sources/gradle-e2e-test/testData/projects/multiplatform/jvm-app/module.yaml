@@ -8,4 +8,6 @@ test-dependencies:
   - $kotlin-test
 
 settings:
-  compose: enabled
+  compose:
+    enabled: true
+    version: 1.6.10

@@ -5,4 +5,6 @@ dependencies:
   - androidx.activity:activity-compose:1.7.2
 
 settings:
-  compose: enabled
+  compose:
+    version: 1.6.10
+    enabled: true

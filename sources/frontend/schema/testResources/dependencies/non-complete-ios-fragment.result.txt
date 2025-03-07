@@ -1,7 +1,7 @@
 Fragments:
   android
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
@@ -39,7 +39,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -85,7 +85,7 @@ Fragments:
 
   androidTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
@@ -125,7 +125,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -171,7 +171,7 @@ Fragments:
 
   apple
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
     Src folder: src@apple
     Fragment dependencies:
@@ -207,7 +207,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -253,7 +253,7 @@ Fragments:
 
   appleTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.10, compile=true, runtime=true, exported=false)
@@ -292,7 +292,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -338,7 +338,7 @@ Fragments:
 
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -373,7 +373,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -419,7 +419,7 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.10, compile=true, runtime=true, exported=false)
@@ -457,7 +457,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -503,8 +503,8 @@ Fragments:
 
   ios
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.6.10, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.7.3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
@@ -540,7 +540,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -586,7 +586,7 @@ Fragments:
 
   iosTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.10, compile=true, runtime=true, exported=false)
@@ -625,7 +625,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -671,7 +671,7 @@ Fragments:
 
   iosX64
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
     Src folder: src@iosX64
     Fragment dependencies:
@@ -707,7 +707,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -753,7 +753,7 @@ Fragments:
 
   iosX64Test
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.10, compile=true, runtime=true, exported=false)
@@ -792,7 +792,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -838,7 +838,7 @@ Fragments:
 
   native
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
     Src folder: src@native
     Fragment dependencies:
@@ -874,7 +874,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {
@@ -920,7 +920,7 @@ Fragments:
 
   nativeTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.6.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.10, compile=true, runtime=true, exported=false)
@@ -959,7 +959,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.6.10
+        version: <default> 1.7.3
       }
       ios: <default> {
         framework: <default> {

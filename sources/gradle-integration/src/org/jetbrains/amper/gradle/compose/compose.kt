@@ -5,6 +5,7 @@
 package org.jetbrains.amper.gradle.compose
 
 import com.intellij.util.asSafely
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
@@ -31,6 +32,12 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
     // Need to implement API on compose plugin side.
     override fun applyBeforeEvaluate() {
         val composeVersion = chooseComposeVersion(model)!!
+        val latestSupportedComposeVersion = "1.6.10"
+        if (composeVersion != latestSupportedComposeVersion) {
+            throw GradleException("Gradle-based Amper does not support Compose version $composeVersion. " +
+                    "The only supported version is $latestSupportedComposeVersion. Either switch to Standalone version " +
+                    "of Amper or set the Compose version to $latestSupportedComposeVersion explicitly.")
+        }
         val composeResourcesDir = module.moduleDir.resolve("composeResources").toFile()
 
         project.plugins.apply("org.jetbrains.kotlin.plugin.compose")

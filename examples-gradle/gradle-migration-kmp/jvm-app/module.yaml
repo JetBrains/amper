@@ -5,4 +5,6 @@ dependencies:
   - $compose.desktop.currentOs
 
 settings:
-  compose: enabled
+  compose:
+    version: 1.6.10
+    enabled: true

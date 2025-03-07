@@ -38,6 +38,7 @@ settings:
     maxSdk: 33
     targetSdk: 33
   compose:
+    version: 1.6.10
     enabled: true
   jvm:
     mainClass: MainKt

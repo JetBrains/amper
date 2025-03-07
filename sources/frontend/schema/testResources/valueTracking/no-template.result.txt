@@ -9,7 +9,7 @@
          exposedAccessors: false [default]
          packageName:  [default]
 
-      version: 1.6.10 [default]
+      version: 1.7.3 [default]
 
    kotlin:
       allWarningsAsErrors: false [default]

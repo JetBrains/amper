@@ -2005,7 +2005,7 @@ sqldelight {
 | `org.jetbrains.kotlin.plugin.serialization` | 2.1.10  |
 | `com.android.library`                       | 8.2.0   |
 | `com.android.application`                   | 8.2.0   |
-| `org.jetbrains.compose`                     | 1.6.10  |
+| `org.jetbrains.compose`                     | 1.7.3  |
 
 Here is how to use these plugins in a Gradle script:
 ```kotlin

@@ -5,6 +5,8 @@ dependencies:
   - $compose.material3
 
 settings:
-  compose: enabled
+  compose:
+    version: 1.6.10
+    enabled: true
   ios:
     teamId: <your team ID here> # See https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/

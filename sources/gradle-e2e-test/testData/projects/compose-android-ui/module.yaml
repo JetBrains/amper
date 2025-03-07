@@ -20,4 +20,6 @@ dependencies:
   - androidx.test.espresso:espresso-core:3.5.1
 
 settings:
-  compose: enabled
+  compose:
+    version: 1.6.10
+    enabled: true

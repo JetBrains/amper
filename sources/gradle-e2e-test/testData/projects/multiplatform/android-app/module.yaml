@@ -10,7 +10,9 @@ dependencies:
 
 
 settings:
-  compose: enabled
+  compose:
+    enabled: true
+    version: 1.6.10
 
   android:
     applicationId: "com.jetbrains.sample.app"
