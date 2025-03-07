@@ -53,6 +53,9 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         .single() // fail if both --dev and --target-version are used at the same time
         .default(DesiredVersion.Latest(includeDevVersions = false))
 
+    private val create by option("-c", "--create", help = "Create the Amper scripts if they don't exist yet")
+        .flag()
+
     override fun help(context: Context): String = "Update Amper to the latest version"
 
     override suspend fun run() {
@@ -64,7 +67,9 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         val amperBashPath = targetDir.resolve("amper")
         val amperBatPath = targetDir.resolve("amper.bat")
         checkDirectories(amperBashPath, amperBatPath)
-        confirmUpdateOnMissingWrappers(amperBashPath, amperBatPath)
+        if (!create) {
+            confirmCreateIfMissingWrappers(amperBashPath, amperBatPath)
+        }
 
         val version = desiredVersion.resolve()
 
@@ -101,16 +106,16 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         }
     }
 
-    private fun confirmUpdateOnMissingWrappers(vararg amperScriptPaths: Path) {
+    private fun confirmCreateIfMissingWrappers(vararg amperScriptPaths: Path) {
         val missingScripts = amperScriptPaths.filterNot { it.exists() }
         if (missingScripts.isEmpty()) {
             return
         }
         val targetDirRef = commonOptions.explicitRoot?.pathString ?: "the current directory"
         val prompt = if (missingScripts.size == amperScriptPaths.size) {
-            "Amper scripts were not found in $targetDirRef.\nWould you like to generate them from scratch? (Y/n)"
+            "Amper scripts were not found in $targetDirRef.\nWould you like to create them from scratch? (Y/n)"
         } else {
-            "An Amper script is missing: ${missingScripts.first().normalize().absolutePathString()}.\nUpdating will generate it. Would you like to continue? (Y/n)"
+            "An Amper script is missing: ${missingScripts.first().normalize().absolutePathString()}.\nUpdating will create it. Would you like to continue? (Y/n)"
         }
         val answer = commonOptions.terminal.prompt(
             prompt = prompt,
