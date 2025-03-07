@@ -50,6 +50,8 @@ if exist "%flag_file%" (
 @rem  - we need to support both .zip and .tar.gz archives (for the Amper distribution and the JBR)
 @rem  - tar should be present in all Windows machines since 2018 (and usable from both cmd and powershell)
 @rem  - tar requires the destination dir to exist
+@rem  - We use (New-Object Net.WebClient).DownloadFile instead of Invoke-WebRequest for performance. See the issue
+@rem    https://github.com/PowerShell/PowerShell/issues/16914, which is still not fixed in Windows PowerShell 5.1
 @rem  - DownloadFile requires the directories in the destination file's path to exist
 set download_and_extract_ps1= ^
 Set-StrictMode -Version 3.0; ^
