@@ -4,19 +4,14 @@
 
 package org.jetbrains.amper.frontend.messages
 
-import com.intellij.core.CoreApplicationEnvironment
-import com.intellij.core.CoreProjectEnvironment
-import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.amper.core.messages.LineAndColumn
 import org.jetbrains.amper.core.messages.LineAndColumnRange
-import org.jetbrains.yaml.YAMLFileType
-import org.jetbrains.yaml.YAMLLanguage
-import org.jetbrains.yaml.YAMLParserDefinition
+import org.jetbrains.amper.intellij.IntelliJApplicationConfigurator
+import org.jetbrains.amper.intellij.MockProjectInitializer
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,13 +23,7 @@ class PsiBuildProblemImplSourceTest {
 
     @BeforeEach
     fun setUp() {
-        System.setProperty("idea.home.path", "")
-        val appEnv = CoreApplicationEnvironment(Disposer.newDisposable())
-        val projectEnv = CoreProjectEnvironment(appEnv.parentDisposable, appEnv)
-        LanguageParserDefinitions.INSTANCE.addExplicitExtension(YAMLLanguage.INSTANCE, YAMLParserDefinition())
-        appEnv.registerFileType(YAMLFileType.YML, "yaml")
-
-        project = projectEnv.project
+        project = MockProjectInitializer.initMockProject(IntelliJApplicationConfigurator.EMPTY)
     }
 
     @Test
