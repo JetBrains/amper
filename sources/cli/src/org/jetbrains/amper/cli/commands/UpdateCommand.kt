@@ -12,22 +12,41 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.mordant.rendering.Theme
 import com.github.ajalt.mordant.terminal.prompt
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.httpClient
 import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
+import org.jetbrains.amper.processes.startLongLivedProcess
+import org.jetbrains.amper.util.ShellQuoting
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
+import java.nio.file.attribute.PosixFileAttributeView
+import java.nio.file.attribute.PosixFilePermission.*
 import kotlin.io.path.Path
+import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.copyTo
+import kotlin.io.path.createTempFile
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
+import kotlin.io.path.extension
+import kotlin.io.path.fileAttributesViewOrNull
+import kotlin.io.path.fileSize
 import kotlin.io.path.isDirectory
+import kotlin.io.path.isSameFileAs
+import kotlin.io.path.moveTo
+import kotlin.io.path.name
+import kotlin.io.path.notExists
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 import kotlin.system.exitProcess
 
 private sealed class DesiredVersion {
@@ -58,6 +77,9 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
 
     override fun help(context: Context): String = "Update Amper to the latest version"
 
+    private val runningWrapper by lazy { Path(System.getProperty("amper.wrapper.path")).absolute() }
+
+    @OptIn(ProcessLeak::class)
     override suspend fun run() {
         // We could in theory find the parent dir of the actual script that launched Amper (even without project root
         // discovery, by passing more info from the wrapper to Amper), but the benefit would be marginal, and it would
@@ -74,27 +96,45 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         val version = desiredVersion.resolve()
 
         commonOptions.terminal.println("Downloading Amper scripts...")
-        // it's ok to load the whole wrapper content in memory (it's quite small)
-        val bashWrapper = fetchWrapperContent(version = version, extension = "")
-        val batWrapper = fetchWrapperContent(version = version, extension = ".bat")
+        val newBashPath = downloadWrapper(version = version, extension = "").apply { setReadExecPermissions() }
+        val newBatPath = downloadWrapper(version = version, extension = ".bat").apply { setReadExecPermissions() }
+        commonOptions.terminal.println("Download complete.")
 
-        if (amperBashPath.exists() && bashWrapper == amperBashPath.readText() &&
-            amperBatPath.exists() && batWrapper == amperBatPath.readText()) {
+        if (amperBashPath.exists() && newBashPath.readText() == amperBashPath.readText() &&
+            amperBatPath.exists() && newBatPath.readText() == amperBatPath.readText()) {
             commonOptions.terminal.println("Amper is already in version $version, nothing to update")
             return
         }
 
-        // we only overwrite the files once we're sure we could fetch everything
-        amperBashPath.writeText(bashWrapper)
-        amperBatPath.writeText(batWrapper)
-
-        commonOptions.terminal.println("Updated Amper scripts to version $version")
-
-        // to force downloading Amper distribution and JRE
-        val exitCode = runAmperVersionFirstRun(amperBatPath, amperBashPath)
+        // Test the new script and download the Amper distribution and JRE
+        val exitCode = runAmperVersionFirstRun(newBatPath, newBashPath)
         if (exitCode != 0) {
             userReadableError("Couldn't run the new Amper version. Please check the errors above.")
         }
+
+        // Replacing a bash script while it's running is possible. We use move commands to ensure the physical file on
+        // disk is not modified, thus we can write a new physical file to the old location. Bash will keep loading the
+        // old file incrementally from the old physical file using its old file descriptor, which is good.
+        copyAndReplaceSafely(source = newBashPath, target = amperBashPath)
+
+        // Batch files are different. When running, cmd.exe reloads the file after each command and tries to resume at
+        // whatever byte offset it was. We can modify the file while it's running, but when the java command running
+        // this code completes, it will resume in the new wrapper code. If the new script is shorter, cmd.exe will just
+        // stop and the command completes normally. If the new script is longer, then cmd.exe will likely resume in the
+        // middle of a command in the middle of the script, which will fail miserably.
+        // Even with atomic moves, the new file is reloaded, so in this case we have to spawn a process that will
+        // replace the old wrapper after the update command (and the current wrapper) finished executing.
+        val batUpdateInPlaceWouldBreak = amperBatPath.exists()
+                && amperBatPath.isSameFileAs(runningWrapper)
+                && newBatPath.fileSize() > runningWrapper.fileSize()
+        if (batUpdateInPlaceWouldBreak) {
+            copyAndReplaceLaterWindows(source = newBatPath, target = amperBatPath)
+        } else {
+            copyAndReplaceSafely(source = newBatPath, target = amperBatPath)
+        }
+
+        val successStyle = Theme.Default.success
+        commonOptions.terminal.println(successStyle("Update successful"))
     }
 
     private fun checkNotDirectories(vararg amperScriptPaths: Path) {
@@ -145,7 +185,8 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
             ?.fullMavenVersion
             ?.also {
                 val versionMoniker = if (includeDevVersions) "dev version of Amper" else "Amper version"
-                commonOptions.terminal.println("Latest $versionMoniker is $it")
+                val infoStyle = Theme.Default.info
+                commonOptions.terminal.println("Latest $versionMoniker is ${infoStyle(it)}")
             }
             ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$metadataXml")
     }
@@ -156,15 +197,95 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         userReadableError("Couldn't fetch the latest Amper version:\n$e")
     }
 
-    private suspend fun fetchWrapperContent(version: String, extension: String): String = try {
-        httpClient.get("$repository/org/jetbrains/amper/cli/$version/cli-$version-wrapper$extension").bodyAsText()
+    private suspend fun downloadWrapper(version: String, extension: String): Path = try {
+        Downloader.downloadFileToCacheLocation(
+            url = "$repository/org/jetbrains/amper/cli/$version/cli-$version-wrapper$extension",
+            userCacheRoot = commonOptions.sharedCachesRoot,
+            infoLog = false,
+        )
     } catch (e: Exception) {
-        userReadableError("Couldn't fetch Amper script content in version $version:\n$e")
+        userReadableError("Couldn't fetch Amper script version $version:\n$e")
     }
 
     private suspend fun runAmperVersionFirstRun(batWrapper: Path, bashWrapper: Path): Int {
-        val wrapper = if (DefaultSystemInfo.detect().family.isWindows) batWrapper else bashWrapper
-        return runProcessWithInheritedIO(command = listOf(wrapper.absolutePathString(), "--version"))
+        val command = when (DefaultSystemInfo.detect().family) {
+            OsFamily.Windows -> if (runningWrapper.extension == "bat") {
+                listOf(batWrapper.absolutePathString(), "--version")
+            } else {
+                // If we're running the bash script on Windows (probably with Git Bash), we need to also use the bash
+                // script here. For this, we need to call bash explicitly.
+                // Finding the corresponding unix-style path is not trivial, so we instead use ./name and ensure we're
+                // in the correct working directory when running the process.
+                listOf("bash.exe", "-c", ShellQuoting.quoteArgumentsPosixShellWay(listOf("./${bashWrapper.name}", "--version")))
+            }
+            OsFamily.Linux,
+            OsFamily.MacOs,
+            OsFamily.FreeBSD,
+            OsFamily.Solaris -> listOf(bashWrapper.absolutePathString(), "--version")
+        }
+        return runProcessWithInheritedIO(workingDir = bashWrapper.absolute().parent, command = command)
+    }
+
+    private fun Path.setReadExecPermissions() {
+        fileAttributesViewOrNull<PosixFileAttributeView>()
+            ?.setPermissions(setOf(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE, GROUP_READ, GROUP_EXECUTE, OTHERS_READ, OTHERS_EXECUTE))
+            ?: run {
+                val file = toFile()
+                file.setReadable(true)
+                file.setWritable(true, true)
+                file.setExecutable(true)
+            }
+    }
+
+    /**
+     * Copies the given [source] file to the given [target], replacing the original file if present.
+     * In case of errors, it the original [target] file is restored.
+     * The original file is atomically moved to another path (then deleted) so the physical file can be preserved.
+     * This means that if [target] points to a currently running bash script, the script execution will not be affected.
+     */
+    private fun copyAndReplaceSafely(source: Path, target: Path) {
+        if (target.notExists()) {
+            // We copy (not move) in case of concurrent updates all wanting to move the same file
+            source.copyTo(target, StandardCopyOption.REPLACE_EXISTING)
+            return
+        }
+        // Not in a temp dir on purpose. We want to guarantee being in the same drive to allow atomic moves.
+        // The name is unique to avoid issues with concurrent updates.
+        val oldFileTemp = createTempFile(target.parent, "${target.name}.old")
+        try {
+            // Renaming a running script allows the execution to continue on unix systems (same inode on disk)
+            target.moveTo(oldFileTemp, StandardCopyOption.ATOMIC_MOVE)
+            try {
+                // We copy (not move) in case of concurrent updates all wanting to move the same file
+                source.copyTo(target, StandardCopyOption.REPLACE_EXISTING)
+            } catch (e: Exception) {
+                // We restore the old file in case of problems.
+                // This is non-atomic because we don't want to fail if the file exists
+                // (there could have been a partial or concurrent copy)
+                oldFileTemp.moveTo(target, overwrite = true)
+                throw e
+            } finally {
+                oldFileTemp.deleteIfExists()
+            }
+        } catch (e: Exception) {
+            userReadableError("Couldn't update Amper script: $e")
+        }
+    }
+
+    @OptIn(ProcessLeak::class)
+    private fun copyAndReplaceLaterWindows(source: Path, target: Path) {
+        startLongLivedProcess(
+            // The 'ping' here is used to sleep 1 second.
+            // The 'timeout' command only works in interactive consoles (thus fails in our case); 'ping' is reliable.
+            // Using the IP instead of 'localhost' is a conscious choice, because localhost may involve DNS or hosts
+            // file lookup, and also might be mapped to ::1 (IPv6) which might make ping fail or behave differently.
+            command = listOf("cmd", "/c", "ping -n 2 127.0.0.1 & copy /y ${source.absolute().quotedForCmd()} ${target.absolute().quotedForCmd()}")
+        )
+    }
+
+    private fun Path.quotedForCmd(): String {
+        // paths can't contain quotes on Windows
+        return if (pathString.contains(' ')) "\"$pathString\"" else pathString
     }
 }
 

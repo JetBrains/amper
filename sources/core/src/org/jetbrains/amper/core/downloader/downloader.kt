@@ -53,6 +53,7 @@ object Downloader {
     suspend fun downloadFileToCacheLocation(
         url: String,
         userCacheRoot: AmperUserCacheRoot,
+        infoLog: Boolean = true,
     ): Path {
         val target = getTargetFile(userCacheRoot, url)
         val targetPath = target.toString()
@@ -77,7 +78,9 @@ object Downloader {
                 return target
             }
 
-            logger.info("Downloading $url to ${target.pathString}")
+            if (infoLog) {
+                logger.info("Downloading $url to ${target.pathString}")
+            }
 
             return spanBuilder("download").setAttribute("url", url).setAttribute("target", targetPath).use {
                 // TODO check if this is redundant with Ktor's retry mechanism.

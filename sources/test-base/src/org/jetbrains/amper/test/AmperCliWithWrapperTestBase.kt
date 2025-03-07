@@ -14,6 +14,7 @@ import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.jetbrains.amper.test.server.HttpServerExtension
+import org.jetbrains.amper.test.server.WwwResult
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.management.ManagementFactory
@@ -30,10 +31,28 @@ import kotlin.test.assertTrue
 abstract class AmperCliWithWrapperTestBase {
 
     @RegisterExtension
-    private val httpServer = HttpServerExtension(wwwRoot = Dirs.m2repository)
+    protected val testReporter = TestReporterExtension()
 
     @RegisterExtension
-    protected val testReporter = TestReporterExtension()
+    private val httpServer = HttpServerExtension(
+        wwwRoot = Dirs.m2repository,
+        wwwInterceptor = { urlPath ->
+            val amperCliDistRegex = Regex("org/jetbrains/amper/cli/(?<version>[^/]+)/.*")
+            val match = amperCliDistRegex.matchEntire(urlPath)
+            if (match != null && match.groups["version"]!!.value != "1.0-SNAPSHOT") {
+                // we only want to serve 1.0-SNAPSHOT from local m2 (and serve other versions from the real maven)
+                WwwResult.Download(url = "https://packages.jetbrains.team/maven/p/amper/amper/$urlPath")
+            } else {
+                WwwResult.LocalFile
+            }
+        }
+    )
+
+    /**
+     * The URL to use to download the locally published Amper wrapper and distribution (from the local test server).
+     */
+    protected val localAmperDistRepoUrl: String
+        get() = httpServer.wwwRootUrl
 
     /**
      * The files that were downloaded by the Amper wrapper so far in the current test.
