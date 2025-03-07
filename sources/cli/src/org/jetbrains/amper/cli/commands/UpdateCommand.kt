@@ -66,7 +66,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         val targetDir = commonOptions.explicitRoot ?: Path(".")
         val amperBashPath = targetDir.resolve("amper")
         val amperBatPath = targetDir.resolve("amper.bat")
-        checkDirectories(amperBashPath, amperBatPath)
+        checkNotDirectories(amperBashPath, amperBatPath)
         if (!create) {
             confirmCreateIfMissingWrappers(amperBashPath, amperBatPath)
         }
@@ -97,7 +97,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         }
     }
 
-    private fun checkDirectories(vararg amperScriptPaths: Path) {
+    private fun checkNotDirectories(vararg amperScriptPaths: Path) {
         val clashingDirs = amperScriptPaths.filter { it.exists() && it.isDirectory() }
         if (clashingDirs.isNotEmpty()) {
             userReadableError("Amper scripts cannot be updated because a directory with a conflicting name exists: " +
