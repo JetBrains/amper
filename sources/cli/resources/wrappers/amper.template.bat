@@ -70,7 +70,11 @@ try { ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
         Write-Host 'Downloading %moniker%... (only happens on the first run of this version)'; ^
         [void](New-Item '%AMPER_BOOTSTRAP_CACHE_DIR%' -ItemType Directory -Force); ^
-        (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
+        if (Get-Command curl.exe -errorAction SilentlyContinue) { ^
+            curl.exe -L --silent --show-error --fail --output $temp_file '%url%'; ^
+        } else { ^
+            (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
+        } ^
  ^
         $actualSha = (Get-FileHash -Algorithm SHA%sha_size% -Path $temp_file).Hash.ToString(); ^
         if ($actualSha -ne '%sha%') { ^
