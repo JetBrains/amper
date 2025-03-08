@@ -45,7 +45,7 @@ abstract class AmperCliWithWrapperTestBase {
     companion object {
 
         // This is to limit resource consumption when using lots of parallel CLI tests
-        private const val maxParallelAmperProcesses = 8
+        private const val maxParallelAmperProcesses = 4
         private val amperProcessSemaphore = Semaphore(permits = maxParallelAmperProcesses)
 
         @JvmStatic
