@@ -95,7 +95,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                 GenerateActualResourceCollectorsTask(
                     buildOutputRoot = context.buildOutputRoot,
                     useActualModifier = shouldSeparateExpectActual,
-                    fragment = fragment as LeafFragment,
+                    fragment = fragment,
                     packageName = packageName,
                     makeAccessorsPublic = makeAccessorsPublic,
                     shouldGenerateCode = shouldGenerateCode,
