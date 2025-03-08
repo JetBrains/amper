@@ -60,8 +60,6 @@ class BindingProjectPlugin : Plugin<Project> {
             appliedParts.forEach(BindingPluginPart::applyAfterEvaluate)
         }
 
-        project.extensions.add("amper", AmperGradleExtension(project))
-
         // Apply before evaluate.
         appliedParts.forEach(BindingPluginPart::applyBeforeEvaluate)
         kmppBindingPluginPart.afterAll()
