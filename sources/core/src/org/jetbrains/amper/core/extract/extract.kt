@@ -156,7 +156,7 @@ fun FileChannel.writeFully(bb: ByteBuffer) {
 }
 
 fun extractZip(archiveFile: Path, target: Path, stripRoot: Boolean) {
-    ZipFile(FileChannel.open(archiveFile)).use { zipFile ->
+    ZipFile.builder().setSeekableByteChannel(FileChannel.open(archiveFile)).get().use { zipFile ->
         val entries = zipFile.entries
         genericExtract(archiveFile, object : ArchiveContent {
             override val nextEntry: Entry?
