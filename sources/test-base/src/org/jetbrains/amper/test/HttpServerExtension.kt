@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.test
 
+import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -24,6 +25,17 @@ import kotlin.io.path.fileSize
 import kotlin.io.path.inputStream
 import kotlin.io.path.isRegularFile
 
+sealed interface WwwResult {
+    /** Respond with the local file corresponding to the URL path (the default). */
+    data object LocalFile : WwwResult
+
+    /** Respond with an HTTP redirect to the given [newUrl] */
+    data class Redirect(val newUrl: String) : WwwResult
+
+    /** Respond with the contents of the file at the given [url]. The download is cached. */
+    data class Download(val url: String) : WwwResult
+}
+
 /**
  * A JUnit Jupiter extension that provides an HTTP server to serve files from the given [wwwRoot] directory, and to
  * provide an HTTP cache for other types of URLs.
@@ -31,7 +43,10 @@ import kotlin.io.path.isRegularFile
  * * Use [wwwRootUrl] to access files from [wwwRoot].
  * * Use [cacheRootUrl] to use the actual network initially, and cache responses for the future.
  */
-class HttpServerExtension(private val wwwRoot: Path) : Extension, BeforeEachCallback, AfterEachCallback {
+class HttpServerExtension(
+    private val wwwRoot: Path,
+    private val wwwInterceptor: (String) -> WwwResult = { WwwResult.LocalFile },
+) : Extension, BeforeEachCallback, AfterEachCallback {
     private val serverRef = AtomicReference<HttpServer>(null)
     private val requestedFilesRef = CopyOnWriteArrayList<Path>()
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -65,52 +80,74 @@ class HttpServerExtension(private val wwwRoot: Path) : Extension, BeforeEachCall
         val server = HttpServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 5)
         server.createContext("/www") { httpExchange ->
             if (httpExchange.requestMethod != "GET") {
-                httpExchange.sendResponseHeaders(400, -1)
+                httpExchange.failRequestWrongMethod()
                 return@createContext
             }
 
-            val filePath = wwwRoot.resolve(httpExchange.requestURI.path.removePrefix("/www/"))
-            requestedFilesRef.add(filePath)
-
-            if (!filePath.isRegularFile()) {
-                httpExchange.sendResponseHeaders(404, -1)
-                return@createContext
+            val effectiveUrlPath = httpExchange.requestURI.path.removePrefix("/www/")
+            when (val result = wwwInterceptor(effectiveUrlPath)) {
+                is WwwResult.Redirect -> httpExchange.respondRedirect(result.newUrl)
+                is WwwResult.Download -> httpExchange.respondWithDownloadedFile(result.url)
+                WwwResult.LocalFile -> {
+                    val filePath = wwwRoot.resolve(effectiveUrlPath)
+                    requestedFilesRef.add(filePath)
+                    httpExchange.respondWithLocalFile(filePath)
+                }
             }
-
-            httpExchange.sendResponseHeaders(200, filePath.fileSize())
-            httpExchange.responseBody.writeFileContents(filePath)
         }
         server.createContext("/cache") { httpExchange ->
             if (httpExchange.requestMethod != "GET") {
-                logger.error("HTTP ${httpExchange.requestMethod} method is not supported in test server, expected GET")
-                httpExchange.sendResponseHeaders(400, -1)
-                httpExchange.responseBody.close()
+                httpExchange.failRequestWrongMethod()
                 return@createContext
             }
 
             val filePath = httpExchange.requestURI.path.removePrefix("/cache/")
-            val url = "https://$filePath"
-
-            try {
-                runBlocking(Dispatchers.IO) {
-                    val cachedFile = Downloader.downloadFileToCacheLocation(url, AmperUserCacheRoot(Dirs.persistentHttpCache))
-                    httpExchange.sendResponseHeaders(200, cachedFile.fileSize())
-                    httpExchange.responseBody.writeFileContents(cachedFile)
-                }
-            } catch (e: Throwable) {
-                // Throwable ^^ is not used lightly here, it catches ExceptionInInitializerError for uninitialized Ktor engine
-                // Those exceptions don't seem to propagate anywhere otherwise.
-                logger.error("Exception when downloading from $url", e)
-                val errorResponseBody = "The test proxy server failed to download from $url:\n$e".encodeToByteArray()
-                httpExchange.sendResponseHeaders(500, errorResponseBody.size.toLong())
-                httpExchange.responseBody.buffered().use {
-                    it.write(errorResponseBody)
-                }
-                throw e
-            }
+            httpExchange.respondWithDownloadedFile(url = "https://$filePath")
         }
         server.start()
         serverRef.set(server)
+    }
+
+    private fun HttpExchange.failRequestWrongMethod() {
+        logger.error("HTTP ${this.requestMethod} method is not supported in test server, expected GET")
+        sendResponseHeaders(400, -1)
+        responseBody.close()
+    }
+
+    private fun HttpExchange.respondRedirect(newUrl: String) {
+        sendResponseHeaders(302, -1)
+        responseHeaders.add("Location", newUrl)
+        responseBody.close()
+    }
+
+    private fun HttpExchange.respondWithLocalFile(filePath: Path) {
+        if (!filePath.isRegularFile()) {
+            sendResponseHeaders(404, -1)
+            responseBody.close()
+            return
+        }
+        sendResponseHeaders(200, filePath.fileSize())
+        responseBody.writeFileContents(filePath)
+    }
+
+    private fun HttpExchange.respondWithDownloadedFile(url: String) {
+        try {
+            runBlocking(Dispatchers.IO) {
+                val cachedFile = Downloader.downloadFileToCacheLocation(url, AmperUserCacheRoot(Dirs.persistentHttpCache))
+                sendResponseHeaders(200, cachedFile.fileSize())
+                responseBody.writeFileContents(cachedFile)
+            }
+        } catch (e: Throwable) {
+            // Throwable ^^ is not used lightly here, it catches ExceptionInInitializerError for uninitialized Ktor engine
+            // Those exceptions don't seem to propagate anywhere otherwise.
+            logger.error("Exception when downloading from $url", e)
+            val errorResponseBody = "The test proxy server failed to download from $url:\n$e".encodeToByteArray()
+            sendResponseHeaders(500, errorResponseBody.size.toLong())
+            responseBody.buffered().use {
+                it.write(errorResponseBody)
+            }
+            throw e
+        }
     }
 
     override fun afterEach(context: ExtensionContext?) {
