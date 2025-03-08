@@ -140,10 +140,7 @@ check_sha() {
   sha_size=$4
   if command -v shasum >/dev/null 2>&1; then
     echo "$3 *$2" | shasum -a "$sha_size" --status -c || {
-      echo "$2 (downloaded from $1):" >&2
-      echo "expected checksum $3 but got: $(shasum --binary -a "$sha_size" "$2" | awk '{print $1}')" >&2
-
-      die "ERROR: Checksum mismatch for $1"
+      die "ERROR: Checksum mismatch for $2 (downloaded from $1): expected checksum $3 but got $(shasum --binary -a "$sha_size" "$2" | awk '{print $1}')"
     }
     return 0
   fi
@@ -151,10 +148,7 @@ check_sha() {
   shaNsumCommand="sha${sha_size}sum"
   if command -v "$shaNsumCommand" >/dev/null 2>&1; then
     echo "$3 *$2" | $shaNsumCommand -w -c || {
-      echo "$2 (downloaded from $1):" >&2
-      echo "expected checksum $3 but got: $($shaNsumCommand "$2" | awk '{print $1}')" >&2
-
-      die "ERROR: Checksum mismatch for $1"
+      die "ERROR: Checksum mismatch for $2 (downloaded from $1): expected checksum $3 but got $($shaNsumCommand "$2" | awk '{print $1}')"
     }
     return 0
   fi

@@ -312,13 +312,11 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             // We want to test the failure to download the JRE to the bootstrap dir, we have to unset this
             amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
         )
-        val expectedContains = "expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got"
-        assertTrue("Process output must contain '$expectedContains' line. Output:\n${result.stderr}") {
+        val expectedErrorRegex =
+            Regex("""ERROR: Checksum mismatch for .+ \(downloaded from .+\): expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got \w+""")
+        assertTrue("Process stderr must match '$expectedErrorRegex'. Actual stderr:\n${result.stderr}") {
             // cmd.exe breaks lines unpredictably when calling powershell (it depends on its own buffer)
-            result.stderr
-                .replace("\r", "")
-                .replace("\n", "")
-                .contains(expectedContains)
+            result.stderr.replace("\r", "").replace("\n", "").matches(expectedErrorRegex)
         }
     }
 
