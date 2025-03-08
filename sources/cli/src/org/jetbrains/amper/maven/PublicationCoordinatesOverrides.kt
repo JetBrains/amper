@@ -5,6 +5,7 @@
 package org.jetbrains.amper.maven
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 
 @Serializable
