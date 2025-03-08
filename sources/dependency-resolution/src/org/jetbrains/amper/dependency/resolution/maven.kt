@@ -1195,6 +1195,9 @@ class   MavenDependency internal constructor(
     private fun isKotlinStdlibCommon() =
         group == "org.jetbrains.kotlin" && module == "kotlin-stdlib-common"
 
+    private fun isKotlinStdlib() =
+        group == "org.jetbrains.kotlin" && module == "kotlin-stdlib"
+
     private fun Variant.isGuavaException() =
         isGuava()
                 && capabilities.contains(Capability("com.google.collections", "google-collections", version))
@@ -1454,7 +1457,9 @@ class   MavenDependency internal constructor(
 
 
     suspend fun downloadDependencies(context: Context, downloadSources: Boolean = false) {
-        val allFiles = files(downloadSources)
+        val withSources = downloadSources || alwaysDownloadSources()
+
+        val allFiles = files(withSources)
         val notDownloaded = allFiles
             .filter {
                 (context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
@@ -1467,8 +1472,10 @@ class   MavenDependency internal constructor(
             it.download(context, it.diagnosticsReporter)
         }
 
-        allFiles.forEach { it.postProcess(context, downloadSources, ResolutionLevel.NETWORK, it.diagnosticsReporter) }
+        allFiles.forEach { it.postProcess(context, withSources, ResolutionLevel.NETWORK, it.diagnosticsReporter) }
     }
+
+    private fun alwaysDownloadSources() = isKotlinStdlib()
 
     private suspend fun DependencyFile.postProcess(context: Context, downloadSources: Boolean, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter) {
         repackageKmpLibrarySources(context, downloadSources, level, diagnosticsReporter)
