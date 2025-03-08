@@ -213,7 +213,7 @@ private fun extractTarBasedArchive(
             @get:Throws(IOException::class)
             override val nextEntry: Entry?
                 get() {
-                    val entry = archive.nextTarEntry ?: return null
+                    val entry = archive.nextEntry ?: return null
                     return object : Entry {
                         override val type: Entry.Type
                             get() = when {
