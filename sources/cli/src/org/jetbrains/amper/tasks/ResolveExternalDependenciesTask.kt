@@ -219,17 +219,15 @@ class ResolveExternalDependenciesTask(
         .filter { it.directDependencyCondition() }
         .mapNotNull { directMavenDependency ->
             val node = directMavenDependency.dependencyNode as MavenDependencyNode
-            directMavenDependency.notation?.let { notation ->
-                val coordinatesOriginal = node.getOriginalMavenCoordinates()
-                val coordinatesForPublishing = node.getMavenCoordinatesForPublishing()
-                if (coordinatesOriginal != coordinatesForPublishing) {
-                    PublicationCoordinatesOverride(
-                        originalCoordinates = coordinatesOriginal,
-                        variantCoordinates = coordinatesForPublishing,
-                    )
-                } else {
-                    null
-                }
+            val coordinatesOriginal = node.getOriginalMavenCoordinates()
+            val coordinatesForPublishing = node.getMavenCoordinatesForPublishing()
+            if (coordinatesOriginal != coordinatesForPublishing) {
+                PublicationCoordinatesOverride(
+                    originalCoordinates = coordinatesOriginal,
+                    variantCoordinates = coordinatesForPublishing,
+                )
+            } else {
+                null
             }
         }
 
