@@ -6,7 +6,6 @@
 
 package org.jetbrains.amper.backend.test
 
-import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliContext
@@ -101,37 +100,6 @@ abstract class AmperIntegrationTestBase {
     protected fun TestCollector.assertLogContains(text: String, level: Level) {
         assertTrue("Log message with level=$level and containing '$text' was not found") {
             logEntries.any { it.level == level && text in it.message }
-        }
-    }
-
-    protected fun TestCollector.assertStdoutContains(text: String) {
-        assertTrue("No line in stdout contains the text '$text':\n" + terminalRecorder.stdout().trim()) {
-            terminalRecorder.stdout().lineSequence().any { text in it }
-        }
-    }
-
-    protected fun TestCollector.assertStdoutTextContains(text: String) {
-        assertTrue("No line in stdout contains the text '$text':\n" + terminalRecorder.stdout().trim()) {
-            text in terminalRecorder.stdout()
-        }
-    }
-
-    protected fun TestCollector.assertStdoutDoesNotContain(text: String) {
-        assertTrue("No line in stdout should contain the text '$text':\n" + terminalRecorder.stdout().trim()) {
-            terminalRecorder.stdout().lineSequence().none { text in it }
-        }
-    }
-
-    fun AmperBackend.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
-        val taskNames = tasks().map { it.taskName.name }.toSortedSet()
-        tasks.forEach { task ->
-            val expectedTaskName = ":${module ?: context.projectRoot.path.name}:$task"
-            assertTrue(
-                "Task named '$expectedTaskName' should be present, but found only:\n" +
-                        taskNames.joinToString("\n")
-            ) {
-                taskNames.contains(expectedTaskName)
-            }
         }
     }
 }
