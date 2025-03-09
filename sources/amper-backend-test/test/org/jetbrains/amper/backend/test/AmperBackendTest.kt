@@ -3,11 +3,8 @@
  */
 package org.jetbrains.amper.backend.test
 
-import com.sun.net.httpserver.Authenticator
 import com.sun.net.httpserver.BasicAuthenticator
-import com.sun.net.httpserver.HttpServer
 import io.opentelemetry.api.common.AttributeKey
-import org.jetbrains.amper.backend.test.extensions.ErrorCollectorExtension
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.UserReadableError
@@ -23,6 +20,7 @@ import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.WindowsOnly
+import org.jetbrains.amper.test.server.withFileServer
 import org.jetbrains.amper.test.spans.assertEachKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.assertEachKotlinNativeCompilationSpan
 import org.jetbrains.amper.test.spans.assertHasAttribute
@@ -30,10 +28,7 @@ import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
 import org.jetbrains.amper.test.spans.spansNamed
 import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level
-import java.net.InetAddress
-import java.net.InetSocketAddress
 import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.util.jar.Attributes
@@ -48,11 +43,9 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
-import kotlin.io.path.writeBytes
 import kotlin.io.path.writeText
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -62,9 +55,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class AmperBackendTest : AmperIntegrationTestBase() {
-
-    @RegisterExtension
-    private val errorCollectorExtension = ErrorCollectorExtension()
 
     private suspend fun TestCollector.setupTestDataProject(
         testProjectName: String,
@@ -1118,66 +1108,6 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     private fun List<Path>.withoutImplicitAmperLibs() =
         filterNot { it.name.startsWith("kotlin-stdlib-") || it.name.startsWith("annotations-") }
-
-    private suspend fun withFileServer(wwwRoot: Path, authenticator: Authenticator? = null, block: suspend (baseUrl: String) -> Unit) {
-        val httpServer = HttpServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 10)
-        try {
-            val context = httpServer.createContext("/") { exchange ->
-                fun respond(code: Int, content: ByteArray = ByteArray(0)) {
-                    exchange.sendResponseHeaders(code, content.size.toLong())
-                    exchange.responseBody.use { it.write(content) }
-                }
-
-                try {
-
-                    val fsPath = wwwRoot.resolve(exchange.requestURI.path.trim('/')).normalize()
-                    require(fsPath.startsWith(wwwRoot)) {
-                        "'$fsPath' must start with '$wwwRoot'"
-                    }
-
-                    println("WWW: ${exchange.requestMethod} ${exchange.requestURI}")
-
-                    when (exchange.requestMethod) {
-                        "GET" -> if (fsPath.isRegularFile()) {
-                            respond(200, fsPath.readBytes())
-                        } else {
-                            respond(404)
-                        }
-
-                        "PUT" -> {
-                            fsPath.parent.createDirectories()
-                            val bytes = exchange.requestBody.use { it.readBytes() }
-                            val contentLength = exchange.requestHeaders.getFirst("Content-Length").toInt()
-                            check(bytes.size == contentLength) {
-                                "PUT $fsPath: body size '${bytes.size}' content-length '$contentLength'"
-                            }
-
-                            fsPath.writeBytes(bytes)
-
-                            respond(200)
-                        }
-
-                        else -> respond(405)
-                    }
-
-                } catch (t: Throwable) {
-                    errorCollectorExtension.addException(t)
-                    t.printStackTrace()
-                    throw t
-                }
-            }
-
-            if (authenticator != null) {
-                context.setAuthenticator(authenticator)
-            }
-
-            httpServer.start()
-
-            block("http://127.0.0.1:${httpServer.address.port}")
-        } finally {
-            httpServer.stop(0)
-        }
-    }
 
     @Disabled("Metadata compilation doesn't 100% work at the moment, because we need DR to support multi-platform dependencies")
     @Test

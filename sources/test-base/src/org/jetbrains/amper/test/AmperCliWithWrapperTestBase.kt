@@ -13,6 +13,7 @@ import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
+import org.jetbrains.amper.test.server.HttpServerExtension
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.management.ManagementFactory
