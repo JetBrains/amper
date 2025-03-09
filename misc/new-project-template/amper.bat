@@ -16,9 +16,9 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.6.0-dev-2520
+set amper_version=0.6.0-dev-2530
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=6e02264b3e84798e43fe35f8d9035c046f09327e3a37a420c05b058c5d572846
+set amper_sha256=81526bbe8e92ad6d303e9907e917544ec2e1fec9509133f4f289e7f116176332
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -70,11 +70,17 @@ try { ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
         Write-Host 'Downloading %moniker%... (only happens on the first run of this version)'; ^
         [void](New-Item '%AMPER_BOOTSTRAP_CACHE_DIR%' -ItemType Directory -Force); ^
-        (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
+        if (Get-Command curl.exe -errorAction SilentlyContinue) { ^
+            curl.exe -L --silent --show-error --fail --output $temp_file '%url%'; ^
+        } else { ^
+            (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
+        } ^
  ^
         $actualSha = (Get-FileHash -Algorithm SHA%sha_size% -Path $temp_file).Hash.ToString(); ^
         if ($actualSha -ne '%sha%') { ^
-          throw ('Checksum mismatch for ' + $temp_file + ' (downloaded from %url%): expected checksum %sha% but got ' + $actualSha); ^
+            $writeErr = if ($Host.Name -eq 'ConsoleHost') { [Console]::Error.WriteLine } else { $host.ui.WriteErrorLine } ^
+            $writeErr.Invoke(\"ERROR: Checksum mismatch for $temp_file (downloaded from %url%): expected checksum %sha% but got $actualSha\"); ^
+            exit 1; ^
         } ^
  ^
         if (Test-Path '%target_dir%') { ^
