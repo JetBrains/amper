@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.cli.test
 
+import kotlinx.serialization.json.Json
+import org.jetbrains.amper.cli.test.logs.readLogs
+import org.jetbrains.amper.cli.test.otlp.serialization.decodeOtlpTraces
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
@@ -14,6 +17,7 @@ import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.junit.jupiter.api.extension.RegisterExtension
+import org.slf4j.event.Level
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.copyToRecursively
@@ -22,7 +26,10 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
+import kotlin.io.path.readLines
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     @RegisterExtension
@@ -53,6 +60,23 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         val stdout: String,
         val stderr: String,
     ) {
+        val infoLogs by lazy {
+            logsDir?.resolve("info.log")?.readLogs()
+                ?: fail("The logs dir doesn't exist, cannot get info logs")
+        }
+
+        val debugLogs by lazy {
+            logsDir?.resolve("debug.log")?.readLogs()
+                ?: fail("The logs dir doesn't exist, cannot get debug logs")
+        }
+
+        val telemetrySpans by lazy {
+            val tracesFile = logsDir?.resolve("opentelemetry_traces.jsonl")
+                ?: fail("The logs dir doesn't exist, cannot get OpenTelemetry traces")
+            assertTrue(tracesFile.exists(), "OpenTelemetry traces file not found at $tracesFile")
+            Json.decodeOtlpTraces(tracesFile.readLines())
+        }
+
         fun assertSomeStdoutLineContains(text: String) {
             assertTrue("No line in stdout contains the text '$text':\n" + stdout.trim()) {
                 stdout.lineSequence().any { text in it }
@@ -60,6 +84,11 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         }
         fun assertStdoutContains(text: String) {
             assertTrue("Stdout does not contain the text '$text':\n" + stdout.trim()) {
+               text in stdout
+            }
+        }
+        fun assertStdoutDoesNotContain(text: String) {
+            assertFalse("Stdout should not contain the text '$text':\n" + stdout.trim()) {
                text in stdout
             }
         }
@@ -73,6 +102,18 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             val count = stdout.lines().count { it == expectedLine }
             assertTrue("stdout should contain line '$expectedLine'$suffix (got $count occurrences)") {
                 count == nOccurrences
+            }
+        }
+        fun assertLogStartsWith(msgPrefix: String, level: Level) {
+            assertTrue("Log message with level=$level and starting with '$msgPrefix' was not found") {
+                val logs = if (level >= Level.INFO) infoLogs else debugLogs
+                logs.any { it.level == level && it.message.startsWith(msgPrefix) }
+            }
+        }
+        fun assertLogContains(text: String, level: Level) {
+            assertTrue("Log message with level=$level and containing '$text' was not found") {
+                val logs = if (level >= Level.INFO) infoLogs else debugLogs
+                logs.any { it.level == level && text in it.message }
             }
         }
     }

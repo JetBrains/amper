@@ -364,6 +364,21 @@ class AmperTestFiltersTest : AmperCliTestBase() {
         r.assertStdoutContainsLine("running EnclosingClass.NestedClass1.myNestedTest", nOccurrences = 2) // jvm + current platform
     }
 
+    @Test
+    fun `jvm exclude test module`() = runSlowTest {
+        val projectRoot = testProject("jvm-multimodule-tests")
+        val result = runCli(projectRoot = projectRoot, "test")
+
+        // all tests run
+        result.assertStdoutContains("Hello from test 1")
+        result.assertStdoutContains("Hello from test 2")
+
+        // tests from module 1 aren't run
+        val result2 = runCli(projectRoot = projectRoot, "test", "--exclude-module=one")
+        result2.assertStdoutDoesNotContain("Hello from test 1")
+        result2.assertStdoutContains("Hello from test 2")
+    }
+
     private val junitTestCountRegex = Regex("""\[\s*(?<count>\d+) tests found\s*]""")
 
     private fun AmperCliResult.assertJUnitTestCount(expected: Int) {

@@ -9,17 +9,11 @@ import io.opentelemetry.sdk.trace.data.SpanData
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.Json
-import org.jetbrains.amper.cli.test.otlp.serialization.decodeOtlpTraces
 import org.jetbrains.amper.test.spans.FilteredSpans
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.jetbrains.amper.test.spans.spansNamed
 import java.nio.file.Path
 import kotlin.io.path.div
-import kotlin.io.path.exists
-import kotlin.io.path.readLines
-import kotlin.test.assertTrue
-import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
 inline fun runSlowTest(crossinline testBody: suspend TestScope.() -> Unit): TestResult =
@@ -31,14 +25,8 @@ internal fun AmperCliTestBase.AmperCliResult.getTaskOutputPath(taskName: String)
     buildOutputRoot / "tasks" / taskName.replace(':', '_')
 
 internal fun AmperCliTestBase.AmperCliResult.readTelemetrySpans(): SpansTestCollector {
-    val tracesFile = logsDir?.resolve("opentelemetry_traces.jsonl")
-        ?: fail("The logs dir doesn't exist, cannot get OpenTelemetry traces")
-    assertTrue(tracesFile.exists(), "OpenTelemetry traces file not found at $tracesFile")
-
-    val spans = Json.decodeOtlpTraces(tracesFile.readLines())
-
     return object : SpansTestCollector {
-        override val spans: List<SpanData> = spans
+        override val spans: List<SpanData> = telemetrySpans
         override fun clearSpans() = throw UnsupportedOperationException("Cannot modify deserialized spans")
     }
 }
