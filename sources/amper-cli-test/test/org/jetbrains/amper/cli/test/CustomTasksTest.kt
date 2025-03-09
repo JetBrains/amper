@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.test.Dirs
 import java.util.zip.ZipFile
-import kotlin.io.path.deleteRecursively
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.readText
@@ -65,11 +65,14 @@ class CustomTasksTest : AmperCliTestBase() {
 
     @Test
     fun `generate artifact for publishing`() = runSlowTest {
-        val groupDir = Dirs.m2repository.resolve("amper/test/generate-artifact-for-publishing")
-        groupDir.deleteRecursively()
+        val mavenLocalForTest = tempRoot.resolve(".m2.test").also { it.createDirectories() }
+        val groupDir = mavenLocalForTest.resolve("amper/test/generate-artifact-for-publishing")
 
-        val taskName = ":generate-artifact-for-publishing:publishJvmToMavenLocal"
-        runCli(projectRoot = testProject("customTasks/generate-artifact-for-publishing"), "task", taskName)
+        runCli(
+            projectRoot = testProject("customTasks/generate-artifact-for-publishing"),
+            "publish", "mavenLocal",
+            amperJvmArgs = listOf("-Dmaven.repo.local=\"${mavenLocalForTest.absolutePathString()}\""),
+        )
 
         val dir = groupDir.resolve("cli/1.0-FANCY")
         assertEquals("DIST ZIP", dir.resolve("cli-1.0-FANCY-dist.zip").readText())
@@ -77,8 +80,11 @@ class CustomTasksTest : AmperCliTestBase() {
         // pom is not expected to be generated
         assertFalse(dir.resolve("cli-1.0-FANCY-dist.pom").exists())
         assertFalse(dir.resolve("cli-1.0-FANCY.pom").exists())
+    }
 
-        // cleanup
-        groupDir.deleteRecursively()
+    @Test
+    fun `custom task dependencies`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("customTasks/custom-task-dependencies"), "show", "tasks")
+        result.assertStdoutContains("task :main-lib:publishJvmToMavenLocal -> :main-lib:jarJvm, :main-lib:resolveDependenciesJvm, :main-lib:sourcesJarJvm, :utils:testJvm, :main-lib:testJvm")
     }
 }
