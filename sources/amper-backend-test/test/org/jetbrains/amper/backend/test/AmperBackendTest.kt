@@ -3,11 +3,9 @@
  */
 package org.jetbrains.amper.backend.test
 
-import com.sun.net.httpserver.BasicAuthenticator
 import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -20,7 +18,6 @@ import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.WindowsOnly
-import org.jetbrains.amper.test.server.withFileServer
 import org.jetbrains.amper.test.spans.assertEachKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.assertEachKotlinNativeCompilationSpan
 import org.jetbrains.amper.test.spans.assertHasAttribute
@@ -34,23 +31,14 @@ import java.nio.file.Path
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 import kotlin.io.path.absolute
-import kotlin.io.path.createDirectories
-import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
-import kotlin.io.path.fileSize
 import kotlin.io.path.isRegularFile
-import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.io.path.readText
-import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
-import kotlin.io.path.writeText
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -386,321 +374,6 @@ ARG0: <${argumentsWithSpecialChars[0]}>
 ARG1: <${argumentsWithSpecialChars[1]}>
 ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertInfoLogStartsWith(find)
-    }
-
-    @Test
-    fun `jvm publish multi-module to maven local`() = runTestWithCollector {
-        val groupDir = Dirs.m2repository.resolve("amper/test/jvm-publish-multimodule")
-        groupDir.deleteRecursively()
-
-        val projectContext = setupTestDataProject("jvm-publish-multimodule")
-        val backend = AmperBackend(projectContext)
-        backend.runTask(TaskName(":main-lib:publishJvmToMavenLocal"))
-
-        val files = groupDir.walk()
-            .onEach {
-                check(it.fileSize() > 0) { "File should not be empty: $it" }
-            }
-            .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
-            .sorted()
-
-        // note that publishing of main-lib module triggers all other modules (by design)
-        assertEquals(
-            """
-                jvm-lib/1.2.3/_remote.repositories
-                jvm-lib/1.2.3/jvm-lib-1.2.3-sources.jar
-                jvm-lib/1.2.3/jvm-lib-1.2.3.jar
-                jvm-lib/1.2.3/jvm-lib-1.2.3.pom
-                jvm-lib/maven-metadata-local.xml
-                kmp-lib-jvm/1.2.3/_remote.repositories
-                kmp-lib-jvm/1.2.3/kmp-lib-jvm-1.2.3-sources.jar
-                kmp-lib-jvm/1.2.3/kmp-lib-jvm-1.2.3.jar
-                kmp-lib-jvm/1.2.3/kmp-lib-jvm-1.2.3.pom
-                kmp-lib-jvm/maven-metadata-local.xml
-                main-lib/1.2.3/_remote.repositories
-                main-lib/1.2.3/main-lib-1.2.3-sources.jar
-                main-lib/1.2.3/main-lib-1.2.3.jar
-                main-lib/1.2.3/main-lib-1.2.3.pom
-                main-lib/maven-metadata-local.xml
-            """.trimIndent(), files.joinToString("\n")
-        )
-
-        val pom = groupDir / "main-lib/1.2.3/main-lib-1.2.3.pom"
-        assertEquals(expected = """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <modelVersion>4.0.0</modelVersion>
-              <groupId>amper.test.jvm-publish-multimodule</groupId>
-              <artifactId>main-lib</artifactId>
-              <version>1.2.3</version>
-              <name>main-lib</name>
-              <dependencies>
-                <dependency>
-                  <groupId>org.jetbrains.kotlin</groupId>
-                  <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.kotlinVersion}</version>
-                  <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                  <groupId>amper.test.jvm-publish-multimodule</groupId>
-                  <artifactId>jvm-lib</artifactId>
-                  <version>1.2.3</version>
-                  <scope>compile</scope>
-                </dependency>
-                <dependency>
-                  <groupId>amper.test.jvm-publish-multimodule</groupId>
-                  <artifactId>kmp-lib-jvm</artifactId>
-                  <version>1.2.3</version>
-                  <scope>runtime</scope>
-                </dependency>
-              </dependencies>
-            </project>
-        """.trimIndent(), pom.readText().trim())
-    }
-
-    @Test
-    fun `jvm publish to http no authentication`() = runTestWithCollector {
-        val www = tempRoot.resolve("www-root").also { it.createDirectories() }
-
-        withFileServer(www) { baseUrl ->
-            val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
-
-            val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
-            moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
-
-            val backend = AmperBackend(projectContext)
-            backend.runTask(TaskName(":jvm-publish:publishJvmToRepoNoCredentialsId"))
-
-            val groupDir = www.resolve("amper/test/jvm-publish")
-            val files = groupDir.walk()
-                .map {
-                    check(it.fileSize() > 0) {
-                        "File should not be empty: $it"
-                    }
-                    it
-                }
-                .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
-                .sorted()
-            assertEquals(
-                """
-                    artifactName/2.2/artifactName-2.2-sources.jar
-                    artifactName/2.2/artifactName-2.2-sources.jar.md5
-                    artifactName/2.2/artifactName-2.2-sources.jar.sha1
-                    artifactName/2.2/artifactName-2.2-sources.jar.sha256
-                    artifactName/2.2/artifactName-2.2-sources.jar.sha512
-                    artifactName/2.2/artifactName-2.2.jar
-                    artifactName/2.2/artifactName-2.2.jar.md5
-                    artifactName/2.2/artifactName-2.2.jar.sha1
-                    artifactName/2.2/artifactName-2.2.jar.sha256
-                    artifactName/2.2/artifactName-2.2.jar.sha512
-                    artifactName/2.2/artifactName-2.2.pom
-                    artifactName/2.2/artifactName-2.2.pom.md5
-                    artifactName/2.2/artifactName-2.2.pom.sha1
-                    artifactName/2.2/artifactName-2.2.pom.sha256
-                    artifactName/2.2/artifactName-2.2.pom.sha512
-                    artifactName/maven-metadata.xml
-                    artifactName/maven-metadata.xml.md5
-                    artifactName/maven-metadata.xml.sha1
-                    artifactName/maven-metadata.xml.sha256
-                    artifactName/maven-metadata.xml.sha512
-            """.trimIndent(), files.joinToString("\n")
-            )
-        }
-    }
-
-    @Test
-    fun `jvm publish to http password authentication`() = runTestWithCollector {
-        val www = tempRoot.resolve("www-root").also { it.createDirectories() }
-        val authenticator = object : BasicAuthenticator("www-realm") {
-            override fun checkCredentials(username: String, password: String): Boolean {
-                return username == "http-user" && password == "http-password"
-            }
-        }
-
-        withFileServer(www, authenticator) { baseUrl ->
-            val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
-
-            val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
-            moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
-
-            val backend = AmperBackend(projectContext)
-            backend.runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
-
-            val groupDir = www.resolve("amper/test/jvm-publish")
-            val files = groupDir.walk()
-                .map {
-                    check(it.fileSize() > 0) {
-                        "File should not be empty: $it"
-                    }
-                    it
-                }
-                .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
-                .sorted()
-            assertEquals(
-                """
-                    artifactName/2.2/artifactName-2.2-sources.jar
-                    artifactName/2.2/artifactName-2.2-sources.jar.md5
-                    artifactName/2.2/artifactName-2.2-sources.jar.sha1
-                    artifactName/2.2/artifactName-2.2-sources.jar.sha256
-                    artifactName/2.2/artifactName-2.2-sources.jar.sha512
-                    artifactName/2.2/artifactName-2.2.jar
-                    artifactName/2.2/artifactName-2.2.jar.md5
-                    artifactName/2.2/artifactName-2.2.jar.sha1
-                    artifactName/2.2/artifactName-2.2.jar.sha256
-                    artifactName/2.2/artifactName-2.2.jar.sha512
-                    artifactName/2.2/artifactName-2.2.pom
-                    artifactName/2.2/artifactName-2.2.pom.md5
-                    artifactName/2.2/artifactName-2.2.pom.sha1
-                    artifactName/2.2/artifactName-2.2.pom.sha256
-                    artifactName/2.2/artifactName-2.2.pom.sha512
-                    artifactName/maven-metadata.xml
-                    artifactName/maven-metadata.xml.md5
-                    artifactName/maven-metadata.xml.sha1
-                    artifactName/maven-metadata.xml.sha256
-                    artifactName/maven-metadata.xml.sha512
-            """.trimIndent(), files.joinToString("\n")
-            )
-        }
-    }
-
-    @Test
-    fun `jvm publish adds to maven-metadata xml`() = runTestWithCollector {
-        val www = tempRoot.resolve("www-root").also { it.createDirectories() }
-        val authenticator = object : BasicAuthenticator("www-realm") {
-            override fun checkCredentials(username: String, password: String): Boolean {
-                return username == "http-user" && password == "http-password"
-            }
-        }
-
-        withFileServer(www, authenticator) { baseUrl ->
-            // deploy version 2.2
-            run {
-                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
-
-                val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
-                moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
-
-                AmperBackend(projectContext).runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
-            }
-            // deploy version 2.3
-            run {
-                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
-
-                val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
-                moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl).replace("2.2", "2.3"))
-
-                AmperBackend(projectContext).runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
-            }
-
-            val mavenMetadataXml = www.resolve("amper/test/jvm-publish/artifactName/maven-metadata.xml")
-            assertEquals("""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <metadata>
-                  <groupId>amper.test.jvm-publish</groupId>
-                  <artifactId>artifactName</artifactId>
-                  <versioning>
-                    <release>2.3</release>
-                    <versions>
-                      <version>2.2</version>
-                      <version>2.3</version>
-                    </versions>
-                    <lastUpdated>TIMESTAMP</lastUpdated>
-                  </versioning>
-                </metadata>
-
-            """.trimIndent(), mavenMetadataXml.readText()
-                .replace(Regex("<lastUpdated>\\d+</lastUpdated>"), "<lastUpdated>TIMESTAMP</lastUpdated>"))
-        }
-    }
-
-    @Test
-    fun `jvm publish handles snapshot versioning`() = runTestWithCollector {
-        val www = tempRoot.resolve("www-root").also { it.createDirectories() }
-        val authenticator = object : BasicAuthenticator("www-realm") {
-            override fun checkCredentials(username: String, password: String): Boolean {
-                return username == "http-user" && password == "http-password"
-            }
-        }
-
-        withFileServer(www, authenticator) { baseUrl ->
-            suspend fun deployVersion(version: String) {
-                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
-
-                val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
-                moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl).replace("2.2", version))
-
-                AmperBackend(projectContext).runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
-            }
-
-            deployVersion("1.0")
-            deployVersion("2.0-SNAPSHOT")
-            deployVersion("2.0-SNAPSHOT")
-
-            assertEquals("""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <metadata>
-                  <groupId>amper.test.jvm-publish</groupId>
-                  <artifactId>artifactName</artifactId>
-                  <versioning>
-                    <release>1.0</release>
-                    <versions>
-                      <version>1.0</version>
-                      <version>2.0-SNAPSHOT</version>
-                    </versions>
-                    <lastUpdated>TIMESTAMP</lastUpdated>
-                  </versioning>
-                </metadata>
-
-            """.trimIndent(), www.resolve("amper/test/jvm-publish/artifactName/maven-metadata.xml").readText()
-                .replace(Regex("<lastUpdated>\\d+</lastUpdated>"), "<lastUpdated>TIMESTAMP</lastUpdated>"))
-
-            val lastVersion = www.resolve("amper/test/jvm-publish/artifactName/2.0-SNAPSHOT").listDirectoryEntries()
-                .map { it.name }
-                .sorted()
-                .last { it.startsWith("artifactName-") && it.endsWith(".jar") }
-                .removePrefix("artifactName-")
-                .removeSuffix(".jar")
-
-            assertEquals("""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <metadata modelVersion="1.1.0">
-                  <groupId>amper.test.jvm-publish</groupId>
-                  <artifactId>artifactName</artifactId>
-                  <versioning>
-                    <lastUpdated>TIMESTAMP</lastUpdated>
-                    <snapshot>
-                      <timestamp>TIMESTAMP</timestamp>
-                      <buildNumber>2</buildNumber>
-                    </snapshot>
-                    <snapshotVersions>
-                      <snapshotVersion>
-                        <extension>jar</extension>
-                        <value>$lastVersion</value>
-                        <updated>TIMESTAMP</updated>
-                      </snapshotVersion>
-                      <snapshotVersion>
-                        <classifier>sources</classifier>
-                        <extension>jar</extension>
-                        <value>$lastVersion</value>
-                        <updated>TIMESTAMP</updated>
-                      </snapshotVersion>
-                      <snapshotVersion>
-                        <extension>pom</extension>
-                        <value>$lastVersion</value>
-                        <updated>TIMESTAMP</updated>
-                      </snapshotVersion>
-                    </snapshotVersions>
-                  </versioning>
-                  <version>2.0-SNAPSHOT</version>
-                </metadata>
-
-            """.trimIndent(), www.resolve("amper/test/jvm-publish/artifactName/2.0-SNAPSHOT/maven-metadata.xml").readText()
-                .replace(Regex("<lastUpdated>\\d+</lastUpdated>"), "<lastUpdated>TIMESTAMP</lastUpdated>")
-                .replace(Regex("<updated>\\d+</updated>"), "<updated>TIMESTAMP</updated>")
-                .replace(Regex("<timestamp>[\\d.]+</timestamp>"), "<timestamp>TIMESTAMP</timestamp>")
-            )
-        }
     }
 
     @Test

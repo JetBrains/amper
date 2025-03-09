@@ -124,6 +124,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
         copyToTempDir: Boolean = false,
+        modifyTempProjectBeforeRun: (tempProjectDir: Path) -> Unit = {},
         stdin: ProcessInput = ProcessInput.Empty,
         amperJvmArgs: List<String> = emptyList(),
         customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
@@ -136,6 +137,8 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             val tempProjectDir = tempRoot / UUID.randomUUID().toString() / projectRoot.fileName
             tempProjectDir.createDirectories()
             projectRoot.copyToRecursively(target = tempProjectDir, overwrite = false, followLinks = true)
+            modifyTempProjectBeforeRun(tempProjectDir)
+            tempProjectDir
         } else {
             projectRoot
         }
