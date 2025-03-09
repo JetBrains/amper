@@ -21,13 +21,13 @@ class AmperBuildTest : AmperCliTestBase() {
 
     @Test
     fun `build command produces a jar for jvm`() = runTest(timeout = 10.minutes) {
-        runCli(
+        val result = runCli(
             projectRoot = testProject("multiplatform-input"),
             "build", "-p", "jvm",
         )
 
         assertTrue {
-            val file = tempRoot / "build" / "tasks" / "_shared_jarJvm" / "shared-jvm.jar"
+            val file = result.getTaskOutputPath(":shared:jarJvm") / "shared-jvm.jar"
             file.exists()
         }
     }

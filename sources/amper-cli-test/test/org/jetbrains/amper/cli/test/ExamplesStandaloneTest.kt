@@ -79,8 +79,9 @@ class ExamplesStandaloneTest: AmperCliTestBase() {
 
     @Test
     fun `compose-android_signing`() = runSlowTest {
-        val result = runCli(exampleProject("compose-android"), "task", ":compose-android:bundleAndroid")
-        val apk = result.buildOutputRoot / "tasks" / "_compose-android_bundleAndroid" / "gradle-project-release.aab"
+        val bundleAndroidTask = ":compose-android:bundleAndroid"
+        val result = runCli(exampleProject("compose-android"), "task", bundleAndroidTask)
+        val apk = result.getTaskOutputPath(bundleAndroidTask) / "gradle-project-release.aab"
         JarFile(apk.toFile()).use {
             assertTrue(it.getEntry("META-INF/KEYALIAS.RSA").size > 0)
         }

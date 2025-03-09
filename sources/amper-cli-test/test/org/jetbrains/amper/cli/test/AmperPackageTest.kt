@@ -17,16 +17,10 @@ class AmperPackageTest : AmperCliTestBase() {
 
     @Test
     fun `package command produces an executable jar`() = runSlowTest {
-        val projectRoot = testProject("spring-boot")
-        val r = runCli(
-            projectRoot = projectRoot,
-            "package"
-        )
+        val result = runCli(projectRoot = testProject("spring-boot"), "package")
 
-        assertTrue(
-            "Executable jar file should exist after packaging"
-        ) {
-            (r.buildOutputRoot / "tasks" / "_spring-boot_executableJarJvm" / "spring-boot-jvm-executable.jar").exists()
+        assertTrue("Executable jar file should exist after packaging") {
+            (result.getTaskOutputPath(":spring-boot:executableJarJvm") / "spring-boot-jvm-executable.jar").exists()
         }
     }
 }
