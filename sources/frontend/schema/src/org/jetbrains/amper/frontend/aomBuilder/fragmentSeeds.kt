@@ -44,7 +44,7 @@ data class FragmentSeed(
     var seedDependencies: List<Dependency>? = null
     var relevantTestDependencies: List<Dependency>? = null
 
-    // Seeds equality should be based its [platforms] and possibly [naturalHierarchyPlatform].
+    // Seeds equality should be based on its [platforms] and possibly [naturalHierarchyPlatform].
     override fun hashCode() = platforms.hashCode() + 31 * naturalHierarchyPlatform.hashCode()
     override fun equals(other: Any?) =
         this === other || (platforms == (other as? FragmentSeed)?.platforms && naturalHierarchyPlatform == other.naturalHierarchyPlatform)
@@ -53,7 +53,7 @@ data class FragmentSeed(
 /**
  * Creates [FragmentSeed]s for this [Module] based on its declared platforms and aliases.
  *
- * One seed is created for each alias declared in this module, and mapped to the aliased set of leaf platforms.
+ * One seed is created for each alias declared in this module and mapped to the aliased set of leaf platforms.
  *
  * One seed is also created for each platform of the natural hierarchy that contains at least one of the declared
  * leaf platforms of the module. For example, if the module declares `linuxX64`, seeds will be created for
@@ -116,8 +116,8 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
         val modifier = firstOrNull()?.value
         // Otherwise, parse every modifier individually.
         return when {
-            modifier == null -> return error("Multiple modifiers are not supported now")
-            aliases2leaves.contains(modifier) -> return aliases2leaves[modifier]!! to null
+            modifier == null -> error("Multiple modifiers are not supported now")
+            aliases2leaves.contains(modifier) -> aliases2leaves[modifier]!! to null
             Platform.containsKey(modifier) -> Platform[modifier]!!.leaves to Platform[modifier]
             else -> error("Unrecognized modifier: $modifier")
         }
@@ -134,9 +134,12 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
      */
     fun <T> Map<Modifiers, T>.forRelevantSeeds(block: FragmentSeed.(T) -> Unit) = entries.forEach { entry ->
         val (modifierPlatforms, hint) = entry.key.convertToLeavesWithHint()
-        if (hint == null) { // Case when modifier is an alias. Thus, there should be a seed with such exact platforms.
+        if (hint == null) {
+            // Case when the modifier is an alias.
+            // Thus, there should be a seed with such exact platforms.
             requiredSeeds.firstOrNull { it.platforms == modifierPlatforms }?.apply { block(this, entry.value) }
-        } else { // Case when modifier is a hierarchy platform. Thus, [naturalHierarchyPlatform] should be set.
+        } else {
+            // Case when modifier is a hierarchy platform. Thus, [naturalHierarchyPlatform] should be set.
             requiredSeeds.firstOrNull { it.naturalHierarchyPlatform == hint }?.apply { block(this, entry.value) }
         }
     }
@@ -153,7 +156,8 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
 
 /**
  * Utility convenience comparator for [FragmentSeed] that follows dependency semantics.
- * f1 < f2 => f1 depends on f2.
+ *
+ * `f1 < f2` => `f1` depends on `f2`.
  */
 operator fun FragmentSeed.compareTo(it: FragmentSeed): Int = when {
     it.naturalHierarchyPlatform != null && naturalHierarchyPlatform?.isParentOfStrict(it.naturalHierarchyPlatform) == true -> 1
