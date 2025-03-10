@@ -4,13 +4,9 @@
 
 package org.jetbrains.amper.cli.test
 
-import io.opentelemetry.api.common.AttributeKey
-import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
-import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.WindowsOnly
-import org.jetbrains.amper.test.spans.spansNamed
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.slf4j.event.Level
@@ -18,7 +14,6 @@ import kotlin.io.path.readText
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
-import kotlin.test.assertTrue
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
@@ -29,21 +24,14 @@ class AmperTestBasicTest : AmperCliTestBase() {
         val projectRoot = testProject("jvm-kotlin-test-smoke")
         val result = runCli(projectRoot = projectRoot, "test")
 
-        val testLauncherSpan = result.readTelemetrySpans()
-            .spansNamed("junit-platform-console-standalone")
-            .assertSingle()
-        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
-
         // not captured by default...
-        assertTrue(stdout.contains("Hello from test method, JavaString"), stdout)
-
-        assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
-        assertTrue(stdout.contains("[         0 tests failed          ]"), stdout)
+        result.assertStdoutContains("Hello from test method, JavaString")
+        result.assertStdoutContains("[         1 tests successful      ]")
+        result.assertStdoutContains("[         0 tests failed          ]")
 
         val xmlReport = result.buildOutputRoot.resolve("reports/jvm-kotlin-test-smoke/jvm/TEST-junit-vintage.xml")
             .readText()
-
-        assertTrue(xmlReport.contains("<testcase name=\"smoke\" classname=\"apkg.ATest\""), xmlReport)
+        assertContains(xmlReport, "<testcase name=\"smoke\" classname=\"apkg.ATest\"")
     }
 
     @Test
@@ -70,15 +58,23 @@ class AmperTestBasicTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `run tests only from test fragment`() = runSlowTest {
+        val projectContext = testProject("jvm-test-classpath")
+        val result = runCli(projectRoot = projectContext, "test")
+
+        // asserts that ATest.smoke is run, but SrcTest.smoke isn't
+        result.assertStdoutContains("[         1 tests successful      ]")
+        result.assertStdoutContains("[         0 tests failed          ]")
+
+        val xmlReport = result.buildOutputRoot.resolve("reports/jvm-test-classpath/jvm/TEST-junit-jupiter.xml")
+            .readText()
+        assertContains(xmlReport, "<testcase name=\"smoke()\" classname=\"apkg.ATest\"")
+    }
+
+    @Test
     fun `test fragment dependencies`() = runSlowTest {
         val result = runCli(projectRoot = testProject("jvm-test-fragment-dependencies"), "test")
-
-        val testLauncherSpan = result.readTelemetrySpans()
-            .spansNamed("junit-platform-console-standalone")
-            .assertSingle()
-        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
-
-        assertTrue(stdout.contains("FromExternalDependencies:OneTwo FromProject:MyUtil"), stdout)
+        result.assertStdoutContains("FromExternalDependencies:OneTwo FromProject:MyUtil")
     }
 
     // this test is useful in case we change our JUnit runner for a custom one using Kotlin (causing classpath issues)
@@ -188,23 +184,5 @@ class AmperTestBasicTest : AmperCliTestBase() {
         // Testing a module should not fail if there are no test sources at all but warn about it
         val result = runCli(projectRoot = testProject("native-test-no-test-sources"), "test", "--platform=mingwX64")
         result.assertLogStartsWith("No test classes, skipping test execution for module 'native-test-no-test-sources'", Level.WARN)
-    }
-
-    @Test
-    fun `jvm run tests only from test fragment`() = runSlowTest {
-        // asserts that ATest.smoke is run, but SrcTest.smoke isn't
-
-        val projectContext = testProject("jvm-test-classpath")
-        val result = runCli(projectRoot = projectContext, "test")
-
-        val testLauncherSpan =
-            result.readTelemetrySpans().spansNamed("junit-platform-console-standalone").assertSingle()
-        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
-        assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
-        assertTrue(stdout.contains("[         0 tests failed          ]"), stdout)
-
-        val xmlReport = result.buildOutputRoot.resolve("reports/jvm-test-classpath/jvm/TEST-junit-jupiter.xml")
-            .readText()
-        assertContains(xmlReport, "<testcase name=\"smoke()\" classname=\"apkg.ATest\"")
     }
 }
