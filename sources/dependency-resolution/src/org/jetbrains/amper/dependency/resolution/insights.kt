@@ -14,7 +14,7 @@ class DependencyNodeWithChildren(internal val node: DependencyNode): DependencyN
     override val messages: List<Message> = node.messages.toMutableList()
     override fun toString() = node.toString()
 
-    override suspend fun resolveChildren(evel: ResolutionLevel, transitive: Boolean) = throw UnsupportedOperationException("Can't run resolution on wrapper")
+    override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) = throw UnsupportedOperationException("Can't run resolution on wrapper")
     override suspend fun downloadDependencies(downloadSources: Boolean) = throw UnsupportedOperationException("Can't download dependencies for wrapper")
 }
 

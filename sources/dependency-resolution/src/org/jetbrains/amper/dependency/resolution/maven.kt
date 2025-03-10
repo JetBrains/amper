@@ -98,15 +98,15 @@ class MavenDependencyNode internal constructor(
             { thisRef: MavenDependencyNode -> thisRef.dependency.dependencyConstraints }
         ),
         valueProvider = { dependencies ->
-            val children = dependencies[0] as List<MavenDependency>
-            val dependencyConstraints = dependencies[1] as List<MavenDependencyConstraint>
-            children.mapNotNull {
+            val children = dependencies[0] as List<*>
+            val dependencyConstraints = dependencies[1] as List<*>
+            children.map { it as MavenDependency }.mapNotNull {
                 context
                     .getOrCreateNode(it, this)
                     // skip children that form cyclic dependencies
                     .takeIf { !it.isDescendantOf(it) }
             } + dependencyConstraints.map {
-                context.getOrCreateConstraintNode(it, this)
+                context.getOrCreateConstraintNode(it as MavenDependencyConstraint, this)
             }
         },
     )
@@ -320,7 +320,6 @@ class   MavenDependency internal constructor(
 
     @Volatile
     internal var variants: List<Variant> = listOf()
-        internal set
 
     @Volatile
 
@@ -376,11 +375,12 @@ class   MavenDependency internal constructor(
                 { thisRef: MavenDependency -> thisRef.sourceSetsFiles }
             ),
             valueProvider = { dependencies ->
-                val variants = dependencies[0] as List<Variant>
+                val variants = dependencies[0] as List<*>
                 val packaging = dependencies[1] as String?
-                val sourceSetsFiles = dependencies[2] as List<DependencyFile>
+                val sourceSetsFiles = dependencies[2] as List<*>
                 buildList {
                     variants
+                        .map { it as Variant }
                         .let { if (withSources) it else it.withoutDocumentationAndMetadata }
                         .let {
                             val areSourcesMissing = withSources && it.documentationOnly.isEmpty()
@@ -401,7 +401,7 @@ class   MavenDependency internal constructor(
                             add(getAutoAddedSourcesDependencyFile())
                         }
                     }
-                    sourceSetsFiles.let { addAll(it) }
+                    addAll(sourceSetsFiles.map { it as DependencyFile })
                 }
             },
         )
@@ -721,9 +721,10 @@ class   MavenDependency internal constructor(
     }
 
     private fun Dependency.toMavenDependency(context: Context, module: Module, diagnosticsReporter: DiagnosticReporter): MavenDependency? {
+        val dependency = this
         return toMavenDependency(context, diagnosticsReporter) { versionError ->
             "Module ${module.component.group}:${module.component.module}:${module.component.version} " +
-                    "depends on ${this@toMavenDependency.group}:${this@toMavenDependency.module}, but its version could not be resolved:" +
+                    "depends on ${dependency.group}:${dependency.module}, but its version could not be resolved:" +
                     " $versionError"
         }
     }
