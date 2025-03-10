@@ -56,6 +56,6 @@ suspend fun withFileServer(
 
         block("http://127.0.0.1:${httpServer.address.port}")
     } finally {
-        httpServer.stop(0)
+        httpServer.stop(5)
     }
 }
