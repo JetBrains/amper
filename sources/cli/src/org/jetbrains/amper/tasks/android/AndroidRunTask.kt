@@ -39,6 +39,7 @@ import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.time.Duration
@@ -119,7 +120,12 @@ class AndroidRunTask(
     private suspend fun waitForAdbConnection(): AndroidDebugBridge {
         AndroidDebugBridge.init(true)
         val adb = AndroidDebugBridge.getBridge()
-            ?: AndroidDebugBridge.createBridge(androidSdkPath.resolve("platform-tools/adb").toString(), false)
+            ?: AndroidDebugBridge.createBridge(
+                androidSdkPath.resolve("platform-tools/adb").toString(),
+                false,
+                30,
+                TimeUnit.SECONDS
+            )
         flow {
             while (!adb.hasInitialDeviceList()) {
                 emit(false)
