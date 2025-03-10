@@ -22,6 +22,7 @@ import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.TelemetryEnvironment
 import org.jetbrains.amper.cli.commands.show.ShowCommand
 import org.jetbrains.amper.cli.commands.tools.ToolCommand
+import org.jetbrains.amper.cli.unwrap
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.telemetry.spanBuilder
@@ -91,7 +92,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         .convert { AmperUserCacheRoot(it.toAbsolutePath()) }
         // It's ok to use a non-lazy default here because most of the time we'll use the default value anyway.
         // Detecting this path eagerly allows showing the default value in the help.
-        .default(AmperUserCacheRoot.fromCurrentUser())
+        .default(AmperUserCacheRoot.fromCurrentUserResult().unwrap())
 
     private val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)
 
