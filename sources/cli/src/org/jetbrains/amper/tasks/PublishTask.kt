@@ -4,25 +4,12 @@
 
 package org.jetbrains.amper.tasks
 
-import org.apache.maven.bridge.MavenRepositorySystem
-import org.apache.maven.execution.DefaultMavenExecutionRequest
-import org.apache.maven.internal.aether.DefaultRepositorySystemSessionFactory
-import org.codehaus.plexus.DefaultContainerConfiguration
-import org.codehaus.plexus.DefaultPlexusContainer
-import org.codehaus.plexus.PlexusConstants
 import org.codehaus.plexus.PlexusContainer
-import org.codehaus.plexus.classworlds.ClassWorld
-import org.codehaus.plexus.logging.AbstractLogger
-import org.codehaus.plexus.logging.BaseLoggerManager
-import org.codehaus.plexus.logging.Logger
-import org.eclipse.aether.RepositorySystem
 import org.eclipse.aether.artifact.Artifact
-import org.eclipse.aether.deployment.DeployRequest
-import org.eclipse.aether.installation.InstallRequest
-import org.eclipse.aether.internal.impl.Maven2RepositoryLayoutFactory
 import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.util.repository.AuthenticationBuilder
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.Task
@@ -31,6 +18,9 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.maven.PublicationCoordinatesOverrides
+import org.jetbrains.amper.maven.createPlexusContainer
+import org.jetbrains.amper.maven.deployToRemoteRepo
+import org.jetbrains.amper.maven.installToMavenLocal
 import org.jetbrains.amper.maven.merge
 import org.jetbrains.amper.maven.publicationCoordinates
 import org.jetbrains.amper.maven.toMavenArtifact
@@ -38,6 +28,7 @@ import org.jetbrains.amper.maven.writePomFor
 import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -60,22 +51,14 @@ class PublishTask(
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
 
-        check(targetRepository.publish) {
-            "Target repository must be marked for publishing, but it is not: $targetRepository"
+        if (!targetRepository.publish) {
+            userReadableError(
+                "Cannot publish to repository '${targetRepository.id}' because it's not marked as publishable. " +
+                        "Please check your configuration and make sure that `publish: true` is set for this repository."
+            )
         }
 
-        val mavenRepositorySystem = container.lookup(MavenRepositorySystem::class.java)
-        val defaultRepositorySystemSessionFactory = container.lookup(DefaultRepositorySystemSessionFactory::class.java)
-
-        val localRepositoryPath = mavenLocalRepository.repository.toFile()
-
-        val repositorySystem = container.lookup(RepositorySystem::class.java)
-        val request = DefaultMavenExecutionRequest()
-        val localRepository = mavenRepositorySystem.createLocalRepository(request, localRepositoryPath)
-        request.localRepository = localRepository
-        val repositorySession = defaultRepositorySystemSessionFactory.newRepositorySession(request)
-        repositorySession.setConfigProperty(Maven2RepositoryLayoutFactory.CONFIG_PROP_CHECKSUMS_ALGORITHMS, "MD5,SHA-1,SHA-256,SHA-512")
-
+        val localRepositoryPath = mavenLocalRepository.repository
         val artifacts = createArtifactsToDeploy(dependenciesResult)
 
         /**
@@ -87,37 +70,27 @@ class PublishTask(
          * > The `install:install` goal does not support creating checksums anymore via -DcreateChecksum=true cause this
          * > option has been removed. Details can be found in MINSTALL-143.
          */
-        if (targetRepository.url == "mavenLocal") {
-            logger.info("Installing artifacts of '${module.userReadableName}' to local maven repository at $localRepositoryPath")
+        spanBuilder("Maven publish").use {
+            if (targetRepository.url == "mavenLocal") {
+                logger.info("Installing artifacts of module '${module.userReadableName}' to local maven repository at $localRepositoryPath")
 
-            val installRequest = InstallRequest()
-            for (artifact in artifacts) {
-                installRequest.addArtifact(artifact)
+                try {
+                    container.installToMavenLocal(localRepositoryPath, artifacts)
+                } catch (e: Exception) {
+                    userReadableError("Couldn't install artifacts of module '${module.userReadableName}' to maven local: $e")
+                }
+            } else {
+                val remoteRepository = targetRepository.toMavenRemoteRepository()
+
+                logger.info("Publishing artifacts of module '${module.userReadableName}' to " +
+                        "remote maven repository at ${remoteRepository.url} (id: '${remoteRepository.id}')")
+
+                try {
+                    container.deployToRemoteRepo(remoteRepository, localRepositoryPath, artifacts)
+                } catch (e: Exception) {
+                    userReadableError("Couldn't publish artifacts of module '${module.userReadableName}' to repository '${remoteRepository.id}': $e")
+                }
             }
-
-            repositorySystem.install(repositorySession, installRequest)
-        } else {
-            val deployRequest = DeployRequest()
-
-            val builder = RemoteRepository.Builder(targetRepository.id, "default", targetRepository.url)
-            if (targetRepository.userName != null && targetRepository.password != null) {
-                val authBuilder = AuthenticationBuilder()
-                authBuilder.addUsername(targetRepository.userName)
-                authBuilder.addPassword(targetRepository.password)
-                builder.setAuthentication(authBuilder.build())
-            }
-            val remoteRepository = builder.build()
-
-            logger.info("Deploying artifacts of '${module.userReadableName}' to " +
-                    "remote maven repository at ${remoteRepository.url} (id: '${remoteRepository.id}')")
-
-            deployRequest.repository = remoteRepository
-
-            for (artifact in artifacts) {
-                deployRequest.addArtifact(artifact)
-            }
-
-            repositorySystem.deploy(repositorySession, deployRequest)
         }
 
         return Result()
@@ -178,40 +151,26 @@ class PublishTask(
                 )
             }
         }
-        is ResolveExternalDependenciesTask.Result, // we ignore this, it's just for overrides, not extra artifacts
+        is ResolveExternalDependenciesTask.Result, // this is just for coords overrides, not extra artifacts
         is Result -> emptyList()
         else -> error("Unsupported dependency result: ${javaClass.name}")
     }
 
-    class Result() : TaskResult
+    private fun RepositoriesModulePart.Repository.toMavenRemoteRepository(): RemoteRepository {
+        val builder = RemoteRepository.Builder(id, "default", url)
+        if (userName != null && password != null) {
+            val authBuilder = AuthenticationBuilder()
+            authBuilder.addUsername(userName)
+            authBuilder.addPassword(password)
+            builder.setAuthentication(authBuilder.build())
+        }
+        return builder.build()
+    }
+
+    class Result : TaskResult
 
     companion object {
-        private val container: PlexusContainer by lazy {
-            val containerConfiguration = DefaultContainerConfiguration()
-                .setClassWorld(ClassWorld("plexus.core", Thread.currentThread().getContextClassLoader()))
-                .setName("mavenCore")
-                .setClassPathScanning(PlexusConstants.SCANNING_INDEX)
-                .setAutoWiring(true)
-            val loggerManager = object : BaseLoggerManager() {
-                init {
-                    threshold = Logger.LEVEL_DEBUG
-                }
-
-                override fun createLogger(name: String): Logger = object: AbstractLogger(Logger.LEVEL_DEBUG, name) {
-                    private val logger = LoggerFactory.getLogger(name)
-
-                    override fun debug(message: String, throwable: Throwable?) = logger.debug(message, throwable)
-                    override fun info(message: String, throwable: Throwable?) = logger.info(message, throwable)
-                    override fun warn(message: String, throwable: Throwable?) = logger.warn(message, throwable)
-                    override fun error(message: String, throwable: Throwable?) = logger.error(message, throwable)
-                    override fun fatalError(message: String, throwable: Throwable?) = logger.error(message, throwable)
-                    override fun getChildLogger(name: String): Logger = this
-                }
-            }
-
-            DefaultPlexusContainer(containerConfiguration)
-                .also { it.loggerManager = loggerManager }
-        }
+        private val container: PlexusContainer by lazy { createPlexusContainer() }
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
