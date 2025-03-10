@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.core
@@ -33,17 +33,14 @@ data class AmperUserCacheRoot(val path: Path) {
             val cacheRoot = parseFromSystemSettings()
                 ?: parseFromEnvSettings()
                 ?: run {
-                    val userHome = Path(System.getProperty("user.home"))
                     val localAppData = when (OsFamily.current) {
                         OsFamily.Windows -> getWindowsLocalAppData()
-                        OsFamily.MacOs -> userHome / "Library/Caches"
+                        OsFamily.MacOs -> getMacOsCacheFolder()
                         OsFamily.Linux,
                         OsFamily.FreeBSD,
-                        OsFamily.Solaris -> System.getenv("XDG_CACHE_HOME")?.takeIf { it.isNotBlank() }
-                            ?.let { Path(it) }
-                            ?: (userHome / ".cache")
+                        OsFamily.Solaris -> getGenericUnixCacheFolder()
                     }
-                    localAppData.resolve("Amper")
+                    localAppData / "Amper"
                 }
 
             return AmperUserCacheRoot(cacheRoot)
@@ -63,6 +60,19 @@ data class AmperUserCacheRoot(val path: Path) {
             // we prefer the env variable because getting known folders through Shell32Util is slow (~300-400ms)
             val localAppDataFromEnv = System.getenv("LOCALAPPDATA")?.takeIf { it.isNotBlank() }
             return Path(localAppDataFromEnv ?: Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData))
+        }
+
+        private fun getMacOsCacheFolder(): Path {
+            val userHome = Path(System.getProperty("user.home"))
+            return userHome / "Library" / "Caches"
+        }
+
+        private fun getGenericUnixCacheFolder(): Path {
+            val xdgCacheHome = System.getenv("XDG_CACHE_HOME")?.takeIf { it.isNotBlank() }?.let(::Path)
+            if (xdgCacheHome != null) return xdgCacheHome
+
+            val userHome = Path(System.getProperty("user.home"))
+            return userHome / ".cache"
         }
     }
 }
