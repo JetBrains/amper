@@ -83,6 +83,7 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T> trySetProperty(propGetters: Array<Method>, taskObj: Any, name: String, value: T) {
         propGetters.firstOrNull { it.name == name }
             ?.apply { isAccessible = true }
