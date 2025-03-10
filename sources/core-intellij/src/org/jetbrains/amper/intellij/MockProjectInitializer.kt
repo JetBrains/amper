@@ -36,7 +36,6 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
-import org.jetbrains.annotations.TestOnly
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.YAMLParserDefinition
@@ -45,7 +44,6 @@ import org.toml.lang.parse.TomlParserDefinition
 import org.toml.lang.psi.TomlFileType
 import org.toml.lang.psi.impl.TomlASTFactory
 
-@TestOnly
 open class IntelliJApplicationConfigurator {
     open fun registerApplicationExtensions(application: MockApplication) {}
     open fun registerProjectExtensions(project: MockProject) {}
