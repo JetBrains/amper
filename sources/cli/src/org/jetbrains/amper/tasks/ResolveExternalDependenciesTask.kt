@@ -48,6 +48,7 @@ class ResolveExternalDependenciesTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val platform: Platform,
+    private val isTest: Boolean,
     private val fragments: List<Fragment>,
     private val fragmentsCompileModuleDependencies: ModuleDependencyNodeWithModule,
     private val fragmentsRuntimeModuleDependencies: ModuleDependencyNodeWithModule?,
@@ -86,6 +87,7 @@ class ResolveExternalDependenciesTask(
             .setFragments(fragments)
             .setListAttribute("dependencies", compileDependencyCoordinates.map { it.toString() })
             .setListAttribute("runtimeDependencies", runtimeDependencyCoordinates?.map { it.toString() } ?: emptyList())
+            .setAttribute("isTest", isTest)
             .setAttribute("platform", resolvedPlatform.type.value)
             .also {
                 resolvedPlatform.nativeTarget?.let { target ->

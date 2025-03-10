@@ -57,6 +57,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                     context.userCacheRoot,
                     executeOnChangedInputs,
                     platform = platform,
+                    isTest = isTest,
                     // for test code, we resolve dependencies on union of test and prod dependencies
                     fragments = fragmentsIncludeProduction,
                     fragmentsCompileModuleDependencies = fragmentsCompileModuleDependencies,

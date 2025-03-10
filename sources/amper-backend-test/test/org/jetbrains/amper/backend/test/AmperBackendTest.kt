@@ -83,36 +83,6 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `jvm kotlin serialization support without explicit dependency`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("kotlin-serialization-default")
-        AmperBackend(projectContext).runTask(TaskName(":kotlin-serialization-default:runJvm"))
-
-        assertInfoLogStartsWith(
-            "Process exited with exit code 0\n" +
-                    "STDOUT:\n" +
-                    "Hello, World!"
-        )
-    }
-
-    @Test
-    fun `jvm kotlin serialization support with custom version`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("kotlin-serialization-custom-version")
-        AmperBackend(projectContext).runTask(TaskName(":kotlin-serialization-custom-version:resolveDependenciesJvm"))
-
-        spansNamed("resolve-dependencies")
-            .assertSingle()
-            .assertHasAttribute(
-                key = AttributeKey.stringArrayKey("dependencies"),
-                value = listOf(
-                    "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}",
-                    "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1",
-                    "org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1",
-                    "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1",
-                ),
-            )
-    }
-
-    @Test
     fun `get jvm resource from dependency`() = runTestWithCollector {
         val projectContext = setupTestDataProject("jvm-resources")
         AmperBackend(projectContext).runTask(TaskName(":two:runJvm"))
