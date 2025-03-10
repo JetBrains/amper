@@ -39,13 +39,13 @@ class AmperPublishTest : AmperCliTestBase() {
             amperJvmArgs = listOf("-Dmaven.repo.local=\"${mavenLocalForTest.absolutePathString()}\""),
         )
 
-        assertDirContains(groupDir, listOf(
+        groupDir.assertContainsRelativeFiles(
             "artifactName/2.2/_remote.repositories",
             "artifactName/2.2/artifactName-2.2-sources.jar",
             "artifactName/2.2/artifactName-2.2.jar",
             "artifactName/2.2/artifactName-2.2.pom",
             "artifactName/maven-metadata-local.xml",
-        ))
+        )
 
         val pom = groupDir.resolve("artifactName/2.2/artifactName-2.2.pom")
         assertEquals("""
@@ -117,7 +117,7 @@ class AmperPublishTest : AmperCliTestBase() {
         )
 
         // note that publishing of main-lib module triggers all other modules (by design)
-        assertDirContains(groupDir, listOf(
+        groupDir.assertContainsRelativeFiles(
             "jvm-lib/1.2.3/_remote.repositories",
             "jvm-lib/1.2.3/jvm-lib-1.2.3-sources.jar",
             "jvm-lib/1.2.3/jvm-lib-1.2.3.jar",
@@ -133,7 +133,7 @@ class AmperPublishTest : AmperCliTestBase() {
             "main-lib/1.2.3/main-lib-1.2.3.jar",
             "main-lib/1.2.3/main-lib-1.2.3.pom",
             "main-lib/maven-metadata-local.xml",
-        ))
+        )
 
         val pom = groupDir / "main-lib/1.2.3/main-lib-1.2.3.pom"
         assertEquals(expected = """
@@ -177,8 +177,7 @@ class AmperPublishTest : AmperCliTestBase() {
             publishJvmProject("2.2", baseUrl)
         }
 
-        val groupDir = www.resolve("amper/test/jvm-publish")
-        assertDirContains(groupDir, listOf(
+        www.resolve("amper/test/jvm-publish").assertContainsRelativeFiles(
             "artifactName/2.2/artifactName-2.2-sources.jar",
             "artifactName/2.2/artifactName-2.2-sources.jar.md5",
             "artifactName/2.2/artifactName-2.2-sources.jar.sha1",
@@ -199,7 +198,7 @@ class AmperPublishTest : AmperCliTestBase() {
             "artifactName/maven-metadata.xml.sha1",
             "artifactName/maven-metadata.xml.sha256",
             "artifactName/maven-metadata.xml.sha512",
-        ))
+        )
     }
 
     @Test
@@ -210,8 +209,7 @@ class AmperPublishTest : AmperCliTestBase() {
             publishJvmProject("2.2", baseUrl)
         }
 
-        val groupDir = www.resolve("amper/test/jvm-publish")
-        assertDirContains(groupDir, listOf(
+        www.resolve("amper/test/jvm-publish").assertContainsRelativeFiles(
             "artifactName/2.2/artifactName-2.2-sources.jar",
             "artifactName/2.2/artifactName-2.2-sources.jar.md5",
             "artifactName/2.2/artifactName-2.2-sources.jar.sha1",
@@ -232,7 +230,7 @@ class AmperPublishTest : AmperCliTestBase() {
             "artifactName/maven-metadata.xml.sha1",
             "artifactName/maven-metadata.xml.sha256",
             "artifactName/maven-metadata.xml.sha512",
-        ))
+        )
     }
 
     @Test
@@ -348,17 +346,6 @@ class AmperPublishTest : AmperCliTestBase() {
         expectedPassword: String = "http-password",
     ): BasicAuthenticator = object : BasicAuthenticator("www-realm") {
         override fun checkCredentials(username: String, password: String): Boolean = username == expectedUser && password == expectedPassword
-    }
-
-    private fun assertDirContains(dir: Path, expectedRelativePaths: List<String>) {
-        val files = dir.walk()
-            .onEach {
-                assertTrue(it.fileSize() > 0, "File should not be empty: $it")
-            }
-            .map { it.relativeTo(dir).joinToString("/") }
-            .sorted()
-            .toList()
-        assertEquals(expectedRelativePaths, files)
     }
 
     private fun assertMetadataWithTimestampEquals(expected: String, actualMetadataFile: Path) {

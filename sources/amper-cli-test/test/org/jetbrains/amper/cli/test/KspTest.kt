@@ -319,15 +319,6 @@ class KspTest: AmperCliTestBase() {
         buildOutputRoot / "generated" / module / fragment
 }
 
-/**
- * Asserts that the directory at this [Path] contains all the files at the given [expectedRelativePaths].
- */
-private fun Path.assertContainsRelativeFiles(vararg expectedRelativePaths: String) {
-    val actualFiles = walk().map { it.relativeTo(this) }.sorted().toList()
-    val expectedFiles = expectedRelativePaths.map { Path(it) }
-    assertEquals(expectedFiles, actualFiles)
-}
-
 private fun Path.assertContentEquals(expectedContents: String) {
     assertTrue(exists(), "Expected file $pathString to exist")
     assertTrue(isRegularFile(), "Expected a file but got a directory: $pathString")

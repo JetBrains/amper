@@ -13,11 +13,30 @@ import org.jetbrains.amper.test.spans.FilteredSpans
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.jetbrains.amper.test.spans.spansNamed
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.div
+import kotlin.io.path.fileSize
+import kotlin.io.path.relativeTo
+import kotlin.io.path.walk
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
 inline fun runSlowTest(crossinline testBody: suspend TestScope.() -> Unit): TestResult =
     runTest(timeout = 15.minutes) { testBody() }
+
+/**
+ * Asserts that the directory at this [Path] contains all the files at the given [expectedRelativePaths].
+ */
+internal fun Path.assertContainsRelativeFiles(vararg expectedRelativePaths: String) {
+    val actualFiles = walk()
+        .onEach { assertTrue(it.fileSize() > 0, "File should not be empty: $it") }
+        .map { it.relativeTo(this).joinToString("/") }
+        .sorted()
+        .toList()
+    // comparing multi-line strings instead of lists for easier comparison of test failures
+    assertEquals(expectedRelativePaths.joinToString("\n"), actualFiles.joinToString("\n"))
+}
 
 // FIXME this should never be needed, because task output paths should be internal.
 //  User-visible artifacts should be placed in user-visible directories (use some convention).
