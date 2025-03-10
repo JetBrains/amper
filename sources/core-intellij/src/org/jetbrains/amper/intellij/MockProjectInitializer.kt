@@ -66,9 +66,11 @@ object MockProjectInitializer {
         val latest = latestConfigurator
         if (latest != null && latest !== intelliJApplicationConfigurator) {
             error(
-                "Only one configurator can be used at a time.\n" +
-                        "old: ${latest.javaClass.name} $latest,\n" +
-                        "new: ${intelliJApplicationConfigurator.javaClass.name} $intelliJApplicationConfigurator"
+                """
+                    Only one configurator can be used at a time.
+                    old: ${latest.javaClass.name} $latest
+                    new: ${intelliJApplicationConfigurator.javaClass.name} $intelliJApplicationConfigurator
+                """.trimIndent()
             )
         }
 
