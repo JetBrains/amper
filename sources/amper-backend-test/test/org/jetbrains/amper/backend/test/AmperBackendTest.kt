@@ -83,42 +83,6 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `get jvm resource from dependency`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("jvm-resources")
-        AmperBackend(projectContext).runTask(TaskName(":two:runJvm"))
-
-        assertInfoLogStartsWith(
-            "Process exited with exit code 0\n" +
-                    "STDOUT:\n" +
-                    "String from resources: Stuff From Resources"
-        )
-    }
-
-    @Test
-    fun `do not call kotlinc again if sources were not changed`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("jvm-language-version-1.9")
-
-        AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
-
-        assertInfoLogStartsWith(
-            "Process exited with exit code 0\n" +
-                    "STDOUT:\n" +
-                    "Hello, world!"
-        )
-        kotlinJvmCompilationSpans.assertSingle()
-
-        clearSpans()
-        clearLogEntries()
-
-        AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Hello, world!"
-        assertInfoLogStartsWith(find)
-        kotlinJvmCompilationSpans.assertNone()
-    }
-
-    @Test
     fun `kotlin compiler span`() = runTestWithCollector {
         val projectContext = setupTestDataProject("jvm-language-version-1.9")
         AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
@@ -230,31 +194,6 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `mixed java kotlin`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("java-kotlin-mixed")
-        AmperBackend(projectContext).runTask(TaskName(":java-kotlin-mixed:runJvm"))
-
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Output: <XYZ>"
-        assertInfoLogStartsWith(find)
-    }
-
-    @Test
-    fun `simple multiplatform cli on jvm`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
-        AmperBackend(projectContext).runTask(TaskName(":jvm-cli:runJvm"))
-
-        val find = """Process exited with exit code 0
-STDOUT:
-Hello Multiplatform CLI 12: JVM World
-ARG0: <${argumentsWithSpecialChars[0]}>
-ARG1: <${argumentsWithSpecialChars[1]}>
-ARG2: <${argumentsWithSpecialChars[2]}>"""
-        assertInfoLogStartsWith(find)
-    }
-
-    @Test
     fun `simple multiplatform cli should compile windows on any platform`() = runTestWithCollector {
         val projectContext = setupTestDataProject("simple-multiplatform-cli")
         AmperBackend(projectContext).build(setOf(Platform.MINGW_X64))
@@ -262,21 +201,6 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertTrue("build must generate a 'windows-cli.exe' file somewhere") {
             projectContext.buildOutputRoot.path.walk().any { it.name == "windows-cli.exe" }
         }
-    }
-
-    @Test
-    @MacOnly
-    fun `simple multiplatform cli on mac`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
-        AmperBackend(projectContext).runTask(TaskName(":macos-cli:runMacosArm64"))
-
-        val find = """Process exited with exit code 0
-STDOUT:
-Hello Multiplatform CLI 12: Mac World
-ARG0: <${argumentsWithSpecialChars[0]}>
-ARG1: <${argumentsWithSpecialChars[1]}>
-ARG2: <${argumentsWithSpecialChars[2]}>"""
-        assertInfoLogStartsWith(find)
     }
 
     @Test
@@ -318,44 +242,6 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)
         assertTrue(stdout.contains("[  PASSED  ] 1 tests"), stdout)
     }
-
-    @Test
-    @LinuxOnly
-    fun `simple multiplatform cli on linux`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
-        val backend = AmperBackend(projectContext)
-        backend.runTask(TaskName(":linux-cli:runLinuxX64"))
-
-        val find = """Process exited with exit code 0
-STDOUT:
-Hello Multiplatform CLI 12: Linux World
-ARG0: <${argumentsWithSpecialChars[0]}>
-ARG1: <${argumentsWithSpecialChars[1]}>
-ARG2: <${argumentsWithSpecialChars[2]}>"""
-        assertInfoLogStartsWith(find)
-    }
-
-    @Test
-    @WindowsOnly
-    fun `simple multiplatform cli on windows`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
-        AmperBackend(projectContext).runTask(TaskName(":windows-cli:runMingwX64"))
-
-        val find = """Process exited with exit code 0
-STDOUT:
-Hello Multiplatform CLI 12: Windows (Mingw) World
-ARG0: <${argumentsWithSpecialChars[0]}>
-ARG1: <${argumentsWithSpecialChars[1]}>
-ARG2: <${argumentsWithSpecialChars[2]}>"""
-        assertInfoLogStartsWith(msgPrefix = find)
-    }
-
-    private val specialCmdChars = "&()[]{}^=;!'+,`~"
-    private val argumentsWithSpecialChars = listOf(
-        "simple123",
-        "my arg2",
-        "my arg3 :\"'<>\$ && || ; \"\" $specialCmdChars ${specialCmdChars.chunked(1).joinToString(" ")}",
-    )
 
     @Test
     fun `simple multiplatform cli sources jars`() = runTestWithCollector {

@@ -4,11 +4,16 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.processes.ProcessInput
+import org.jetbrains.amper.test.LinuxOnly
 import org.jetbrains.amper.test.MacOnly
+import org.jetbrains.amper.test.WindowsOnly
+import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import org.slf4j.event.Level
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -18,9 +23,16 @@ import kotlin.test.assertTrue
 @Execution(ExecutionMode.CONCURRENT)
 class AmperRunTest : AmperCliTestBase() {
 
+    private val specialCmdChars = "&()[]{}^=;!'+,`~"
+    private val argumentsWithSpecialChars = listOf(
+        "simple123",
+        "my arg2",
+        "my arg3 :\"'<>\$ && || ; \"\" $specialCmdChars ${specialCmdChars.chunked(1).joinToString(" ")}",
+    )
+
     @Test
     fun `run command help prints dash dash`() = runSlowTest {
-        val r = runCli(testProject("jvm-kotlin-test-smoke"), "run", "--help")
+        val r = runCli(projectRoot = testProject("jvm-kotlin-test-smoke"), "run", "--help")
 
         // Check that '--' is printed before program arguments
         val string = "Usage: amper run [<options>] -- [<app_arguments>]..."
@@ -31,10 +43,81 @@ class AmperRunTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `mixed java kotlin`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("java-kotlin-mixed"), "run")
+        result.assertLogStartsWith("Process exited with exit code 0\nSTDOUT:\nOutput: <XYZ>", Level.INFO)
+    }
+
+    @Test
+    fun `simple multiplatform cli on jvm`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("simple-multiplatform-cli"),
+            "run", "--module=jvm-cli", "--", *argumentsWithSpecialChars.toTypedArray(),
+        )
+
+        val expectedOutput = """Hello Multiplatform CLI 12: JVM World
+ARG0: <${argumentsWithSpecialChars[0]}>
+ARG1: <${argumentsWithSpecialChars[1]}>
+ARG2: <${argumentsWithSpecialChars[2]}>"""
+        result.assertStdoutContains(expectedOutput)
+    }
+
+    @Test
+    @MacOnly
+    fun `simple multiplatform cli on mac`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("simple-multiplatform-cli"),
+            "run", "--module=macos-cli", "--", *argumentsWithSpecialChars.toTypedArray(),
+        )
+
+        val expectedOutput = """Hello Multiplatform CLI 12: Mac World
+ARG0: <${argumentsWithSpecialChars[0]}>
+ARG1: <${argumentsWithSpecialChars[1]}>
+ARG2: <${argumentsWithSpecialChars[2]}>"""
+        result.assertStdoutContains(expectedOutput)
+    }
+
+    @Test
+    @LinuxOnly
+    fun `simple multiplatform cli on linux`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("simple-multiplatform-cli"),
+            "run", "--module=linux-cli", "--platform=linuxX64", "--", *argumentsWithSpecialChars.toTypedArray(),
+        )
+
+        val expectedOutput = """Hello Multiplatform CLI 12: Linux World
+ARG0: <${argumentsWithSpecialChars[0]}>
+ARG1: <${argumentsWithSpecialChars[1]}>
+ARG2: <${argumentsWithSpecialChars[2]}>"""
+        result.assertStdoutContains(expectedOutput)
+    }
+
+    @Test
+    @WindowsOnly
+    fun `simple multiplatform cli on windows`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("simple-multiplatform-cli"),
+            "run", "--module=windows-cli", "--", *argumentsWithSpecialChars.toTypedArray(),
+        )
+
+        val expectedOutput = """Hello Multiplatform CLI 12: Windows (Mingw) World
+ARG0: <${argumentsWithSpecialChars[0]}>
+ARG1: <${argumentsWithSpecialChars[1]}>
+ARG2: <${argumentsWithSpecialChars[2]}>"""
+        result.assertStdoutContains(expectedOutput)
+    }
+
+    @Test
+    fun `run with jvm resource from dependency`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("jvm-resources"), "run")
+        result.assertStdoutContains("String from resources: Stuff From Resources")
+    }
+
+    @Test
     fun `run with access to resource as dir`() = runSlowTest {
         // This project tests reading a directory entry from the resources.
         // NoSuchElementException means it failed.
-        runCli(testProject("jvm-read-resource-dir"), "run")
+        runCli(projectRoot = testProject("jvm-read-resource-dir"), "run")
     }
 
     @Test
@@ -44,12 +127,12 @@ class AmperRunTest : AmperCliTestBase() {
         // Spring's PathMatchingResourcePatternResolver::doFindAllClassPathResources represents packages as a resources
         // (ex. org/springframework/boot/). So directory entries need to be resources inside the jar.
         // If directory entries are missing, the symptom is that Spring can't load the context.
-        runCli(testProject("spring-boot"), "run")
+        runCli(projectRoot = testProject("spring-boot"), "run")
     }
 
     @Test
     fun `run executable jar`() = runSlowTest {
-        runCli(testProject("spring-boot"), "run", "-v", "release")
+        runCli(projectRoot = testProject("spring-boot"), "run", "-v", "release")
     }
 
     @Test
@@ -77,14 +160,27 @@ class AmperRunTest : AmperCliTestBase() {
 
     @Test
     fun `jvm run with JVM arg`() = runSlowTest {
-        val testProject = testProject("jvm-run-print-systemprop")
-        val result1 = runCli(testProject, "run", "--jvm-args=-Dmy.system.prop=hello")
+        val projectRoot = testProject("jvm-run-print-systemprop")
+        val result1 = runCli(projectRoot, "run", "--jvm-args=-Dmy.system.prop=hello")
         assertEquals("my.system.prop=hello", result1.stdout.trim().lines().last())
 
-        val result2 = runCli(testProject, "run", "--jvm-args=\"-Dmy.system.prop=hello world\"")
+        val result2 = runCli(projectRoot, "run", "--jvm-args=\"-Dmy.system.prop=hello world\"")
         assertEquals("my.system.prop=hello world", result2.stdout.trim().lines().last())
 
-        val result3 = runCli(testProject, "run", "--jvm-args=-Dmy.system.prop=hello\\ world")
+        val result3 = runCli(projectRoot, "run", "--jvm-args=-Dmy.system.prop=hello\\ world")
         assertEquals("my.system.prop=hello world", result3.stdout.trim().lines().last())
+    }
+
+    @Test
+    fun `do not call kotlinc again if sources were not changed`() = runSlowTest {
+        val projectRoot = testProject("jvm-language-version-1.9")
+
+        val result1 = runCli(projectRoot = projectRoot, "run")
+        result1.assertStdoutContains("Hello, world!")
+        result1.readTelemetrySpans().kotlinJvmCompilationSpans.assertSingle()
+
+        val result2 = runCli(projectRoot = projectRoot, "run")
+        result2.assertStdoutContains("Hello, world!")
+        result2.readTelemetrySpans().kotlinJvmCompilationSpans.assertNone()
     }
 }
