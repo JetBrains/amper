@@ -27,15 +27,20 @@ import kotlin.test.assertTrue
 @Execution(ExecutionMode.CONCURRENT)
 class AmperPublishTest : AmperCliTestBase() {
 
+    private fun createTempMavenLocalDir(): Path = tempRoot.resolve(".m2.test").also { it.createDirectories() }
+
+    private fun mavenRepoLocalJvmArg(mavenLocalForTest: Path) =
+        "-Dmaven.repo.local=\"${mavenLocalForTest.absolutePathString()}\""
+
     @Test
     fun `publish to maven local (jvm single-module)`() = runSlowTest {
-        val mavenLocalForTest = tempRoot.resolve(".m2.test").also { it.createDirectories() }
+        val mavenLocalForTest = createTempMavenLocalDir()
         val groupDir = mavenLocalForTest.resolve("amper/test/jvm-publish")
 
         runCli(
             projectRoot = testProject("jvm-publish"),
             "publish", "mavenLocal",
-            amperJvmArgs = listOf("-Dmaven.repo.local=\"${mavenLocalForTest.absolutePathString()}\""),
+            amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
 
         groupDir.assertContainsRelativeFiles(
@@ -106,13 +111,13 @@ class AmperPublishTest : AmperCliTestBase() {
 
     @Test
     fun `publish to maven local (jvm multi-module)`() = runSlowTest {
-        val mavenLocalForTest = tempRoot.resolve(".m2.test").also { it.createDirectories() }
+        val mavenLocalForTest = createTempMavenLocalDir()
         val groupDir = mavenLocalForTest.resolve("amper/test/jvm-publish-multimodule")
 
         runCli(
             projectRoot = testProject("jvm-publish-multimodule"),
             "publish", "mavenLocal", "--modules=main-lib",
-            amperJvmArgs = listOf("-Dmaven.repo.local=\"${mavenLocalForTest.absolutePathString()}\""),
+            amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
 
         // note that publishing of main-lib module triggers all other modules (by design)
@@ -344,6 +349,7 @@ class AmperPublishTest : AmperCliTestBase() {
                 moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", repoUrl).replace("2.2", version))
             },
             assertEmptyStdErr = !assertOnlyLoggerErrorsInStdErr,
+            amperJvmArgs = listOf(mavenRepoLocalJvmArg(createTempMavenLocalDir()))
         )
         if (assertOnlyLoggerErrorsInStdErr) {
             assertTrue("Amper stderr should only contain logger errors during publish, but got:\n${result.stderr.trim()}\n") {
