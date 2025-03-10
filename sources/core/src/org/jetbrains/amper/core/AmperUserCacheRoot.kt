@@ -7,13 +7,31 @@ package org.jetbrains.amper.core
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
 import org.jetbrains.amper.core.system.OsFamily
+import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.pathString
 
-data class AmperUserCacheRoot(val path: Path) {
+sealed interface AmperUserCacheInitializationResult
+
+sealed interface AmperUserCacheInitializationFailure : AmperUserCacheInitializationResult {
+    val defaultMessage: String
+
+    class InvalidPath(val rawBasePath: String, val source: String) : AmperUserCacheInitializationFailure {
+        override val defaultMessage: String
+            get() = "Amper cache path failed to resolve because $source contained an invalid path: \"$rawBasePath\". Configure it as a valid absolute path instead."
+    }
+
+    class NonAbsolutePath(val path: Path, val source: String) : AmperUserCacheInitializationFailure {
+        override val defaultMessage: String
+            get() = "Amper cache path is set via the $source to a non-absolute path: \"${path.pathString}\". " +
+                    "This could affect where the cache is located based on the current directory Amper is run from. Configure it as an absolute path instead."
+    }
+}
+
+data class AmperUserCacheRoot(val path: Path) : AmperUserCacheInitializationResult {
     init {
         require(path.isAbsolute) {
             "User cache root is not an absolute path: $path"
@@ -29,50 +47,100 @@ data class AmperUserCacheRoot(val path: Path) {
     override fun toString(): String = path.pathString
 
     companion object {
-        fun fromCurrentUser(): AmperUserCacheRoot {
-            val cacheRoot = parseFromSystemSettings()
-                ?: parseFromEnvSettings()
-                ?: run {
-                    val localAppData = when (OsFamily.current) {
-                        OsFamily.Windows -> getWindowsLocalAppData()
-                        OsFamily.MacOs -> getMacOsCacheFolder()
-                        OsFamily.Linux,
-                        OsFamily.FreeBSD,
-                        OsFamily.Solaris -> getGenericUnixCacheFolder()
-                    }
-                    localAppData / "Amper"
+        private const val AMPER_CACHE_SUBFOLDER = "Amper"
+
+        @Deprecated("Use fromCurrentUserResult() instead and handle the error properly by the mechanism that is available to you.")
+        fun fromCurrentUser(): AmperUserCacheRoot = when (val result = fromCurrentUserResult()) {
+            is AmperUserCacheInitializationFailure -> error(result.defaultMessage)
+            is AmperUserCacheRoot -> result
+        }
+
+        /**
+         * The error here is user-friendly and can be reported as is.
+         */
+        fun fromCurrentUserResult(): AmperUserCacheInitializationResult =
+            getFromSystemSettings()
+                ?: getFromEnvSettings()
+                ?: when (OsFamily.current) {
+                    OsFamily.Windows -> getWindowsCacheFolder()
+                    OsFamily.MacOs -> getMacOsCacheFolder()
+                    OsFamily.Linux,
+                    OsFamily.FreeBSD,
+                    OsFamily.Solaris -> getGenericUnixCacheFolder()
                 }
 
-            return AmperUserCacheRoot(cacheRoot)
+        private fun getFromSystemSettings(): AmperUserCacheInitializationResult? {
+            val systemPropertyPath = System.getProperty("amper.cache.root")?.takeIf { it.isNotBlank() } ?: return null
+            return systemPropertyPath.buildAmperCacheRoot(source = "\"amper.cache.root\" system property")
         }
 
-        private fun parseFromSystemSettings(): Path? {
-            val amperRepoLocal = System.getProperty("amper.cache.root")?.takeIf { it.isNotBlank() } ?: return null
-            return Path(amperRepoLocal)
+        private fun getFromEnvSettings(): AmperUserCacheInitializationResult? {
+            val envVariablePath = System.getenv("AMPER_CACHE_ROOT")?.takeIf { it.isNotBlank() } ?: return null
+            return envVariablePath.buildAmperCacheRoot(source = "\"AMPER_CACHE_ROOT\" environment variable")
         }
 
-        private fun parseFromEnvSettings(): Path? {
-            val amperRepoLocal = System.getenv("AMPER_CACHE_ROOT")?.takeIf { it.isNotBlank() } ?: return null
-            return Path(amperRepoLocal)
-        }
-
-        private fun getWindowsLocalAppData(): Path {
-            // we prefer the env variable because getting known folders through Shell32Util is slow (~300-400ms)
+        private fun getWindowsCacheFolder(): AmperUserCacheInitializationResult {
+            // We prefer the env variable because getting known folders through Shell32Util is slow (~300-400ms)
             val localAppDataFromEnv = System.getenv("LOCALAPPDATA")?.takeIf { it.isNotBlank() }
-            return Path(localAppDataFromEnv ?: Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData))
+            if (localAppDataFromEnv != null) {
+                val localAppDataFolder =
+                    localAppDataFromEnv.buildAmperCacheRoot(source = "\"LOCALAPPDATA\" environment variable")
+                /**
+                 * If the LOCALAPPDATA environment variable is corrupted in some way, we'll try retrieving
+                 * the cache folder via the Known Folders system.
+                 */
+                if (localAppDataFolder !is AmperUserCacheInitializationFailure) {
+                    return localAppDataFolder
+                }
+            }
+
+            return Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData)
+                .buildAmperCacheRoot(source = "Windows Known Folders system (FOLDERID_LocalAppData property)") { this / AMPER_CACHE_SUBFOLDER }
         }
 
-        private fun getMacOsCacheFolder(): Path {
-            val userHome = Path(System.getProperty("user.home"))
-            return userHome / "Library" / "Caches"
+        private fun getMacOsCacheFolder(): AmperUserCacheInitializationResult {
+            return System.getProperty("user.home")
+                .buildAmperCacheRoot(source = "user home system property") { this / "Library" / "Caches" / AMPER_CACHE_SUBFOLDER }
         }
 
-        private fun getGenericUnixCacheFolder(): Path {
-            val xdgCacheHome = System.getenv("XDG_CACHE_HOME")?.takeIf { it.isNotBlank() }?.let(::Path)
-            if (xdgCacheHome != null) return xdgCacheHome
+        private fun getGenericUnixCacheFolder(): AmperUserCacheInitializationResult {
+            val xdgCacheHome = System.getenv("XDG_CACHE_HOME")?.takeIf { it.isNotBlank() }
+            if (xdgCacheHome != null) {
+                val xdgCacheFolder =
+                    xdgCacheHome.buildAmperCacheRoot(source = "\"XDG_CACHE_HOME\" environment variable") { this / AMPER_CACHE_SUBFOLDER }
+                /**
+                 * If XDG_CACHE_HOME wasn't pointing to a proper path, the XDG specification suggests ignoring it:
+                 * > If an implementation encounters a relative path in any of these variables
+                 * > it should consider the path invalid and ignore it.
+                 *
+                 * https://specifications.freedesktop.org/basedir-spec/0.8/
+                 *
+                 * Thus, we'll continue with the user.home based path.
+                 */
+                if (xdgCacheFolder !is AmperUserCacheInitializationFailure) {
+                    return xdgCacheFolder
+                }
+            }
 
-            val userHome = Path(System.getProperty("user.home"))
-            return userHome / ".cache"
+            return System.getProperty("user.home")
+                .buildAmperCacheRoot(source = "user home system property") { this / ".cache" / AMPER_CACHE_SUBFOLDER }
+        }
+
+        private inline fun String.buildAmperCacheRoot(
+            source: String,
+            buildPathFromSource: Path.() -> Path = { this }
+        ): AmperUserCacheInitializationResult {
+            val path = try {
+                Path(this)
+            } catch (_: InvalidPathException) {
+                return AmperUserCacheInitializationFailure.InvalidPath(this, source)
+            }
+            val finalPath = path.buildPathFromSource()
+            return if (finalPath.isAbsolute) {
+                AmperUserCacheRoot(finalPath)
+            } else {
+                AmperUserCacheInitializationFailure.NonAbsolutePath(finalPath, source)
+            }
         }
     }
 }
