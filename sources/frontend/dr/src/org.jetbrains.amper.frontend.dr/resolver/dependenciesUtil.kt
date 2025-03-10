@@ -40,8 +40,7 @@ private fun <T: DependencyNode> DependencyNode.findParentsImpl(
     }
 
     if (kClass.isInstance(this)) {
-        @Suppress("UNCHECKED_CAST")
-        result.add(this as T)
+        result.add(kClass.cast(this))
     } else {
         parents.forEach { it.findParentsImpl(kClass, visited = visited, result = result) }
     }
