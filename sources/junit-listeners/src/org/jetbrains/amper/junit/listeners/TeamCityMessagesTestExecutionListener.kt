@@ -102,7 +102,7 @@ class TeamCityMessagesTestExecutionListener(
     override fun executionStarted(testIdentifier: TestIdentifier) {
         if (!enabled) return
         emit(FlowStarted(testIdentifier.teamCityFlowId, testIdentifier.teamCityParentFlowId))
-        @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+        @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // TestIdentifier can't be constructed with the `null` `type`
         when (testIdentifier.type) {
             TestDescriptor.Type.CONTAINER -> {
                 emit(TestSuiteStarted(testIdentifier.teamCityName).withFlowId(testIdentifier))
@@ -138,6 +138,7 @@ class TeamCityMessagesTestExecutionListener(
         watchedStdout.forceFlush()
         watchedStderr.forceFlush()
         currentTest.set(null)
+        @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // TestIdentifier can't be constructed with the `null` `type`
         when (testIdentifier.type) {
             TestDescriptor.Type.CONTAINER -> {
                 emit(TestSuiteFinished(testIdentifier.teamCityName).withFlowId(testIdentifier))

@@ -128,10 +128,12 @@ private enum class TestEvent(val displayName: String, val style: TextStyle? = nu
     EntryReported("Reported");
 
     companion object {
-        fun forResult(result: TestExecutionResult): TestEvent = when (result.status) {
-            TestExecutionResult.Status.SUCCESSFUL -> Succeeded
-            TestExecutionResult.Status.ABORTED -> Skipped
-            TestExecutionResult.Status.FAILED -> Failed
-        }
+        fun forResult(result: TestExecutionResult): TestEvent =
+            @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // TestExecutionResult doesn't allow constructing it with the null status
+            when (result.status) {
+                TestExecutionResult.Status.SUCCESSFUL -> Succeeded
+                TestExecutionResult.Status.ABORTED -> Skipped
+                TestExecutionResult.Status.FAILED -> Failed
+            }
     }
 }
