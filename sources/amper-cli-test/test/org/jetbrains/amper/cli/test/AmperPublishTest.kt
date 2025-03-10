@@ -266,32 +266,33 @@ class AmperPublishTest : AmperCliTestBase() {
             publishJvmProject("1.0", baseUrl)
             publishJvmProject("2.0-SNAPSHOT", baseUrl)
             publishJvmProject("2.0-SNAPSHOT", baseUrl)
+        }
 
-            assertMetadataWithTimestampEquals("""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <metadata>
-                  <groupId>amper.test.jvm-publish</groupId>
-                  <artifactId>artifactName</artifactId>
-                  <versioning>
-                    <release>1.0</release>
-                    <versions>
-                      <version>1.0</version>
-                      <version>2.0-SNAPSHOT</version>
-                    </versions>
-                    <lastUpdated>TIMESTAMP</lastUpdated>
-                  </versioning>
-                </metadata>
-            """.trimIndent(), www.resolve("amper/test/jvm-publish/artifactName/maven-metadata.xml"))
+        assertMetadataWithTimestampEquals("""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <metadata>
+              <groupId>amper.test.jvm-publish</groupId>
+              <artifactId>artifactName</artifactId>
+              <versioning>
+                <release>1.0</release>
+                <versions>
+                  <version>1.0</version>
+                  <version>2.0-SNAPSHOT</version>
+                </versions>
+                <lastUpdated>TIMESTAMP</lastUpdated>
+              </versioning>
+            </metadata>
+        """.trimIndent(), www.resolve("amper/test/jvm-publish/artifactName/maven-metadata.xml"))
 
-            val lastVersion = www.resolve("amper/test/jvm-publish/artifactName/2.0-SNAPSHOT").listDirectoryEntries()
-                .map { it.name }
-                .sorted()
-                .last { it.startsWith("artifactName-") && it.endsWith(".jar") }
-                .removePrefix("artifactName-")
-                .removeSuffix(".jar")
+        val lastVersion = www.resolve("amper/test/jvm-publish/artifactName/2.0-SNAPSHOT").listDirectoryEntries()
+            .map { it.name }
+            .sorted()
+            .last { it.startsWith("artifactName-") && it.endsWith(".jar") }
+            .removePrefix("artifactName-")
+            .removeSuffix(".jar")
 
-            val metadataXml = www.resolve("amper/test/jvm-publish/artifactName/2.0-SNAPSHOT/maven-metadata.xml")
-            assertMetadataWithTimestampEquals("""
+        val metadataXml = www.resolve("amper/test/jvm-publish/artifactName/2.0-SNAPSHOT/maven-metadata.xml")
+        assertMetadataWithTimestampEquals("""
                 <?xml version="1.0" encoding="UTF-8"?>
                 <metadata modelVersion="1.1.0">
                   <groupId>amper.test.jvm-publish</groupId>
@@ -324,7 +325,6 @@ class AmperPublishTest : AmperCliTestBase() {
                   <version>2.0-SNAPSHOT</version>
                 </metadata>
             """.trimIndent(), metadataXml)
-        }
     }
 
     private suspend fun publishJvmProject(version: String, repoUrl: String) {
