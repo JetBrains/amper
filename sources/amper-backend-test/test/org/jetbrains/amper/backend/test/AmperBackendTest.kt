@@ -3,27 +3,19 @@
  */
 package org.jetbrains.amper.backend.test
 
-import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
-import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.test.LinuxOnly
-import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.WindowsOnly
 import org.jetbrains.amper.test.spans.assertEachKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.assertEachKotlinNativeCompilationSpan
-import org.jetbrains.amper.test.spans.assertHasAttribute
 import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
-import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
-import org.jetbrains.amper.test.spans.spansNamed
 import org.junit.jupiter.api.Disabled
 import org.tinylog.Level
 import java.nio.file.LinkOption
@@ -201,46 +193,6 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         assertTrue("build must generate a 'windows-cli.exe' file somewhere") {
             projectContext.buildOutputRoot.path.walk().any { it.name == "windows-cli.exe" }
         }
-    }
-
-    @Test
-    @MacOnly
-    fun `simple multiplatform cli lib test on mac`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli")
-        AmperBackend(projectContext).runTask(TaskName(":shared:testMacosArm64"))
-
-        val testLauncherSpan = spansNamed("native-test").assertSingle()
-        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
-
-        assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)
-        assertTrue(stdout.contains("[  PASSED  ] 1 tests"), stdout)
-    }
-
-    @Test
-    @MacOnly
-    fun `simple multiplatform cli app test on mac`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli")
-        val amperBackend = AmperBackend(projectContext)
-        amperBackend.runTask(TaskName(":macos-cli:testMacosArm64"))
-
-        val testLauncherSpan = spansNamed("native-test").assertSingle()
-        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
-
-        assertTrue(stdout.contains("[       OK ] WorldTestFromMacOsCli.doTest"), stdout)
-        assertTrue(stdout.contains("[  PASSED  ] 1 tests"), stdout)
-    }
-
-    @Test
-    @WindowsOnly
-    fun `simple multiplatform cli test on windows`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli")
-        AmperBackend(projectContext).runTask(TaskName(":shared:testMingwX64"))
-
-        val testLauncherSpan = spansNamed("native-test").assertSingle()
-        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
-
-        assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)
-        assertTrue(stdout.contains("[  PASSED  ] 1 tests"), stdout)
     }
 
     @Test

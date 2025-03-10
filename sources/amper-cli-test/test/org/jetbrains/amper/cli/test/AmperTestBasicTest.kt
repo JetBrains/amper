@@ -185,4 +185,34 @@ class AmperTestBasicTest : AmperCliTestBase() {
         val result = runCli(projectRoot = testProject("native-test-no-test-sources"), "test", "--platform=mingwX64")
         result.assertLogStartsWith("No test classes, skipping test execution for module 'native-test-no-test-sources'", Level.WARN)
     }
+
+    @Test
+    @WindowsOnly
+    fun `simple multiplatform cli lib test on windows`() = runSlowTest {
+        val projectContext = testProject("simple-multiplatform-cli")
+        val result = runCli(projectRoot = projectContext, "test", "--include-module=shared", "--platform=mingwX64")
+
+        result.assertStdoutContains("[       OK ] WorldTest.doTest")
+        result.assertStdoutContains("[  PASSED  ] 1 tests")
+    }
+
+    @Test
+    @MacOnly
+    fun `simple multiplatform cli lib test on mac`() = runSlowTest {
+        val projectContext = testProject("simple-multiplatform-cli")
+        val result = runCli(projectRoot = projectContext, "test", "--include-module=shared", "--platform=macosArm64")
+
+        result.assertStdoutContains("[       OK ] WorldTest.doTest")
+        result.assertStdoutContains("[  PASSED  ] 1 tests")
+    }
+
+    @Test
+    @MacOnly
+    fun `simple multiplatform cli app test on mac`() = runSlowTest {
+        val projectContext = testProject("simple-multiplatform-cli")
+        val result = runCli(projectRoot = projectContext, "test", "--include-module=macos-cli")
+
+        result.assertStdoutContains("[       OK ] WorldTestFromMacOsCli.doTest")
+        result.assertStdoutContains("[  PASSED  ] 1 tests")
+    }
 }
