@@ -120,10 +120,10 @@ enum class GradleScope {
                 .firstOrNull { coordinates.startsWith("${it.name}(") }
                 ?.let { gradleScope ->
                     val gradleScopePrefix = "${gradleScope.name}("
-                    val coordinates = trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix\"", "\")")
+                    val trimmedCoordinates = trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix\"", "\")")
                         ?: trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix'", "')")
                         ?: return@let null
-                    gradleScope to coordinates
+                    gradleScope to trimmedCoordinates
                 }
 
         private fun trimPrefixAndSuffixOrNull(coordinates: String, prefix: String, suffix: String): String? =

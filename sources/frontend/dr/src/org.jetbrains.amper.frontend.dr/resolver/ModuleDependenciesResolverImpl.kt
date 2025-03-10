@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.frontend.dr.resolver
 
@@ -12,9 +12,6 @@ import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
-import org.slf4j.LoggerFactory
-
-private val logger = LoggerFactory.getLogger(ModuleDependenciesResolverImpl::class.java)
 
 internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
@@ -69,13 +66,11 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         }
     }
 
-    override fun dependencyInsight(group: String, module: String, graph: DependencyNode): DependencyNode =
-        filterGraph(group, module, graph)
+    override fun dependencyInsight(group: String, module: String, node: DependencyNode): DependencyNode =
+        filterGraph(group, module, node)
 
     override suspend fun AmperModule.dependencyInsight(group: String, module: String, resolutionInput: ResolutionInput): DependencyNode {
         val graph = resolveDependencies(resolutionInput)
         return filterGraph(group, module, graph)
     }
 }
-
-
