@@ -166,7 +166,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @WindowsOnly
     @Ignore("AMPER-475")
     fun `native test app test`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("native-test-app-test"), "test")
+        runCli(projectRoot = testProject("native-test-app-test"), "test")
         // TODO assert that some test was actually run
     }
 
