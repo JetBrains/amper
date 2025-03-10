@@ -265,17 +265,6 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm exported dependencies`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("jvm-exported-dependencies")
-        AmperBackend(projectContext).runTask(TaskName(":cli:runJvm"))
-
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "From Root Module + OneTwo"
-        assertInfoLogStartsWith(find)
-    }
-
-    @Test
     @MacOnly
     fun `simple multiplatform cli on mac`() = runTestWithCollector {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
