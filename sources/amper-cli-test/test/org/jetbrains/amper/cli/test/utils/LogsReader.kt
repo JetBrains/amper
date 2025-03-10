@@ -2,23 +2,14 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli.test.logs
+package org.jetbrains.amper.cli.test.utils
 
 import org.slf4j.event.Level
 import java.nio.file.Path
 import kotlin.io.path.useLines
+import kotlin.text.get
 
 class LogEntry(val level: Level, val message: String)
-
-sealed interface LogFileLine {
-    data class Plain(val line: String) : LogFileLine
-    data class LogStart(
-        val level: Level,
-        val amperTaskName: String?,
-        val className: String,
-        val message: String,
-    ) : LogFileLine
-}
 
 /**
  * Reads the logs from this log file.
@@ -47,6 +38,16 @@ fun Path.readLogs(): List<LogEntry> = useLines { lines ->
         logs.add(LogEntry(currentLevel, currentMessage.toString()))
     }
     logs
+}
+
+private sealed interface LogFileLine {
+    data class Plain(val line: String) : LogFileLine
+    data class LogStart(
+        val level: Level,
+        val amperTaskName: String?,
+        val className: String,
+        val message: String,
+    ) : LogFileLine
 }
 
 // See how it's defined for files in sources/cli/resources/tinylog.properties

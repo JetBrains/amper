@@ -5,8 +5,8 @@
 package org.jetbrains.amper.cli.test
 
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.cli.test.logs.readLogs
-import org.jetbrains.amper.cli.test.otlp.serialization.decodeOtlpTraces
+import org.jetbrains.amper.cli.test.utils.readLogs
+import org.jetbrains.amper.cli.test.utils.otlp.serialization.decodeOtlpTraces
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput

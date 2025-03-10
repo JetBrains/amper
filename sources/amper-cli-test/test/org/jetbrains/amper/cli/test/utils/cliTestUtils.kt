@@ -1,14 +1,15 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli.test
+package org.jetbrains.amper.cli.test.utils
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.amper.cli.test.AmperCliTestBase
 import org.jetbrains.amper.test.spans.FilteredSpans
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.jetbrains.amper.test.spans.spansNamed

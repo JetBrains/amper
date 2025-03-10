@@ -5,6 +5,15 @@
 package org.jetbrains.amper.cli.test
 
 import io.opentelemetry.api.common.AttributeKey
+import org.jetbrains.amper.cli.test.utils.UpdatedAttribute
+import org.jetbrains.amper.cli.test.utils.iosKotlinTests
+import org.jetbrains.amper.cli.test.utils.konancSpans
+import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
+import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.cli.test.utils.withTelemetrySpans
+import org.jetbrains.amper.cli.test.utils.xcodeProjectGenSpans
+import org.jetbrains.amper.cli.test.utils.xcodeProjectManagementSpans
+import org.jetbrains.amper.cli.test.utils.xcodebuildSpans
 import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly

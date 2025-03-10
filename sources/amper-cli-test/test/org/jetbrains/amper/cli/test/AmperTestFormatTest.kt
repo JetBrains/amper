@@ -5,7 +5,8 @@
 package org.jetbrains.amper.cli.test
 
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
-import org.jetbrains.amper.cli.test.teamcity.buildServiceMessages
+import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.cli.test.utils.buildServiceMessages
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.test.Test

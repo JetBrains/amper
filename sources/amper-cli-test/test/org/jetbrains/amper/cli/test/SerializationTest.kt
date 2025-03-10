@@ -5,6 +5,8 @@
 package org.jetbrains.amper.cli.test
 
 import io.opentelemetry.api.common.AttributeKey
+import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
+import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.test.spans.assertHasAttribute
 import org.jetbrains.amper.test.spans.spansNamed

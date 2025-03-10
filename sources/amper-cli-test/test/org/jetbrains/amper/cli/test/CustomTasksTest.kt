@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
+import org.jetbrains.amper.cli.test.utils.runSlowTest
 import java.util.zip.ZipFile
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories

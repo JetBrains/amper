@@ -5,6 +5,8 @@
 package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
+import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.io.path.div

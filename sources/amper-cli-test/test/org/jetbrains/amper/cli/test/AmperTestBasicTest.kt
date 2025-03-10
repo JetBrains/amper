@@ -5,9 +5,10 @@
 package org.jetbrains.amper.cli.test
 
 import io.opentelemetry.api.common.AttributeKey
+import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
+import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.MacOnly
-import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.WindowsOnly
 import org.jetbrains.amper.test.spans.spansNamed
 import org.junit.jupiter.api.parallel.Execution
@@ -28,7 +29,9 @@ class AmperTestBasicTest : AmperCliTestBase() {
         val projectRoot = testProject("jvm-kotlin-test-smoke")
         val result = runCli(projectRoot = projectRoot, "test")
 
-        val testLauncherSpan = result.readTelemetrySpans().spansNamed("junit-platform-console-standalone").assertSingle()
+        val testLauncherSpan = result.readTelemetrySpans()
+            .spansNamed("junit-platform-console-standalone")
+            .assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         // not captured by default...
@@ -70,7 +73,9 @@ class AmperTestBasicTest : AmperCliTestBase() {
     fun `test fragment dependencies`() = runSlowTest {
         val result = runCli(projectRoot = testProject("jvm-test-fragment-dependencies"), "test")
 
-        val testLauncherSpan = result.readTelemetrySpans().spansNamed("junit-platform-console-standalone").assertSingle()
+        val testLauncherSpan = result.readTelemetrySpans()
+            .spansNamed("junit-platform-console-standalone")
+            .assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("FromExternalDependencies:OneTwo FromProject:MyUtil"), stdout)
@@ -192,7 +197,8 @@ class AmperTestBasicTest : AmperCliTestBase() {
         val projectContext = testProject("jvm-test-classpath")
         val result = runCli(projectRoot = projectContext, "test")
 
-        val testLauncherSpan = result.readTelemetrySpans().spansNamed("junit-platform-console-standalone").assertSingle()
+        val testLauncherSpan =
+            result.readTelemetrySpans().spansNamed("junit-platform-console-standalone").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
         assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
         assertTrue(stdout.contains("[         0 tests failed          ]"), stdout)

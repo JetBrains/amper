@@ -4,7 +4,7 @@
 
 @file:Suppress("DEPRECATION")
 
-package org.jetbrains.amper.cli.test.otlp.serialization
+package org.jetbrains.amper.cli.test.utils.otlp.serialization
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
@@ -21,12 +21,12 @@ import io.opentelemetry.sdk.trace.data.LinkData
 import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.data.StatusData
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.cli.test.otlp.proto.AnyValue
-import org.jetbrains.amper.cli.test.otlp.proto.KeyValue
-import org.jetbrains.amper.cli.test.otlp.proto.ResourceSpans
-import org.jetbrains.amper.cli.test.otlp.proto.Span
-import org.jetbrains.amper.cli.test.otlp.proto.Status
-import org.jetbrains.amper.cli.test.otlp.proto.TracesData
+import org.jetbrains.amper.cli.test.utils.otlp.proto.AnyValue
+import org.jetbrains.amper.cli.test.utils.otlp.proto.KeyValue
+import org.jetbrains.amper.cli.test.utils.otlp.proto.ResourceSpans
+import org.jetbrains.amper.cli.test.utils.otlp.proto.Span
+import org.jetbrains.amper.cli.test.utils.otlp.proto.Status
+import org.jetbrains.amper.cli.test.utils.otlp.proto.TracesData
 
 fun Json.decodeOtlpTraces(jsonLines: List<String>): List<SpanData> = jsonLines.flatMap { decodeJsonTraces(it) }
 
@@ -40,7 +40,7 @@ private fun ResourceSpans.toSpans(): List<SpanData> {
 
 private class DeserializedSpanData(
     private val span: Span,
-    private val resource: org.jetbrains.amper.cli.test.otlp.proto.Resource,
+    private val resource: org.jetbrains.amper.cli.test.utils.otlp.proto.Resource,
 ) : SpanData {
 
     private val context = createContext(span.traceId, span.spanId, span.flags, span.traceState)

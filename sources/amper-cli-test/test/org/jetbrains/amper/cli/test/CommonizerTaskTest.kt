@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.core.UsedVersions.kotlinVersion
 import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.Test

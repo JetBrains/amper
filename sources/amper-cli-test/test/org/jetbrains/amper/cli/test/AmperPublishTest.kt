@@ -5,6 +5,8 @@
 package org.jetbrains.amper.cli.test
 
 import com.sun.net.httpserver.BasicAuthenticator
+import org.jetbrains.amper.cli.test.utils.assertContainsRelativeFiles
+import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.test.server.withFileServer
 import org.junit.jupiter.api.parallel.Execution
@@ -13,16 +15,12 @@ import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
-import kotlin.io.path.fileSize
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.readText
-import kotlin.io.path.relativeTo
-import kotlin.io.path.walk
 import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)

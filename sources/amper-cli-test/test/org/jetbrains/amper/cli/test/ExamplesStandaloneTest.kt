@@ -4,6 +4,10 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
+import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
+import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.cli.test.utils.withTelemetrySpans
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
