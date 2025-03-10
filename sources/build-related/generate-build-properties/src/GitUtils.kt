@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Config
 import org.eclipse.jgit.storage.file.FileBasedConfig
@@ -28,7 +32,11 @@ private class EmptyConfigSystemReader(private val delegate: SystemReader = getIn
     override fun getHostname(): String? = delegate.hostname
     override fun getenv(variable: String?): String? = delegate.getenv(variable)
     override fun getProperty(key: String?): String? = delegate.getProperty(key)
+    @Suppress("DEPRECATION") // Is just a delegate call
+    @Deprecated("Deprecated in Java")
     override fun getCurrentTime(): Long = delegate.currentTime
+    @Suppress("DEPRECATION") // Is just a delegate call
+    @Deprecated("Deprecated in Java")
     override fun getTimezone(`when`: Long): Int = delegate.getTimezone(`when`)
     override fun openUserConfig(parent: Config?, fs: FS?): FileBasedConfig = NoopFileBasedConfig(parent, fs)
     override fun openSystemConfig(parent: Config?, fs: FS?): FileBasedConfig = NoopFileBasedConfig(parent, fs)
