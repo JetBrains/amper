@@ -90,6 +90,7 @@ object MockProjectInitializer {
             val appEnv = CoreApplicationEnvironment(disposable)
             ourDisposable = disposable
             appEnv.registerLangAppServices()
+            @Suppress("UnstableApiUsage")
             appEnv.application.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
             intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)
 
