@@ -21,6 +21,7 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
@@ -263,9 +264,11 @@ class AmperPublishTest : AmperCliTestBase() {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
 
         withFileServer(www, authenticator = createAuthenticator()) { baseUrl ->
-            publishJvmProject("1.0", baseUrl)
-            publishJvmProject("2.0-SNAPSHOT", baseUrl)
-            publishJvmProject("2.0-SNAPSHOT", baseUrl)
+            // For some reason, in this test, some logging fails at the end of the run.
+            // It might be due to some maven cleanup happening in a shutdown hook after logging itself is shutdown.
+            publishJvmProject("1.0", baseUrl, assertOnlyLoggerErrorsInStdErr = true)
+            publishJvmProject("2.0-SNAPSHOT", baseUrl, assertOnlyLoggerErrorsInStdErr = true)
+            publishJvmProject("2.0-SNAPSHOT", baseUrl, assertOnlyLoggerErrorsInStdErr = true)
         }
 
         assertMetadataWithTimestampEquals("""
@@ -327,16 +330,28 @@ class AmperPublishTest : AmperCliTestBase() {
             """.trimIndent(), metadataXml)
     }
 
-    private suspend fun publishJvmProject(version: String, repoUrl: String) {
-        runCli(
+    private suspend fun publishJvmProject(
+        version: String,
+        repoUrl: String,
+        assertOnlyLoggerErrorsInStdErr: Boolean = false,
+    ) {
+        val result = runCli(
             projectRoot = testProject("jvm-publish"),
             "publish", "repoId",
             copyToTempDir = true,
             modifyTempProjectBeforeRun = { root ->
                 val moduleYaml = root.resolve("module.yaml")
                 moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", repoUrl).replace("2.2", version))
-            }
+            },
+            assertEmptyStdErr = !assertOnlyLoggerErrorsInStdErr,
         )
+        if (assertOnlyLoggerErrorsInStdErr) {
+            assertTrue("Amper stderr should only contain logger errors during publish, but got:\n${result.stderr.trim()}\n") {
+                result.stderr.trim().lines().all {
+                    it.isEmpty() || it.startsWith("LOGGER ERROR: Failed to write log entry")
+                }
+            }
+        }
     }
 
     private fun createAuthenticator(
