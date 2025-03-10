@@ -25,6 +25,7 @@ import com.jetbrains.cidr.xcode.XcodeBase
 import com.jetbrains.cidr.xcode.XcodeComponentManager
 import com.jetbrains.cidr.xcode.XcodeProjectId
 import com.jetbrains.cidr.xcode.XcodeSettingsBase
+import com.jetbrains.cidr.xcode.cache.CachedValuesManager
 import com.jetbrains.cidr.xcode.cache.CachedValuesManagerImpl
 import com.jetbrains.cidr.xcode.frameworks.AppleFileTypeManager
 import com.jetbrains.cidr.xcode.frameworks.AppleSdkManager
@@ -43,7 +44,6 @@ import org.toml.lang.TomlLanguage
 import org.toml.lang.parse.TomlParserDefinition
 import org.toml.lang.psi.TomlFileType
 import org.toml.lang.psi.impl.TomlASTFactory
-
 
 @TestOnly
 open class IntelliJApplicationConfigurator {
@@ -67,9 +67,11 @@ object MockProjectInitializer {
     fun initMockProject(intelliJApplicationConfigurator: IntelliJApplicationConfigurator): Project {
         val latest = latestConfigurator
         if (latest != null && latest !== intelliJApplicationConfigurator) {
-            error("Only one configurator can be used at a time.\n" +
-            "old: ${latest.javaClass.name} $latest,\n" +
-                    "new: ${intelliJApplicationConfigurator.javaClass.name} $intelliJApplicationConfigurator")
+            error(
+                "Only one configurator can be used at a time.\n" +
+                        "old: ${latest.javaClass.name} $latest,\n" +
+                        "new: ${intelliJApplicationConfigurator.javaClass.name} $intelliJApplicationConfigurator"
+            )
         }
 
         val previousDisposable = ourDisposable
@@ -124,7 +126,7 @@ object MockProjectInitializer {
 
     // Copy-pasted from IDEA (lack of this service causes PSI Scalar elements textValue calculation failure)
     @Suppress("UnstableApiUsage")
-    private class ReadActionCacheImpl: ReadActionCache {
+    private class ReadActionCacheImpl : ReadActionCache {
         private val threadProcessingContext: ThreadLocal<ProcessingContext> = ThreadLocal()
 
         override val processingContext: ProcessingContext?
@@ -141,12 +143,10 @@ object MockProjectInitializer {
         override fun <T> allowInWriteAction(supplier: () -> T): T {
             return if (!ApplicationManager.getApplication().isWriteIntentLockAcquired || writeActionProcessingContext != null) {
                 supplier.invoke()
-            }
-            else try {
+            } else try {
                 writeActionProcessingContext = ProcessingContext()
                 supplier.invoke()
-            }
-            finally {
+            } finally {
                 writeActionProcessingContext = null
             }
         }
@@ -171,14 +171,15 @@ private class StandaloneXcodeComponentManager(private val xcodePath: String, pri
                 CoreXcodeWorkspace::class.java.isAssignableFrom(clazz) -> CoreXcodeWorkspace.EMPTY()
                 AppleFileTypeManager::class.java.isAssignableFrom(clazz) -> AppleFileTypeManager()
                 AppleSdkManagerBase::class.java.isAssignableFrom(clazz) -> AppleSdkManager()
-                com.jetbrains.cidr.xcode.cache.CachedValuesManager::class.java.isAssignableFrom(clazz) -> CachedValuesManagerImpl()
+                CachedValuesManager::class.java.isAssignableFrom(clazz) -> CachedValuesManagerImpl()
                 XcodeSettingsBase::class.java.isAssignableFrom(clazz) -> XcodeSettingsBase().also { settings ->
                     settings.setSelectedXcodeBasePath(xcodePath)
                 }
+
                 XcodeBase::class.java.isAssignableFrom(clazz) -> XcodeBase()
                 else -> throw IllegalArgumentException("Unknown clazz: ${clazz.name}")
             }
-        } as T
+        }.let(clazz::cast)
     }
 
     override fun <T : Any> getExtensions(ep: XcodeComponentManager.EP<T>): List<T> {
