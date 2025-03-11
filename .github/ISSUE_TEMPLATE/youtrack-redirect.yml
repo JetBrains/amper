@@ -12,7 +12,8 @@ body:
         https://github.com/orgs/community/discussions/153714
   - type: checkboxes
     attributes:
+      label: Please confirm that you understood the above message
       options:
-        - label: "I have read the above and will create the issue in YouTrack instead"
+        - label: "I have read the message and will create the issue in YouTrack instead"
           required: true
     
