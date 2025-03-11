@@ -1,4 +1,4 @@
-name: Please use YouTrack
+name: "↓ Please use 'Report issue' below ↓"
 description: Please do not use this template, and report issues in YouTrack instead
 body:
   - type: markdown
