@@ -6,7 +6,6 @@ package org.jetbrains.amper.cli
 
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.parsers.CommandLineParser
-import com.github.ajalt.mordant.rendering.Theme
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -53,8 +52,7 @@ private suspend fun SuspendingCliktCommand.mainWithTelemetry(args: Array<String>
 }
 
 private fun printUserError(message: String) {
-    System.err.println()
-    val errorStyle = Theme.Default.danger
-    Terminal().println(errorStyle("ERROR: $message"), stderr = true)
-    System.err.println()
+    val terminal = Terminal()
+    val errorStyle = terminal.theme.danger
+    terminal.println(errorStyle("\nERROR: $message"), stderr = true)
 }
