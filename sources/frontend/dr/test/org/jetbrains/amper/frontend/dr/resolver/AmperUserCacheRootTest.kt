@@ -16,6 +16,7 @@ import java.nio.file.Path
 import java.util.UUID
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.test.assertEquals
 
 class AmperUserCacheRootTest {
 
@@ -34,7 +35,7 @@ class AmperUserCacheRootTest {
         val cacheRoot = cacheRoot()
         systemProperties.set("amper.cache.root", "$cacheRoot")
         val repo = AmperUserCacheRoot.fromCurrentUser()
-        kotlin.test.assertEquals(repo.path, cacheRoot)
+        assertEquals(repo.path, cacheRoot)
     }
 
     @Test
@@ -46,7 +47,7 @@ class AmperUserCacheRootTest {
         val cacheRoot = cacheRoot()
         environmentVariables.set("AMPER_CACHE_ROOT", "$cacheRoot")
         val repo = AmperUserCacheRoot.fromCurrentUser()
-        kotlin.test.assertEquals(repo.path, cacheRoot)
+        assertEquals(repo.path, cacheRoot)
     }
 
     /**
