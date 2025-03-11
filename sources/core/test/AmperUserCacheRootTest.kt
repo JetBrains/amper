@@ -2,6 +2,7 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import org.jetbrains.amper.core.AmperUserCacheInitializationFailure
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -42,6 +43,36 @@ class AmperUserCacheRootTest {
         val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult()
         assertIs<AmperUserCacheRoot>(userCacheRoot, "Amper user cache root should be resolved from env variable")
         assertEquals(userCacheRoot.path, tempRoot)
+    }
+
+    @Test
+    @ExtendWith(SystemStubsExtension::class)
+    fun `check Amper user cache fails to resolve from system settings`(
+        systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
+    ) {
+        clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
+        systemProperties.set("amper.cache.root", "my-home/.cache")
+
+        val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult()
+        assertIs<AmperUserCacheInitializationFailure.NonAbsolutePath>(
+            userCacheRoot,
+            "Amper user cache root should fail to resolve from system properties"
+        )
+    }
+
+    @Test
+    @ExtendWith(SystemStubsExtension::class)
+    fun `check Amper user cache fails to resolve from environment variable`(
+        systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
+    ) {
+        clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
+        environmentVariables.set("AMPER_CACHE_ROOT", "my-home/.cache")
+
+        val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult()
+        assertIs<AmperUserCacheInitializationFailure.NonAbsolutePath>(
+            userCacheRoot,
+            "Amper user cache root should fail to resolve from env variable"
+        )
     }
 
     /**
