@@ -17,7 +17,7 @@ import java.util.UUID
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
-class AmperLocalRepositoryPathTest {
+class AmperUserCacheRootTest {
 
     @field:TempDir
     lateinit var temp: File
@@ -27,7 +27,7 @@ class AmperLocalRepositoryPathTest {
 
     @Test
     @ExtendWith(SystemStubsExtension::class)
-    fun `check amper local storage is resolved from system settings`(
+    fun `check Amper user cache is resolved from system settings`(
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
@@ -39,7 +39,7 @@ class AmperLocalRepositoryPathTest {
 
     @Test
     @ExtendWith(SystemStubsExtension::class)
-    fun `check amper local storage is resolved from env variable`(
+    fun `check Amper user cache is resolved from env variable`(
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
