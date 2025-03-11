@@ -33,6 +33,7 @@ import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempFile
 import kotlin.io.path.isRegularFile
@@ -76,7 +77,7 @@ class PublishTask(
                 logger.info("Installing artifacts of module '${module.userReadableName}' to local maven repository at $localRepositoryPath")
 
                 try {
-                    container.installToMavenLocal(localRepositoryPath, artifacts)
+                    getPlexusContainer(executionContext).installToMavenLocal(localRepositoryPath, artifacts)
                 } catch (e: Exception) {
                     userReadableError("Couldn't install artifacts of module '${module.userReadableName}' to maven local: $e")
                 }
@@ -87,7 +88,7 @@ class PublishTask(
                         "remote maven repository at ${remoteRepository.url} (id: '${remoteRepository.id}')")
 
                 try {
-                    container.deployToRemoteRepo(remoteRepository, localRepositoryPath, artifacts)
+                    getPlexusContainer(executionContext).deployToRemoteRepo(remoteRepository, localRepositoryPath, artifacts)
                 } catch (e: Exception) {
                     userReadableError("Couldn't publish artifacts of module '${module.userReadableName}' to repository '${remoteRepository.id}': $e")
                 }
@@ -171,7 +172,18 @@ class PublishTask(
     class Result : TaskResult
 
     companion object {
-        private val container: PlexusContainer by lazy { createPlexusContainer() }
+        private val plexusContainerCache = ConcurrentHashMap<String, PlexusContainer>()
+
+        suspend fun getPlexusContainer(executionContext: TaskGraphExecutionContext): PlexusContainer =
+            plexusContainerCache.getOrPut(executionContext.executionId) {
+                createPlexusContainer().also { container ->
+                    executionContext.addPostGraphExecutionHook {
+                        spanBuilder("Dispose of Maven's PlexusContainer").use {
+                            container.dispose()
+                        }
+                    }
+                }
+            }
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)

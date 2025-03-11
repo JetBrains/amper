@@ -6,11 +6,14 @@ package org.jetbrains.amper.engine
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.UUID
 
 /**
  * The context of a task graph execution, available to task actions when the tasks are actually executing.
  */
 interface TaskGraphExecutionContext {
+
+    val executionId: String
 
     /**
      * Registers a piece of code that will run once all tasks have finished running.
@@ -23,6 +26,8 @@ interface TaskGraphExecutionContext {
 }
 
 internal class DefaultTaskGraphExecutionContext : TaskGraphExecutionContext {
+
+    override val executionId: String = UUID.randomUUID().toString()
 
     private val mutex = Mutex()
     private val postGraphExecutionHooks = mutableListOf<suspend () -> Unit>()
@@ -47,7 +52,7 @@ internal class DefaultTaskGraphExecutionContext : TaskGraphExecutionContext {
     suspend fun runPostGraphExecutionHooks() {
         mutex.withLock {
             if (cleanupStarted) {
-                error("runPostGraphExecutionHooks() must not be called from within a post-graph execution hook")
+                error("runPostGraphExecutionHooks() must not be called from within a post-graph-execution hook")
             }
             cleanupStarted = true
             postGraphExecutionHooks.reversed().forEach {

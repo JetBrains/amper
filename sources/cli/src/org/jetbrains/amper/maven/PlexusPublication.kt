@@ -82,6 +82,9 @@ private fun PlexusContainer.createRepositorySession(localRepositoryPath: Path): 
     val request = mavenRepositorySystem.createMavenExecutionRequest(localRepositoryPath)
     val session = repositorySystemSessionFactory.newRepositorySession(request)
     session.setConfigProperty(Maven2RepositoryLayoutFactory.CONFIG_PROP_CHECKSUMS_ALGORITHMS, "MD5,SHA-1,SHA-256,SHA-512")
+    // Disable caching HTTP connection pooling between sessions, to allow closing the connection pool later.
+    // If we don't do this, the connection manager is stored in a GlobalState and the LocalState doesn't delegate close()
+    session.setConfigProperty("aether.connector.http.cacheState", false)
     return session
 }
 
