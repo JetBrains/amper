@@ -349,6 +349,13 @@ class AmperPublishTest : AmperCliTestBase() {
         )
         // TODO investigate this. It seems that some internal maven stuff tries to use logging but the logger fails.
         //   This could be caused by trying to use logging from a shutdown hook, but I haven't see such hooks so far.
+        //   The specific logs seem to be debug logs from PoolingHttpClientConnectionManager.shutdown().
+        //   This is itself called by finalize(), which is called by the GC at possibly inappropriate times.
+        //   Maybe this happens because the Eclipse Aether / maven library doesn't close the connection pool on its own.
+        // These are the errors we get in Amper stderr:
+        // LOGGER ERROR: Failed to write log entry 'Connection manager is shutting down' (java.io.IOException: Stream Closed)
+        // LOGGER ERROR: Failed to write log entry 'http-outgoing-19: Close connection' (java.io.IOException: Stream Closed)
+        // LOGGER ERROR: Failed to write log entry 'Connection manager shut down' (java.io.IOException: Stream Closed)
         assertTrue("Amper stderr should only contain logger errors during publish, but got:\n${result.stderr.trim()}\n") {
             result.stderr.trim().lines().all {
                 it.isEmpty() || it.startsWith("LOGGER ERROR: Failed to write log entry")
@@ -360,7 +367,8 @@ class AmperPublishTest : AmperCliTestBase() {
         expectedUser: String = "http-user",
         expectedPassword: String = "http-password",
     ): BasicAuthenticator = object : BasicAuthenticator("www-realm") {
-        override fun checkCredentials(username: String, password: String): Boolean = username == expectedUser && password == expectedPassword
+        override fun checkCredentials(username: String, password: String): Boolean =
+            username == expectedUser && password == expectedPassword
     }
 
     private fun assertMetadataWithTimestampEquals(expected: String, actualMetadataFile: Path) {
