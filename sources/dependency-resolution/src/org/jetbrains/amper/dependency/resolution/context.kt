@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
@@ -132,15 +132,19 @@ class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
     var amperCache: Path = Path(System.getProperty("user.home"), ".amper")
         internal set
     var readOnlyExternalRepositories: List<LocalRepository> = defaultReadOnlyExternalRepositories()
-    var localRepository: LocalRepository = defaultLocalRepository(amperCache)
+    var localRepository: LocalRepository? = null
 
     init {
         apply(init)
     }
 
-    internal fun build(): FileCache = FileCache(
-        amperCache, readOnlyExternalRepositories, localRepository
-    )
+    internal fun build(): FileCache {
+        return FileCache(
+            amperCache,
+            readOnlyExternalRepositories,
+            localRepository ?: defaultLocalRepository(amperCache)
+        )
+    }
 }
 
 fun getDefaultFileCacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {
