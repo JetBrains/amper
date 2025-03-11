@@ -7,22 +7,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
-import uk.org.webcompere.systemstubs.properties.SystemProperties
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
-import java.io.File
+import uk.org.webcompere.systemstubs.properties.SystemProperties
 import java.nio.file.Path
-import java.util.UUID
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.pathString
 import kotlin.test.assertEquals
 
 class AmperUserCacheRootTest {
-
-    @field:TempDir
-    lateinit var temp: File
-
-    private fun cacheRoot(): Path = temp.toPath()
-        .resolve(UUID.randomUUID().toString().padEnd(8, '0').substring(1..8))
+    @TempDir
+    lateinit var tempRoot: Path
 
     @Test
     @ExtendWith(SystemStubsExtension::class)
@@ -30,10 +25,9 @@ class AmperUserCacheRootTest {
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
-        val cacheRoot = cacheRoot()
-        systemProperties.set("amper.cache.root", "$cacheRoot")
+        systemProperties.set("amper.cache.root", tempRoot.pathString)
         val repo = AmperUserCacheRoot.fromCurrentUser()
-        assertEquals(repo.path, cacheRoot)
+        assertEquals(repo.path, tempRoot)
     }
 
     @Test
@@ -42,16 +36,18 @@ class AmperUserCacheRootTest {
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
-        val cacheRoot = cacheRoot()
-        environmentVariables.set("AMPER_CACHE_ROOT", "$cacheRoot")
+        environmentVariables.set("AMPER_CACHE_ROOT", tempRoot.pathString)
         val repo = AmperUserCacheRoot.fromCurrentUser()
-        assertEquals(repo.path, cacheRoot)
+        assertEquals(repo.path, tempRoot)
     }
 
     /**
      * Temporarily resets custom amper settings of the local machine to control the test configuration completely.
      */
-    private fun clearLocalAmperCacheOverrides(systemProperties: SystemProperties, environmentVariables: EnvironmentVariables) {
+    private fun clearLocalAmperCacheOverrides(
+        systemProperties: SystemProperties,
+        environmentVariables: EnvironmentVariables
+    ) {
         systemProperties.set("amper.cache.root", "")
         systemProperties.set("user.home", Path("nothing-to-see-here").absolutePathString())
         environmentVariables.set("AMPER_CACHE_ROOT", "")
