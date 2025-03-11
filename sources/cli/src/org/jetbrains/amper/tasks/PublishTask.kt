@@ -13,6 +13,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.RepositoriesModulePart
@@ -49,7 +50,7 @@ class PublishTask(
     private val tempRoot: AmperProjectTempRoot,
 ) : Task {
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
 
         if (!targetRepository.publish) {
             userReadableError(

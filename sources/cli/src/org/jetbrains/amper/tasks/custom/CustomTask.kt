@@ -9,6 +9,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.CompositeString
 import org.jetbrains.amper.frontend.CompositeStringPart
@@ -64,7 +65,7 @@ internal class CustomTask(
 
     override fun injectConsumes(artifacts: Map<ArtifactSelector<*, *>, List<Artifact>>) = Unit
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         // do not clean custom task output
         // it's a responsibility of the custom task itself right now
         // in the future, we want to automatically track what's accessed by custom task and

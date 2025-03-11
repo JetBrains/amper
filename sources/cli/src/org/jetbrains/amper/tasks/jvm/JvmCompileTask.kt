@@ -26,6 +26,7 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setFragments
 import org.jetbrains.amper.engine.BuildTask
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
@@ -96,7 +97,7 @@ class JvmCompileTask(
         quantifier = Quantifier.AnyOrNone,
     )
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         require(fragments.isNotEmpty()) {
             "fragments list is empty for jvm compile task, module=${module.userReadableName}"
         }

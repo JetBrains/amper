@@ -19,6 +19,7 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.engine.BuildTask
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
@@ -67,7 +68,7 @@ class MetadataCompileTask(
         quantifier = Quantifier.AnyOrNone,
     )
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): Result {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): Result {
         logger.debug("compile metadata for '${module.userReadableName}' -- ${fragment.name}")
 
         // TODO Make kotlin version configurable in settings

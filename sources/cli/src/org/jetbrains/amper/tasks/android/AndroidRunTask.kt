@@ -28,6 +28,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.engine.RunTask
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
@@ -61,7 +62,7 @@ class AndroidRunTask(
 
     private val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(platform) }
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val adb = waitForAdbConnection()
         val androidFragment = fragments.filterIsInstance<LeafFragment>().singleOrNull()
             ?: error("Only one $platform fragment is expected")

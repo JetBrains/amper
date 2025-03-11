@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.ios
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
@@ -26,7 +27,7 @@ class IosPreBuildTask(
     private val outputRoot: AmperBuildOutputRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val frameworkPath = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>().linkedBinary
 
         val targetPath = IosConventions(

@@ -26,6 +26,7 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -58,7 +59,7 @@ class ManageXCodeProjectTask(
 
     override val taskName = taskName(module)
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val baseDir = checkNotNull(module.source.moduleDir)
         val projectDir = baseDir / XCODE_PROJECT_DIR_NAME
         val pbxProjectFilePath = projectDir / PBXProjectFile.PROJECT_FILE

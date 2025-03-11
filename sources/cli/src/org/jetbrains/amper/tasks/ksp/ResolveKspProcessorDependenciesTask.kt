@@ -11,6 +11,7 @@ import org.jetbrains.amper.dependency.resolution.toRepositories
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setFragments
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
@@ -39,7 +40,7 @@ internal class ResolveKspProcessorDependenciesTask(
 ): Task {
     private val mavenResolver = MavenResolver(userCacheRoot)
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val repositories = module.mavenRepositories.filter { it.resolve }.map { it.url }.distinct()
 
         // catalog references have been handled in the frontend, so we don't need to resolve them here

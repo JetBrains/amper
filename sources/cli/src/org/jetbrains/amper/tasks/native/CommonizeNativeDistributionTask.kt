@@ -11,6 +11,7 @@ import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -46,7 +47,7 @@ class CommonizeNativeDistributionTask(
 
     private val kotlinDownloader = KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs)
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val kotlinVersion = UsedVersions.kotlinVersion
 
         val sharedPlatformSets = model.nativePlatformSetsToCommonize()

@@ -18,6 +18,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.BuildTask
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -58,7 +59,7 @@ class NativeLinkTask(
         require(compilationType != KotlinCompilationType.LIBRARY)
     }
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): Result {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): Result {
         val fragments = module.fragments.filter {
             it.platforms.contains(platform) && it.isTest == isTest
         }

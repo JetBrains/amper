@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.android.extractAars
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
@@ -18,7 +19,7 @@ class TransformAarExternalDependenciesTask(
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs
 ) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val resolvedAndroidCompileDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { it.compileClasspath }

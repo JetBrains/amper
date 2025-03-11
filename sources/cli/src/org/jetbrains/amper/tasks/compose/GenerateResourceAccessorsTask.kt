@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedAccessorsPath
 import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
@@ -39,7 +40,7 @@ class GenerateResourceAccessorsTask(
         conventionPath = fragment.composeResourcesGeneratedAccessorsPath(buildOutputRoot.path),
     )
 
-    override suspend fun run() {
+    override suspend fun run(executionContext: TaskGraphExecutionContext) {
         if (prepared.path.exists()) {
             generateResourceAccessors(
                 packageName = packageName,

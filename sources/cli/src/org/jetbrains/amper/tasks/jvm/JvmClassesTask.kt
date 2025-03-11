@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
 import java.nio.file.Path
@@ -15,7 +16,7 @@ import java.nio.file.Path
  * TODO: it seems like firework supports hotswap from jars, we probably need to utilize that instead  
  */
 class JvmClassesTask(override val taskName: TaskName): Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val compileTaskResults = dependenciesResult.filterIsInstance<JvmCompileTask.Result>()
         require(compileTaskResults.isNotEmpty()) {
             "Call classes task without any compilation dependency"

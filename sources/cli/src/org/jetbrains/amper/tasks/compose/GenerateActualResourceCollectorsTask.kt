@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCollectorsPath
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
@@ -42,7 +43,7 @@ class GenerateActualResourceCollectorsTask(
         conventionPath = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path),
     )
 
-    override suspend fun run() {
+    override suspend fun run(executionContext: TaskGraphExecutionContext) {
         if (shouldGenerateCode) {
             generateActualResourceCollectors(
                 packageName = packageName,

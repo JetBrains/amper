@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.ksp
 
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
@@ -16,7 +17,7 @@ class KspProcessorClasspathTask(
     private val module: AmperModule,
     private val isTest: Boolean,
 ) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult = Result(
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult = Result(
         processorClasspath = buildRuntimeClasspath(dependenciesResult),
         module = module,
         isTest = isTest,

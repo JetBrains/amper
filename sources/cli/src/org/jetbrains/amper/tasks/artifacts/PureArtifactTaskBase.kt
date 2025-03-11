@@ -8,6 +8,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.EmptyTaskResult
@@ -70,10 +71,11 @@ abstract class PureArtifactTaskBase(
             .flatten().distinct().mapNotNull { it.path.takeIf(Path::exists) }.toList()
     }
 
-    abstract suspend fun run()
+    abstract suspend fun run(executionContext: TaskGraphExecutionContext)
 
     final override suspend fun run(
-        dependenciesResult: List<TaskResult>
+        dependenciesResult: List<TaskResult>,
+        executionContext: TaskGraphExecutionContext
     ): TaskResult {
         executeOnChangedInputs.execute(
             id = taskName.name,
@@ -85,7 +87,7 @@ abstract class PureArtifactTaskBase(
                 path.createParentDirectories()
                 path.deleteRecursively()
             }
-            run()
+            run(executionContext)
             ExecuteOnChangedInputs.ExecutionResult(
                 outputs = produces.map { it.path }.filter { it.exists() },
             )

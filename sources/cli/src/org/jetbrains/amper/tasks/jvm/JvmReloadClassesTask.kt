@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.TaskResult
@@ -17,7 +18,7 @@ import java.io.File
 private const val ENV_COMPOSE_RELOAD_ORCHESTRATION_PORT = "COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT"
 
 class JvmReloadClassesTask(override val taskName: TaskName) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
 
         val orchestrationPort = System.getenv(ENV_COMPOSE_RELOAD_ORCHESTRATION_PORT)
             ?: error("$ENV_COMPOSE_RELOAD_ORCHESTRATION_PORT environment variable is not set")

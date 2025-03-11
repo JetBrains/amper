@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.android
 
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
@@ -30,7 +31,7 @@ class AndroidComposeResourcesTask(
         quantifier = Quantifier.Single,
     )
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val preparedResourcesPath = preparedResources.path
 
         return Result(

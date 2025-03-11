@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.diagnostics.setProcessResultAttributes
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
@@ -32,7 +33,7 @@ class IosKotlinTestTask(
     private val terminal: Terminal,
     override val platform: Platform,
 ) : TestTask {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val compileTaskResult = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>()
         val workingDir = module.source.moduleDir ?: projectRoot.path
         val executable = compileTaskResult.linkedBinary

@@ -11,6 +11,7 @@ import org.jetbrains.amper.android.runAndroidBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
@@ -47,7 +48,7 @@ abstract class AndroidDelegatedGradleTask(
     override val taskName: TaskName,
 ) : Task {
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val runtimeClasspath = runtimeClasspath(dependenciesResult)
 
         val moduleGradlePath = module.gradlePath(projectRoot)

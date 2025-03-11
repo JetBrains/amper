@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.Selectors
@@ -34,7 +35,7 @@ class PrepareComposeResourcesTask(
         packagingDir = packagingDir,
     )
 
-    override suspend fun run() {
+    override suspend fun run(executionContext: TaskGraphExecutionContext) {
         if (!sourceDirs.all { sourceDir -> sourceDir.path.walk().any { !it.isHidden() } }) {
             return
         }

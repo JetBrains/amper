@@ -13,8 +13,10 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 
 interface Task {
+
     val taskName: TaskName
-    suspend fun run(dependenciesResult: List<TaskResult>): TaskResult
+
+    suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult
 }
 
 interface RunTask : Task {

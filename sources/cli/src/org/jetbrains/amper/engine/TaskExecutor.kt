@@ -58,13 +58,18 @@ class TaskExecutor(
             .use {
                 tasksToRun.forEach { assertTaskIsKnown(it) }
                 val results = mutableMapOf<TaskName, Deferred<Result<TaskResult>>>()
+                val executionContext = DefaultTaskGraphExecutionContext()
                 try {
                     coroutineScope {
-                        runTask(rootTaskName, emptyList(), results, rootTaskDependencies = tasksToRun)
+                        runTask(rootTaskName, emptyList(), results, rootTaskDependencies = tasksToRun, executionContext)
                         results.mapValues { it.value.await() }
                     }
                 } catch (e: CancellationException) {
                     results.mapValues { if (it.value.isCancelled) Result.failure(e) else it.value.await() }
+                } finally {
+                    spanBuilder("Post graph execution hooks").use {
+                        executionContext.runPostGraphExecutionHooks()
+                    }
                 }
             }
     }
@@ -88,6 +93,7 @@ class TaskExecutor(
         currentPath: List<TaskName>,
         taskResults: MutableMap<TaskName, Deferred<Result<TaskResult>>>,
         rootTaskDependencies: Set<TaskName>,
+        executionContext: TaskGraphExecutionContext,
     ): Result<TaskResult> = withContext(Dispatchers.Default) {
         fun taskDependencies(taskName: TaskName): Collection<TaskName> = when (taskName) {
             rootTaskName -> rootTaskDependencies
@@ -102,7 +108,7 @@ class TaskExecutor(
                 progressListener.taskStarted(taskName).use {
                     MDC.put("amper-task-name", taskName.name)
                     withContext(MDCContext() + CoroutineName("task:${taskName.name}")) {
-                        task.run(dependenciesResult)
+                        task.run(dependenciesResult, executionContext)
                     }
                 }
             }
@@ -124,7 +130,7 @@ class TaskExecutor(
                             existingResult
                         } else {
                             val newDeferred = async {
-                                runTask(dependsOn, newPath, taskResults, rootTaskDependencies)
+                                runTask(dependsOn, newPath, taskResults, rootTaskDependencies, executionContext)
                             }
                             taskResults[dependsOn] = newDeferred
                             newDeferred

@@ -8,6 +8,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.engine.BuildTask
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -62,7 +63,7 @@ class AndroidAarTask(
     override val platform: Platform
         get() = Platform.ANDROID
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val jarResult = dependenciesResult.filterIsInstance<JvmClassesJarTask.Result>().singleOrNull()
             ?: error("No input classes jar")
 

@@ -10,6 +10,7 @@ import org.jetbrains.amper.compilation.kotlinModuleName
 import org.jetbrains.amper.compilation.mergedCompilationSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
@@ -103,7 +104,7 @@ internal class KspTask(
         conventionPath = leafFragment.kspGeneratedJavaSourcesPath(buildOutputRoot.path),
     )
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
         val kspVersion = fragments.unanimousSetting("ksp.version") { it.kotlin.ksp.version }

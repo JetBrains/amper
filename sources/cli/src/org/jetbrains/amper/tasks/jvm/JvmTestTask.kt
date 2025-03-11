@@ -14,6 +14,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
@@ -65,7 +66,7 @@ class JvmTestTask(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): Result {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): Result {
         // https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.1/junit-platform-console-standalone-1.10.1.jar
         val junitConsoleUrl = Downloader.getUriForMavenArtifact(
             mavenRepository = "https://repo1.maven.org/maven2",

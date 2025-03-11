@@ -13,6 +13,7 @@ import org.jetbrains.amper.cli.commands.tools.XCodeIntegrationCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.engine.BuildTask
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
@@ -48,7 +49,7 @@ class IosBuildTask(
         require(platform.isDescendantOf(Platform.IOS)) { "Invalid iOS platform: $platform" }
     }
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val projectInitialInfo = dependenciesResult.requireSingleDependency<ManageXCodeProjectTask.Result>()
         val xcodeSettings = projectInitialInfo.resolvedXcodeSettings[buildType] ?: run {
             // TODO: Assist user in creating this configuration back?

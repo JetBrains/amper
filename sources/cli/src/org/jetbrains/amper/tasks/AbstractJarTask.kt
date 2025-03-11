@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jar.JarConfig
@@ -27,7 +28,7 @@ abstract class AbstractJarTask(
 
     protected abstract fun createResult(jarPath: Path): Result
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val inputDirs = getInputDirs(dependenciesResult)
         val outputJarPath = outputJarPath()
 

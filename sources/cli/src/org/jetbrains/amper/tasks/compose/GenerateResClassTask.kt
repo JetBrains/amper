@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCommonResClassPath
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
@@ -34,7 +35,7 @@ class GenerateResClassTask(
         conventionPath = rootFragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot.path),
     )
 
-    override suspend fun run() {
+    override suspend fun run(executionContext: TaskGraphExecutionContext) {
         if (shouldGenerateCode) {
             generateResClass(
                 packageName = packageName,

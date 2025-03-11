@@ -8,6 +8,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
@@ -40,7 +41,7 @@ class IosComposeResourcesTask(
         quantifier = Quantifier.AtLeastOne,
     )
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val outputPath = IosConventions(
             buildRootPath = buildOutputRoot.path,
             moduleName = leafFragment.module.userReadableName,

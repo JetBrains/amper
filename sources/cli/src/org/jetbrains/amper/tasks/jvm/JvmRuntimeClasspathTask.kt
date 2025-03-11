@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -16,7 +17,7 @@ class JvmRuntimeClasspathTask(
     private val module: AmperModule,
     private val isTest: Boolean,
 ): Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val classpath = buildRuntimeClasspath(dependenciesResult)
 
         return Result(

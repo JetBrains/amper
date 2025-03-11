@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
@@ -38,7 +39,7 @@ class JvmComposeResourcesTask(
         quantifier = Quantifier.Single,
     )
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val outputRoot = taskOutputRoot.path
 
         val dir = preparedResources.path
