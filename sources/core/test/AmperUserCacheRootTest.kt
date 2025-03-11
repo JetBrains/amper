@@ -2,15 +2,13 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.dr.resolver
-
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
 import uk.org.webcompere.systemstubs.properties.SystemProperties
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
 import java.io.File
 import java.nio.file.Path
 import java.util.UUID

@@ -7,7 +7,6 @@ apply:
 
 test-dependencies:
   - ../../test-base
-  - uk.org.webcompere:system-stubs-jupiter:2.1.7
 
 dependencies:
   - ../schema
