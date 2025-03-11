@@ -1,0 +1,9 @@
+name: Please use YouTrack
+description: Please do not use, this is a workaround because GitHub doesn't allow
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to file a bug report.
+        The Amper project works with issues in YouTrack, so please report issues over there:
+        https://youtrack.jetbrains.com/newIssue?project=AMPER
