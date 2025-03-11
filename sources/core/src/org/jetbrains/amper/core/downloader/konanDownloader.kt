@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.core.downloader
@@ -16,6 +16,11 @@ const val MAVEN_CENTRAL_REPOSITORY_URL = "https://repo1.maven.org/maven2"
 
 const val KOTLIN_GROUP_ID = "org.jetbrains.kotlin"
 
+@Deprecated("Use downloadAndExtractKotlinNative(version, userCacheRoot) instead. " +
+        "You should retrieve AmperUserCacheRoot via AmperUserCacheRoot.fromCurrentUserResult() and report the error if it fails.")
+suspend fun downloadAndExtractKotlinNative(version: String): Path? =
+    downloadAndExtractKotlinNative(version, AmperUserCacheRoot.fromCurrentUser())
+
 /**
  * Downloads and extracts current system specific kotlin native.
  * Returns null if kotlin native is not supported on current system/arch.
@@ -23,7 +28,7 @@ const val KOTLIN_GROUP_ID = "org.jetbrains.kotlin"
 @UsedInIdePlugin
 suspend fun downloadAndExtractKotlinNative(
     version: String,
-    userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot.fromCurrentUser()
+    userCacheRoot: AmperUserCacheRoot,
 ): Path? {
     // TODO should be forward-compatible in some way,
     //  i.e. support new os/arch combinations if future kotlin version support them
