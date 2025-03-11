@@ -11,7 +11,8 @@ body:
         We had to create this issue template as a workaround for this GitHub bug:
         https://github.com/orgs/community/discussions/153714
   - type: checkboxes
-    options:
-      - label: "I have read the above and will create the issue in YouTrack instead"
-        required: true
+    attributes:
+      options:
+        - label: "I have read the above and will create the issue in YouTrack instead"
+          required: true
     
