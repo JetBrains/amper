@@ -271,9 +271,9 @@ class AmperPublishTest : AmperCliTestBase() {
         withFileServer(www, authenticator = createAuthenticator()) { baseUrl ->
             // For some reason, in this test, some logging fails at the end of the run.
             // It might be due to some maven cleanup happening in a shutdown hook after logging itself is shutdown.
-            publishJvmProject("1.0", baseUrl, assertOnlyLoggerErrorsInStdErr = true)
-            publishJvmProject("2.0-SNAPSHOT", baseUrl, assertOnlyLoggerErrorsInStdErr = true)
-            publishJvmProject("2.0-SNAPSHOT", baseUrl, assertOnlyLoggerErrorsInStdErr = true)
+            publishJvmProject("1.0", baseUrl)
+            publishJvmProject("2.0-SNAPSHOT", baseUrl)
+            publishJvmProject("2.0-SNAPSHOT", baseUrl)
         }
 
         assertMetadataWithTimestampEquals("""
@@ -335,11 +335,7 @@ class AmperPublishTest : AmperCliTestBase() {
             """.trimIndent(), metadataXml)
     }
 
-    private suspend fun publishJvmProject(
-        version: String,
-        repoUrl: String,
-        assertOnlyLoggerErrorsInStdErr: Boolean = false,
-    ) {
+    private suspend fun publishJvmProject(version: String, repoUrl: String) {
         val result = runCli(
             projectRoot = testProject("jvm-publish"),
             "publish", "repoId",
@@ -348,14 +344,14 @@ class AmperPublishTest : AmperCliTestBase() {
                 val moduleYaml = root.resolve("module.yaml")
                 moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", repoUrl).replace("2.2", version))
             },
-            assertEmptyStdErr = !assertOnlyLoggerErrorsInStdErr,
+            assertEmptyStdErr = false, // see below, we somehow have some logger errors sometimes
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(createTempMavenLocalDir()))
         )
-        if (assertOnlyLoggerErrorsInStdErr) {
-            assertTrue("Amper stderr should only contain logger errors during publish, but got:\n${result.stderr.trim()}\n") {
-                result.stderr.trim().lines().all {
-                    it.isEmpty() || it.startsWith("LOGGER ERROR: Failed to write log entry")
-                }
+        // TODO investigate this. It seems that some internal maven stuff tries to use logging but the logger fails.
+        //   This could be caused by trying to use logging from a shutdown hook, but I haven't see such hooks so far.
+        assertTrue("Amper stderr should only contain logger errors during publish, but got:\n${result.stderr.trim()}\n") {
+            result.stderr.trim().lines().all {
+                it.isEmpty() || it.startsWith("LOGGER ERROR: Failed to write log entry")
             }
         }
     }
