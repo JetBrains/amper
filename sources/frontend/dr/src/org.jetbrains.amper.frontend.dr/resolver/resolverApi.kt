@@ -53,12 +53,6 @@ sealed interface DependenciesFlowType {
 }
 
 interface ModuleDependenciesResolver {
-    @Deprecated("Use the overload with fileCacheBuilder parameter instead")
-    fun AmperModule.resolveDependenciesGraph(
-        dependenciesFlowType: DependenciesFlowType
-    ): ModuleDependencyNodeWithModule =
-        resolveDependenciesGraph(dependenciesFlowType, getDefaultAmperFileCacheBuilder())
-
     fun AmperModule.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,

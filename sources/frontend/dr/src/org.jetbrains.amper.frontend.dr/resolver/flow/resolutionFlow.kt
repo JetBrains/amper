@@ -21,7 +21,6 @@ import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
-import org.jetbrains.amper.frontend.dr.resolver.getDefaultAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
@@ -29,20 +28,10 @@ import java.util.concurrent.ConcurrentHashMap
 private val logger = LoggerFactory.getLogger("resolutionFlow.kt")
 
 interface DependenciesFlow<T: DependenciesFlowType> {
-    @Deprecated("Use directDependenciesGraph(module, fileCacheBuilder) instead")
-    fun directDependenciesGraph(
-        module: AmperModule,
-    ): ModuleDependencyNodeWithModule = directDependenciesGraph(module, getDefaultAmperFileCacheBuilder())
-
     fun directDependenciesGraph(
         module: AmperModule,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
     ): ModuleDependencyNodeWithModule
-
-    @Deprecated("Use directDependenciesGraph(modules, fileCacheBuilder) instead")
-    fun directDependenciesGraph(
-        modules: List<AmperModule>,
-    ): DependencyNodeHolder = directDependenciesGraph(modules, getDefaultAmperFileCacheBuilder())
 
     fun directDependenciesGraph(
         modules: List<AmperModule>,
