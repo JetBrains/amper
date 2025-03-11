@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import kotlin.contracts.ExperimentalContracts
 
-class DiagnosticsTest: BaseModuleDrTest() {
+class DiagnosticsTest : BaseModuleDrTest() {
 
     @Test
     fun `test sync diagnostics`() {
@@ -29,14 +29,17 @@ class DiagnosticsTest: BaseModuleDrTest() {
 
         kotlin.test.assertEquals(
             setOf("common", "commonTest", "jvm", "jvmTest"),
-            aom.modules.single{it.userReadableName == "shared"}.fragments.map { it.name }.toSet(),
+            aom.modules.single { it.userReadableName == "shared" }.fragments.map { it.name }.toSet(),
             ""
         )
 
         val sharedTestFragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+                ),
                 module = "shared",
                 expected = """module:shared
                     |+--- shared:common:org.jetbrains.compose.foundation:foundation:12.12.12
@@ -74,8 +77,8 @@ class DiagnosticsTest: BaseModuleDrTest() {
                     if (!assertDependencyError(node, "org.jetbrains.compose.foundation", "foundation")
                         && !assertDependencyError(node, "org.jetbrains.compose.material3", "material3")
                         && !assertDependencyError(node, "org.jetbrains.compose.runtime", "runtime")
-                        && !assertDependencyError(node, "org.jetbrains.kotlinx", "kotlinx-serialization-core"))
-                    {
+                        && !assertDependencyError(node, "org.jetbrains.kotlinx", "kotlinx-serialization-core")
+                    ) {
                         node.verifyOwnMessages()
                     }
                 }
@@ -104,22 +107,30 @@ class DiagnosticsTest: BaseModuleDrTest() {
 
         // direct dependency on a built-in library,
         // a version of the library is taken from settings:compose:version in file module.yaml
-        checkBuiltInDependencyBuildProblem(buildProblems, "org.jetbrains.compose.foundation", "foundation",
-            "module.yaml",16)
-        checkBuiltInDependencyBuildProblem(buildProblems, "org.jetbrains.compose.material3", "material3",
-            "module.yaml",16)
+        checkBuiltInDependencyBuildProblem(
+            buildProblems, "org.jetbrains.compose.foundation", "foundation",
+            "module.yaml", 16
+        )
+        checkBuiltInDependencyBuildProblem(
+            buildProblems, "org.jetbrains.compose.material3", "material3",
+            "module.yaml", 16
+        )
 
         // transitive dependency of built-in libraries,
         // a version of the library is taken from settings:compose:version in file module.yaml
-        checkBuiltInDependencyBuildProblem(buildProblems, "org.jetbrains.compose.runtime", "runtime",
-            "module.yaml",16)
+        checkBuiltInDependencyBuildProblem(
+            buildProblems, "org.jetbrains.compose.runtime", "runtime",
+            "module.yaml", 16
+        )
 
         // transitive dependency on a built-in library,
         // a version of the library is taken from settings:serialization:version in file template.yaml
-        checkBuiltInDependencyBuildProblem(buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core",
+        checkBuiltInDependencyBuildProblem(
+            buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core",
             "..\\..\\templates\\template.yaml"
-                .let{ if (DefaultSystemInfo.detect().family != OsFamily.Windows) it.replace("\\", "/") else it },
-            5)
+                .let { if (DefaultSystemInfo.detect().family != OsFamily.Windows) it.replace("\\", "/") else it },
+            5
+        )
     }
 
     @Test
@@ -135,7 +146,10 @@ class DiagnosticsTest: BaseModuleDrTest() {
         val commonFragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+                ),
                 module = "jvm-invalid-dependencies",
                 fragment = "common",
                 expected = """Fragment 'jvm-invalid-dependencies.common' dependencies
@@ -163,16 +177,20 @@ class DiagnosticsTest: BaseModuleDrTest() {
         buildProblems.forEach {
             val buildProblem = it as DependencyBuildProblem
             val dependency = buildProblem.problematicDependency as UnresolvedMavenDependencyNode
-            val expectedError = when(dependency.coordinates) {
+            val expectedError = when (dependency.coordinates) {
                 "com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared" ->
                     "Maven coordinates should not contain spaces, but got ${dependency.coordinates}"
+
                 "com.fasterxml.     jackson.core:jackson-core:2.17.2" ->
                     "Maven coordinates should not contain spaces, but got ${dependency.coordinates}"
+
                 "com.fasterx/ml.jackson.core:jackson-core:2.17.2" ->
                     "Maven coordinates should not contain parts with slashes, but got ${dependency.coordinates}"
+
                 "com.fasterxml.jackson.core" ->
                     "Maven coordinates should contain at least 3 parts separated by :, but got ${dependency.coordinates}"
-                else -> fail ("Unexpected dependency coordinates: ${dependency.coordinates}")
+
+                else -> fail("Unexpected dependency coordinates: ${dependency.coordinates}")
             }
 
             kotlin.test.assertEquals(expectedError, buildProblem.errorMessage.message)
@@ -184,12 +202,12 @@ class DiagnosticsTest: BaseModuleDrTest() {
         return this is MavenDependencyNode && this.group == group && this.module == module
     }
 
-    private fun assertDependencyError(node: DependencyNode, group: String, module: String) : Boolean{
+    private fun assertDependencyError(node: DependencyNode, group: String, module: String): Boolean {
         if (node.isMavenDependency(group, module)) {
             node as MavenDependencyNode
             kotlin.test.assertEquals(
                 setOf("Unable to resolve dependency ${node.dependency.group}:${node.dependency.module}:${node.dependency.version}"),
-                node.messages.map{ it.text }.toSet()
+                node.messages.map { it.text }.toSet()
             )
             return true
         }
@@ -202,15 +220,18 @@ class DiagnosticsTest: BaseModuleDrTest() {
     ) {
         val relevantBuildProblems = buildProblems.filter {
             it is DependencyBuildProblem
-                    && it.problematicDependency.isMavenDependency(group, module) }
+                    && it.problematicDependency.isMavenDependency(group, module)
+        }
 
         relevantBuildProblems.forEach { buildProblem ->
             buildProblem as DependencyBuildProblem
             val mavenDependency = (buildProblem.problematicDependency as MavenDependencyNode).dependency
 
             kotlin.test.assertEquals(
-                setOf("Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version}" +
-                        (if (versionLineNumber != null) ". The version ${mavenDependency.version} is defined at $filePath:$versionLineNumber" else "")),
+                setOf(
+                    "Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version}" +
+                            (if (versionLineNumber != null) ". The version ${mavenDependency.version} is defined at $filePath:$versionLineNumber" else "")
+                ),
                 setOf(buildProblem.errorMessage.text)
             )
         }

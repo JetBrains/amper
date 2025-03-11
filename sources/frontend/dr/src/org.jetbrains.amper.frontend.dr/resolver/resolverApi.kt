@@ -1,8 +1,9 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.frontend.dr.resolver
 
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
@@ -10,10 +11,10 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.AmperModule
 
 val moduleDependenciesResolver: ModuleDependenciesResolver = ModuleDependenciesResolverImpl()
 
@@ -28,18 +29,39 @@ data class ResolutionInput(
     val resolutionDepth: ResolutionDepth,
     val resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
     val downloadSources: Boolean = false,
-    val fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder(),
-)
+    val fileCacheBuilder: FileCacheBuilder.() -> Unit,
+) {
+    @Deprecated("Use the constructor with the 'fileCacheBuilder' parameter instead")
+    @UsedInIdePlugin
+    constructor(
+        dependenciesFlowType: DependenciesFlowType,
+        resolutionDepth: ResolutionDepth,
+        resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
+        downloadSources: Boolean = false,
+    ) : this(dependenciesFlowType, resolutionDepth, resolutionLevel, downloadSources, getDefaultAmperFileCacheBuilder())
+}
 
 sealed interface DependenciesFlowType {
-    data class ClassPathType(val scope: ResolutionScope, val platforms: Set<ResolutionPlatform>, val isTest: Boolean, val includeNonExportedNative: Boolean = true): DependenciesFlowType
-    data class IdeSyncType(val aom: Model): DependenciesFlowType
+    data class ClassPathType(
+        val scope: ResolutionScope,
+        val platforms: Set<ResolutionPlatform>,
+        val isTest: Boolean,
+        val includeNonExportedNative: Boolean = true
+    ) : DependenciesFlowType
+
+    data class IdeSyncType(val aom: Model) : DependenciesFlowType
 }
 
 interface ModuleDependenciesResolver {
+    @Deprecated("Use the overload with fileCacheBuilder parameter instead")
+    fun AmperModule.resolveDependenciesGraph(
+        dependenciesFlowType: DependenciesFlowType
+    ): ModuleDependencyNodeWithModule =
+        resolveDependenciesGraph(dependenciesFlowType, getDefaultAmperFileCacheBuilder())
+
     fun AmperModule.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
-        fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder()
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
     ): ModuleDependencyNodeWithModule
 
     suspend fun DependencyNodeHolder.resolveDependencies(
@@ -59,7 +81,12 @@ interface ModuleDependenciesResolver {
      *
      * Every node of the returned graph is of the type [DependencyNodeWithChildren] holding the corresponding node from the original graph inside.
      */
-    suspend fun AmperModule.dependencyInsight(group: String, module: String, resolutionInput: ResolutionInput): DependencyNode
+    suspend fun AmperModule.dependencyInsight(
+        group: String,
+        module: String,
+        resolutionInput: ResolutionInput
+    ): DependencyNode
+
     fun dependencyInsight(group: String, module: String, node: DependencyNode): DependencyNode
 
     suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder
@@ -72,7 +99,7 @@ open class DependencyNodeHolderWithNotation(
     @Suppress("UNUSED") // used in Idea Plugin
     val notation: DefaultScopedNotation? = null,
     parentNodes: List<DependencyNode> = emptyList(),
-): DependencyNodeHolder(name, children, templateContext, parentNodes)
+) : DependencyNodeHolder(name, children, templateContext, parentNodes)
 
 class ModuleDependencyNodeWithModule(
     val module: AmperModule,

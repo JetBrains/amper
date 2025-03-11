@@ -5,13 +5,13 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import kotlin.test.Test
 import kotlin.test.assertNotNull
+import kotlin.test.assertEquals
 
 /**
  * Resolved module dependencies graph for the test project 'compose-multiplatform' is almost identical to what Gradle resolves*.
@@ -27,19 +27,26 @@ import kotlin.test.assertNotNull
  *    It will be fixed in the nearest future (as soon as Amper IDE plugin started calling
  *    CLI for running application instead of reusing module classpath from the Workspace model)
  */
-class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
+class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 
     @Test
     fun `test sync empty jvm module`() {
         val aom = getTestProjectModel("jvm-empty", testDataRoot)
 
-        kotlin.test.assertEquals(setOf("common", "commonTest", "jvm", "jvmTest"), aom.modules[0].fragments.map { it.name }.toSet(), "")
+        assertEquals(
+            setOf("common", "commonTest", "jvm", "jvmTest"),
+            aom.modules[0].fragments.map { it.name }.toSet(),
+            ""
+        )
 
 
         val jvmTestFragmentDeps = runBlocking {
             doTest(
                 aom,
-                resolutionInput = ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
+                resolutionInput = ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "jvm-empty",
                 expected = """module:jvm-empty
 +--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.10, implicit
@@ -84,7 +91,10 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
         val sharedIosFragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "shared",
                 fragment = "ios",
                 expected = """Fragment 'shared.ios' dependencies
@@ -237,8 +247,8 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
              """.trimIndent()
             )
         }
-            assertFiles(
-                files = """
+        assertFiles(
+            files = """
                 |animation-commonMain-1.6.10.klib
                 |animation-core-commonMain-1.6.10.klib
                 |animation-core-jbMain-1.6.10.klib
@@ -325,8 +335,8 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                 |ui-util-commonMain-1.6.10.klib
                 |ui-util-uikitMain-1.6.10.klib
                 """.trimMargin(),
-                sharedIosFragmentDeps
-            )
+            sharedIosFragmentDeps
+        )
     }
 
     @Test
@@ -335,7 +345,10 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
         val iosAppIosX64FragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "shared",
                 fragment = "iosX64",
                 expected = """Fragment 'shared.iosX64' dependencies
@@ -564,7 +577,10 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
         val iosAppIosX64FragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "shared",
                 fragment = "iosX64Test",
                 expected = """Fragment 'shared.iosX64Test' dependencies
@@ -808,7 +824,10 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
         val iosAppIosX64FragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "ios-app",
                 fragment = "iosX64Test",
                 expected = """Fragment 'ios-app.iosX64Test' dependencies
@@ -1043,7 +1062,10 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
         val iosAppIosFragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "ios-app",
                 fragment = "ios",
                 expected = """Fragment 'ios-app.ios' dependencies
@@ -1294,7 +1316,10 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
         val iosAppIosX64FragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "ios-app",
                 fragment = "iosX64",
                 expected = """Fragment 'ios-app.iosX64' dependencies
@@ -1526,7 +1551,11 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
         val androidAppAndroidFragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom),
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "android-app",
                 fragment = "android",
                 expected = """Fragment 'android-app.android' dependencies
@@ -1924,7 +1953,10 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
         val sharedAndroidFragmentDeps = runBlocking {
             doTest(
                 aom,
-                ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "shared",
                 fragment = "android",
                 expected = """Fragment 'shared.android' dependencies
@@ -2338,7 +2370,8 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                         isTest = false,
                         includeNonExportedNative = false
                     ),
-                    ResolutionDepth.GRAPH_FULL
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
                 ),
                 module = "shared"
             ) as ModuleDependencyNodeWithModule
@@ -2357,7 +2390,8 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
     private fun ModuleDependencyNodeWithModule.assertMapping(
         expectedMapping: Map<String, String>
     ) {
-        val expectedCoordinatesMapping = expectedMapping.map{ it.key.toMavenCoordinates() to it.value.toMavenCoordinates() }.toMap()
+        val expectedCoordinatesMapping =
+            expectedMapping.map { it.key.toMavenCoordinates() to it.value.toMavenCoordinates() }.toMap()
         this
             .children
             .filterIsInstance<DirectFragmentDependencyNodeHolder>()
@@ -2373,7 +2407,7 @@ class ModuleDependenciesGraphMultiplatformTest: BaseModuleDrTest() {
                     expectedCoordinatesForPublishing,
                     "Library with coordinates [$originalCoordinates] is absent among direct module dependencies."
                 ) {}
-                kotlin.test.assertEquals(
+                assertEquals(
                     expectedCoordinatesForPublishing, actualCoordinatesForPublishing,
                     "Unexpected coordinates for publishing were resolved for the library [$originalCoordinates]"
                 )

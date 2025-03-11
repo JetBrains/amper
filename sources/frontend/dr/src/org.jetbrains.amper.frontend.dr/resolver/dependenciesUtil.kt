@@ -24,13 +24,13 @@ object FrontendDrBundle : MessageBundle("messages.FrontendDr")
 val DependencyNode.fragmentDependencies: List<DirectFragmentDependencyNodeHolder>
     get() = findParents<DirectFragmentDependencyNodeHolder>()
 
-private inline fun <reified T: DependencyNode> DependencyNode.findParents(): List<T> {
+private inline fun <reified T : DependencyNode> DependencyNode.findParents(): List<T> {
     val result = mutableSetOf<T>()
     findParentsImpl(T::class.java, result = result)
     return result.toList()
 }
 
-private fun <T: DependencyNode> DependencyNode.findParentsImpl(
+private fun <T : DependencyNode> DependencyNode.findParentsImpl(
     kClass: Class<T>,
     visited: MutableSet<DependencyNode> = mutableSetOf(),
     result: MutableSet<T> = mutableSetOf()
@@ -51,7 +51,8 @@ internal fun parseCoordinates(coordinates: String): MavenCoordinates {
     if (parts.size < 3) {
         coordinatesError(coordinates) {
             AmperDependencyResolutionException(
-                FrontendDrBundle.message("dependency.coordinates.have.too.few.parts", coordinates))
+                FrontendDrBundle.message("dependency.coordinates.have.too.few.parts", coordinates)
+            )
         }
     }
     parts.forEach {
@@ -64,11 +65,13 @@ internal fun parseCoordinates(coordinates: String): MavenCoordinates {
 
         if (it.contains("\n") || it.contains("\r")) {
             throw AmperDependencyResolutionException(
-                FrontendDrBundle.message("dependency.coordinates.contains.multiline.parts", coordinates))
+                FrontendDrBundle.message("dependency.coordinates.contains.multiline.parts", coordinates)
+            )
         }
         if (it.trim().contains(" ")) {
             throw AmperDependencyResolutionException(
-                FrontendDrBundle.message("dependency.coordinates.contains.parts.with.spaces", coordinates))
+                FrontendDrBundle.message("dependency.coordinates.contains.parts.with.spaces", coordinates)
+            )
         }
         if (it.trim().endsWith(".")) {
             // Coordinates are used for building paths to the artifacts in the Amper local storage,
@@ -76,12 +79,14 @@ internal fun parseCoordinates(coordinates: String): MavenCoordinates {
             // this way path to artifacts of dependencies with coordinates 'A:B:v1' and 'A...:B.:v1..' are not distinguishable.
             // See https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file?redirectedfrom=MSDN
             throw AmperDependencyResolutionException(
-                FrontendDrBundle.message("dependency.coordinates.contains.parts.ending.with.dots", coordinates))
+                FrontendDrBundle.message("dependency.coordinates.contains.parts.ending.with.dots", coordinates)
+            )
         }
         if (it.contains("/") || it.contains("\\")) {
             // Coordinates are used for building paths to the artifacts in the Amper local storage, slashes will affect the path
             throw AmperDependencyResolutionException(
-                FrontendDrBundle.message("dependency.coordinates.contains.parts.ending.with.slashes", coordinates))
+                FrontendDrBundle.message("dependency.coordinates.contains.parts.ending.with.slashes", coordinates)
+            )
         }
     }
 
@@ -96,7 +101,8 @@ internal fun parseCoordinates(coordinates: String): MavenCoordinates {
 private fun coordinatesError(coordinates: String, exception: () -> Exception) {
     if (GradleScope.parseGradleScope(coordinates) != null) {
         throw AmperDependencyResolutionException(
-            FrontendDrBundle.message("dependency.coordinates.in.gradle.format", coordinates))
+            FrontendDrBundle.message("dependency.coordinates.in.gradle.format", coordinates)
+        )
     } else {
         throw exception()
     }
@@ -143,9 +149,12 @@ fun MavenDependencyNode.mavenCoordinates(suffix: String? = null): MavenCoordinat
         .let { if (suffix == null) it else it.copy(artifactId = "${it.artifactId}:${suffix}") }
 }
 
-fun getDefaultAmperFileCacheBuilder(): FileCacheBuilder.() -> Unit = getAmperFileCacheBuilder(AmperUserCacheRoot.fromCurrentUser())
+@Deprecated("Use getAmperFileCacheBuilder(userCacheRoot) instead. You can get it via AmperUserCacheRoot.fromCurrentUserResult() and properly handle an error by the provided means.")
+fun getDefaultAmperFileCacheBuilder(): FileCacheBuilder.() -> Unit =
+    getAmperFileCacheBuilder(AmperUserCacheRoot.fromCurrentUser())
 
-fun getAmperFileCacheBuilder(userCacheRoot: AmperUserCacheRoot): FileCacheBuilder.() -> Unit = getDefaultFileCacheBuilder(userCacheRoot.path)
+fun getAmperFileCacheBuilder(userCacheRoot: AmperUserCacheRoot): FileCacheBuilder.() -> Unit =
+    getDefaultFileCacheBuilder(userCacheRoot.path)
 
 /**
  * Creates empty DR Context.

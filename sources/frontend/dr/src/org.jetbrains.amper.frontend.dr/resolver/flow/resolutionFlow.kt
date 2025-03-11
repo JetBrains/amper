@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.frontend.dr.resolver.flow
 
@@ -29,14 +29,24 @@ import java.util.concurrent.ConcurrentHashMap
 private val logger = LoggerFactory.getLogger("resolutionFlow.kt")
 
 interface DependenciesFlow<T: DependenciesFlowType> {
+    @Deprecated("Use directDependenciesGraph(module, fileCacheBuilder) instead")
     fun directDependenciesGraph(
         module: AmperModule,
-        fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder()
+    ): ModuleDependencyNodeWithModule = directDependenciesGraph(module, getDefaultAmperFileCacheBuilder())
+
+    fun directDependenciesGraph(
+        module: AmperModule,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
     ): ModuleDependencyNodeWithModule
+
+    @Deprecated("Use directDependenciesGraph(modules, fileCacheBuilder) instead")
+    fun directDependenciesGraph(
+        modules: List<AmperModule>,
+    ): DependencyNodeHolder = directDependenciesGraph(modules, getDefaultAmperFileCacheBuilder())
 
     fun directDependenciesGraph(
         modules: List<AmperModule>,
-        fileCacheBuilder: FileCacheBuilder.() -> Unit = getDefaultAmperFileCacheBuilder()
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
     ): DependencyNodeHolder {
         val node = DependencyNodeHolder(
             name = "root",

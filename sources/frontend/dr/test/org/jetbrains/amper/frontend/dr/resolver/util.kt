@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -12,6 +13,7 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import java.nio.file.Path
+import kotlin.test.assertIs
 import kotlin.test.fail
 
 internal fun DependencyNode.moduleDeps(name: String): ModuleDependencyNodeWithModule = children
@@ -37,3 +39,10 @@ internal fun getTestProjectModel(testProjectName: String, testDataRoot: Path): M
     }
     return aom
 }
+
+internal val amperUserCacheRoot: AmperUserCacheRoot
+    get() {
+        val result = AmperUserCacheRoot.fromCurrentUserResult()
+        assertIs<AmperUserCacheRoot>(result)
+        return result
+    }

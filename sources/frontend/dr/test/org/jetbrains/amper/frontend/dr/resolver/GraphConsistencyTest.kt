@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
@@ -30,7 +30,10 @@ class GraphConsistencyTest {
     fun `check parents in a dependencies graph - ide`() {
         val aom = getTestProjectModel("jvm-transitive-dependencies")
         checkParentsInDependenciesGraph(
-            ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL),
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+            ),
             aom
         )
     }
@@ -39,7 +42,8 @@ class GraphConsistencyTest {
     fun `check parents in a dependencies graph - classpath`() = checkParentsInDependenciesGraph(
         ResolutionInput(
             DependenciesFlowType.ClassPathType(ResolutionScope.RUNTIME, setOf(ResolutionPlatform.JVM), isTest = false),
-            ResolutionDepth.GRAPH_FULL
+            ResolutionDepth.GRAPH_FULL,
+            fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
         )
     )
 
@@ -55,10 +59,10 @@ class GraphConsistencyTest {
 
         graph.distinctBfsSequence().forEach {
             val parents = it.parents
-            assertTrue("Parents are empty for node ${it.key}" ) { parents.isNotEmpty() || graph == it}
+            assertTrue("Parents are empty for node ${it.key}") { parents.isNotEmpty() || graph == it }
 
             it.parents.forEach { parent ->
-                assertTrue("Node ${parent.key} is registered as parent of node ${it.key}, but doesn't contain it among its children" ) {
+                assertTrue("Node ${parent.key} is registered as parent of node ${it.key}, but doesn't contain it among its children") {
                     parent.children.contains(it)
                 }
             }
@@ -86,5 +90,6 @@ class TestProblemReporter : CollectingProblemReporter() {
 
     fun clearAll() = problems.clear()
 
-    fun getDiagnostics(vararg levels: Level = arrayOf(Level.Error, Level.Fatal)): List<BuildProblem> = problems.filter { levels.contains(it.level) }
+    fun getDiagnostics(vararg levels: Level = arrayOf(Level.Error, Level.Fatal)): List<BuildProblem> =
+        problems.filter { levels.contains(it.level) }
 }

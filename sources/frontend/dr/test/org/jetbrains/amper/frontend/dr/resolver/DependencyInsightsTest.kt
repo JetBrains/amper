@@ -13,6 +13,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -21,7 +22,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
     fun `test sync empty jvm module`() {
         val aom = getTestProjectModel("jvm-empty", testDataRoot)
 
-        kotlin.test.assertEquals(
+        assertEquals(
             setOf("common", "commonTest", "jvm", "jvmTest"),
             aom.modules[0].fragments.map { it.name }.toSet(),
             "",
@@ -30,7 +31,10 @@ class DependencyInsightsTest : BaseModuleDrTest() {
         val jvmEmptyModuleGraph = runBlocking {
             doTest(
                 aom,
-                resolutionInput = ResolutionInput(DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL) ,
+                resolutionInput = ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
                 module = "jvm-empty",
                 expected = """
 module:jvm-empty
@@ -76,7 +80,7 @@ module:jvm-empty
 |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10
 \--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.10, implicit
      \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.10 (*)""".trimIndent()
-                )
+            )
             assertInsight(
                 group = "org.hamcrest",
                 module = "hamcrest-core",
@@ -123,8 +127,10 @@ module:jvm-empty
                     DependenciesFlowType.ClassPathType(
                         scope = ResolutionScope.COMPILE,
                         platforms = setOf(ResolutionPlatform.IOS_ARM64),
-                        isTest = false),
-                    ResolutionDepth.GRAPH_FULL
+                        isTest = false,
+                    ),
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
                 ),
                 module = "shared",
                 expected = """shared:COMPILE:IOS_ARM64
@@ -511,18 +517,26 @@ module:jvm-empty
             sharedModuleIosArm64Graph
                 .distinctBfsSequence()
                 .filterIsInstance<MavenDependencyNode>()
-                .filter { it.group == "org.jetbrains.kotlin" && it.module == "kotlin-stdlib-common"  }
+                .filter { it.group == "org.jetbrains.kotlin" && it.module == "kotlin-stdlib-common" }
                 .forEach {
                     if (it.originalVersion() == it.resolvedVersion()) {
                         assertNull(it.overriddenBy)
                     } else {
-                        assertNotNull(it.overriddenBy,
-                            "Expected non-null 'overriddenBy' since ${it.resolvedVersion()} doesn't match ${it.originalVersion()}")
+                        assertNotNull(
+                            it.overriddenBy,
+                            "Expected non-null 'overriddenBy' since ${it.resolvedVersion()} doesn't match ${it.originalVersion()}"
+                        )
                         val constraintNode = it.overriddenBy.singleOrNull() as? MavenDependencyConstraintNode
-                        assertNotNull(constraintNode,
-                            "Expected the only dependency constraint node in 'overriddenBy', but found ${ it.overriddenBy.map { it.key }.toSet() }")
-                        kotlin.test.assertEquals(constraintNode.key.name, "org.jetbrains.kotlin:kotlin-stdlib-common",
-                            "Unexpected constraint ${constraintNode.key}")
+                        assertNotNull(
+                            constraintNode,
+                            "Expected the only dependency constraint node in 'overriddenBy', but found ${
+                                it.overriddenBy.map { it.key }.toSet()
+                            }"
+                        )
+                        assertEquals(
+                            constraintNode.key.name, "org.jetbrains.kotlin:kotlin-stdlib-common",
+                            "Unexpected constraint ${constraintNode.key}"
+                        )
                     }
                 }
 
