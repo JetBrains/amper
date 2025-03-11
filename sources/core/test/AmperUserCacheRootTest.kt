@@ -12,6 +12,7 @@ import uk.org.webcompere.systemstubs.properties.SystemProperties
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class AmperUserCacheRootTest {
     @TempDir
@@ -24,8 +25,10 @@ class AmperUserCacheRootTest {
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
         systemProperties.set("amper.cache.root", tempRoot.pathString)
-        val repo = AmperUserCacheRoot.fromCurrentUser()
-        assertEquals(repo.path, tempRoot)
+
+        val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult()
+        assertIs<AmperUserCacheRoot>(userCacheRoot, "Amper user cache root should be resolved from system settings")
+        assertEquals(userCacheRoot.path, tempRoot)
     }
 
     @Test
@@ -35,8 +38,10 @@ class AmperUserCacheRootTest {
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
         environmentVariables.set("AMPER_CACHE_ROOT", tempRoot.pathString)
-        val repo = AmperUserCacheRoot.fromCurrentUser()
-        assertEquals(repo.path, tempRoot)
+
+        val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult()
+        assertIs<AmperUserCacheRoot>(userCacheRoot, "Amper user cache root should be resolved from env variable")
+        assertEquals(userCacheRoot.path, tempRoot)
     }
 
     /**
