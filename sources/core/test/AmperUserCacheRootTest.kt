@@ -10,8 +10,6 @@ import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
 import uk.org.webcompere.systemstubs.properties.SystemProperties
 import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 import kotlin.test.assertEquals
 
@@ -48,8 +46,7 @@ class AmperUserCacheRootTest {
         systemProperties: SystemProperties,
         environmentVariables: EnvironmentVariables
     ) {
-        systemProperties.set("amper.cache.root", "")
-        systemProperties.set("user.home", Path("nothing-to-see-here").absolutePathString())
-        environmentVariables.set("AMPER_CACHE_ROOT", "")
+        systemProperties.remove("amper.cache.root")
+        environmentVariables.remove("AMPER_CACHE_ROOT")
     }
 }
