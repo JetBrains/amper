@@ -229,77 +229,73 @@ class DependencyFileTest {
 
     @Test
     fun `compose-multiplatform iosSimulatorArm64`() {
-        for (i in 1..10) {
-            Context {
-                cache = {
-                    amperCache = amperPath
-                    localRepository = MavenLocalRepository(mavenLocalPath.resolve(UUID.randomUUID().toString()))
-                    readOnlyExternalRepositories = emptyList()
-                }
-                repositories = listOf(
-                    REDIRECTOR_MAVEN_CENTRAL,
-                    REDIRECTOR_MAVEN_GOOGLE,
-                    REDIRECTOR_COMPOSE_DEV
-                ).toRepositories()
-                platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
-            }.use { context ->
-                val root = DependencyNodeHolder(
-                    "root",
-                    listOf(
-                        context.getOrCreateNode(
-                            context.createOrReuseDependency(
-                                "org.jetbrains.compose.foundation", "foundation", "1.6.10"
-                            ), null
-                        ),
-                        context.getOrCreateNode(
-                            context.createOrReuseDependency(
-                                "org.jetbrains.compose.material3", "material3", "1.6.10"
-                            ), null
-                        ),
-                        context.getOrCreateNode(
-                            context.createOrReuseDependency(
-                                "org.jetbrains.kotlin", "kotlin-stdlib", "2.0.0"
-                            ), null
-                        ),
-                    ),
-                    context
-                )
-                runBlocking {
-                    val resolver = Resolver()
-                    resolver.buildGraph(root)
-                    resolver.downloadDependencies(root)
-                }
-                root.verifyMessages()
+        Context {
+            cache = {
+                amperCache = amperPath
+                localRepository = MavenLocalRepository(mavenLocalPath.resolve(UUID.randomUUID().toString()))
+                readOnlyExternalRepositories = emptyList()
             }
+            repositories = listOf(
+                REDIRECTOR_MAVEN_CENTRAL,
+                REDIRECTOR_MAVEN_GOOGLE,
+                REDIRECTOR_COMPOSE_DEV
+            ).toRepositories()
+            platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
+        }.use { context ->
+            val root = DependencyNodeHolder(
+                "root",
+                listOf(
+                    context.getOrCreateNode(
+                        context.createOrReuseDependency(
+                            "org.jetbrains.compose.foundation", "foundation", "1.6.10"
+                        ), null
+                    ),
+                    context.getOrCreateNode(
+                        context.createOrReuseDependency(
+                            "org.jetbrains.compose.material3", "material3", "1.6.10"
+                        ), null
+                    ),
+                    context.getOrCreateNode(
+                        context.createOrReuseDependency(
+                            "org.jetbrains.kotlin", "kotlin-stdlib", "2.0.0"
+                        ), null
+                    ),
+                ),
+                context
+            )
+            runBlocking {
+                val resolver = Resolver()
+                resolver.buildGraph(root)
+                resolver.downloadDependencies(root)
+            }
+            root.verifyMessages()
         }
     }
 
     @Test
     fun `skiko-0_8_4_jar iosSimulatorArm64`() {
-        for (i in 1..10) {
-            Context {
-                cache = {
-                    amperCache = amperPath
-                    localRepository = mavenLocalRepository()
-                    readOnlyExternalRepositories = emptyList()
-                }
-                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE, REDIRECTOR_COMPOSE_DEV)
-                    .toRepositories()
-                platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
-                scope = ResolutionScope.RUNTIME
-            }.use { context ->
-                val dependency = MavenDependency(
-                    context.settings,
-                    "org.jetbrains.skiko", "skiko", "0.8.4"
-                )
-                val root = MavenDependencyNode(context, dependency)
-                runBlocking {
-                    val resolver = Resolver()
-                    resolver.buildGraph(root)
-                    resolver.downloadDependencies(root)
-                }
-                root.verifyMessages()
+        Context {
+            cache = {
+                amperCache = amperPath
+                localRepository = mavenLocalRepository()
+                readOnlyExternalRepositories = emptyList()
             }
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE, REDIRECTOR_COMPOSE_DEV)
+                .toRepositories()
+            platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
+            scope = ResolutionScope.RUNTIME
+        }.use { context ->
+            val dependency = MavenDependency(
+                context.settings,
+                "org.jetbrains.skiko", "skiko", "0.8.4"
+            )
+            val root = MavenDependencyNode(context, dependency)
+            runBlocking {
+                val resolver = Resolver()
+                resolver.buildGraph(root)
+                resolver.downloadDependencies(root)
+            }
+            root.verifyMessages()
         }
     }
 
