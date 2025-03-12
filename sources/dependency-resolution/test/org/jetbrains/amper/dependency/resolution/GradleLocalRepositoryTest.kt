@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
@@ -7,21 +7,22 @@ package org.jetbrains.amper.dependency.resolution
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.junit.jupiter.api.io.TempDir
-import java.io.File
+import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
+import kotlin.io.path.div
 import kotlin.io.path.relativeTo
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class GradleLocalRepositoryTest {
-
-    @field:TempDir
-    lateinit var temp: File
+    @TempDir
+    lateinit var gradleLocalPath: Path
 
     private val gradleLocalRepository: GradleLocalRepository
-        get() = GradleLocalRepository(temp.toPath())
+        get() = GradleLocalRepository(gradleLocalPath)
 
     @Test
     fun `get name without extension`() {
@@ -35,16 +36,15 @@ class GradleLocalRepositoryTest {
         assertNull(path)
 
         val sha1 = computeHash("sha1", randomString().toByteArray())
-        assertTrue(
-            File(
-                temp,
-                "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar"
-            ).mkdirs()
-        )
+
+        val baseDir = gradleLocalPath / "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1"
+        baseDir.createDirectories()
+        (baseDir / "kotlin-test-1.9.10.jar").createFile()
+
         path = runBlocking { gradleLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
-            path?.relativeTo(temp.toPath()).toString().replace('\\', '/')
+            path?.relativeTo(gradleLocalPath)?.toString()?.replace('\\', '/')
         )
     }
 
@@ -72,7 +72,7 @@ class GradleLocalRepositoryTest {
         val path = runBlocking { gradleLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
-            path?.relativeTo(temp.toPath()).toString().replace('\\', '/')
+            path?.relativeTo(gradleLocalPath)?.toString()?.replace('\\', '/')
         )
     }
 
@@ -83,7 +83,7 @@ class GradleLocalRepositoryTest {
         val path = gradleLocalRepository.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", sha1)
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
-            path.relativeTo(temp.toPath()).toString().replace('\\', '/')
+            path.relativeTo(gradleLocalPath).toString().replace('\\', '/')
         )
     }
 
@@ -92,8 +92,7 @@ class GradleLocalRepositoryTest {
             cache = {
                 localRepository = gradleLocalRepository
             }
-        }.settings
-        ,
+        }.settings,
         "org.jetbrains.kotlin", "kotlin-test", "1.9.10"
     )
 

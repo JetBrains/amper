@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.util
@@ -12,15 +12,18 @@ import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.net.URI
+import java.nio.file.Path
+import kotlin.io.path.createFile
+import kotlin.io.path.div
+import kotlin.io.path.name
+import kotlin.io.path.writeText
 import kotlin.test.asserter
 
 
 abstract class TestBase {
-
-    @field:TempDir
-    lateinit var tempDir: File
+    @TempDir
+    lateinit var tempDir: Path
 
     @BeforeEach
     fun setUpGradleSettings() {
@@ -43,7 +46,7 @@ fun TestBase.runGradleWithModel(model: MockModelHandle): String {
         // we use this instead of useGradleVersion() so that our tests benefit from the cache redirector and avoid timeouts
         .useDistribution(URI("https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-8.6-bin.zip"))
         .useGradleUserHomeDir(Dirs.sharedGradleHome.toFile())
-        .forProjectDirectory(tempDir)
+        .forProjectDirectory(tempDir.toFile())
         .connect()
         .use { projectConnection ->
             projectConnection
@@ -54,13 +57,14 @@ fun TestBase.runGradleWithModel(model: MockModelHandle): String {
                 .setStandardOutput(TeeOutputStream(System.out, stdout))
                 .run()
         }
-    val output = (stdout.toByteArray().decodeToString() + "\n" + stderr.toByteArray().decodeToString()).replace("\r", "")
+    val output =
+        (stdout.toByteArray().decodeToString() + "\n" + stderr.toByteArray().decodeToString()).replace("\r", "")
     return output
 }
 
-fun setUpGradleProjectDir(root: File) {
-    val settingsFile = root.resolve("settings.gradle.kts")
-    settingsFile.createNewFile()
+fun setUpGradleProjectDir(root: Path) {
+    val settingsFile = root / "settings.gradle.kts"
+    settingsFile.createFile()
 
     val plugins = """
         pluginManagement {
@@ -88,14 +92,15 @@ fun setUpGradleProjectDir(root: File) {
 }
 
 // Need to be inlined, since looks for trace.
-internal inline val currentTestName get(): String = run {
-    val currentTrace = Thread.currentThread().stackTrace
-    println(currentTrace.map { it.methodName })
-    currentTrace[1].let { "${it.decapitalizedSimpleName}/${it.methodName}" }
-}
+internal inline val currentTestName: String
+    get() = run {
+        val currentTrace = Thread.currentThread().stackTrace
+        println(currentTrace.map { it.methodName })
+        currentTrace[1].let { "${it.decapitalizedSimpleName}/${it.methodName}" }
+    }
 
-val StackTraceElement.decapitalizedSimpleName get() =
-    className.substringAfterLast(".").replaceFirstChar { it.lowercase() }
+val StackTraceElement.decapitalizedSimpleName: String
+    get() = className.substringAfterLast(".").replaceFirstChar { it.lowercase() }
 
 // Need to be inlined, since looks for trace.
 @Suppress("NOTHING_TO_INLINE")

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
@@ -6,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
 import org.junit.jupiter.api.io.TempDir
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
-import java.io.File
 import java.net.Authenticator
 import java.net.CookieHandler
 import java.net.ProxySelector
@@ -29,11 +32,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class LocalRepositoryTest: BaseDRTest() {
-
-    @field:TempDir
-    lateinit var temp: File
-
-    private fun cacheRoot(): Path = temp.toPath().resolve(UUID.randomUUID().toString().padEnd(8, '0').substring(1..8))
+    @TempDir
+    lateinit var cacheRoot: Path
 
     @Test
     fun `check maven local storage is reused if primary storage misses artifacts`() {
@@ -174,8 +174,6 @@ class LocalRepositoryTest: BaseDRTest() {
     ) {
         val atomicfuCoordinates = "org.jetbrains.kotlinx:atomicfu-jvm:0.23.2"
         val urlPrefix = "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2/org/jetbrains/kotlinx/atomicfu-jvm/0.23.2"
-
-        val cacheRoot = cacheRoot()
 
         // Installing maven local repository at the custom location
         val localExternalRepository = initLocalRepository(cacheRoot)

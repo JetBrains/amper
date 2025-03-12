@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
@@ -13,7 +13,6 @@ import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyMess
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyOwnMessages
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import java.io.File
 import java.nio.file.Path
 import java.util.*
 import java.util.jar.JarFile
@@ -22,6 +21,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.appendText
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
@@ -32,18 +32,17 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class DependencyFileTest {
-
-    @field:TempDir
-    lateinit var temp: File
+    @TempDir
+    lateinit var temp: Path
 
     private val amperPath: Path
-        get() = temp.resolve(".amper").toPath()
+        get() = temp / ".amper"
 
     private val gradleLocalPath: Path
-        get() = temp.resolve(".gradle").toPath()
+        get() = temp / ".gradle"
 
     private val mavenLocalPath: Path
-        get() = temp.resolve(".m2.cache").toPath()
+        get() = temp / ".m2.cache"
 
     private fun gradleLocalRepository() = GradleLocalRepository(gradleLocalPath)
     private fun mavenLocalRepository() = MavenLocalRepository(mavenLocalPath)

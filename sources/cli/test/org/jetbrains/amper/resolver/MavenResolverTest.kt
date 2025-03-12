@@ -13,7 +13,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.toRepositories
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
-import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.fileSize
 import kotlin.io.path.name
 import kotlin.io.path.relativeTo
@@ -25,13 +25,12 @@ import kotlin.time.Duration
 private const val MAVEN_CENTRAL_CACHE_REDIRECTOR = "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2"
 
 class MavenResolverTest {
-    @field:TempDir
-    lateinit var tempDir: File
+    @TempDir
+    lateinit var amperCacheRoot: Path
 
     @Test
     fun simpleResolve() {
-        val root = tempDir.toPath()
-        val resolver = MavenResolver(AmperUserCacheRoot(root))
+        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot))
 
         val result = runBlocking {
             resolver.resolve(
@@ -42,7 +41,7 @@ class MavenResolverTest {
                 resolveSourceMoniker = "test",
             )
         }
-        val relative = result.map { it.relativeTo(root).joinToString("/") }.sorted()
+        val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
             listOf(
                 ".m2.cache/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar",
@@ -52,13 +51,13 @@ class MavenResolverTest {
             relative,
         )
 
-        val slf4jApiJar = root.resolve(".m2.cache/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar")
+        val slf4jApiJar = amperCacheRoot.resolve(".m2.cache/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar")
         assertEquals(64579, slf4jApiJar.fileSize())
     }
 
     @Test
     fun ignoresProvidedDependencies() {
-        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot))
 
         // https://search.maven.org/artifact/org.tinylog/tinylog-api/2.7.0-M1/bundle
         val result = runBlocking {
@@ -70,7 +69,7 @@ class MavenResolverTest {
                 resolveSourceMoniker = "test",
             )
         }
-        val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
+        val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
             listOf(".m2.cache/org/tinylog/tinylog-api/2.7.0-M1/tinylog-api-2.7.0-M1.jar"),
             relative,
@@ -79,7 +78,7 @@ class MavenResolverTest {
 
     @Test
     fun nativeTarget() {
-        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot))
 
         val result = runBlocking {
             resolver.resolve(
@@ -90,7 +89,7 @@ class MavenResolverTest {
                 resolveSourceMoniker = "test",
             )
         }
-        val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted().joinToString("\n")
+        val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted().joinToString("\n")
         assertEquals(
             """
                 .m2.cache/org/jetbrains/kotlinx/kotlinx-datetime-mingwx64/0.5.0/kotlinx-datetime-mingwx64-0.5.0-cinterop-date.klib
@@ -103,7 +102,7 @@ class MavenResolverTest {
 
     @Test
     fun respectsRuntimeScope() {
-        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot))
 
         // TODO find a smaller example of maven central artifact with runtime-scoped dependencies
         val result = runBlocking {
@@ -115,7 +114,7 @@ class MavenResolverTest {
                 resolveSourceMoniker = "test",
             )
         }
-        val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
+        val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
             listOf(
                 ".m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar",
@@ -140,7 +139,7 @@ class MavenResolverTest {
 
     @Test
     fun negativeResolveSingleCoordinates() {
-        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot))
 
         val t = assertThrows<UserReadableError> {
             runBlocking {
@@ -167,7 +166,7 @@ class MavenResolverTest {
 
     @Test
     fun negativeResolvePlatformSupportWasNotFound() = runTest(timeout = Duration.INFINITE ) {
-        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot))
 
         // kotlinx-datetime:0.2.1 is available for macos_x64
         val macosX64 = resolver.resolve(
@@ -204,7 +203,7 @@ class MavenResolverTest {
 
     @Test
     fun unableToResolveGradleToolingApiInCompileScope() {
-        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot))
 
         // TODO find a smaller example of maven central artifact with runtime-scoped dependencies
         val result = runBlocking {
@@ -219,7 +218,7 @@ class MavenResolverTest {
                 resolveSourceMoniker = "test",
             )
         }
-        val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
+        val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
             listOf(
                 ".m2.cache/org/gradle/gradle-tooling-api/8.4/gradle-tooling-api-8.4.jar",
@@ -231,7 +230,7 @@ class MavenResolverTest {
 
     @Test
     fun negativeResolveMultipleCoordinates() {
-        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot))
 
         val t = assertThrows<UserReadableError> {
             runBlocking {
