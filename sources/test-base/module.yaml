@@ -19,6 +19,8 @@ dependencies:
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
   - $kotlin.test.junit5
+  - net.java.dev.jna:jna:5.16.0
+  - net.java.dev.jna:jna-platform:5.16.0
   - ../async-processes: exported # for ProcessResult in the API
   - ../cli # TODO split cli into submodules (currently used for JdkDownloader)
   - ../core
