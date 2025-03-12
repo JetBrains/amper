@@ -16,9 +16,9 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.6.0-dev-2530
+set amper_version=0.6.0-dev-2543
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=81526bbe8e92ad6d303e9907e917544ec2e1fec9509133f4f289e7f116176332
+set amper_sha256=c357177b2431d4ef13353f1eebff700ae51fe8b058712b2dccfd053c50cdf565
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -139,6 +139,23 @@ if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
     goto fail
 )
+
+REM !! DO NOT REMOVE !! -----------------------------------------------------------------------------------------------
+REM -------------------------------------------------------------------------------------------------------------------
+REM -------------------------------------------------------------------------------------------------------------------
+REM                                                 exit /b %ERRORLEVEL%
+REM                                            6788 ^
+REM The above comment is strategically placed to compensate for a bug in the update command in Amper 0.5.0.
+REM During the update, the wrapper script is overwritten in-place while running. The problem is that cmd.exe doesn't
+REM buffer the original script as a whole, and instead reloads it after every command, and tries to resume at the same
+REM byte offset as before.
+REM In the 0.5.0 script, the java command running Amper is followed by the command 'exit /b %ERRORLEVEL%', which is
+REM exactly at the byte offset 6826. So, when the java command finishes, cmd.exe wants to run this exit command, but
+REM it first reloads the file and gets the new content (this one) before trying to run whatever is at offset 6826.
+REM This position is marked above, and we must place an exit command right there to allow 0.5.0 to complete properly.
+REM Since we usually edit the _template_ of the wrapper script, we need to take into account the difference between
+REM the version and checksum placeholders and their real value (38 chars at the moment).
+REM The position in the wrapper template should therefore be 6788, so it ends up at 6826 in the final script.
 
 @rem URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
 set jbr_url=%AMPER_JRE_DOWNLOAD_ROOT%/cache-redirector.jetbrains.com/intellij-jbr/jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%.tar.gz
