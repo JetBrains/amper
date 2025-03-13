@@ -539,6 +539,4 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Amp
         }
 
         is CatalogDependency -> error("Catalog dependency must be processed earlier!")
-
-        else -> error("Unknown dependency type: ${this::class}")
     }?.withTraceFrom(this)
