@@ -517,7 +517,6 @@ context(ProblemReporterContext)
 private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): DefaultScopedNotation? =
     when (this) {
         is ExternalMavenDependency -> MavenDependency(
-            // TODO Report absence of coordinates.
             TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!),
             scope.compile,
             scope.runtime,
