@@ -114,7 +114,7 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
 
     // Get a list of leaf platforms, denoted by modifiers with
     // the natural hierarchy platform as a hint, if any.
-    fun Modifiers.convertToLeavesWithHint(): Pair<Set<Platform>, Platform?> {
+    fun Modifiers.convertToLeavesWithHint(): Pair<Set<Platform>, Any?>? {
         // If modifiers are empty, then treat them like common platform modifiers.
         if (isEmpty()) return declaredLeafPlatforms to Platform.COMMON
         val modifier = singleOrNull()?.value
@@ -126,7 +126,7 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
             }
             aliases2leaves.contains(modifier) -> aliases2leaves[modifier]!! to null
             Platform.containsKey(modifier) -> Platform[modifier]!!.leaves to Platform[modifier]
-            else -> error("Unrecognized modifier: $modifier")
+            else -> null
         }
     }
 
@@ -140,7 +140,7 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
      * ```
      */
     fun <T> Map<Modifiers, T>.forRelevantSeeds(block: FragmentSeed.(T) -> Unit) = entries.forEach { entry ->
-        val (modifierPlatforms, hint) = entry.key.convertToLeavesWithHint()
+        val (modifierPlatforms, hint) = entry.key.convertToLeavesWithHint() ?: return@forEach
         if (hint == null) {
             // Case when the modifier is an alias.
             // Thus, there should be a seed with such exact platforms.
