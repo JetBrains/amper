@@ -4,9 +4,12 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.isParentOfStrict
 import org.jetbrains.amper.frontend.leaves
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
@@ -63,6 +66,7 @@ data class FragmentSeed(
  * For example, `native` will only be mapped to `linuxX64` in the above case, not to all other platforms that
  * `native` can include in the natural hierarchy.
  */
+context(ProblemReporterContext)
 fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
     // Get declared platforms.
     val declaredPlatforms = product.platforms
@@ -113,10 +117,13 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
     fun Modifiers.convertToLeavesWithHint(): Pair<Set<Platform>, Platform?> {
         // If modifiers are empty, then treat them like common platform modifiers.
         if (isEmpty()) return declaredLeafPlatforms to Platform.COMMON
-        val modifier = firstOrNull()?.value
+        val modifier = singleOrNull()?.value
         // Otherwise, parse every modifier individually.
         return when {
-            modifier == null -> error("Multiple modifiers are not supported now")
+            modifier == null -> {
+                SchemaBundle.reportBundleError(first(), "multiple.qualifiers.are.unsupported")
+                null
+            }
             aliases2leaves.contains(modifier) -> aliases2leaves[modifier]!! to null
             Platform.containsKey(modifier) -> Platform[modifier]!!.leaves to Platform[modifier]
             else -> error("Unrecognized modifier: $modifier")

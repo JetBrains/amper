@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -16,7 +16,7 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.yaml.psi.YAMLPsiElement
 
 object UnknownQualifiers : IsmDiagnosticFactory {
-    override val diagnosticId: BuildProblemId = "product.unknown.qualifiers"
+    override val diagnosticId: BuildProblemId = "product.unknown.qualifier"
 
     private val knownPlatforms = Platform.values.map { it.schemaValue }
 
@@ -36,6 +36,8 @@ object UnknownQualifiers : IsmDiagnosticFactory {
 
     context(ProblemReporterContext)
     private fun Modifiers.validate(knownAliases: Set<String>) {
+        // NB: While we support diagnostic on multiple modifiers at the ISM level,
+        // it isn't currently supported by the AOM (fragmentSeeds#convertToLeavesWithHint).
         val unknownModifiers = this
             .filter { modifier -> modifier.value !in knownAliases }
             .filter { modifier -> modifier.value !in knownPlatforms }

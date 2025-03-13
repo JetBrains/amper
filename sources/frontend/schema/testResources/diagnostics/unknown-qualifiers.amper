@@ -21,17 +21,17 @@ dependencies {
   "test"
 }
 
-@jvm <![Error] Unknown context: wrong!>@wrong<!> @android <![Error] Unknown context: wrong2!>@wrong2<!>
+<![Error] Unknown context: wrong!>@wrong<!>
 dependencies {
   "test"
 }
 
-@iosArm64 @jvmAndAndroid
+@iosArm64
 testDependencies {
   "test"
 }
 
-@jvm <![Error] Unknown context: wrong!>@wrong<!> @android <![Error] Unknown context: wrong2!>@wrong2<!>
+<![Error] Unknown context: wrong!>@wrong<!>
 testDependencies {
   "test"
 }
@@ -43,7 +43,7 @@ settings {
   }
 }
 
-@ios <![Error] Unknown context: wrong!>@wrong<!> <![Error] Unknown context: wrong2!>@wrong2<!>
+<![Error] Unknown context: wrong!>@wrong<!>
 settings {
   kotlin {
     debug = true
@@ -57,7 +57,7 @@ testSettings {
   }
 }
 
-@ios <![Error] Unknown context: wrong!>@wrong<!> <![Error] Unknown context: wrong2!>@wrong2<!>
+<![Error] Unknown context: wrong!>@wrong<!>
 testSettings {
   kotlin {
     debug = true

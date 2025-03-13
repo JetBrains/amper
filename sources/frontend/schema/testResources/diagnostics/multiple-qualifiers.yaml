@@ -15,20 +15,20 @@ dependencies:
 dependencies@jvmAndAndroid:
   - test
 
-<![Error] Unknown qualifier: wrong!>dependencies@wrong<!>:
+<![Error] Multiple qualifiers are not supported yet!>dependencies@jvm+android<!>:
   - test
 
 test-dependencies@iosArm64:
   - test
 
-<![Error] Unknown qualifier: wrong!>test-dependencies@wrong<!>:
+<![Error] Multiple qualifiers are not supported yet!>test-dependencies@jvm+android<!>:
   - test
 
 settings@ios:
   kotlin:
     debug: true
 
-<![Error] Unknown qualifier: wrong!>settings@wrong<!>:
+<![Error] Multiple qualifiers are not supported yet!>settings@jvm+android<!>:
   kotlin:
     debug: true
 
@@ -36,6 +36,6 @@ test-settings@ios:
   kotlin:
     debug: true
 
-<![Error] Unknown qualifier: wrong!>test-settings@wrong<!>:
+<![Error] Multiple qualifiers are not supported yet!>test-settings@jvm+android<!>:
   kotlin:
     debug: true
