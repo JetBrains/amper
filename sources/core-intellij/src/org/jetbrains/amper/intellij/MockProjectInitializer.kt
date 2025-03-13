@@ -176,7 +176,7 @@ private class StandaloneXcodeComponentManager(private val xcodePath: String, pri
                 }
 
                 XcodeBase::class.java.isAssignableFrom(clazz) -> XcodeBase()
-                else -> throw IllegalArgumentException("Unknown clazz: ${clazz.name}")
+                else -> throw IllegalArgumentException("Unknown service class is requested from XcodeComponentManager: ${clazz.name}")
             }
         }.let(clazz::cast)
     }
