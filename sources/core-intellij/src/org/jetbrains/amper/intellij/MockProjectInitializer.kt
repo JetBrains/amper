@@ -64,14 +64,12 @@ object MockProjectInitializer {
     @Synchronized
     fun initMockProject(intelliJApplicationConfigurator: IntelliJApplicationConfigurator): Project {
         val latest = latestConfigurator
-        if (latest != null && latest !== intelliJApplicationConfigurator) {
-            error(
-                """
-                    Only one configurator can be used at a time.
-                    old: ${latest.javaClass.name} $latest
-                    new: ${intelliJApplicationConfigurator.javaClass.name} $intelliJApplicationConfigurator
-                """.trimIndent()
-            )
+        check(latest == null || latest === intelliJApplicationConfigurator) {
+            """
+                Only one configurator can be used at a time.
+                old: ${latest?.javaClass?.name} $latest
+                new: ${intelliJApplicationConfigurator.javaClass.name} $intelliJApplicationConfigurator
+            """.trimIndent()
         }
 
         val previousDisposable = ourDisposable
