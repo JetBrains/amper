@@ -1,15 +1,14 @@
 // This is a generated file. Not intended for manual editing.
 package com.intellij.amper.lang.impl;
 
-import com.intellij.amper.lang.AmperContextName;
-import com.intellij.amper.lang.AmperElementVisitor;
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import static com.intellij.amper.lang.AmperElementTypes.IDENTIFIER;
+import com.intellij.psi.util.PsiTreeUtil;
+import static com.intellij.amper.lang.AmperElementTypes.*;
+import com.intellij.amper.lang.*;
 
 public class AmperContextNameImpl extends AmperContextNameMixin implements AmperContextName {
 

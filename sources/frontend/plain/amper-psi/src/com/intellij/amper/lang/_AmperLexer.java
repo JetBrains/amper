@@ -6,9 +6,9 @@ package com.intellij.amper.lang;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
-import static com.intellij.amper.lang.AmperElementTypes.*;
 import static com.intellij.psi.TokenType.BAD_CHARACTER;
 import static com.intellij.psi.TokenType.WHITE_SPACE;
+import static com.intellij.amper.lang.AmperElementTypes.*;
 
 
 public class _AmperLexer implements FlexLexer {

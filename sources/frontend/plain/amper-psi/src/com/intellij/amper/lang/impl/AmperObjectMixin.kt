@@ -4,12 +4,7 @@
 
 package com.intellij.amper.lang.impl
 
-import com.intellij.amper.lang.AmperContextBlock
-import com.intellij.amper.lang.AmperContextualStatement
-import com.intellij.amper.lang.AmperObject
-import com.intellij.amper.lang.AmperObjectElement
-import com.intellij.amper.lang.AmperProperty
-import com.intellij.amper.lang.AmperValue
+import com.intellij.amper.lang.*
 import com.intellij.lang.ASTNode
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager

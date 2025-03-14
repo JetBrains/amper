@@ -1,21 +1,22 @@
 // This is a generated file. Not intended for manual editing.
 package com.intellij.amper.lang.impl;
 
-import com.intellij.amper.lang.AmperElementVisitor;
-import com.intellij.amper.lang.AmperReferenceExpression;
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.jetbrains.annotations.NotNull;
+import static com.intellij.amper.lang.AmperElementTypes.*;
+import com.intellij.amper.lang.*;
 
-import java.util.List;
-
-public class AmperReferenceExpressionImpl extends AmperReferenceExpressionMixin implements AmperReferenceExpression {
+public class AmperReferenceExpressionImpl extends AmperValueImpl implements AmperReferenceExpression {
 
   public AmperReferenceExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull AmperElementVisitor visitor) {
     visitor.visitReferenceExpression(this);
   }
