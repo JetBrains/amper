@@ -5,7 +5,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.AbstractElementManipulator
 import org.jetbrains.yaml.YAMLElementGenerator
-import org.jetbrains.yaml.YAMLParserUtil
+import org.jetbrains.yaml.YAMLUtil
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLValue
@@ -28,7 +28,7 @@ class YAMLKeyValueKeyManipulator : AbstractElementManipulator<YAMLKeyValue>() {
   }
 
   private fun preserveIndent(value: YAMLValue): String {
-    val indent = YAMLParserUtil.getIndentInThisLine(value).takeIf { it > 0 } ?: return ""
+    val indent = YAMLUtil.getIndentInThisLine(value).takeIf { it > 0 } ?: return ""
     return StringUtil.repeat(" ", indent)
   }
 

@@ -1,7 +1,4 @@
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
-
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.yaml.psi.impl;
 
 import com.intellij.lang.ASTNode;
@@ -18,9 +15,8 @@ abstract class YAMLValueImpl extends YAMLPsiElementImpl implements YAMLValue {
     super(node);
   }
 
-  @Nullable
   @Override
-  public PsiElement getTag() {
+  public @Nullable PsiElement getTag() {
     final PsiElement firstChild = getFirstChild();
     if (firstChild.getNode().getElementType() == YAMLTokenTypes.TAG) {
       return firstChild;

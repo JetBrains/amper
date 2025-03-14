@@ -1,7 +1,7 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.yaml.psi.impl;
 
-import com.intellij.icons.EmptyIcon;
+import com.intellij.icons.AllIcons;
 import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElementVisitor;
@@ -16,7 +16,7 @@ import org.jetbrains.yaml.psi.YamlPsiElementVisitor;
 import javax.swing.*;
 
 public class YAMLDocumentImpl extends YAMLPsiElementImpl implements YAMLDocument {
-  public YAMLDocumentImpl(@NotNull final ASTNode node) {
+  public YAMLDocumentImpl(final @NotNull ASTNode node) {
     super(node);
   }
 
@@ -25,9 +25,8 @@ public class YAMLDocumentImpl extends YAMLPsiElementImpl implements YAMLDocument
     return "YAML document";
   }
 
-  @Nullable
   @Override
-  public YAMLValue getTopLevelValue() {
+  public @Nullable YAMLValue getTopLevelValue() {
     return PsiTreeUtil.findChildOfType(this, YAMLValue.class);
   }
 
@@ -56,7 +55,7 @@ public class YAMLDocumentImpl extends YAMLPsiElementImpl implements YAMLDocument
 
       @Override
       public @NotNull Icon getIcon(boolean unused) {
-        return EmptyIcon.INSTANCE;
+        return AllIcons.Json.Object;
       }
     };
   }

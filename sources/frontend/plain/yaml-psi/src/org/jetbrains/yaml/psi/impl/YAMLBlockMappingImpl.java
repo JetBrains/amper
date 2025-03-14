@@ -1,7 +1,4 @@
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
-
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.yaml.psi.impl;
 
 import com.intellij.lang.ASTNode;
@@ -17,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLElementGenerator;
 import org.jetbrains.yaml.YAMLElementTypes;
 import org.jetbrains.yaml.YAMLTokenTypes;
-import org.jetbrains.yaml.YAMLParserUtil;
+import org.jetbrains.yaml.YAMLUtil;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 
 import java.util.Collection;
@@ -30,8 +27,7 @@ public class YAMLBlockMappingImpl extends YAMLMappingImpl {
     super(node);
   }
 
-  @NotNull
-  public YAMLKeyValue getFirstKeyValue() {
+  public @NotNull YAMLKeyValue getFirstKeyValue() {
     YAMLKeyValue firstKeyValue = findChildByType(YAMLElementTypes.KEY_VALUE_PAIR);
     if (firstKeyValue == null) {
       throw new IllegalStateException(EMPTY_MAP_MESSAGE);
@@ -40,7 +36,7 @@ public class YAMLBlockMappingImpl extends YAMLMappingImpl {
   }
 
   private void addNewKeyToTheEnd(@NotNull YAMLKeyValue key) {
-    final int indent = YAMLParserUtil.getIndentToThisElement(this);
+    final int indent = YAMLUtil.getIndentToThisElement(this);
 
     final YAMLElementGenerator generator = YAMLElementGenerator.getInstance(getProject());
     IElementType lastChildType = PsiUtilCore.getElementType(getLastChild());
@@ -58,7 +54,7 @@ public class YAMLBlockMappingImpl extends YAMLMappingImpl {
 
   @Override
   protected void addNewKey(@NotNull YAMLKeyValue key) {
-    final int indent = YAMLParserUtil.getIndentToThisElement(this);
+    final int indent = YAMLUtil.getIndentToThisElement(this);
     ASTNode node = getNode();
     ASTNode place = node.getLastChildNode();
     ASTNode whereInsert = null;
@@ -81,7 +77,9 @@ public class YAMLBlockMappingImpl extends YAMLMappingImpl {
     final YAMLElementGenerator generator = YAMLElementGenerator.getInstance(getProject());
     if (whereInsert == null) {
       add(generator.createEol());
-      add(generator.createIndent(indent));
+      if (indent != 0) {
+        add(generator.createIndent(indent));
+      }
       add(key);
       return;
     }
@@ -103,7 +101,7 @@ public class YAMLBlockMappingImpl extends YAMLMappingImpl {
    * The offset could be beyond borders of this mapping.
    */
   public void insertKeyValueAtOffset(@NotNull YAMLKeyValue keyValue, int offset) {
-    int indent = YAMLParserUtil.getIndentToThisElement(this);
+    int indent = YAMLUtil.getIndentToThisElement(this);
 
     if (offset < getTextRange().getStartOffset()) {
       offset = getTextRange().getStartOffset();
@@ -179,8 +177,7 @@ public class YAMLBlockMappingImpl extends YAMLMappingImpl {
   }
 
   /** @return deepest created or found key or null if nothing could be created */
-  @Nullable
-  public YAMLKeyValue getOrCreateKeySequence(@NotNull List<String> keyComponents, int preferableOffset) {
+  public @Nullable YAMLKeyValue getOrCreateKeySequence(@NotNull List<String> keyComponents, int preferableOffset) {
     if (keyComponents.isEmpty()) {
       return null;
     }
@@ -189,7 +186,7 @@ public class YAMLBlockMappingImpl extends YAMLMappingImpl {
 
     YAMLKeyValue keyValue = getKeyValueByKey(head);
     if (keyValue == null) {
-      int indent = YAMLParserUtil.getIndentToThisElement(this);
+      int indent = YAMLUtil.getIndentToThisElement(this);
       String text = YAMLElementGenerator.createChainedKey(keyComponents, indent);
       final YAMLElementGenerator generator = YAMLElementGenerator.getInstance(getProject());
       Collection<YAMLKeyValue> values = PsiTreeUtil.collectElementsOfType(generator.createDummyYamlWithText(text), YAMLKeyValue.class);

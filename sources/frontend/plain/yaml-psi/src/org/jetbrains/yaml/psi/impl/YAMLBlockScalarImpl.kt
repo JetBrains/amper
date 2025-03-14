@@ -1,10 +1,6 @@
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
-
 package org.jetbrains.yaml.psi.impl
 
-//import com.intellij.codeInsight.intention.impl.reuseFragmentEditorIndent
+import com.intellij.codeInsight.intention.impl.reuseFragmentEditorIndent
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Pair
 import com.intellij.openapi.util.TextRange
@@ -16,7 +12,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.text.splitLineRanges
 import org.jetbrains.yaml.YAMLElementTypes
 import org.jetbrains.yaml.YAMLTokenTypes
-import org.jetbrains.yaml.YAMLParserUtil
+import org.jetbrains.yaml.YAMLUtil
 import kotlin.math.min
 
 abstract class YAMLBlockScalarImpl(node: ASTNode) : YAMLScalarImpl(node) {
@@ -88,14 +84,14 @@ abstract class YAMLBlockScalarImpl(node: ASTNode) : YAMLScalarImpl(node) {
   }
 
   /** See [8.1.1.1. Block Indentation Indicator](http://www.yaml.org/spec/1.2/spec.html#id2793979) */
-  fun locateIndent(): Int {
+  fun locateIndent(): Int = reuseFragmentEditorIndent(this, fun(): Int {
     val indent = explicitIndent
     if (indent != IMPLICIT_INDENT) {
       return indent
     }
     val firstLine = getNthContentTypeChild(if (includeFirstLineInContent) 0 else 1)
     if (firstLine != null) {
-      return YAMLParserUtil.getIndentInThisLine(firstLine.psi)
+      return YAMLUtil.getIndentInThisLine(firstLine.psi)
     }
     else {
       val line = linesNodes.getOrNull(1)
@@ -107,7 +103,7 @@ abstract class YAMLBlockScalarImpl(node: ASTNode) : YAMLScalarImpl(node) {
       }
     }
     return 0
-  }
+  }) ?: IMPLICIT_INDENT
 
   val indentString: String get() = StringUtil.repeatSymbol(' ', locateIndent())
 

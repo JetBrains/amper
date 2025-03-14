@@ -1,7 +1,4 @@
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
-
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.yaml.psi.impl;
 
 import com.intellij.lang.ASTNode;
@@ -42,9 +39,8 @@ public abstract class YAMLBlockScalarTextEvaluator<T extends YAMLBlockScalarImpl
     return rangeInHost.getEndOffset() == lastItem.getEndOffset();
   }
 
-  @NotNull
   @Override
-  public List<TextRange> getContentRanges() {
+  public @NotNull List<TextRange> getContentRanges() {
     final ASTNode firstContentChild = myHost.getFirstContentNode();
     if (firstContentChild == null) {
       return Collections.emptyList();
@@ -105,8 +101,7 @@ public abstract class YAMLBlockScalarTextEvaluator<T extends YAMLBlockScalarImpl
   /**
    * See <a href="http://www.yaml.org/spec/1.2/spec.html#id2794534">8.1.1.2. Block Chomping Indicator</a>
    */
-  @NotNull
-  protected final ChompingIndicator getChompingIndicator() {
+  protected final @NotNull ChompingIndicator getChompingIndicator() {
     ASTNode headerNode = myHost.getNthContentTypeChild(0);
     assert headerNode != null;
 

@@ -1,4 +1,4 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.yaml.psi.impl;
 
 import com.intellij.lang.ASTNode;
@@ -10,7 +10,7 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLTokenTypes;
-import org.jetbrains.yaml.YAMLParserUtil;
+import org.jetbrains.yaml.YAMLUtil;
 import org.jetbrains.yaml.lexer.YAMLGrammarCharUtil;
 import org.jetbrains.yaml.psi.YAMLBlockScalar;
 import org.jetbrains.yaml.psi.YAMLScalarText;
@@ -21,13 +21,12 @@ import java.util.List;
 
 
 public class YAMLScalarTextImpl extends YAMLBlockScalarImpl implements YAMLScalarText, YAMLBlockScalar {
-  public YAMLScalarTextImpl(@NotNull final ASTNode node) {
+  public YAMLScalarTextImpl(final @NotNull ASTNode node) {
     super(node);
   }
 
-  @NotNull
   @Override
-  protected IElementType getContentType() {
+  protected @NotNull IElementType getContentType() {
     return YAMLTokenTypes.SCALAR_TEXT;
   }
 
@@ -35,9 +34,8 @@ public class YAMLScalarTextImpl extends YAMLBlockScalarImpl implements YAMLScala
   public @NotNull YamlScalarTextEvaluator<YAMLScalarTextImpl> getTextEvaluator() {
     return new YAMLBlockScalarTextEvaluator<>(this) {
 
-      @NotNull
       @Override
-      protected String getRangesJoiner(@NotNull CharSequence text, @NotNull List<TextRange> contentRanges, int indexBefore) {
+      protected @NotNull String getRangesJoiner(@NotNull CharSequence text, @NotNull List<TextRange> contentRanges, int indexBefore) {
         final TextRange leftRange = contentRanges.get(indexBefore);
         final TextRange rightRange = contentRanges.get(indexBefore + 1);
         if (leftRange.isEmpty()) {
@@ -71,9 +69,8 @@ public class YAMLScalarTextImpl extends YAMLBlockScalarImpl implements YAMLScala
         return " ";
       }
 
-      @NotNull
       @Override
-      public String getTextValue(@Nullable TextRange rangeInHost) {
+      public @NotNull String getTextValue(@Nullable TextRange rangeInHost) {
         String value = super.getTextValue(rangeInHost);
         if (!StringUtil.isEmptyOrSpaces(value) && getChompingIndicator() != ChompingIndicator.STRIP && isEnding(rangeInHost)) {
           value += "\n";
@@ -92,41 +89,28 @@ public class YAMLScalarTextImpl extends YAMLBlockScalarImpl implements YAMLScala
   }
 
   @Override
-  protected List<Pair<TextRange, String>> getEncodeReplacements(@NotNull CharSequence input) throws IllegalArgumentException {
+  protected @NotNull List<Pair<TextRange, String>> getEncodeReplacements(@NotNull CharSequence input) throws IllegalArgumentException {
     if (!StringUtil.endsWithChar(input, '\n')) {
       throw new IllegalArgumentException("Should end with a line break");
     }
 
     int indent = locateIndent();
     if (indent == 0) {
-      indent = YAMLParserUtil.getIndentToThisElement(this) + YAMLBlockScalarImplKt.DEFAULT_CONTENT_INDENT;
+      indent = YAMLUtil.getIndentToThisElement(this) + YAMLBlockScalarImplKt.DEFAULT_CONTENT_INDENT;
     }
     final String indentString = StringUtil.repeatSymbol(' ', indent);
 
     final List<Pair<TextRange, String>> result = new ArrayList<>();
 
     int currentLength = 0;
-    boolean currentLineIsIndented = input.length() > 0 && input.charAt(0) == ' ';
     for (int i = 0; i < input.length(); ++i) {
       if (input.charAt(i) == '\n') {
-        final String replacement;
-        if (i + 1 >= input.length() ||
-            YAMLGrammarCharUtil.isSpaceLike(input.charAt(i + 1)) ||
-            input.charAt(i + 1) == '\n' ||
-            currentLineIsIndented) {
-          replacement = "\n" + indentString;
-        }
-        else {
-          replacement = "\n" + indentString;
-        }
-
-        result.add(Pair.create(TextRange.from(i, 1), replacement));
+        result.add(Pair.create(TextRange.from(i, 1), "\n" + indentString));
         currentLength = 0;
-        currentLineIsIndented = i + 1 < input.length() && input.charAt(i + 1) == ' ';
         continue;
       }
 
-      if (currentLength > MAX_SCALAR_LENGTH_PREDEFINED &&
+      if (currentLength > YAMLScalarImpl.MAX_SCALAR_LENGTH_PREDEFINED &&
           input.charAt(i) == ' ' && i + 1 < input.length() && YAMLGrammarCharUtil.isNonSpaceChar(input.charAt(i + 1))) {
         result.add(Pair.create(TextRange.from(i, 1), "\n" + indentString));
         currentLength = 0;

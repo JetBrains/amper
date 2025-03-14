@@ -1,4 +1,4 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.yaml.psi.impl;
 
 import com.intellij.lang.ASTNode;
@@ -12,7 +12,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.YAMLTokenTypes;
-import org.jetbrains.yaml.YAMLParserUtil;
+import org.jetbrains.yaml.YAMLUtil;
 import org.jetbrains.yaml.lexer.YAMLGrammarCharUtil;
 import org.jetbrains.yaml.psi.YAMLQuotedText;
 import org.jetbrains.yaml.psi.YamlPsiElementVisitor;
@@ -30,9 +30,8 @@ public final class YAMLQuotedTextImpl extends YAMLScalarImpl implements YAMLQuot
     myIsSingleQuoted = firstContentNode != null && firstContentNode.getElementType() == YAMLTokenTypes.SCALAR_STRING;
   }
 
-  @NotNull
   @Override
-  public List<TextRange> getContentRanges() {
+  public @NotNull List<TextRange> getContentRanges() {
     final ASTNode firstContentNode = getFirstContentNode();
     if (firstContentNode == null) {
       return Collections.emptyList();
@@ -118,7 +117,7 @@ public final class YAMLQuotedTextImpl extends YAMLScalarImpl implements YAMLQuot
       }
     }
 
-    final int indent = YAMLParserUtil.getIndentToThisElement(this);
+    final int indent = YAMLUtil.getIndentToThisElement(this);
     final String indentString = StringUtil.repeatSymbol(' ', indent);
 
     final List<Pair<TextRange, String>> result = new ArrayList<>();
