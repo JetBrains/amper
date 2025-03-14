@@ -1,7 +1,6 @@
 // Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.yaml.psi.impl;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElementVisitor;
@@ -54,8 +53,8 @@ public class YAMLDocumentImpl extends YAMLPsiElementImpl implements YAMLDocument
       }
 
       @Override
-      public @NotNull Icon getIcon(boolean unused) {
-        return AllIcons.Json.Object;
+      public @Nullable Icon getIcon(boolean unused) {
+        return null;
       }
     };
   }

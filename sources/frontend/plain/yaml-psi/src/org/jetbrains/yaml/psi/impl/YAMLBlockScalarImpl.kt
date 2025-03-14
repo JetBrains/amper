@@ -1,6 +1,6 @@
 package org.jetbrains.yaml.psi.impl
 
-import com.intellij.codeInsight.intention.impl.reuseFragmentEditorIndent
+//import com.intellij.codeInsight.intention.impl.reuseFragmentEditorIndent
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Pair
 import com.intellij.openapi.util.TextRange
@@ -84,7 +84,7 @@ abstract class YAMLBlockScalarImpl(node: ASTNode) : YAMLScalarImpl(node) {
   }
 
   /** See [8.1.1.1. Block Indentation Indicator](http://www.yaml.org/spec/1.2/spec.html#id2793979) */
-  fun locateIndent(): Int = reuseFragmentEditorIndent(this, fun(): Int {
+  fun locateIndent(): Int {
     val indent = explicitIndent
     if (indent != IMPLICIT_INDENT) {
       return indent
@@ -103,7 +103,7 @@ abstract class YAMLBlockScalarImpl(node: ASTNode) : YAMLScalarImpl(node) {
       }
     }
     return 0
-  }) ?: IMPLICIT_INDENT
+  }
 
   val indentString: String get() = StringUtil.repeatSymbol(' ', locateIndent())
 
