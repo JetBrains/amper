@@ -15,4 +15,3 @@ dependencies:
   - $libs.intellij.platform.utilJdom
   - $libs.intellij.platform.core
   - $libs.intellij.platform.coreImpl
-  - $libs.intellij.amper.xcodemodel
