@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.intellij
 
-import com.intellij.amper.lang.AmperFileType
 import com.intellij.amper.lang.AmperLanguage
-import com.intellij.amper.lang.AmperParserDefinition
+import com.intellij.amper.langImpl.AmperFileType
+import com.intellij.amper.langImpl.AmperParserDefinition
 import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.core.CoreProjectEnvironment
 import com.intellij.lang.LanguageASTFactory
