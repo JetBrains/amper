@@ -48,29 +48,29 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     ||    \--- org.jetbrains.compose.material3:material3:12.12.12
                     |+--- shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                     ||    \--- org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    |+--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.10, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10
+                    |+--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
+                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
                     ||         \--- org.jetbrains:annotations:13.0
                     |+--- shared:common:org.jetbrains.compose.runtime:runtime:12.12.12
                     ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
-                    |+--- shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.10, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10 (*)
-                    |+--- shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.10, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.10
-                    ||         +--- org.jetbrains.kotlin:kotlin-test:2.1.10
-                    ||         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10 (*)
+                    |+--- shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
+                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
+                    |+--- shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2, implicit
+                    ||    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2
+                    ||         +--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC2
+                    ||         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
                     ||         \--- junit:junit:4.13.2
                     ||              \--- org.hamcrest:hamcrest-core:1.3
                     |+--- shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12
                     ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
-                    |+--- shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.10, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10 (*)
+                    |+--- shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
+                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
                     |+--- shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
                     ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
-                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.10, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10 (*)
-                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.10, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.10 (*)
+                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
+                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
+                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2, implicit
+                    ||    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2 (*)
                     |\--- shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
                     |     \--- org.jetbrains.compose.runtime:runtime:12.12.12""".trimMargin(),
                 messagesCheck = { node ->
@@ -91,9 +91,9 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 |annotations-13.0.jar
                 |hamcrest-core-1.3.jar
                 |junit-4.13.2.jar
-                |kotlin-stdlib-2.1.10.jar
-                |kotlin-test-2.1.10.jar
-                |kotlin-test-junit-2.1.10.jar
+                |kotlin-stdlib-2.1.20-RC2.jar
+                |kotlin-test-2.1.20-RC2.jar
+                |kotlin-test-junit-2.1.20-RC2.jar
                 """.trimMargin(),
                 sharedTestFragmentDeps
             )
@@ -161,8 +161,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     ||    \--- com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
                     |+--- jvm-invalid-dependencies:common:com.fasterxml.jackson.core, unresolved
                     ||    \--- com.fasterxml.jackson.core, unresolved
-                    |\--- jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.10, implicit
-                    |     \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10
+                    |\--- jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
+                    |     \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
                     |          \--- org.jetbrains:annotations:13.0""".trimMargin(),
                 verifyMessages = false
             )

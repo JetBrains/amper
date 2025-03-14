@@ -11,13 +11,13 @@ package org.jetbrains.amper.core
  */
 object UsedVersions {
 
-    /*magic_replacement*/ val kotlinVersion = "2.1.10"
+    /*magic_replacement*/ val kotlinVersion = "2.1.20-RC2"
 
     /*magic_replacement*/ val kotlinxSerializationVersion = "1.7.3"
 
     /*magic_replacement*/ val composeVersion = "1.7.3"
 
-    /*magic_replacement*/ val kspVersion = "2.1.10-1.0.30"
+    /*magic_replacement*/ val kspVersion = "2.1.20-RC2-1.0.31"
 
     /*magic_replacement*/ val hotReloadVersion = "1.0.0-dev-39"
 

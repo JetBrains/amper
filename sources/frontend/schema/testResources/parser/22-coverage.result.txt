@@ -1,7 +1,7 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -59,7 +59,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.1.10-1.0.30
+          version: <default> 2.1.20-RC2-1.0.31
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -93,8 +93,8 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.1.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -153,7 +153,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.1.10-1.0.30
+          version: <default> 2.1.20-RC2-1.0.31
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -187,7 +187,7 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -246,7 +246,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.1.10-1.0.30
+          version: <default> 2.1.20-RC2-1.0.31
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -280,8 +280,8 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.10, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.1.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2, compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)
@@ -341,7 +341,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.1.10-1.0.30
+          version: <default> 2.1.20-RC2-1.0.31
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
