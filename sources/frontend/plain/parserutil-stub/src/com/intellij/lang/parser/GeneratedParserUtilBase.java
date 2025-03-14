@@ -1,8 +1,9 @@
-// Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
 package com.intellij.lang.parser;
 
 import com.intellij.analysis.AnalysisBundle;
-import com.intellij.codeInsight.completion.impl.CamelHumpMatcher;
 import com.intellij.lang.*;
 import com.intellij.lang.impl.PsiBuilderAdapter;
 import com.intellij.lang.impl.PsiBuilderImpl;
@@ -554,10 +555,6 @@ public class GeneratedParserUtilBase {
       int parenCount = 0;
       while ((eatMoreFlag || parenCount > 0) && builder.rawTokenIndex() < lastErrorPos) {
         IElementType tokenType = builder.getTokenType();
-        if (state.braces != null) {
-          if (tokenType == state.braces[0].getLeftBraceType()) parenCount ++;
-          else if (tokenType == state.braces[0].getRightBraceType()) parenCount --;
-        }
         if (!(builder.rawTokenIndex() < lastErrorPos)) break;
         state.tokenAdvancer.parse(builder, frame.level + 1);
         eatMoreFlag = eatMore.parse(builder, frame.level + 1);
@@ -870,11 +867,8 @@ public class GeneratedParserUtilBase {
     }
 
     public boolean prefixMatches(@NotNull String prefix, @NotNull String variant) {
-      boolean matches = new CamelHumpMatcher(prefix, false).prefixMatches(variant.replace(' ', '_'));
-      if (matches && isWhiteSpace(prefix.charAt(prefix.length() - 1))) {
-        return startsWithIgnoreCase(variant, prefix);
-      }
-      return matches;
+
+        return false;
     }
   }
 
@@ -924,8 +918,7 @@ public class GeneratedParserUtilBase {
     TokenSet[] extendsSets;
     public PairProcessor<IElementType, IElementType> altExtendsChecker;
     private boolean caseSensitive;
-    public BracePair[] braces;
-    public Parser tokenAdvancer = TOKEN_ADVANCER;
+    public  Parser tokenAdvancer = TOKEN_ADVANCER;
     public boolean altMode;
 
     final LimitedPool<Variant> VARIANTS = new LimitedPool<>(VARIANTS_POOL_SIZE, Variant::new);
@@ -941,9 +934,7 @@ public class GeneratedParserUtilBase {
       state.completionState = file == null? null: file.getUserData(COMPLETION_STATE_KEY);
       Language language = file == null? root.getLanguage() : file.getLanguage();
       state.caseSensitive = language.isCaseSensitive();
-      PairedBraceMatcher matcher = LanguageBraceMatching.INSTANCE.forLanguage(language);
-      state.braces = matcher == null ? null : matcher.getPairs();
-      if (state.braces != null && state.braces.length == 0) state.braces = null;
+
     }
 
     public @NotNull String getExpected(int position, boolean expected) {
@@ -1083,7 +1074,7 @@ public class GeneratedParserUtilBase {
     }
   }
 
-  private record Hooks<T>(Hook<T> hook, T param, int level, Hooks next) {
+  private record Hooks<T>(Hook<T> hook, T param, int level, Hooks<?> next) {
     static <E> Hooks<E> concat(Hook<E> hook, E param, int level, Hooks<?> hooks) {
       return new Hooks<>(hook, param, level, hooks);
     }
@@ -1123,46 +1114,13 @@ public class GeneratedParserUtilBase {
     ArrayDeque<Pair<PsiBuilder.Marker, Integer>> siblings = new ArrayDeque<>();
     PsiBuilder.Marker marker = null;
 
-    IElementType lBrace = checkBraces && state.braces != null && state.braces.length > 0 ? state.braces[0].getLeftBraceType() : null;
-    IElementType rBrace = lBrace != null ? state.braces[0].getRightBraceType() : null;
+
     int totalCount = 0;
     int tokenCount = 0;
-    if (lBrace != null) {
-      int tokenIdx = -1;
-      while (builder.rawLookup(tokenIdx) == TokenType.WHITE_SPACE) tokenIdx --;
-      LighterASTNode doneMarker = builder.rawLookup(tokenIdx) == lBrace ? builder.getLatestDoneMarker() : null;
-      if (doneMarker != null && doneMarker.getStartOffset() == builder.rawTokenTypeStart(tokenIdx) && doneMarker.getTokenType() == TokenType.ERROR_ELEMENT) {
-        parens.add(Pair.create(((PsiBuilder.Marker)doneMarker).precede(), null));
-      }
-    }
+
     int c = current_position_(builder);
     while (true) {
-      IElementType tokenType = builder.getTokenType();
-      if (lBrace != null && (tokenType == lBrace || tokenType == rBrace && !parens.isEmpty())) {
-        if (marker != null) {
-          marker.done(chunkType);
-          siblings.addFirst(Pair.create(marker, 1));
-          marker = null;
-          tokenCount = 0;
-        }
-        if (tokenType == lBrace) {
-          Pair<PsiBuilder.Marker, Integer> prev = siblings.peek();
-          parens.addFirst(Pair.create(builder.mark(), Pair.getFirst(prev)));
-        }
-        checkSiblings(chunkType, parens, siblings);
-        state.tokenAdvancer.parse(builder, level);
-        if (tokenType == rBrace) {
-          Pair<PsiBuilder.Marker, PsiBuilder.Marker> pair = parens.removeFirst();
-          pair.first.done(chunkType);
-          // drop all markers inside parens
-          while (!siblings.isEmpty() && siblings.getFirst().first != pair.second) {
-            siblings.removeFirst();
-          }
-          siblings.addFirst(Pair.create(pair.first, 1));
-          checkSiblings(chunkType, parens, siblings);
-        }
-      }
-      else {
+
         if (marker == null) {
           marker = builder.mark();
           marker.setCustomEdgeTokenBinders(WhitespacesBinders.GREEDY_LEFT_BINDER, null);
@@ -1176,7 +1134,7 @@ public class GeneratedParserUtilBase {
         else {
           break;
         }
-      }
+
 
       if (tokenCount >= MAX_CHILDREN_IN_TREE) {
         marker.done(chunkType);
