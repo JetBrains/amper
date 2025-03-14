@@ -1,7 +1,7 @@
 package com.intellij.amper.langImpl
 
-import com.intellij.amper.icons.AmperIcons
 import com.intellij.amper.lang.AmperLanguage
+import com.intellij.icons.EmptyIcon
 import com.intellij.openapi.fileTypes.LanguageFileType
 import javax.swing.Icon
 
@@ -19,7 +19,7 @@ class AmperFileType private constructor() : LanguageFileType(AmperLanguage.INSTA
   }
 
   override fun getIcon(): Icon {
-    return AmperIcons.FileType
+    return EmptyIcon
   }
 
   companion object {
