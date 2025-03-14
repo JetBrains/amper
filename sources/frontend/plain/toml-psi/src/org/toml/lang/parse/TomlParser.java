@@ -1,16 +1,15 @@
 // This is a generated file. Not intended for manual editing.
 package org.toml.lang.parse;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import com.intellij.lang.PsiParser;
-import com.intellij.psi.tree.IElementType;
-
-import static com.intellij.lang.parser.GeneratedParserUtilBase.*;
-import static org.toml.lang.parse.TomlParserUtil.*;
 import static org.toml.lang.psi.TomlElementTypes.*;
+import static org.toml.lang.parse.TomlParserUtil.*;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.lang.ASTNode;
+import com.intellij.psi.tree.TokenSet;
+import com.intellij.lang.PsiParser;
+import com.intellij.lang.LightPsiParser;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class TomlParser implements PsiParser, LightPsiParser {

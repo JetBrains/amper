@@ -5,22 +5,16 @@
 
 package org.toml.lang.psi
 
-import com.intellij.icons.EmptyIcon
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
 import org.toml.TomlBundle
+import org.toml.TomlIcons
 import org.toml.lang.TomlLanguage
-import org.toml.lang.psi.TomlElementTypes.BASIC_STRING
-import org.toml.lang.psi.TomlElementTypes.BOOLEAN
-import org.toml.lang.psi.TomlElementTypes.COMMENT
-import org.toml.lang.psi.TomlElementTypes.DATE_TIME
-import org.toml.lang.psi.TomlElementTypes.LITERAL_STRING
-import org.toml.lang.psi.TomlElementTypes.MULTILINE_BASIC_STRING
-import org.toml.lang.psi.TomlElementTypes.MULTILINE_LITERAL_STRING
-import org.toml.lang.psi.TomlElementTypes.NUMBER
+import org.toml.lang.psi.TomlElementTypes.*
 import javax.swing.Icon
 
 class TomlTokenType(debugName: String) : IElementType(debugName, TomlLanguage)
@@ -30,11 +24,11 @@ object TomlFileType : LanguageFileType(TomlLanguage), FileTypeIdentifiableByVirt
     override fun getName(): String = "TOML"
     override fun getDescription(): String = TomlBundle.message("filetype.toml.description")
     override fun getDefaultExtension(): String = "toml"
-    override fun getIcon(): Icon = EmptyIcon
+    override fun getIcon(): Icon = TomlIcons.TomlFile
     override fun getCharset(file: VirtualFile, content: ByteArray): String = "UTF-8"
 
     override fun isMyFileType(file: VirtualFile): Boolean {
-        return file.name == "config" && file.parent?.name == ".cargo"
+        return StringUtil.equal(file.nameSequence, "config", true) && file.parent?.name == ".cargo"
     }
 }
 

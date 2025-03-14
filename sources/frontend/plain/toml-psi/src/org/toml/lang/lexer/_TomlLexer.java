@@ -2,10 +2,8 @@
 // source: TomlLexer.flex
 
 package org.toml.lang.lexer;
-
-import com.intellij.lexer.FlexLexer;
+import com.intellij.lexer.*;
 import com.intellij.psi.tree.IElementType;
-
 import static org.toml.lang.psi.TomlElementTypes.*;
 
 

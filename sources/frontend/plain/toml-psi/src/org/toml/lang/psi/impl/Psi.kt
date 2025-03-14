@@ -5,7 +5,9 @@
 
 package org.toml.lang.psi.impl
 
+import com.intellij.ide.projectView.PresentationData
 import com.intellij.lang.ASTFactory
+import com.intellij.navigation.ItemPresentation
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry
 import com.intellij.psi.impl.source.tree.CompositeElement
@@ -42,6 +44,8 @@ class TomlKeySegmentImpl(type: IElementType) : CompositePsiElement(type), TomlKe
     override fun setName(name: String): PsiElement {
         return replace(TomlPsiFactory(project).createKeySegment(name))
     }
+
+    override fun getPresentation(): ItemPresentation = PresentationData(name, null, null, null)
 
     override fun toString(): String = "TomlKeySegment"
     override fun getReferences(): Array<PsiReference> = ReferenceProvidersRegistry.getReferencesFromProviders(this)
