@@ -526,13 +526,15 @@ public class GeneratedParserUtilBase {
     }
     while (state.hooks != null && state.hooks.level >= state.level) {
       if (state.hooks.level == state.level) {
-        marker = ((Hook<Object>)state.hooks.hook).run(builder, marker, state.hooks.param);
+        marker = runHook(state.hooks, builder, marker);
       }
       state.hooks = state.hooks.next;
     }
   }
 
-  private static void exit_section_impl_(ErrorState state,
+  private static <T> PsiBuilder.Marker runHook(Hooks<T> hooks, PsiBuilder builder, PsiBuilder.Marker marker) {
+        return hooks.hook.run(builder, marker, hooks.param);
+    }private static void exit_section_impl_(ErrorState state,
                                          Frame frame,
                                          PsiBuilder builder,
                                          @Nullable IElementType elementType,
