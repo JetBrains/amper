@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 import org.junit.jupiter.api.Test
@@ -11,6 +11,7 @@ import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
 import kotlin.reflect.full.declaredFunctions
+import kotlin.test.Ignore
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -76,6 +77,7 @@ class GradleExamplesTest : GradleE2ETestFixture(
     // It is technically run in the other compose-multiplatform test, but only on macOS devices.
     // This explicit test for :commonizeNativeDistribution allows to check it on non-macOS machines.
     @Test
+    @Ignore("It seems, like IDE doesn't call this task on the root project anymore. Verified in 2024.3")
     @KonanFolderLock
     fun `compose-multiplatform commonizeNativeDistribution`() = test(
         projectName = "compose-multiplatform",

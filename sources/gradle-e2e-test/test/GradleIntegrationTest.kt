@@ -167,7 +167,8 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     fun `compose desktop with Gradle 8_7`() = test(
         projectName = "compose-desktop",
         "assemble",
-        expectOutputToHave = "BUILD SUCCESSFUL",
+        expectOutputToHave = "Amper does not support Gradle versions higher than 8.6",
+        shouldSucceed = false,
         gradleVersion = "8.7",
     )
 
@@ -480,10 +481,11 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @Ignore("Gradle higher than 8.6 isn't supported anymore")
     fun `compose dev version change with Gradle 8_7 should fail`() = test(
         projectName = "compose-dev-version-change",
         "assemble",
-        expectOutputToHave = "Gradle-based Amper does not support Compose version 1.6.0-dev1397. The only supported version is 1.6.10. Either switch to Standalone version of Amper or set the Compose version to 1.6.10 explicitly.",
+        expectOutputToHave = "Amper does not support Gradle versions higher than 8.6",
         shouldSucceed = false,
         gradleVersion = "8.7",
     )

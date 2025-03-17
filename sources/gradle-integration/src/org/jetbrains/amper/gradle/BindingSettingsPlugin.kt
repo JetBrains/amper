@@ -12,6 +12,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
 import org.gradle.api.invocation.Gradle
+import org.gradle.util.GradleVersion
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.frontend.Model
@@ -33,6 +34,13 @@ import kotlin.io.path.nameWithoutExtension
 class BindingSettingsPlugin : Plugin<Settings> {
 
     override fun apply(settings: Settings) {
+        val currentGradleVersion = GradleVersion.current()
+        val maxGradleVersion = GradleVersion.version("8.6")
+        if (currentGradleVersion > maxGradleVersion) {
+            throw GradleException("Amper does not support Gradle versions higher than 8.6. Your current " +
+                    "Gradle version is ${currentGradleVersion.version}. Please use Gradle 8.6 or lower.")
+        }
+
         with(SLF4JProblemReporterContext()) {
 
             // the class loader is different within projectsLoaded, and we need this one to load the ModelInit service

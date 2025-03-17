@@ -17,6 +17,7 @@ import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceS
 import org.jetbrains.amper.gradle.moduleDir
 import org.jetbrains.amper.gradle.tryRemove
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import java.io.File
 import java.lang.reflect.Method
 
@@ -42,6 +43,9 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
 
         project.plugins.apply("org.jetbrains.kotlin.plugin.compose")
         project.plugins.apply("org.jetbrains.compose")
+
+        // unfortunately, the latest compiler's native caches don't work properly with Compose 1.6.10
+        project.extraProperties.set("kotlin.native.cacheKind", "none")
 
         // Clean old resources from source sets.
         kotlinMPE.sourceSets.all { it.resources.tryRemove { it.asSafely<File>()?.endsWith("composeResources") == true } }
