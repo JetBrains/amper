@@ -19,7 +19,7 @@ import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
-import org.jetbrains.amper.core.Result
+import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
@@ -285,10 +285,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         //   Also, it would avoid parsing all modules files in the entire project for each delegated Gradle build.
         val projectContext = StandaloneAmperProjectContext.create(projectRoot, project = null)
             ?: error("Invalid project root passed to the delegated Android Gradle build: $projectRoot")
-        val model = when (val result = SchemaBasedModelImport.getModel(projectContext)) {
-            is Result.Failure -> throw result.exception
-            is Result.Success -> result.value
-        }
+        val model = SchemaBasedModelImport.getModel(projectContext).get()
 
         settings.gradle.knownModel = model
 

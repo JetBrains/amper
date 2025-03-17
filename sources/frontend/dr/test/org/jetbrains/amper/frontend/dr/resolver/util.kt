@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.Result
+import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.dependency.resolution.DependencyNode
@@ -32,10 +32,7 @@ internal fun getTestProjectModel(testProjectName: String, testDataRoot: Path): M
     }) {
         val amperProjectContext =
             StandaloneAmperProjectContext.create(projectPath, null) ?: fail("Fails to create test project context")
-        when (val result = SchemaBasedModelImport.getModel(amperProjectContext)) {
-            is Result.Failure -> throw result.exception
-            is Result.Success -> result.value
-        }
+        SchemaBasedModelImport.getModel(amperProjectContext).get()
     }
     return aom
 }
