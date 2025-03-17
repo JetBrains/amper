@@ -5,22 +5,16 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
-import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 class GraphConsistencyTest {
 
@@ -28,7 +22,7 @@ class GraphConsistencyTest {
 
     @Test
     fun `check parents in a dependencies graph - ide`() {
-        val aom = getTestProjectModel("jvm-transitive-dependencies")
+        val aom = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
         checkParentsInDependenciesGraph(
             ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
@@ -49,7 +43,7 @@ class GraphConsistencyTest {
 
     private fun checkParentsInDependenciesGraph(
         resolutionInput: ResolutionInput,
-        aom: Model = getTestProjectModel("jvm-transitive-dependencies")
+        aom: Model = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
     ) {
         val graph = runBlocking {
             with(moduleDependenciesResolver) {
@@ -67,21 +61,6 @@ class GraphConsistencyTest {
                 }
             }
         }
-    }
-
-    private fun getTestProjectModel(testProjectName: String): Model {
-        val projectPath = testDataRoot.resolve(testProjectName)
-        val aom = with(object : ProblemReporterContext {
-            override val problemReporter: ProblemReporter = TestProblemReporter()
-        }) {
-            val amperProjectContext =
-                StandaloneAmperProjectContext.create(projectPath, null) ?: fail("Fails to create test project context")
-            when (val result = SchemaBasedModelImport.getModel(amperProjectContext)) {
-                is Result.Failure -> throw result.exception
-                is Result.Success -> result.value
-            }
-        }
-        return aom
     }
 }
 
