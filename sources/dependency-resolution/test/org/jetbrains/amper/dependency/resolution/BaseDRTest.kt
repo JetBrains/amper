@@ -174,6 +174,8 @@ abstract class BaseDRTest {
 
     companion object {
         internal const val REDIRECTOR_MAVEN_CENTRAL = "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2"
+        internal const val REDIRECTOR_INTELLIJ_SNAPSHOTS = "https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/snapshots"
+        internal const val REDIRECTOR_INTELLIJ_DEPS = "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies"
         internal const val REDIRECTOR_MAVEN_GOOGLE = "https://cache-redirector.jetbrains.com/maven.google.com"
         internal const val REDIRECTOR_DL_GOOGLE_ANDROID =
             "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2"

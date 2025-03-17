@@ -280,7 +280,7 @@ open class DependencyFile(
         return path.hasMatchingChecksum(expectedHash)
     }
 
-    suspend fun readText(): String = getPath()?.readTextWithRetry()
+    suspend fun readText(): String = getPath()?.takeIf{ it.exists()}?.readTextWithRetry()
         ?: throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
 
     internal suspend fun download(context: Context, diagnosticsReporter: DiagnosticReporter): Boolean =
@@ -981,10 +981,12 @@ class SnapshotDependencyFile(
         if (snapshotVersion == null) {
             mutex.withLock {
                 if (snapshotVersion == null) {
-                    val metadata = mavenMetadata.readText().parseMetadata()
-                    snapshotVersion = metadata.versioning.snapshotVersions?.snapshotVersions?.find {
-                        it.extension == extension.substringBefore('.') // pom.sha512 -> pom
-                    }?.value ?: ""
+                    val metadata = mavenMetadata.getPath()?.takeIf { it.exists() }?.readText()?.parseMetadata()
+                    snapshotVersion = metadata?.let {
+                        it.versioning.snapshotVersions?.snapshotVersions?.find {
+                            it.extension == extension.substringBefore('.') // pom.sha512 -> pom
+                        }?.value ?: ""
+                    }
                 }
             }
         }
@@ -999,6 +1001,12 @@ class SnapshotDependencyFile(
             return false
         }
         if (nameWithoutExtension != "maven-metadata") {
+            if (!mavenMetadata.isDownloaded() && !isChecksum()) {
+                // maven-metadata.xml is absent, no way to verify if the snapshot is actual or not.
+                // We will have to redownload checksum, but could reuse the artifact itself if it matches the checksum.
+                return true
+            }
+
             val versionFile = getVersionFile()
             if (versionFile?.exists() != true) {
                 return false
@@ -1025,8 +1033,7 @@ class SnapshotDependencyFile(
         diagnosticsReporter: DiagnosticReporter
     ): String {
         if (name != "maven-metadata" &&
-            (mavenMetadata.isDownloaded()
-                    || mavenMetadata.download(listOf(repository), progress, cache, diagnosticsReporter = diagnosticsReporter, verify = false))
+            isMavenMetadataDownloadedOrDownload(repository, progress, cache, diagnosticsReporter = diagnosticsReporter)
         ) {
             getSnapshotVersion()
                 ?.let { name.replace(dependency.version, it) }
@@ -1037,9 +1044,18 @@ class SnapshotDependencyFile(
         return super.getNamePart(repository, name, extension, progress, cache, diagnosticsReporter)
     }
 
+    private suspend fun isMavenMetadataDownloadedOrDownload(
+        repository: Repository, progress: Progress, cache: Cache, diagnosticsReporter: DiagnosticReporter
+    ): Boolean =
+        mavenMetadata.isDownloaded()
+                || mavenMetadata
+            .download(listOf(repository), progress, cache, diagnosticsReporter = diagnosticsReporter, verify = false)
+
+
     override suspend fun shouldOverwrite(cache: Cache, expectedHash: Hash, actualHash: Hasher): Boolean =
         nameWithoutExtension == "maven-metadata"
                 || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
+                || super.shouldOverwrite(cache, expectedHash, actualHash)
 
     override suspend fun onFileDownloaded(target: Path, repository: Repository?) {
         super.onFileDownloaded(target, repository)

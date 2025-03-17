@@ -39,8 +39,9 @@ class DRConcurrencyTest : BaseDRTest() {
     /**
      * Check that computation of downloaded file hash doesn't clash with downloading itself in a concurrent environment.
      *
-     * There is a small interval of time after the file was downloaded and moved to target location and
-     * before lock on that file was released. Trying to read from file at that period of time would fail.
+     * There is a small interval of time after the file was downloaded and moved to the target location and
+     * before lock on that file was released.
+     * Trying to read from a file at that period of time would fail.
      * DR internal methods that compute file cache should be resilient to this.
      */
     @Test
@@ -50,11 +51,12 @@ class DRConcurrencyTest : BaseDRTest() {
         }
 
     /**
-     * Check that read from downloaded file doesn't clash with downloading itself in a concurrent environment.
+     * Check that read from a downloaded file doesn't clash with downloading itself in a concurrent environment.
      *
-     * There is a small interval of time after the file was downloaded and moved to target location and
-     * before lock on that file was released. Trying to read from file at that period of time would fail.
-     * DR internal methods that read from downloaded file cache should be resilient to this.
+     * There is a small interval of time after the file was downloaded and moved to the target location and
+     * before lock on that file was released.
+     * Trying to read from a file at that period of time would fail.
+     * DR internal methods that read from a downloaded file cache should be resilient to this.
      */
     @Test
     fun `androidx_annotation annotation-jvm 1_6_0 readText`(testInfo: TestInfo) =
@@ -66,11 +68,12 @@ class DRConcurrencyTest : BaseDRTest() {
         }
 
     /**
-     * Check that read from downloaded file doesn't clash with reading the file itself.
+     * Check that read from a downloaded file doesn't clash with reading the file itself.
      *
-     * There is a small interval of time after the file was downloaded and moved to target location and
-     * before lock on that file was released. Trying to read from file at that period of time would fail.
-     * DR internal methods that read from downloaded file cache should be resilient to this.
+     * There is a small interval of time after the file was downloaded and moved to the target location and
+     * before lock on that file was released.
+     * Trying to read from a file at that period of time would fail.
+     * DR internal methods that read from a downloaded file cache should be resilient to this.
      */
     fun doConcurrencyTest(testInfo: TestInfo, block: suspend (Path) -> Unit) {
         runBlocking {
@@ -104,8 +107,15 @@ class DRConcurrencyTest : BaseDRTest() {
                             if (annotationJvmPath.exists()) {
                                 block(annotationJvmPath)
                             }
-                        } catch (e: NoSuchFileException) {
-                            // Ignore this exception since testBody could have been removed the file at the end of the iteration
+                        } catch (_: NoSuchFileException) {
+                            // Ignore this exception since testBody could have removed the file at the end of the iteration
+                            continue
+                        } catch (e: AmperDependencyResolutionException) {
+                            if (e.message == "Path doesn't exist, download the file first") {
+                                // Ignore this exception since testBody could have removed the file at the end of the iteration
+                            } else {
+                                fail("Unexpected exception on cache computation", e)
+                            }
                             continue
                         } catch (e: CancellationException) {
                             throw e

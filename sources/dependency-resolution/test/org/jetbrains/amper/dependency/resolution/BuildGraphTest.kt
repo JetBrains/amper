@@ -1676,7 +1676,7 @@ class BuildGraphTest: BaseDRTest() {
 
     @Test
     fun `org_jetbrains_packagesearch packagesearch-plugin 1_0_0-SNAPSHOT`(testInfo: TestInfo) {
-        doTest(
+        val root = doTest(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
             expected = """root
@@ -1687,6 +1687,42 @@ class BuildGraphTest: BaseDRTest() {
                 |          |    \--- org.jetbrains:annotations:13.0
                 |          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0
                 |               \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.0 (*)
+            """.trimMargin()
+        )
+
+        runBlocking {
+            downloadAndAssertFiles(
+                """annotations-13.0.jar
+                |kotlin-stdlib-1.9.0.jar
+                |kotlin-stdlib-common-1.9.0.jar
+                |kotlin-stdlib-jdk7-1.9.0.jar
+                |kotlin-stdlib-jdk8-1.9.0.jar
+                |packagesearch-plugin-1.0.0-SNAPSHOT.jar"""
+                    .trimMargin(),
+                root,
+            )
+        }
+    }
+
+    /**
+     * This test checks that a library published with the version '*-SNAPSHOT' but without maven-metadata.xml is
+     * downloaded as a usual library (fallback to release flow).
+     */
+    @Test
+    fun `com_jetbrains_intellij_platform core-impl 251_23774_109-EAP-SNAPSHOT`(testInfo: TestInfo) {
+        doTest(
+            testInfo,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_INTELLIJ_DEPS, REDIRECTOR_INTELLIJ_SNAPSHOTS),
+            expected = """root
+                |\--- com.jetbrains.intellij.platform:core-impl:251.23774.109-EAP-SNAPSHOT
+                |     +--- com.jetbrains.intellij.platform:core:251.23774.109-EAP-SNAPSHOT
+                |     |    \--- com.jetbrains.intellij.platform:extensions:251.23774.109-EAP-SNAPSHOT
+                |     |         \--- com.intellij.platform:kotlinx-coroutines-core-jvm:1.8.0-intellij-12
+                |     |              +--- org.jetbrains:annotations:23.0.0
+                |     |              +--- com.intellij.platform:kotlinx-coroutines-bom:1.8.0-intellij-12
+                |     |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.10
+                |     |                   \--- org.jetbrains:annotations:13.0 -> 23.0.0
+                |     \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10 (*)
             """.trimMargin()
         )
     }
