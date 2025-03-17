@@ -37,8 +37,9 @@ val kotlinVersion = "2.1.20-RC2"
 val kotlinxSerializationVersion = "1.7.3"
 val kspVersion = "2.1.20-RC2-1.0.31" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
 val composeVersion = "1.7.3"
-val hotReloadVersion = "1.0.0-dev-39"
+val hotReloadVersion = "1.0.0-alpha02"
 val springBootVersion = "3.4.3"
+val slf4jVersion = "2.0.17"
 
 /**
  * This is the Gradle version used in Gradle-based Amper projects, not Amper itself.
@@ -99,6 +100,7 @@ fun updateUsedVersionsKt() {
             .replaceBundledVersionVariable(variableName = "kspVersion", newValue = kspVersion)
             .replaceBundledVersionVariable(variableName = "hotReloadVersion", newValue = hotReloadVersion)
             .replaceBundledVersionVariable(variableName = "springBootVersion", newValue = springBootVersion)
+            .replaceBundledVersionVariable(variableName = "slf4jVersion", newValue = slf4jVersion)
     }
 }
 

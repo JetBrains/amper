@@ -37,9 +37,8 @@ internal data class CompilerPlugin(
             id = "androidx.compose.compiler.plugins.kotlin",
             jarPath = jarPath,
             options = listOf(
-                Option(name = "featureFlag", value = "OptimizeNonSkippingGroups"), 
-                // TODO: enable this option when upgrade to 2.1.20
-//                Option(name = "generateFunctionKeyMetaAnnotations", value = "function"),
+                Option(name = "featureFlag", value = "OptimizeNonSkippingGroups"),
+                Option(name = "generateFunctionKeyMetaAnnotations", value = "function"),
             )
         )
     }

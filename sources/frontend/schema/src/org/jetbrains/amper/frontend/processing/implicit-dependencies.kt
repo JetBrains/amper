@@ -34,7 +34,7 @@ private val kotlinTestTestNG = kotlinDependencyOf("kotlin-test-testng")
 private val kotlinParcelizeRuntime = kotlinDependencyOf("kotlin-parcelize-runtime")
 
 private val hotReloadDependency = MavenDependency(
-    coordinates = TraceableString("org.jetbrains.compose:hot-reload-runtime-api:${UsedVersions.hotReloadVersion}")
+    coordinates = TraceableString("org.jetbrains.compose.hot-reload:runtime-api:${UsedVersions.hotReloadVersion}")
 )
 
 private fun kotlinDependencyOf(artifactId: String) = MavenDependency(

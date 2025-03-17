@@ -27,23 +27,24 @@ class ToolingArtifactsDownloader(
 
     suspend fun downloadHotReloadAgent(): List<Path> =
         downloadToolingArtifacts(
-            listOf("org.jetbrains.compose:hot-reload-agent:${UsedVersions.hotReloadVersion}"),
-            listOf(
-                MAVEN_CENTRAL_REPOSITORY_URL,
-                "https://packages.jetbrains.team/maven/p/firework/dev"
-            ).toRepositories()
+            listOf("org.jetbrains.compose.hot-reload:agent:${UsedVersions.hotReloadVersion}"),
+            listOf(MAVEN_CENTRAL_REPOSITORY_URL).toRepositories()
         )
 
     suspend fun downloadDevTools(): List<Path> = downloadToolingArtifacts(
         listOf(
-            "org.jetbrains.compose:hot-reload-devtools:${UsedVersions.hotReloadVersion}",
-            "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}"
+            "org.jetbrains.compose.hot-reload:devtools:${UsedVersions.hotReloadVersion}",
+            "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}",
         ),
         listOf(
             MAVEN_CENTRAL_REPOSITORY_URL,
             GOOGLE_REPOSITORY,
-            "https://packages.jetbrains.team/maven/p/firework/dev"
         ).toRepositories()
+    )
+
+    suspend fun downloadSlf4jApi(): List<Path> = downloadToolingArtifacts(
+        listOf("org.slf4j:slf4j-api:${UsedVersions.slf4jVersion}"),
+        listOf(MAVEN_CENTRAL_REPOSITORY_URL).toRepositories(),
     )
 
     suspend fun downloadSpringBootLoader(): Path = downloadToolingArtifacts(

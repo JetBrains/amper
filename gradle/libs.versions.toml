@@ -13,7 +13,7 @@ eclipse-jgit = "7.1.0.202411261347-r"
 google-services = "4.4.2"
 gradle-api-forGradleBased = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 gradle-api-forStandalone = "8.9"
-hot-reload-version = "1.0.0-dev-39" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
+hot-reload-version = "1.0.0-alpha02" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
 intellij-platform = "243.24978.46"
@@ -58,8 +58,8 @@ google-services-gradle-plugin =  { module = "com.google.gms:google-services", ve
 gradle-api-forGradleBased = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forGradleBased" }
 gradle-api-forStandalone =  { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forStandalone" }
 gradle-toolingApi = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-api-forStandalone" }
-hot-reload-core = { module = "org.jetbrains.compose:hot-reload-core", version.ref = "hot-reload-version" }
-hot-reload-orchestration = { module = "org.jetbrains.compose:hot-reload-orchestration", version.ref = "hot-reload-version" }
+hot-reload-core = { module = "org.jetbrains.compose.hot-reload:core", version.ref = "hot-reload-version" }
+hot-reload-orchestration = { module = "org.jetbrains.compose.hot-reload:orchestration", version.ref = "hot-reload-version" }
 intellij-amper-xcodemodel = { module = "com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed", version.ref = "intellij-xcodemodel" }
 intellij-deps-asyncProfiler = { module = "org.jetbrains.intellij.deps:async-profiler", version.ref = "intellij-async-profiler" }
 intellij-parsing-core = { module = "org.jetbrains:ij-parsing-core", version.ref = "intellij-parsing" }

@@ -49,7 +49,7 @@ class JvmDevRunTask(
 
     override suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> {
         val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
-        val agent = agentClasspath.singleOrNull { it.pathString.contains("hot-reload-agent") }
+        val agent = agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/agent") }
             ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
 
         val devToolsClasspath = toolingArtifactsDownloader.downloadDevTools()
@@ -72,10 +72,15 @@ class JvmDevRunTask(
     override suspend fun getClasspath(dependenciesResult: List<TaskResult>): List<Path> {
         val classpath = super.getClasspath(dependenciesResult)
         val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
-        val agent = agentClasspath.singleOrNull { it.pathString.contains("hot-reload-agent") }
+        val agent = agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/agent") }
             ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
         val filteredAgentClasspath = agentClasspath.filter { !it.pathString.contains(agent.pathString) }
 
+        val hasSl4fjApi = classpath.any { it.pathString.contains("org/slf4j/slf4j-api") }
+        if (!hasSl4fjApi) {
+            val sl4fjApi = toolingArtifactsDownloader.downloadSlf4jApi()
+            return classpath + sl4fjApi + filteredAgentClasspath
+        }
         return classpath + filteredAgentClasspath
     }
 
