@@ -11,7 +11,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
-import localRepository
 import org.jetbrains.amper.concurrency.computeHash
 import org.jetbrains.amper.concurrency.produceFileWithDoubleLockAndHash
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
@@ -29,10 +28,11 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependencies
 import org.jetbrains.amper.dependency.resolution.metadata.xml.DependencyManagement
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
 import org.jetbrains.amper.dependency.resolution.metadata.xml.expandTemplates
+import org.jetbrains.amper.dependency.resolution.metadata.xml.localRepository
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
+import org.jetbrains.amper.dependency.resolution.metadata.xml.parseSettings
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
 import org.slf4j.LoggerFactory
-import parseSettings
 import java.nio.file.Path
 import java.util.concurrent.CancellationException
 import kotlin.io.path.Path

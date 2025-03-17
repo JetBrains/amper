@@ -1,9 +1,14 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.amper.dependency.resolution.metadata.xml
+
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import org.jetbrains.amper.dependency.resolution.metadata.xml.xml
 
 internal fun String.parseSettings(): Settings = xml.decodeFromString(this)
 
