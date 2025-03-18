@@ -1,10 +1,9 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
@@ -51,12 +50,6 @@ sealed class Base : SchemaNode() {
  * Common settings section.
  */
 val Base.commonSettings get() = settings[noModifiers]!!
-
-/**
- * Common test settings section.
- */
-@UsedInIdePlugin
-val Base.commonTestSettings get() = `test-settings`[noModifiers]!!
 
 class Template : Base()
 
