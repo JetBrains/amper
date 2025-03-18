@@ -1747,15 +1747,13 @@ Platforms and variants in the file layout:
 
 ## Compose Hot Reload (experimental)
 
-Amper supports [Compose Hot Reload](https://github.com/JetBrains/compose-hot-reload) in experimental mode, allowing 
-user to see UI changes in real-time without restarting the application. This significantly improves the developer 
-experience by shortening the feedback loop.
+Amper supports [Compose Hot Reload](https://github.com/JetBrains/compose-hot-reload), allowing you to see UI changes in
+real-time without restarting the application. This significantly improves the developer experience by shortening the
+feedback loop during UI development.
 
-### Setup
+### Configuration
 
-#### Configuration
-
-To enable Compose Hot Reload, create the following `jvm/app` module:
+To enable Compose Hot Reload, use a `jvm/app` module, and set `compose.experimental.hotReload` to `enabled`:
 
 ```yaml
 product: jvm/app
@@ -1767,10 +1765,34 @@ settings:
       hotReload: enabled
 ```
 
-This configuration automatically adds the necessary development runtime dependencies needed for hot reload 
-functionality.
+When you run your application with Compose Hot Reload enabled:
 
-Wrap your main composable function with the `DevelopmentEntryPoint` composable:
+- Amper automatically downloads and runs [JetBrains Runtime](https://github.com/JetBrains/JetBrainsRuntime) to maximize
+  hot-swap capabilities
+- A Java agent for Compose Hot Reload is attached during execution
+- A small Compose Hot Reload devtools icon appears next to the application window, indicating that the feature is active
+
+![Compose Hot Reload dev tools](images/hot-reload-devtools.png)
+
+### IDE Integration
+
+When running your app from the IDE, you can get automatic recompilation and reloading based on file system changes,
+using the [Amper IntelliJ plugin](https://plugins.jetbrains.com/plugin/23076-amper).
+
+To configure this:
+
+1. Open *Settings → Tools → Actions on Save* and enable *Reload composition*
+   ![Compose Hot Reload action on save](images/hot-reload-on-save-action.png)
+2. Enable Compose Hot Reload in your `module.yaml` as shown above
+3. Sync your project again
+4. Add the `@DevelopmentEntryPoint` annotation to the composable you want to run
+5. Click the gutter icon to run a development application with the selected composable
+   ![Compose Hot Reload gutter icon](images/hot-reload-guttericon.png)
+
+### Running from the command line
+
+To use Compose Hot Reload while running the app from the command line, wrap your main composable function with the
+`DevelopmentEntryPoint` composable:
 
 ```kotlin
 fun main() = singleWindowApplication(title = "Compose for Desktop") {
@@ -1780,44 +1802,20 @@ fun main() = singleWindowApplication(title = "Compose for Desktop") {
 }
 ```
 
-Run your application normally:
+You can then run your application normally:
 
 ```bash
 ./amper run
 ```
 
-When you run your application with Hot Reload enabled:
-
-- Amper automatically downloads and runs [JetBrains Runtime](https://github.com/JetBrains/JetBrainsRuntime) to maximize 
-hot-swap capabilities
-- A hot-reload Java agent is attached during execution
-- A small hot-reload devtools icon appears near the application window, indicating that hot reload is active (see the 
-picture below)
-
-![hot reload dev tools](images/hot-reload-devtools.png)
-
-Amper does not support observing the file system changes hence without the IDE you need to manually press the "reload" 
-button to recompile and reload code changes.
-
-#### IDE Integration
-
-For automatic recompilation and reloading based on file system changes, use the 
-[Amper IntelliJ plugin](https://plugins.jetbrains.com/plugin/23076-amper).
-
-1. Open *Settings → Tools → Actions on Save* and enable *Reload composition* for automatic reload (disabled by default)
-   ![hot reload action on save](images/hot-reload-on-save-action.png)
-2. Enable experimental Compose Hot Reload in your `module.yaml` as shown above
-3. Resync your project
-4. Add the `@DevelopmentEntryPoint` annotation to the composable you want to test
-5. Click this gutter icon that appears next to the annotated composable to run a development application with the 
-selected composable
-![hot reload gutter icon](images/hot-reload-guttericon.png)
+> Note: As Amper doesn't support observing file system changes to rebuild, you need to manually press the "reload"
+> button on the dev tool to recompile and reload code changes when running from the command line.
 
 ### Limitations
 
-- Compose hot reload feature is experimental and may change in future releases
-- Only `jvm` target is supported
-- Amper doesn't have a file system watcher, so automatic reload isn't available without the IDE
+- Compose Hot Reload support in Amper may change in future releases
+- Only the `jvm` target is supported
+- Amper doesn't watch the file system, so automatic reloads are only available when using the IDE
 
 
 ## Templates
