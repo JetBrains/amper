@@ -4,9 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlin.collections.forEach
-import kotlin.collections.plus
-
 class DependencyNodeWithChildren(internal val node: DependencyNode): DependencyNode {
     override val children: MutableList<DependencyNode> = mutableListOf()
     override val context: Context = node.context
@@ -135,16 +132,16 @@ private fun DependencyNode.withFilteredChildren(
     cachedChildrenMap: MutableMap<DependencyNode, DependencyNodeWithChildren> = mutableMapOf(),
     childrenFilter: (DependencyNode) -> Boolean
 ): DependencyNodeWithChildren {
-    val filtered = if (!cachedChildrenMap.containsKey(this)) {
+    return cachedChildrenMap[this] ?: run {
         val nodeWithFilteredChildren = DependencyNodeWithChildren(this)
-        cachedChildrenMap.put(this, nodeWithFilteredChildren)
-        val children = this.children.filter(childrenFilter).map {
-            it.withFilteredChildren(cachedChildrenMap, childrenFilter)
-        }
+        // Put the node in the map before traversing children
+        cachedChildrenMap[this] = nodeWithFilteredChildren
+
+        val children = children
+            .filter(childrenFilter)
+            .map { it.withFilteredChildren(cachedChildrenMap, childrenFilter) }
         nodeWithFilteredChildren.children.addAll(children)
+
         nodeWithFilteredChildren
-    } else {
-        cachedChildrenMap[this]!!
     }
-    return filtered
 }
