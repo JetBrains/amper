@@ -20,7 +20,6 @@ import kotlin.io.path.Path
 
 object FrontendDrBundle : MessageBundle("messages.FrontendDr")
 
-@Suppress("UNUSED") // Used in Idea plugin
 val DependencyNode.fragmentDependencies: List<DirectFragmentDependencyNodeHolder>
     get() = findParents<DirectFragmentDependencyNodeHolder>()
 
