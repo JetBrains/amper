@@ -49,23 +49,23 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 ),
                 module = "jvm-empty",
                 expected = """module:jvm-empty
-+--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
++--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 |         \--- org.jetbrains:annotations:13.0
-+--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
-+--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2
-|         +--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC2
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3
+|         +--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC3
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
 |         \--- junit:junit:4.13.2
 |              \--- org.hamcrest:hamcrest-core:1.3
-+--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
-+--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
-\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2, implicit
-     \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC2 (*)"""
++--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
++--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
+     \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3 (*)"""
             )
         }
 
@@ -75,9 +75,9 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 |annotations-13.0.jar
                 |hamcrest-core-1.3.jar
                 |junit-4.13.2.jar
-                |kotlin-stdlib-2.1.20-RC2.jar
-                |kotlin-test-2.1.20-RC2.jar
-                |kotlin-test-junit-2.1.20-RC2.jar
+                |kotlin-stdlib-2.1.20-RC3.jar
+                |kotlin-test-2.1.20-RC3.jar
+                |kotlin-test-junit-2.1.20-RC3.jar
                 """.trimMargin(),
                 jvmTestFragmentDeps
             )
@@ -98,21 +98,21 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 module = "shared",
                 fragment = "ios",
                 expected = """Fragment 'shared.ios' dependencies
-+--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
++--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 +--- shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3
 |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 |         |    +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 |         \--- org.jetbrains.compose.collection-internal:collection:1.7.3
-|              +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3
-|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 +--- shared:ios:org.jetbrains.compose.foundation:foundation:1.7.3
 |    \--- org.jetbrains.compose.foundation:foundation:1.7.3
@@ -124,25 +124,25 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    +--- org.jetbrains.compose.ui:ui:1.7.3
 |         |    |    |    +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    \--- org.jetbrains.compose.ui:ui-util:1.7.3
-|         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |         \--- org.jetbrains.compose.ui:ui-uikit:1.7.3
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3
 |         |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-|         |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
 |         |    |    |    |    |    \--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.skiko:skiko:0.8.18
 |         |    |    |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-|         |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|         |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 |         |    |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
@@ -152,7 +152,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.skiko:skiko:0.8.18 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
@@ -164,17 +164,17 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |         |    |    |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |         |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    |    \--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
@@ -183,20 +183,20 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    \--- org.jetbrains.compose.ui:ui-uikit:1.7.3
 |         |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         |    |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3
 |         |    |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
-|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
@@ -204,13 +204,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-|         |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         |    \--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
 |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         +--- org.jetbrains.skiko:skiko:0.8.18 (*)
-|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
@@ -222,30 +222,30 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
           +--- org.jetbrains.compose.material:material-icons-core:1.7.3
           |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
-          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
           |    \--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
           +--- org.jetbrains.compose.material:material-ripple:1.7.3
           |    +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
           |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
           |    +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
           |    \--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
           +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
-          +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           +--- org.jetbrains.compose.animation:animation-core:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
           +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
           +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
           +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
           +--- org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
-          |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+          |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
           |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
-          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC2 (*)
-          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC3 (*)
+          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
           \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
              """.trimIndent()
             )
@@ -276,7 +276,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 |foundation-nativeMain-1.7.3.klib
                 |foundation-skikoMain-1.7.3.klib
                 |foundation-uikitMain-1.7.3.klib
-                |kotlin-stdlib-commonMain-2.1.20-RC2.klib
+                |kotlin-stdlib-commonMain-2.1.20-RC3.klib
                 |kotlinx-coroutines-core-commonMain-1.8.0.klib
                 |kotlinx-coroutines-core-concurrentMain-1.8.0.klib
                 |kotlinx-coroutines-core-nativeDarwinMain-1.8.0.klib
@@ -363,9 +363,9 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 module = "shared",
                 fragment = "iosX64",
                 expected = """Fragment 'shared.iosX64' dependencies
-+--- shared:iosX64:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC2 (c)
++--- shared:iosX64:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC3 (c)
 +--- shared:iosX64:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3
 |         \--- org.jetbrains.compose.runtime:runtime-uikitx64:1.7.3
@@ -374,22 +374,22 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |    |    \--- androidx.collection:collection-iosx64:1.4.4
 |              |    |         +--- androidx.annotation:annotation:1.8.1
 |              |    |         |    \--- androidx.annotation:annotation-iosx64:1.8.1
-|              |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC2
-|              |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC3
+|              |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3
 |              |    |    +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
-|              |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2
 |              |         \--- org.jetbrains.kotlinx:atomicfu-iosx64:0.23.2
-|              |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2
-|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
+|              |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3
+|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 |                        +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
-|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 +--- shared:iosX64:org.jetbrains.compose.foundation:foundation:1.7.3
 |    \--- org.jetbrains.compose.foundation:foundation:1.7.3
 |         \--- org.jetbrains.compose.foundation:foundation-uikitx64:1.7.3
@@ -406,21 +406,21 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-common:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-common-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    |         +--- org.jetbrains.kotlinx:atomicfu:0.17.0 -> 0.23.2 (*)
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-runtime:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-runtime-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
 |              |         |         |         |    |         +--- androidx.lifecycle:lifecycle-common:2.8.5 (*)
-|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 |              |         |         |         |    \--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitx64:2.8.4
@@ -428,15 +428,15 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -444,7 +444,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
@@ -452,8 +452,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-util-uikitx64:1.7.3
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3
 |              |         |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-uikit-uikitx64:1.7.3
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
@@ -466,13 +466,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18
 |              |         |         |         |              \--- org.jetbrains.skiko:skiko-iosx64:0.8.18
 |              |         |         |         |                   +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 |              |         |         |         |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-text:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitx64:1.7.3
@@ -483,20 +483,20 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -507,12 +507,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |              +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
@@ -520,7 +520,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 \--- shared:iosX64:org.jetbrains.compose.material3:material3:1.7.3
@@ -536,7 +536,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
                |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
                |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
                +--- org.jetbrains.compose.material:material-ripple:1.7.3
                |    \--- org.jetbrains.compose.material:material-ripple-uikitx64:1.7.3
                |         +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
@@ -544,20 +544,20 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                |         +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
                |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
                |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
                +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
                +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
                +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
                +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-               +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+               +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
                +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                \--- org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
                     \--- org.jetbrains.kotlinx:kotlinx-datetime-iosx64:0.6.0
                          +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
                          |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-iosx64:1.6.2
-                         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC2 (*)
-                         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-                         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+                         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC3 (*)
+                         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+                         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
                   """.trimIndent()
             )
         }
@@ -612,14 +612,14 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 module = "shared",
                 fragment = "iosX64Test",
                 expected = """Fragment 'shared.iosX64Test' dependencies
-+--- shared:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC2 (c)
-+--- shared:iosX64Test:org.jetbrains.kotlin:kotlin-test:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC2
-+--- shared:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20-RC2
-|         \--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC2
++--- shared:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC3 (c)
++--- shared:iosX64Test:org.jetbrains.kotlin:kotlin-test:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC3
++--- shared:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20-RC3
+|         \--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC3
 +--- shared:iosX64Test:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3
 |         \--- org.jetbrains.compose.runtime:runtime-uikitx64:1.7.3
@@ -628,22 +628,22 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |    |    \--- androidx.collection:collection-iosx64:1.4.4
 |              |    |         +--- androidx.annotation:annotation:1.8.1
 |              |    |         |    \--- androidx.annotation:annotation-iosx64:1.8.1
-|              |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC2
-|              |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC3
+|              |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3
 |              |    |    +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
-|              |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2
 |              |         \--- org.jetbrains.kotlinx:atomicfu-iosx64:0.23.2
-|              |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2
-|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
+|              |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3
+|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 |                        +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
-|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 +--- shared:iosX64Test:org.jetbrains.compose.foundation:foundation:1.7.3
 |    \--- org.jetbrains.compose.foundation:foundation:1.7.3
 |         \--- org.jetbrains.compose.foundation:foundation-uikitx64:1.7.3
@@ -660,21 +660,21 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-common:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-common-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    |         +--- org.jetbrains.kotlinx:atomicfu:0.17.0 -> 0.23.2 (*)
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-runtime:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-runtime-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
 |              |         |         |         |    |         +--- androidx.lifecycle:lifecycle-common:2.8.5 (*)
-|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 |              |         |         |         |    \--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitx64:2.8.4
@@ -682,15 +682,15 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -698,7 +698,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
@@ -706,8 +706,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-util-uikitx64:1.7.3
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3
 |              |         |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-uikit-uikitx64:1.7.3
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
@@ -720,13 +720,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18
 |              |         |         |         |              \--- org.jetbrains.skiko:skiko-iosx64:0.8.18
 |              |         |         |         |                   +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 |              |         |         |         |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-text:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitx64:1.7.3
@@ -737,20 +737,20 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -761,12 +761,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |              +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
@@ -774,7 +774,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 +--- shared:iosX64Test:org.jetbrains.compose.material3:material3:1.7.3
@@ -790,7 +790,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.compose.material:material-ripple:1.7.3
 |              |    \--- org.jetbrains.compose.material:material-ripple-uikitx64:1.7.3
 |              |         +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
@@ -798,23 +798,23 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
 |                   \--- org.jetbrains.kotlinx:kotlinx-datetime-iosx64:0.6.0
 |                        +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
 |                        |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-iosx64:1.6.2
-|                        |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC2 (*)
-|                        |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|                        |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC3 (*)
+|                        |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 \--- shared:iosX64Test:org.tinylog:tinylog-api-kotlin:2.6.2
      \--- org.tinylog:tinylog-api-kotlin:2.6.2
-          +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.32 -> 2.1.20-RC2
+          +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.32 -> 2.1.20-RC3
           \--- org.tinylog:tinylog-api:2.6.2
                   """.trimIndent()
             )
@@ -876,14 +876,14 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 module = "ios-app",
                 fragment = "iosX64Test",
                 expected = """Fragment 'ios-app.iosX64Test' dependencies
-+--- ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC2 (c)
-+--- ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC2
-+--- ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20-RC2
-|         \--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC2
++--- ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC3 (c)
++--- ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC3
++--- ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20-RC3
+|         \--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC3
 +--- ios-app:iosX64Test:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3
 |         \--- org.jetbrains.compose.runtime:runtime-uikitx64:1.7.3
@@ -892,22 +892,22 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |    |    \--- androidx.collection:collection-iosx64:1.4.4
 |              |    |         +--- androidx.annotation:annotation:1.8.1
 |              |    |         |    \--- androidx.annotation:annotation-iosx64:1.8.1
-|              |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC2
-|              |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC3
+|              |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3
 |              |    |    +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
-|              |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2
 |              |         \--- org.jetbrains.kotlinx:atomicfu-iosx64:0.23.2
-|              |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2
-|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
+|              |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3
+|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 |                        +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
-|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 +--- ios-app:iosX64Test:org.jetbrains.compose.foundation:foundation:1.7.3
 |    \--- org.jetbrains.compose.foundation:foundation:1.7.3
 |         \--- org.jetbrains.compose.foundation:foundation-uikitx64:1.7.3
@@ -924,21 +924,21 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-common:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-common-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    |         +--- org.jetbrains.kotlinx:atomicfu:0.17.0 -> 0.23.2 (*)
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-runtime:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-runtime-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
 |              |         |         |         |    |         +--- androidx.lifecycle:lifecycle-common:2.8.5 (*)
-|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 |              |         |         |         |    \--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitx64:2.8.4
@@ -946,15 +946,15 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -962,7 +962,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
@@ -970,8 +970,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-util-uikitx64:1.7.3
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3
 |              |         |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-uikit-uikitx64:1.7.3
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
@@ -984,13 +984,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18
 |              |         |         |         |              \--- org.jetbrains.skiko:skiko-iosx64:0.8.18
 |              |         |         |         |                   +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 |              |         |         |         |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-text:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitx64:1.7.3
@@ -1001,20 +1001,20 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -1025,12 +1025,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |              +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
@@ -1038,7 +1038,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 \--- ios-app:iosX64Test:org.jetbrains.compose.material3:material3:1.7.3
@@ -1054,7 +1054,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
                |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
                |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
                +--- org.jetbrains.compose.material:material-ripple:1.7.3
                |    \--- org.jetbrains.compose.material:material-ripple-uikitx64:1.7.3
                |         +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
@@ -1062,20 +1062,20 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                |         +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
                |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
                |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
                +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
                +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
                +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
                +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-               +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+               +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
                +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                \--- org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
                     \--- org.jetbrains.kotlinx:kotlinx-datetime-iosx64:0.6.0
                          +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
                          |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-iosx64:1.6.2
-                         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC2 (*)
-                         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-                         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+                         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC3 (*)
+                         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+                         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
                   """.trimIndent()
             )
         }
@@ -1131,21 +1131,21 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 module = "ios-app",
                 fragment = "ios",
                 expected = """Fragment 'ios-app.ios' dependencies
-+--- ios-app:ios:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
++--- ios-app:ios:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 +--- ios-app:ios:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3
 |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 |         |    +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 |         \--- org.jetbrains.compose.collection-internal:collection:1.7.3
-|              +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3
-|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 +--- ios-app:ios:org.jetbrains.compose.foundation:foundation:1.7.3
 |    \--- org.jetbrains.compose.foundation:foundation:1.7.3
@@ -1157,25 +1157,25 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    +--- org.jetbrains.compose.ui:ui:1.7.3
 |         |    |    |    +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    \--- org.jetbrains.compose.ui:ui-util:1.7.3
-|         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |         \--- org.jetbrains.compose.ui:ui-uikit:1.7.3
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3
 |         |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-|         |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
 |         |    |    |    |    |    \--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.skiko:skiko:0.8.18
 |         |    |    |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-|         |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|         |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 |         |    |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
@@ -1185,7 +1185,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.skiko:skiko:0.8.18 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
@@ -1197,17 +1197,17 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |         |    |    |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |         |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    |    \--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
@@ -1216,20 +1216,20 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    \--- org.jetbrains.compose.ui:ui-uikit:1.7.3
 |         |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         |    |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3
 |         |    |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
-|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
@@ -1237,13 +1237,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-|         |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         |    \--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
 |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         +--- org.jetbrains.skiko:skiko:0.8.18 (*)
-|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
@@ -1255,30 +1255,30 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
           +--- org.jetbrains.compose.material:material-icons-core:1.7.3
           |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
-          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
           |    \--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
           +--- org.jetbrains.compose.material:material-ripple:1.7.3
           |    +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
           |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
           |    +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
           |    \--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
           +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
-          +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           +--- org.jetbrains.compose.animation:animation-core:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
           +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
           +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
           +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
           +--- org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
-          |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+          |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
           |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
-          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC2 (*)
-          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC3 (*)
+          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
           \--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
              """.trimIndent()
             )
@@ -1309,7 +1309,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 |foundation-nativeMain-1.7.3.klib
                 |foundation-skikoMain-1.7.3.klib
                 |foundation-uikitMain-1.7.3.klib
-                |kotlin-stdlib-commonMain-2.1.20-RC2.klib
+                |kotlin-stdlib-commonMain-2.1.20-RC3.klib
                 |kotlinx-coroutines-core-commonMain-1.8.0.klib
                 |kotlinx-coroutines-core-concurrentMain-1.8.0.klib
                 |kotlinx-coroutines-core-nativeDarwinMain-1.8.0.klib
@@ -1396,9 +1396,9 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 module = "ios-app",
                 fragment = "iosX64",
                 expected = """Fragment 'ios-app.iosX64' dependencies
-+--- ios-app:iosX64:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC2 (c)
++--- ios-app:iosX64:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC3 (c)
 +--- ios-app:iosX64:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3
 |         \--- org.jetbrains.compose.runtime:runtime-uikitx64:1.7.3
@@ -1407,22 +1407,22 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |    |    \--- androidx.collection:collection-iosx64:1.4.4
 |              |    |         +--- androidx.annotation:annotation:1.8.1
 |              |    |         |    \--- androidx.annotation:annotation-iosx64:1.8.1
-|              |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC2
-|              |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC3
+|              |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3
 |              |    |    +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
-|              |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2
 |              |         \--- org.jetbrains.kotlinx:atomicfu-iosx64:0.23.2
-|              |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2
-|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
+|              |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3
+|              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 |                        +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
-|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 +--- ios-app:iosX64:org.jetbrains.compose.foundation:foundation:1.7.3
 |    \--- org.jetbrains.compose.foundation:foundation:1.7.3
 |         \--- org.jetbrains.compose.foundation:foundation-uikitx64:1.7.3
@@ -1439,21 +1439,21 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-common:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-common-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    |         +--- org.jetbrains.kotlinx:atomicfu:0.17.0 -> 0.23.2 (*)
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-runtime:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-runtime-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
 |              |         |         |         |    |         +--- androidx.lifecycle:lifecycle-common:2.8.5 (*)
-|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 |              |         |         |         |    \--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitx64:2.8.4
@@ -1461,15 +1461,15 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-iosx64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -1477,7 +1477,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
@@ -1485,8 +1485,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-util-uikitx64:1.7.3
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3
 |              |         |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-uikit-uikitx64:1.7.3
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitx64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
@@ -1499,13 +1499,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18
 |              |         |         |         |              \--- org.jetbrains.skiko:skiko-iosx64:0.8.18
 |              |         |         |         |                   +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
 |              |         |         |         |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-text:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitx64:1.7.3
@@ -1516,20 +1516,20 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -1540,12 +1540,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |              +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
@@ -1553,7 +1553,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |              +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 \--- ios-app:iosX64:org.jetbrains.compose.material3:material3:1.7.3
@@ -1569,7 +1569,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
                |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
                |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
                +--- org.jetbrains.compose.material:material-ripple:1.7.3
                |    \--- org.jetbrains.compose.material:material-ripple-uikitx64:1.7.3
                |         +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
@@ -1577,20 +1577,20 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                |         +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
                |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
                |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+               |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
                +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
                +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
                +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
                +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-               +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+               +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
                +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                \--- org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
                     \--- org.jetbrains.kotlinx:kotlinx-datetime-iosx64:0.6.0
                          +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
                          |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-iosx64:1.6.2
-                         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC2 (*)
-                         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
-                         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2
+                         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC3 (*)
+                         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+                         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
              """.trimIndent()
             )
         }
@@ -1649,52 +1649,52 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 module = "android-app",
                 fragment = "android",
                 expected = """Fragment 'android-app.android' dependencies
-+--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
++--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 |         +--- org.jetbrains:annotations:13.0 -> 23.0.0
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC2 (c)
-+--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC2
-|         \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
-+--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20-RC2
-|         +--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC2 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC3 (c)
++--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC3
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
++--- android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20-RC3
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC3 (*)
 +--- android-app:android:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3
 |         +--- androidx.compose.runtime:runtime:1.7.6
 |         |    \--- androidx.compose.runtime:runtime-android:1.7.6
 |         |         +--- androidx.annotation:annotation-experimental:1.4.1
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC2 (*)
+|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC3 (*)
 |         |         +--- androidx.collection:collection:1.4.4
 |         |         |    \--- androidx.collection:collection-jvm:1.4.4
 |         |         |         +--- androidx.annotation:annotation:1.8.1
 |         |         |         |    \--- androidx.annotation:annotation-jvm:1.8.1
-|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC2 (*)
-|         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC3 (*)
+|         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         \--- androidx.collection:collection-ktx:1.4.4 (c)
-|         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
-|         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC2
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
+|         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
+|         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC3
+|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
 |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3
 |         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0
 |         |         |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0
 |         |         |    |         +--- org.jetbrains:annotations:23.0.0
 |         |         |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
-|         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2 (*)
+|         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3 (*)
 |         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3 -> 1.8.0
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 2.1.20-RC2 (*)
+|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 2.1.20-RC3 (*)
 |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3
 |         |    +--- androidx.collection:collection:1.4.0 -> 1.4.4 (*)
 |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3
 |         |    |    +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
-|         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
+|         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2
 |         |         \--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
-|         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2 (*)
-|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3 (*)
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 +--- android-app:android:androidx.activity:activity-compose:1.7.2
@@ -1723,7 +1723,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |         +--- androidx.lifecycle:lifecycle-common:2.8.5
 |         |    |    |    |         |    \--- androidx.lifecycle:lifecycle-common-jvm:2.8.5
 |         |    |    |    |         |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|         |    |    |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    |    |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |    |    |    |         |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |    |    |    |         |         +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
@@ -1737,7 +1737,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |         |    |    \--- androidx.tracing:tracing:1.0.0
 |         |    |    |    |         |    |         \--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |    |    |    |         |    \--- com.google.guava:listenablefuture:1.0
-|         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |    |    |    |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |    |    |    |         +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
@@ -1746,13 +1746,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    +--- androidx.versionedparcelable:versionedparcelable:1.1.1
 |         |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |    |    |    |    \--- androidx.collection:collection:1.0.0 -> 1.4.4 (*)
-|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    |    |    \--- androidx.core:core-ktx:1.13.1 (c)
 |         |    |    +--- androidx.lifecycle:lifecycle-runtime:2.6.1 -> 2.8.5 (*)
 |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.5
 |         |    |    |    \--- androidx.lifecycle:lifecycle-viewmodel-android:2.8.5
 |         |    |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|         |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |    |    |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
@@ -1764,12 +1764,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    +--- androidx.core:core-ktx:1.2.0 -> 1.13.1
 |         |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |    |    |    |    +--- androidx.core:core:1.13.1 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.8.5
 |         |    |    |    |    +--- androidx.arch.core:core-common:2.2.0 (*)
 |         |    |    |    |    +--- androidx.arch.core:core-runtime:2.2.0 (*)
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.8.5 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
@@ -1779,8 +1779,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |    |    |    |    +--- androidx.arch.core:core-common:2.1.0 -> 2.2.0 (*)
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1 -> 2.8.5 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.1.20-RC2 (*)
-|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.1.20-RC3 (*)
+|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |    |    |    +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |    |    |    +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
@@ -1788,13 +1788,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    +--- androidx.profileinstaller:profileinstaller:1.3.0 -> 1.3.1 (*)
 |         |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
 |         |    |    +--- androidx.tracing:tracing:1.0.0 (*)
-|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    +--- androidx.core:core-ktx:1.9.0 -> 1.13.1 (*)
 |         |    +--- androidx.lifecycle:lifecycle-runtime-ktx:2.6.1 -> 2.8.5
 |         |    |    \--- androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.5
 |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
 |         |    |         +--- androidx.lifecycle:lifecycle-runtime:2.8.5 (*)
-|         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |    |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |    |         +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
@@ -1802,22 +1802,22 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |         \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
 |         |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1 -> 2.8.5
 |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5 (*)
-|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |    |    +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |    |    +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
 |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
 |         |    +--- androidx.savedstate:savedstate-ktx:1.2.1
 |         |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
-|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.1.20-RC2 (*)
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.1.20-RC3 (*)
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         +--- androidx.compose.runtime:runtime:1.0.1 -> 1.7.6 (*)
 |         +--- androidx.compose.runtime:runtime-saveable:1.0.1 -> 1.7.6
 |         |    \--- androidx.compose.runtime:runtime-saveable-android:1.7.6
 |         |         +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |         +--- androidx.collection:collection:1.4.0 -> 1.4.4 (*)
 |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
-|         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         +--- androidx.compose.ui:ui:1.0.1 -> 1.7.6
 |         |    \--- androidx.compose.ui:ui-android:1.7.6
 |         |         +--- androidx.activity:activity-ktx:1.7.0 -> 1.8.2 (*)
@@ -1836,8 +1836,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         +--- androidx.compose.ui:ui-util:1.7.6
 |         |         |         |    \--- androidx.compose.ui:ui-util-android:1.7.6
 |         |         |         |         +--- androidx.annotation:annotation-experimental:1.4.0 -> 1.4.1 (*)
-|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
-|         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
+|         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         +--- androidx.compose.ui:ui-graphics:1.7.6
 |         |         |    \--- androidx.compose.ui:ui-graphics-android:1.7.6
 |         |         |         +--- androidx.annotation:annotation:1.7.0 -> 1.8.1 (*)
@@ -1855,13 +1855,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
 |         |         |         |         +--- androidx.compose.ui:ui-geometry:1.7.6 (*)
 |         |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
-|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
 |         |         |         +--- androidx.core:core:1.12.0 -> 1.13.1 (*)
 |         |         |         +--- androidx.graphics:graphics-path:1.0.1
 |         |         |         |    +--- androidx.core:core:1.12.0 -> 1.13.1 (*)
-|         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
-|         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
+|         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         +--- androidx.compose.ui:ui-text:1.7.6
 |         |         |    \--- androidx.compose.ui:ui-text-android:1.7.6
 |         |         |         +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
@@ -1881,19 +1881,19 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |    |    +--- androidx.annotation:annotation:1.2.0 -> 1.8.1 (*)
 |         |         |         |    |    +--- androidx.lifecycle:lifecycle-runtime:2.8.5 (*)
 |         |         |         |    |    +--- androidx.startup:startup-runtime:1.1.1 (*)
-|         |         |         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |    |    +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |         |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
 |         |         |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
 |         |         |         |    \--- androidx.startup:startup-runtime:1.0.0 -> 1.1.1 (*)
-|         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |         +--- androidx.compose.ui:ui-unit:1.7.6 (*)
 |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
 |         |         +--- androidx.core:core:1.12.0 -> 1.13.1 (*)
 |         |         +--- androidx.customview:customview-poolingcontainer:1.0.0
 |         |         |    +--- androidx.core:core-ktx:1.5.0 -> 1.13.1 (*)
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 2.1.20-RC2 (*)
+|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 2.1.20-RC3 (*)
 |         |         +--- androidx.emoji2:emoji2:1.2.0 -> 1.3.0 (*)
 |         |         +--- androidx.lifecycle:lifecycle-runtime-compose:2.8.3 -> 2.8.5
 |         |         |    \--- androidx.lifecycle:lifecycle-runtime-compose-android:2.8.5
@@ -1908,11 +1908,11 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.5 (*)
 |         |         +--- androidx.profileinstaller:profileinstaller:1.3.1 (*)
 |         |         +--- androidx.savedstate:savedstate-ktx:1.2.1 (*)
-|         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.5 (*)
-|         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 +--- android-app:android:org.jetbrains.compose.foundation:foundation:1.7.3
 |    \--- org.jetbrains.compose.foundation:foundation:1.7.3
 |         +--- androidx.compose.foundation:foundation:1.7.6
@@ -1934,7 +1934,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         +--- androidx.compose.ui:ui-graphics:1.7.6 (*)
 |         |         |         |         +--- androidx.compose.ui:ui-unit:1.7.6 (*)
 |         |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
-|         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |         |         +--- androidx.compose.foundation:foundation-layout:1.7.6
 |         |         |         |    \--- androidx.compose.foundation:foundation-layout-android:1.7.6
@@ -1947,13 +1947,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         +--- androidx.compose.ui:ui-unit:1.7.6 (*)
 |         |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
 |         |         |         |         +--- androidx.core:core:1.7.0 -> 1.13.1 (*)
-|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
 |         |         |         +--- androidx.compose.ui:ui:1.7.6 (*)
 |         |         |         +--- androidx.compose.ui:ui-geometry:1.7.6 (*)
 |         |         |         +--- androidx.compose.ui:ui-graphics:1.7.6 (*)
 |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
-|         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         +--- androidx.compose.foundation:foundation-layout:1.7.6 (*)
 |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
 |         |         +--- androidx.compose.ui:ui:1.7.6 (*)
@@ -1961,7 +1961,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
 |         |         +--- androidx.core:core:1.13.1 (*)
 |         |         +--- androidx.emoji2:emoji2:1.3.0 (*)
-|         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         +--- org.jetbrains.compose.animation:animation:1.7.3
 |         |    +--- androidx.compose.animation:animation:1.7.6 (*)
 |         |    +--- org.jetbrains.compose.animation:animation-core:1.7.3
@@ -1974,14 +1974,14 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.8.5 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
 |         |    |    |    |    +--- androidx.arch.core:core-common:2.2.0 (*)
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-runtime:2.8.5 (*)
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (*)
@@ -1989,11 +1989,11 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -2001,14 +2001,14 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |         |    |    |    |    +--- androidx.compose.runtime:runtime-saveable:1.7.6 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
 |         |    |    |    |    +--- androidx.compose.ui:ui-geometry:1.7.6 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3
 |         |    |    |    |    |    +--- androidx.compose.ui:ui-util:1.7.6 (*)
-|         |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |         |    |    |    |    +--- androidx.compose.ui:ui-graphics:1.7.6 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
@@ -2021,9 +2021,9 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |         |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-text:1.7.3
 |         |    |    |    |    +--- androidx.compose.ui:ui-text:1.7.6 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
@@ -2033,17 +2033,17 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3
@@ -2053,12 +2053,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
@@ -2066,7 +2066,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 \--- android-app:android:org.jetbrains.compose.material3:material3:1.7.3
      \--- org.jetbrains.compose.material3:material3:1.7.3
           +--- androidx.compose.material3:material3:1.3.1
@@ -2081,8 +2081,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |         +--- androidx.compose.material:material-icons-core:1.6.0 -> 1.7.6
           |         |    \--- androidx.compose.material:material-icons-core-android:1.7.6
           |         |         +--- androidx.compose.ui:ui:1.6.0 -> 1.7.6 (*)
-          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
-          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC2 (*)
+          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
+          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC3 (*)
           |         +--- androidx.compose.material:material-ripple:1.7.0 -> 1.7.6
           |         |    \--- androidx.compose.material:material-ripple-android:1.7.6
           |         |         +--- androidx.collection:collection:1.4.0 -> 1.4.4 (*)
@@ -2090,7 +2090,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |         |         +--- androidx.compose.foundation:foundation:1.7.6 (*)
           |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
           |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
-          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
           |         +--- androidx.compose.runtime:runtime:1.7.0 -> 1.7.6 (*)
           |         +--- androidx.compose.ui:ui:1.6.0 -> 1.7.6 (*)
           |         +--- androidx.compose.ui:ui-text:1.6.0 -> 1.7.6 (*)
@@ -2101,7 +2101,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |         |    +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
           |         |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
           |         |    \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
-          |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC2 (*)
+          |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC3 (*)
           +--- org.jetbrains.compose.animation:animation-core:1.7.3 (*)
           +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
           +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -2112,7 +2112,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
           |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
           |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-          |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           +--- org.jetbrains.compose.material:material-ripple:1.7.3
           |    +--- androidx.compose.material:material-ripple:1.7.6 (*)
           |    +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
@@ -2120,12 +2120,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |    +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
           |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
           |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-          |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-          \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
              """.trimIndent()
             )
         }
@@ -2155,9 +2155,9 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 |foundation-layout-android-1.7.6.aar
                 |graphics-path-1.0.1.aar
                 |interpolator-1.0.0.aar
-                |kotlin-stdlib-2.1.20-RC2.jar
-                |kotlin-stdlib-jdk7-2.1.20-RC2.jar
-                |kotlin-stdlib-jdk8-2.1.20-RC2.jar
+                |kotlin-stdlib-2.1.20-RC3.jar
+                |kotlin-stdlib-jdk7-2.1.20-RC3.jar
+                |kotlin-stdlib-jdk8-2.1.20-RC3.jar
                 |kotlinx-coroutines-android-1.7.3.jar
                 |kotlinx-coroutines-core-jvm-1.8.0.jar
                 |lifecycle-common-java8-2.8.5.jar
@@ -2207,52 +2207,52 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 module = "shared",
                 fragment = "android",
                 expected = """Fragment 'shared.android' dependencies
-+--- shared:android:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2
++--- shared:android:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
 |         +--- org.jetbrains:annotations:13.0 -> 23.0.0
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC2 (c)
-+--- shared:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC2
-|         \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
-+--- shared:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20-RC2, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20-RC2
-|         +--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC2 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC3 (c)
++--- shared:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC3
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
++--- shared:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20-RC3, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20-RC3
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20-RC3 (*)
 +--- shared:android:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3
 |         +--- androidx.compose.runtime:runtime:1.7.6
 |         |    \--- androidx.compose.runtime:runtime-android:1.7.6
 |         |         +--- androidx.annotation:annotation-experimental:1.4.1
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC2 (*)
+|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC3 (*)
 |         |         +--- androidx.collection:collection:1.4.4
 |         |         |    \--- androidx.collection:collection-jvm:1.4.4
 |         |         |         +--- androidx.annotation:annotation:1.8.1
 |         |         |         |    \--- androidx.annotation:annotation-jvm:1.8.1
-|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC2 (*)
-|         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC3 (*)
+|         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         \--- androidx.collection:collection-ktx:1.4.4 (c)
-|         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
-|         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC2
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2 (*)
+|         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
+|         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC3
+|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
 |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3
 |         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0
 |         |         |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0
 |         |         |    |         +--- org.jetbrains:annotations:23.0.0
 |         |         |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
-|         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2 (*)
+|         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3 (*)
 |         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3 -> 1.8.0
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 2.1.20-RC2 (*)
+|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 2.1.20-RC3 (*)
 |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3
 |         |    +--- androidx.collection:collection:1.4.0 -> 1.4.4 (*)
 |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3
 |         |    |    +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
-|         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
+|         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2
 |         |         \--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
-|         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC2 (*)
-|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3 (*)
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 +--- shared:android:org.jetbrains.compose.foundation:foundation:1.7.3
@@ -2298,7 +2298,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |    |    |    |         +--- androidx.lifecycle:lifecycle-common:2.8.5
 |         |         |         |         |         |    |    |    |         |    \--- androidx.lifecycle:lifecycle-common-jvm:2.8.5
 |         |         |         |         |         |    |    |    |         |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|         |         |         |         |         |    |    |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    |    |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |         |         |         |         |    |    |    |         |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |         |         |         |         |    |    |    |         |         +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
@@ -2312,7 +2312,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |    |    |    |         |    |    \--- androidx.tracing:tracing:1.0.0
 |         |         |         |         |         |    |    |    |         |    |         \--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |         |         |         |         |    |    |    |         |    \--- com.google.guava:listenablefuture:1.0
-|         |         |         |         |         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |         |         |         |         |    |    |    |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |         |         |         |         |    |    |    |         +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
@@ -2321,13 +2321,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |    |    |    +--- androidx.versionedparcelable:versionedparcelable:1.1.1
 |         |         |         |         |         |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |         |         |         |         |    |    |    |    \--- androidx.collection:collection:1.0.0 -> 1.4.4 (*)
-|         |         |         |         |         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    |    |    \--- androidx.core:core-ktx:1.13.1 (c)
 |         |         |         |         |         |    |    +--- androidx.lifecycle:lifecycle-runtime:2.6.1 -> 2.8.5 (*)
 |         |         |         |         |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.5
 |         |         |         |         |         |    |    |    \--- androidx.lifecycle:lifecycle-viewmodel-android:2.8.5
 |         |         |         |         |         |    |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
-|         |         |         |         |         |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |         |         |         |         |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |         |         |         |         |    |    |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
@@ -2339,12 +2339,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |    |    |    +--- androidx.core:core-ktx:1.2.0 -> 1.13.1
 |         |         |         |         |         |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |         |         |         |         |    |    |    |    +--- androidx.core:core:1.13.1 (*)
-|         |         |         |         |         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.8.5
 |         |         |         |         |         |    |    |    |    +--- androidx.arch.core:core-common:2.2.0 (*)
 |         |         |         |         |         |    |    |    |    +--- androidx.arch.core:core-runtime:2.2.0 (*)
 |         |         |         |         |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.8.5 (*)
-|         |         |         |         |         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |         |         |         |         |    |    |    |    +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
 |         |         |         |         |         |    |    |    |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
@@ -2354,8 +2354,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |         |         |         |         |    |    |    |    +--- androidx.arch.core:core-common:2.1.0 -> 2.2.0 (*)
 |         |         |         |         |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1 -> 2.8.5 (*)
-|         |         |         |         |         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.1.20-RC2 (*)
-|         |         |         |         |         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.1.20-RC3 (*)
+|         |         |         |         |         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |         |         |         |         |    |    |    +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |         |         |         |         |    |    |    +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
@@ -2363,13 +2363,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |    |    +--- androidx.profileinstaller:profileinstaller:1.3.0 -> 1.3.1 (*)
 |         |         |         |         |         |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
 |         |         |         |         |         |    |    +--- androidx.tracing:tracing:1.0.0 (*)
-|         |         |         |         |         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    +--- androidx.core:core-ktx:1.9.0 -> 1.13.1 (*)
 |         |         |         |         |         |    +--- androidx.lifecycle:lifecycle-runtime-ktx:2.6.1 -> 2.8.5
 |         |         |         |         |         |    |    \--- androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.5
 |         |         |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
 |         |         |         |         |         |    |         +--- androidx.lifecycle:lifecycle-runtime:2.8.5 (*)
-|         |         |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |         |         |         |         |    |         +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |         |         |         |         |    |         +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
@@ -2377,15 +2377,15 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |    |         \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
 |         |         |         |         |         |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1 -> 2.8.5
 |         |         |         |         |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5 (*)
-|         |         |         |         |         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |         |         |         |         |    |    +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |         |         |         |         |    |    +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
 |         |         |         |         |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
 |         |         |         |         |         |    +--- androidx.savedstate:savedstate-ktx:1.2.1
 |         |         |         |         |         |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
-|         |         |         |         |         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.1.20-RC2 (*)
-|         |         |         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 2.1.20-RC3 (*)
+|         |         |         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         +--- androidx.annotation:annotation:1.8.0 -> 1.8.1 (*)
 |         |         |         |         |         +--- androidx.annotation:annotation-experimental:1.4.0 -> 1.4.1 (*)
 |         |         |         |         |         +--- androidx.autofill:autofill:1.0.0
@@ -2398,7 +2398,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |         +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
 |         |         |         |         |         |         +--- androidx.collection:collection:1.4.0 -> 1.4.4 (*)
 |         |         |         |         |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
-|         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         +--- androidx.compose.ui:ui-geometry:1.7.6
 |         |         |         |         |         |    \--- androidx.compose.ui:ui-geometry-android:1.7.6
 |         |         |         |         |         |         +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
@@ -2406,8 +2406,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |         +--- androidx.compose.ui:ui-util:1.7.6
 |         |         |         |         |         |         |    \--- androidx.compose.ui:ui-util-android:1.7.6
 |         |         |         |         |         |         |         +--- androidx.annotation:annotation-experimental:1.4.0 -> 1.4.1 (*)
-|         |         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
-|         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
+|         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         +--- androidx.compose.ui:ui-graphics:1.7.6
 |         |         |         |         |         |    \--- androidx.compose.ui:ui-graphics-android:1.7.6
 |         |         |         |         |         |         +--- androidx.annotation:annotation:1.7.0 -> 1.8.1 (*)
@@ -2425,13 +2425,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
 |         |         |         |         |         |         |         +--- androidx.compose.ui:ui-geometry:1.7.6 (*)
 |         |         |         |         |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
-|         |         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
 |         |         |         |         |         |         +--- androidx.core:core:1.12.0 -> 1.13.1 (*)
 |         |         |         |         |         |         +--- androidx.graphics:graphics-path:1.0.1
 |         |         |         |         |         |         |    +--- androidx.core:core:1.12.0 -> 1.13.1 (*)
-|         |         |         |         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
-|         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
+|         |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         +--- androidx.compose.ui:ui-text:1.7.6
 |         |         |         |         |         |    \--- androidx.compose.ui:ui-text-android:1.7.6
 |         |         |         |         |         |         +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
@@ -2451,19 +2451,19 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         |         |    |    +--- androidx.annotation:annotation:1.2.0 -> 1.8.1 (*)
 |         |         |         |         |         |         |    |    +--- androidx.lifecycle:lifecycle-runtime:2.8.5 (*)
 |         |         |         |         |         |         |    |    +--- androidx.startup:startup-runtime:1.1.1 (*)
-|         |         |         |         |         |         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |         |    |    +--- androidx.lifecycle:lifecycle-common-java8:2.8.5 (c)
 |         |         |         |         |         |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
 |         |         |         |         |         |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
 |         |         |         |         |         |         |    \--- androidx.startup:startup-runtime:1.0.0 -> 1.1.1 (*)
-|         |         |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |         |         |         |         +--- androidx.compose.ui:ui-unit:1.7.6 (*)
 |         |         |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
 |         |         |         |         |         +--- androidx.core:core:1.12.0 -> 1.13.1 (*)
 |         |         |         |         |         +--- androidx.customview:customview-poolingcontainer:1.0.0
 |         |         |         |         |         |    +--- androidx.core:core-ktx:1.5.0 -> 1.13.1 (*)
-|         |         |         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 2.1.20-RC2 (*)
+|         |         |         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 2.1.20-RC3 (*)
 |         |         |         |         |         +--- androidx.emoji2:emoji2:1.2.0 -> 1.3.0 (*)
 |         |         |         |         |         +--- androidx.lifecycle:lifecycle-runtime-compose:2.8.3 -> 2.8.5
 |         |         |         |         |         |    \--- androidx.lifecycle:lifecycle-runtime-compose-android:2.8.5
@@ -2478,13 +2478,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         |         +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.5 (*)
 |         |         |         |         |         +--- androidx.profileinstaller:profileinstaller:1.3.1 (*)
 |         |         |         |         |         +--- androidx.savedstate:savedstate-ktx:1.2.1 (*)
-|         |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
 |         |         |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |         |         |         +--- androidx.compose.ui:ui-graphics:1.7.6 (*)
 |         |         |         |         +--- androidx.compose.ui:ui-unit:1.7.6 (*)
 |         |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
-|         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |         |         +--- androidx.compose.foundation:foundation-layout:1.7.6
 |         |         |         |    \--- androidx.compose.foundation:foundation-layout-android:1.7.6
@@ -2497,13 +2497,13 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |         +--- androidx.compose.ui:ui-unit:1.7.6 (*)
 |         |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
 |         |         |         |         +--- androidx.core:core:1.7.0 -> 1.13.1 (*)
-|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
 |         |         |         +--- androidx.compose.ui:ui:1.7.6 (*)
 |         |         |         +--- androidx.compose.ui:ui-geometry:1.7.6 (*)
 |         |         |         +--- androidx.compose.ui:ui-graphics:1.7.6 (*)
 |         |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
-|         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         |         +--- androidx.compose.foundation:foundation-layout:1.7.6 (*)
 |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
 |         |         +--- androidx.compose.ui:ui:1.7.6 (*)
@@ -2511,7 +2511,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
 |         |         +--- androidx.core:core:1.13.1 (*)
 |         |         +--- androidx.emoji2:emoji2:1.3.0 (*)
-|         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+|         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
 |         +--- org.jetbrains.compose.animation:animation:1.7.3
 |         |    +--- androidx.compose.animation:animation:1.7.6 (*)
 |         |    +--- org.jetbrains.compose.animation:animation-core:1.7.3
@@ -2524,14 +2524,14 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.8.5 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
 |         |    |    |    |    +--- androidx.arch.core:core-common:2.2.0 (*)
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-runtime:2.8.5 (*)
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (*)
@@ -2539,11 +2539,11 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 |         |    |    |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -2551,14 +2551,14 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |         |    |    |    |    +--- androidx.compose.runtime:runtime-saveable:1.7.6 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
 |         |    |    |    |    +--- androidx.compose.ui:ui-geometry:1.7.6 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3
 |         |    |    |    |    |    +--- androidx.compose.ui:ui-util:1.7.6 (*)
-|         |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |         |    |    |    |    +--- androidx.compose.ui:ui-graphics:1.7.6 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
@@ -2571,9 +2571,9 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |         |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-text:1.7.3
 |         |    |    |    |    +--- androidx.compose.ui:ui-text:1.7.6 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
@@ -2583,17 +2583,17 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |         |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |         |    +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3
@@ -2603,12 +2603,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         |    |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |         |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |         +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
@@ -2616,7 +2616,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
 \--- shared:android:org.jetbrains.compose.material3:material3:1.7.3
      \--- org.jetbrains.compose.material3:material3:1.7.3
           +--- androidx.compose.material3:material3:1.3.1
@@ -2627,7 +2627,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |         |    +--- androidx.compose.runtime:runtime-saveable:1.0.1 -> 1.7.6 (*)
           |         |    +--- androidx.compose.ui:ui:1.0.1 -> 1.7.6 (*)
           |         |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.5 (*)
-          |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+          |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
           |         +--- androidx.annotation:annotation:1.1.0 -> 1.8.1 (*)
           |         +--- androidx.annotation:annotation-experimental:1.4.0 -> 1.4.1 (*)
           |         +--- androidx.collection:collection:1.4.0 -> 1.4.4 (*)
@@ -2637,8 +2637,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |         +--- androidx.compose.material:material-icons-core:1.6.0 -> 1.7.6
           |         |    \--- androidx.compose.material:material-icons-core-android:1.7.6
           |         |         +--- androidx.compose.ui:ui:1.6.0 -> 1.7.6 (*)
-          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
-          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC2 (*)
+          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
+          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC3 (*)
           |         +--- androidx.compose.material:material-ripple:1.7.0 -> 1.7.6
           |         |    \--- androidx.compose.material:material-ripple-android:1.7.6
           |         |         +--- androidx.collection:collection:1.4.0 -> 1.4.4 (*)
@@ -2646,7 +2646,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |         |         +--- androidx.compose.foundation:foundation:1.7.6 (*)
           |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
           |         |         +--- androidx.compose.ui:ui-util:1.7.6 (*)
-          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC2 (*)
+          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3 (*)
           |         +--- androidx.compose.runtime:runtime:1.7.0 -> 1.7.6 (*)
           |         +--- androidx.compose.ui:ui:1.6.0 -> 1.7.6 (*)
           |         +--- androidx.compose.ui:ui-text:1.6.0 -> 1.7.6 (*)
@@ -2657,7 +2657,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |         |    +--- androidx.lifecycle:lifecycle-process:2.8.5 (c)
           |         |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
           |         |    \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
-          |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC2 (*)
+          |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.1.20-RC3 (*)
           +--- org.jetbrains.compose.animation:animation-core:1.7.3 (*)
           +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
           +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -2668,7 +2668,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |    +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
           |    +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
           |    +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-          |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           +--- org.jetbrains.compose.material:material-ripple:1.7.3
           |    +--- androidx.compose.material:material-ripple:1.7.6 (*)
           |    +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
@@ -2676,12 +2676,12 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
           |    +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
           |    +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
           |    +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-          |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
           +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
           +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-          \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC2 (*)
+          \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
              """.trimIndent()
             )
         }
@@ -2711,9 +2711,9 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 |foundation-layout-android-1.7.6.aar
                 |graphics-path-1.0.1.aar
                 |interpolator-1.0.0.aar
-                |kotlin-stdlib-2.1.20-RC2.jar
-                |kotlin-stdlib-jdk7-2.1.20-RC2.jar
-                |kotlin-stdlib-jdk8-2.1.20-RC2.jar
+                |kotlin-stdlib-2.1.20-RC3.jar
+                |kotlin-stdlib-jdk7-2.1.20-RC3.jar
+                |kotlin-stdlib-jdk8-2.1.20-RC3.jar
                 |kotlinx-coroutines-android-1.7.3.jar
                 |kotlinx-coroutines-core-jvm-1.8.0.jar
                 |lifecycle-common-java8-2.8.5.jar
@@ -2781,7 +2781,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 
         sharedModuleDeps.assertMapping(
             mapOf(
-                "org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2" to "org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC2",
+                "org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3" to "org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3",
                 "org.jetbrains.compose.runtime:runtime:1.7.3" to "org.jetbrains.compose.runtime:runtime-desktop:1.7.3",
                 "org.jetbrains.compose.foundation:foundation:1.7.3" to "org.jetbrains.compose.foundation:foundation-desktop:1.7.3",
                 "org.jetbrains.compose.material3:material3:1.7.3" to "org.jetbrains.compose.material3:material3-desktop:1.7.3",
