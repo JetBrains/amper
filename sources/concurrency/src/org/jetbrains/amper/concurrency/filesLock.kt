@@ -307,6 +307,8 @@ suspend fun <T> withRetry(
         attempt++
     } while (attempt < retryCount)
 
+    // TODO: This is a compilation error with language version 1.9. Can be removed when migrated to >=2.0
+    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
     throw firstException!!
 }
 
