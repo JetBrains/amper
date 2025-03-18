@@ -122,14 +122,11 @@ object Downloader {
                         if (statusCode != 200) {
                             val builder = StringBuilder("Cannot download\n")
                             val headers = response.headers
-                            headers.names()
-                                .asSequence()
-                                .sorted()
-                                .flatMap { headerName ->
-                                    headers.getAll(headerName)!!
-                                        .map { value -> "Header: $headerName: $value\n" }
+                            for ((headerKey, headerValues) in headers.entries()) {
+                                for (value in headerValues) {
+                                    builder.append("Header: $headerKey: $value\n")
                                 }
-                                .forEach(builder::append)
+                            }
                             builder.append('\n')
                             if (tempFile.exists()) {
                                 tempFile.inputStream().use { inputStream ->
