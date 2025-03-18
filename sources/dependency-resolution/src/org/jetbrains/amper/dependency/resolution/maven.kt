@@ -1283,7 +1283,7 @@ class   MavenDependency internal constructor(
         return (dependencyManagement?.dependencies?.dependencies ?: listOf()).filter {
             it.version != null && it.optional != true
         }.map {
-            context.createOrReuseDependencyConstraint(it.groupId, it.artifactId, Version(requires = it.version!!))
+            context.createOrReuseDependencyConstraint(it.groupId, it.artifactId, Version(requires = it.version))
         }
     }
 
@@ -1432,9 +1432,7 @@ class   MavenDependency internal constructor(
                 }
             }
             ?.takeIf { it.isNotEmpty() }
-            ?.reduce { a, b ->
-                (a + b)!!
-            }
+            ?.reduce(DependencyManagement::plus)
 
     private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context, diagnosticsReporter: DiagnosticReporter) =
         isDownloaded() && hasMatchingChecksumLocally(diagnosticsReporter, level)

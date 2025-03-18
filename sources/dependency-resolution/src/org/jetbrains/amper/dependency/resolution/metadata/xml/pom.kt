@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution.metadata.xml
@@ -251,9 +251,16 @@ data class DependencyManagement(
     val dependencies: Dependencies? = null,
 )
 
+@JvmName("plusNullable")
 operator fun DependencyManagement?.plus(other: DependencyManagement?): DependencyManagement? {
-    if (this == null || this.dependencies == null) return other
-    return DependencyManagement((this.dependencies + other?.dependencies)!!)
+    if (this == null) return other
+    return this + other
+}
+
+operator fun DependencyManagement.plus(other: DependencyManagement?): DependencyManagement {
+    if (other == null) return this
+    if (this.dependencies == null) return other
+    return DependencyManagement(this.dependencies + other.dependencies)
 }
 
 @Serializable(with = MavenPomPropertiesXmlSerializer::class)
@@ -274,12 +281,18 @@ data class Dependencies(
     val dependencies: List<Dependency>
 )
 
+@JvmName("plusNullable")
 operator fun Dependencies?.plus(other: Dependencies?): Dependencies? {
     if (this == null) return other
+    return this + other
+}
+
+operator fun Dependencies.plus(other: Dependencies?): Dependencies {
+    val allDependencies = this.dependencies + (other?.dependencies ?: emptyList())
     return Dependencies(
-        (this.dependencies + (other?.dependencies ?: emptyList()))
-            // Keep the only dependency constraint per artifact (closest to the original pom => the first one in the list)
-            .distinctBy { it.groupId to it.artifactId }
+            // Keep the only dependency constraint per artifact
+            // (closest to the original pom => the first one in the list)
+        allDependencies.distinctBy { it.groupId to it.artifactId }
     )
 }
 
