@@ -50,9 +50,13 @@ suspend fun <T> withDoubleLock(
     hash: Int,
     file: Path,
     owner: Any? = null,
-    options: Array<out OpenOption> = arrayOf(StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE),
+    options: Array<out OpenOption> = arrayOf(
+        StandardOpenOption.READ,
+        StandardOpenOption.WRITE,
+        StandardOpenOption.CREATE
+    ),
     block: suspend (lockFileChannel: FileChannel) -> T
-) : T {
+): T {
     // The first lock locks the stuff inside one JVM process
     return filesLock.withLock(hash, owner) {
         // The second lock locks a flagFile across all processes on the system
@@ -80,21 +84,22 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
  * Method could be used safely from different JVM threads and from different processes.
  *
  * To achieve such concurrency safety, it does the following:
- * - creates a temporary lock file inside the temp directory (resolved with the help of given lambda <code>tempDir<code>),
+ * - creates a temporary lock file inside the temp directory (resolved with the help of given lambda [tempDir]),
  * - takes JVM and inter-process locks on that file
  * - creates a temporary file inside temp directory
- * - under the lock write content to that file with help of the given lambda (<code>writeFileContent<code>)
+ * - under the lock write content to that file with help of the given lambda ([writeFileContent])
  * - after the file was successfully written to temp location, its sha1 hash is stored into the target file directory
  * - finally, temporary file is moved to the target file location.
  *
  * The following two restrictions are applied on the input parameters for correct locking logic:
- *  - [MUST] the same temporary directory is used for the given target file no matter how many times the method is called;
- *  - [SHOULD] different target files with the same file names correspond to different temp directories
- *             (if this is not met, some contention might be observed during downloading of such files)
+ *  - __MUST__ the same temporary directory is used for the given target file no matter
+ *      how many times the method is called;
+ *  - __SHOULD__ different target files with the same file names correspond to different temp directories
+ *      (if this is not met, some contention might be observed during downloading of such files)
  *
- * Note: Since the first lock is a non-reentrant coroutine Mutex,
- *  callers MUST not call locking methods defined in this utility file again from inside the lambda (writeFileContent) -
- *  that would lead to the hanging coroutine.
+ * Note: Since the first lock is a non-reentrant coroutine [kotlinx.coroutines.sync.Mutex],
+ *  callers MUST not call locking methods defined in this utility file again from inside the lambda
+ *  ([writeFileContent]) - that would lead to the hanging coroutine.
  */
 suspend fun produceFileWithDoubleLockAndHash(
     target: Path,
@@ -103,7 +108,7 @@ suspend fun produceFileWithDoubleLockAndHash(
         Path(System.getProperty("java.io.tmpdir")).resolve(".amper")
     },
     writeFileContent: suspend (Path, FileChannel) -> Boolean
-) : Path? {
+): Path? {
     return produceResultWithDoubleLock(
         tempDir(),
         target.name,
@@ -117,7 +122,7 @@ suspend fun produceFileWithDoubleLockAndHash(
                     null
                 } else {
                     val expectedHash = hashFile.readText()
-                    val actualHash = computeHash(target,"sha1").hash
+                    val actualHash = computeHash(target, "sha1").hash
 
                     if (expectedHash != actualHash) {
                         null
@@ -152,28 +157,28 @@ suspend fun produceFileWithDoubleLockAndHash(
 
 /**
  * Create a target file once and reuse it as a result of further invocations until it is resolved and returned by
- *  the given function <code>getAlreadyProducedResult<code>
+ *  the given function [getAlreadyProducedResult]
  *
  * Method could be used safely from different JVM threads and from different processes.
  *
  * To achieve such concurrency safety, it does the following:
- * - creates a temporary lock file inside the given temp directory (<code>tempDir<code>),
+ * - creates a temporary lock file inside the given temp directory ([tempDir]),
  * - takes JVM and inter-process locks on that file
  * - creates a temporary file inside temp directory
- * - under the lock write content to that file with help of the given lambda (<code>block<code>)
+ * - under the lock write content to that file with help of the given lambda ([block])
  * - finally, temporary lock file is removed
- * - (temporary file with content is removed as well, but only in case exception was thrown from <code>block<code>,
+ * - (temporary file with content is removed as well, but only in case exception was thrown from [block],
  *    otherwise it is a responsibility of given <code>block<code> to remove temp file)
  *
  * The following two restrictions are applied on the input parameters for correct locking logic:
- *  - [MUST] the same temporary directory is used for the given target file no matter how many times the method is called
- *           (in case a target file is produced by given <code>block<code>);
- *  - [SHOULD] different target files with the same file names correspond to different temp directories
- *             (if this is not met, some contention might be observed during downloading of such files)
+ *  - __MUST__ the same temporary directory is used for the given target file no matter
+ *      how many times the method is called (in case a target file is produced by the given [block]);
+ *  - __SHOULD__ different target files with the same file names correspond to different temp directories
+ *      (if this is not met, some contention might be observed during downloading of such files)
  *
- * Note: Since the first lock is a non-reentrant coroutine Mutex,
- *  callers MUST not call locking methods defined in this utility file again from inside the lambda (writeFileContent) -
- *  that would lead to the hanging coroutine.
+ * Note: Since the first lock is a non-reentrant coroutine [kotlinx.coroutines.sync.Mutex],
+ *  callers MUST not call locking methods defined in this utility file again from inside the lambda
+ *  ([block]) — that would lead to the hanging coroutine.
  */
 suspend fun <T> produceResultWithDoubleLock(
     tempDir: Path,
@@ -181,7 +186,7 @@ suspend fun <T> produceResultWithDoubleLock(
     fileLockSource: StripedMutex? = null,
     getAlreadyProducedResult: suspend () -> T?,
     block: suspend (Path, FileChannel) -> T,
-) : T {
+): T {
     // returns the already produced file without locking if allowed, otherwise proceed with file production
     getAlreadyProducedResult()?.let { return it }
 
@@ -200,7 +205,7 @@ private suspend fun <T> produceResultWithFileLock(
     targetFileName: String,
     block: suspend (Path, FileChannel) -> T,
     getAlreadyProducedResult: suspend () -> T?
-) : T {
+): T {
     getAlreadyProducedResult()?.let { return it }
 
     val tempLockFile = tempLockFile(tempDir, targetFileName)
@@ -210,7 +215,8 @@ private suspend fun <T> produceResultWithFileLock(
         return try {
             // Open a temporary lock file channel
             tempLockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) {
-                logger.trace("### ${System.currentTimeMillis()} {} {} : locked, getAlreadyProducedResult()={}",
+                logger.trace(
+                    "### ${System.currentTimeMillis()} {} {} : locked, getAlreadyProducedResult()={}",
                     tempLockFile.hashCode(), tempLockFile.name, getAlreadyProducedResult()
                 )
                 try {
@@ -219,7 +225,11 @@ private suspend fun <T> produceResultWithFileLock(
                     tempLockFile.deleteIfExistsWithLogging("Temp lock file was deleted under the lock")
                 }
             }.also {
-                logger.trace("### ${System.currentTimeMillis()} {} {}: unlocked", tempLockFile.hashCode(), tempLockFile.name)
+                logger.trace(
+                    "### ${System.currentTimeMillis()} {} {}: unlocked",
+                    tempLockFile.hashCode(),
+                    tempLockFile.name
+                )
             }
         } catch (e: NoSuchFileException) {
             // Another process deleted the temp file before we were able to get the lock on it => Try again.
@@ -260,12 +270,13 @@ suspend fun <T> produceResultWithTempFile(
     }
 }
 
-fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, t: Throwable? = null) {
+fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, originalThrowable: Throwable? = null) {
     try {
         deleteIfExists()
-        logger.trace("### ${ System.currentTimeMillis() } $name: $onSuccessMessage")
-    } catch (_t: Throwable) {
-        logger.debug("### ${ System.currentTimeMillis() } $name: failed to delete file ${ t?.let { "(After ${it::class.simpleName})" } ?: "" }", _t)
+        logger.trace("### ${System.currentTimeMillis()} $name: $onSuccessMessage")
+    } catch (t: Throwable) {
+        val suffix = originalThrowable?.let { "(After ${it::class.simpleName})" } ?: ""
+        logger.debug("### ${System.currentTimeMillis()} $name: failed to delete file $suffix", t)
     }
 }
 
