@@ -508,6 +508,14 @@ settings:
 ```
 
 ```yaml
+# Full form
+settings:
+  compose:
+    enabled: true
+    version: 1.6.10
+```
+
+```yaml
 # Full form with resources configuration
 settings:
   compose:
