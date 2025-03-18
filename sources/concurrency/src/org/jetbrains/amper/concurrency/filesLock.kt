@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.amper.concurrency
 
 import kotlinx.coroutines.delay
@@ -24,10 +28,6 @@ import kotlin.io.path.writeText
 import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
 
 private val logger = LoggerFactory.getLogger("fileLock.kt")
 
