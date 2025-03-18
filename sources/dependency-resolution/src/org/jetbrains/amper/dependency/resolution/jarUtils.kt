@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
@@ -64,9 +64,9 @@ suspend fun copyJarEntryDirToJar(fileChannel: FileChannel, jarEntryDir: String, 
 
                 val writtenPaths = mutableSetOf<String>()
                 JarFile(srcJar.toFile()).use { jarFile ->
-                    val entries: Enumeration<out ZipEntry?> = jarFile.entries()
+                    val entries = jarFile.entries()
                     while (entries.hasMoreElements()) {
-                        val entry = entries.nextElement()!!
+                        val entry = entries.nextElement()
 
                         if (!entry.name.startsWith("$jarEntryDir/")) {
                             continue
