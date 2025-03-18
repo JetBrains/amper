@@ -473,10 +473,31 @@ settings:
 `settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
 framework. Read more about [Compose configuration](Documentation.md#configuring-compose-multiplatform).
 
-| Attribute          | Description                                                                                     | Default  |
-|--------------------|-------------------------------------------------------------------------------------------------|----------|
-| `enabled: boolean` | Enable Compose runtime, dependencies and the compiler plugins.                                  | `false`  |
-| `version: string`  | The Compose plugin version to use. Customizing the Compose version requires Gradle 8.6 or less. | `1.6.10` |
+| Attribute              | Description                                                    | Default |
+|------------------------|----------------------------------------------------------------|---------|
+| `enabled: boolean`     | Enable Compose runtime, dependencies and the compiler plugins. | `false` |
+| `version: string`      | The Compose plugin version to use.                             | `1.7.3` |
+| `resources: object`    | Compose Resources settings.                                    |         |
+| `experimental: object` | Experimental Compose settings.                                 |         |
+
+`settings:compose:resources:` configures Compose Resources settings.
+
+| Attribute                   | Description                                                                                                                                                 | Default |
+|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `packageName: string`       | A unique identifier for the resources in the current module. Used as package for the generated Res class and for isolating resources in the final artifact. | `""`    |
+| `exposedAccessors: boolean` | Whether the generated resources accessors should be exposed to other modules (public) or internal.                                                          | `false` |
+
+`settings:compose:experimental:` configures experimental Compose features.
+
+| Attribute           | Description                               | Default |
+|---------------------|-------------------------------------------|---------|
+| `hotReload: object` | Experimental Compose hot-reload settings. |         |
+
+`settings:compose:experimental:hotReload:` configures experimental hot reload.
+
+| Attribute          | Description       | Default |
+|--------------------|-------------------|---------|
+| `enabled: boolean` | Enable hot reload | `false` |
 
 Examples:
 
@@ -487,11 +508,23 @@ settings:
 ```
 
 ```yaml
-# Full form
+# Full form with resources configuration
 settings:
   compose:
     enabled: true
-    version: 1.5.10
+    version: 1.6.10
+    resources:
+      packageName: "com.example.myapp.resources"
+      exposedAccessors: true
+```
+
+```yaml
+# With experimental hot reload enabled
+settings:
+  compose:
+    enabled: true
+    experimental:
+      hotReload: enabled
 ```
 
 #### JUnit
