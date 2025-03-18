@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.compose.resources
@@ -43,7 +43,7 @@ private fun getExpectResourceCollectorsFileSpec(
 ): FileSpec {
     val resModifier = if (isPublic) KModifier.PUBLIC else KModifier.INTERNAL
     return FileSpec.builder(packageName, fileName).also { file ->
-        ResourceType.values().forEach { type ->
+        ResourceType.entries.forEach { type ->
             val typeClassName = type.getClassName()
             file.addProperty(
                 PropertySpec

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.compose.resources
@@ -51,7 +51,7 @@ fun generateActualResourceCollectors(
     val funNames = inputFiles.mapNotNull { inputFile ->
         if (inputFile.nameWithoutExtension.contains('.')) {
             val (fileName, suffix) = inputFile.nameWithoutExtension.split('.')
-            val type = ResourceType.values().firstOrNull { fileName.startsWith(it.accessorName, true) }
+            val type = ResourceType.entries.firstOrNull { fileName.startsWith(it.accessorName, true) }
             val name = "_collect${suffix.uppercaseFirstChar()}${fileName}Resources"
 
             if (type == null) {
@@ -95,7 +95,7 @@ internal fun getActualResourceCollectorsFileSpec(
             .build()
     )
 
-    ResourceType.values().forEach { type ->
+    ResourceType.entries.forEach { type ->
         val typeClassName = type.getClassName()
         val initBlock = CodeBlock.builder()
             .addStatement("lazy {").withIndent {

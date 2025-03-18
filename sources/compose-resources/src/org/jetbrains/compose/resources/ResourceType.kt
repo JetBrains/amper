@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.compose.resources
@@ -15,6 +15,6 @@ internal enum class ResourceType(val typeName: String, val accessorName: String)
 
     companion object {
         fun fromString(str: String): ResourceType? =
-            ResourceType.values().firstOrNull { it.typeName.equals(str, true) }
+            ResourceType.entries.firstOrNull { it.typeName.equals(str, true) }
     }
 }
