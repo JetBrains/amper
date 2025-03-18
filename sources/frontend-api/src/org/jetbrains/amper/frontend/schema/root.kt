@@ -49,7 +49,7 @@ sealed class Base : SchemaNode() {
 /**
  * Common settings section.
  */
-val Base.commonSettings get() = settings[noModifiers]!!
+val Base.commonSettings get() = checkNotNull(settings[noModifiers]) { "Common settings should always be present in the Base node" }
 
 class Template : Base()
 
