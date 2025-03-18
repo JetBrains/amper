@@ -187,7 +187,7 @@ fun <T> Collection<T>.wrapInAnyOf(block: (T) -> String) = buildString {
 val KType.enumSchema
     get() = buildString {
         append("\"enum\": [")
-        val enumClass = unwrapKClassOrNull!!
+        val enumClass = unwrapKClass
         val enumValues = enumClass.java.enumConstants
         val orderSensitive = enumClass.findAnnotation<EnumOrderSensitive>()
         val valueFilter = enumClass.findAnnotation<EnumValueFilter>()
