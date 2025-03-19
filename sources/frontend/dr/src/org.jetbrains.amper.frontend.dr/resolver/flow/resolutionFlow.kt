@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.ParsedCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
 import org.slf4j.LoggerFactory
@@ -53,11 +54,9 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
 
     protected fun MavenDependency.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
-        val dependencyNode = try {
-            val coordinates = parseCoordinates()
-            coordinates.let { context.toMavenDependencyNode(coordinates) }
-        } catch (e: Exception) {
-            UnresolvedMavenDependencyNode(this.coordinates.value, context, reason = e.message)
+        val dependencyNode = when (val result = parseCoordinates()) {
+            is ParsedCoordinates.Failure -> UnresolvedMavenDependencyNode(this.coordinates.value, context, reasons = result.errors)
+            is ParsedCoordinates.Success -> context.toMavenDependencyNode(result.coordinates)
         }
 
         val node = DirectFragmentDependencyNodeHolder(

@@ -179,16 +179,18 @@ class UnresolvedMavenDependencyNode(
     val coordinates: String,
     templateContext: Context,
     parentNodes: List<DependencyNode> = emptyList(),
-    private val reason: String?
+    reasons: List<String>,
 ) : DependencyNode {
+    init {
+        require(reasons.isNotEmpty()) { "Reasons for creating an unresolved node must not be empty." }
+    }
+
     override val context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<*> = Key<UnresolvedMavenDependencyNode>(coordinates)
     override val children: List<DependencyNode> = emptyList()
-    override val messages: List<Message> = listOf(getMessage())
+    override val messages: List<Message> = reasons.map { Message(it, severity = Severity.ERROR) }
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) { }
     override suspend fun downloadDependencies(downloadSources: Boolean) { }
-
-    private fun getMessage() = Message(reason ?: "Unresolved dependency coordinates", severity = Severity.ERROR)
     override fun toString(): String = "$coordinates, unresolved"
 }
 
