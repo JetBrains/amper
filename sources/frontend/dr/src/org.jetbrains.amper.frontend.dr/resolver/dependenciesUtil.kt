@@ -91,6 +91,9 @@ internal fun parseCoordinates(coordinates: String): ParsedCoordinates {
             return ParsedCoordinates.Failure(FrontendDrBundle.message("dependency.coordinates.contains.parts.ending.with.slashes", coordinates))
         }
     }
+    if (parts.size > 4) {
+        return ParsedCoordinates.Failure(FrontendDrBundle.message("dependency.coordinates.have.too.many.parts", coordinates))
+    }
 
     val groupId = parts[0].trim()
     val artifactId = parts[1].trim()

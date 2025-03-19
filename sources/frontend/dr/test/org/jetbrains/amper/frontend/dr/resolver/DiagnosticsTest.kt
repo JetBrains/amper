@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.Dependency
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import kotlin.contracts.ExperimentalContracts
+import kotlin.test.assertEquals
 
 class DiagnosticsTest : BaseModuleDrTest() {
 
@@ -28,7 +29,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
     fun `test sync diagnostics`() {
         val aom = getTestProjectModel("multi-module-failed-resolve", testDataRoot)
 
-        kotlin.test.assertEquals(
+        assertEquals(
             setOf("common", "commonTest", "jvm", "jvmTest"),
             aom.modules.single { it.userReadableName == "shared" }.fragments.map { it.name }.toSet(),
             ""
@@ -104,7 +105,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         collectBuildProblems(sharedTestFragmentDeps, diagnosticsReporter, Level.Error)
         val buildProblems = diagnosticsReporter.getProblems()
 
-        kotlin.test.assertEquals(7, buildProblems.size)
+        assertEquals(7, buildProblems.size)
 
         // direct dependency on a built-in library,
         // a version of the library is taken from settings:compose:version in file module.yaml
@@ -138,7 +139,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
     fun `test invalid dependency coordinates`() {
         val aom = getTestProjectModel("jvm-invalid-dependencies", testDataRoot)
 
-        kotlin.test.assertEquals(
+        assertEquals(
             setOf("common", "commonTest", "jvm", "jvmTest"),
             aom.modules.single().fragments.map { it.name }.toSet(),
             ""
@@ -162,6 +163,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     ||    \--- com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
                     |+--- jvm-invalid-dependencies:common:com.fasterxml.jackson.core, unresolved
                     ||    \--- com.fasterxml.jackson.core, unresolved
+                    |+--- jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
+                    ||    \--- com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
                     |\--- jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                     |     \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
                     |          \--- org.jetbrains:annotations:13.0""".trimMargin(),
@@ -173,7 +176,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Error)
         val buildProblems = diagnosticsReporter.getProblems()
 
-        kotlin.test.assertEquals(4, buildProblems.size)
+        assertEquals(5, buildProblems.size)
 
         buildProblems.forEach {
             val buildProblem = it as DependencyBuildProblem
@@ -191,10 +194,13 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 "com.fasterxml.jackson.core" ->
                     "Maven coordinates should contain at least 3 parts separated by :, but got ${dependency.coordinates}"
 
+                "com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2" ->
+                    "Maven coordinates should contain at most 4 parts separated by :, but got ${dependency.coordinates}"
+
                 else -> fail("Unexpected dependency coordinates: ${dependency.coordinates}")
             }
 
-            kotlin.test.assertEquals(expectedError, buildProblem.errorMessage.message)
+            assertEquals(expectedError, buildProblem.errorMessage.message)
         }
     }
 
@@ -206,7 +212,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
     private fun assertDependencyError(node: DependencyNode, group: String, module: String): Boolean {
         if (node.isMavenDependency(group, module)) {
             node as MavenDependencyNode
-            kotlin.test.assertEquals(
+            assertEquals(
                 setOf("Unable to resolve dependency ${node.dependency.group}:${node.dependency.module}:${node.dependency.version}"),
                 node.messages.map { it.text }.toSet()
             )
@@ -228,7 +234,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
             buildProblem as DependencyBuildProblem
             val mavenDependency = (buildProblem.problematicDependency as MavenDependencyNode).dependency
 
-            kotlin.test.assertEquals(
+            assertEquals(
                 setOf(
                     "Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version}" +
                             (if (versionLineNumber != null) ". The version ${mavenDependency.version} is defined at $filePath:$versionLineNumber" else "")
