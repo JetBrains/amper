@@ -18,6 +18,7 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.concurrency.Hash
 import org.jetbrains.amper.concurrency.Hasher
+import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.Writer
 import org.jetbrains.amper.concurrency.computeHash
 import org.jetbrains.amper.concurrency.copyFrom
@@ -298,6 +299,7 @@ open class DependencyFile(
         cache: Cache,
         verify: Boolean,
         diagnosticsReporter: DiagnosticReporter,
+        fileLockSource: StripedMutex? = null
     ): Path? {
         val expectedHashBeforeLocking = if (verify) {
             getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
@@ -308,6 +310,7 @@ open class DependencyFile(
                 produceResultWithDoubleLock(
                     tempDir = getTempDir(),
                     fileName,
+                    fileLockSource,
                     getAlreadyProducedResult = {
                         if (verify) {
                             getPath().takeIf {
@@ -423,10 +426,11 @@ open class DependencyFile(
         cache: Cache,
         verify: Boolean,
         diagnosticsReporter: DiagnosticReporter,
+        fileLockSource: StripedMutex? = null
     ): Boolean {
         val nestedDownloadReporter = CollectingDiagnosticReporter()
 
-        val path = downloadUnderFileLock(repositories, progress, cache, verify, nestedDownloadReporter)
+        val path = downloadUnderFileLock(repositories, progress, cache, verify, nestedDownloadReporter, fileLockSource)
 
         val messages = if (path != null) {
             nestedDownloadReporter.getMessages()
@@ -1001,9 +1005,11 @@ class SnapshotDependencyFile(
             return false
         }
         if (nameWithoutExtension != "maven-metadata") {
-            if (!mavenMetadata.isDownloaded() && !isChecksum()) {
+            if (!mavenMetadata.isDownloaded()
+                && (!isChecksum() || path.isUpToDate())) {
                 // maven-metadata.xml is absent, no way to verify if the snapshot is actual or not.
-                // We will have to redownload checksum, but could reuse the artifact itself if it matches the checksum.
+                // We will have to redownload checksum if it is too old
+                // and will reuse the artifact itself if it matches the checksum.
                 return true
             }
 
@@ -1019,10 +1025,13 @@ class SnapshotDependencyFile(
                 return false
             }
         } else {
-            return path.getLastModifiedTime() > FileTime.from(ZonedDateTime.now().minusDays(1).toInstant())
+            return path.isUpToDate()
         }
         return true
     }
+
+    private fun Path.isUpToDate(): Boolean =
+        getLastModifiedTime() > FileTime.from(ZonedDateTime.now().minusDays(1).toInstant())
 
     override suspend fun getNamePart(
         repository: Repository,
@@ -1046,10 +1055,11 @@ class SnapshotDependencyFile(
 
     private suspend fun isMavenMetadataDownloadedOrDownload(
         repository: Repository, progress: Progress, cache: Cache, diagnosticsReporter: DiagnosticReporter
-    ): Boolean =
-        mavenMetadata.isDownloaded()
+    ): Boolean {
+        return mavenMetadata.isDownloaded()
                 || mavenMetadata
-            .download(listOf(repository), progress, cache, diagnosticsReporter = diagnosticsReporter, verify = false)
+            .download(listOf(repository), progress, cache, verify = false, diagnosticsReporter, mavenMetadataFilesLock)
+    }
 
 
     override suspend fun shouldOverwrite(cache: Cache, expectedHash: Hash, actualHash: Hasher): Boolean =
@@ -1062,6 +1072,18 @@ class SnapshotDependencyFile(
         if (nameWithoutExtension != "maven-metadata") {
             getSnapshotVersion()?.let { getVersionFile()?.writeText(it) }
         }
+    }
+
+    companion object {
+        /**
+         * maven-metadata.xml is downloaded on demand when downloading of the artifact (pom or module or jar)
+         * is in progress and file lock is already taken.
+         * This lock source is used for nested locking under the main artifact lock.
+         * It is safe since it is always ordered, it is taken under the artifact's ock, not vice versa.
+         * It protects from concurrent attempts to download maven-metadata
+         * while downloading pom/module/different artifacts in parallel
+         */
+        private val mavenMetadataFilesLock = StripedMutex(stripeCount = 512)
     }
 }
 

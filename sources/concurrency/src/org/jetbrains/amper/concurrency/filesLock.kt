@@ -178,6 +178,7 @@ suspend fun produceFileWithDoubleLockAndHash(
 suspend fun <T> produceResultWithDoubleLock(
     tempDir: Path,
     targetFileName: String,
+    fileLockSource: StripedMutex? = null,
     getAlreadyProducedResult: suspend () -> T?,
     block: suspend (Path, FileChannel) -> T,
 ) : T {
@@ -188,7 +189,7 @@ suspend fun <T> produceResultWithDoubleLock(
     val tempLockFile = tempLockFile(tempDir, targetFileName)
 
     // The first lock locks the stuff inside one JVM process
-    return filesLock.withLock(tempLockFile.hashCode()) {
+    return (fileLockSource ?: filesLock).withLock(tempLockFile.hashCode()) {
         // The second lock locks a flagFile across all processes on the system
         produceResultWithFileLock(tempDir, targetFileName, block, getAlreadyProducedResult)
     }
@@ -310,3 +311,4 @@ suspend fun <T> withRetry(
 }
 
 private fun tempLockFile(tmpDir: Path, targetFileName: String) = tmpDir.resolve("~${targetFileName}.amper.lock")
+    
