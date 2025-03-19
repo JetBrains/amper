@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.assertContainsRelativeFiles
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -16,7 +17,6 @@ import kotlin.io.path.walk
 import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
@@ -62,23 +62,9 @@ class AmperInitTest : AmperCliTestBase() {
         exampleFile.writeText("some text")
 
         val r = runCli(p, "init", "multiplatform-cli", expectedExitCode = 1, assertEmptyStdErr = false)
-        val stderr = r.stderr.replace("\r", "")
+        r.assertStderrContains("ERROR: The following files already exist in the output directory and would be overwritten by the generation:\n  jvm-cli/module.yaml")
 
-        val expectedText = "ERROR: Files already exist in the project root:\n  jvm-cli/module.yaml"
-        assertTrue(message = "stderr output does not contain '$expectedText':\n$stderr") {
-            stderr.contains(expectedText)
-        }
-
-        val files = p.walk()
-            .map { it.relativeTo(p).pathString.replace("\\", "/") }
-            .sorted()
-            .joinToString("\n")
-        assertEquals(
-            """
-                jvm-cli/module.yaml
-            """.trimIndent(),
-            files
-        )
+        p.assertContainsRelativeFiles("jvm-cli/module.yaml")
         assertEquals("some text", exampleFile.readText())
     }
 }

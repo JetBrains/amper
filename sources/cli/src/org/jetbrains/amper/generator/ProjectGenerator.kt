@@ -5,7 +5,6 @@
 package org.jetbrains.amper.generator
 
 import com.github.ajalt.mordant.terminal.Terminal
-import io.github.classgraph.ClassGraph
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.system.OsFamily
@@ -13,85 +12,20 @@ import org.jetbrains.amper.util.substituteTemplatePlaceholders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
-import kotlin.io.path.outputStream
-import kotlin.io.path.pathString
 
 internal class ProjectGenerator(private val terminal: Terminal) {
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    fun initProject(template: String?, directory: Path) {
-        val allTemplateFiles = ClassGraph().acceptPaths("templates").scan().use { scanResult ->
-            scanResult.allResources.paths.map { pathString ->
-                check(pathString.startsWith("templates/")) {
-                    "Resource path must start with templates/: $pathString"
-                }
-                pathString
-            }
-        }
-
-        val allTemplateNames = allTemplateFiles.map {
-            Path(it).getName(1).pathString
-        }.distinct().sorted()
-
-        if (template == null) {
-            userReadableError(
-                "Please specify a template (template name substring is sufficient).\n\n" +
-                        "Available templates: ${allTemplateNames.joinToString(" ")}"
-            )
-        }
-
+    fun initProject(template: AmperProjectTemplate, directory: Path) {
         if (directory.exists() && !directory.isDirectory()) {
             userReadableError("Project root is not a directory: $directory")
         }
 
-        val matchedTemplates = allTemplateNames.filter {
-            it.contains(template, ignoreCase = true)
-        }
-
-        if (matchedTemplates.isEmpty()) {
-            userReadableError(
-                "No templates were found matching '$template'\n\n" +
-                        "Available templates: ${allTemplateNames.joinToString(" ")}"
-            )
-        }
-        if (matchedTemplates.size > 1) {
-            userReadableError(
-                "Multiple templates (${
-                    matchedTemplates.sorted().joinToString(" ")
-                }) were found matching '$template'\n\n" +
-                        "Available templates: ${allTemplateNames.joinToString(" ")}"
-            )
-        }
-
-        val matchedTemplate = matchedTemplates.single()
-        terminal.println("Extracting template '$matchedTemplate' to $directory")
-
-        val resourcePrefix = "templates/$matchedTemplate/"
-        val templateFiles = allTemplateFiles
-            .filter { it.startsWith(resourcePrefix) }
-            .map { it to it.removePrefix(resourcePrefix) }
-        check(templateFiles.isNotEmpty()) {
-            "No files was found for template '$matchedTemplate'. All template files:\n" +
-                    allTemplateFiles.joinToString("\n")
-        }
-
-        checkTemplateFilesConflicts(templateFiles, directory)
-
-        directory.createDirectories()
-        for ((resourceName, relativeName) in templateFiles) {
-            val path = directory.resolve(relativeName)
-            path.parent.createDirectories()
-            javaClass.classLoader.getResourceAsStream(resourceName)!!.use { stream ->
-                path.outputStream().use { out ->
-                    stream.copyTo(out)
-                }
-            }
-        }
+        terminal.println("Extracting template '${template.name}' to $directory")
+        template.extractTo(outputDir = directory)
         writeWrappers(directory)
 
         terminal.println("Project template successfully instantiated to $directory")
@@ -139,17 +73,6 @@ internal class ProjectGenerator(private val terminal: Terminal) {
                     "Unable to make file executable: $rc"
                 }
             }
-        }
-    }
-
-    private fun checkTemplateFilesConflicts(templateFiles: List<Pair<String, String>>, root: Path) {
-        val filesToCheck = templateFiles.map { it.second }
-        val alreadyExistingFiles = filesToCheck.filter { root.resolve(it).exists() }
-        if (alreadyExistingFiles.isNotEmpty()) {
-            userReadableError(
-                "Files already exist in the project root:\n" +
-                        alreadyExistingFiles.sorted().joinToString("\n").prependIndent("  ")
-            )
         }
     }
 }

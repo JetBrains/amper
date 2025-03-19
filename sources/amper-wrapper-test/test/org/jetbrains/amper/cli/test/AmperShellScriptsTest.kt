@@ -236,9 +236,11 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             customAmperScriptPath = cliScript,
         )
         val expectedStderr = """
-            ERROR: Files already exist in the project root:
+            ERROR: The following files already exist in the output directory and would be overwritten by the generation:
               jvm-cli/module.yaml
               project.yaml
+            
+            Please move, rename, or delete them before running the command again.
         """.trimIndent()
         assertEquals(expectedStderr, result.stderr.trim())
     }
