@@ -34,12 +34,12 @@ fun Span.setProcessResultAttributes(result: ProcessResult) {
  * The format is the following:
  *
  * * the `ESC [` introducer (`\u001B` escape character, followed by `[`)
- * * then any number (including none) of "parameter bytes" in the range 0x30–0x3F (ASCII `0–9:;<=>?`)
+ * * then any number (including none) of "parameter bytes" in the range 0x30–0x3F (ASCII `0-9:;<=>?`)
  * * then any number of "intermediate bytes" in the range 0x20–0x2F (ASCII space and `!"#$%&'()*+,-./`)
- * * then a single "final byte" in the range 0x40–0x7E (ASCII `@A–Z[\]^_``a–z{|}~`).
+ * * then a single "final byte" in the range 0x40–0x7E (ASCII `@A-Z[\]^_``a-z{|}~`).
  *
  * See [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code).
  */
-private val ansiCsiRegex = Regex("""\u001B\[[0–9:;<=>?]*[ !"#$%&'()*+,\-./]*[@A-Z\[\\\]^_`a-z{|}~]""")
+private val ansiCsiRegex = Regex("""\u001B\[[0-9:;<=>?]*[ !"#$%&'()*+,\-./]*[@A-Z\[\\\]^_`a-z{|}~]""")
 
 private fun String.filterAnsiCodes(): String = replace(ansiCsiRegex, "")
