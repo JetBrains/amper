@@ -10,15 +10,13 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsRegistrar.reporters
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.BasicDrPsiDiagnostics
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.BasicDrNoPsiDiagnostics
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.BasicDrDiagnosticsReporter
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.OverriddenDirectModuleDependencies
 
-internal object DrDiagnosticsRegistrar {
+object DrDiagnosticsRegistrar {
     val reporters = listOf(
-        BasicDrPsiDiagnostics(),
-        BasicDrNoPsiDiagnostics(), // used for reporting issues in tests only
-        OverriddenDirectModuleDependencies()
+        BasicDrDiagnosticsReporter,
+        OverriddenDirectModuleDependencies(),
     )
 }
 

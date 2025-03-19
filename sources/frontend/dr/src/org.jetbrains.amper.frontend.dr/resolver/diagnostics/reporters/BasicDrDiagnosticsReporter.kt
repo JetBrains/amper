@@ -32,8 +32,7 @@ import org.jetbrains.amper.frontend.getLineAndColumnRangeInPsiFile
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 
-class BasicDrPsiDiagnostics: DrDiagnosticsReporter{
-
+object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
     override val level = Level.Error
 
     override fun reportBuildProblemsForNode(
@@ -47,6 +46,32 @@ class BasicDrPsiDiagnostics: DrDiagnosticsReporter{
 
         if (importantMessages.isEmpty()) return
 
+        if (node.fragmentDependencies.isEmpty()) {
+            reportMessagesAsGlobal(importantMessages, problemReporter)
+        } else {
+            reportMessagesOnParentPsiNodes(node, importantMessages, problemReporter)
+        }
+    }
+
+    @OptIn(NonIdealDiagnostic::class)
+    private fun reportMessagesAsGlobal(importantMessages: List<Message>, problemReporter: ProblemReporter) {
+        for (message in importantMessages) {
+            val msgLevel = message.mapSeverityToLevel()
+            val buildProblem = BuildProblemImpl(
+                "dependency.problem.no.psi",
+                GlobalBuildProblemSource,
+                message.detailedMessage,
+                msgLevel
+            )
+            problemReporter.reportMessage(buildProblem)
+        }
+    }
+
+    private fun reportMessagesOnParentPsiNodes(
+        node: DependencyNode,
+        importantMessages: List<Message>,
+        problemReporter: ProblemReporter
+    ) {
         for (directDependency in node.fragmentDependencies) {
             // for every direct module dependency referencing this dependency node
             val psiElement = directDependency.notation?.trace?.extractPsiElementOrNull()
@@ -67,7 +92,11 @@ class BasicDrPsiDiagnostics: DrDiagnosticsReporter{
         }
     }
 
-    private fun refineErrorMessage(message: Message, node: DependencyNode, directDependency: DirectFragmentDependencyNodeHolder): Message {
+    private fun refineErrorMessage(
+        message: Message,
+        node: DependencyNode,
+        directDependency: DirectFragmentDependencyNodeHolder
+    ): Message {
         if (message.severity < Severity.ERROR) return message
 
         // direct node could have version traces only
@@ -81,7 +110,8 @@ class BasicDrPsiDiagnostics: DrDiagnosticsReporter{
                 if (psiElement != null) {
                     val range = getLineAndColumnRangeInPsiFile(psiElement)
 
-                    val dependencyPsiFilePath = directDependency.notation.coordinates.trace?.extractPsiElementOrNull()?.containingFile?.virtualFile?.toNioPathOrNull()
+                    val dependencyPsiFilePath =
+                        directDependency.notation.coordinates.trace?.extractPsiElementOrNull()?.containingFile?.virtualFile?.toNioPathOrNull()
                     val versionFilePath = psiElement.containingFile.virtualFile.toNioPathOrNull()
 
                     val relativeVersionFilePath =
@@ -105,28 +135,6 @@ class BasicDrPsiDiagnostics: DrDiagnosticsReporter{
     }
 }
 
-class BasicDrNoPsiDiagnostics: DrDiagnosticsReporter{
-
-    override val level = Level.Error
-
-    @NonIdealDiagnostic
-    override fun reportBuildProblemsForNode(node: DependencyNode, problemReporter: ProblemReporter, level: Level,  graphRoot: DependencyNode) {
-        val severity = level.mapLevelToSeverity() ?: return
-        val importantMessages = node.messages.filter { it.severity >= severity && it.toString().isNotBlank() }
-
-        if (importantMessages.isEmpty()) return
-
-        if (node.fragmentDependencies.isEmpty()) {
-            for (message in importantMessages) {
-                val msgLevel = message.mapSeverityToLevel()
-                val buildProblem =
-                    BuildProblemImpl("dependency.problem.no.psi", GlobalBuildProblemSource, message.detailedMessage, msgLevel)
-                problemReporter.reportMessage(buildProblem)
-            }
-        }
-    }
-}
-
 class DependencyBuildProblem(
     @UsedInIdePlugin
     val problematicDependency: DependencyNode,
@@ -140,7 +148,7 @@ class DependencyBuildProblem(
     override val message: String
         get() = if (problematicDependency.parents.contains(directFragmentDependency)) {
             errorMessage.detailedMessage
-        }  else {
+        } else {
             FrontendDrBundle.message(
                 messageKey = DEPENDENCY_PROBLEM_TRANSITIVE_KEY,
                 this.errorMessage.detailedMessage
