@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
@@ -13,6 +13,7 @@ import java.util.*
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 
 abstract class BaseDRTest {
 
@@ -126,7 +127,7 @@ abstract class BaseDRTest {
     }
 
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
-        kotlin.test.assertEquals(expected, root.prettyPrint().trimEnd())
+        assertEquals(expected, root.prettyPrint().trimEnd())
 
     protected fun List<String>.toRootNode(context: Context) =
         DependencyNodeHolder(name = "root", children = map { it.toMavenNode(context) }, context)
@@ -150,7 +151,7 @@ abstract class BaseDRTest {
             .sortedBy { it.name }
             .toSet()
             .let {
-                kotlin.test.assertEquals(files, it.joinToString("\n") { it.name })
+                assertEquals(files, it.joinToString("\n") { it.name })
                 if (checkExistence) {
                     it.forEach {
                         check(it.exists()) {

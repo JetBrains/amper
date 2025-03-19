@@ -20,6 +20,7 @@ import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.sequences.forEach
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 abstract class BaseModuleDrTest {
@@ -70,7 +71,7 @@ abstract class BaseModuleDrTest {
     }
 
     protected fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
-        kotlin.test.assertEquals(expected, root.prettyPrint().trimEnd())
+        assertEquals(expected, root.prettyPrint().trimEnd())
 
     protected suspend fun downloadAndAssertFiles(
         files: String,
@@ -103,7 +104,7 @@ abstract class BaseModuleDrTest {
             .sortedBy { it.name }
             .toSet()
             .let {
-                kotlin.test.assertEquals(files, it.joinToString("\n") { it.name })
+                assertEquals(files, it.joinToString("\n") { it.name })
                 if (checkExistence) {
                     it.forEach {
                         check(it.exists()) {

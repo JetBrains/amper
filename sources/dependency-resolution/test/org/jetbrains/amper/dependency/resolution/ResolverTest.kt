@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ResolverTest: BaseDRTest() {
@@ -144,14 +145,14 @@ class ResolverTest: BaseDRTest() {
         )
 
         val node = root.distinctBfsSequence().filterIsInstance<MavenDependencyNode>().single()
-        kotlin.test.assertEquals(
+        assertEquals(
             1, node.messages.size,
             "There must be the only error messages instead of ${node.messages.size}: ${node.messages}"
         )
         
         val expectedErrorPath = Dirs.userCacheRoot.resolve(".m2.cache/com/fasterxml/jackson/core/jackson-core/2.17.2 - ../shared")
-        
-        kotlin.test.assertEquals(
+
+        assertEquals(
             node.messages.single().message,
             "Unable to resolve dependency com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared (https://cache-redirector.jetbrains.com/repo1.maven.org/maven2)",
             "Unexpected error message"
