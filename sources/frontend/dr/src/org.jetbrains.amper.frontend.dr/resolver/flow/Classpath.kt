@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver.flow
@@ -145,7 +145,7 @@ internal class Classpath(
                         } else null
                     }
 
-                    else -> error(
+                    is DefaultScopedNotation -> error(
                         "Unsupported dependency type: '$dependency' " +
                                 "at module '${module.userReadableName}' fragment '${name}'"
                     )
