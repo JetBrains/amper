@@ -115,8 +115,6 @@ abstract class BaseModuleDrTest {
     }
 
     companion object {
-        internal val REDIRECTOR_MAVEN2 = listOf("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
-
         fun List<Message>.defaultFilterMessages(): List<Message> =
             filter { "Downloaded " !in it.text && "Resolved " !in it.text }
 
