@@ -19,8 +19,8 @@ object LocalAmperPublication {
     private val rootPublicationDir = Dirs.m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.mavenVersion}")
 
     val distTgz: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-dist.tgz")
-    private val wrapperBat: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")
-    private val wrapperSh: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper")
+    val wrapperBat: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")
+    val wrapperSh: Path = rootPublicationDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper")
 
     /**
      * Checks that the Amper distribution and scripts were correctly published to maven local.

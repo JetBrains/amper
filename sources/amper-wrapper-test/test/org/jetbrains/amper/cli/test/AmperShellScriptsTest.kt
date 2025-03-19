@@ -46,6 +46,9 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     private val tempDir: Path
         get() = tempDirExtension.path
 
+    private val cliScript: Path
+        get() = tempDir.resolve(scriptNameForCurrentOs)
+
     private val shellScriptExampleProject = Dirs.amperTestProjectsRoot / "shell-scripts"
 
     @BeforeEach
@@ -171,81 +174,6 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     }
 
     @Test
-    fun `init command writes the same wrappers as published`() = runBlocking {
-        val projectPath = shellScriptExampleProject
-        assertTrue { projectPath.isDirectory() }
-
-        val tempProjectRoot = tempDir.resolve("p p").resolve(projectPath.name)
-        tempProjectRoot.createDirectories()
-
-        // `amper init` should overwrite wrapper files
-        tempProjectRoot.resolve("amper").writeText("w1")
-        tempProjectRoot.resolve("amper.bat").writeText("w2")
-
-        runAmper(
-            workingDir = tempProjectRoot,
-            args = listOf("init", "multiplatform-cli"),
-            bootstrapCacheDir = tempDir.resolve("boot strap"),
-            customAmperScriptPath = cliScript,
-        )
-
-        val windowsWrapper = tempProjectRoot.resolve("amper.bat")
-        val unixWrapper = tempProjectRoot.resolve("amper")
-
-        assertTrue(windowsWrapper.readText().count { it == '\r' } > 10,
-            "Windows wrapper must have \\r in line separators: $windowsWrapper")
-        assertTrue(unixWrapper.readText().count { it == '\r' } == 0,
-            "Unix wrapper must not have \\r in line separators: $unixWrapper")
-
-        if (OsFamily.current.isUnix) {
-            assertTrue("Unix wrapper must be executable: $unixWrapper") { unixWrapper.isExecutable() }
-        }
-
-        for (wrapperName in listOf("amper", "amper.bat")) {
-            val originalFile = tempDir.resolve(wrapperName)
-            val actualFile = tempProjectRoot.resolve(wrapperName)
-
-            if (!originalFile.readBytes().contentEquals(actualFile.readBytes())) {
-                AssertionFailureBuilder.assertionFailure()
-                    .message("Comparison failed:\n${generateUnifiedDiff(originalFile, actualFile)}")
-                    .expected(FileInfo(originalFile.absolutePathString(), originalFile.readBytes()))
-                    .actual(FileInfo(actualFile.absolutePathString(), actualFile.readBytes()))
-                    .buildAndThrow()
-            }
-        }
-    }
-
-    @Test
-    fun `init command should stop before overwriting files from template`() = runBlocking {
-        val projectPath = shellScriptExampleProject
-        assertTrue { projectPath.isDirectory() }
-
-        val tempProjectRoot = tempDir.resolve(projectPath.name)
-        tempProjectRoot.createDirectories()
-
-        tempProjectRoot.resolve("project.yaml").writeText("w1")
-        tempProjectRoot.resolve("jvm-cli").createDirectories()
-        tempProjectRoot.resolve("jvm-cli/module.yaml").writeText("w2")
-
-        val result = runAmper(
-            workingDir = tempProjectRoot,
-            args = listOf("init", "multiplatform-cli"),
-            expectedExitCode = 1,
-            bootstrapCacheDir = tempDir.resolve("boot strap"),
-            assertEmptyStdErr = false,
-            customAmperScriptPath = cliScript,
-        )
-        val expectedStderr = """
-            ERROR: The following files already exist in the output directory and would be overwritten by the generation:
-              jvm-cli/module.yaml
-              project.yaml
-            
-            Please move, rename, or delete them before running the command again.
-        """.trimIndent()
-        assertEquals(expectedStderr, result.stderr.trim())
-    }
-
-    @Test
     fun `custom java home`() = runBlocking {
         val fakeUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
         val jdkHome = JdkDownloader.getJdk(fakeUserCacheRoot).homeDir
@@ -321,7 +249,4 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             result.stderr.replace("\r", "").replace("\n", "").matches(expectedErrorRegex)
         }
     }
-
-    private val cliScript: Path
-        get() = tempDir.resolve(scriptNameForCurrentOs)
 }

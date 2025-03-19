@@ -26,19 +26,6 @@ import kotlin.time.Duration.Companion.minutes
 inline fun runSlowTest(crossinline testBody: suspend TestScope.() -> Unit): TestResult =
     runTest(timeout = 15.minutes) { testBody() }
 
-/**
- * Asserts that the directory at this [Path] contains all the files at the given [expectedRelativePaths].
- */
-internal fun Path.assertContainsRelativeFiles(vararg expectedRelativePaths: String) {
-    val actualFiles = walk()
-        .onEach { assertTrue(it.fileSize() > 0, "File should not be empty: $it") }
-        .map { it.relativeTo(this).joinToString("/") }
-        .sorted()
-        .toList()
-    // comparing multi-line strings instead of lists for easier comparison of test failures
-    assertEquals(expectedRelativePaths.joinToString("\n"), actualFiles.joinToString("\n"))
-}
-
 // FIXME this should never be needed, because task output paths should be internal.
 //  User-visible artifacts should be placed in user-visible directories (use some convention).
 internal fun AmperCliTestBase.AmperCliResult.getTaskOutputPath(taskName: String): Path =
