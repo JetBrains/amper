@@ -2,7 +2,7 @@
 # The version of AGP used in Gradle-based Amper. Can't be bumped - check syncVersions.main.kts.
 agp-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 # The version of AGP used in standalone Amper to delegate Android builds to Gradle
-agp-forStandalone = "8.5.0"
+agp-forStandalone = "8.9.0"
 android-tools = "31.8.1"
 apache-commons = "1.27.1"
 bouncycastle = "1.78.1"
@@ -12,7 +12,7 @@ composeForGradle = "1.6.10"
 eclipse-jgit = "7.1.0.202411261347-r"
 google-services = "4.4.2"
 gradle-api-forGradleBased = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
-gradle-api-forStandalone = "8.9"
+gradle-api-forStandalone = "8.11.1"
 hot-reload-version = "1.0.0-alpha02" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"

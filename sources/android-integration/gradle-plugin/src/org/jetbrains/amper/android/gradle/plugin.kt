@@ -16,6 +16,7 @@ import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.problems.Problems
 import org.gradle.api.problems.Severity
 import org.gradle.api.provider.Property
+import org.gradle.initialization.DefaultProjectDescriptor
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
@@ -108,7 +109,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
 
         project.plugins.apply("com.android.application")
 
-        if((module.buildDir / "google-services.json").exists()) {
+        if ((module.buildDir / "google-services.json").exists()) {
             project.plugins.apply("com.google.gms.google-services")
         }
 
@@ -134,7 +135,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
                 androidExtension.signingConfigs {
                     it.create(SIGNING_CONFIG_NAME) {
                         keystoreProperties.storeFile?.let { storeFile ->
-                            it.storeFile = (module.buildDir/ Path(storeFile)).toFile()
+                            it.storeFile = (module.buildDir / Path(storeFile)).toFile()
                         }
                         keystoreProperties.storePassword?.let { storePassword ->
                             it.storePassword = storePassword
@@ -148,15 +149,13 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
                     }
                 }
             } else {
-                problems
-                    .forNamespace("org.jetbrains.amper.android-integration")
-                    .reporting { problem ->
-                        problem
-                            .id("signing-properties-file-not-found", "Signing properties file not found")
-                            .contextualLabel("Signing properties file not found")
-                            .details("Signing properties file $path not found. Signing will not be configured")
-                            .severity(Severity.WARNING)
-                            .solution("Put signing properties file to $path")
+                problems.reporter.reporting { problem ->
+                    problem
+                        .id("signing-properties-file-not-found", "Signing properties file not found")
+                        .contextualLabel("Signing properties file not found")
+                        .details("Signing properties file $path not found. Signing will not be configured")
+                        .severity(Severity.WARNING)
+                        .solution("Put signing properties file to $path")
                 }
                 log.warn("Properties file $path not found. Signing will not be configured")
             }
@@ -313,6 +312,15 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
                 settings.include(projectPath)
                 val project = settings.project(projectPath)
                 project.projectDir = it.buildDir.toFile()
+
+                /*
+                * AndroidLint in AGP 8.6.X+ now checks if build files exist. For each Amper submodule needed to build
+                * an app, we explicitly set the build file (using an internal API) in a synthetic Gradle project within
+                * the build folder.
+                */
+                (project as DefaultProjectDescriptor).buildFileName = currentPath
+                    .relativize(settings.rootDir.toPath() / "build.gradle.kts")
+                    .toString()
             }
 
             settings.gradle.projectPathToModule[projectPath] = it
