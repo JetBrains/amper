@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 
@@ -62,21 +62,6 @@ fun collectBuildProblems(graph: DependencyNode, problemReporter: NoOpCollectingP
             }
         }
     }
-
-//    problemReporter.getProblems()
-//        .filter { it.source is PsiBuildProblemSource }
-//        .distinctBy { (it.source as PsiBuildProblemSource).psiElement to it.message }
-//        .forEach { buildProblem ->
-//            (buildProblem.source as? PsiBuildProblemSource)?.let {
-//                val psiFileProblems = readAction {
-//                    dependenciesBuildProblems.computeIfAbsent(it.psiElement.containingFile) { mutableSetOf() }
-//                }
-//                psiFileProblems.add(buildProblem)
-//            }
-//        }
-//
-//    AmperDependenciesProblemsHolder.getInstance(project)
-//        .updateProjectDependenciesBuildProblems(dependenciesBuildProblems.mapValues { it.value.toList() })
 }
 
 internal fun Message.mapSeverityToLevel(): Level = when (severity) {
