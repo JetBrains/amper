@@ -14,10 +14,27 @@ import kotlin.test.assertTrue
 
 class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     @Test
-    fun `running jvm`() = test(
+    fun `running jvm - Gradle 8_6`() = test(
         projectName = "jvm-basic",
         "run",
         expectOutputToHave = "Hello, World!",
+        gradleVersion = "8.6",
+    )
+
+    @Test
+    fun `running jvm - Gradle 8_7`() = test(
+        projectName = "jvm-basic",
+        "run",
+        expectOutputToHave = "Hello, World!",
+        gradleVersion = "8.7",
+    )
+
+    @Test
+    fun `running jvm - Gradle 8_11`() = test(
+        projectName = "jvm-basic",
+        "run",
+        expectOutputToHave = "Hello, World!",
+        gradleVersion = "8.11.1",
     )
 
     @Test
@@ -157,19 +174,27 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     }
 
     @Test
-    fun `compose desktop`() = test(
+    fun `compose desktop with Gradle 8_6`() = test(
         projectName = "compose-desktop",
         "assemble",
         expectOutputToHave = "BUILD SUCCESSFUL",
+        gradleVersion = "8.6",
     )
 
     @Test
     fun `compose desktop with Gradle 8_7`() = test(
         projectName = "compose-desktop",
         "assemble",
-        expectOutputToHave = "Amper does not support Gradle versions higher than 8.6",
-        shouldSucceed = false,
+        expectOutputToHave = "BUILD SUCCESSFUL",
         gradleVersion = "8.7",
+    )
+
+    @Test
+    fun `compose desktop with Gradle 8_9`() = test(
+        projectName = "compose-desktop",
+        "assemble",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+        gradleVersion = "8.9",
     )
 
     @Test
@@ -203,10 +228,20 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
 
     @Test
     @KonanFolderLock
-    fun `configure a project with most of the settings`() = test(
-        "settings",
+    fun `configure a project with most of the settings - gradle 8_6`() = test(
+        projectName = "settings",
         "build",
-        expectOutputToHave = "BUILD SUCCESSFUL"
+        expectOutputToHave = "BUILD SUCCESSFUL",
+        gradleVersion = "8.6",
+    )
+
+    @Test
+    @KonanFolderLock
+    fun `configure a project with most of the settings - gradle 8_11`() = test(
+        projectName = "settings",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+        gradleVersion = "8.11.1",
     )
 
     @Test
@@ -379,22 +414,27 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun `testing gradle interoperability with gradle-jvm layout`() = test(
+    fun `testing gradle interoperability with gradle-jvm layout - gradle 8_6`() = test(
         projectName = "gradle-interoperability-gradle-jvm-layout",
         "run", "test",
-        expectOutputToHave = """> Task :run
-Hello, World!
+        expectOutputToHave = listOf("Hello, World!", "The test is running"),
+        gradleVersion = "8.6",
+    )
 
-> Task :jvmJar
-> Task :compileJvmTestJava SKIPPED
-> Task :compileTestKotlinJvm
-> Task :compileTestJava
-> Task :jvmTestClasses
+    @Test
+    fun `testing gradle interoperability with gradle-jvm layout - gradle 8_9`() = test(
+        projectName = "gradle-interoperability-gradle-jvm-layout",
+        "run", "test",
+        expectOutputToHave = listOf("Hello, World!", "The test is running"),
+        gradleVersion = "8.9",
+    )
 
-> Task :jvmTest
-
-MyTest[jvm] > test[jvm] STANDARD_OUT
-    The test is running""",
+    @Test
+    fun `testing gradle interoperability with gradle-jvm layout - gradle 8_11`() = test(
+        projectName = "gradle-interoperability-gradle-jvm-layout",
+        "run", "test",
+        expectOutputToHave = listOf("Hello, World!", "The test is running"),
+        gradleVersion = "8.11.1",
     )
 
     @Test
@@ -493,11 +533,10 @@ MyTest[jvm] > test[jvm] STANDARD_OUT
     )
 
     @Test
-    @Ignore("Gradle higher than 8.6 isn't supported anymore")
     fun `compose dev version change with Gradle 8_7 should fail`() = test(
         projectName = "compose-dev-version-change",
         "assemble",
-        expectOutputToHave = "Amper does not support Gradle versions higher than 8.6",
+        expectOutputToHave = "Gradle-based Amper does not support Compose version 1.6.0-dev1397. The only supported version is 1.6.10. Either switch to Standalone version of Amper or set the Compose version to 1.6.10 explicitly.",
         shouldSucceed = false,
         gradleVersion = "8.7",
     )
