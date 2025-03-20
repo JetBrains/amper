@@ -3,11 +3,7 @@
  */
 
 @file:OptIn(ExperimentalPathApi::class)
-@file:Repository("https://repo.gradle.org/gradle/libs-releases")
-@file:DependsOn("org.gradle:gradle-tooling-api:8.10")
 
-import org.gradle.tooling.GradleConnectionException
-import org.gradle.tooling.GradleConnector
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -19,7 +15,7 @@ private val testResourcePathRegex = Regex("(${Regex.escape(testResourcesDir.abso
 
 fun updateGoldFiles() {
     // regenerate .tmp files from broken tests
-    runSchemaTestsWithGradle()
+    runSchemaTests()
 
     schemaModuleDir.walk()
         .filter { it.name.endsWith(".tmp") }
@@ -28,24 +24,20 @@ fun updateGoldFiles() {
         }
 }
 
-fun runSchemaTestsWithGradle() {
-    println("Running schema tests in Gradle to generate .tmp result files...")
-    try {
-        GradleConnector.newConnector()
-            .forProjectDirectory(amperRootDir.toFile())
-            .useBuildDistribution()
-            .connect().use { connection ->
-                connection.newBuild()
-                    .forTasks(":sources:frontend:schema:check")
-                    .addArguments("--continue")
-                    .setStandardOutput(System.out)
-                    .run()
-            }
-        println()
-        println("Gradle build succeeded, which means no new .tmp files were generated.")
-    } catch (e: GradleConnectionException) {
-        println()
-        println("Gradle build failed, but it's ok if it's because of the failed schema tests.")
+@Suppress("PROCESS_BUILDER_START_LEAK")
+fun runSchemaTests() {
+    println("Running schema tests to generate .tmp result files...")
+    val isWindows = System.getProperty("os.name").startsWith("Win", ignoreCase = true)
+    val amperScript = if (isWindows) "amper.bat" else "amper"
+    val exitCode = ProcessBuilder(amperScript, "test", "-m", "schema")
+        .inheritIO()
+        .start()
+        .waitFor()
+    println()
+    if (exitCode == 0) {
+        println("Tests succeeded, which means no new .tmp files were generated.")
+    } else {
+        println("Tests failed, but it's ok if it's because of the failed schema tests.")
     }
     println()
 }
