@@ -4,25 +4,28 @@
 
 package org.jetbrains.amper.cli.test
 
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import java.util.jar.Attributes
+import java.util.jar.JarFile
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.isRegularFile
+import kotlin.io.path.pathString
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
-import kotlin.time.Duration.Companion.minutes
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
 class AmperBuildTest : AmperCliTestBase() {
 
     @Test
-    fun `build command produces a jar for jvm`() = runTest(timeout = 10.minutes) {
+    fun `build command produces a jar for jvm`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("multiplatform-input"),
             "build", "-p", "jvm",
@@ -31,6 +34,33 @@ class AmperBuildTest : AmperCliTestBase() {
         assertTrue {
             val file = result.getTaskOutputPath(":shared:jarJvm") / "shared-jvm.jar"
             file.exists()
+        }
+    }
+
+    @Test
+    fun `build jar with main class`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("java-kotlin-mixed"), "build")
+
+        val jarPath = result.getTaskOutputPath(":java-kotlin-mixed:jarJvm").resolve("java-kotlin-mixed-jvm.jar")
+        assertTrue(jarPath.isRegularFile(), "${jarPath.pathString} should exist and be a file")
+
+        JarFile(jarPath.toFile()).use { jar ->
+            val mainClass = jar.manifest.mainAttributes[Attributes.Name.MAIN_CLASS] as? String
+            assertNotNull(mainClass, "The ${Attributes.Name.MAIN_CLASS} attribute should be present")
+            assertEquals("bpkg.MainKt", mainClass)
+
+            val entryNames = jar.entries().asSequence().map { it.name }.toList()
+            val expectedEntriesInOrder = listOf(
+                "META-INF/MANIFEST.MF",
+                "META-INF/",
+                "META-INF/main.kotlin_module",
+                "apkg/",
+                "apkg/AClass.class",
+                "bpkg/",
+                "bpkg/BClass.class",
+                "bpkg/MainKt.class",
+            )
+            assertEquals(expectedEntriesInOrder, entryNames)
         }
     }
 

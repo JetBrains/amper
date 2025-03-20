@@ -47,34 +47,6 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     )
 
     @Test
-    fun `jvm jar task with main class`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("java-kotlin-mixed")
-        AmperBackend(projectContext).runTask(TaskName(":java-kotlin-mixed:jarJvm"))
-
-        val jarPath = projectContext.buildOutputRoot.path.resolve("tasks/_java-kotlin-mixed_jarJvm/java-kotlin-mixed-jvm.jar")
-        assertTrue(jarPath.isRegularFile(), "${jarPath.pathString} should exist and be a file")
-
-        JarFile(jarPath.toFile()).use { jar ->
-            val mainClass = jar.manifest.mainAttributes[Attributes.Name.MAIN_CLASS] as? String
-            assertNotNull(mainClass, "The ${Attributes.Name.MAIN_CLASS} attribute should be present")
-            assertEquals("bpkg.MainKt", mainClass)
-
-            val entryNames = jar.entries().asSequence().map { it.name }.toList()
-            val expectedEntriesInOrder = listOf(
-                "META-INF/MANIFEST.MF",
-                "META-INF/",
-                "META-INF/main.kotlin_module",
-                "apkg/",
-                "apkg/AClass.class",
-                "bpkg/",
-                "bpkg/BClass.class",
-                "bpkg/MainKt.class",
-            )
-            assertEquals(expectedEntriesInOrder, entryNames)
-        }
-    }
-
-    @Test
     fun `kotlin compiler span`() = runTestWithCollector {
         val projectContext = setupTestDataProject("jvm-language-version-1.9")
         AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
