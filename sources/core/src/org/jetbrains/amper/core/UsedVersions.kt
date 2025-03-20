@@ -11,7 +11,7 @@ package org.jetbrains.amper.core
  */
 object UsedVersions {
 
-    /*magic_replacement*/ val kotlinVersion = "2.1.20-RC3"
+    /*magic_replacement*/ val kotlinVersion = "2.1.20"
 
     /*magic_replacement*/ val kotlinxSerializationVersion = "1.7.3"
 

@@ -2073,9 +2073,9 @@ sqldelight {
 
 | Plugin                                      | Version |
 |---------------------------------------------|---------|
-| `org.jetbrains.kotlin.multiplatform`        | 2.1.20-RC3  |
-| `org.jetbrains.kotlin.android`              | 2.1.20-RC3  |
-| `org.jetbrains.kotlin.plugin.serialization` | 2.1.20-RC3  |
+| `org.jetbrains.kotlin.multiplatform`        | 2.1.20  |
+| `org.jetbrains.kotlin.android`              | 2.1.20  |
+| `org.jetbrains.kotlin.plugin.serialization` | 2.1.20  |
 | `com.android.library`                       | 8.2.0   |
 | `com.android.application`                   | 8.2.0   |
 | `org.jetbrains.compose`                     | 1.7.3  |

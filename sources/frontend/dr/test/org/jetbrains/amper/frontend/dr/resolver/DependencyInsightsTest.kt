@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
@@ -38,23 +39,23 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                 module = "jvm-empty",
                 expected = """
 module:jvm-empty
-+--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
++--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
 |         \--- org.jetbrains:annotations:13.0
-+--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
-+--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3
-|         +--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC3
-|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
+|         +--- org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
 |         \--- junit:junit:4.13.2
 |              \--- org.hamcrest:hamcrest-core:1.3
-+--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
-+--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
-\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
-     \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3 (*)
++--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
++--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+     \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)
 """.trimIndent()
             )
         }
@@ -66,20 +67,20 @@ module:jvm-empty
                 graph = jvmEmptyModuleGraph,
                 expected = """
 module:jvm-empty
-+--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
-+--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
-+--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3
-|         \--- org.jetbrains.kotlin:kotlin-test:2.1.20-RC3
-|              \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
-+--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
-+--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
-\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
-     \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3 (*)""".trimIndent()
++--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
+|         \--- org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
++--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
++--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+     \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)""".trimIndent()
             )
             assertInsight(
                 group = "org.hamcrest",
@@ -87,12 +88,12 @@ module:jvm-empty
                 graph = jvmEmptyModuleGraph,
                 expected = """
 module:jvm-empty
-+--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
 |         \--- junit:junit:4.13.2
 |              \--- org.hamcrest:hamcrest-core:1.3
-\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
-     \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3 (*)""".trimIndent()
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+     \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)""".trimIndent()
             )
             assertInsight(
                 group = "org.jetbrains.kotlin",
@@ -100,10 +101,10 @@ module:jvm-empty
                 graph = jvmEmptyModuleGraph,
                 expected = """
 module:jvm-empty
-+--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3
-\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3, implicit
-     \--- org.jetbrains.kotlin:kotlin-test-junit:2.1.20-RC3""".trimIndent()
++--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
+\--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+     \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}""".trimIndent()
             )
             assertInsight(
                 group = "org.jetbrains.kotlin", module = "XXX", graph = jvmEmptyModuleGraph,
@@ -144,50 +145,50 @@ module:jvm-empty
 |              |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3
 |              |         |         |    +--- androidx.annotation:annotation:1.8.0
 |              |         |         |    |    \--- androidx.annotation:annotation-iosarm64:1.8.0
-|              |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.1.20-RC3
-|              |         |         |    |              \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC3 (c)
-|              |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> ${UsedVersions.kotlinVersion}
+|              |         |         |    |              \--- org.jetbrains.kotlin:kotlin-stdlib-common:${UsedVersions.kotlinVersion} (c)
+|              |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> ${UsedVersions.kotlinVersion}
 |              |         |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3
 |              |         |         |    +--- androidx.collection:collection:1.4.0
 |              |         |         |    |    \--- androidx.collection:collection-iosarm64:1.4.0
 |              |         |         |    |         +--- androidx.annotation:annotation:1.7.0 -> 1.8.0 (*)
-|              |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
+|              |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion}
 |              |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
-|              |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> ${UsedVersions.kotlinVersion}
 |              |         |         |    \--- org.jetbrains.kotlinx:atomicfu:0.23.2
 |              |         |         |         \--- org.jetbrains.kotlinx:atomicfu-iosarm64:0.23.2
-|              |         |         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|              |         |         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> ${UsedVersions.kotlinVersion}
 |              |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3
 |              |         |         |    \--- org.jetbrains.compose.runtime:runtime-uikitarm64:1.7.3
 |              |         |         |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3
-|              |         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
+|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion}
+|              |         |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
 |              |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 |              |         |         |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosarm64:1.8.0
 |              |         |         |                   +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
-|              |         |         |                   \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|              |         |         |                   \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> ${UsedVersions.kotlinVersion}
 |              |         |         +--- org.jetbrains.compose.ui:ui:1.7.3
 |              |         |         |    \--- org.jetbrains.compose.ui:ui-uikitarm64:1.7.3
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-common:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-common-iosarm64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion}
 |              |         |         |         |    |         +--- org.jetbrains.kotlinx:atomicfu:0.17.0 -> 0.23.2 (*)
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> ${UsedVersions.kotlinVersion}
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-runtime:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-runtime-iosarm64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 (*)
 |              |         |         |         |    |         +--- androidx.lifecycle:lifecycle-common:2.8.5 (*)
-|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
+|              |         |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion}
 |              |         |         |         |    +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> ${UsedVersions.kotlinVersion}
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 |              |         |         |         |    \--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitarm64:2.8.4
@@ -195,15 +196,15 @@ module:jvm-empty
 |              |         |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> ${UsedVersions.kotlinVersion}
 |              |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 |              |         |         |         |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5
 |              |         |         |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-iosarm64:2.8.5
 |              |         |         |         |    |         +--- androidx.annotation:annotation:1.8.0 (*)
-|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.1.20-RC3
+|              |         |         |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion}
 |              |         |         |         |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |              |         |         |         |    +--- org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> 2.1.20-RC3
+|              |         |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> ${UsedVersions.kotlinVersion}
 |              |         |         |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -211,7 +212,7 @@ module:jvm-empty
 |              |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitarm64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitarm64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
@@ -219,8 +220,8 @@ module:jvm-empty
 |              |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-util-uikitarm64:1.7.3
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3
 |              |         |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-uikit-uikitarm64:1.7.3
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitarm64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
@@ -233,13 +234,13 @@ module:jvm-empty
 |              |         |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18
 |              |         |         |         |              \--- org.jetbrains.skiko:skiko-iosarm64:0.8.18
 |              |         |         |         |                   +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
+|              |         |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> ${UsedVersions.kotlinVersion}
 |              |         |         |         |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-text:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitarm64:1.7.3
@@ -250,20 +251,20 @@ module:jvm-empty
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         |         |         \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 |              |         +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -274,12 +275,12 @@ module:jvm-empty
 |              |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              +--- org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 |              +--- org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
 |              +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
@@ -287,7 +288,7 @@ module:jvm-empty
 |              +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.skiko:skiko:0.8.18 (*)
 +--- shared:common:org.jetbrains.compose.material3:material3:1.7.3
@@ -303,7 +304,7 @@ module:jvm-empty
 |              |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              +--- org.jetbrains.compose.material:material-ripple:1.7.3
 |              |    \--- org.jetbrains.compose.material:material-ripple-uikitarm64:1.7.3
 |              |         +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
@@ -311,38 +312,38 @@ module:jvm-empty
 |              |         +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 |              \--- org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
 |                   \--- org.jetbrains.kotlinx:kotlinx-datetime-iosarm64:0.6.0
 |                        +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
 |                        |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-iosarm64:1.6.2
-|                        |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC3 (*)
-|                        |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
-|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.20-RC3
-+--- shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
+|                        |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> ${UsedVersions.kotlinVersion} (*)
+|                        |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> ${UsedVersions.kotlinVersion}
+|                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> ${UsedVersions.kotlinVersion}
++--- shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
 +--- shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-+--- shared:apple:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
++--- shared:apple:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
 +--- shared:apple:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-+--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
++--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
 +--- shared:common:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-+--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
++--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
 +--- shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-+--- shared:native:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
++--- shared:native:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
 \--- shared:native:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
      \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
              """.trimIndent()
@@ -350,7 +351,7 @@ module:jvm-empty
         }
 
         // Subgraph for "org.jetbrains.kotlin:kotlin-stdlib" shows places referencing the dependency
-        // of the exact effective version only (2.1.20-RC3).
+        // of the exact effective version only (${UsedVersions.kotlinVersion}).
         // There are other paths to this dependency referencing another version of this dependency, those are skipped as well as same-version constraints.
         runBlocking {
             assertInsight(
@@ -398,8 +399,8 @@ module:jvm-empty
             )
 
             // Subgraph for "org.jetbrains.kotlin:kotlin-stdlib-common" shows all places referencing the dependency
-            // since none of those places references the exact effective version (2.1.20-RC3).
-            // Also, the path to the constraint defining the effective version (2.1.20-RC3) is also presented in a graph.
+            // since none of those places references the exact effective version (${UsedVersions.kotlinVersion}).
+            // Also, the path to the constraint defining the effective version (${UsedVersions.kotlinVersion}) is also presented in a graph.
             assertInsight(
                 group = "org.jetbrains.kotlin",
                 module = "kotlin-stdlib-common",
@@ -414,23 +415,23 @@ module:jvm-empty
 |              |         |    \--- org.jetbrains.compose.animation:animation-core-uikitarm64:1.7.3
 |              |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3
 |              |         |         |    \--- org.jetbrains.compose.runtime:runtime-uikitarm64:1.7.3
-|              |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3
-|              |         |         |              \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3
-|              |         |         |                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20-RC3 (c)
+|              |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion}
+|              |         |         |              \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+|              |         |         |                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:${UsedVersions.kotlinVersion} (c)
 |              |         |         +--- org.jetbrains.compose.ui:ui:1.7.3
 |              |         |         |    \--- org.jetbrains.compose.ui:ui-uikitarm64:1.7.3
 |              |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitarm64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitarm64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3
 |              |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-util-uikitarm64:1.7.3
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitarm64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
@@ -440,9 +441,9 @@ module:jvm-empty
 |              |         |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-text:1.7.3
 |              |         |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitarm64:1.7.3
 |              |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
@@ -451,30 +452,30 @@ module:jvm-empty
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3
 |              |         |    \--- org.jetbrains.compose.foundation:foundation-layout-uikitarm64:1.7.3
 |              |         |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              +--- org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
 |              +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 +--- shared:common:org.jetbrains.compose.material3:material3:1.7.3
 |    \--- org.jetbrains.compose.material3:material3:1.7.3
 |         \--- org.jetbrains.compose.material3:material3-uikitarm64:1.7.3
@@ -486,42 +487,42 @@ module:jvm-empty
 |              |         +--- org.jetbrains.compose.ui:ui:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              +--- org.jetbrains.compose.material:material-ripple:1.7.3
 |              |    \--- org.jetbrains.compose.material:material-ripple-uikitarm64:1.7.3
 |              |         +--- org.jetbrains.compose.animation:animation:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.foundation:foundation:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              |         +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              +--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-text:1.7.3 (*)
 |              +--- org.jetbrains.compose.ui:ui-util:1.7.3 (*)
-|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> 2.1.20-RC3 (*)
+|              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> ${UsedVersions.kotlinVersion} (*)
 |              \--- org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
 |                   \--- org.jetbrains.kotlinx:kotlinx-datetime-iosarm64:0.6.0
 |                        \--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
 |                             \--- org.jetbrains.kotlinx:kotlinx-serialization-core-iosarm64:1.6.2
-|                                  \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 2.1.20-RC3 (*)
-+--- shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
+|                                  \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> ${UsedVersions.kotlinVersion} (*)
++--- shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
 +--- shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-+--- shared:apple:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
++--- shared:apple:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
 +--- shared:apple:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-+--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
++--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
 +--- shared:common:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-+--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
++--- shared:ios:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
 +--- shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
 |    \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-+--- shared:native:org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3, implicit
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC3 (*)
++--- shared:native:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
 \--- shared:native:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
      \--- org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 """.trimIndent()
