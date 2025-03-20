@@ -41,12 +41,35 @@ cd jvm
 ./amper run 
 ```
 
+#### Amper CLI tab-completion
+
+If you’re using `bash`, `zsh`, or `fish`, you can generate a completion script to source as part of your shell’s
+configuration, to get tab completion for Amper commands.
+
+First, generate the completion script using the `generate-completion` command, specifying the shell you use:
+
+```
+./amper generate-completion zsh > ~/amper-completion.sh
+```
+
+Then load the script in your shell (this can be added to `.bashrc`, `.zshrc`, or similar configuration files to load it
+automatically):
+
+```
+source ~/amper-completion.sh
+```
+
+You should now have tab completion available for Amper subcommands, options, and option values.
+
 #### Updating Amper to a newer version
 
 Run `./amper update` to update the Amper scripts and distribution to the latest released version.
 Use the `--dev` option if you want to try the bleeding edge dev build of Amper (no guarantees are made on these builds).
 
 See `./amper update -h` for more information about the available options.
+
+> Note: if you had generated a completion script before, you need to re-generate it with the new Amper version (see
+> previous section).
 
 ### Using the Gradle-based Amper version from the command line
 
