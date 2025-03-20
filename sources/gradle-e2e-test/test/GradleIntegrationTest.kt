@@ -381,8 +381,20 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     @Test
     fun `testing gradle interoperability with gradle-jvm layout`() = test(
         projectName = "gradle-interoperability-gradle-jvm-layout",
-        "run",
-        expectOutputToHave = "Hello, World!",
+        "run", "test",
+        expectOutputToHave = """> Task :run
+Hello, World!
+
+> Task :jvmJar
+> Task :compileJvmTestJava SKIPPED
+> Task :compileTestKotlinJvm
+> Task :compileTestJava
+> Task :jvmTestClasses
+
+> Task :jvmTest
+
+MyTest[jvm] > test[jvm] STANDARD_OUT
+    The test is running""",
     )
 
     @Test
