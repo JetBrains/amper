@@ -57,6 +57,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import org.jetbrains.kotlin.konan.target.Family
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.relativeTo
@@ -297,7 +298,7 @@ class KMPPBindingPluginPart(
                                 nativeSettings.entryPoint
                             } else {
                                 val sources = kotlinNativeCompilation.defaultSourceSet.closureSources
-                                findEntryPoint(sources, EntryPointType.NATIVE, JavaBindingPluginPart.logger)
+                                findEntryPoint(sources, EntryPointType.NATIVE, LoggerFactory.getLogger("main-finder"))
                             }
                         }
                     }
