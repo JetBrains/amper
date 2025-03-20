@@ -1,4 +1,4 @@
-compose-android: An Android application using JetPack Compose for its UI
+compose-android: An Android application using Jetpack Compose for its UI
 compose-desktop: A JVM application using Compose for Desktop for its UI
 compose-ios: An iOS application using Compose multiplatform for its UI
 compose-multiplatform: A KMP project with an Android, iOS, and JVM desktop application sharing a UI with Compose multiplatform
