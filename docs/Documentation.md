@@ -646,11 +646,22 @@ org.gradle.jvmargs=-Xmx4g
 
 Amper supports [Compose Multiplatform resources](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html).
 
-> Current limitations: 
->  - Resources are supported only in [Gradle-based projects](#gradle-based-projects).
->  - To use multiplatform resources, a module must be configured with a [Gradle-compatible file layout](#file-layout-with-gradle-interop).   
+The file layout for the standalone Amper is:
+```
+|-my-kmp-module/
+|  |-module.yaml
+|  |-src/ # your code is here
+|  |  |-...
+|  |-composeResources/ # place your multiplatform resources in this folder
+|  |  |-values/
+|  |  |  |-strings.xml
+|  |  |-drawable/
+|  |  |  |-image.jpg
+|  |-...
+```
 
-The file layout is:
+To use multiplatform resources in a Gradle-based project,
+a module must be configured with a [Gradle-compatible file layout](#file-layout-with-gradle-interop):
 ```
 |-my-kmp-module/
 |  |-module.yaml
@@ -665,7 +676,6 @@ The file layout is:
 |  |  |  |  |  |-image.jpg
 |  |  |-...
 ```
-
 
 Configure the `module.yaml` to use `gradle-kmp` file layout:
 ```yaml
