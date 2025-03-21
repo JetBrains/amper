@@ -98,8 +98,8 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
                 .setEnvironmentVariables(newEnv)
                 // --no-build-cache: do not get a build result from shared Gradle cache
                 .withArguments(*buildArguments, "--stacktrace", "--no-build-cache")
-                .setStandardOutput(TeeOutputStream(testReporter.out(linePrefix = "[gradle out] "), stdout))
-                .setStandardError(TeeOutputStream(testReporter.err(linePrefix = "[gradle err] "), stderr))
+                .setStandardOutput(TeeOutputStream(System.out, TeeOutputStream(testReporter.out(linePrefix = "[gradle out] "), stdout)))
+                .setStandardError(TeeOutputStream(System.err, TeeOutputStream(testReporter.err(linePrefix = "[gradle err] "), stderr)))
 //                .addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
                 .run()
         } catch (t: BuildException) {
