@@ -414,7 +414,7 @@ MyTest[jvm] > test[jvm] STANDARD_OUT
     @Test
     fun `compose-desktop packaging`() = test(
         projectName = "compose-desktop-packaging",
-        "package",
+        "packageDistributionForCurrentOS",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
