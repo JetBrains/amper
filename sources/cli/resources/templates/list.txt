@@ -1,7 +1,7 @@
 compose-android: An Android application using Jetpack Compose for its UI
 compose-desktop: A JVM application using Compose for Desktop for its UI
-compose-ios: An iOS application using Compose multiplatform for its UI
-compose-multiplatform: A KMP project with an Android, iOS, and JVM desktop application sharing a UI with Compose multiplatform
+compose-ios: An iOS application using Compose Multiplatform for its UI
+compose-multiplatform: A KMP project with an Android, iOS, and JVM desktop application sharing a UI with Compose Multiplatform
 jvm-cli: A plain JVM console application
 kmp-lib: A multiplatform library targeting Android, iOS, and the JVM
 multiplatform-cli: A multiplatform CLI application targeting the JVM, as well as linux, macOS, and Windows native targets
