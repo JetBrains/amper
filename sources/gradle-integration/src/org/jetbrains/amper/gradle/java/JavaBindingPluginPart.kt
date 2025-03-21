@@ -6,10 +6,10 @@ package org.jetbrains.amper.gradle.java
 
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
+import org.gradle.util.GradleVersion
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.gradle.EntryPointType
@@ -27,6 +27,7 @@ import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
 import org.jetbrains.amper.gradle.kotlin.configureCompilerOptions
 import org.jetbrains.amper.gradle.layout
 import org.jetbrains.amper.gradle.replacePenultimatePaths
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
@@ -88,8 +89,29 @@ class JavaBindingPluginPart(
                         "Applying application settings from first one."
             )
         val fragment = leafPlatformFragments.firstOrNull() ?: return
-        if (!fragment.settings.compose.enabled) {
-            project.plugins.apply(ApplicationPlugin::class.java)
+        if (module.type.isApplication() && !fragment.settings.compose.enabled) {
+            // We could use the else branch also for Gradle < 8.7, but the current fallback implementation is not ideal
+            // in terms of interop, so for now we keep it like this.
+            // For example, the gradle-interop example project uses the sqldelight Gradle plugin, which forces the
+            // KGP version to 1.8.22, making it impossible to customize the main class.
+            if (GradleVersion.current() < GradleVersion.version("8.7")) {
+                project.plugins.apply(ApplicationPlugin::class.java)
+            } else {
+                // A 'run' task is added when applying the Application plugin, so it's kinda expected by Gradle users
+                // when they have jvm/app modules.
+                project.tasks.register("run") {
+                    it.dependsOn(project.tasks.named("runJvm"))
+                    it.group = "application"
+                    it.description = "Run the JVM application."
+                }
+                // A 'test' task is added when applying the Java or Application plugin, so it's kinda expected by Gradle
+                // users when they have jvm/app modules.
+                project.tasks.register("test") {
+                    it.dependsOn(project.tasks.named("jvmTest"))
+                    it.group = "verification"
+                    it.description = "Run all JVM tests."
+                }
+            }
         }
 
         val jvmSettings = fragment.settings.jvm
@@ -115,17 +137,24 @@ class JavaBindingPluginPart(
                 findEntryPoint(sources, EntryPointType.JVM, logger)
             }
 
-            @Suppress("OPT_IN_USAGE")
-            (fragment.target as KotlinJvmTarget).mainRun {
-                mainClass.set(foundMainClass)
-            }
-
-            javaAPE?.apply {
-                // Check if main class is set in the build script.
-                if (mainClass.orNull == null) {
-                    mainClass.set(foundMainClass)
+            @OptIn(ExperimentalKotlinGradlePluginApi::class)
+            (fragment.target as KotlinJvmTarget).binaries {
+                executable {
+                    if (mainClass.orNull == null) {
+                        mainClass.set(foundMainClass)
+                    }
                 }
             }
+
+            if (GradleVersion.current() < GradleVersion.version("8.7")) {
+                javaAPE?.apply {
+                    // Check if main class is set in the build script.
+                    if (mainClass.orNull == null) {
+                        mainClass.set(foundMainClass)
+                    }
+                }
+            }
+
             // TODO Handle Amper variants gere, when we will switch to manual java source sets creation.
             project.tasks.withType(Jar::class.java) {
                 it.manifest {
@@ -139,9 +168,10 @@ class JavaBindingPluginPart(
     // TODO Rewrite this completely by not calling
     //  KMPP code and following out own conventions.
     private fun addJavaIntegration() {
-        project.plugins.apply(JavaPlugin::class.java)
-
         kotlinMPE.targets.toList().forEach {
+            // Apparently this is still necessary even in Gradle 8.7+, otherwise the app doesn't see java classes at
+            // runtime (at least in gradle-jvm layout, probably because we use custom src dirs).
+            @Suppress("DEPRECATION")
             if (it is KotlinJvmTarget) it.withJava()
         }
 

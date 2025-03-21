@@ -21,9 +21,9 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun `running jvm using jvmRun`() = test(
+    fun `running jvm using runJvm`() = test(
         projectName = "jvm-basic",
-        "jvmRun",
+        "runJvm",
         expectOutputToHave = "Hello, World!",
     )
 

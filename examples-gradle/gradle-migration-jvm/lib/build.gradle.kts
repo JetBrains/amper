@@ -1,6 +1,5 @@
 plugins {
-    // Apply any plugins as usual.
-    java
+    // Apply any plugins as usual, except the Java, Application, and Kotlin plugins
 
     // Note: The following plugins are preconfigured and their versions can't be changed:
     //   * `org.jetbrains.kotlin.multiplatform`
@@ -27,6 +26,6 @@ repositories {
 }
 
 // Configure existing tasks or plugins
-tasks.test {
+tasks.withType<Test> {
     useJUnitPlatform()
 }
