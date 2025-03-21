@@ -62,7 +62,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.1.20-RC2-1.0.31
+          version: <default> 2.1.20-1.0.31
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -147,7 +147,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.1.20-RC2-1.0.31
+          version: <default> 2.1.20-1.0.31
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -232,7 +232,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.1.20-RC2-1.0.31
+          version: <default> 2.1.20-1.0.31
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -316,7 +316,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.1.20-RC2-1.0.31
+          version: <default> 2.1.20-1.0.31
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
