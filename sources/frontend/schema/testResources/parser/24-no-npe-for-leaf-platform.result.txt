@@ -78,7 +78,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -179,7 +179,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -277,7 +277,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -377,7 +377,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -475,7 +475,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -575,7 +575,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -673,7 +673,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -771,7 +771,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -871,7 +871,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -971,7 +971,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -1071,7 +1071,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -1169,7 +1169,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -1269,7 +1269,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -1368,7 +1368,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -1466,7 +1466,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
@@ -1566,7 +1566,7 @@ Fragments:
         serialization: <default> {
           enabled: <default> false
           format: <default> null
-          version: <default> 1.7.3
+          version: <default> 1.8.0
         }
         suppressWarnings: false
         verbose: true
