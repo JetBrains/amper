@@ -158,8 +158,7 @@ internal class IdeSync(
         fileCacheBuilder: FileCacheBuilder.() -> Unit
     ): Context = fragment.module.resolveModuleContext(
         fragment.resolutionPlatforms,
-        // Todo (AB) : Prefer COMPILE here (and don't use Ide module dependencies as a runtime classpath)
-        if (runtime) ResolutionScope.RUNTIME else ResolutionScope.COMPILE,
+        if (compile) ResolutionScope.COMPILE else ResolutionScope.RUNTIME,
         fileCacheBuilder
     )
 }
