@@ -21,7 +21,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.JdkDownloader
-import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
+import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -174,7 +174,10 @@ class JvmTestTask(
                         workingDir = workingDirectory,
                         command = jvmCommand,
                         span = span,
-                        outputListener = PrintToTerminalProcessOutputListener(terminal),
+                        // We need to respect the exact output of the tests, so we shouldn't go through the Mordant
+                        // terminal, because it processes line wrapping and tab conversions to spaces with tab stops.
+                        // This can break TeamCity messages for instance.
+                        outputListener = ProcessOutputListener.Streaming(),
                     )
 
                     // TODO exit code from junit launcher should be carefully become some kind of exit code for entire Amper run

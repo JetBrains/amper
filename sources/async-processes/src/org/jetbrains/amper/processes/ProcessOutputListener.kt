@@ -4,14 +4,30 @@
 
 package org.jetbrains.amper.processes
 
+import java.io.PrintStream
+
 interface ProcessOutputListener {
     fun onStdoutLine(line: String, pid: Long)
     fun onStderrLine(line: String, pid: Long)
     fun onProcessTerminated(exitCode: Int, pid: Long) {}
 
+    /**
+     * A [ProcessOutputListener] that ignores all output.
+     */
     object NOOP : ProcessOutputListener {
         override fun onStdoutLine(line: String, pid: Long) = Unit
         override fun onStderrLine(line: String, pid: Long) = Unit
+    }
+
+    /**
+     * A [ProcessOutputListener] that forwards the process streams to the given [stdout] and [stderr] output streams.
+     */
+    class Streaming(
+        val stdout: PrintStream = System.out,
+        val stderr: PrintStream = System.err,
+    ) : ProcessOutputListener {
+        override fun onStdoutLine(line: String, pid: Long) = stdout.println(line)
+        override fun onStderrLine(line: String, pid: Long) = stderr.println(line)
     }
 
     /**
