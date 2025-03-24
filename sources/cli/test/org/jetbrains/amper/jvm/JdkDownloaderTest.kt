@@ -5,9 +5,8 @@
 package org.jetbrains.amper.jvm
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
@@ -16,16 +15,11 @@ import kotlin.test.Test
 
 class JdkDownloaderTest {
     @Test
-    fun downloadForAllPlatforms() {
-        runBlocking {
-            coroutineScope {
-                for (os in OsFamily.entries) {
-                    for (arch in Arch.entries) {
-                        launch(Dispatchers.IO) {
-                            println("Checking $os / $arch")
-                            JdkDownloader.getJdk(AmperUserCacheRoot(Dirs.userCacheRoot), os, arch)
-                        }
-                    }
+    fun downloadForAllPlatforms() = runTest {
+        for (os in OsFamily.entries) {
+            for (arch in Arch.entries) {
+                launch(Dispatchers.IO) {
+                    JdkDownloader.getJdk(AmperUserCacheRoot(Dirs.userCacheRoot), os, arch)
                 }
             }
         }
