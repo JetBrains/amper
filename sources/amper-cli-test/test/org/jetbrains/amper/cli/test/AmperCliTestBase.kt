@@ -50,7 +50,21 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         }
     }
 
+    /**
+     * Finds the directory of the test project with the given [name].
+     * This function does not create a temporary copy, and the test project should not be modified by tests.
+     * The [runCli] function uses a temporary location for the `build` directory, which will preserve the test project.
+     *
+     * The test projects are not expected to contain the Amper wrappers themselves.
+     * The [runCli] function uses locally published wrappers by default without modifying the test project.
+     */
     protected fun testProject(name: String): Path = Dirs.amperTestProjectsRoot.resolve(name)
+
+    /**
+     * Creates a new temporary empty directory to use as a test project.
+     * Files may be created by the test in this directory, as it will automatically be cleaned up after the test.
+     */
+    protected fun newEmptyProjectDir(): Path = tempRoot.resolve("new").also { it.createDirectories() }
 
     data class AmperCliResult(
         val projectRoot: Path,

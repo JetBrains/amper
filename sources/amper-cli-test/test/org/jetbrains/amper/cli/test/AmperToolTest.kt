@@ -7,7 +7,6 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
-import kotlin.io.path.createDirectories
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -17,7 +16,7 @@ class AmperToolTest : AmperCliTestBase() {
 
     @Test
     fun `tool jdk jstack runs`() = runSlowTest {
-        val p = tempRoot.resolve("new").also { it.createDirectories() }
+        val p = newEmptyProjectDir()
         val result = runCli(p, "tool", "jdk", "jstack", ProcessHandle.current().pid().toString())
 
         val requiredSubstring = "Full thread dump"

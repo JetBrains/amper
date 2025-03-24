@@ -11,7 +11,6 @@ import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
-import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.isExecutable
 import kotlin.io.path.readText
@@ -26,7 +25,7 @@ class AmperInitTest : AmperCliTestBase() {
 
     @Test
     fun `init generates a project from the given template`() = runSlowTest {
-        val newRoot = tempRoot.resolve("new").also { it.createDirectories() }
+        val newRoot = newEmptyProjectDir()
         runCli(newRoot, "init", "multiplatform-cli")
 
         newRoot.assertContainsRelativeFiles(
@@ -51,7 +50,7 @@ class AmperInitTest : AmperCliTestBase() {
 
     @Test
     fun `init overwrites existing wrapper scripts`() = runSlowTest {
-        val newRoot = tempRoot.resolve("new").also { it.createDirectories() }
+        val newRoot = newEmptyProjectDir()
 
         val bashWrapper = newRoot.resolve("amper")
         val batWrapper = newRoot.resolve("amper.bat")
@@ -76,7 +75,7 @@ class AmperInitTest : AmperCliTestBase() {
 
     @Test
     fun `init doesn't replace existing files - single`() = runSlowTest {
-        val newRoot = tempRoot.resolve("new").also { it.createDirectories() }
+        val newRoot = newEmptyProjectDir()
         val existingModuleFile = newRoot.resolve("jvm-cli/module.yaml").also { it.createParentDirectories() }
         existingModuleFile.writeText("some text in module.yaml")
 
@@ -95,7 +94,7 @@ class AmperInitTest : AmperCliTestBase() {
 
     @Test
     fun `init doesn't replace existing files - multiple`() = runSlowTest {
-        val newRoot = tempRoot.resolve("new").also { it.createDirectories() }
+        val newRoot = newEmptyProjectDir()
         val existingProjectFile = newRoot.resolve("project.yaml")
         val existingModuleFile = newRoot.resolve("jvm-cli/module.yaml").createParentDirectories()
         existingProjectFile.writeText("some text in project.yaml")

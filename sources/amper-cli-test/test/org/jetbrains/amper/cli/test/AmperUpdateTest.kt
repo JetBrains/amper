@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.readLines
@@ -32,11 +31,9 @@ import kotlin.time.Duration.Companion.milliseconds
 @Execution(ExecutionMode.CONCURRENT)
 class AmperUpdateTest : AmperCliTestBase() {
 
-    private fun newTestProjectDir(): Path = tempRoot.resolve("new").also { it.createDirectories() }
-
     @Test
     fun `update command without options creates wrappers with confirmation`() = runSlowTest {
-        val projectDir = newTestProjectDir()
+        val projectDir = newEmptyProjectDir()
 
         val result = runCli(projectDir, "update", stdin = ProcessInput.Text("y\n"))
 
@@ -46,7 +43,7 @@ class AmperUpdateTest : AmperCliTestBase() {
 
     @Test
     fun `update --create command creates wrappers without confirmation`() = runSlowTest {
-        val projectDir = newTestProjectDir()
+        val projectDir = newEmptyProjectDir()
 
         val result = runCli(projectDir, "update", "--create")
 
@@ -56,7 +53,7 @@ class AmperUpdateTest : AmperCliTestBase() {
 
     @Test
     fun `update command without options replaces existing wrappers with latest release`() = runSlowTest {
-        val projectDir = newTestProjectDir()
+        val projectDir = newEmptyProjectDir()
         LocalAmperPublication.setupWrappersIn(projectDir)
 
         val (bashVersion, batVersion, result) = runAmperUpdate(projectDir)
@@ -70,7 +67,7 @@ class AmperUpdateTest : AmperCliTestBase() {
 
     @Test
     fun `update --dev command replaces existing wrappers with latest dev version`() = runSlowTest {
-        val projectDir = newTestProjectDir()
+        val projectDir = newEmptyProjectDir()
         LocalAmperPublication.setupWrappersIn(projectDir)
 
         val (bashVersion, batVersion, result) = runAmperUpdate(projectDir, "--dev")
@@ -84,7 +81,7 @@ class AmperUpdateTest : AmperCliTestBase() {
 
     @Test
     fun `update --target-version command replaces existing wrappers with specific version`() = runSlowTest {
-        val projectDir = newTestProjectDir()
+        val projectDir = newEmptyProjectDir()
         LocalAmperPublication.setupWrappersIn(projectDir)
 
         val (bashVersion, batVersion, result) = runAmperUpdate(projectDir, "--target-version=0.6.0-dev-2229")
@@ -96,7 +93,7 @@ class AmperUpdateTest : AmperCliTestBase() {
 
     @Test
     fun `can downgrade from current to 0_5_0`() = runSlowTest {
-        val projectDir = newTestProjectDir()
+        val projectDir = newEmptyProjectDir()
         LocalAmperPublication.setupWrappersIn(projectDir)
 
         val (bashVersion, batVersion, result) = runAmperUpdate(projectDir, "--target-version=0.5.0")
@@ -108,7 +105,7 @@ class AmperUpdateTest : AmperCliTestBase() {
 
     @Test
     fun `can update from 0_5_0 to current`() = runSlowTest {
-        val projectDir = newTestProjectDir()
+        val projectDir = newEmptyProjectDir()
         runCli(projectDir, "update", "--target-version=0.5.0", "--create")
 
         assertCanUpdateToCurrent(projectDir)
@@ -117,7 +114,7 @@ class AmperUpdateTest : AmperCliTestBase() {
     @Disabled("The current dev versions still have the update bug. Re-enable when AMPER-4164 is fixed")
     @Test
     fun `can update from latest dev to current`() = runSlowTest {
-        val projectDir = newTestProjectDir()
+        val projectDir = newEmptyProjectDir()
         runCli(projectDir, "update", "--dev", "--create")
 
         assertCanUpdateToCurrent(projectDir)
