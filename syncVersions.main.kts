@@ -31,7 +31,7 @@ val bootstrapAmperVersion = "0.6.0-dev-2579" // AUTO-UPDATED BY THE CI - DO NOT 
  * We need the JBR for 2024.2 to be compatible with glibc 2.17.
  * Check https://github.com/JetBrains/JetBrainsRuntime?tab=readme-ov-file#releases-based-on-jdk-21
  */
-val amperInternalJbrVersion = "21.0.4b509.26"
+val amperInternalJbrVersion = "21.0.6-b895.97"
 
 val kotlinVersion = "2.1.20"
 val kotlinxSerializationVersion = "1.8.0"
