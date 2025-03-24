@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 import java.io.OutputStream
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption.APPEND
+import java.nio.file.StandardOpenOption.CREATE
 import java.nio.file.StandardOpenOption.WRITE
 import java.time.Instant
 import java.time.LocalDateTime
@@ -135,7 +136,7 @@ private class MovableFileOutputStream(initialPath: Path) : OutputStream() {
             currentPath.moveTo(newPath)
         }
         currentPath = newPath
-        fileStream = newPath.outputStream(WRITE, APPEND).buffered()
+        fileStream = newPath.outputStream(WRITE, CREATE, APPEND).buffered()
     }
 
     @Synchronized
