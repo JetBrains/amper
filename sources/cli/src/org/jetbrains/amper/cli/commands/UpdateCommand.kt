@@ -25,6 +25,8 @@ import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.processes.startLongLivedProcess
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.ShellQuoting
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
@@ -107,7 +109,9 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         }
 
         // Test the new script and download the Amper distribution and JRE
-        val exitCode = runAmperVersionFirstRun(newBatPath, newBashPath)
+        val exitCode = spanBuilder("New version first run").use {
+            runAmperVersionFirstRun(newBatPath, newBashPath)
+        }
         if (exitCode != 0) {
             userReadableError("Couldn't run the new Amper version. Please check the errors above.")
         }
@@ -115,7 +119,9 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         // Replacing a bash script while it's running is possible. We use move commands to ensure the physical file on
         // disk is not modified, thus we can write a new physical file to the old location. Bash will keep loading the
         // old file incrementally from the old physical file using its old file descriptor, which is good.
-        copyAndReplaceSafely(source = newBashPath, target = amperBashPath)
+        spanBuilder("Replace 'amper' script (bash)").use {
+            copyAndReplaceSafely(source = newBashPath, target = amperBashPath)
+        }
 
         // Batch files are different. When running, cmd.exe reloads the file after each command and tries to resume at
         // whatever byte offset it was. We can modify the file while it's running, but when the java command running
@@ -127,10 +133,13 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         val batUpdateInPlaceWouldBreak = amperBatPath.exists()
                 && amperBatPath.isSameFileAs(runningWrapper)
                 && newBatPath.fileSize() > runningWrapper.fileSize()
-        if (batUpdateInPlaceWouldBreak) {
-            copyAndReplaceLaterWindows(source = newBatPath, target = amperBatPath)
-        } else {
-            copyAndReplaceSafely(source = newBatPath, target = amperBatPath)
+        spanBuilder("Replace 'amper.bat' script").use { span ->
+            if (batUpdateInPlaceWouldBreak) {
+                copyAndReplaceLaterWindows(source = newBatPath, target = amperBatPath)
+                span.addEvent("amper.bat script copy scheduled for after JVM shutdown")
+            } else {
+                copyAndReplaceSafely(source = newBatPath, target = amperBatPath)
+            }
         }
 
         val successStyle = Theme.Default.success
@@ -175,21 +184,22 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         is DesiredVersion.SpecificVersion -> version
     }
 
-    private suspend fun getLatestVersion(includeDevVersions: Boolean): String {
-        commonOptions.terminal.println("Fetching latest Amper version info...")
-        val metadataXml = fetchMavenMetadataXml()
-        return xmlVersionElementRegex.findAll(metadataXml)
-            .mapNotNull { parseAmperVersion(it.groupValues[1]) }
-            .filter { !it.isDevVersion || (includeDevVersions && !it.isSpecialBranchVersion) }
-            .maxByOrNull { ComparableVersion(it.fullMavenVersion) }
-            ?.fullMavenVersion
-            ?.also {
-                val versionMoniker = if (includeDevVersions) "dev version of Amper" else "Amper version"
-                val infoStyle = Theme.Default.info
-                commonOptions.terminal.println("Latest $versionMoniker is ${infoStyle(it)}")
-            }
-            ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$metadataXml")
-    }
+    private suspend fun getLatestVersion(includeDevVersions: Boolean): String =
+        spanBuilder("Fetch latest Amper version").use {
+            commonOptions.terminal.println("Fetching latest Amper version info...")
+            val metadataXml = fetchMavenMetadataXml()
+            xmlVersionElementRegex.findAll(metadataXml)
+                .mapNotNull { parseAmperVersion(it.groupValues[1]) }
+                .filter { !it.isDevVersion || (includeDevVersions && !it.isSpecialBranchVersion) }
+                .maxByOrNull { ComparableVersion(it.fullMavenVersion) }
+                ?.fullMavenVersion
+                ?.also {
+                    val versionMoniker = if (includeDevVersions) "dev version of Amper" else "Amper version"
+                    val infoStyle = Theme.Default.info
+                    commonOptions.terminal.println("Latest $versionMoniker is ${infoStyle(it)}")
+                }
+                ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$metadataXml")
+        }
 
     private suspend fun fetchMavenMetadataXml(): String = try {
         httpClient.get("$repository/org/jetbrains/amper/cli/maven-metadata.xml").bodyAsText()
@@ -198,11 +208,13 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     }
 
     private suspend fun downloadWrapper(version: String, extension: String): Path = try {
-        Downloader.downloadFileToCacheLocation(
-            url = "$repository/org/jetbrains/amper/cli/$version/cli-$version-wrapper$extension",
-            userCacheRoot = commonOptions.sharedCachesRoot,
-            infoLog = false,
-        )
+        spanBuilder("Download wrapper script (amper$extension)").use {
+            Downloader.downloadFileToCacheLocation(
+                url = "$repository/org/jetbrains/amper/cli/$version/cli-$version-wrapper$extension",
+                userCacheRoot = commonOptions.sharedCachesRoot,
+                infoLog = false,
+            )
+        }
     } catch (e: Exception) {
         userReadableError("Couldn't fetch Amper script version $version:\n$e")
     }
@@ -223,6 +235,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
             OsFamily.FreeBSD,
             OsFamily.Solaris -> listOf(bashWrapper.absolutePathString(), "--version")
         }
+        // This working dir is intentional to support a plain `./amper` in Windows Git bash (without paths shenanigans)
         return runProcessWithInheritedIO(workingDir = bashWrapper.absolute().parent, command = command)
     }
 
