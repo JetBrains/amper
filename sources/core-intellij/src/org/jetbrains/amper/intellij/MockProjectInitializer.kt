@@ -65,7 +65,20 @@ object MockProjectInitializer {
 
         val previousDisposable = ourDisposable
         if (previousDisposable != null) {
+            // If the MockProjectInitializer.initMockProject is called more than once within the current JVM session,
+            // we want to fully initialize new instances of the IntelliJ MockApplication and the MockProject.
+            // Since the Application is a singleton saved in the ApplicationManager.getApplication() we first need
+            // to dispose and nullify the previous one.
+            //
+            // initMockProject can be called twice at least in the following situations:
+            // 1. In Gradle-based Amper there is a Gradle demon that reuses the current JVM (and thus doesn't create
+            // a new instance of the MockProjectInitializer singleton) between different Amper commands.
+            // 2. Some tests create new instances of the FrontendPathResolver several times,
+            // and each FrontendPathResolver calls initMockProject() thus reusing the Applications.
+
             Disposer.dispose(previousDisposable)
+            @Suppress("UnstableApiUsage")
+            ApplicationManager.setApplication(null)
         }
 
         val previousApplication = ApplicationManager.getApplication()
