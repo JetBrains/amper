@@ -19,6 +19,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.impl.CoreProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.ThrowableComputable
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.util.ReadActionCache
 import com.intellij.util.ProcessingContext
@@ -34,6 +35,7 @@ import org.toml.lang.TomlLanguage
 import org.toml.lang.parse.TomlParserDefinition
 import org.toml.lang.psi.TomlFileType
 import org.toml.lang.psi.impl.TomlASTFactory
+import java.lang.Exception
 
 open class IntelliJApplicationConfigurator {
     open fun registerApplicationExtensions(application: MockApplication) {}
@@ -121,6 +123,14 @@ object MockProjectInitializer {
             runBlocking {
                 currentCoroutineContext().ensureActive()
             }
+        }
+
+        override fun <T : Any?, E : Exception?> computeInNonCancelableSection(computable: ThrowableComputable<T?, E?>): T? {
+            return computable.compute()
+        }
+
+        override fun isInNonCancelableSection(): Boolean {
+            return false
         }
     }
 
