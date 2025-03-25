@@ -61,7 +61,7 @@ Certain plugins come preconfigured and their versions can't be changed:
 | `org.jetbrains.kotlin.plugin.serialization` | 2.1.20  |
 | `com.android.library`                       | 8.2.0   |
 | `com.android.application`                   | 8.2.0   |
-| `org.jetbrains.compose`                     | 1.7.3  |
+| `org.jetbrains.compose`                     | 1.6.10  |
 
 Check the `settings.gradle.kts` file and update `pluginManagement { plugins {...} }` section:
 ```kotlin

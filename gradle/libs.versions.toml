@@ -7,8 +7,7 @@ android-tools = "31.8.1"
 apache-commons = "1.27.1"
 bouncycastle = "1.78.1"
 clikt = "5.0.3"
-compose = "1.7.3" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
-composeForGradle = "1.6.10"
+compose-forGradleBased = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 eclipse-jgit = "7.1.0.202411261347-r"
 google-services = "4.4.2"
 gradle-api-forGradleBased = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
@@ -53,7 +52,7 @@ apacheCommons-compress = { module = "org.apache.commons:commons-compress", versi
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
-compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeForGradle" }
+compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-forGradleBased" }
 google-services-gradle-plugin =  { module = "com.google.gms:google-services", version.ref = "google-services" }
 gradle-api-forGradleBased = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forGradleBased" }
 gradle-api-forStandalone =  { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forStandalone" }

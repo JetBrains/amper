@@ -37,6 +37,7 @@ val kotlinVersion = "2.1.20"
 val kotlinxSerializationVersion = "1.8.0"
 val kspVersion = "2.1.20-1.0.31" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
 val composeVersion = "1.7.3"
+val composeVersionForGradleBasedAmper = "1.6.10"
 val hotReloadVersion = "1.0.0-alpha02"
 val springBootVersion = "3.4.3"
 val slf4jVersion = "2.0.17"
@@ -80,7 +81,7 @@ fun updateVersionsCatalog() {
         text
             .replaceCatalogVersionVariable(variableName = "agp-forGradleBased", newValue = androidVersionForGradleBasedAmper)
             .replaceCatalogVersionVariable(variableName = "kotlin", newValue = kotlinVersion)
-            .replaceCatalogVersionVariable(variableName = "compose", newValue = composeVersion)
+            .replaceCatalogVersionVariable(variableName = "compose-forGradleBased", newValue = composeVersionForGradleBasedAmper)
             .replaceCatalogVersionVariable(variableName = "gradle-api-forGradleBased", newValue = gradleVersion)
             .replaceCatalogVersionVariable(variableName = "hot-reload-version", newValue = hotReloadVersion)
     }
@@ -121,7 +122,7 @@ fun updateDocs() {
             .replaceInMarkdownTable(pluginId = "org.jetbrains.kotlin.multiplatform", version = kotlinVersion)
             .replaceInMarkdownTable(pluginId = "org.jetbrains.kotlin.plugin.serialization", version = kotlinVersion)
             .replaceInMarkdownTable(pluginId = "org.jetbrains.kotlin.android", version = kotlinVersion)
-            .replaceInMarkdownTable(pluginId = "org.jetbrains.compose", version = composeVersion)
+            .replaceInMarkdownTable(pluginId = "org.jetbrains.compose", version = composeVersionForGradleBasedAmper)
             .replaceInMarkdownTable(pluginId = "com.android.library", version = androidVersionForGradleBasedAmper)
             .replaceInMarkdownTable(pluginId = "com.android.application", version = androidVersionForGradleBasedAmper)
     }
