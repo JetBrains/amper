@@ -81,12 +81,6 @@ object MockProjectInitializer {
             ApplicationManager.setApplication(null)
         }
 
-        val previousApplication = ApplicationManager.getApplication()
-        if (previousApplication != null && !previousApplication.isDisposed) {
-            // Init application and factory in standalone non-IDE environment only
-            return ourProject
-        }
-
         return spanBuilder("Init mock IntelliJ project").useWithoutCoroutines {
             System.setProperty("idea.home.path", "") // TODO: Is it correct?
 
