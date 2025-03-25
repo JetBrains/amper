@@ -44,14 +44,13 @@ val slf4jVersion = "2.0.17"
 
 /**
  * This is the Gradle version used in Gradle-based Amper projects, not Amper itself.
- * It is limited by the use of undocumented Gradle APIs to allow customizing the Compose version.
- * Technically, users can use a higher version, but they won't be able to use a non-default Compose version anymore.
  */
-val gradleVersion = "8.6" // do not bump if we still hack our way to apply dynamic plugin versions
+val gradleVersion = "8.6"
 
 /**
  * This is the version of AGP used in Gradle-based Amper (not the one for standalone, which is internal).
- * It is limited by the current default [gradleVersion] we use (see above), and the version Fleet can import.
+ * It may be limited by the current default [gradleVersion] we use (see above).
+ * See the [compatibility table](https://developer.android.com/build/releases/gradle-plugin#updating-gradle).
  */
 val androidVersionForGradleBasedAmper = "8.2.0" // do not bump higher than Gradle & Fleet support
 
