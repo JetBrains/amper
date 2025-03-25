@@ -4,7 +4,8 @@ Check the [setup instructions](Setup.md)
 
 ## Basics
 
-Amper has as a self-containing command line tool, see the [usage instructions](Usage.md#using-amper-from-the-command-line) 
+Amper is a project configuration and build tool.
+See the [usage instructions](Usage.md#using-amper-from-the-command-line) to get started with the standalone CLI. 
 
 Also, for existing Gradle projects there is [Amper Gradle plugin](#gradle-based-projects) which offers full Gradle interop. Note that certain functionality and behavior might differ between the standalone and Gradle-based Amper versions.
 
@@ -26,7 +27,7 @@ In Gradle-based Amper projects it's possible to use [plugins](Documentation.md#u
 write [custom Gradle tasks](#writing-custom-gradle-tasks).
 
 Amper supports Kotlin Multiplatform as a core concept and offers special syntax to deal with multiplatform
-configuration. There is a dedicated [**@platform-qualifier**](#platform-qualifier) used to mark platform-specific code,
+configuration. There is a dedicated [**@platform-qualifier**](#platform-qualifier) used to mark platform-specific
 dependencies, settings, etc. You'll see it in the examples below.
 
 ## Project layout
@@ -56,7 +57,7 @@ If there are multiple modules, the `project.yaml` file specifies the list of mod
 |-project.yaml
 ```
 
-The `project.yaml` file could look like this:
+In the above case, the `project.yaml` looks like this:
 
 ```yaml
 modules:
@@ -66,7 +67,8 @@ modules:
 
 Check the [reference](DSLReference.md#modules) for more options to define the list of modules in the `project.yaml` file.
 
-In Gradle-based projects the `settings.gradle.kts` is expected instead of a `project.yaml` file, and it's required even for single-module projects.
+In Gradle-based projects, a `settings.gradle.kts` file is expected instead of a `project.yaml` file, and it's required 
+even for single-module projects.
 Read more in the [Gradle-based projects](Documentation.md#gradle-based-projects) section.
 ```
 |-src/             
@@ -87,7 +89,7 @@ Source files are located in the `src` folder:
 |-module.yaml
 ```
 
-By convention, a `main.kt` file if present is a default entry point for the application.
+By convention, a `main.kt` file, if present, is the default entry point for the application.
 Read more on [configuring the application entry points](#configuring-entry-points).
 
 In a JVM module, you can mix Kotlin and Java source files:
@@ -98,7 +100,7 @@ In a JVM module, you can mix Kotlin and Java source files:
 |-module.yaml
 ```
 
-In a [multiplatform module](#multiplatform-projects), platform-specific code is located in the folders
+In a [multiplatform module](#multiplatform-projects), platform-specific code is located in folders
 with [`@platform`-qualifiers](#platform-qualifier):
 ```
 |-src/             # common code
@@ -147,8 +149,9 @@ Read more about [Gradle-compatible project layouts](#file-layout-with-gradle-int
 
 ## Module file anatomy
 
-A `module.yaml` file has several main sections: `product:`, `dependencies:` and `settings:`. A module could produce a
-single product, such as a reusable library or an application. Read more on the [supported product types](#product-types)
+A `module.yaml` file has several main sections: `product:`, `dependencies:` and `settings:`. A module can produce a
+single product, such as a reusable library or an application.
+Read more on the [supported product types](#product-types).
 
 Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
 ```yaml
@@ -178,15 +181,15 @@ settings:
 Product type describes the target platform and the type of the project at the same time. Below is the list of supported
 product types:
 
-- `lib` - a reusable Amper library which could be used as a dependency by other modules in the Amper project.
+- `lib` - a reusable Amper library which can be used as a dependency by other modules in the Amper project.
 - `jvm/app` - a JVM console or desktop application
-- `windows/app` - a mingw64 app
+- `windows/app` - a mingw64 application
 - `linux/app` - a native linux application
 - `macos/app` - a native macOS application
 - `android/app` - an Android VM application  
 - `ios/app` - an iOS/iPadOS application
 
-Other product types what we plan to support in the future:
+Other product types that we plan to support in the future:
 
 - `watchos/app` - an Apple Watch application (not yet implemented)
 - `windows/dll`
@@ -250,7 +253,7 @@ publishing:
 
 ### Multiplatform configuration
 
-`dependencies:` and `setting:` sections could be specialized for each platform using the `@platform`-qualifier.  An example of a multiplatform library with some common and platform-specific code:
+`dependencies:` and `setting:` sections can be specialized for each platform using the `@platform`-qualifier.  An example of a multiplatform library with some common and platform-specific code:
 ```yaml
 product:
   type: lib
@@ -318,7 +321,7 @@ root/
   |  |  |-module.yaml
 ```
 
-The `app/module.yaml` could declare a dependency on `ui/utils` as follows:
+The `app/module.yaml` can declare a dependency on `ui/utils` as follows:
 
 ```yaml
 dependencies:
@@ -384,7 +387,7 @@ dependencies:
 
 > Native dependencies are not yet implemented.
 
-To depend on a npm, CocoaPods, or a Swift package, use the following format:
+In the future, depending on an npm, CocoaPods, or Swift package could be done using the following format:
 
 ```yaml
 dependencies:
@@ -460,18 +463,18 @@ the `build.gradle.kts` file of each individual Amper module.
 
 There are several types of dependency catalogs that are available in Amper:
 - Dependency catalogs provided by toolchains (such as Kotlin, Compose Multiplatform etc.). The toolchain catalog names correspond to the [names of the toolchains in the settings section](#settings). E.g. dependencies for the Compose Multiplatform frameworks are accessible using the `$compose` catalog, and its settings using the `compose:` section.
-- Gradle-based Amper supports Gradle version catalog in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). Dependencies from this catalog can be accessed via `$libs.` catalog name according to the [Gradle name mapping rules](https://docs.gradle.org/current/userguide/platforms.html#sub:mapping-aliases-to-accessors). 
+- Gradle version catalogs are supported if placed in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). Dependencies from this catalog can be accessed via the `$libs.` catalog name according to the [Gradle name mapping rules](https://docs.gradle.org/current/userguide/platforms.html#sub:mapping-aliases-to-accessors). 
 - User-defined dependency catalogs (not yet implemented).
 
-All supported catalogs could be accessed via a `$<catalog-name.key>` reference, for example:
+All supported catalogs can be accessed via a `$<catalog-name>.<key>` reference, for example:
 ```yaml
 dependencies:
-  - $compose.material3    # dependency from a Compose Multiplatform catalog
-  - $my-catalog.ktor      # dependency from a custom project catalog with a name 'my-catalog' 
-  - $libs.commons.lang3   # dependency from a Gradle default libs.versions.toml catalog
+  - $compose.material3    # dependency from the Compose Multiplatform catalog
+  - $libs.commons.lang3   # dependency from the Gradle default libs.versions.toml catalog
+  - $my-catalog.ktor      # (not implemented) dependency from a custom project catalog with a name 'my-catalog' 
 ```
 
-Dependencies from catalogs may have [scope and visibility](#scopes-and-visibility):
+Module dependencies can still have a [scope and visibility](#scopes-and-visibility) even when coming from a catalog:
 
 ```yaml
 dependencies:
@@ -483,7 +486,6 @@ dependencies:
 
 The `settings:` section contains toolchains settings.
 A _toolchain_ is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (linter, code generator).
-Currently, the following toolchains are supported: `kotlin:`, `java:`, `android:`, `compose:`.
 
 > Toolchains are supposed to be [extensible](#extensibility) in the future.
 
@@ -687,7 +689,7 @@ module:
   layout: gradle-kmp 
 ```
 
-Amper automatically generates the accessors for resources during build and when working with code in the IDE.
+Amper automatically generates the accessors for resources during the build and when working with code in the IDE.
 Accessors are generated in a package that corresponds to the module name. All non-letter symbols are replaced with `_`.
 In the given example where the module name is `my-kmp-module`, the package name for the generated resources 
 will be `my_kmp_module`.
@@ -710,9 +712,9 @@ Read more about setting up and using compose resources in [the documentation](ht
 #### Configuring entry points
 
 ##### JVM
-By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application.
+By convention, a single `main.kt` file (case-insensitive) in the source folder is the default entry point for the application.
 
-Here is how to specify the entry point explicitly for JVM:
+Here is how to specify the entry point explicitly for JVM applications (main class):
 ```yaml
 product: jvm/app
 
@@ -721,7 +723,7 @@ settings:
     mainClass: org.example.myapp.MyMainKt
 ```
 ##### Native
-By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application.
+By convention, a single `main.kt` file (case-insensitive) in the source folder is the default entry point for the application.
 
 ##### Android
 
@@ -877,7 +879,7 @@ settings:
 #### Code shrinking
 
 When creating a release build with Amper, R8 will be used automatically, with minification and shrinking enabled.
-This is an equivalent of:
+This is equivalent to the following Gradle configuration:
 
 ```kotlin
 // in Gradle
@@ -897,9 +899,9 @@ You can create a `proguard-rules.pro` file in the module folder to add custom ru
 |-module.yaml
 ```
 
-It is automatically used by Amper if found.
+It is automatically used by Amper if present.
 
-The example of how to add custom R8 rules could be found at [compose-multiplatform](../examples-standalone/compose-multiplatform/android-app/proguard-rules.pro) example in `android-app` module.
+An example of how to add custom R8 rules can be found [in the android-app module](../examples-standalone/compose-multiplatform/android-app/proguard-rules.pro) of the `compose-multiplatform` example project.
 
 
 #### Google Services and Firebase
@@ -1169,7 +1171,7 @@ And organize files as following:
 ```
                     
 #### Sharing test utilities
-The test utility code (such as test fixtures) could be shared between Unit and Instrumented tests.
+Test utility code (such as test fixtures) can be shared between Unit and Instrumented tests.
 
 Main `module.yaml`:
 ```yaml
@@ -1276,7 +1278,7 @@ There are three distinct scenarios where such interoperability is needed:
 - Joint compilation: Kotlin code be compiled and linked into a final product together with the platform languages, like JVM, C, Objective-C and Swift.
 
 > Kotlin JVM supported all these scenarios from the beginning.
-> However, full interoperability is currently not supported in the Kotlin Native.
+> However, full interoperability is currently not supported in Kotlin Native.
 
 Here is how the interop is designed to work in the current Amper design:
 
@@ -1516,7 +1518,7 @@ dependencies@iosArm64:
 ```
 ### Multiplatform settings
 
-All toolchain settings, even platform-specific could be placed in the `settings:` section:
+All toolchain settings, even platform-specific can be placed in the `settings:` section:
 ```yaml
 product:
   type: lib
@@ -1536,7 +1538,7 @@ settings:
     deploymentTarget: 17
 ```
 
-There are situations, when you need to override certain settings in for a specific platform only. You can use `@platform`-qualifier. 
+There are situations when you need to override certain settings for a specific platform only. You can use `@platform`-qualifier. 
 
 Note that certain platform names match the toolchain names, e.g. iOS and Android:
 - `settings@ios` qualifier specifies settings for all iOS target platforms
@@ -1564,7 +1566,8 @@ settings:
     languageVersion: 1.8
 ```
 
-For settings with the `@platform`-qualifiers the [propagation rules](#dependencysettings-propagation) apply. E.g., for the given configuration:
+For settings with the `@platform`-qualifiers, the [propagation rules](#dependencysettings-propagation) apply.
+E.g., for the given configuration:
 ```yaml
 product:
   type: lib
