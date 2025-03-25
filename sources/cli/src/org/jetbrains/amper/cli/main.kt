@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
+import java.lang.management.ManagementFactory
 import java.time.Instant
 import kotlin.system.exitProcess
 
@@ -21,6 +22,7 @@ suspend fun main(args: Array<String>) {
         spanBuilder("Root")
             .setStartTimestamp(mainStartTime)
             .setListAttribute("args", args.toList())
+            .setListAttribute("jvm-args", ManagementFactory.getRuntimeMXBean().inputArguments)
             .use {
                 // we add a fake span here to represent the telemetry setup
                 spanBuilder("Setup telemetry").setStartTimestamp(mainStartTime).startSpan().end()
