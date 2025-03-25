@@ -162,7 +162,11 @@ class AndroidBindingPluginPart(
                 compileOptions.sourceCompatibility(release.legacyNotation)
             }
             project.tasks.withType(JavaCompile::class.java).configureEach {
-                it.options.release.set(release.releaseNumber)
+                // Using '--release' option for JavaCompile is not supported because it prevents the Android Gradle
+                // plugin from setting up the bootclasspath for compiling Java source files against Android APIs
+                // (see https://issuetracker.google.com/278800528).
+                it.sourceCompatibility = release.legacyNotation
+                it.targetCompatibility = release.legacyNotation
             }
         }
 
