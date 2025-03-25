@@ -19,9 +19,9 @@
 set -e -u
 
 # The version of the Amper distribution to provision and use
-amper_version=0.6.0-dev-2579
+amper_version=0.6.0-dev-2586
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=8668c995e9a2dec8cd67621342b3d993ddf4b933199983cea890ba62cbf37f54
+amper_sha256=21b5ab42e9227c87421e411c3e0e1e0542bfddea99e84e41c6f10d69e1958bf7
 
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
@@ -209,8 +209,8 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   esac
 
   # Auto-updated from syncVersions.main.kts, do not modify directly here
-  jbr_version=21.0.4
-  jbr_build=b509.26
+  jbr_version=21.0.6
+  jbr_build=b895.97
 
   # URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
   jbr_url="$AMPER_JRE_DOWNLOAD_ROOT/cache-redirector.jetbrains.com/intellij-jbr/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build.tar.gz"
@@ -218,12 +218,12 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
 
   platform="$jbr_os $jbr_arch"
   case $platform in
-    "osx x64")         jbr_sha512=04ef2e808e691451c62b557e8f151aedbffca1a9d9c93d8eddff8f47f8cd3a1ad06dabb6ea908ae8a97616fc34d96a352319efd480bcfd7d024e80b5050e1343 ;;
-    "osx aarch64")     jbr_sha512=fe7f85ed23a0cd47384e80ce99e5bb746fd0303ee197a0076ea026e5d7898c7e91a7189e0d23fbb18b26edd693e13507d29b5ffdfd08d4712e96c2303cf2ed70 ;;
-    "linux x64")       jbr_sha512=b631092e911d84b6d2d116e3668a05b884e7a9696d2c67b842bfabc93bad9773671605934c4262ea647bcf3bbfaa2eb535d56d458510b9bc924471dd88296912 ;;
-    "linux aarch64")   jbr_sha512=9136bf6b8bc2f10d750848dceacb25baeded3a05e4bc694a63602386738a72e81c578d5146d99a68fbb2cde04852a23e843539869bbbb6fb8794038a5e4a5061 ;;
-    "windows x64")     jbr_sha512=6a639d23039b83cf1b0ed57d082bb48a9bff6acae8964192a1899e8a1c0915453199b501b498e5874bc57c9996d871d49f438054b3c86f643f1c1c4f178026a3 ;;
-    "windows aarch64") jbr_sha512=9fd2333f3d55f0d40649435fc27e5ab97ad44962f54c1c6513e66f89224a183cd0569b9a3994d840b253060d664630610f82a02f45697e5e6c0b4ee250dd1857 ;;
+    "osx x64")         jbr_sha512=eeef2a2f82c16d7a0bebb1771b0e122aeb78c2bb1414d48767ea4b2d52086152f149bb5a076c9f98ef1f56dee7b40da1118fa01ba32a53576fffc4d1145044fd ;;
+    "osx aarch64")     jbr_sha512=00afc547ff9e5e408446ece3c8eabef2d0b29909a8be4774c8bd3e296f823e1a902717f5f44313f1a634e22b093c80de8d8ac760869d61fb4647a73711793e0f ;;
+    "linux x64")       jbr_sha512=7f0693316c8ac9a6c323d19682effeb33d5a69da8b79c86253d02e206dd0d2afe2ca49be86c58cc8115ad8626e70ec11ee9008282886d7102aa328722e8f032e ;;
+    "linux aarch64")   jbr_sha512=62c2c1a241278951523bace44742a23bb4b48c713e53c1aaad4204af1f4057cca186a17a840a523b440c739b44af4815e7f388c4a6c167a4e7023da4295f6207 ;;
+    "windows x64")     jbr_sha512=7e71a463327a92e6974b3d1013efde00f9d852660d5a18eae5765534b6d3cf0de471f72fd30d3caae910253b8b0df7202e2a76f0435e84ad80d13fb298a84c48 ;;
+    "windows aarch64") jbr_sha512=188bb92c35bc31b8ec9596701b498797c6578fb8513f1a854a2c8501ff3d2883a1fc74d24c45322526cdaaeb86940fffaf9729f39ba8dd52dd0f2b6f63da35fe ;;
     *) die "Unsupported platform $platform" ;;
   esac
 
