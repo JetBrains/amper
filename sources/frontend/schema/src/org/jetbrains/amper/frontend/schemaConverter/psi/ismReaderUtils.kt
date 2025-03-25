@@ -17,7 +17,7 @@ import java.nio.file.Path
 import kotlin.io.path.absolute
 
 context(Converter)
-fun String.asAbsolutePath(): Path =
+internal fun String.asAbsolutePath(): Path =
     this
         .replace("/", File.separator)
         .let {
