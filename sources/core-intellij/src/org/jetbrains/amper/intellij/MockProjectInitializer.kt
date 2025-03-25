@@ -46,8 +46,6 @@ open class IntelliJApplicationConfigurator {
 
 object MockProjectInitializer {
 
-    private lateinit var ourProject: Project
-
     private var latestConfigurator: IntelliJApplicationConfigurator? = null
 
     private var ourDisposable: Disposable? = null
@@ -100,7 +98,7 @@ object MockProjectInitializer {
             Registry.markAsLoaded()
 
             latestConfigurator = intelliJApplicationConfigurator
-            projectEnv.project.also { ourProject = it }
+            projectEnv.project
         }
     }
 
