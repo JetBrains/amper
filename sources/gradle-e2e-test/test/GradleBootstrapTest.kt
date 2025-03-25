@@ -47,7 +47,7 @@ class GradleBootstrapTest {
 
         println("############ gradle-integration version: $version")
 
-        copyDirectory(Path("../.."), projectPath)
+        copyDirectory(Dirs.amperCheckoutRoot, projectPath)
         val settingsKts = projectPath.resolve("settings.gradle.kts")
 
         settingsKts.readText()
