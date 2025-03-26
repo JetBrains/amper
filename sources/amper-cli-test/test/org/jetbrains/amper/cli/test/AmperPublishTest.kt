@@ -8,6 +8,9 @@ import com.sun.net.httpserver.BasicAuthenticator
 import org.jetbrains.amper.cli.test.utils.assertContainsRelativeFiles
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.test.assertEqualsWithDiff
+import org.jetbrains.amper.test.server.Request
+import org.jetbrains.amper.test.server.RequestHistory
 import org.jetbrains.amper.test.server.withFileServer
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -21,7 +24,6 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
@@ -177,31 +179,32 @@ class AmperPublishTest : AmperCliTestBase() {
     fun `publish to remote repo without auth`() = runSlowTest {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
 
-        withFileServer(www) { baseUrl ->
+        val requestHistory = withFileServer(www) { baseUrl ->
             publishJvmProject("2.2", baseUrl)
         }
-
-        www.resolve("amper/test/jvm-publish").assertContainsRelativeFiles(
-            "artifactName/2.2/artifactName-2.2-sources.jar",
-            "artifactName/2.2/artifactName-2.2-sources.jar.md5",
-            "artifactName/2.2/artifactName-2.2-sources.jar.sha1",
-            "artifactName/2.2/artifactName-2.2-sources.jar.sha256",
-            "artifactName/2.2/artifactName-2.2-sources.jar.sha512",
-            "artifactName/2.2/artifactName-2.2.jar",
-            "artifactName/2.2/artifactName-2.2.jar.md5",
-            "artifactName/2.2/artifactName-2.2.jar.sha1",
-            "artifactName/2.2/artifactName-2.2.jar.sha256",
-            "artifactName/2.2/artifactName-2.2.jar.sha512",
-            "artifactName/2.2/artifactName-2.2.pom",
-            "artifactName/2.2/artifactName-2.2.pom.md5",
-            "artifactName/2.2/artifactName-2.2.pom.sha1",
-            "artifactName/2.2/artifactName-2.2.pom.sha256",
-            "artifactName/2.2/artifactName-2.2.pom.sha512",
-            "artifactName/maven-metadata.xml",
-            "artifactName/maven-metadata.xml.md5",
-            "artifactName/maven-metadata.xml.sha1",
-            "artifactName/maven-metadata.xml.sha256",
-            "artifactName/maven-metadata.xml.sha512",
+        assertPublishedArtifacts(
+            repoRoot = www,
+            requestHistory = requestHistory,
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar.md5",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar.sha1",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar.sha256",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar.sha512",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar.md5",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar.sha1",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar.sha256",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar.sha512",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom.md5",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom.sha1",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom.sha256",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom.sha512",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml.md5",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml.sha1",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml.sha256",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml.sha512",
         )
     }
 
@@ -209,32 +212,51 @@ class AmperPublishTest : AmperCliTestBase() {
     fun `publish to remote repo with password auth`() = runSlowTest {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
 
-        withFileServer(www, authenticator = createAuthenticator()) { baseUrl ->
+        val requestHistory = withFileServer(www, authenticator = createAuthenticator()) { baseUrl ->
             publishJvmProject("2.2", baseUrl)
         }
-
-        www.resolve("amper/test/jvm-publish").assertContainsRelativeFiles(
-            "artifactName/2.2/artifactName-2.2-sources.jar",
-            "artifactName/2.2/artifactName-2.2-sources.jar.md5",
-            "artifactName/2.2/artifactName-2.2-sources.jar.sha1",
-            "artifactName/2.2/artifactName-2.2-sources.jar.sha256",
-            "artifactName/2.2/artifactName-2.2-sources.jar.sha512",
-            "artifactName/2.2/artifactName-2.2.jar",
-            "artifactName/2.2/artifactName-2.2.jar.md5",
-            "artifactName/2.2/artifactName-2.2.jar.sha1",
-            "artifactName/2.2/artifactName-2.2.jar.sha256",
-            "artifactName/2.2/artifactName-2.2.jar.sha512",
-            "artifactName/2.2/artifactName-2.2.pom",
-            "artifactName/2.2/artifactName-2.2.pom.md5",
-            "artifactName/2.2/artifactName-2.2.pom.sha1",
-            "artifactName/2.2/artifactName-2.2.pom.sha256",
-            "artifactName/2.2/artifactName-2.2.pom.sha512",
-            "artifactName/maven-metadata.xml",
-            "artifactName/maven-metadata.xml.md5",
-            "artifactName/maven-metadata.xml.sha1",
-            "artifactName/maven-metadata.xml.sha256",
-            "artifactName/maven-metadata.xml.sha512",
+        assertPublishedArtifacts(
+            repoRoot = www,
+            requestHistory = requestHistory,
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar.md5",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar.sha1",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar.sha256",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2-sources.jar.sha512",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar.md5",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar.sha1",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar.sha256",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.jar.sha512",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom.md5",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom.sha1",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom.sha256",
+            "amper/test/jvm-publish/artifactName/2.2/artifactName-2.2.pom.sha512",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml.md5",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml.sha1",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml.sha256",
+            "amper/test/jvm-publish/artifactName/maven-metadata.xml.sha512",
         )
+    }
+
+    private fun assertPublishedArtifacts(
+        repoRoot: Path,
+        requestHistory: RequestHistory,
+        vararg expectedArtifactsPaths: String,
+    ) {
+        // We check the requests before the files, so that, when a missing file is reported, we know the requests were
+        // correct and we can check other causes.
+        val expectedRequests = expectedArtifactsPaths.map { Request("PUT", "/$it") }
+        val actualRequests = requestHistory.requests.filter { it.method == "PUT" }.sortedBy { it.path }
+        assertEqualsWithDiff(
+            expected = expectedRequests.map { it.toString() },
+            actual = actualRequests.map { it.toString() },
+            message = "Request history mismatch",
+        )
+
+        repoRoot.assertContainsRelativeFiles(*expectedArtifactsPaths)
     }
 
     @Test

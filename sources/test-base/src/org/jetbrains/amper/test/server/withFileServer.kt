@@ -13,14 +13,28 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.writeBytes
 
+data class RequestHistory(
+    val requests: List<Request>
+)
+
+data class Request(
+    val method: String,
+    val path: String,
+) {
+    override fun toString(): String = "$method $path"
+}
+
 suspend fun withFileServer(
     wwwRoot: Path,
     authenticator: Authenticator? = null,
     block: suspend (baseUrl: String) -> Unit,
-) {
+) : RequestHistory {
+    val requests = mutableListOf<Request>()
     val httpServer = HttpServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 10)
     try {
         val context = httpServer.createContext("/") { exchange ->
+            requests.add(Request(exchange.requestMethod, exchange.requestURI.path))
+
             val fsPath = wwwRoot.resolve(exchange.requestURI.path.trim('/')).normalize()
             if (!fsPath.startsWith(wwwRoot)) {
                 exchange.respondInvalidRequest("path cannot point outside the root, got '$fsPath'")
@@ -58,4 +72,5 @@ suspend fun withFileServer(
     } finally {
         httpServer.stop(15)
     }
+    return RequestHistory(requests)
 }
