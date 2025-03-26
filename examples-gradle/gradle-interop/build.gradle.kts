@@ -21,6 +21,8 @@ tasks.register("hello") {
 }
 
 // Override settings
-application {
-    mainClass.set("My_mainKt")
+afterEvaluate {
+    tasks.named<JavaExec>("runJvm") {
+        mainClass.set("My_mainKt")
+    }
 }
