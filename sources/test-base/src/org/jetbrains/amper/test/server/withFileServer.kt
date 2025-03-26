@@ -6,6 +6,9 @@ package org.jetbrains.amper.test.server
 
 import com.sun.net.httpserver.Authenticator
 import com.sun.net.httpserver.HttpServer
+import org.jetbrains.amper.test.processes.err
+import org.junit.jupiter.api.TestReporter
+import java.io.PrintStream
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.nio.file.Path
@@ -26,6 +29,7 @@ data class Request(
 
 suspend fun withFileServer(
     wwwRoot: Path,
+    testReporter: TestReporter,
     authenticator: Authenticator? = null,
     block: suspend (baseUrl: String) -> Unit,
 ) : RequestHistory {
@@ -57,6 +61,9 @@ suspend fun withFileServer(
                         exchange.sendResponseHeaders(if (fileExisted) 200 else 201, -1)
                         exchange.responseBody.close()
                     } catch (e: Exception) {
+                        val testStderr = PrintStream(testReporter.err("[test server]"))
+                        testStderr.println("Failed to write file '$fsPath': $e")
+                        e.printStackTrace(testStderr)
                         exchange.respondInternalServerError(cause = e)
                         return@createContext
                     }

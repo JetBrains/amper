@@ -12,6 +12,7 @@ import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.jetbrains.amper.test.server.Request
 import org.jetbrains.amper.test.server.RequestHistory
 import org.jetbrains.amper.test.server.withFileServer
+import org.junit.jupiter.api.TestReporter
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
@@ -176,10 +177,10 @@ class AmperPublishTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `publish to remote repo without auth`() = runSlowTest {
+    fun `publish to remote repo without auth`(testReporter: TestReporter) = runSlowTest {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
 
-        val requestHistory = withFileServer(www) { baseUrl ->
+        val requestHistory = withFileServer(www, testReporter) { baseUrl ->
             publishJvmProject("2.2", baseUrl)
         }
         assertPublishedArtifacts(
@@ -209,10 +210,10 @@ class AmperPublishTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `publish to remote repo with password auth`() = runSlowTest {
+    fun `publish to remote repo with password auth`(testReporter: TestReporter) = runSlowTest {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
 
-        val requestHistory = withFileServer(www, authenticator = createAuthenticator()) { baseUrl ->
+        val requestHistory = withFileServer(www, testReporter, authenticator = createAuthenticator()) { baseUrl ->
             publishJvmProject("2.2", baseUrl)
         }
         assertPublishedArtifacts(
@@ -260,10 +261,10 @@ class AmperPublishTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `jvm publish adds to maven-metadata xml`() = runSlowTest {
+    fun `jvm publish adds to maven-metadata xml`(testReporter: TestReporter) = runSlowTest {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
 
-        withFileServer(www, authenticator = createAuthenticator()) { baseUrl ->
+        withFileServer(www, testReporter, authenticator = createAuthenticator()) { baseUrl ->
             publishJvmProject("2.2", baseUrl)
             publishJvmProject("2.3", baseUrl)
         }
@@ -287,10 +288,10 @@ class AmperPublishTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `jvm publish handles snapshot versioning`() = runSlowTest {
+    fun `jvm publish handles snapshot versioning`(testReporter: TestReporter) = runSlowTest {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
 
-        withFileServer(www, authenticator = createAuthenticator()) { baseUrl ->
+        withFileServer(www, testReporter, authenticator = createAuthenticator()) { baseUrl ->
             // For some reason, in this test, some logging fails at the end of the run.
             // It might be due to some maven cleanup happening in a shutdown hook after logging itself is shutdown.
             publishJvmProject("1.0", baseUrl)
