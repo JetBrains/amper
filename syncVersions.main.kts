@@ -33,6 +33,11 @@ val bootstrapAmperVersion = "0.6.0-dev-2586" // AUTO-UPDATED BY THE CI - DO NOT 
  */
 val amperInternalJbrVersion = "21.0.6-b895.97"
 
+/**
+ * The Kotlin version used in both standalone and Gradle-based Amper.
+ * Bumping this can force the AGP to be bumped too.
+ * See the [compatiblity table](https://developer.android.com/build/kotlin-support).
+ */
 val kotlinVersion = "2.1.20"
 val kotlinxSerializationVersion = "1.8.0"
 val kspVersion = "2.1.20-1.0.31" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
@@ -52,7 +57,13 @@ val gradleVersion = "8.6"
  * It may be limited by the current default [gradleVersion] we use (see above).
  * See the [compatibility table](https://developer.android.com/build/releases/gradle-plugin#updating-gradle).
  */
-val androidVersionForGradleBasedAmper = "8.2.0" // do not bump higher than Gradle & Fleet support
+// 8.3.0 fails with "Provided Metadata instance has version 2.1.0, while maximum supported version is 2.0.0"
+// 8.4.0 fails:
+//   GradleIntegrationTest.multiplatform (AndroidWorldTest.doTest fails with NoClassDefFoundError)
+//   GradleIntegrationTest.testing android common resources propagation
+// 8.6.0 fails with the same errors as 8.4 and 8.3
+// 8.7.x fails with missing build.gradle input file in LintModelWriterTask
+val androidVersionForGradleBasedAmper = "8.2.0"
 
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 
