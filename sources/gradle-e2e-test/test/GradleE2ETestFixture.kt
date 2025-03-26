@@ -52,7 +52,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         expectOutputToHave: String,
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
-        gradleVersion: String = "8.6",
+        gradleVersion: String? = null,
         additionalEnv: Map<String, String> = emptyMap(),
         additionalCheck: TestResultAsserter.() -> Unit = {},
     ) {
@@ -74,7 +74,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         expectOutputToHave: Collection<String> = emptyList(),
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
-        gradleVersion: String = "8.6",
+        gradleVersion: String? = null,
         additionalEnv: Map<String, String> = emptyMap(),
         additionalCheck: TestResultAsserter.() -> Unit = {},
     ) {
@@ -85,9 +85,10 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
             putAll(additionalEnv)
         }
         val runner = gradleRunner
+        val effectiveGradleVersion = gradleVersion ?: "8.11.1" // should match the recommended version in sync.versions.kts
         val projectConnector = runner
             // we use this instead of useGradleVersion() so that our tests benefit from the cache redirector and avoid timeouts
-            .useDistribution(URI("https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-$gradleVersion-bin.zip"))
+            .useDistribution(URI("https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-$effectiveGradleVersion-bin.zip"))
             .forProjectDirectory(tempDir.toFile())
             .connect()
         val stdout = ByteArrayOutputStream()
