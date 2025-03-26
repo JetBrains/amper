@@ -16,6 +16,7 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
 import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.readLines
 import kotlin.io.path.relativeTo
@@ -172,15 +173,19 @@ class AmperUpdateTest : AmperCliTestBase() {
         }
     }
 
-    private fun Path.readVersionInBashScript(): String = this.resolve("amper")
-        .readLines()
-        .first { it.startsWith("amper_version=") }
-        .removePrefix("amper_version=")
+    private fun Path.readVersionInBashScript(): String =
+        resolve("amper").readAmperVersionVariable(versionVariablePrefix = "amper_version=")
 
-    private fun Path.readVersionInBatchScript(): String = this.resolve("amper.bat")
-        .readLines()
-        .first { it.startsWith("set amper_version=") }
-        .removePrefix("set amper_version=")
+    private fun Path.readVersionInBatchScript(): String =
+        resolve("amper.bat").readAmperVersionVariable(versionVariablePrefix = "set amper_version=")
+
+    private fun Path.readAmperVersionVariable(versionVariablePrefix: String): String {
+        val scriptContents = readLines()
+        return scriptContents
+            .firstOrNull { it.startsWith(versionVariablePrefix) }
+            ?.removePrefix(versionVariablePrefix)
+            ?: fail("'$versionVariablePrefix' was not found in '${name}', actual content:\n${scriptContents.ifEmpty { "<empty>" }}")
+    }
 
     private fun Path.relativeChildren(): List<String> =
         listDirectoryEntries().map { it.relativeTo(this).pathString }.sorted()
