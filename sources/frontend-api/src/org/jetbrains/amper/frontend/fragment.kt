@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
@@ -171,15 +171,6 @@ interface DefaultScopedNotation : Notation {
     val runtime: Boolean get() = true
     val exported: Boolean get() = false
 }
-
-@Deprecated(
-    message = "PotatoModuleDependency was renamed to AmperModule",
-    replaceWith = ReplaceWith(
-        expression = "LocalModuleDependency",
-        imports = ["org.jetbrains.amper.frontend.LocalModuleDependency"],
-    ),
-)
-typealias PotatoModuleDependency = LocalModuleDependency
 
 interface LocalModuleDependency : DefaultScopedNotation {
     val module: AmperModule

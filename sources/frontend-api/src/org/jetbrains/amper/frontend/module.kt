@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
@@ -9,13 +9,6 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 
-@Deprecated(
-    message = "PotatoModuleSource was renamed to AmperModuleSource",
-    replaceWith = ReplaceWith("AmperModuleSource", imports = [ "org.jetbrains.amper.frontend.AmperModuleSource" ]),
-)
-@UsedInIdePlugin
-typealias PotatoModuleSource = AmperModuleSource
-
 sealed interface AmperModuleSource {
     /**
      * The directory containing the `module.yaml` or Gradle build file of the module.
@@ -23,13 +16,6 @@ sealed interface AmperModuleSource {
      */
     val moduleDir: Path?
 }
-
-@Deprecated(
-    message = "PotatoModuleProgrammaticSource was renamed to AmperModuleProgrammaticSource",
-    replaceWith = ReplaceWith("AmperModuleProgrammaticSource", imports = [ "org.jetbrains.amper.frontend.AmperModuleProgrammaticSource" ]),
-)
-@UsedInIdePlugin
-typealias PotatoModuleProgrammaticSource = AmperModuleProgrammaticSource
 
 open class AmperModuleProgrammaticSource : AmperModuleSource {
     override val moduleDir: Nothing? = null
@@ -40,16 +26,6 @@ open class AmperModuleProgrammaticSource : AmperModuleSource {
 data class AmperModuleInvalidPathSource(
     val invalidPath: Path,
 ) : AmperModuleProgrammaticSource()
-
-@Deprecated(
-    message = "PotatoModuleFileSource was renamed to AmperModuleFileSource",
-    replaceWith = ReplaceWith(
-        expression = "AmperModuleFileSource",
-        imports = ["org.jetbrains.amper.frontend.AmperModuleFileSource"]
-    ),
-)
-@UsedInIdePlugin
-typealias PotatoModuleFileSource = AmperModuleFileSource
 
 data class AmperModuleFileSource(val buildFile: Path) : AmperModuleSource {
     /**
@@ -104,13 +80,6 @@ enum class Layout {
 data class MetaModulePart(
     val layout: Layout = Layout.AMPER
 ) : ModulePart<MetaModulePart>
-
-@Deprecated(
-    message = "PotatoModule was renamed to AmperModule",
-    replaceWith = ReplaceWith("AmperModule", imports = [ "org.jetbrains.amper.frontend.AmperModule" ]),
-)
-@UsedInIdePlugin
-typealias PotatoModule = AmperModule
 
 /**
  * Just an aggregator for fragments and artifacts.
