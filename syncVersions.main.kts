@@ -50,7 +50,7 @@ val slf4jVersion = "2.0.17"
 /**
  * This is the Gradle version used in Gradle-based Amper projects, not Amper itself.
  */
-val gradleVersion = "8.6"
+val gradleVersion = "8.11.1"
 
 /**
  * This is the version of AGP used in Gradle-based Amper (not the one for standalone, which is internal).
