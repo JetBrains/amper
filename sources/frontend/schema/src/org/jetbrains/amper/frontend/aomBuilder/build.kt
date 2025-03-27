@@ -516,6 +516,7 @@ class DefaultLocalModuleDependency(
 context(ProblemReporterContext)
 private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): DefaultScopedNotation? =
     when (this) {
+        // todo (AB) : resolve external dependency on BOM to a separate type (BomDependency)
         is ExternalMavenDependency -> MavenDependency(
             TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!),
             scope.compile,

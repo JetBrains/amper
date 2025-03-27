@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.Notation
 
 val moduleDependenciesResolver: ModuleDependenciesResolver = ModuleDependenciesResolverImpl()
 
@@ -90,8 +91,7 @@ open class DependencyNodeHolderWithNotation(
     name: String,
     children: List<DependencyNode>,
     templateContext: Context,
-    @Suppress("UNUSED") // used in Idea Plugin
-    val notation: DefaultScopedNotation? = null,
+    val notation: Notation? = null,
     parentNodes: List<DependencyNode> = emptyList(),
 ) : DependencyNodeHolder(name, children, templateContext, parentNodes)
 
@@ -108,7 +108,7 @@ class DirectFragmentDependencyNodeHolder(
     val dependencyNode: DependencyNode,
     val fragment: Fragment,
     templateContext: Context,
-    notation: DefaultScopedNotation,
+    notation: Notation,
     parentNodes: List<DependencyNode> = emptyList(),
 ) : DependencyNodeHolderWithNotation(
     name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${", implicit".takeIf { notation.trace == null } ?: ""}",

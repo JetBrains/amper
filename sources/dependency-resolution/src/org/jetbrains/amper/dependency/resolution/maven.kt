@@ -68,10 +68,11 @@ class MavenDependencyNode internal constructor(
         group: String,
         module: String,
         version: String,
+        isBom: Boolean,
         parentNodes: List<DependencyNode> = emptyList(),
     ) : this(
         templateContext,
-        templateContext.createOrReuseDependency(group, module, version),
+        templateContext.createOrReuseDependency(group, module, version, isBom),
         parentNodes,
     )
 
@@ -86,6 +87,7 @@ class MavenDependencyNode internal constructor(
     val group: String = dependency.group
     val module: String = dependency.module
     val version: String = dependency.version
+    val isBom: Boolean = dependency.isBom
 
     var overriddenBy: List<DependencyNode> = emptyList()
         internal set
@@ -277,9 +279,10 @@ private class PropertyWithDependencyGeneric<T, out V: Any>(
 fun Context.createOrReuseDependency(
     group: String,
     module: String,
-    version: String
-): MavenDependency = this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version")) {
-    MavenDependency(this.settings, group, module, version)
+    version: String,
+    isBom: Boolean = false
+): MavenDependency = this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version:$isBom")) {
+    MavenDependency(this.settings, group, module, version, isBom)
 }
 
 internal fun Context.createOrReuseDependencyConstraint(
@@ -305,12 +308,13 @@ data class MavenDependencyConstraint(
  *
  * @see [DependencyFile]
  */
-class   MavenDependency internal constructor(
+class MavenDependency internal constructor(
     val settings: Settings,
-    val coordinates: MavenCoordinates
+    val coordinates: MavenCoordinates,
+    val isBom: Boolean
 ) {
-    internal constructor(settings: Settings, groupId: String, artifactId: String, version: String)
-            : this(settings, MavenCoordinates(groupId, artifactId, version))
+    internal constructor(settings: Settings, groupId: String, artifactId: String, version: String, isBom: Boolean = false)
+            : this(settings, MavenCoordinates(groupId, artifactId, version), isBom)
 
     val group: String = coordinates.groupId
     val module: String = coordinates.artifactId
@@ -579,12 +583,20 @@ class   MavenDependency internal constructor(
 
                 if (validVariants.isEmpty()) {
                     diagnosticsReporter.addMessage(
-                        // todo (AB) : Describe what variants we have and why they doesn't match, see example of the explanation in
-                        // todo (AB) : https://youtrack.jetbrains.com/issue/AMPER-3842/#focus=Comments-27-11433793.0-0
-                        Message(
-                            "No variant for the platform ${platform.pretty} is provided by the library $this",
-                            severity = Severity.ERROR,
-                        )
+                        if (isBom) {
+                            Message(
+                                "Dependency is referenced as a platform/BOM, " +
+                                        "but no variant of category 'platform' is provided by the library $this for the platform ${platform.pretty}",
+                                severity = Severity.ERROR,
+                            )
+                        } else {
+                            // todo (AB) : Describe what variants we have and why they doesn't match, see example of the explanation in
+                            // todo (AB) : https://youtrack.jetbrains.com/issue/AMPER-3842/#focus=Comments-27-11433793.0-0
+                            Message(
+                                "No variant for the platform ${platform.pretty} is provided by the library $this",
+                                severity = Severity.ERROR,
+                            )
+                        }
                     )
                 } else {
                     validVariants.also {
@@ -627,6 +639,13 @@ class   MavenDependency internal constructor(
                 }
             } else {
                 // Multiplatform case
+                if (isBom) {
+                    diagnosticsReporter.addMessage(Message(
+                            "Dependency of type BOM $this is not supported in multiplatform context",
+                            severity = Severity.WARNING
+                        ))
+                    return
+                }
                 val (kotlinMetadataVariant, kmpMetadataFile) =
                     detectKotlinMetadataLibrary(
                         context,
@@ -635,7 +654,7 @@ class   MavenDependency internal constructor(
                         level,
                         diagnosticsReporter
                     )
-                        ?: return  // children list is empty in case kmp common variant is not resolved
+                        ?: return  // the children list is empty in case kmp common variant is not resolved
 
                 resolveKmpLibrary(
                     kmpMetadataFile,
@@ -719,7 +738,7 @@ class   MavenDependency internal constructor(
         errorMessageBuilder: (String) -> String
     ): MavenDependency? {
         val resolvedVersion = resolveVersion(diagnosticsReporter, errorMessageBuilder)
-        return resolvedVersion?.let { context.createOrReuseDependency(group, module, resolvedVersion) }
+        return resolvedVersion?.let { context.createOrReuseDependency(group, module, resolvedVersion, isBom()) }
     }
 
     private fun Dependency.toMavenDependency(context: Context, module: Module, diagnosticsReporter: DiagnosticReporter): MavenDependency? {
@@ -1170,6 +1189,7 @@ class   MavenDependency internal constructor(
             .variants
             .filter { capabilityMatches(it) }
             .filter { nativeTargetMatches(it, platform) }
+            .filter { categoryMatches(it, isBom) }
 
         val validVariants = initiallyFilteredVariants
             .filterWithFallbackPlatform(platform)
@@ -1220,6 +1240,13 @@ class   MavenDependency internal constructor(
                 || variant.attributes["org.jetbrains.kotlin.native.target"] == null
                 || variant.attributes["org.jetbrains.kotlin.native.target"] == platform.nativeTarget
 
+    private fun categoryMatches(variant: Variant, isBom: Boolean) =
+        if(isBom) {
+            variant.attributes["org.gradle.category"] == "platform"
+        } else {
+            variant.attributes["org.gradle.category"] != "platform"
+        }
+
     /**
      * Check that either dependency defines no capability, or its capability is equal to the library itself,
      * multiple capabilities are prohibited (apart from several well-known exceptional cases).
@@ -1239,14 +1266,18 @@ class   MavenDependency internal constructor(
     private suspend fun resolveUsingPom(text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter) {
         val project = resolvePom(text, context, level, diagnosticsReporter) ?: return
 
-        (project.dependencies?.dependencies ?: listOf()).filter {
-            context.settings.scope.matches(it)
-        }.filter {
-            it.version != null && it.optional != true
-        }.map {
-            context.createOrReuseDependency(it.groupId, it.artifactId, it.version!!)
-        }.let {
-            children = it
+        if (isBom) {
+            dependencyConstraints = project.resolveDependenciesConstraints(context)
+        } else {
+            (project.dependencies?.dependencies ?: listOf()).filter {
+                context.settings.scope.matches(it)
+            }.filter {
+                it.version != null && it.optional != true
+            }.map {
+                context.createOrReuseDependency(it.groupId, it.artifactId, it.version!!, false)
+            }.let {
+                children = it
+            }
         }
 
         packaging = project.packaging ?: "jar"
@@ -1310,7 +1341,7 @@ class   MavenDependency internal constructor(
             return this
         }
         val parentNode = parent?.let {
-            context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
+            context.createOrReuseDependency(it.groupId, it.artifactId, it.version, false)
         }
 
         val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter))) {
@@ -1421,7 +1452,7 @@ class   MavenDependency internal constructor(
             ?.map { it.expandTemplates(this) }
             ?.mapNotNull {
                 if (it.scope == "import" && it.version != null) {
-                    val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
+                    val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version, true)
                     if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter)) {
                         val text = dependency.pom.readText()
                         val dependencyProject = text.parsePom().resolve(context, resolutionLevel, diagnosticsReporter, depth + 1)
@@ -1533,7 +1564,8 @@ data class MavenCoordinates(
     val groupId: String,
     val artifactId: String,
     val version: String,
-    val classifier: String? = null
+    val classifier: String? = null,
+    val isBom: Boolean = false
 ) {
     override fun toString(): String {
         return "$groupId:$artifactId:$version${if (classifier != null) ":$classifier" else ""}"

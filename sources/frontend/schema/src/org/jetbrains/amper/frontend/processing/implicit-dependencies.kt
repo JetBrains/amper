@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.processing
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.RepositoriesModulePart
@@ -102,7 +103,7 @@ private fun Fragment.addImplicitDependencies(
 
 private fun Fragment.allExternalMavenDependencies() = ancestralPath()
     .flatMap { it.externalDependencies }
-    .filterIsInstance<MavenDependency>()
+    .filterIsInstance<MavenDependencyBase>()
 
 private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = buildList {
     add(kotlinStdlib)
@@ -160,7 +161,7 @@ private fun Fragment.inferredTestDependencies(): List<MavenDependency> =
 
 private fun Platform.supportsJvmTestFrameworks() = this == Platform.JVM || this == Platform.ANDROID
 
-private val MavenDependency.groupAndArtifact: String
+private val MavenDependencyBase.groupAndArtifact: String
     get() {
         val parts = coordinates.value.split(":", limit = 3)
         // Some tests don't have actual coordinates, maybe in real life we might also not have a group:artifact prefix.

@@ -17,7 +17,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.LocalModuleDependency
-import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JUnitVersion
@@ -32,7 +32,6 @@ import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.closureSources
 import org.jetbrains.amper.gradle.findEntryPoint
-import org.jetbrains.amper.gradle.java.JavaBindingPluginPart
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.amperFragment
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSetName
@@ -372,7 +371,7 @@ class KMPPBindingPluginPart(
                                 { implementation(it) }
                             }
                         when (externalDependency) {
-                            is MavenDependency -> depFunction(externalDependency.coordinates.value)
+                            is MavenDependencyBase -> depFunction(externalDependency.coordinates.value)
                             is LocalModuleDependency -> {
                                 val source = externalDependency.module.source
                                 if (source is AmperModuleInvalidPathSource) {

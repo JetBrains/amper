@@ -9,9 +9,11 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
@@ -61,7 +63,10 @@ internal class IdeSync(
     dependenciesFlowType: DependenciesFlowType.IdeSyncType,
 ): AbstractDependenciesFlow<DependenciesFlowType.IdeSyncType>(dependenciesFlowType) {
 
-    override fun directDependenciesGraph(module: AmperModule, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule =
+    override fun directDependenciesGraph(
+        module: AmperModule,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit
+    ): ModuleDependencyNodeWithModule =
         module.toGraph(fileCacheBuilder)
 
     private fun AmperModule.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
@@ -74,57 +79,59 @@ internal class IdeSync(
         return node
     }
 
-   /**
-    * The method returns list of direct fragment maven dependencies in the case of single-platform module
-    * (or more precisely if this fragment belongs to a single-platform module,
-    *  and depends on single-platform fragments of other modules only).
-    *
-    * In the case of a multiplatform project,
-    * it resolves all 'COMPILE' maven dependencies declared for this fragment directly as well as those declared for fragments this
-    * fragment depends on transitively (taking the flag 'exported' into account).
-    * And return those as a plain list of this fragment direct dependencies.
-    *
-    * The reason for this is the following: maven dependencies taken from the fragments of other modules
-    * should be resolved in the context of the target platforms of this fragment (the one being resolved).
-    * Such dependencies cannot be reused from the result of the other fragment resolution targeting a broader set of platforms,
-    * because only a sub-set of the KMP library's source sets would be added as actual dependency (in klib form) for the other fragment.
-    * (those conforming to all platforms declared in the other multiplatform fragment).
-    *
-    * Being resolved in the context of the current fragment,
-    * such dependencies provide the appropriate API and runtime for the being resolved fragment target platforms.
-    *
-    * Resolution of the complete COMPILE maven dependencies graph is performed by [Classpath] flow with COMPILE resolution scope.
-    * (flag 'exported' takes effect in the case of native modules during graph resolution)
-    */
+    /**
+     * The method returns list of direct fragment maven dependencies in the case of single-platform module
+     * (or more precisely if this fragment belongs to a single-platform module,
+     *  and depends on single-platform fragments of other modules only).
+     *
+     * In the case of a multiplatform project,
+     * it resolves all 'COMPILE' maven dependencies declared for this fragment directly as well as those declared for fragments this
+     * fragment depends on transitively (taking the flag 'exported' into account).
+     * And return those as a plain list of this fragment direct dependencies.
+     *
+     * The reason for this is the following: maven dependencies taken from the fragments of other modules
+     * should be resolved in the context of the target platforms of this fragment (the one being resolved).
+     * Such dependencies cannot be reused from the result of the other fragment resolution targeting a broader set of platforms,
+     * because only a sub-set of the KMP library's source sets would be added as actual dependency (in klib form) for the other fragment.
+     * (those conforming to all platforms declared in the other multiplatform fragment).
+     *
+     * Being resolved in the context of the current fragment,
+     * such dependencies provide the appropriate API and runtime for the being resolved fragment target platforms.
+     *
+     * Resolution of the complete COMPILE maven dependencies graph is performed by [Classpath] flow with COMPILE resolution scope.
+     * (flag 'exported' takes effect in the case of native modules during graph resolution)
+     */
     private fun Fragment.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit): List<DirectFragmentDependencyNodeHolder> {
-        val moduleDependencies = Classpath(DependenciesFlowType.ClassPathType(
-            scope = ResolutionScope.COMPILE,
-            platforms = platforms.mapNotNull { it.toResolutionPlatform() }.toSet(),
-            includeNonExportedNative = false,
-            isTest = isTest)
+        val moduleDependencies = Classpath(
+            DependenciesFlowType.ClassPathType(
+                scope = ResolutionScope.COMPILE,
+                platforms = platforms.mapNotNull { it.toResolutionPlatform() }.toSet(),
+                includeNonExportedNative = false,
+                isTest = isTest
+            )
         ).directDependenciesGraph(this, fileCacheBuilder)
 
         if (hasSinglePlatformDependenciesOnly(moduleDependencies)) {
             val directDependencies = allFragmentDependencies(true)
                 .flatMap { externalDependencies }
-                .filterIsInstance<MavenDependency>()
+                .filterIsInstance<MavenDependencyBase>()
                 .distinct()
                 .map { it.toGraph(this, fileCacheBuilder) }
                 .toList()
-            // In single-platform case we could rely on IDE dependencies resolution.
+            // In a single-platform case we could rely on IDE dependencies resolution.
             // Exported dependencies of the fragment on other modules will be taken into account by IDE while preparing
-            // fragment-related IDE module compilation classpath.
+            //  a fragment-related IDE module compilation classpath.
             return directDependencies
         }
 
         val allMavenDeps = moduleDependencies
             .distinctBfsSequence()
             .filterIsInstance<DirectFragmentDependencyNodeHolder>()
-            .filter { it.notation is MavenDependency }
+            .filter { it.notation is MavenDependencyBase }
             .sortedByDescending { it.fragment == this }
             .distinctBy { it.dependencyNode }
             .map {
-                val mavenDependencyNotation = it.notation as MavenDependency
+                val mavenDependencyNotation = it.notation as MavenDependencyBase
                 val context = mavenDependencyNotation.resolveFragmentContext(this, fileCacheBuilder)
                 mavenDependencyNotation.toFragmentDirectDependencyNode(this, context)
             }.toList()
@@ -147,20 +154,25 @@ internal class IdeSync(
         return false
     }
 
-    private fun MavenDependency.toGraph(fragment: Fragment, fileCacheBuilder: FileCacheBuilder.() -> Unit): DirectFragmentDependencyNodeHolder {
+    private fun MavenDependencyBase.toGraph(
+        fragment: Fragment,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit
+    ): DirectFragmentDependencyNodeHolder {
         val context = resolveFragmentContext(fragment, fileCacheBuilder)
         val node = toFragmentDirectDependencyNode(fragment, context)
         return node
     }
 
-    private fun MavenDependency.resolveFragmentContext(
+    private fun MavenDependencyBase.resolveFragmentContext(
         fragment: Fragment,
         fileCacheBuilder: FileCacheBuilder.() -> Unit
-    ): Context = fragment.module.resolveModuleContext(
-        fragment.resolutionPlatforms,
-        if (compile) ResolutionScope.COMPILE else ResolutionScope.RUNTIME,
-        fileCacheBuilder
-    )
+    ): Context {
+        val scope = when (this) {
+            is MavenDependency -> if (compile) ResolutionScope.COMPILE else ResolutionScope.RUNTIME
+            is BomDependency -> ResolutionScope.COMPILE
+        }
+        return fragment.module.resolveModuleContext(fragment.resolutionPlatforms, scope, fileCacheBuilder)
+    }
 }
 
 private val Fragment.resolutionPlatforms: Set<ResolutionPlatform>

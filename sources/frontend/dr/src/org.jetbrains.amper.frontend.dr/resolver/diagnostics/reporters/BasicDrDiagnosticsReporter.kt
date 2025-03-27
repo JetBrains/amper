@@ -18,7 +18,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.dependency.resolution.detailedMessage
-import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableVersion
@@ -101,7 +101,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
 
         // direct node could have version traces only
         if (node == directDependency.dependencyNode && node is MavenDependencyNode) {
-            val versionTrace = (directDependency.notation as? MavenDependency)
+            val versionTrace = (directDependency.notation as? MavenDependencyBase)
                 ?.coordinates
                 ?.resolveVersionTrace()
             if (versionTrace != null && versionTrace.value == node.dependency.version && versionTrace.trace is PsiTrace) {

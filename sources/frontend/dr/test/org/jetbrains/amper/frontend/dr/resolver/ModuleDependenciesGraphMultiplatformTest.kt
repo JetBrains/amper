@@ -1666,14 +1666,15 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    \--- androidx.compose.runtime:runtime-android:1.7.6
 |         |         +--- androidx.annotation:annotation-experimental:1.4.1
 |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> ${UsedVersions.kotlinVersion} (*)
-|         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3
-|         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0
+|         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0
+|         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 |         |         |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0
 |         |         |    |         +--- org.jetbrains:annotations:23.0.0
 |         |         |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
+|         |         |    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0 (c)
 |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> ${UsedVersions.kotlinVersion} (*)
-|         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3 -> 1.8.0
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> ${UsedVersions.kotlinVersion} (*)
+|         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
+|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> ${UsedVersions.kotlinVersion} (*)
 |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 +--- android-app:android:androidx.activity:activity-compose:1.7.2
@@ -1700,7 +1701,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |         |         +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
 |         |    |    |    |         |         \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
 |         |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion} (*)
-|         |    |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
+|         |    |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0 (*)
 |         |    |    |    |         +--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (c)
 |         |    |    |    |         +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
 |         |    |    |    |         \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
@@ -1715,7 +1716,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    \--- androidx.lifecycle:lifecycle-viewmodel-android:2.8.5
 |         |    |    |         +--- androidx.annotation:annotation:1.8.0 (*)
 |         |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion} (*)
-|         |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
+|         |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0 (*)
 |         |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |    |    |         +--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (c)
 |         |    |    |         +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
@@ -1737,7 +1738,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.8.0 (*)
 |         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> ${UsedVersions.kotlinVersion} (*)
 |         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion} (*)
-|         |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
+|         |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0 (*)
 |         |    |    |    +--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (c)
 |         |    |    |    \--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
 |         |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
@@ -1748,14 +1749,14 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    |         +--- androidx.annotation:annotation:1.8.0 (*)
 |         |    |         +--- androidx.lifecycle:lifecycle-runtime:2.8.5 (*)
 |         |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion} (*)
-|         |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
+|         |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0 (*)
 |         |    |         +--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (c)
 |         |    |         +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5 (c)
 |         |    |         \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
 |         |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1 -> 2.8.5
 |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.8.5 (*)
 |         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion} (*)
-|         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
+|         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0 (*)
 |         |    |    +--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (c)
 |         |    |    \--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.5 (c)
 |         |    +--- androidx.savedstate:savedstate-ktx:1.2.1
@@ -1911,7 +1912,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 |kotlin-stdlib-${UsedVersions.kotlinVersion}.jar
                 |kotlin-stdlib-jdk7-${UsedVersions.kotlinVersion}.jar
                 |kotlin-stdlib-jdk8-${UsedVersions.kotlinVersion}.jar
-                |kotlinx-coroutines-android-1.7.3.jar
+                |kotlinx-coroutines-android-1.8.0.jar
                 |kotlinx-coroutines-core-jvm-1.8.0.jar
                 |lifecycle-common-jvm-2.8.5.jar
                 |lifecycle-livedata-core-2.8.5.aar
@@ -1970,14 +1971,15 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |    \--- androidx.compose.runtime:runtime-android:1.7.6
 |         |         +--- androidx.annotation:annotation-experimental:1.4.1
 |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> ${UsedVersions.kotlinVersion} (*)
-|         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3
-|         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0
+|         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0
+|         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 |         |         |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0
 |         |         |    |         +--- org.jetbrains:annotations:23.0.0
 |         |         |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
+|         |         |    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0 (c)
 |         |         |    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> ${UsedVersions.kotlinVersion} (*)
-|         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3 -> 1.8.0
-|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> ${UsedVersions.kotlinVersion} (*)
+|         |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
+|         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> ${UsedVersions.kotlinVersion} (*)
 |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 +--- shared:android:org.jetbrains.compose.foundation:foundation:1.7.3
@@ -2051,14 +2053,14 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 |         |         |         |                             |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 |         |         |         |                             |         |         \--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (c)
 |         |         |         |                             |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion} (*)
-|         |         |         |                             |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
+|         |         |         |                             |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0 (*)
 |         |         |         |                             |         \--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (c)
 |         |         |         |                             \--- androidx.lifecycle:lifecycle-runtime-ktx:2.8.5
 |         |         |         |                                  \--- androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.5
 |         |         |         |                                       +--- androidx.annotation:annotation:1.8.0 (*)
 |         |         |         |                                       +--- androidx.lifecycle:lifecycle-runtime:2.8.5 (*)
 |         |         |         |                                       +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> ${UsedVersions.kotlinVersion} (*)
-|         |         |         |                                       +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 (*)
+|         |         |         |                                       +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0 (*)
 |         |         |         |                                       \--- androidx.lifecycle:lifecycle-runtime-compose:2.8.5 (c)
 |         |         |         +--- androidx.compose.runtime:runtime:1.7.6 (*)
 |         |         |         \--- androidx.compose.ui:ui-geometry:1.7.6 (*)
@@ -2142,7 +2144,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 |kotlin-stdlib-${UsedVersions.kotlinVersion}.jar
                 |kotlin-stdlib-jdk7-${UsedVersions.kotlinVersion}.jar
                 |kotlin-stdlib-jdk8-${UsedVersions.kotlinVersion}.jar
-                |kotlinx-coroutines-android-1.7.3.jar
+                |kotlinx-coroutines-android-1.8.0.jar
                 |kotlinx-coroutines-core-jvm-1.8.0.jar
                 |lifecycle-common-jvm-2.8.5.jar
                 |lifecycle-runtime-android-2.8.5.aar

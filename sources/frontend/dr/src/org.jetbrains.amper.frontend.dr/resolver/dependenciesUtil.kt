@@ -13,7 +13,7 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
-import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.MavenDependencyBase
 import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
 
@@ -52,9 +52,13 @@ sealed interface ParsedCoordinates {
 }
 
 internal fun parseCoordinates(coordinates: String): ParsedCoordinates {
-    val parts = coordinates.trim().split(":")
+    // todo (AB) : This should be replaced with usage of BomDependency
+    // todo (AB) : as soon as BOM dependency started being parsed to BomDependency instead of MavenDependency
+    val isBom = coordinates.trim().startsWith("bom:")
+    val parts = coordinates.trim().removePrefix("bom:").split(":")
     if (parts.size < 3) {
         val errors = buildList {
+            // todo (AB) : improve error message in view of "bom:" part
             add(FrontendDrBundle.message("dependency.coordinates.have.too.few.parts", coordinates))
             reportIfCoordinatesAreGradleLike(coordinates, this)
         }
@@ -100,7 +104,7 @@ internal fun parseCoordinates(coordinates: String): ParsedCoordinates {
     val version = parts[2].trim()
     val classifier = if (parts.size > 3) parts[3].trim() else null
 
-    return ParsedCoordinates.Success(MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier))
+    return ParsedCoordinates.Success(MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier, isBom = isBom))
 }
 
 private fun reportIfCoordinatesAreGradleLike(coordinates: String, messages: MutableList<String>) {
@@ -140,7 +144,7 @@ enum class GradleScope {
     }
 }
 
-internal fun MavenDependency.parseCoordinates(): ParsedCoordinates {
+internal fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates {
     return parseCoordinates(this.coordinates.value)
 }
 

@@ -176,12 +176,22 @@ interface LocalModuleDependency : DefaultScopedNotation {
     val module: AmperModule
 }
 
+sealed interface MavenDependencyBase : Notation {
+    val coordinates: TraceableString
+}
+
 data class MavenDependency(
-    val coordinates: TraceableString,
+    override val coordinates: TraceableString,
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
-) : DefaultScopedNotation, Traceable {
+) : MavenDependencyBase, DefaultScopedNotation {
+    override var trace: Trace? = null
+}
+
+data class BomDependency(
+    override val coordinates: TraceableString,
+) : MavenDependencyBase {
     override var trace: Trace? = null
 }
 

@@ -133,8 +133,9 @@ abstract class BaseDRTest {
         DependencyNodeHolder(name = "root", children = map { it.toMavenNode(context) }, context)
 
     private fun String.toMavenNode(context: Context): MavenDependencyNode {
-        val (group, module, version) = split(":")
-        return MavenDependencyNode(context, group, module, version)
+        val isBom = startsWith("bom:")
+        val (group, module, version) = removePrefix("bom:").split(":")
+        return MavenDependencyNode(context, group, module, version, isBom = isBom)
     }
 
     protected fun assertFiles(

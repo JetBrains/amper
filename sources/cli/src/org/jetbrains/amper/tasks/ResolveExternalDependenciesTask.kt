@@ -19,6 +19,7 @@ import org.jetbrains.amper.diagnostics.setFragments
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -209,7 +210,7 @@ class ResolveExternalDependenciesTask(
         val compileOverrides = compileDependenciesRootNode.children.getOverridesForDirectDeps()
         val runtimeOverrides = runtimeDependenciesRootNode
             ?.children
-            ?.getOverridesForDirectDeps(directDependencyCondition = { notation?.compile == false })
+            ?.getOverridesForDirectDeps(directDependencyCondition = { (notation as? DefaultScopedNotation)?.compile == false })
             ?: emptyList()
         return PublicationCoordinatesOverrides(compileOverrides + runtimeOverrides)
     }

@@ -9,9 +9,11 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer
 import org.codehaus.plexus.util.xml.XmlStreamWriter
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.ancestralPath
@@ -81,7 +83,13 @@ private fun generatePomModel(
     model.artifactId = coords.artifactId
     model.version = coords.version
 
-    model.dependencies.addAll(dependencies.map { it.toPomDependency(platform, publicationCoordsOverrides) })
+    model.dependencies.addAll(
+        dependencies.filterNot{ it is BomDependency }
+            .map { it.toPomDependency(platform, publicationCoordsOverrides) })
+    model.dependencyManagement.dependencies.addAll(
+        dependencies.filterIsInstance<BomDependency>()
+            .map { it.toPomDependency(platform, publicationCoordsOverrides) }
+    )
 
     // TODO add description for Maven Central compatibility
     // TODO add url for Maven Central compatibility
@@ -97,6 +105,7 @@ private fun Notation.toPomDependency(
     publicationCoordsOverrides: PublicationCoordinatesOverrides,
 ): Dependency = when (this) {
     is MavenDependency -> toPomDependency(publicationCoordsOverrides)
+    is BomDependency -> toPomDependency(publicationCoordsOverrides)
     is LocalModuleDependency -> toPomDependency(platform)
     is DefaultScopedNotation -> error("Dependency type ${this::class.simpleName} is not supported for pom.xml publication")
 }
@@ -118,7 +127,7 @@ private fun AmperModule.singleProductionFragmentOrNull(platform: Platform) = if 
     leafFragments.singleOrNull { !it.isTest && it.platforms == setOf(platform) }
 }
 
-private fun MavenDependency.toPomDependency(publicationCoordsOverrides: PublicationCoordinatesOverrides): Dependency {
+private fun MavenDependencyBase.toPomDependency(publicationCoordsOverrides: PublicationCoordinatesOverrides): Dependency {
     val coords = readMavenCoordinates()
     val effectiveCoordinates = publicationCoordsOverrides.actualCoordinatesFor(coords)
 
@@ -127,13 +136,22 @@ private fun MavenDependency.toPomDependency(publicationCoordsOverrides: Publicat
     dependency.artifactId = effectiveCoordinates.artifactId
     dependency.version = effectiveCoordinates.version
     dependency.classifier = effectiveCoordinates.classifier
-    dependency.scope = mavenScopeName()
+
+    when(this) {
+        is MavenDependency -> {
+            dependency.scope = mavenScopeName()
+        }
+        is BomDependency -> {
+            dependency.scope = "import"
+            dependency.type = "pom"
+        }
+    }
     return dependency
 }
 
 // TODO the knowledge of this representation should live in the frontend only, and the components should be
 //  accessible in a type-safe way directly on the MavenDependency type.
-private fun MavenDependency.readMavenCoordinates(): MavenCoordinates {
+private fun MavenDependencyBase.readMavenCoordinates(): MavenCoordinates {
     val parts = coordinates.value.split(":")
     return MavenCoordinates(
         groupId = parts.getOrNull(0) ?: error("Missing group in dependency notation '${coordinates.value}'"),

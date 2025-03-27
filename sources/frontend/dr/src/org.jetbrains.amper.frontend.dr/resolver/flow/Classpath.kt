@@ -9,10 +9,12 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
@@ -101,7 +103,7 @@ internal class Classpath(
         val dependencies = fragments
             .sortedForClasspath(platforms)
             .flatMap { it.toDependencyNode(resolutionPlatforms, directDependencies, moduleContext, visitedModules, flowType, fileCacheBuilder) }
-            .sortedByDescending { it.notation?.exported == true }
+            .sortedByDescending { (it.notation as? DefaultScopedNotation)?.exported == true }
 
         val node = ModuleDependencyNodeWithModule(
             module = this,
@@ -126,7 +128,7 @@ internal class Classpath(
             .distinct()
             .mapNotNull { dependency ->
                 when (dependency) {
-                    is MavenDependency -> {
+                    is MavenDependencyBase -> {
                         val includeDependency = dependency.shouldBeAdded(platforms, directDependencies, flowType)
                         if (includeDependency) {
                             dependency.toFragmentDirectDependencyNode(this, moduleContext)
@@ -153,6 +155,26 @@ internal class Classpath(
             }
 
         return fragmentDependencies
+    }
+
+    private fun MavenDependencyBase.shouldBeAdded(
+        platforms: Set<ResolutionPlatform>,
+        directDependencies: Boolean,
+        flowType: DependenciesFlowType.ClassPathType,
+    ): Boolean {
+        return when(this) {
+            is MavenDependency -> {
+                (this as DefaultScopedNotation).shouldBeAdded(platforms, directDependencies, flowType)
+            }
+            is BomDependency -> {
+                when (flowType.scope) {
+                    // BOM affects the compilation classpath of the module where it is declared.
+                    ResolutionScope.COMPILE -> directDependencies
+                    // BOM affects the runtime classpath of the module and all its consumers
+                    ResolutionScope.RUNTIME -> true
+                }
+            }
+        }
     }
 
     private fun DefaultScopedNotation.shouldBeAdded(

@@ -11,6 +11,7 @@ import kotlin.io.path.extension
 import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class BuildGraphTest: BaseDRTest() {
@@ -548,222 +549,223 @@ class BuildGraphTest: BaseDRTest() {
             ),
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """root
-                |\--- dev.gitlive:firebase-analytics:2.1.0
-                |     \--- dev.gitlive:firebase-analytics-android:2.1.0
-                |          +--- com.google.firebase:firebase-analytics:22.1.0
-                |          |    +--- com.google.android.gms:play-services-measurement:22.1.0
-                |          |    |    +--- androidx.collection:collection:1.0.0 -> 1.1.0
-                |          |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.6.0
-                |          |    |    |         \--- androidx.annotation:annotation-jvm:1.6.0
-                |          |    |    |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.0 -> 2.0.20
-                |          |    |    |                   +--- org.jetbrains:annotations:13.0 -> 23.0.0
-                |          |    |    |                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (c)
-                |          |    |    +--- androidx.legacy:legacy-support-core-utils:1.0.0
-                |          |    |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
-                |          |    |    |    +--- androidx.core:core:1.0.0 -> 1.9.0
-                |          |    |    |    |    +--- androidx.annotation:annotation:1.2.0 -> 1.6.0 (*)
-                |          |    |    |    |    +--- androidx.annotation:annotation-experimental:1.3.0
-                |          |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.0.20 (*)
-                |          |    |    |    |    +--- androidx.lifecycle:lifecycle-runtime:2.3.1
-                |          |    |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.3.1
-                |          |    |    |    |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
-                |          |    |    |    |    |    +--- androidx.arch.core:core-common:2.1.0
-                |          |    |    |    |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
-                |          |    |    |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
-                |          |    |    |    |    \--- androidx.versionedparcelable:versionedparcelable:1.1.1
-                |          |    |    |    |         +--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
-                |          |    |    |    |         \--- androidx.collection:collection:1.0.0 -> 1.1.0 (*)
-                |          |    |    |    +--- androidx.documentfile:documentfile:1.0.0
-                |          |    |    |    |    \--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
-                |          |    |    |    +--- androidx.loader:loader:1.0.0
-                |          |    |    |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
-                |          |    |    |    |    +--- androidx.core:core:1.0.0 -> 1.9.0 (*)
-                |          |    |    |    |    +--- androidx.lifecycle:lifecycle-livedata:2.0.0
-                |          |    |    |    |    |    +--- androidx.arch.core:core-runtime:2.0.0
-                |          |    |    |    |    |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
-                |          |    |    |    |    |    |    \--- androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
-                |          |    |    |    |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.0.0
-                |          |    |    |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.0.0 -> 2.3.1 (*)
-                |          |    |    |    |    |    |    +--- androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
-                |          |    |    |    |    |    |    \--- androidx.arch.core:core-runtime:2.0.0 (*)
-                |          |    |    |    |    |    \--- androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
-                |          |    |    |    |    \--- androidx.lifecycle:lifecycle-viewmodel:2.0.0 -> 2.1.0
-                |          |    |    |    |         \--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
-                |          |    |    |    +--- androidx.localbroadcastmanager:localbroadcastmanager:1.0.0
-                |          |    |    |    |    \--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
-                |          |    |    |    \--- androidx.print:print:1.0.0
-                |          |    |    |         \--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
-                |          |    |    +--- com.google.android.gms:play-services-ads-identifier:18.0.0
-                |          |    |    |    \--- com.google.android.gms:play-services-basement:18.0.0 -> 18.4.0
-                |          |    |    |         +--- androidx.collection:collection:1.0.0 -> 1.1.0 (*)
-                |          |    |    |         +--- androidx.core:core:1.2.0 -> 1.9.0 (*)
-                |          |    |    |         \--- androidx.fragment:fragment:1.1.0
-                |          |    |    |              +--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
-                |          |    |    |              +--- androidx.core:core:1.1.0 -> 1.9.0 (*)
-                |          |    |    |              +--- androidx.collection:collection:1.1.0 (*)
-                |          |    |    |              +--- androidx.viewpager:viewpager:1.0.0
-                |          |    |    |              |    +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
-                |          |    |    |              |    +--- androidx.core:core:1.0.0 -> 1.9.0 (*)
-                |          |    |    |              |    \--- androidx.customview:customview:1.0.0
-                |          |    |    |              |         +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
-                |          |    |    |              |         \--- androidx.core:core:1.0.0 -> 1.9.0 (*)
-                |          |    |    |              +--- androidx.loader:loader:1.0.0 (*)
-                |          |    |    |              +--- androidx.activity:activity:1.0.0
-                |          |    |    |              |    +--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
-                |          |    |    |              |    +--- androidx.core:core:1.1.0 -> 1.9.0 (*)
-                |          |    |    |              |    +--- androidx.lifecycle:lifecycle-runtime:2.1.0 -> 2.3.1 (*)
-                |          |    |    |              |    +--- androidx.lifecycle:lifecycle-viewmodel:2.1.0 (*)
-                |          |    |    |              |    \--- androidx.savedstate:savedstate:1.0.0
-                |          |    |    |              |         +--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
-                |          |    |    |              |         +--- androidx.arch.core:core-common:2.0.1 -> 2.1.0 (*)
-                |          |    |    |              |         \--- androidx.lifecycle:lifecycle-common:2.0.0 -> 2.3.1 (*)
-                |          |    |    |              \--- androidx.lifecycle:lifecycle-viewmodel:2.0.0 -> 2.1.0 (*)
-                |          |    |    +--- com.google.android.gms:play-services-basement:18.4.0 (*)
-                |          |    |    +--- com.google.android.gms:play-services-measurement-base:22.1.0
-                |          |    |    |    \--- com.google.android.gms:play-services-basement:18.4.0 (*)
-                |          |    |    +--- com.google.android.gms:play-services-measurement-impl:22.1.0
-                |          |    |    |    +--- androidx.collection:collection:1.0.0 -> 1.1.0 (*)
-                |          |    |    |    +--- androidx.core:core:1.9.0 (*)
-                |          |    |    |    +--- androidx.privacysandbox.ads:ads-adservices:1.0.0-beta05
-                |          |    |    |    |    +--- androidx.annotation:annotation:1.6.0 (*)
-                |          |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 2.0.20 (*)
-                |          |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1
-                |          |    |    |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1
-                |          |    |    |    |              +--- org.jetbrains:annotations:23.0.0
-                |          |    |    |    |              +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
-                |          |    |    |    |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 2.0.20
-                |          |    |    |    |              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
-                |          |    |    |    |              \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22
-                |          |    |    |    |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
-                |          |    |    |    |                   \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22
-                |          |    |    |    |                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
-                |          |    |    |    +--- androidx.privacysandbox.ads:ads-adservices-java:1.0.0-beta05
-                |          |    |    |    |    +--- androidx.annotation:annotation:1.2.0 -> 1.6.0 (*)
-                |          |    |    |    |    +--- com.google.guava:listenablefuture:1.0 -> 9999.0-empty-to-avoid-conflict-with-guava
-                |          |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 2.0.20 (*)
-                |          |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                |          |    |    |    +--- com.google.android.gms:play-services-ads-identifier:18.0.0 (*)
-                |          |    |    |    +--- com.google.android.gms:play-services-basement:18.4.0 (*)
-                |          |    |    |    +--- com.google.android.gms:play-services-measurement-base:22.1.0 (*)
-                |          |    |    |    +--- com.google.android.gms:play-services-stats:17.0.2
-                |          |    |    |    |    +--- androidx.legacy:legacy-support-core-utils:1.0.0 (*)
-                |          |    |    |    |    \--- com.google.android.gms:play-services-basement:18.0.0 -> 18.4.0 (*)
-                |          |    |    |    \--- com.google.guava:guava:31.1-android
-                |          |    |    |         +--- com.google.guava:failureaccess:1.0.1
-                |          |    |    |         +--- com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
-                |          |    |    |         +--- com.google.code.findbugs:jsr305:3.0.2
-                |          |    |    |         +--- org.checkerframework:checker-qual:3.12.0
-                |          |    |    |         +--- com.google.errorprone:error_prone_annotations:2.11.0
-                |          |    |    |         \--- com.google.j2objc:j2objc-annotations:1.3
-                |          |    |    \--- com.google.android.gms:play-services-stats:17.0.2 (*)
-                |          |    +--- com.google.android.gms:play-services-measurement-api:22.1.0
-                |          |    |    +--- com.google.android.gms:play-services-ads-identifier:18.0.0 (*)
-                |          |    |    +--- com.google.android.gms:play-services-basement:18.4.0 (*)
-                |          |    |    +--- com.google.android.gms:play-services-measurement-base:22.1.0 (*)
-                |          |    |    +--- com.google.android.gms:play-services-measurement-sdk-api:22.1.0
-                |          |    |    |    +--- com.google.android.gms:play-services-basement:18.4.0 (*)
-                |          |    |    |    \--- com.google.android.gms:play-services-measurement-base:22.1.0 (*)
-                |          |    |    +--- com.google.android.gms:play-services-tasks:18.2.0
-                |          |    |    |    \--- com.google.android.gms:play-services-basement:18.4.0 (*)
-                |          |    |    +--- com.google.firebase:firebase-common:21.0.0
-                |          |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4
-                |          |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 -> 1.7.1 (*)
-                |          |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4 -> 1.7.1
-                |          |    |    |    |    +--- com.google.android.gms:play-services-tasks:16.0.1 -> 18.2.0 (*)
-                |          |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 -> 1.8.22 (*)
-                |          |    |    |    +--- com.google.firebase:firebase-components:18.0.0
-                |          |    |    |    |    \--- com.google.firebase:firebase-annotations:16.2.0
-                |          |    |    |    |         \--- javax.inject:javax.inject:1
-                |          |    |    |    \--- com.google.firebase:firebase-annotations:16.2.0 (*)
-                |          |    |    +--- com.google.firebase:firebase-common-ktx:21.0.0
-                |          |    |    |    +--- com.google.firebase:firebase-common:21.0.0 (*)
-                |          |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                |          |    |    +--- com.google.firebase:firebase-components:18.0.0 (*)
-                |          |    |    +--- com.google.firebase:firebase-installations:17.0.1
-                |          |    |    |    +--- com.google.android.gms:play-services-tasks:18.0.1 -> 18.2.0 (*)
-                |          |    |    |    +--- com.google.firebase:firebase-common:20.1.0 -> 21.0.0 (*)
-                |          |    |    |    +--- com.google.firebase:firebase-components:17.0.0 -> 18.0.0 (*)
-                |          |    |    |    \--- com.google.firebase:firebase-installations-interop:17.0.1
-                |          |    |    |         +--- com.google.android.gms:play-services-tasks:18.0.1 -> 18.2.0 (*)
-                |          |    |    |         \--- com.google.firebase:firebase-annotations:16.0.0 -> 16.2.0 (*)
-                |          |    |    +--- com.google.firebase:firebase-installations-interop:17.0.0 -> 17.0.1 (*)
-                |          |    |    +--- com.google.firebase:firebase-measurement-connector:19.0.0
-                |          |    |    |    +--- com.google.android.gms:play-services-basement:17.0.0 -> 18.4.0 (*)
-                |          |    |    |    \--- com.google.firebase:firebase-annotations:16.0.0 -> 16.2.0 (*)
-                |          |    |    +--- com.google.guava:guava:31.1-android (*)
-                |          |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.0.20 (*)
-                |          |    \--- com.google.android.gms:play-services-measurement-sdk:22.1.0
-                |          |         +--- androidx.collection:collection:1.0.0 -> 1.1.0 (*)
-                |          |         +--- com.google.android.gms:play-services-basement:18.4.0 (*)
-                |          |         +--- com.google.android.gms:play-services-measurement-base:22.1.0 (*)
-                |          |         \--- com.google.android.gms:play-services-measurement-impl:22.1.0 (*)
-                |          +--- dev.gitlive:firebase-app:2.1.0
-                |          |    \--- dev.gitlive:firebase-app-android:2.1.0
-                |          |         +--- com.google.firebase:firebase-common-ktx:21.0.0 (*)
-                |          |         \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
-                |          \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
+               |\--- dev.gitlive:firebase-analytics:2.1.0
+               |     \--- dev.gitlive:firebase-analytics-android:2.1.0
+               |          +--- com.google.firebase:firebase-analytics:22.1.0
+               |          |    +--- com.google.android.gms:play-services-measurement:22.1.0
+               |          |    |    +--- androidx.collection:collection:1.0.0 -> 1.1.0
+               |          |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.6.0
+               |          |    |    |         \--- androidx.annotation:annotation-jvm:1.6.0
+               |          |    |    |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.0 -> 2.0.20
+               |          |    |    |                   +--- org.jetbrains:annotations:13.0 -> 23.0.0
+               |          |    |    |                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (c)
+               |          |    |    +--- androidx.legacy:legacy-support-core-utils:1.0.0
+               |          |    |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
+               |          |    |    |    +--- androidx.core:core:1.0.0 -> 1.9.0
+               |          |    |    |    |    +--- androidx.annotation:annotation:1.2.0 -> 1.6.0 (*)
+               |          |    |    |    |    +--- androidx.annotation:annotation-experimental:1.3.0
+               |          |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.0.20 (*)
+               |          |    |    |    |    +--- androidx.lifecycle:lifecycle-runtime:2.3.1
+               |          |    |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.3.1
+               |          |    |    |    |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
+               |          |    |    |    |    |    +--- androidx.arch.core:core-common:2.1.0
+               |          |    |    |    |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
+               |          |    |    |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
+               |          |    |    |    |    \--- androidx.versionedparcelable:versionedparcelable:1.1.1
+               |          |    |    |    |         +--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
+               |          |    |    |    |         \--- androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+               |          |    |    |    +--- androidx.documentfile:documentfile:1.0.0
+               |          |    |    |    |    \--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
+               |          |    |    |    +--- androidx.loader:loader:1.0.0
+               |          |    |    |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
+               |          |    |    |    |    +--- androidx.core:core:1.0.0 -> 1.9.0 (*)
+               |          |    |    |    |    +--- androidx.lifecycle:lifecycle-livedata:2.0.0
+               |          |    |    |    |    |    +--- androidx.arch.core:core-runtime:2.0.0
+               |          |    |    |    |    |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
+               |          |    |    |    |    |    |    \--- androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
+               |          |    |    |    |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.0.0
+               |          |    |    |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.0.0 -> 2.3.1 (*)
+               |          |    |    |    |    |    |    +--- androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
+               |          |    |    |    |    |    |    \--- androidx.arch.core:core-runtime:2.0.0 (*)
+               |          |    |    |    |    |    \--- androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
+               |          |    |    |    |    \--- androidx.lifecycle:lifecycle-viewmodel:2.0.0 -> 2.1.0
+               |          |    |    |    |         \--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
+               |          |    |    |    +--- androidx.localbroadcastmanager:localbroadcastmanager:1.0.0
+               |          |    |    |    |    \--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
+               |          |    |    |    \--- androidx.print:print:1.0.0
+               |          |    |    |         \--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
+               |          |    |    +--- com.google.android.gms:play-services-ads-identifier:18.0.0
+               |          |    |    |    \--- com.google.android.gms:play-services-basement:18.0.0 -> 18.4.0
+               |          |    |    |         +--- androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+               |          |    |    |         +--- androidx.core:core:1.2.0 -> 1.9.0 (*)
+               |          |    |    |         \--- androidx.fragment:fragment:1.1.0
+               |          |    |    |              +--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
+               |          |    |    |              +--- androidx.core:core:1.1.0 -> 1.9.0 (*)
+               |          |    |    |              +--- androidx.collection:collection:1.1.0 (*)
+               |          |    |    |              +--- androidx.viewpager:viewpager:1.0.0
+               |          |    |    |              |    +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
+               |          |    |    |              |    +--- androidx.core:core:1.0.0 -> 1.9.0 (*)
+               |          |    |    |              |    \--- androidx.customview:customview:1.0.0
+               |          |    |    |              |         +--- androidx.annotation:annotation:1.0.0 -> 1.6.0 (*)
+               |          |    |    |              |         \--- androidx.core:core:1.0.0 -> 1.9.0 (*)
+               |          |    |    |              +--- androidx.loader:loader:1.0.0 (*)
+               |          |    |    |              +--- androidx.activity:activity:1.0.0
+               |          |    |    |              |    +--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
+               |          |    |    |              |    +--- androidx.core:core:1.1.0 -> 1.9.0 (*)
+               |          |    |    |              |    +--- androidx.lifecycle:lifecycle-runtime:2.1.0 -> 2.3.1 (*)
+               |          |    |    |              |    +--- androidx.lifecycle:lifecycle-viewmodel:2.1.0 (*)
+               |          |    |    |              |    \--- androidx.savedstate:savedstate:1.0.0
+               |          |    |    |              |         +--- androidx.annotation:annotation:1.1.0 -> 1.6.0 (*)
+               |          |    |    |              |         +--- androidx.arch.core:core-common:2.0.1 -> 2.1.0 (*)
+               |          |    |    |              |         \--- androidx.lifecycle:lifecycle-common:2.0.0 -> 2.3.1 (*)
+               |          |    |    |              \--- androidx.lifecycle:lifecycle-viewmodel:2.0.0 -> 2.1.0 (*)
+               |          |    |    +--- com.google.android.gms:play-services-basement:18.4.0 (*)
+               |          |    |    +--- com.google.android.gms:play-services-measurement-base:22.1.0
+               |          |    |    |    \--- com.google.android.gms:play-services-basement:18.4.0 (*)
+               |          |    |    +--- com.google.android.gms:play-services-measurement-impl:22.1.0
+               |          |    |    |    +--- androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+               |          |    |    |    +--- androidx.core:core:1.9.0 (*)
+               |          |    |    |    +--- androidx.privacysandbox.ads:ads-adservices:1.0.0-beta05
+               |          |    |    |    |    +--- androidx.annotation:annotation:1.6.0 (*)
+               |          |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 2.0.20 (*)
+               |          |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1
+               |          |    |    |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1
+               |          |    |    |    |              +--- org.jetbrains:annotations:23.0.0
+               |          |    |    |    |              +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+               |          |    |    |    |              |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1 (c)
+               |          |    |    |    |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 2.0.20
+               |          |    |    |    |              |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
+               |          |    |    |    |              \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22
+               |          |    |    |    |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
+               |          |    |    |    |                   \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22
+               |          |    |    |    |                        \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
+               |          |    |    |    +--- androidx.privacysandbox.ads:ads-adservices-java:1.0.0-beta05
+               |          |    |    |    |    +--- androidx.annotation:annotation:1.2.0 -> 1.6.0 (*)
+               |          |    |    |    |    +--- com.google.guava:listenablefuture:1.0 -> 9999.0-empty-to-avoid-conflict-with-guava
+               |          |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 2.0.20 (*)
+               |          |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |          |    |    |    +--- com.google.android.gms:play-services-ads-identifier:18.0.0 (*)
+               |          |    |    |    +--- com.google.android.gms:play-services-basement:18.4.0 (*)
+               |          |    |    |    +--- com.google.android.gms:play-services-measurement-base:22.1.0 (*)
+               |          |    |    |    +--- com.google.android.gms:play-services-stats:17.0.2
+               |          |    |    |    |    +--- androidx.legacy:legacy-support-core-utils:1.0.0 (*)
+               |          |    |    |    |    \--- com.google.android.gms:play-services-basement:18.0.0 -> 18.4.0 (*)
+               |          |    |    |    \--- com.google.guava:guava:31.1-android
+               |          |    |    |         +--- com.google.guava:failureaccess:1.0.1
+               |          |    |    |         +--- com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+               |          |    |    |         +--- com.google.code.findbugs:jsr305:3.0.2
+               |          |    |    |         +--- org.checkerframework:checker-qual:3.12.0
+               |          |    |    |         +--- com.google.errorprone:error_prone_annotations:2.11.0
+               |          |    |    |         \--- com.google.j2objc:j2objc-annotations:1.3
+               |          |    |    \--- com.google.android.gms:play-services-stats:17.0.2 (*)
+               |          |    +--- com.google.android.gms:play-services-measurement-api:22.1.0
+               |          |    |    +--- com.google.android.gms:play-services-ads-identifier:18.0.0 (*)
+               |          |    |    +--- com.google.android.gms:play-services-basement:18.4.0 (*)
+               |          |    |    +--- com.google.android.gms:play-services-measurement-base:22.1.0 (*)
+               |          |    |    +--- com.google.android.gms:play-services-measurement-sdk-api:22.1.0
+               |          |    |    |    +--- com.google.android.gms:play-services-basement:18.4.0 (*)
+               |          |    |    |    \--- com.google.android.gms:play-services-measurement-base:22.1.0 (*)
+               |          |    |    +--- com.google.android.gms:play-services-tasks:18.2.0
+               |          |    |    |    \--- com.google.android.gms:play-services-basement:18.4.0 (*)
+               |          |    |    +--- com.google.firebase:firebase-common:21.0.0
+               |          |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4 -> 1.7.1
+               |          |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+               |          |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+               |          |    |    |    |    +--- com.google.android.gms:play-services-tasks:16.0.1 -> 18.2.0 (*)
+               |          |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+               |          |    |    |    +--- com.google.firebase:firebase-components:18.0.0
+               |          |    |    |    |    \--- com.google.firebase:firebase-annotations:16.2.0
+               |          |    |    |    |         \--- javax.inject:javax.inject:1
+               |          |    |    |    \--- com.google.firebase:firebase-annotations:16.2.0 (*)
+               |          |    |    +--- com.google.firebase:firebase-common-ktx:21.0.0
+               |          |    |    |    +--- com.google.firebase:firebase-common:21.0.0 (*)
+               |          |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+               |          |    |    +--- com.google.firebase:firebase-components:18.0.0 (*)
+               |          |    |    +--- com.google.firebase:firebase-installations:17.0.1
+               |          |    |    |    +--- com.google.android.gms:play-services-tasks:18.0.1 -> 18.2.0 (*)
+               |          |    |    |    +--- com.google.firebase:firebase-common:20.1.0 -> 21.0.0 (*)
+               |          |    |    |    +--- com.google.firebase:firebase-components:17.0.0 -> 18.0.0 (*)
+               |          |    |    |    \--- com.google.firebase:firebase-installations-interop:17.0.1
+               |          |    |    |         +--- com.google.android.gms:play-services-tasks:18.0.1 -> 18.2.0 (*)
+               |          |    |    |         \--- com.google.firebase:firebase-annotations:16.0.0 -> 16.2.0 (*)
+               |          |    |    +--- com.google.firebase:firebase-installations-interop:17.0.0 -> 17.0.1 (*)
+               |          |    |    +--- com.google.firebase:firebase-measurement-connector:19.0.0
+               |          |    |    |    +--- com.google.android.gms:play-services-basement:17.0.0 -> 18.4.0 (*)
+               |          |    |    |    \--- com.google.firebase:firebase-annotations:16.0.0 -> 16.2.0 (*)
+               |          |    |    +--- com.google.guava:guava:31.1-android (*)
+               |          |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 2.0.20 (*)
+               |          |    \--- com.google.android.gms:play-services-measurement-sdk:22.1.0
+               |          |         +--- androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+               |          |         +--- com.google.android.gms:play-services-basement:18.4.0 (*)
+               |          |         +--- com.google.android.gms:play-services-measurement-base:22.1.0 (*)
+               |          |         \--- com.google.android.gms:play-services-measurement-impl:22.1.0 (*)
+               |          +--- dev.gitlive:firebase-app:2.1.0
+               |          |    \--- dev.gitlive:firebase-app-android:2.1.0
+               |          |         +--- com.google.firebase:firebase-common-ktx:21.0.0 (*)
+               |          |         \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
+               |          \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
             """.trimMargin()
         )
         runBlocking {
             downloadAndAssertFiles(
                 """activity-1.0.0.aar
-                |ads-adservices-1.0.0-beta05.aar
-                |ads-adservices-java-1.0.0-beta05.aar
-                |annotation-experimental-1.3.0.aar
-                |annotation-jvm-1.6.0.jar
-                |annotations-23.0.0.jar
-                |checker-qual-3.12.0.jar
-                |collection-1.1.0.jar
-                |core-1.9.0.aar
-                |core-common-2.1.0.jar
-                |core-runtime-2.0.0.aar
-                |customview-1.0.0.aar
-                |documentfile-1.0.0.aar
-                |error_prone_annotations-2.11.0.jar
-                |failureaccess-1.0.1.jar
-                |firebase-analytics-22.1.0.aar
-                |firebase-analytics-android-2.1.0.aar
-                |firebase-annotations-16.2.0.jar
-                |firebase-app-android-2.1.0.aar
-                |firebase-common-21.0.0.aar
-                |firebase-common-ktx-21.0.0.aar
-                |firebase-components-18.0.0.aar
-                |firebase-installations-17.0.1.aar
-                |firebase-installations-interop-17.0.1.aar
-                |firebase-measurement-connector-19.0.0.aar
-                |fragment-1.1.0.aar
-                |guava-31.1-android.jar
-                |j2objc-annotations-1.3.jar
-                |javax.inject-1.jar
-                |jsr305-3.0.2.jar
-                |kotlin-stdlib-2.0.20.jar
-                |kotlin-stdlib-jdk7-1.8.22.jar
-                |kotlin-stdlib-jdk8-1.8.22.jar
-                |kotlinx-coroutines-core-jvm-1.7.1.jar
-                |kotlinx-coroutines-play-services-1.6.4.jar
-                |legacy-support-core-utils-1.0.0.aar
-                |lifecycle-common-2.3.1.jar
-                |lifecycle-livedata-2.0.0.aar
-                |lifecycle-livedata-core-2.0.0.aar
-                |lifecycle-runtime-2.3.1.aar
-                |lifecycle-viewmodel-2.1.0.aar
-                |listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
-                |loader-1.0.0.aar
-                |localbroadcastmanager-1.0.0.aar
-                |play-services-ads-identifier-18.0.0.aar
-                |play-services-basement-18.4.0.aar
-                |play-services-measurement-22.1.0.aar
-                |play-services-measurement-api-22.1.0.aar
-                |play-services-measurement-base-22.1.0.aar
-                |play-services-measurement-impl-22.1.0.aar
-                |play-services-measurement-sdk-22.1.0.aar
-                |play-services-measurement-sdk-api-22.1.0.aar
-                |play-services-stats-17.0.2.aar
-                |play-services-tasks-18.2.0.aar
-                |print-1.0.0.aar
-                |savedstate-1.0.0.aar
-                |versionedparcelable-1.1.1.aar
-                |viewpager-1.0.0.aar""".trimMargin(),
+               |ads-adservices-1.0.0-beta05.aar
+               |ads-adservices-java-1.0.0-beta05.aar
+               |annotation-experimental-1.3.0.aar
+               |annotation-jvm-1.6.0.jar
+               |annotations-23.0.0.jar
+               |checker-qual-3.12.0.jar
+               |collection-1.1.0.jar
+               |core-1.9.0.aar
+               |core-common-2.1.0.jar
+               |core-runtime-2.0.0.aar
+               |customview-1.0.0.aar
+               |documentfile-1.0.0.aar
+               |error_prone_annotations-2.11.0.jar
+               |failureaccess-1.0.1.jar
+               |firebase-analytics-22.1.0.aar
+               |firebase-analytics-android-2.1.0.aar
+               |firebase-annotations-16.2.0.jar
+               |firebase-app-android-2.1.0.aar
+               |firebase-common-21.0.0.aar
+               |firebase-common-ktx-21.0.0.aar
+               |firebase-components-18.0.0.aar
+               |firebase-installations-17.0.1.aar
+               |firebase-installations-interop-17.0.1.aar
+               |firebase-measurement-connector-19.0.0.aar
+               |fragment-1.1.0.aar
+               |guava-31.1-android.jar
+               |j2objc-annotations-1.3.jar
+               |javax.inject-1.jar
+               |jsr305-3.0.2.jar
+               |kotlin-stdlib-2.0.20.jar
+               |kotlin-stdlib-jdk7-1.8.22.jar
+               |kotlin-stdlib-jdk8-1.8.22.jar
+               |kotlinx-coroutines-core-jvm-1.7.1.jar
+               |kotlinx-coroutines-play-services-1.7.1.jar
+               |legacy-support-core-utils-1.0.0.aar
+               |lifecycle-common-2.3.1.jar
+               |lifecycle-livedata-2.0.0.aar
+               |lifecycle-livedata-core-2.0.0.aar
+               |lifecycle-runtime-2.3.1.aar
+               |lifecycle-viewmodel-2.1.0.aar
+               |listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
+               |loader-1.0.0.aar
+               |localbroadcastmanager-1.0.0.aar
+               |play-services-ads-identifier-18.0.0.aar
+               |play-services-basement-18.4.0.aar
+               |play-services-measurement-22.1.0.aar
+               |play-services-measurement-api-22.1.0.aar
+               |play-services-measurement-base-22.1.0.aar
+               |play-services-measurement-impl-22.1.0.aar
+               |play-services-measurement-sdk-22.1.0.aar
+               |play-services-measurement-sdk-api-22.1.0.aar
+               |play-services-stats-17.0.2.aar
+               |play-services-tasks-18.2.0.aar
+               |print-1.0.0.aar
+               |savedstate-1.0.0.aar
+               |versionedparcelable-1.1.1.aar
+               |viewpager-1.0.0.aar""".trimMargin(),
                 root = root
             )
         }
@@ -1728,9 +1730,14 @@ class BuildGraphTest: BaseDRTest() {
     }
 
     @Test
+    /**
+     * BOM is published with pom.xml and with Gradle metadata (.module file).
+     * Such a BOM being imported applies dependency constraints to the resolution graph
+     */
     fun `io_ktor ktor-bom 2_3_9`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
+            dependency = "bom:io.ktor:ktor-bom:2.3.9",
             scope = ResolutionScope.RUNTIME,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
             expected = """root
@@ -1743,7 +1750,121 @@ class BuildGraphTest: BaseDRTest() {
             .filterIsInstance<MavenDependencyConstraintNode>()
             .count()
 
-        assertEquals(386, constraintsNumber, "Unexpected list of constraints, it should contain 386 items, but contains $constraintsNumber")
+        assertEquals(386, constraintsNumber,
+            "Unexpected list of constraints, it should contain 386 items, but contains $constraintsNumber")
+    }
+
+    @Test
+    /**
+     * Dependency on a BOM as on a regular dependency is prohibited if BOM is published with Gradle metadata
+     */
+    fun `declaring BOM published with Gradle metadata as a regular dependency`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "io.ktor:ktor-bom:2.3.9",
+            scope = ResolutionScope.RUNTIME,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
+            expected = """root
+                |\--- io.ktor:ktor-bom:2.3.9
+            """.trimMargin(),
+            verifyMessages = false
+        )
+
+        val messages = root.children.single().messages.defaultFilterMessages()
+        assertNotNull(messages.singleOrNull(), "The only error message is expected, but found: ${messages.toSet()}")
+        assertEquals(
+            "No variant for the platform jvm is provided by the library io.ktor:ktor-bom:2.3.9",
+            messages.singleOrNull()!!.message,
+            "Unexpected error message"
+        )
+
+        val constraintsNumber = root
+            .distinctBfsSequence()
+            .filterIsInstance<MavenDependencyConstraintNode>()
+            .count()
+
+        assertEquals(0, constraintsNumber,
+            "Unexpected list of constraints, it should contain 0 items, but contains $constraintsNumber")
+    }
+
+    @Test
+    /**
+     * BOM is published with pom.xml only (no Gradle metadata in .module file)
+     */
+    fun `com_fasterxml_jackson jackson-bom 2_18_3`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "bom:com.fasterxml.jackson:jackson-bom:2.18.3",
+            scope = ResolutionScope.RUNTIME,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
+            expected = """root
+                |\--- com.fasterxml.jackson:jackson-bom:2.18.3
+            """.trimMargin()
+        )
+
+        val constraintsNumber = root
+            .distinctBfsSequence()
+            .filterIsInstance<MavenDependencyConstraintNode>()
+            .count()
+
+        assertEquals(66, constraintsNumber, "Unexpected list of constraints, it should contain 66 items, but contains $constraintsNumber")
+    }
+
+    @Test
+            /**
+             * Dependency on a BOM as on a regular dependency is NOOP if BOM is published as a pom.xml only (without Gradle metadata)
+             */
+    fun `declaring BOM published without Gradle metadata as a regular dependency`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "com.fasterxml.jackson:jackson-bom:2.18.3",
+            scope = ResolutionScope.RUNTIME,
+            expected = """root
+                |\--- com.fasterxml.jackson:jackson-bom:2.18.3
+            """.trimMargin()
+        )
+
+        assertFiles("", root)
+
+        val constraintsNumber = root
+            .distinctBfsSequence()
+            .filterIsInstance<MavenDependencyConstraintNode>()
+            .count()
+
+        assertEquals(0, constraintsNumber,
+            "Unexpected list of constraints, it should contain 0 items, but contains $constraintsNumber")
+    }
+
+    // todo (AB) : Dependency on a BOM is declared by jackson-annotations. 
+    // todo (AB) :  Constraints from there should affect resolution graph.
+    // todo (AB) :  `com.fasterxml.jackson.core:jackson-databind:2.18.3` should be resolved (2.18.2 -> 2.18.3)
+    @Test
+    fun `com_fasterxml_jackson_core jackson-annotations 2_18_3`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = listOf(
+                "com.fasterxml.jackson.core:jackson-annotations:2.18.3",
+                "com.fasterxml.jackson.core:jackson-databind:2.18.2"),
+            expected = """root
+               |+--- com.fasterxml.jackson.core:jackson-annotations:2.18.3
+               ||    \--- com.fasterxml.jackson:jackson-bom:2.18.3
+               ||         \--- com.fasterxml.jackson.core:jackson-databind:2.18.3 (c)
+               |\--- com.fasterxml.jackson.core:jackson-databind:2.18.2 -> 2.18.3
+               |     +--- com.fasterxml.jackson.core:jackson-annotations:2.18.3 (*)
+               |     +--- com.fasterxml.jackson.core:jackson-core:2.18.3
+               |     |    \--- com.fasterxml.jackson:jackson-bom:2.18.3
+               |     \--- com.fasterxml.jackson:jackson-bom:2.18.3
+            """.trimMargin()
+        )
+        runBlocking {
+            downloadAndAssertFiles(
+                """jackson-annotations-2.18.3.jar
+                    |jackson-core-2.18.3.jar
+                    |jackson-databind-2.18.3.jar
+              """.trimMargin(),
+                root, verifyMessages = true
+            )
+        }
     }
 
     /**
@@ -2066,15 +2187,15 @@ class BuildGraphTest: BaseDRTest() {
             runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
             assertEquals(
                 """root
-            |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
-            ||    \--- org.jetbrains:annotations:13.0
-            |+--- org.jetbrains.kotlin:kotlin-test-junit:1.9.20
-            ||    +--- org.jetbrains.kotlin:kotlin-test:1.9.20
-            ||    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
-            ||    \--- junit:junit:4.13.2
-            ||         \--- org.hamcrest:hamcrest-core:1.3
-            |+--- org.jetbrains.kotlin:kotlin-test:1.9.20 (*)
-            |\--- junit:junit:4.12 -> 4.13.2 (*)
+               |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+               ||    \--- org.jetbrains:annotations:13.0
+               |+--- org.jetbrains.kotlin:kotlin-test-junit:1.9.20
+               ||    +--- org.jetbrains.kotlin:kotlin-test:1.9.20
+               ||    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+               ||    \--- junit:junit:4.13.2
+               ||         \--- org.hamcrest:hamcrest-core:1.3
+               |+--- org.jetbrains.kotlin:kotlin-test:1.9.20 (*)
+               |\--- junit:junit:4.12 -> 4.13.2 (*)
         """.trimMargin(),
                 root
             )
@@ -2326,20 +2447,20 @@ class BuildGraphTest: BaseDRTest() {
             runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
             assertEquals(
                 """root
-            |+--- org.jetbrains.kotlin:kotlin-test-junit5:1.9.20
-            ||    +--- org.jetbrains.kotlin:kotlin-test:1.9.20
-            ||    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
-            ||    |         \--- org.jetbrains:annotations:13.0
-            ||    \--- org.junit.jupiter:junit-jupiter-api:5.6.3
-            ||         +--- org.junit:junit-bom:5.6.3
-            ||         +--- org.apiguardian:apiguardian-api:1.1.0
-            ||         +--- org.opentest4j:opentest4j:1.2.0
-            ||         \--- org.junit.platform:junit-platform-commons:1.6.3
-            ||              +--- org.junit:junit-bom:5.6.3
-            ||              \--- org.apiguardian:apiguardian-api:1.1.0
-            |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
-            |\--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20
-            |     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+               |+--- org.jetbrains.kotlin:kotlin-test-junit5:1.9.20
+               ||    +--- org.jetbrains.kotlin:kotlin-test:1.9.20
+               ||    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+               ||    |         \--- org.jetbrains:annotations:13.0
+               ||    \--- org.junit.jupiter:junit-jupiter-api:5.6.3
+               ||         +--- org.junit:junit-bom:5.6.3
+               ||         +--- org.apiguardian:apiguardian-api:1.1.0
+               ||         +--- org.opentest4j:opentest4j:1.2.0
+               ||         \--- org.junit.platform:junit-platform-commons:1.6.3
+               ||              +--- org.junit:junit-bom:5.6.3
+               ||              \--- org.apiguardian:apiguardian-api:1.1.0
+               |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+               |\--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20
+               |     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
         """.trimMargin(),
                 root
             )
