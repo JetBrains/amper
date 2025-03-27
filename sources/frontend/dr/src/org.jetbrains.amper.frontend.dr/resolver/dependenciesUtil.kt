@@ -19,7 +19,7 @@ import org.jetbrains.amper.frontend.MavenDependencyBase
 import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
 
-object FrontendDrBundle : MessageBundle("messages.FrontendDr")
+object FrontendDrBundle : MessageBundle("messages.FrontendDrBundle")
 
 val DependencyNode.fragmentDependencies: List<DirectFragmentDependencyNodeHolder>
     get() = findParents<DirectFragmentDependencyNodeHolder>()

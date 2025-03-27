@@ -6,4 +6,4 @@ package messages
 
 import org.jetbrains.amper.test.MessagesConventionsTest
 
-class FrontendDrMessagesConventionsTest : MessagesConventionsTest("FrontendDr")
+class FrontendDrMessagesConventionsTest : MessagesConventionsTest("FrontendDrBundle")
