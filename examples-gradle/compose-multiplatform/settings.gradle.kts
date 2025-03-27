@@ -10,7 +10,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.amper.settings.plugin").version("0.6.0-dev-2586")
+    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2605")
 }
 
 include(":android-app")
