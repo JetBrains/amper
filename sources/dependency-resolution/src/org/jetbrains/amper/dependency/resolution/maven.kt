@@ -1031,7 +1031,7 @@ class   MavenDependency internal constructor(
             ?: run {
                 diagnosticsReporter.addMessage(
                     Message(
-                        "Kotlin metadata file hash sha1 could not be resolved for maven dependency ${group}:${module}:${version},",
+                        "Kotlin metadata file SHA-1 hash could not be resolved for Maven dependency ${group}:${module}:${version},",
                         severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.INFO,
                 ))
                 return null
@@ -1041,7 +1041,7 @@ class   MavenDependency internal constructor(
             sourceSetName, kmpMetadataFile, context, kotlinProjectStructureMetadata, moduleMetadata, level, diagnosticsReporter
         )
             ?: run {
-                logger.debug("SourceSet $sourceSetName for kotlin multiplatform library ${kmpMetadataFile.fileName} is not found")
+                logger.debug("Source set $sourceSetName for Kotlin Multiplatform library ${kmpMetadataFile.fileName} is not found")
                 return null
             }
 
@@ -1077,7 +1077,7 @@ class   MavenDependency internal constructor(
             } catch (e: Exception) {
                 diagnosticsReporter.addMessage(
                     Message(
-                        "Failed repackaging kotlin multiplatform library ${kmpLibraryWithSourceSet.name}",
+                        "Failed repackaging Kotlin Multiplatform library ${kmpLibraryWithSourceSet.name}",
                         severity = Severity.ERROR,
                         exception = e
                 ))
