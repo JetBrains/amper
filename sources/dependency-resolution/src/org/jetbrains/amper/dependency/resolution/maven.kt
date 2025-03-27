@@ -446,7 +446,7 @@ class   MavenDependency internal constructor(
                 if (level != ResolutionLevel.NETWORK) {
                     pom.diagnosticsReporter.addMessage(
                         Message(
-                            "Pom was not found for $this",
+                            "POM was not found for $this",
                             settings.repositories.toString(),
                             Severity.WARNING,
                         )
@@ -466,7 +466,7 @@ class   MavenDependency internal constructor(
                     if (level != ResolutionLevel.NETWORK) {
                         moduleFile.diagnosticsReporter.addMessage(
                             Message(
-                                "Pom is resolved, but metadata was not found for $this",
+                                "POM is resolved, but metadata was not found for $this",
                                 context.settings.repositories.toString(),
                                 Severity.WARNING,
                             )
@@ -1266,7 +1266,7 @@ class   MavenDependency internal constructor(
         } catch (e: Exception) {
             diagnosticsReporter.addMessage(
                 Message(
-                    "Unable to parse pom file ${this.pom}",
+                    "Unable to parse POM file ${this.pom}",
                     e.toString(),
                     Severity.ERROR,
                     e,
