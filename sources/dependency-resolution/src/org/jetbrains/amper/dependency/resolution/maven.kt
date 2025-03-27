@@ -1189,7 +1189,7 @@ class MavenDependency internal constructor(
             .variants
             .filter { capabilityMatches(it) }
             .filter { nativeTargetMatches(it, platform) }
-            .filter { categoryMatches(it, isBom) }
+            .filter { categoryMatches(it) }
 
         val validVariants = initiallyFilteredVariants
             .filterWithFallbackPlatform(platform)
@@ -1240,12 +1240,7 @@ class MavenDependency internal constructor(
                 || variant.attributes["org.jetbrains.kotlin.native.target"] == null
                 || variant.attributes["org.jetbrains.kotlin.native.target"] == platform.nativeTarget
 
-    private fun categoryMatches(variant: Variant, isBom: Boolean) =
-        if(isBom) {
-            variant.attributes["org.gradle.category"] == "platform"
-        } else {
-            variant.attributes["org.gradle.category"] != "platform"
-        }
+    private fun categoryMatches(variant: Variant) = variant.isBom() == isBom
 
     /**
      * Check that either dependency defines no capability, or its capability is equal to the library itself,
@@ -1576,6 +1571,7 @@ data class MavenCoordinates(
 internal fun AvailableAt.toCoordinates() = MavenCoordinates(group, module, version)
 
 private fun Dependency.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
+private fun Variant.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
 
 // todo (AB) : This behaviour is applicable perhaps to ALL native platforms
 private val allIosPlatforms = ResolutionPlatform.entries.filter { it.name.startsWith("IOS_") }
