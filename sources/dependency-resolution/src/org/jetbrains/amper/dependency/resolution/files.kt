@@ -520,9 +520,10 @@ open class DependencyFile(
     ): Path? {
         for (repository in repositories) {
             val hasher = expectedHash?.let { Hasher(it.algorithm) }
+            val sha1Hasher = hasher?.takeIf { it.algorithm == "sha1" } ?: Hasher("sha1")
             val hashers = buildList {
-                hasher?.let { add(it) }                                        // for calculation of the given hash on download
-                if (hasher?.algorithm != "sha1") add(Hasher("sha1"))  // for calculation of `sha1` hash on download additionally
+                hasher?.let { add(it) }                     // for calculation of the given hash on download
+                if (hasher !== sha1Hasher) add(sha1Hasher)  // for calculation of `sha1` hash on download additionally
             }
             val writers = hashers.map { it.writer } + Writer(channel::write)
             if (!download(writers, repository, progress, cache, diagnosticsReporter)) {
@@ -538,10 +539,7 @@ open class DependencyFile(
                 }
             }
 
-            return storeToTargetLocation(temp, hasher, cache, repository, diagnosticsReporter) {
-                hashers.find { it.algorithm == "sha1" }?.hash
-                    ?: error("sha1 must be present among hashers") // should never happen
-            }
+            return storeToTargetLocation(temp, hasher, cache, repository, diagnosticsReporter) { sha1Hasher.hash }
         }
 
         if (deleteTempFileOnFinish) {
