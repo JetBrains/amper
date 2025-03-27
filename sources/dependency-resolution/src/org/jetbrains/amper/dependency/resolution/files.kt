@@ -5,9 +5,8 @@
 package org.jetbrains.amper.dependency.resolution
 
 import io.ktor.http.*
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.jvm.javaio.toByteReadChannel
-import io.ktor.utils.io.readAvailable
+import io.ktor.utils.io.*
+import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
@@ -22,12 +21,12 @@ import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.Writer
 import org.jetbrains.amper.concurrency.computeHash
 import org.jetbrains.amper.concurrency.copyFrom
+import org.jetbrains.amper.concurrency.deleteIfExistsWithLogging
 import org.jetbrains.amper.concurrency.produceResultWithDoubleLock
+import org.jetbrains.amper.concurrency.produceResultWithTempFile
 import org.jetbrains.amper.concurrency.readTextWithRetry
 import org.jetbrains.amper.concurrency.withRetry
 import org.jetbrains.amper.concurrency.withRetryOnAccessDenied
-import org.jetbrains.amper.concurrency.produceResultWithTempFile
-import org.jetbrains.amper.concurrency.deleteIfExistsWithLogging
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.slf4j.LoggerFactory
@@ -109,7 +108,8 @@ interface LocalRepository {
      *
      * A SHA1 hash is used by Gradle as a part of a path.
      */
-    suspend fun getPath(dependency: MavenDependency, name: String, sha1: suspend () -> String): Path = getPath(dependency, name, sha1())
+    suspend fun getPath(dependency: MavenDependency, name: String, sha1: suspend () -> String): Path =
+        getPath(dependency, name, sha1())
 }
 
 /**
@@ -148,11 +148,11 @@ class GradleLocalRepository(internal val filesPath: Path) : LocalRepository {
             Files.list(this@naiveSearchDepth2)
                 .use {
                     it.toList()
-                    .filter { it.exists() }
-                    .forEach {
-                        if (it.isDirectory() && shouldDescend) addAll(it.naiveSearchDepth2(false, filterBlock))
-                        if (filterBlock(it)) add(it)
-                    }
+                        .filter { it.exists() }
+                        .forEach {
+                            if (it.isDirectory() && shouldDescend) addAll(it.naiveSearchDepth2(false, filterBlock))
+                            if (filterBlock(it)) add(it)
+                        }
                 }
         }
 
@@ -192,7 +192,8 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
     /**
      * Parameter sha1 is ignored and not calculated
      */
-    override suspend fun getPath(dependency: MavenDependency, name: String, sha1: suspend () -> String): Path = guessPath(dependency, name)
+    override suspend fun getPath(dependency: MavenDependency, name: String, sha1: suspend () -> String): Path =
+        guessPath(dependency, name)
 
     private fun getLocation(dependency: MavenDependency) =
         repository.resolve(
@@ -200,12 +201,25 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
         )
 }
 
-internal fun getDependencyFile(dependency: MavenDependency, file: File) = getDependencyFile(dependency,
-    file.url.substringBeforeLast('.'), file.name.substringAfterLast('.'))
+internal fun getDependencyFile(dependency: MavenDependency, file: File) = getDependencyFile(
+    dependency,
+    file.url.substringBeforeLast('.'),
+    file.name.substringAfterLast('.'),
+)
 
-fun getDependencyFile(dependency: MavenDependency, nameWithoutExtension: String, extension: String, isAutoAddedDocumentation: Boolean = false) =
+fun getDependencyFile(
+    dependency: MavenDependency,
+    nameWithoutExtension: String,
+    extension: String,
+    isAutoAddedDocumentation: Boolean = false,
+) =
     if (dependency.version.endsWith("-SNAPSHOT")) {
-        SnapshotDependencyFile(dependency, nameWithoutExtension, extension, isAutoAddedDocumentation = isAutoAddedDocumentation)
+        SnapshotDependencyFile(
+            dependency,
+            nameWithoutExtension,
+            extension,
+            isAutoAddedDocumentation = isAutoAddedDocumentation,
+        )
     } else {
         DependencyFile(dependency, nameWithoutExtension, extension, isAutoAddedDocumentation = isAutoAddedDocumentation)
     }
@@ -253,8 +267,8 @@ open class DependencyFile(
         ?: guessedPath
         ?: withContext(Dispatchers.IO) { getPathBlocking() }
 
-    private fun getPathBlocking(): Path? = path ?: guessedPath ?:
-        getCacheDirectory().guessPath(dependency, fileName)?.also { guessedPath = it }
+    private fun getPathBlocking(): Path? =
+        path ?: guessedPath ?: getCacheDirectory().guessPath(dependency, fileName)?.also { guessedPath = it }
 
     override fun toString(): String = getPathBlocking()?.toString() ?: "[missing path]/$fileName"
 
@@ -262,7 +276,7 @@ open class DependencyFile(
 
     internal suspend fun hasMatchingChecksumLocally(
         diagnosticsReporter: DiagnosticReporter = this.diagnosticsReporter,
-        level: ResolutionLevel = ResolutionLevel.NETWORK
+        level: ResolutionLevel = ResolutionLevel.NETWORK,
     ): Boolean {
         val path = getPath() ?: return false
         val hashers = path.computeHash()
@@ -281,16 +295,16 @@ open class DependencyFile(
         return path.hasMatchingChecksum(expectedHash)
     }
 
-    suspend fun readText(): String = getPath()?.takeIf{ it.exists()}?.readTextWithRetry()
+    suspend fun readText(): String = getPath()?.takeIf { it.exists() }?.readTextWithRetry()
         ?: throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
 
     internal suspend fun download(context: Context, diagnosticsReporter: DiagnosticReporter): Boolean =
         download(
-            context.settings.repositories.ensureFirst(dependency.repository) ,
+            context.settings.repositories.ensureFirst(dependency.repository),
             context.settings.progress,
             context.resolutionCache,
             true,
-            diagnosticsReporter
+            diagnosticsReporter,
         )
 
     private suspend fun downloadUnderFileLock(
@@ -299,7 +313,7 @@ open class DependencyFile(
         cache: Cache,
         verify: Boolean,
         diagnosticsReporter: DiagnosticReporter,
-        fileLockSource: StripedMutex? = null
+        fileLockSource: StripedMutex? = null,
     ): Path? {
         val expectedHashBeforeLocking = if (verify) {
             getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
@@ -315,7 +329,10 @@ open class DependencyFile(
                         if (verify) {
                             getPath().takeIf {
                                 isDownloadedWithVerification {
-                                    expectedHashBeforeLocking ?: getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
+                                    expectedHashBeforeLocking ?: getExpectedHash(
+                                        diagnosticsReporter,
+                                        ResolutionLevel.NETWORK,
+                                    )
                                 }
                             }
                         } else null
@@ -338,13 +355,28 @@ open class DependencyFile(
                     val artifactPath = expectedHash
                         ?.let {
                             // First, try to resolve artifact from external local storage if the actual hash is known
-                            resolveFromExternalLocalRepository(tempFilePath, fileChannel, expectedHash, cache, diagnosticsReporter)
+                            resolveFromExternalLocalRepository(
+                                tempFilePath,
+                                fileChannel,
+                                expectedHash,
+                                cache,
+                                diagnosticsReporter,
+                            )
                         }
                         ?: run {
                             // Download an artifact from external remote storage if it has not been resolved from the local cache
                             // trying at first the same repo where hash was downloaded from
                             val optimizedRepositories = repositories.ensureFirst(dependency.repository)
-                            downloadAndVerifyHash(fileChannel, tempFilePath, optimizedRepositories, progress, cache, expectedHash, diagnosticsReporter, deleteTempFileOnFinish = false)
+                            downloadAndVerifyHash(
+                                fileChannel,
+                                tempFilePath,
+                                optimizedRepositories,
+                                progress,
+                                cache,
+                                expectedHash,
+                                diagnosticsReporter,
+                                deleteTempFileOnFinish = false,
+                            )
                         }
                         ?: expectedHash?.let {
                             // Downloading an artifact from external storage might have failed if checksum
@@ -352,13 +384,22 @@ open class DependencyFile(
                             // In this case we should take actual checksum downloaded from the external repository
                             // and perform one more downloading attempt.
                             val expectedHashIgnoringMetadata = getExpectedHash(
-                                diagnosticsReporter, ResolutionLevel.NETWORK, false)
+                                diagnosticsReporter, ResolutionLevel.NETWORK, false
+                            )
                                 ?: downloadHash(repositories, progress, cache, diagnosticsReporter)
                             if (expectedHashIgnoringMetadata != null && expectedHashIgnoringMetadata.hash != expectedHash.hash) {
                                 // Expected checksum was taken from metadata on the previous download attempt, not from the checksum file.
                                 // Trying to download the artifact one more time with the checksum downloaded from the remote repository.
                                 val optimizedRepositories = repositories.ensureFirst(dependency.repository)
-                                return@let downloadAndVerifyHash(fileChannel, tempFilePath, optimizedRepositories, progress, cache, expectedHashIgnoringMetadata, diagnosticsReporter)
+                                return@let downloadAndVerifyHash(
+                                    fileChannel,
+                                    tempFilePath,
+                                    optimizedRepositories,
+                                    progress,
+                                    cache,
+                                    expectedHashIgnoringMetadata,
+                                    diagnosticsReporter,
+                                )
                             }
                             null
                         }
@@ -426,7 +467,7 @@ open class DependencyFile(
         cache: Cache,
         verify: Boolean,
         diagnosticsReporter: DiagnosticReporter,
-        fileLockSource: StripedMutex? = null
+        fileLockSource: StripedMutex? = null,
     ): Boolean {
         val nestedDownloadReporter = CollectingDiagnosticReporter()
 
@@ -458,7 +499,7 @@ open class DependencyFile(
 
     private fun List<Repository>.ensureFirst(repository: Repository?) =
         repository?.let {
-            if (this.isEmpty() || this[0].url == repository.url || !this.map{ it.url }.contains(repository.url))
+            if (this.isEmpty() || this[0].url == repository.url || !this.map { it.url }.contains(repository.url))
                 this
             else
                 buildList {
@@ -571,7 +612,7 @@ open class DependencyFile(
     protected open suspend fun shouldOverwrite(
         cache: Cache,
         expectedHash: Hash,
-        actualHash : Hasher
+        actualHash: Hasher,
     ): Boolean = checkHash(actualHash, expectedHash) > VerificationResult.PASSED
 
     /**
@@ -581,7 +622,7 @@ open class DependencyFile(
     private suspend fun verifyHashes(
         hashers: Collection<Hasher>,
         diagnosticsReporter: DiagnosticReporter,
-        requestedLevel: ResolutionLevel
+        requestedLevel: ResolutionLevel,
     ): VerificationResult {
         for (hasher in hashers) {
             val algorithm = hasher.algorithm
@@ -601,7 +642,7 @@ open class DependencyFile(
      * @return hash of the artifact resolved from a local artifacts storage
      */
     private suspend fun getExpectedHash(
-        diagnosticsReporter: DiagnosticReporter, requestedLevel: ResolutionLevel, searchInMetadata: Boolean = true
+        diagnosticsReporter: DiagnosticReporter, requestedLevel: ResolutionLevel, searchInMetadata: Boolean = true,
     ): Hash? {
         val hash = LocalStorageHashSource.getExpectedHash(this, searchInMetadata)
 
@@ -626,7 +667,7 @@ open class DependencyFile(
         repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ): Hash? {
         val hashers = createHashers()
 
@@ -652,12 +693,13 @@ open class DependencyFile(
                 repositories.joinToString(),
                 if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
                 suppressedMessages = nestedDownloadReporter.diagnostics
-            ))
+            )
+        )
 
         return null
     }
 
-    private fun Hasher.isWellKnownBrokenHashIn(repository: String) : Boolean {
+    private fun Hasher.isWellKnownBrokenHashIn(repository: String): Boolean {
         if (repository == "https://plugins.gradle.org/m2/") {
             return algorithm == "sha512" || algorithm == "sha256"
         }
@@ -692,7 +734,7 @@ open class DependencyFile(
         repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ): String? {
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm")
 
@@ -704,7 +746,15 @@ open class DependencyFile(
                 targetFileName = hashFile.fileName,
                 { hashFile.takeIf { it.isDownloadedValidHash() }?.getPath() },
             ) { tempFilePath, fileChannel ->
-                hashFile.downloadAndVerifyHash(fileChannel, tempFilePath, listOf(repository), progress, cache, null, diagnosticsReporter)
+                hashFile.downloadAndVerifyHash(
+                    fileChannel,
+                    tempFilePath,
+                    listOf(repository),
+                    progress,
+                    cache,
+                    null,
+                    diagnosticsReporter,
+                )
             }
 
             val hashFromRepository = expectedHashPath?.readTextWithRetry()?.sanitize()
@@ -752,7 +802,8 @@ open class DependencyFile(
         try {
 
             // todo (AB) : Use exponential retry here
-            return withRetry(retryCount = 3,
+            return withRetry(
+                retryCount = 3,
                 retryOnException = { e ->
                     e is IOException
                 }
@@ -784,10 +835,14 @@ open class DependencyFile(
                                     // If Content-Length is presented and differs from the actual content length, then it is an error
                                     // Otherwise, it might be an incorrect record in Gradle metadata.
                                     // That happens, we just report an INFO message and proceed with checksum verification in that case.
-                                    val severity = if (sizeFromResponse != null && size != sizeFromResponse) Severity.ERROR else Severity.INFO
-                                    diagnosticsReporter.addMessage(Message(
-                                        "Content length doesn't match for $url. Expected size: $sizeFromResponse, actual: $size",
-                                        severity = severity))
+                                    val severity =
+                                        if (sizeFromResponse != null && size != sizeFromResponse) Severity.ERROR else Severity.INFO
+                                    diagnosticsReporter.addMessage(
+                                        Message(
+                                            "Content length doesn't match for $url. Expected size: $sizeFromResponse, actual: $size",
+                                            severity = severity
+                                        )
+                                    )
 
                                     severity != Severity.ERROR
                                 } else {
@@ -856,7 +911,7 @@ open class DependencyFile(
         extension: String,
         progress: Progress,
         cache: Cache,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ) =
         "$name.$extension"
 
@@ -867,14 +922,18 @@ open class DependencyFile(
 
     private enum class LocalStorageHashSource {
         File {
-            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, ) =
+            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String) =
                 artifact.getHashFromGradleCacheDirectory(algorithm)
-                    ?: getDependencyFile(artifact.dependency, artifact.nameWithoutExtension, "${artifact.extension}.$algorithm")
+                    ?: getDependencyFile(
+                        artifact.dependency,
+                        artifact.nameWithoutExtension,
+                        "${artifact.extension}.$algorithm",
+                    )
                         .takeIf { it.isDownloaded() }
                         ?.readText()
                         ?.sanitize()
         },
-        MetadataInfo{
+        MetadataInfo {
             override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String) =
                 with(artifact) {
                     when (algorithm) {
@@ -930,14 +989,14 @@ open class DependencyFile(
         private fun checkHash(
             hasher: Hasher,
             expectedHash: Hash,
-            diagnosticsReporter: DiagnosticReporter? = null
+            diagnosticsReporter: DiagnosticReporter? = null,
         ): VerificationResult {
             // Let's first check hashes available on disk.
             val algorithm = hasher.algorithm
             val actualHash = hasher.hash
             if (expectedHash.algorithm != algorithm) {
                 error("Expected hash type is ${expectedHash.algorithm}, but $algorithm was calculated") // should never happen
-            } else if (!expectedHash.hash.equals(actualHash,true)) {
+            } else if (!expectedHash.hash.equals(actualHash, true)) {
                 diagnosticsReporter?.addMessage(
                     Message(
                         "Hashes don't match for $algorithm",
@@ -965,7 +1024,13 @@ class SnapshotDependencyFile(
     extension: String,
     fileCache: FileCache = dependency.settings.fileCache,
     isAutoAddedDocumentation: Boolean = false,
-) : DependencyFile(dependency, name, extension, fileCache = fileCache, isAutoAddedDocumentation = isAutoAddedDocumentation) {
+) : DependencyFile(
+    dependency,
+    name,
+    extension,
+    fileCache = fileCache,
+    isAutoAddedDocumentation = isAutoAddedDocumentation,
+) {
 
     private val mavenMetadata by lazy {
         SnapshotDependencyFile(dependency, "maven-metadata", "xml", FileCacheBuilder {
@@ -1005,7 +1070,8 @@ class SnapshotDependencyFile(
         }
         if (nameWithoutExtension != "maven-metadata") {
             if (!mavenMetadata.isDownloaded()
-                && (!isChecksum() || path.isUpToDate())) {
+                && (!isChecksum() || path.isUpToDate())
+            ) {
                 // maven-metadata.xml is absent, no way to verify if the snapshot is actual or not.
                 // We will have to redownload checksum if it is too old
                 // and will reuse the artifact itself if it matches the checksum.
@@ -1038,7 +1104,7 @@ class SnapshotDependencyFile(
         extension: String,
         progress: Progress,
         cache: Cache,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ): String {
         if (name != "maven-metadata" &&
             isMavenMetadataDownloadedOrDownload(repository, progress, cache, diagnosticsReporter = diagnosticsReporter)
@@ -1053,7 +1119,7 @@ class SnapshotDependencyFile(
     }
 
     private suspend fun isMavenMetadataDownloadedOrDownload(
-        repository: Repository, progress: Progress, cache: Cache, diagnosticsReporter: DiagnosticReporter
+        repository: Repository, progress: Progress, cache: Cache, diagnosticsReporter: DiagnosticReporter,
     ): Boolean {
         return mavenMetadata.isDownloaded()
                 || mavenMetadata
@@ -1211,7 +1277,7 @@ internal interface DiagnosticReporter {
     fun reset()
 }
 
-internal class CollectingDiagnosticReporter: DiagnosticReporter {
+internal class CollectingDiagnosticReporter : DiagnosticReporter {
     val diagnostics: MutableList<Message> = CopyOnWriteArrayList()
 
     val current: MutableList<Message> = CopyOnWriteArrayList()
@@ -1233,10 +1299,13 @@ internal class CollectingDiagnosticReporter: DiagnosticReporter {
     }
 
     override fun lowerSeverityTo(severity: Severity) {
-        val loweredDiagnostics = diagnostics.map { if (it.severity > severity) it.copy(severity = severity) else it }.toMutableList()
+        val loweredDiagnostics =
+            diagnostics.map { if (it.severity > severity) it.copy(severity = severity) else it }.toMutableList()
         reset()
         diagnostics.addAll(loweredDiagnostics)
     }
 
-    override fun reset() { diagnostics.clear() }
+    override fun reset() {
+        diagnostics.clear()
+    }
 }
