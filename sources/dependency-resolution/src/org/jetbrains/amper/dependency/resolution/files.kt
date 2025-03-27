@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
@@ -467,7 +467,6 @@ open class DependencyFile(
                 }
         } ?: this
 
-    @Suppress("BlockingMethodInNonBlockingContext") // the whole method is called with Dispatchers.IO
     private suspend fun downloadAndVerifyHash(
         channel: FileChannel,
         temp: Path,
