@@ -966,7 +966,7 @@ class   MavenDependency internal constructor(
             ?: run {
                 diagnosticReporter.addMessage(
                     Message(
-                        "Kotlin metadata file is not resolved for maven dependency ${group}:${module}:${version},",
+                        "Kotlin metadata file is not resolved for maven dependency ${group}:${module}:${version}",
                         severity = Severity.ERROR,
                 ))
                 null
