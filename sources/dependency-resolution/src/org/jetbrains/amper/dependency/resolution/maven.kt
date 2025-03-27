@@ -576,27 +576,56 @@ class MavenDependency internal constructor(
         val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata, level, diagnosticsReporter)
         if (processedAsSpecialCase) {
             // Do nothing, dependency was already processed
+        } else if (isBom) {
+            val validVariants = resolveBomVariants(moduleMetadata, context.settings)
+            if (validVariants.isEmpty()) {
+                diagnosticsReporter.addMessage(
+                    Message(
+                        "The library $this is referenced as a platform/BOM, " +
+                                "but it doesn't provide any variant of category 'platform'",
+                        severity = Severity.ERROR,
+                    )
+                )
+            } else {
+                validVariants.also {
+                    variants = it
+                    if (it.withoutDocumentationAndMetadata.size > 1) {
+                        diagnosticsReporter.addMessage(
+                            Message(
+                                "More than a single variant provided for $this",
+                                it.withoutDocumentationAndMetadata.joinToString { it.name },
+                                Severity.WARNING,
+                            )
+                        )
+                    }
+                }
+                // Import platform/BOM dependency constraints
+                validVariants
+                    .withoutDocumentationAndMetadata
+                    .let { variants ->
+                        variants.flatMap {
+                            it.dependencyConstraints
+                        }.mapNotNull {
+                            it.toMavenDependencyConstraint(context)
+                        }.let {
+                            dependencyConstraints = it
+                        }
+                    }
+            }
         } else {
+            // Regular library
             if (context.settings.platforms.size == 1) {
                 val platform = context.settings.platforms.single()
                 val validVariants = resolveVariants(moduleMetadata, context.settings, platform)
 
                 if (validVariants.isEmpty()) {
                     diagnosticsReporter.addMessage(
-                        if (isBom) {
-                            Message(
-                                "Dependency is referenced as a platform/BOM, " +
-                                        "but no variant of category 'platform' is provided by the library $this for the platform ${platform.pretty}",
-                                severity = Severity.ERROR,
-                            )
-                        } else {
-                            // todo (AB) : Describe what variants we have and why they doesn't match, see example of the explanation in
-                            // todo (AB) : https://youtrack.jetbrains.com/issue/AMPER-3842/#focus=Comments-27-11433793.0-0
-                            Message(
-                                "No variant for the platform ${platform.pretty} is provided by the library $this",
-                                severity = Severity.ERROR,
-                            )
-                        }
+                        // todo (AB) : Describe what variants we have and why they doesn't match, see example of the explanation in
+                        // todo (AB) : https://youtrack.jetbrains.com/issue/AMPER-3842/#focus=Comments-27-11433793.0-0
+                        Message(
+                            "No variant for the platform ${platform.pretty} is provided by the library $this",
+                            severity = Severity.ERROR,
+                        )
                     )
                 } else {
                     validVariants.also {
@@ -639,13 +668,6 @@ class MavenDependency internal constructor(
                 }
             } else {
                 // Multiplatform case
-                if (isBom) {
-                    diagnosticsReporter.addMessage(Message(
-                            "Dependency of type BOM $this is not supported in multiplatform context",
-                            severity = Severity.WARNING
-                        ))
-                    return
-                }
                 val (kotlinMetadataVariant, kmpMetadataFile) =
                     detectKotlinMetadataLibrary(
                         context,
@@ -1199,6 +1221,13 @@ class MavenDependency internal constructor(
 
         return validVariants
     }
+
+    private fun resolveBomVariants(
+        module: Module,
+        settings: Settings
+    ): List<Variant> = module.variants
+        .filter { categoryMatches(it) }
+        .filterWithFallbackScope(settings.scope)
 
     private fun Variant.isOneOfExceptions() = isKotlinException() || isGuavaException()
 
