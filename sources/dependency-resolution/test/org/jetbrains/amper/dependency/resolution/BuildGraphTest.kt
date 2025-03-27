@@ -1835,9 +1835,6 @@ class BuildGraphTest: BaseDRTest() {
             "Unexpected list of constraints, it should contain 0 items, but contains $constraintsNumber")
     }
 
-    // todo (AB) : Dependency on a BOM is declared by jackson-annotations. 
-    // todo (AB) :  Constraints from there should affect resolution graph.
-    // todo (AB) :  `com.fasterxml.jackson.core:jackson-databind:2.18.3` should be resolved (2.18.2 -> 2.18.3)
     @Test
     fun `com_fasterxml_jackson_core jackson-annotations 2_18_3`(testInfo: TestInfo) {
         val root = doTest(
