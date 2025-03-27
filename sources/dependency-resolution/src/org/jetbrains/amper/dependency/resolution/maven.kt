@@ -835,7 +835,7 @@ class   MavenDependency internal constructor(
         } else {
             diagnosticReporter.addMessage(
                 Message(
-                    "module file was not downloaded for $this",
+                    "Module file was not downloaded for $this",
                     context.settings.repositories.toString(),
                     if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
             ))
