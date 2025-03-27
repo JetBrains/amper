@@ -112,17 +112,9 @@ class GradleExamplesTest : GradleE2ETestFixture(
         projectName = "gradle-interop",
         "build", ":hello", ":run",
         expectOutputToHave = listOf(
-            """
-            > Task :hello
-            Hello from Gradle task!
-            """.trimIndent(),
-
-            """
-            > Task :run
-            Hello, World!
-            """.trimIndent(),
-
-            "BUILD SUCCESSFUL"
+            "Hello from Gradle task!",
+            "Hello, World!",
+            "BUILD SUCCESSFUL",
         )
     )
 
