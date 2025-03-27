@@ -27,6 +27,16 @@ import org.jetbrains.amper.concurrency.produceResultWithTempFile
 import org.jetbrains.amper.concurrency.readTextWithRetry
 import org.jetbrains.amper.concurrency.withRetry
 import org.jetbrains.amper.concurrency.withRetryOnAccessDenied
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.ContentLengthMismatch
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.HashesMismatch
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.SuccessfulDownload
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.SuccessfulLocalResolution
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnableToDownloadChecksums
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnableToDownloadFile
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnableToReachURL
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnableToResolveChecksums
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnableToSaveDownloadedFile
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnexpectedErrorOnDownload
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.slf4j.LoggerFactory
@@ -414,11 +424,12 @@ open class DependencyFile(
                 throw e
             } catch (t: Throwable) {
                 diagnosticsReporter.addMessage(
-                    Message(
-                        "Unexpected error occurred on attempt to download $fileName for dependency $dependency. " +
-                                "${t::class.simpleName}: ${t.message}",
+                    UnexpectedErrorOnDownload.asMessage(
+                        fileName,
+                        dependency,
+                        t::class.simpleName,
+                        t.message,
                         exception = t,
-                        severity = Severity.ERROR
                     )
                 )
                 null
@@ -480,15 +491,16 @@ open class DependencyFile(
                 .takeIf { messages -> messages.all { it.severity <= Severity.INFO } }
                 ?: emptyList()
         } else if (verify) {
-            if (nestedDownloadReporter.diagnostics.singleOrNull()?.message?.startsWith("Unable to download checksums") == true) {
+            if (nestedDownloadReporter.diagnostics.singleOrNull()?.id == UnableToDownloadChecksums.id) {
                 nestedDownloadReporter.diagnostics
             } else {
                 listOf(
-                    Message(
-                        "Unable to download file $fileName for dependency $dependency",
-                        repositories.joinToString(),
-                        if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
-                        suppressedMessages = nestedDownloadReporter.diagnostics
+                    UnableToDownloadFile.asMessage(
+                        fileName,
+                        dependency,
+                        extra = DependencyResolutionBundle.message("extra.repositories", repositories.joinToString()),
+                        overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
+                        suppressedMessages = nestedDownloadReporter.diagnostics,
                     )
                 )
             }
@@ -577,11 +589,11 @@ open class DependencyFile(
                 } catch (t: Throwable) {
                     logger.debug("### {} was not replaced with new one", target, t)
                     diagnosticsReporter.addMessage(
-                        Message(
-                            "Unable to save downloaded file",
-                            t.toString(),
-                            Severity.ERROR,
-                            t,
+                        UnableToSaveDownloadedFile.asMessage(
+                            fileName,
+                            dependency,
+                            extra = DependencyResolutionBundle.message("extra.exception", t),
+                            exception = t,
                         )
                     )
                     return null
@@ -603,7 +615,11 @@ open class DependencyFile(
         onFileDownloaded(target, repository)
 
         diagnosticsReporter.suppress(
-            Message(if (repository != null) "Downloaded ${target.name} from $repository" else "Resolved ${target.name} from local repository")
+            if (repository != null) {
+                SuccessfulDownload.asMessage(target.name, repository)
+            } else {
+                SuccessfulLocalResolution.asMessage(target.name)
+            }
         )
 
         return target
@@ -648,9 +664,10 @@ open class DependencyFile(
 
         if (hash == null && requestedLevel != ResolutionLevel.NETWORK) {
             diagnosticsReporter.addMessage(
-                Message(
-                    "Unable to resolve checksums of file $fileName for dependency $dependency",
-                    severity = if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR
+                UnableToResolveChecksums.asMessage(
+                    fileName,
+                    dependency,
+                    overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
                 )
             )
         }
@@ -688,11 +705,12 @@ open class DependencyFile(
         }
 
         diagnosticsReporter.addMessage(
-            Message(
-                "Unable to download checksums of file $fileName for dependency $dependency",
-                repositories.joinToString(),
-                if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
-                suppressedMessages = nestedDownloadReporter.diagnostics
+            UnableToDownloadChecksums.asMessage(
+                fileName,
+                dependency,
+                extra = DependencyResolutionBundle.message("extra.repositories", repositories.joinToString()),
+                overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
+                suppressedMessages = nestedDownloadReporter.diagnostics,
             )
         )
 
@@ -835,16 +853,18 @@ open class DependencyFile(
                                     // If Content-Length is presented and differs from the actual content length, then it is an error
                                     // Otherwise, it might be an incorrect record in Gradle metadata.
                                     // That happens, we just report an INFO message and proceed with checksum verification in that case.
-                                    val severity =
-                                        if (sizeFromResponse != null && size != sizeFromResponse) Severity.ERROR else Severity.INFO
+                                    val overrideSeverity =
+                                        Severity.INFO.takeIf { sizeFromResponse == null || size == sizeFromResponse }
                                     diagnosticsReporter.addMessage(
-                                        Message(
-                                            "Content length doesn't match for $url. Expected size: $sizeFromResponse, actual: $size",
-                                            severity = severity
+                                        ContentLengthMismatch.asMessage(
+                                            url,
+                                            sizeFromResponse,
+                                            size,
+                                            overrideSeverity = overrideSeverity,
                                         )
                                     )
 
-                                    severity != Severity.ERROR
+                                    overrideSeverity != null
                                 } else {
                                     if (logger.isDebugEnabled) {
                                         logger.debug(
@@ -883,11 +903,10 @@ open class DependencyFile(
         } catch (e: Exception) {
             logger.warn("$repository: Failed to download $url", e)
             diagnosticsReporter.addMessage(
-                Message(
-                    "Unable to reach $url",
-                    e.toString(),
-                    Severity.ERROR,
-                    e,
+                UnableToReachURL.asMessage(
+                    url,
+                    extra = DependencyResolutionBundle.message("extra.exception", e),
+                    exception = e,
                 )
             )
         }
@@ -998,11 +1017,14 @@ open class DependencyFile(
                 error("Expected hash type is ${expectedHash.algorithm}, but $algorithm was calculated") // should never happen
             } else if (!expectedHash.hash.equals(actualHash, true)) {
                 diagnosticsReporter?.addMessage(
-                    Message(
-                        "Hashes don't match for $algorithm",
-                        "expected: ${expectedHash.hash}, actual: $actualHash",
-                        Severity.ERROR,
-                    )
+                    HashesMismatch.asMessage(
+                        algorithm,
+                        extra = DependencyResolutionBundle.message(
+                            "extra.expected.actual",
+                            expectedHash.hash,
+                            actualHash
+                        ),
+                    ),
                 )
                 return VerificationResult.FAILED
             } else {

@@ -192,7 +192,8 @@ data class Message(
     val extra: String = "",
     val severity: Severity = Severity.INFO,
     val exception: Throwable? = null,
-    val suppressedMessages: List<Message> = emptyList()
+    val suppressedMessages: List<Message> = emptyList(),
+    val id: String? = null,
 )
 
 val Message.message: String
