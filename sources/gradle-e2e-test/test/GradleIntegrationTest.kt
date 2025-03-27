@@ -13,13 +13,6 @@ import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
-    @Test
-    fun `running jvm - Gradle 8_6`() = test(
-        projectName = "jvm-basic",
-        "run",
-        expectOutputToHave = "Hello, World!",
-        gradleVersion = "8.6",
-    )
 
     @Test
     fun `running jvm - Gradle 8_7`() = test(
@@ -174,14 +167,6 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     }
 
     @Test
-    fun `compose desktop with Gradle 8_6`() = test(
-        projectName = "compose-desktop",
-        "assemble",
-        expectOutputToHave = "BUILD SUCCESSFUL",
-        gradleVersion = "8.6",
-    )
-
-    @Test
     fun `compose desktop with Gradle 8_7`() = test(
         projectName = "compose-desktop",
         "assemble",
@@ -195,6 +180,14 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
         "assemble",
         expectOutputToHave = "BUILD SUCCESSFUL",
         gradleVersion = "8.9",
+    )
+
+    @Test
+    fun `compose desktop with Gradle 8_11`() = test(
+        projectName = "compose-desktop",
+        "assemble",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+        gradleVersion = "8.11.1",
     )
 
     @Test
@@ -228,11 +221,11 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
 
     @Test
     @KonanFolderLock
-    fun `configure a project with most of the settings - gradle 8_6`() = test(
+    fun `configure a project with most of the settings - gradle 8_7`() = test(
         projectName = "settings",
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
-        gradleVersion = "8.6",
+        gradleVersion = "8.7",
     )
 
     @Test
@@ -414,11 +407,11 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun `testing gradle interoperability with gradle-jvm layout - gradle 8_6`() = test(
+    fun `testing gradle interoperability with gradle-jvm layout - gradle 8_7`() = test(
         projectName = "gradle-interoperability-gradle-jvm-layout",
         "run", "test",
         expectOutputToHave = listOf("Hello, World!", "The test is running"),
-        gradleVersion = "8.6",
+        gradleVersion = "8.7",
     )
 
     @Test
