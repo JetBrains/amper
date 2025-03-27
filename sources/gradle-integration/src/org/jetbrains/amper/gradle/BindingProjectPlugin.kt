@@ -11,6 +11,7 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.testing.Test
+import org.gradle.util.GradleVersion
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.gradle.android.AndroidBindingPluginPart
@@ -33,6 +34,11 @@ class BindingProjectPlugin : Plugin<Project> {
     lateinit var appliedParts: List<BindingPluginPart>
 
     override fun apply(project: Project) = with(SLF4JProblemReporterContext()) {
+        // Some things in the KMP plugin are not possible in Gradle 8.6 or below
+        if (GradleVersion.current() < GradleVersion.version("8.7")) {
+            throw GradleException("Gradle ${GradleVersion.current()} is no longer supported, please use 8.7 or above")
+        }
+
         // Prepare context.
         val model = project.gradle.knownModel ?: error("Amper model not found")
         val moduleToProject = project.gradle.moduleFilePathToProjectPath
