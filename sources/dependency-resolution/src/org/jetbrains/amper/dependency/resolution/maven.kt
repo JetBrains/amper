@@ -1341,7 +1341,7 @@ class MavenDependency internal constructor(
             return this
         }
         val parentNode = parent?.let {
-            context.createOrReuseDependency(it.groupId, it.artifactId, it.version, false)
+            context.createOrReuseDependency(it.groupId, it.artifactId, it.version, isBom = false)
         }
 
         val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter))) {
@@ -1452,7 +1452,7 @@ class MavenDependency internal constructor(
             ?.map { it.expandTemplates(this) }
             ?.mapNotNull {
                 if (it.scope == "import" && it.version != null) {
-                    val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version, true)
+                    val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version, isBom = true)
                     if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter)) {
                         val text = dependency.pom.readText()
                         val dependencyProject = text.parsePom().resolve(context, resolutionLevel, diagnosticsReporter, depth + 1)
@@ -1563,6 +1563,7 @@ class MavenDependency internal constructor(
 data class MavenCoordinates(
     val groupId: String,
     val artifactId: String,
+    // todo (AB) : [AMPER-4112] Support unspecified version of direct dependencies (it could be resolved from BOM later)
     val version: String,
     val classifier: String? = null,
     val isBom: Boolean = false

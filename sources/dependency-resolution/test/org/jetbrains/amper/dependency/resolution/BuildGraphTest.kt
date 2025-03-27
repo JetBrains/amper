@@ -1729,11 +1729,11 @@ class BuildGraphTest: BaseDRTest() {
         )
     }
 
-    @Test
     /**
      * BOM is published with pom.xml and with Gradle metadata (.module file).
      * Such a BOM being imported applies dependency constraints to the resolution graph
      */
+    @Test
     fun `io_ktor ktor-bom 2_3_9`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
@@ -1754,10 +1754,10 @@ class BuildGraphTest: BaseDRTest() {
             "Unexpected list of constraints, it should contain 386 items, but contains $constraintsNumber")
     }
 
-    @Test
     /**
      * Dependency on a BOM as on a regular dependency is prohibited if BOM is published with Gradle metadata
      */
+    @Test
     fun `declaring BOM published with Gradle metadata as a regular dependency`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
@@ -1787,10 +1787,10 @@ class BuildGraphTest: BaseDRTest() {
             "Unexpected list of constraints, it should contain 0 items, but contains $constraintsNumber")
     }
 
-    @Test
     /**
      * BOM is published with pom.xml only (no Gradle metadata in .module file)
      */
+    @Test
     fun `com_fasterxml_jackson jackson-bom 2_18_3`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
@@ -1810,10 +1810,10 @@ class BuildGraphTest: BaseDRTest() {
         assertEquals(66, constraintsNumber, "Unexpected list of constraints, it should contain 66 items, but contains $constraintsNumber")
     }
 
+    /**
+     * Dependency on a BOM as on a regular dependency is NOOP if BOM is published as a pom.xml only (without Gradle metadata)
+     */
     @Test
-            /**
-             * Dependency on a BOM as on a regular dependency is NOOP if BOM is published as a pom.xml only (without Gradle metadata)
-             */
     fun `declaring BOM published without Gradle metadata as a regular dependency`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
