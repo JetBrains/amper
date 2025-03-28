@@ -2016,7 +2016,7 @@ pluginManagement {
 
 plugins {
     // Add the plugin
-    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2605")
+    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2608")
 }
 
 // Add Amper modules to the project
