@@ -1563,67 +1563,6 @@ settings:  # objects merged
     release: 8   # from the module.yaml
 ```
 
-## Extensibility
-
-> Extensibility is not yet implemented in Amper.
-> Meanwhile, in Gradle-based projects you can use [Gradle interop](#gradle-interop), Gradle plugins, and write
-> custom tasks.
-
-The main design goal for Amper is simplicity and ease of use specifically for Kotlin and Kotlin Multiplatform.
-We would like to provide a great user experience out of the box. That's why there are many aspects that are available in Amper as first-class citizens.
-Streamlined [multiplatform](#multiplatform-configuration) setup,
-built-in support for [CocoaPods dependencies](#native-dependencies),
-straightforward [Compose Multiplatform configuration](#configuring-compose-multiplatform), etc.,
-should enable easy onboarding and quick start. Nevertheless, as projects grow, Kotlin ecosystem expands, and more use
-cases emerge, it's inevitable that some level of extensibility will be needed.
-
-The following aspects are designed to be extensible:
-- [Product types](#product-types) - an extension could provide additional product types, such as a Space or a Fleet plugin, an application server app, etc.   
-- [Publishing](#publishing) - there might be need to publish to, say, vcpkg or a specific marketplace, which are not supported out of the box.  
-- [External Dependency](#native-dependencies) - similarly to publishing, there might be need to consume dependencies from vcpkg or other package managers.
-- [Toolchains](#settings) - toolchains are the main actors in the build pipeline extensibility - they provide actual build logic for linting, code generation, compilation, obfuscation.  
-
-Extensions are supposed to contribute to the DSL using declarative approach (e.g. via schemas),
-and also implement the actual logic with regular imperative language (e.g. Kotlin). Such a mixed approach should allow for fast project structure evaluation and flexibility at the same time. 
-
-Below is a very rough approximation of a possible toolchain extension:
-
-```yaml
-product: jvm/app
-
-settings: 
-  my-source-processor:
-    replace: "${author}"
-    with: Me 
-```
-
-With a convention file layout:
-```
-|-src/
-|  |-main.kt
-|-module-extensions/
-|  |-my-source-processor/
-|  |  |-module-extension.yaml   # generated or manually created extension's DSL schema 
-|  |  |-extension.kt            # implementation
-|-module.yaml 
-```
-
-And `extension.kt` code:
-```kotlin
-class MySourceProcessor : SourceProcessorExtension {
-    val replace: StringParameter
-    val with: StringParameter
-
-    override fun process(input: SourceInput, output: SourceOutput) {
-        val replaced = input.readText().replaceAll(replace, with)
-        output.writeText(replaced)
-    }
-}
-```
-
-The Amper engine would be able to quickly discover the DSL schema for `setting:my-source-processor:` when evaluating 
-the project structure, and also compile and execute arbitrary logic defined in the Kotlin file.
-
 ## Gradle-based projects
 
 > Gradle 8.6 is recommended. Gradle 8.7+ is supported, but customizing the Compose version is not possible in that case.
