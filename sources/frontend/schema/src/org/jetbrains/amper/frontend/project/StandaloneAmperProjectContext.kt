@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("CONTEXT_RECEIVERS_DEPRECATED")
@@ -65,10 +65,27 @@ class StandaloneAmperProjectContext(
          */
         context(ProblemReporterContext)
         @UsedInIdePlugin
+        fun find(start: VirtualFile, project: IJProject? = null): StandaloneAmperProjectContext? {
+            val frontendPathResolver = FrontendPathResolver(project)
+            return find(start, frontendPathResolver)
+        }
+
+        /**
+         * Does the same as [find] above, but accepts [Path] that it resolves to [VirtualFile] beforehand.
+         */
+        context(ProblemReporterContext)
         fun find(start: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
             val startVirtualFile = frontendPathResolver.loadVirtualFile(start)
-            val result = preSearchProjectRoot(start = startVirtualFile) ?: return null
+            return find(startVirtualFile, frontendPathResolver)
+        }
+
+        context(ProblemReporterContext)
+        private fun find(
+            virtualFile: VirtualFile,
+            frontendPathResolver: FrontendPathResolver
+        ): StandaloneAmperProjectContext? {
+            val result = preSearchProjectRoot(start = virtualFile) ?: return null
 
             val potentialContext = spanBuilder("Create candidate project context")
                 .setAttribute("potential-root", result.potentialRoot.presentableUrl)
