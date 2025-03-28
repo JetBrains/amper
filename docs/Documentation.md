@@ -191,7 +191,8 @@ product types:
 
 ### Multiplatform configuration
 
-`dependencies:` and `setting:` sections can be specialized for each platform using the `@platform`-qualifier.  An example of a multiplatform library with some common and platform-specific code:
+`dependencies:` and `setting:` sections can be specialized for each platform using the `@platform`-qualifier.
+An example of a multiplatform library with some common and platform-specific code:
 ```yaml
 product:
   type: lib
@@ -204,12 +205,12 @@ dependencies:
 
 # These dependencies are available in Android code only
 dependencies@android:
+  - io.ktor:ktor-client-android:2.3.0
   - com.google.android.material:material:1.5.0
 
 # These dependencies are available in iOS code only
 dependencies@ios:
-  - pod: 'Alamofire'
-    version: '~> 2.0.1'
+  - io.ktor:ktor-client-darwin:2.3.0
 
 # These settings are for common code.
 # They are also propagated to iOS and Android code 
@@ -319,39 +320,6 @@ dependencies:
   - io.ktor:ktor-client-core:2.2.0:
       scope: compile-only
       exported: true
-```
-
-#### Native dependencies
-
-> Native dependencies are not yet implemented.
-
-In the future, depending on an npm, CocoaPods, or Swift package could be done using the following format:
-
-```yaml
-dependencies:
-  - npm: "react"
-    version: "^17.0.2"
-```    
-
-```yaml
-dependencies:
-  - pod: 'Alamofire'
-    version: '~> 2.0.1'
-```
-
-```yaml
-dependencies:
-  - pod: 'Alamofire'
-    git: 'https://github.com/Alamofire/Alamofire.git'
-    tag: '3.1.1'
-```
-
-```yaml
-dependencies:
-  - swift-package:
-      url: "https://github.com/.../some-package.git"
-      from: "2.0.0"
-      target: "SomePackageTarget"
 ```
 
 ### Managing Maven repositories
