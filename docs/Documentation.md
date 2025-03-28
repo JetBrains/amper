@@ -1565,7 +1565,7 @@ settings:  # objects merged
 
 ## Gradle-based projects
 
-> Gradle 8.6 is recommended. Gradle 8.7+ is supported, but customizing the Compose version is not possible in that case.
+> Gradle 8.7+ is required to use the Amper plugin, Gradle 8.11.1 is recommended.
 
 In a Gradle-based project, instead of a `project.yaml` file, you need a `settings.gradle.kts` file
 and a `gradle/wrapper/` folder in the project root:
