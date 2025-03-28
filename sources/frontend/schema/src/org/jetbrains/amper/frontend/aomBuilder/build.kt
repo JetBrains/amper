@@ -19,6 +19,7 @@ import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
+import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.CompositeString
 import org.jetbrains.amper.frontend.CompositeStringPart
 import org.jetbrains.amper.frontend.CustomTaskDescription
@@ -27,6 +28,7 @@ import org.jetbrains.amper.frontend.KnownCurrentTaskProperty
 import org.jetbrains.amper.frontend.KnownModuleProperty
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
@@ -514,15 +516,22 @@ class DefaultLocalModuleDependency(
  * Resolve internal modules against known ones by path.
  */
 context(ProblemReporterContext)
-private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): DefaultScopedNotation? =
+private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): Notation? =
     when (this) {
-        // todo (AB) : resolve external dependency on BOM to a separate type (BomDependency)
-        is ExternalMavenDependency -> MavenDependency(
-            TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!),
-            scope.compile,
-            scope.runtime,
-            exported,
-        )
+        is ExternalMavenDependency -> {
+            val coordinatesWithTrace = TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!)
+
+            if (coordinates.trimStart().startsWith("bom:")) {
+                BomDependency(coordinatesWithTrace)
+            } else {
+                MavenDependency(
+                    coordinatesWithTrace,
+                    scope.compile,
+                    scope.runtime,
+                    exported,
+                )
+            }
+        }
 
         is InternalDependency -> path?.let { path ->
             DefaultLocalModuleDependency(

@@ -18,6 +18,8 @@ import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.ancestralPath
+import org.jetbrains.amper.frontend.dr.resolver.ParsedCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
 import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -93,7 +95,7 @@ private fun generatePomModel(
         .map { it.toPomDependency(platform, publicationCoordsOverrides) }.toList()
         .takeIf { it.isNotEmpty() }
         ?.let {
-            model.dependencyManagement = DependencyManagement()
+            model.dependencyManagement ?: run { model.dependencyManagement = DependencyManagement() }
             model.dependencyManagement.dependencies.addAll(it)
         }
 
@@ -158,13 +160,11 @@ private fun MavenDependencyBase.toPomDependency(publicationCoordsOverrides: Publ
 // TODO the knowledge of this representation should live in the frontend only, and the components should be
 //  accessible in a type-safe way directly on the MavenDependency type.
 private fun MavenDependencyBase.readMavenCoordinates(): MavenCoordinates {
-    val parts = coordinates.value.split(":")
-    return MavenCoordinates(
-        groupId = parts.getOrNull(0) ?: error("Missing group in dependency notation '${coordinates.value}'"),
-        artifactId = parts.getOrNull(1) ?: error("Missing artifact ID in dependency notation '${coordinates.value}'"),
-        version = parts.getOrNull(2) ?: error("Missing version in dependency notation '${coordinates.value}'"),
-        classifier = parts.getOrNull(3),
-    )
+    val parsedCoordinates = parseCoordinates()
+    return when(parsedCoordinates) {
+        is ParsedCoordinates.Success -> parsedCoordinates.coordinates
+        is ParsedCoordinates.Failure ->  error(parsedCoordinates.errors.joinToString("\n"))
+    }
 }
 
 /**

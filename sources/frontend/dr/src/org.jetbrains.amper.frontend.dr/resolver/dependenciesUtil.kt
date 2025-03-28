@@ -13,6 +13,8 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
+import org.jetbrains.amper.frontend.BomDependency
+import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.MavenDependencyBase
 import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
@@ -51,14 +53,21 @@ sealed interface ParsedCoordinates {
     }
 }
 
-internal fun parseCoordinates(coordinates: String): ParsedCoordinates {
-    // todo (AB) : This should be replaced with usage of BomDependency
-    // todo (AB) : as soon as BOM dependency started being parsed to BomDependency instead of MavenDependency
-    val isBom = coordinates.trim().startsWith("bom:")
-    val parts = coordinates.trim().removePrefix("bom:").split(":")
+fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates {
+    val mavenCoordinates = when(this) {
+        is MavenDependency -> coordinates.value.trim()
+        // todo (AB) : Remove this after BomDependency coordinates started to be parsed without prefix "bom:"
+        is BomDependency -> coordinates.value.trim().removePrefix("bom:")
+    }
+
+    return parseCoordinates(mavenCoordinates, this is BomDependency)
+}
+
+private fun parseCoordinates(coordinates: String, isBom: Boolean = false): ParsedCoordinates {
+    val parts = coordinates.trim().split(":")
+
     if (parts.size < 3) {
         val errors = buildList {
-            // todo (AB) : improve error message in view of "bom:" part
             add(FrontendDrBundle.message("dependency.coordinates.have.too.few.parts", coordinates))
             reportIfCoordinatesAreGradleLike(coordinates, this)
         }
@@ -104,7 +113,8 @@ internal fun parseCoordinates(coordinates: String): ParsedCoordinates {
     val version = parts[2].trim()
     val classifier = if (parts.size > 3) parts[3].trim() else null
 
-    return ParsedCoordinates.Success(MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier, isBom = isBom))
+    return ParsedCoordinates.Success(
+        MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier, isBom = isBom))
 }
 
 private fun reportIfCoordinatesAreGradleLike(coordinates: String, messages: MutableList<String>) {
@@ -142,10 +152,6 @@ enum class GradleScope {
                 ?.substringAfter(prefix)
                 ?.substringBefore(suffix)
     }
-}
-
-internal fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates {
-    return parseCoordinates(this.coordinates.value)
 }
 
 fun MavenDependencyNode.mavenCoordinates(suffix: String? = null): MavenCoordinates {

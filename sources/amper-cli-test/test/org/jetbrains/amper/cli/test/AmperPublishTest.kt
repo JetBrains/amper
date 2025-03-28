@@ -64,6 +64,17 @@ class AmperPublishTest : AmperCliTestBase() {
               <artifactId>artifactName</artifactId>
               <version>2.2</version>
               <name>jvm-publish</name>
+              <dependencyManagement>
+                <dependencies>
+                  <dependency>
+                    <groupId>org.jetbrains.kotlinx</groupId>
+                    <artifactId>kotlinx-coroutines-bom</artifactId>
+                    <version>1.6.0</version>
+                    <type>pom</type>
+                    <scope>import</scope>
+                  </dependency>
+                </dependencies>
+              </dependencyManagement>
               <dependencies>
                 <dependency>
                   <groupId>org.jetbrains.kotlin</groupId>
