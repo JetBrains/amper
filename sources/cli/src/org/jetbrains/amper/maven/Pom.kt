@@ -4,6 +4,7 @@
 package org.jetbrains.amper.maven
 
 import org.apache.maven.model.Dependency
+import org.apache.maven.model.DependencyManagement
 import org.apache.maven.model.Model
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer
 import org.codehaus.plexus.util.xml.XmlStreamWriter
@@ -85,11 +86,16 @@ private fun generatePomModel(
 
     model.dependencies.addAll(
         dependencies.filterNot{ it is BomDependency }
-            .map { it.toPomDependency(platform, publicationCoordsOverrides) })
-    model.dependencyManagement.dependencies.addAll(
-        dependencies.filterIsInstance<BomDependency>()
             .map { it.toPomDependency(platform, publicationCoordsOverrides) }
     )
+
+    dependencies.filterIsInstance<BomDependency>()
+        .map { it.toPomDependency(platform, publicationCoordsOverrides) }.toList()
+        .takeIf { it.isNotEmpty() }
+        ?.let {
+            model.dependencyManagement = DependencyManagement()
+            model.dependencyManagement.dependencies.addAll(it)
+        }
 
     // TODO add description for Maven Central compatibility
     // TODO add url for Maven Central compatibility
