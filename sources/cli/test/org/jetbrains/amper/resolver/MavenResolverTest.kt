@@ -156,7 +156,7 @@ class MavenResolverTest {
             """
                 Unable to resolve dependencies for test:
 
-                Unable to resolve dependency org.tinylog:slf4j-tinylog:9999 ($MAVEN_CENTRAL_CACHE_REDIRECTOR)
+                Unable to resolve dependency org.tinylog:slf4j-tinylog:9999 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
                   Unable to download checksums of file slf4j-tinylog-9999.pom for dependency org.tinylog:slf4j-tinylog:9999 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
                   Unable to download checksums of file slf4j-tinylog-9999.module for dependency org.tinylog:slf4j-tinylog:9999 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
             """.trimIndent(),
@@ -247,10 +247,10 @@ class MavenResolverTest {
             """
                 Unable to resolve dependencies for test:
 
-                Unable to resolve dependency org.tinylog:slf4j-tinylog:9999 ($MAVEN_CENTRAL_CACHE_REDIRECTOR)
+                Unable to resolve dependency org.tinylog:slf4j-tinylog:9999 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
                   Unable to download checksums of file slf4j-tinylog-9999.pom for dependency org.tinylog:slf4j-tinylog:9999 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
                   Unable to download checksums of file slf4j-tinylog-9999.module for dependency org.tinylog:slf4j-tinylog:9999 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
-                Unable to resolve dependency org.tinylog:xxx:9998 ($MAVEN_CENTRAL_CACHE_REDIRECTOR)
+                Unable to resolve dependency org.tinylog:xxx:9998 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
                   Unable to download checksums of file xxx-9998.pom for dependency org.tinylog:xxx:9998 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
                   Unable to download checksums of file xxx-9998.module for dependency org.tinylog:xxx:9998 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
             """.trimIndent(),
