@@ -459,19 +459,29 @@ configured in the settings (unless a different Gradle
 is used). Default repositories provided by Amper is an equivalent to adding a `repositories` section in
 the `build.gradle.kts` file of each individual Amper module.
 
-### Dependency/Version Catalogs
+### Library Catalogs (a.k.a Version Catalogs)
 
-There are several types of dependency catalogs that are available in Amper:
-- Dependency catalogs provided by toolchains (such as Kotlin, Compose Multiplatform etc.). The toolchain catalog names correspond to the [names of the toolchains in the settings section](#settings). E.g. dependencies for the Compose Multiplatform frameworks are accessible using the `$compose` catalog, and its settings using the `compose:` section.
-- Gradle version catalogs are supported if placed in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). Dependencies from this catalog can be accessed via the `$libs.` catalog name according to the [Gradle name mapping rules](https://docs.gradle.org/current/userguide/platforms.html#sub:mapping-aliases-to-accessors). 
-- User-defined dependency catalogs (not yet implemented).
+A library catalog associates keys to library coordinates (including the version), and allows adding the same libraries
+as dependencies to multiple modules without having to repeat the coordinates or the versions of the libraries.
 
-All supported catalogs can be accessed via a `$<catalog-name>.<key>` reference, for example:
+Amper currently supports 2 types of dependency catalogs:
+- toolchain catalogs (such as Kotlin, Compose Multiplatform etc.)
+- Gradle version catalogs that are placed in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/version_catalogs.html#sec:version-catalog-declaration)
+
+The toolchain catalogs are implicitly defined, and contain predefined libraries that relate to the corresponding toolchain.
+The name of such a catalog corresponds to the [name of the corresponding toolchain in the settings section](#settings).
+For example, dependencies for the Compose Multiplatform frameworks are accessible using the `$compose` catalog.
+
+The Gradle version catalogs are user-defined catalogs using the Gradle format.
+Dependencies from this catalog can be accessed via the `$libs` catalog, and the library keys are defined according
+to the [Gradle name mapping rules](https://docs.gradle.org/current/userguide/version_catalogs.html#sec:mapping-aliases-to-accessors).
+
+To use dependencies from catalogs, use the syntax `$<catalog-name>.<key>` instead of the coordinates, for example:
 ```yaml
 dependencies:
-  - $compose.material3    # dependency from the Compose Multiplatform catalog
-  - $libs.commons.lang3   # dependency from the Gradle default libs.versions.toml catalog
-  - $my-catalog.ktor      # (not implemented) dependency from a custom project catalog with a name 'my-catalog' 
+  - $kotlin.reflect      # dependency from the Kotlin catalog
+  - $compose.material3   # dependency from the Compose Multiplatform catalog
+  - $libs.commons.lang3  # dependency from the Gradle default libs.versions.toml catalog
 ```
 
 Module dependencies can still have a [scope and visibility](#scopes-and-visibility) even when coming from a catalog:
