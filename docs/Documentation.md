@@ -656,9 +656,7 @@ struct iosApp: App {
 
 #### Configuring Android
 
-With the standalone version of Amper, you can use the `./amper task bundleAndroid` command to create a release build.
-
-In Gradle-based Amper projects, you can use the Gradle tasks provided with the release build type.
+Use the `android/app` product type in a module to build an Android application.
 
 ##### Entry point
 
@@ -682,6 +680,43 @@ The application's entry point is specified in the AndroidManifest.xml file accor
 </manifest>
 ```
 
+You can run your application using the `run` command.
+
+##### Packaging
+
+You can use the `build` command to create an APK, or the `package` command to create an Android Application Bundle (AAB).
+
+The `package` command will not only build the APK, but also minify/obfuscate it with ProGuard, and sign it.
+See the dedicated [signing](#signing) and [code shrinking](#code-shrinking) sections to learn how to configure this. 
+
+> In Gradle-based Amper projects, you can use the Gradle tasks provided by the Android Gradle plugin.
+
+#### Code shrinking
+
+When creating a release build with Amper, R8 will be used automatically, with minification and shrinking enabled.
+This is equivalent to the following Gradle configuration:
+
+```kotlin
+// in Gradle
+isMinifyEnabled = true
+isShrinkResources = true
+proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+```
+
+You can create a `proguard-rules.pro` file in the module folder to add custom rules for R8.
+
+```
+|-src/
+|  ...      
+|-test/
+|  ...
+|-proguard-rules.pro
+|-module.yaml
+```
+
+It is automatically used by Amper if present.
+
+An example of how to add custom R8 rules can be found [in the android-app module](../examples-standalone/compose-multiplatform/android-app/proguard-rules.pro) of the `compose-multiplatform` example project.
 
 ##### Signing
 
@@ -720,7 +755,7 @@ don't have one yet. This will create a new self-signed certificate, using the de
 
 > You can also pass in these details to `generate-keystore` as command line arguments. Invoke the tool with `--help`
 > to learn more.
- 
+
 ##### Parcelize
 
 If you want to automatically generate your `Parcelable` implementations, you can enable 
@@ -781,33 +816,6 @@ settings:
       enabled: true
       additionalAnnotations: [ com.example.MyParcelize ]
 ```
-
-#### Code shrinking
-
-When creating a release build with Amper, R8 will be used automatically, with minification and shrinking enabled.
-This is equivalent to the following Gradle configuration:
-
-```kotlin
-// in Gradle
-isMinifyEnabled = true
-isShrinkResources = true
-proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
-```
-
-You can create a `proguard-rules.pro` file in the module folder to add custom rules for R8.
-
-```
-|-src/
-|  ...      
-|-test/
-|  ...
-|-proguard-rules.pro
-|-module.yaml
-```
-
-It is automatically used by Amper if present.
-
-An example of how to add custom R8 rules can be found [in the android-app module](../examples-standalone/compose-multiplatform/android-app/proguard-rules.pro) of the `compose-multiplatform` example project.
 
 
 #### Google Services and Firebase
