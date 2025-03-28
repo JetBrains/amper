@@ -189,14 +189,6 @@ product types:
 - `android/app` - an Android VM application  
 - `ios/app` - an iOS/iPadOS application
 
-Other product types that we plan to support in the future:
-
-- `watchos/app` - an Apple Watch application (not yet implemented)
-- `windows/dll`
-- `linux/so`
-- `macos/framework`
-- etc.
-
 ### Packaging
 
 Each product has an associated packaging, defined by the target OS and product type. E.g. `macos/app` are packaged as
