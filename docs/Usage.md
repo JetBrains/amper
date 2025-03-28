@@ -75,8 +75,7 @@ See `./amper update -h` for more information about the available options.
 
 > To use the Gradle-based version of Amper: 
 > * JDK 17+ is required. 
-> * Gradle 8.6 is recommended. Gradle 8.7+ is supported, but in that case 
-  [customizing the Compose framework version is not possible yet](https://youtrack.jetbrains.com/issue/AMPER-821). 
+> * Gradle 8.7+ is required. 
   To make sure your project uses the desired Gradle version, 
   check the `./gradle/wrapper/gradle-wrapper.properties` in the root of your project.
 
