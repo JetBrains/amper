@@ -16,11 +16,6 @@ const val MAVEN_CENTRAL_REPOSITORY_URL = "https://repo1.maven.org/maven2"
 
 const val KOTLIN_GROUP_ID = "org.jetbrains.kotlin"
 
-@Deprecated("Use downloadAndExtractKotlinNative(version, userCacheRoot) instead. " +
-        "You should retrieve AmperUserCacheRoot via AmperUserCacheRoot.fromCurrentUserResult() and report the error if it fails.")
-suspend fun downloadAndExtractKotlinNative(version: String): Path? =
-    downloadAndExtractKotlinNative(version, AmperUserCacheRoot.fromCurrentUser())
-
 /**
  * Downloads and extracts current system specific kotlin native.
  * Returns null if kotlin native is not supported on current system/arch.

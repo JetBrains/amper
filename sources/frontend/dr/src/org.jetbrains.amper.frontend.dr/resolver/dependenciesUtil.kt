@@ -160,10 +160,6 @@ fun MavenDependencyNode.mavenCoordinates(suffix: String? = null): MavenCoordinat
         .let { if (suffix == null) it else it.copy(artifactId = "${it.artifactId}:${suffix}") }
 }
 
-@Deprecated("Use getAmperFileCacheBuilder(userCacheRoot) instead. You can get it via AmperUserCacheRoot.fromCurrentUserResult() and properly handle an error by the provided means.")
-fun getDefaultAmperFileCacheBuilder(): FileCacheBuilder.() -> Unit =
-    getAmperFileCacheBuilder(AmperUserCacheRoot.fromCurrentUser())
-
 fun getAmperFileCacheBuilder(userCacheRoot: AmperUserCacheRoot): FileCacheBuilder.() -> Unit =
     getDefaultFileCacheBuilder(userCacheRoot.path)
 

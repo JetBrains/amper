@@ -49,12 +49,6 @@ data class AmperUserCacheRoot(val path: Path) : AmperUserCacheInitializationResu
     companion object {
         private const val AMPER_CACHE_SUBFOLDER = "Amper"
 
-        @Deprecated("Use fromCurrentUserResult() instead and handle the error properly by the mechanism that is available to you.")
-        fun fromCurrentUser(): AmperUserCacheRoot = when (val result = fromCurrentUserResult()) {
-            is AmperUserCacheInitializationFailure -> error(result.defaultMessage)
-            is AmperUserCacheRoot -> result
-        }
-
         /**
          * The error here is user-friendly and can be reported as is.
          */

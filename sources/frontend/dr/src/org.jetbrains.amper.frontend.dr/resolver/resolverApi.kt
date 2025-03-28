@@ -3,7 +3,6 @@
  */
 package org.jetbrains.amper.frontend.dr.resolver
 
-import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
@@ -31,16 +30,7 @@ data class ResolutionInput(
     val resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
     val downloadSources: Boolean = false,
     val fileCacheBuilder: FileCacheBuilder.() -> Unit,
-) {
-    @Deprecated("Use the constructor with the 'fileCacheBuilder' parameter instead")
-    @UsedInIdePlugin
-    constructor(
-        dependenciesFlowType: DependenciesFlowType,
-        resolutionDepth: ResolutionDepth,
-        resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
-        downloadSources: Boolean = false,
-    ) : this(dependenciesFlowType, resolutionDepth, resolutionLevel, downloadSources, getDefaultAmperFileCacheBuilder())
-}
+)
 
 sealed interface DependenciesFlowType {
     data class ClassPathType(
