@@ -113,17 +113,6 @@ with [`@platform`-qualifiers](#platform-qualifier):
 |-module.yaml
 ```
 
-> In the future, we plan to also support a more lightweight multiplatform layout like the one below:
- 
-```
-|-src/             # common and platform-specific code
-|  |-main.kt      
-|  |-util.kt       #  API with ‘expect’ part
-|  |-util@ios.kt   #  API implementation with ‘actual’ part for iOS
-|  |-util@jvm.kt   #  API implementation with ‘actual’ part for JVM
-|-module.yaml
-```
-
 Sources and resources can't be shared by multiple modules. This ensures that the IDE always knows how to analyze and
 refactor the code, as it always exists in the scope of a single module, has a well-defined list of dependencies, etc.
 
