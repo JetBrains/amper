@@ -1,9 +1,9 @@
 ## Check your IDE
 
-* Use the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) with Amper plugin for JVM and Android projects.
-* Use the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/) for JVM, Android, and Kotlin Multiplatform projects.
- 
-Fleet comes preconfigured with the Amper support. If you use IntelliJ IDEA, install the Amper plugin: ![](images/ij-plugin.png)
+Use the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/),
+and make sure to install the Amper plugin:
+
+![](images/ij-plugin.png)
 
 The best way to get the most recent IDE versions is by using the [Toolbox App](https://www.jetbrains.com/lp/toolbox/).
 
@@ -41,13 +41,12 @@ Otherwise, KDoctor will highlight which parts of your setup still need to be con
 them.
 
 
-- Try opening [an example project](../examples-gradle/jvm) in IntelliJ IDEA or in Fleet. 
+- Try opening [an example project](../examples-gradle/jvm) in IntelliJ IDEA. 
   You should get completion in the module.yaml files:
   ![](images/amper-in-ij.png)
-  ![](images/amper-in-fleet.png)
 
 ### What's next
-See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Read how to use Amper in [IntelliJ IDEA](Usage.md#using-amper-in-intellij-idea) and [Fleet](Usage.md#using-amper-in-fleet). Try opening the example projects:
+See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Read how to use Amper in [IntelliJ IDEA](Usage.md#using-amper-in-intellij-idea). Try opening the example projects:
   - [JVM "Hello, World!"](../examples-gradle/jvm)
   - [Compose Desktop](../examples-gradle/compose-desktop)
   - [Compose Multiplatform](../examples-gradle/compose-multiplatform)
