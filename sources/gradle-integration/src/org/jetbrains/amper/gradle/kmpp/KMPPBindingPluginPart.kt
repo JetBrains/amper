@@ -32,7 +32,8 @@ import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.closureSources
 import org.jetbrains.amper.gradle.findEntryPoint
-import org.jetbrains.amper.gradle.java.JavaBindingPluginPart
+import org.jetbrains.amper.gradle.java.javaMainSourceSet
+import org.jetbrains.amper.gradle.java.javaTestSourceSet
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.amperFragment
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSetName
@@ -166,8 +167,16 @@ class KMPPBindingPluginPart(
 
                 // Do AMPER specific.
                 layout == Layout.AMPER && fragment != null -> {
-                    // Clear all previous explicit mappings and set the correct ones.
-                    sourceSet.kotlin.tryRemove { it is File || it is Path }.tryAdd(fragment.src)
+                    // We need to remove directories that the Kotlin plugin adds by default, while still respecting
+                    // potential source roots added by some third-party plugin. This is impossible to track per se, so
+                    // we instead approximate this by relying on the fact that most third parties use the Provider type
+                    // to add such source roots, while the Kotlin plugin uses File and Path. The Kotlin plugin also uses
+                    // FileCollection to automatically add the source roots registered on Java source sets, hence why we
+                    // check specifically for this one (and remove it).
+                    // Once things are cleaned up, we add the directories that the Amper layout cares about.
+                    sourceSet.kotlin
+                        .tryRemove { it is File || it is Path || it.isJavaSourceDirectoriesCollection() }
+                        .tryAdd(fragment.src)
                     sourceSet.resources.tryRemove { it is File || it is Path }.tryAdd(fragment.resourcesPath)
                 }
 
@@ -177,6 +186,17 @@ class KMPPBindingPluginPart(
                 }
             }
         }
+    }
+
+    /**
+     * Whether this is a [org.gradle.api.file.FileCollection] coming from a Java source set.
+     */
+    private fun Any.isJavaSourceDirectoriesCollection(): Boolean {
+        val javaSourceDirectories = listOfNotNull(
+            project.javaMainSourceSet?.java?.sourceDirectories,
+            project.javaTestSourceSet?.java?.sourceDirectories,
+        )
+        return javaSourceDirectories.any { it === this }
     }
 
     fun afterAll() {

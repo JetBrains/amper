@@ -3,5 +3,5 @@
  */
 
 dependencies {
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.2"))
+    jvmImplementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.2"))
 }
