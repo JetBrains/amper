@@ -71,7 +71,7 @@ class GradleBootstrapTest {
                     .withArguments(
                         // "-Dorg.gradle.jvmargs=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
                         // --no-build-cache to actually build stuff instead of getting it from cache since cache is shared between runs
-                        "assemble", "testClasses", "--stacktrace", "--no-build-cache", "-PinBootstrapMode=true"
+                        "assemble", "jvmTestClasses", "--stacktrace", "--no-build-cache", "-PinBootstrapMode=true"
                     )
                     .setStandardOutput(TeeOutputStream(testReporter.out(linePrefix = "[gradle out] "), stdout))
                     .setStandardError(TeeOutputStream(testReporter.err(linePrefix = "[gradle err] "), stderr))

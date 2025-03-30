@@ -147,6 +147,7 @@ fun File.replacePenultimate(newName: String): File {
 }
 
 fun SourceDirectorySet.tryAdd(toAdd: Path): SourceDirectorySet {
+    // do not use srcDirs directly to avoid triggering any provider eagerly (which might be added by 3rd party plugins)
     val delegate = ReflectionSourceDirectorySet.tryWrap(this)
     if (delegate != null) with(delegate.mutableSources) {
         if (!contains(toAdd)) add(toAdd)
@@ -155,9 +156,8 @@ fun SourceDirectorySet.tryAdd(toAdd: Path): SourceDirectorySet {
 }
 
 fun SourceDirectorySet.tryRemove(toRemove: (Any) -> Boolean): SourceDirectorySet {
+    // do not use srcDirs directly to avoid triggering any provider eagerly (which might be added by 3rd party plugins)
     val delegate = ReflectionSourceDirectorySet.tryWrap(this)
     if (delegate != null) with(delegate.mutableSources) { removeIf(toRemove) }
     return this
 }
-
-val SourceDirectorySet.mutableSources get() = ReflectionSourceDirectorySet.tryWrap(this)?.mutableSources!!

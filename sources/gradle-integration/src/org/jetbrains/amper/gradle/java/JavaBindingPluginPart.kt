@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.gradle.java
 
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.amper.frontend.Layout
@@ -16,7 +15,6 @@ import org.jetbrains.amper.gradle.base.SpecificPlatformPluginPart
 import org.jetbrains.amper.gradle.closureSources
 import org.jetbrains.amper.gradle.contains
 import org.jetbrains.amper.gradle.findEntryPoint
-import org.jetbrains.amper.gradle.java.JavaAmperNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
@@ -31,6 +29,7 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import kotlin.io.path.relativeTo
 
 /**
  * Plugin logic, bind to specific module, when only default target is available.
@@ -42,8 +41,6 @@ class JavaBindingPluginPart(
     companion object {
         val logger: Logger = LoggerFactory.getLogger("some-logger")
     }
-
-    internal val javaPE: JavaPluginExtension get() = project.extensions.getByType(JavaPluginExtension::class.java)
 
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
@@ -62,7 +59,6 @@ class JavaBindingPluginPart(
         }
 
         adjustJavaGeneralProperties()
-        addJavaIntegration()
     }
 
     override fun applyAfterEvaluate() {
@@ -143,45 +139,36 @@ class JavaBindingPluginPart(
         }
     }
 
-
-    // TODO Rewrite this completely by not calling
-    //  KMPP code and following out own conventions.
-    private fun addJavaIntegration() {
-        kotlinMPE.targets.toList().forEach {
-            // Apparently this is still necessary even in Gradle 8.7+, otherwise the app doesn't see java classes at
-            // runtime (at least in gradle-jvm layout, probably because we use custom src dirs).
-            @Suppress("DEPRECATION")
-            if (it is KotlinJvmTarget) it.withJava()
-        }
-
-        // Set sources for all Amper related source sets.
-        platformFragments.forEach {
-            it.maybeCreateJavaSourceSet()
+    /**
+     * Configures the source directories on the Java source sets based on the chosen layout.
+     * This is necessary to pick up Java sources from the correct source directories.
+     */
+    private fun adjustSourceDirs() {
+        when (layout) {
+            Layout.AMPER -> setJavaSourceRootsForAmperLayout()
+            Layout.GRADLE_JVM -> setJavaSourceRootsForGradleJvmLayout()
+            Layout.GRADLE -> Unit // keep things as-is
         }
     }
 
-    private fun adjustSourceDirs() {
-        val onlyJavaFragments = module.fragments.filter { it.platforms.firstOrNull() == Platform.JVM }
-        javaPE.sourceSets.findByName("main")?.apply {
-            when (layout) {
-                Layout.GRADLE_JVM -> replacePenultimatePaths(java, resources, "main")
-                Layout.AMPER -> onlyJavaFragments.filter { !it.isTest }.let {
-                    java.setSrcDirs(it.map { it.src })
-                    resources.setSrcDirs(emptyList<File>())
-                }
-                else -> Unit
-            }
+    private fun setJavaSourceRootsForAmperLayout() {
+        val jvmOnlyFragments = module.fragments.filter { it.platforms == setOf(Platform.JVM) }
+        val (jvmTestFragments, jvmMainFragments) = jvmOnlyFragments.partition { it.isTest }
+        project.javaMainSourceSet?.apply {
+            java.setSrcDirs(jvmMainFragments.map { it.src })
+            resources.setSrcDirs(emptyList<File>())
         }
+        project.javaTestSourceSet?.apply {
+            java.setSrcDirs(jvmTestFragments.map { it.src })
+            resources.setSrcDirs(emptyList<File>())
+        }
+    }
 
-        javaPE.sourceSets.findByName("test")?.apply {
-            when (layout) {
-                Layout.GRADLE_JVM -> replacePenultimatePaths(java, resources, "test")
-                Layout.AMPER -> onlyJavaFragments.filter { !it.isTest }.let {
-                    java.setSrcDirs(it.map { it.src })
-                    resources.setSrcDirs(emptyList<File>())
-                }
-                else -> Unit
-            }
-        }
+    private fun setJavaSourceRootsForGradleJvmLayout() {
+        // In gradle-jvm layout, src/{main,test}/java should be mapped to the jvmMain/jvmTest Java source sets,
+        // and there is no other directory to map, so commonMain/commonTest should get no java sources, even if there
+        // is just the JVM platform.
+        project.javaMainSourceSet?.apply { replacePenultimatePaths(java, resources, "main") }
+        project.javaTestSourceSet?.apply { replacePenultimatePaths(java, resources, "test") }
     }
 }
