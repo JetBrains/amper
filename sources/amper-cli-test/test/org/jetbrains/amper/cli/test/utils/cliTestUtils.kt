@@ -14,17 +14,11 @@ import org.jetbrains.amper.test.spans.FilteredSpans
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.jetbrains.amper.test.spans.spansNamed
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.div
-import kotlin.io.path.fileSize
-import kotlin.io.path.relativeTo
-import kotlin.io.path.walk
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
-inline fun runSlowTest(crossinline testBody: suspend TestScope.() -> Unit): TestResult =
-    runTest(timeout = 15.minutes) { testBody() }
+// Must not be made inline because it surfaces the Kotlin bug IDEA-370092
+fun runSlowTest(testBody: suspend TestScope.() -> Unit): TestResult = runTest(timeout = 15.minutes, testBody = testBody)
 
 // FIXME this should never be needed, because task output paths should be internal.
 //  User-visible artifacts should be placed in user-visible directories (use some convention).
