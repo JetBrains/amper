@@ -39,7 +39,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2608")
+    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2611")
     id("com.gradle.develocity").version("3.17.6")
     id("com.gradle.common-custom-user-data-gradle-plugin").version("2.0.2")
 }
