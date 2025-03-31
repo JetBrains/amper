@@ -111,7 +111,6 @@ class AmperUpdateTest : AmperCliTestBase() {
         assertCanUpdateToCurrent(projectDir)
     }
 
-    @Disabled("The current dev versions still have the update bug. Re-enable when AMPER-4164 is fixed")
     @Test
     fun `can update from latest dev to current`() = runSlowTest {
         val projectDir = newEmptyProjectDir()

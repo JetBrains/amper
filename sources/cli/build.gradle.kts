@@ -131,6 +131,8 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
             logger.warn("Placeholder '$it' is not used in $outputFile")
         }
 
+        result = result.replace05ExitCommandPadding()
+
         result = result
             .split('\n')
             .joinToString(if (outputWindowsLineEndings) "\r\n" else "\n")
@@ -154,6 +156,27 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
 
         outputFile.parent.createDirectories()
         outputFile.writeText(result)
+    }
+
+    /**
+     * See comment in amper.template.bat around the placeholder.
+     */
+    private val exitCommandPaddingPlaceholder = "@EXIT_COMMAND_PADDING@"
+    private val exitCommandTargetOffset = 6826
+
+    /**
+     * See comment in amper.template.bat around the placeholder.
+     */
+    private fun String.replace05ExitCommandPadding(): String {
+        val index = indexOf(exitCommandPaddingPlaceholder)
+        if (index < 0) return this
+
+        val paddingToTargetOffset = exitCommandTargetOffset - index
+        check(paddingToTargetOffset > 0) {
+            "Cannot add padding to reach target offset $exitCommandTargetOffset, the placeholder is already at $index. " +
+                    "Please move the exit command from the comment further up the wrapper template"
+        }
+        return replace(exitCommandPaddingPlaceholder, " ".repeat(paddingToTargetOffset))
     }
 
     @TaskAction
