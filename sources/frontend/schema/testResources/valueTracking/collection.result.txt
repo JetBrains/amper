@@ -35,3 +35,7 @@
 
       suppressWarnings: false [default]
       verbose: false [default]
+
+   ktor:
+      enabled: false [default]
+      version: 3.1.1 [default]

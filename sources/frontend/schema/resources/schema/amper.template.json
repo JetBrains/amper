@@ -357,6 +357,11 @@
           "x-intellij-metadata": {"aliases": ["coverage"]},
           "$ref": "#/$defs/KoverSettings"
         },
+        "ktor": {
+          "x-intellij-html-description": "Ktor server settings",
+          "title": "Ktor server settings",
+          "$ref": "#/$defs/KtorServerSettings"
+        },
         "native": {
           "x-intellij-html-description": "Native applications settings",
           "title": "Native applications settings",
@@ -861,6 +866,31 @@
         }
       },
       "additionalProperties": false
+    },
+    "KtorServerSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "x-intellij-html-description": "Enable Ktor server",
+              "title": "Enable Ktor server",
+              "type": "boolean"
+            },
+            "version": {
+              "x-intellij-html-description": "Ktor version",
+              "title": "Ktor version",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
     },
     "NativeSettings": {
       "type": "object",

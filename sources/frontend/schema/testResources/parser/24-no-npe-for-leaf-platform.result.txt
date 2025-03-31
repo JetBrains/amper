@@ -96,6 +96,10 @@ Fragments:
           reportFile: <default> null
         }
       }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -197,6 +201,10 @@ Fragments:
           reportFile: <default> null
         }
       }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -294,6 +302,10 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
+      }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
       }
       native: <default> null
       publishing: <default> null
@@ -395,6 +407,10 @@ Fragments:
           reportFile: <default> null
         }
       }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -492,6 +508,10 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
+      }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
       }
       native: <default> null
       publishing: <default> null
@@ -593,6 +613,10 @@ Fragments:
           reportFile: <default> null
         }
       }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -691,6 +715,10 @@ Fragments:
           reportFile: <default> null
         }
       }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -788,6 +816,10 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
+      }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
       }
       native: <default> null
       publishing: <default> null
@@ -889,6 +921,10 @@ Fragments:
           reportFile: <default> null
         }
       }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -988,6 +1024,10 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
+      }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
       }
       native: <default> null
       publishing: <default> null
@@ -1089,6 +1129,10 @@ Fragments:
           reportFile: <default> null
         }
       }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -1186,6 +1230,10 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
+      }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
       }
       native: <default> null
       publishing: <default> null
@@ -1287,6 +1335,10 @@ Fragments:
           reportFile: <default> null
         }
       }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -1386,6 +1438,10 @@ Fragments:
           reportFile: <default> null
         }
       }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -1483,6 +1539,10 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
+      }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
       }
       native: <default> null
       publishing: <default> null
@@ -1583,6 +1643,10 @@ Fragments:
           onCheck: true
           reportFile: <default> null
         }
+      }
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
       }
       native: <default> null
       publishing: <default> null

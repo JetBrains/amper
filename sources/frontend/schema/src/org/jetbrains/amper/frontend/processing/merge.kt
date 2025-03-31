@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.KspSettings
+import org.jetbrains.amper.frontend.schema.KtorServerSettings
 import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.ParcelizeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
@@ -64,6 +65,7 @@ fun Settings.mergeSettings(overwrite: Settings) =
         mergeProperty(Settings::ios, IosSettings::mergeIosSettings)
         mergeProperty(Settings::publishing, PublishingSettings::mergePublishingSettings)
         mergeProperty(Settings::native, NativeSettings::mergeNativeSettings)
+        mergeProperty(Settings::ktor, KtorServerSettings::mergeKtorServerSettings)
 
         mergeScalarProperty(Settings::junit)
     }
@@ -208,6 +210,13 @@ private fun KoverHtmlSettings.mergeKoverHtmlSettings(overwrite: KoverHtmlSetting
         mergeScalarProperty(KoverHtmlSettings::charset)
         mergeScalarProperty(KoverHtmlSettings::onCheck)
         mergeScalarProperty(KoverHtmlSettings::reportDir)
+    }
+
+context(MergeCtxWithProp<*, *>)
+private fun KtorServerSettings.mergeKtorServerSettings(overwrite: KtorServerSettings) =
+    mergeNode(overwrite, ::KtorServerSettings) {
+        mergeScalarProperty(KtorServerSettings::enabled)
+        mergeScalarProperty(KtorServerSettings::version)
     }
 
 context(MergeCtxWithProp<*, *>)

@@ -1,0 +1,13 @@
+product: jvm/app
+
+dependencies:
+  - $ktor.server.netty
+  - $ktor.server.resources
+  - $ktor.server.defaultHeaders
+  - $ktor.server.htmlBuilder
+  - org.kodein.di:kodein-di:7.17.0
+
+settings:
+  ktor: enabled
+  jvm:
+    mainClass: io.ktor.samples.kodein.KodeinSimpleApplicationKt

@@ -80,6 +80,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -167,6 +171,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -251,6 +259,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }
@@ -337,6 +349,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: <default> null
       publishing: <default> null
     }

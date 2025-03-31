@@ -46,6 +46,8 @@ val composeVersionForGradleBasedAmper = "1.6.10"
 val hotReloadVersion = "1.0.0-alpha02"
 val springBootVersion = "3.4.3"
 val slf4jVersion = "2.0.17"
+val ktorVersion = "3.1.1"
+val logbackVersion = "1.5.18"
 
 /**
  * This is the Gradle version used in Gradle-based Amper projects, not Amper itself.
@@ -112,6 +114,8 @@ fun updateUsedVersionsKt() {
             .replaceBundledVersionVariable(variableName = "hotReloadVersion", newValue = hotReloadVersion)
             .replaceBundledVersionVariable(variableName = "springBootVersion", newValue = springBootVersion)
             .replaceBundledVersionVariable(variableName = "slf4jVersion", newValue = slf4jVersion)
+            .replaceBundledVersionVariable(variableName = "ktorVersion", newValue = ktorVersion)
+            .replaceBundledVersionVariable(variableName = "logbackVersion", newValue = logbackVersion)
     }
 }
 

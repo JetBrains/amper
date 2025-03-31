@@ -61,6 +61,7 @@ Settings
 	jvm: JvmSettings - JVM platform-specific settings
 	kotlin: KotlinSettings - Kotlin language and the compiler settings
 	kover: KoverSettings - Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
+	ktor: KtorServerSettings - Ktor server settings
 	native: NativeSettings - Native applications settings
 	publishing: PublishingSettings - Publishing settings
 
@@ -167,6 +168,11 @@ KoverXmlSettings
 ----------------
 	onCheck: Boolean
 	reportFile: Path
+
+KtorServerSettings
+------------------
+	enabled: Boolean, default: false - Enable Ktor server
+	version: String, default: 3.1.1 - Ktor version
 
 NativeSettings
 --------------

@@ -215,4 +215,13 @@ class AmperTestBasicTest : AmperCliTestBase() {
         result.assertStdoutContains("[       OK ] WorldTestFromMacOsCli.doTest")
         result.assertStdoutContains("[  PASSED  ] 1 tests")
     }
+
+    @Test
+    fun `ktor-kodein test`() = runSlowTest {
+        val projectContext = testProject("ktor-kodein")
+        val result = runCli(projectRoot = projectContext, "test")
+
+        result.assertStdoutContains("Passed testProvideFakeRandom")
+        result.assertStdoutContains("1 tests successful")
+    }
 }

@@ -75,6 +75,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: {
         entryPoint: package.main
       }
@@ -160,6 +164,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: {
         entryPoint: package.main
       }
@@ -243,6 +251,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: {
         entryPoint: package.main
       }
@@ -326,6 +338,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: {
         entryPoint: package.main
       }
@@ -412,6 +428,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: {
         entryPoint: package.main
       }
@@ -498,6 +518,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: {
         entryPoint: package.main
       }
@@ -581,6 +605,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: {
         entryPoint: package.main
       }
@@ -667,6 +695,10 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
       native: {
         entryPoint: package.main
       }

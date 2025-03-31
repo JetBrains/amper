@@ -66,6 +66,9 @@ class Settings : SchemaNode() {
     @SchemaDoc("Native applications settings")
     @PlatformSpecific(Platform.NATIVE)
     var native by nullableValue<NativeSettings>()
+
+    @SchemaDoc("Ktor server settings")
+    var ktor by value(::KtorServerSettings)
 }
 
 class ComposeSettings : SchemaNode() {
@@ -206,4 +209,12 @@ class NativeSettings : SchemaNode() {
     // TODO other options from NativeApplicationPart
     @SchemaDoc("The fully-qualified name of the application's entry point function")
     var entryPoint by nullableValue<String>()
+}
+
+class KtorServerSettings: SchemaNode() {
+    @SchemaDoc("Enable Ktor server")
+    var enabled by value(default = false)
+
+    @SchemaDoc("Ktor version")
+    var version by value(default = UsedVersions.ktorVersion)
 }

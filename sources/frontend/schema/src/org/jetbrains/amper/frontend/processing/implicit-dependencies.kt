@@ -58,6 +58,22 @@ private fun composeResourcesDependency(composeVersion: TraceableString) = MavenD
     coordinates = library("org.jetbrains.compose.components:components-resources", composeVersion),
 ).withTraceFrom(composeVersion)
 
+private fun ktorServerCoreDependency(ktorVersion: TraceableString): MavenDependency = MavenDependency(
+    coordinates = library("io.ktor:ktor-server-core", ktorVersion),
+).withTraceFrom(ktorVersion)
+
+private fun logbackDependency(): MavenDependency = MavenDependency(
+    coordinates = library("ch.qos.logback:logback-classic", UsedVersions.logbackVersion),
+)
+
+private fun ktorServerTestHost(ktorVersion: TraceableString): MavenDependency = MavenDependency(
+    coordinates = library("io.ktor:ktor-server-test-host", ktorVersion),
+).withTraceFrom(ktorVersion)
+
+private fun ktorBomDependency(ktorVersion: TraceableString): MavenDependency = MavenDependency(
+    coordinates = library("bom:io.ktor:ktor-bom", ktorVersion),
+).withTraceFrom(ktorVersion)
+
 /**
  * Add automatically-added implicit dependencies to default module impl.
  */
@@ -114,7 +130,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
         add(kotlinStdlibJdk7)
         add(kotlinStdlibJdk8)
     }
-    
+
     if (settings.compose.enabled && settings.compose.experimental.hotReload.enabled) {
         add(hotReloadDependency)
     }
@@ -144,20 +160,36 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
             add(composeResourcesDependency(composeVersion))
         }
     }
+
+    if (settings.ktor.enabled) {
+        val ktorVersion = TraceableVersion(checkNotNull(settings.ktor.version), settings.ktor::version.valueBase)
+        add(ktorServerCoreDependency(ktorVersion))
+        add(ktorBomDependency(ktorVersion))
+        add(logbackDependency())
+    }
 }
 
-private fun Fragment.inferredTestDependencies(): List<MavenDependency> =
-    if (platforms.size == 1 && platforms.single().supportsJvmTestFrameworks()) {
-        when (settings.junit) {
-            // TODO support kotlin-test-testng?
-            //   For this, we should rename settings.junit -> settings.jvm.testFramework and add the TESTNG value to the enum
-            JUnitVersion.JUNIT4 -> listOf(kotlinTestJUnit)
-            JUnitVersion.JUNIT5 -> listOf(kotlinTestJUnit5)
-            JUnitVersion.NONE -> listOf(kotlinTest)
+private fun Fragment.inferredTestDependencies(): List<MavenDependency> {
+    return buildList {
+        if (platforms.size == 1 && platforms.single().supportsJvmTestFrameworks()) {
+            when (settings.junit) {
+                // TODO support kotlin-test-testng?
+                //   For this, we should rename settings.junit -> settings.jvm.testFramework and add the TESTNG value to the enum
+                JUnitVersion.JUNIT4 -> add(kotlinTestJUnit)
+                JUnitVersion.JUNIT5 -> add(kotlinTestJUnit5)
+                JUnitVersion.NONE -> add(kotlinTest)
+            }
+        } else {
+            add(kotlinTest)
+            add(kotlinTestAnnotationsCommon)
         }
-    } else {
-        listOf(kotlinTest, kotlinTestAnnotationsCommon)
+
+        if (settings.ktor.enabled) {
+            val ktorVersion = TraceableVersion(checkNotNull(settings.ktor.version), settings.ktor::version.valueBase)
+            add(ktorServerTestHost(ktorVersion))
+        }
     }
+}
 
 private fun Platform.supportsJvmTestFrameworks() = this == Platform.JVM || this == Platform.ANDROID
 

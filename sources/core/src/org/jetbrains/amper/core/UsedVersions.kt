@@ -24,4 +24,8 @@ object UsedVersions {
     /*magic_replacement*/ val springBootVersion = "3.4.3"
 
     /*magic_replacement*/ val slf4jVersion = "2.0.17"
+
+    /*magic_replacement*/ val ktorVersion = "3.1.1"
+
+    /*magic_replacement*/ val logbackVersion = "1.5.18"
 }
