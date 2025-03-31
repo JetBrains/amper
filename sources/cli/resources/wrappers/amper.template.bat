@@ -140,11 +140,9 @@ if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     goto fail
 )
 
-REM !! DO NOT REMOVE !! -----------------------------------------------------------------------------------------------
-REM -------------------------------------------------------------------------------------------------------------------
-REM -------------------------------------------------------------------------------------------------------------------
-REM                                                 exit /b %ERRORLEVEL%
-REM                                            6788 ^
+REM !! DO NOT REMOVE !!
+REM @EXIT_COMMAND_PADDING@exit /b %ERRORLEVEL%
+REM
 REM The above comment is strategically placed to compensate for a bug in the update command in Amper 0.5.0.
 REM During the update, the wrapper script is overwritten in-place while running. The problem is that cmd.exe doesn't
 REM buffer the original script as a whole, and instead reloads it after every command, and tries to resume at the same
@@ -152,10 +150,9 @@ REM byte offset as before.
 REM In the 0.5.0 script, the java command running Amper is followed by the command 'exit /b %ERRORLEVEL%', which is
 REM exactly at the byte offset 6826. So, when the java command finishes, cmd.exe wants to run this exit command, but
 REM it first reloads the file and gets the new content (this one) before trying to run whatever is at offset 6826.
-REM This position is marked above, and we must place an exit command right there to allow 0.5.0 to complete properly.
-REM Since we usually edit the _template_ of the wrapper script, we need to take into account the difference between
-REM the version and checksum placeholders and their real value (38 chars at the moment).
-REM The position in the wrapper template should therefore be 6788, so it ends up at 6826 in the final script.
+REM We must place an exit command right at that offset to allow 0.5.0 to complete properly.
+REM Since there are version/checksum placeholders at the top of this template wrapper file, we need to dynamically
+REM adjust the position of the exit command, hence the padding placeholder.
 
 @rem URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
 set jbr_url=%AMPER_JRE_DOWNLOAD_ROOT%/cache-redirector.jetbrains.com/intellij-jbr/jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%.tar.gz
