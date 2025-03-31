@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -174,10 +175,14 @@ class JvmTestTask(
                         workingDir = workingDirectory,
                         command = jvmCommand,
                         span = span,
-                        // We need to respect the exact output of the tests, so we shouldn't go through the Mordant
-                        // terminal, because it processes line wrapping and tab conversions to spaces with tab stops.
-                        // This can break TeamCity messages for instance.
-                        outputListener = ProcessOutputListener.Streaming(),
+                        // Using the Mordant terminal allows streaming the output among the logs, respecting the task
+                        // progress cells. However, it also converts tab characters to spaces with tab stops.
+                        // When using the TeamCity format, we need to respect the tab characters and cannot use Mordant,
+                        // so we sacrifice the human-readable output and accept to "break" the task progress.
+                        outputListener = when (commonRunSettings.testResultsFormat) {
+                            TestResultsFormat.Pretty -> PrintToTerminalProcessOutputListener(terminal)
+                            TestResultsFormat.TeamCity -> ProcessOutputListener.Streaming()
+                        },
                     )
 
                     // TODO exit code from junit launcher should be carefully become some kind of exit code for entire Amper run
