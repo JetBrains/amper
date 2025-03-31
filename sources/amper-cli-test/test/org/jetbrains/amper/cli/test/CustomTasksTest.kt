@@ -26,11 +26,8 @@ class CustomTasksTest : AmperCliTestBase() {
             "run",
             "--module=generate-versions-file",
         )
-        result.assertStdoutContains(
-            "Process exited with exit code 0\n" +
-                    "STDOUT:\n" +
-                    "VERSION=1.0-FANCY"
-        )
+        result.assertStdoutContains("VERSION=1.0-FANCY")
+        result.assertStdoutContains("Process exited with exit code 0")
     }
 
     @Test
@@ -40,11 +37,8 @@ class CustomTasksTest : AmperCliTestBase() {
             "run",
             "--module=generate-resources",
         )
-        result.assertStdoutContains(
-            "Process exited with exit code 0\n" +
-                    "STDOUT:\n" +
-                    "Resources OK"
-        )
+        result.assertStdoutContains("Resources OK")
+        result.assertStdoutContains("Process exited with exit code 0")
     }
 
     @Test

@@ -24,7 +24,8 @@ class SerializationTest: AmperCliTestBase() {
     fun `jvm kotlin serialization support without explicit dependency`() = runSlowTest {
         val result = runCli(testProject("kotlin-serialization-default"), "run")
 
-        result.assertLogStartsWith("Process exited with exit code 0\nSTDOUT:\nHello, World!", Level.INFO)
+        result.assertLogStartsWith("Process exited with exit code 0", Level.INFO)
+        result.assertStdoutContains("Hello, World!")
     }
 
     @Test

@@ -12,8 +12,8 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.Jdk
@@ -61,9 +61,7 @@ abstract class AbstractJvmRunTask(
             input = ProcessInput.Inherit,
         )
 
-        val message = "Process exited with exit code ${result.exitCode}" +
-                (if (result.stderr.isNotEmpty()) "\nSTDERR:\n${result.stderr}\n" else "") +
-                (if (result.stdout.isNotEmpty()) "\nSTDOUT:\n${result.stdout}\n" else "")
+        val message = "Process exited with exit code ${result.exitCode}"
         if (result.exitCode != 0) {
             userReadableError(message)
         } else {

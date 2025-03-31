@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.native
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -64,16 +65,12 @@ class NativeRunTask(
                     input = ProcessInput.Inherit,
                 )
 
-                val message = "Process exited with exit code ${result.exitCode}" +
-                        (if (result.stderr.isNotEmpty()) "\nSTDERR:\n${result.stderr}\n" else "") +
-                        (if (result.stdout.isNotEmpty()) "\nSTDOUT:\n${result.stdout}\n" else "")
+                val message = "Process exited with exit code ${result.exitCode}"
                 if (result.exitCode != 0) {
-                    logger.error(message)
+                    userReadableError(message)
                 } else {
                     logger.info(message)
                 }
-
-                // TODO Should non-zero exit code fail the task somehow?
 
                 object : TaskResult {}
             }

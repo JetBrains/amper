@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("SameParameterValue")
@@ -102,5 +102,10 @@ abstract class AmperIntegrationTestBase {
             logEntries.any { it.level == level && text in it.message }
         }
     }
-}
 
+    protected fun TestCollector.assertStdoutTextContains(text: String) {
+        assertTrue("No line in stdout contains the text '$text':\n" + terminalRecorder.stdout().trim()) {
+            text in terminalRecorder.stdout()
+        }
+    }
+}

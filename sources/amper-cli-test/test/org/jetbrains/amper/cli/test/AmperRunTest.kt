@@ -45,7 +45,8 @@ class AmperRunTest : AmperCliTestBase() {
     @Test
     fun `mixed java kotlin`() = runSlowTest {
         val result = runCli(projectRoot = testProject("java-kotlin-mixed"), "run")
-        result.assertLogStartsWith("Process exited with exit code 0\nSTDOUT:\nOutput: <XYZ>", Level.INFO)
+        result.assertLogStartsWith("Process exited with exit code 0", Level.INFO)
+        result.assertStdoutContains("Output: <XYZ>")
     }
 
     @Test
@@ -162,13 +163,13 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     fun `jvm run with JVM arg`() = runSlowTest {
         val projectRoot = testProject("jvm-run-print-systemprop")
         val result1 = runCli(projectRoot, "run", "--jvm-args=-Dmy.system.prop=hello")
-        assertEquals("my.system.prop=hello", result1.stdout.trim().lines().last())
+        result1.assertStdoutContains("my.system.prop=hello")
 
         val result2 = runCli(projectRoot, "run", "--jvm-args=\"-Dmy.system.prop=hello world\"")
-        assertEquals("my.system.prop=hello world", result2.stdout.trim().lines().last())
+        result2.assertStdoutContains("my.system.prop=hello world")
 
         val result3 = runCli(projectRoot, "run", "--jvm-args=-Dmy.system.prop=hello\\ world")
-        assertEquals("my.system.prop=hello world", result3.stdout.trim().lines().last())
+        result3.assertStdoutContains("my.system.prop=hello world")
     }
 
     @Test

@@ -20,12 +20,10 @@ import org.junit.jupiter.api.Disabled
 import org.tinylog.Level
 import java.nio.file.LinkOption
 import java.nio.file.Path
-import java.util.jar.Attributes
 import java.util.jar.JarFile
 import kotlin.io.path.absolute
 import kotlin.io.path.div
 import kotlin.io.path.exists
-import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
@@ -51,9 +49,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val projectContext = setupTestDataProject("jvm-language-version-1.9")
         AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
 
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Hello, world!"
+        val find = "Process exited with exit code 0"
         assertInfoLogStartsWith(find)
 
         assertKotlinJvmCompilationSpan {
@@ -68,9 +64,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val projectContext = setupTestDataProject("jvm-language-version-2.0")
         AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-2.0:runJvm"))
 
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Hello, world!"
+        val find = "Process exited with exit code 0"
+        assertStdoutTextContains("Hello, world!")
         assertInfoLogStartsWith(find)
 
         assertKotlinJvmCompilationSpan {
@@ -95,9 +90,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val projectContext = setupTestDataProject("native-language-version-1.9")
         AmperBackend(projectContext).runTask(TaskName(":app:runMingwX64"))
 
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Hello, native!"
+        val find = "Process exited with exit code 0"
+        assertStdoutTextContains("Hello, native!")
         assertInfoLogStartsWith(find)
 
         assertEachKotlinNativeCompilationSpan {
@@ -121,9 +115,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val projectContext = setupTestDataProject("native-language-version-2.0")
         AmperBackend(projectContext).runTask(TaskName(":app:runMingwX64"))
 
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Hello, native!"
+        val find = "Process exited with exit code 0"
+        assertStdoutTextContains("Hello, native!")
         assertInfoLogStartsWith(find)
 
         assertEachKotlinNativeCompilationSpan {
