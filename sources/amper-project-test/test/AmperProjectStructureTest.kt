@@ -2,26 +2,13 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import com.github.ajalt.mordant.terminal.Terminal
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.test.runTest
-import org.jetbrains.amper.cli.AmperBackend
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.test.Dirs
-import org.jetbrains.amper.test.TempDirExtension
-import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
 import kotlin.io.path.name
-import kotlin.io.path.readLines
 import kotlin.io.path.readText
-import kotlin.io.path.relativeTo
 import kotlin.io.path.visitFileTree
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -67,39 +54,6 @@ class AmperProjectStructureTest {
         return filesWithWrappers
     }
 
-    @Test
-    fun `list of modules is the same for gradle and standalone amper`() = runTest {
-        val backend = createAmperProjectBackend(backgroundScope)
-        val standaloneModulesList = backend.modules()
-            .map { (it.source as AmperModuleFileSource).moduleDir.relativeTo(Dirs.amperCheckoutRoot) }
-            .map { it.toString().replace('\\', '/') }
-            .sorted()
-            .joinToString("\n")
-
-        val settingsGradleFile = Dirs.amperCheckoutRoot.resolve("settings.gradle.kts")
-        val gradleModulesList = settingsGradleFile
-            .readLines()
-            .mapNotNull { Regex("include\\(\"(.*)\"\\)").find(it)?.groupValues?.get(1)?.removePrefix(":")?.replace(':', '/') }
-            .sorted()
-            .joinToString("\n")
-
-        assertEquals(standaloneModulesList, gradleModulesList,
-            "Modules list in project.yaml (expected) and settings.gradle.kts (actual) differ")
-    }
-
-    private suspend fun createAmperProjectBackend(backgroundScope: CoroutineScope): AmperBackend {
-        val context = CliContext.create(
-            explicitProjectRoot = Dirs.amperCheckoutRoot,
-            userCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot),
-            buildOutputRoot = AmperBuildOutputRoot(tempRoot),
-            currentTopLevelCommand = "n/a",
-            backgroundScope = backgroundScope,
-            terminal = Terminal(),
-        )
-
-        return AmperBackend(context = context)
-    }
-
     private fun extractAmperVersion(file: Path): String {
         val text = file.readText()
         val lines = text.lines()
@@ -131,10 +85,4 @@ class AmperProjectStructureTest {
 
         return amperVersion
     }
-
-    @RegisterExtension
-    private val tempDirExtension = TempDirExtension()
-
-    private val tempRoot: Path
-        get() = tempDirExtension.path
 }

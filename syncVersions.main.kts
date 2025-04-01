@@ -197,7 +197,6 @@ fun updateWrapperTemplates() {
 
     sequenceOf(
         cliDir / "resources/wrappers/amper.template.bat",
-        cliDir / "amper-from-sources.bat",
         amperRootDir / "amper-from-sources.bat",
     ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
@@ -225,8 +224,6 @@ fun getJbrChecksums(jvmVersion: String, jbrBuild: String): List<Jbr> = listOf("w
 }
 
 fun updateGradleFiles() {
-    (amperRootDir / "settings.gradle.kts").replaceFileText { it.replaceAmperGradlePluginVersion() }
-
     (examplesGradleDir.walk() + migratedProjectsDir.walk()).forEach { path ->
         when (path.name) {
             "settings.gradle.kts" -> path.replaceFileText { it.replaceAmperGradlePluginVersion() }

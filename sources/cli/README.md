@@ -50,9 +50,5 @@ as possible, such as:
 
 ## Running Amper CLI from sources
 
-It is possible to use Amper CLI built from sources, please check out the Amper project
-and use the following instead of `amper` or `amper.bat`:
-
-```
-/path/to/amper/checkout/sources/cli/amper-from-sources.sh
-```
+It is possible to use Amper CLI built from sources, please check out the Amper project and use 
+`./amper-from-sources` instead of `./amper` (or `./amper-from-sources.bat` instead of `./amper.bat`).
