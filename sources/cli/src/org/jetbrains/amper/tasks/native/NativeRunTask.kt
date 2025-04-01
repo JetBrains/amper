@@ -67,7 +67,7 @@ class NativeRunTask(
 
                 val message = "Process exited with exit code ${result.exitCode}"
                 if (result.exitCode != 0) {
-                    userReadableError(message)
+                    userReadableError(message, result.exitCode)
                 } else {
                     logger.info(message)
                 }

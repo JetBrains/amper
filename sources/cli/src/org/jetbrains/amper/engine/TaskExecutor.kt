@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.engine
@@ -182,7 +182,7 @@ class TaskExecutor(
 
     private fun taskError(taskName: TaskName, cause: Throwable): Nothing {
         when(cause) {
-            is UserReadableError -> userReadableError("Task '${taskName.name}' failed: ${cause.message}")
+            is UserReadableError -> userReadableError("Task '${taskName.name}' failed: ${cause.message}", cause.exitCode)
             is CancellationException -> throw cause  // Cooperate to cancellation
             else -> throw TaskExecutionFailed(taskName, cause)
         }

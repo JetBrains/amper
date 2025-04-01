@@ -184,4 +184,51 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         result2.assertStdoutContains("Hello, world!")
         result2.readTelemetrySpans().kotlinJvmCompilationSpans.assertNone()
     }
+
+    @Test
+    fun `exit code is propagated for JVM`() = runSlowTest {
+        val projectRoot = testProject("jvm-exit-code")
+
+        val result = runCli(projectRoot = projectRoot, "run", expectedExitCode = 5, assertEmptyStdErr = false)
+        result.assertStderrContains("Process exited with exit code 5")
+    }
+
+    @Test
+    @LinuxOnly
+    fun `exit code is propagated for Linux`() = runSlowTest {
+        val projectRoot = testProject("multiplatform-cli-exit-code")
+
+        val result = runCli(
+            projectRoot = projectRoot,
+            "run", "--module", "linux-cli", "--platform=linuxX64",
+            expectedExitCode = 5, assertEmptyStdErr = false,
+        )
+        result.assertStderrContains("Process exited with exit code 5")
+    }
+
+    @Test
+    @MacOnly
+    fun `exit code is propagated for macOS`() = runSlowTest {
+        val projectRoot = testProject("multiplatform-cli-exit-code")
+
+        val result = runCli(
+            projectRoot = projectRoot,
+            "run", "--module", "macos-cli",
+            expectedExitCode = 5, assertEmptyStdErr = false,
+        )
+        result.assertStderrContains("Process exited with exit code 5")
+    }
+
+    @Test
+    @WindowsOnly
+    fun `exit code is propagated for Windows`() = runSlowTest {
+        val projectRoot = testProject("multiplatform-cli-exit-code")
+
+        val result = runCli(
+            projectRoot = projectRoot,
+            "run", "--module", "windows-cli",
+            expectedExitCode = 5, assertEmptyStdErr = false,
+        )
+        result.assertStderrContains("Process exited with exit code 5")
+    }
 }

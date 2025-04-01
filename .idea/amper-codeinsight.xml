@@ -12,6 +12,7 @@
         <option value="sources/amper-backend-test/testData/projects/ios/simpleTests" />
         <option value="sources/amper-backend-test/testData/projects/java-kotlin-mixed" />
         <option value="sources/amper-backend-test/testData/projects/jvm-default-compiler-settings" />
+        <option value="sources/amper-backend-test/testData/projects/jvm-exit-code" />
         <option value="sources/amper-backend-test/testData/projects/jvm-explicit-compiler-settings" />
         <option value="sources/amper-backend-test/testData/projects/jvm-failed-test" />
         <option value="sources/amper-backend-test/testData/projects/jvm-kotlin-test-no-test-sources" />

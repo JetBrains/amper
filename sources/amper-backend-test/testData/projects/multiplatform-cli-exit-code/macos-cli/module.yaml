@@ -1,0 +1,10 @@
+product:
+  type: macos/app
+  platforms: [ macosArm64 ]
+
+dependencies:
+  - ../shared
+
+settings:
+  native:
+    entryPoint: main
