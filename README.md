@@ -4,7 +4,8 @@
 
 # Amper
 
-Amper is a project configuration and build tool. Its goal is to provide a great and smooth user experience and IDE support 
+Amper is a project configuration and build tool.
+Its goal is to provide a great and smooth user experience and IDE support. 
 We believe that this can be achieved by:
 
 - providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but
@@ -30,9 +31,9 @@ Supported features:
 * Code assistance for [module files](docs/Documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
 * [Multi-module](docs/Documentation.md#module-dependencies) projects.
 * Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
-* Using Compose [multiplatform resources](docs/Documentation.md#using-multiplatform-resources)*.
+* Using Compose [multiplatform resources](docs/Documentation.md#using-multiplatform-resources).
+* Integration with [Gradle version catalogs](docs/Documentation.md#library-catalogs-aka-version-catalogs).
 * [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project*.
-* Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs)*.
 * [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects*.
 
 *\* only in Gradle-based projects*
@@ -40,11 +41,11 @@ Supported features:
 Future directions:
 * Support for more Kotlin and Kotlin Multiplatform scenarios and configurations.
 * More [product types](docs/Documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
-* [Platform-specific test types](docs/Documentation.md#special-types-of-tests), including android instrumented tests.
-* [Native dependencies](docs/Documentation.md#native-dependencies) support, such as CocoaPods, Swift Package Manager.
-* [Packaging](docs/Documentation.md#packaging) and [publication](docs/Documentation.md#publishing). 
-* [Build variants](docs/Documentation.md#build-variants) support.
-* [Extensibility](docs/Documentation.md#extensibility).
+* Platform-specific test types, including android instrumented tests.
+* Native dependencies support, such as CocoaPods, Swift Package Manager.
+* Packaging and publication. 
+* Build variants support.
+* Extensibility.
 
 For a quick start:
 * [Setup](docs/Setup.md) and [usage](docs/Usage.md) instructions
@@ -55,17 +56,18 @@ For a quick start:
 
 ## Issues and feedback
 
-Amper uses [YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking, [create a new issue](https://youtrack.jetbrains.com/newIssue?project=AMPER) there to report problems or submit ideas.
+Amper uses [YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking,
+[create a new issue](https://youtrack.jetbrains.com/newIssue?project=AMPER) there to report problems or submit ideas.
 
 Before reporting an issue, please check the [FAQ](docs/FAQ.md).
 
-You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions, or share your feedback using the [feedback form](https://surveys.jetbrains.com/s3/Amper-feedback-form).     
+You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions, 
+or share your feedback using the [feedback form](https://surveys.jetbrains.com/s3/Amper-feedback-form).     
 
 ## How to Try
 There are multiple ways to try Amper:
 
-* In the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](docs/Usage.md#using-amper-in-intellij-idea)).
-* In the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/), for the JVM, Android, and Multiplatform projects ([instructions](docs/Usage.md#using-amper-in-fleet)).
+* In the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) ([instructions](docs/Usage.md#using-amper-in-intellij-idea)).
 * Using [Amper from the command line](docs/Usage.md#using-amper-from-the-command-line).
 * Using [Amper in existing Gradle projects](docs/Documentation.md#gradle-based-projects)
 
@@ -77,14 +79,18 @@ Here is a very basic JVM "Hello, World!" project:
 <img src="docs/images/ij-jvm-structure.png" width="50%" alt="">
 
 
-The `main.kt` and `MyTest.kt` files are just regular Kotlin files with nothing special in them. The interesting part is `module.yaml`, which is the Amper module configuration file. For the above project structure, it would simply be: 
+The `main.kt` and `MyTest.kt` files are just regular Kotlin files with nothing special in them.
+The interesting part is `module.yaml`, which is the Amper module configuration file.
+For the above project structure, it would simply be: 
 
 ```yaml
 # Produce a JVM application 
 product: jvm/app
 ```
 
-That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality are configured and available straight out of the box. You can build it, run it, write and run tests, and more. For more detailed information, check out the [full example](examples-gradle/jvm).
+That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality are configured and available straight out of the box.
+You can build it, run it, write and run tests, and more.
+For more detailed information, check out the [full example](examples-gradle/jvm).
 
 ![](docs/images/ij-jvm-result.png)
 
@@ -111,7 +117,8 @@ settings:
   compose: enabled
 ```
 
-This is pretty straightforward: It defines an iOS application with a dependency on a shared module and enables the Compose Multiplatform framework. A more interesting example would be `shared/module.yaml`:
+This is pretty straightforward: it defines an iOS application with a dependency on a shared module and enables the Compose Multiplatform framework.
+A more interesting example would be `shared/module.yaml`:
 
 ```yaml
 # Produce a shared library for the JVM, Android, and iOS platforms:
@@ -130,11 +137,6 @@ dependencies@android:
   - androidx.activity:activity-compose:1.7.2: exported
   - androidx.appcompat:appcompat:1.6.1: exported
 
-# iOS-only dependencies with a dependency on a CocoaPod (not yet implemented)
-dependencies@ios:
-  - pod: 'Alamofire'
-    version: '~> 2.0.1'
-
 settings:
   # Enable Kotlin serialization
   kotlin:
@@ -144,14 +146,16 @@ settings:
   compose: enabled
 ```
 
-A couple of things are worth mentioning. First, note the platform-specific dependencies: sections with the `@<platform>` qualifier. [The platform qualifier](docs/Documentation.md#platform-qualifier) can be used both in the manifest and also in the file layout. The qualifier organizes the code, dependencies, and settings for a certain platform.
-Second, the dependencies: section allows not only Kotlin and Maven dependencies, but also [platform-specific package managers](docs/Documentation.md#native-dependencies), such as CocoaPods, Swift Package Manager, and others.
+A couple of things are worth mentioning.
+Note the platform-specific `dependencies@android` section with the `@<platform>` qualifier.
+[The platform qualifier](docs/Documentation.md#platform-qualifier) can be used both in the manifest and also in the file layout.
+The qualifier organizes the code, dependencies, and settings for a certain platform.
 
 ![](docs/images/fleet-kmp-result.png)
 
 Naturally, these examples show only a limited set of Amper features. 
-To get more insight into design and functionality, look at the [documentation](docs/Documentation.md), the [tutorial](docs/Tutorial.md), 
-and [example projects](#more-examples).     
+To get more insight into design and functionality, look at the [documentation](docs/Documentation.md), 
+the [tutorial](docs/Tutorial.md), and [example projects](#more-examples).     
 
 ### More examples
 Check our these example projects:
