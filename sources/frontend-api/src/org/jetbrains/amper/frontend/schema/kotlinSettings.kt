@@ -39,6 +39,53 @@ enum class KotlinVersion(override val schemaValue: String, override val outdated
     companion object Index : EnumMap<KotlinVersion, String>(KotlinVersion::values, KotlinVersion::schemaValue)
 }
 
+@SchemaDoc("Preset options for the all-open compiler plugin")
+enum class AllOpenPreset(override val schemaValue: String, override val outdated: Boolean = false) : SchemaEnum {
+    @SchemaDoc("Automatically adds annotations used by the Spring framework")
+    Spring("spring"),
+    
+    @SchemaDoc("Automatically adds annotations used by the Micronaut framework")
+    Micronaut("micronaut"),
+    
+    @SchemaDoc("Automatically adds annotations used by the Quarkus framework")
+    Quarkus("quarkus");
+    
+    companion object Index : EnumMap<AllOpenPreset, String>(AllOpenPreset::values, AllOpenPreset::schemaValue)
+}
+
+@SchemaDoc("Preset options for the no-arg compiler plugin")
+enum class NoArgPreset(override val schemaValue: String, override val outdated: Boolean = false) : SchemaEnum {
+    @SchemaDoc("Automatically adds no-arg constructors to JPA entity classes")
+    Jpa("jpa");
+    
+    companion object Index : EnumMap<NoArgPreset, String>(NoArgPreset::values, NoArgPreset::schemaValue)
+}
+
+class NoArgSettings : SchemaNode() {
+    @SchemaDoc("Enable the Kotlin no-arg compiler plugin")
+    var enabled by value(false)
+
+    @SchemaDoc("List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated.")
+    var annotations by nullableValue<List<TraceableString>>()
+
+    @SchemaDoc("Whether to call initializers in the synthesized constructor. By default, initializers are not called.")
+    var invokeInitializers by value(false)
+    
+    @SchemaDoc("Predefined sets of annotations. Currently only 'jpa' preset is supported, which automatically includes JPA entity annotations.")
+    var presets by nullableValue<List<NoArgPreset>>()
+}
+
+class AllOpenSettings : SchemaNode() {
+    @SchemaDoc("Enable the Kotlin all-open compiler plugin")
+    var enabled by value(false)
+
+    @SchemaDoc("List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open.")
+    var annotations by nullableValue<List<TraceableString>>()
+    
+    @SchemaDoc("Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework.")
+    var presets by nullableValue<List<AllOpenPreset>>()
+}
+
 class KotlinSettings : SchemaNode() {
 
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
@@ -85,4 +132,12 @@ class KotlinSettings : SchemaNode() {
     @ContextAgnostic
     @SchemaDoc("Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
     var serialization by value<SerializationSettings>(::SerializationSettings)
+    
+    @ContextAgnostic
+    @SchemaDoc("Configure [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html)")
+    var noArg by value<NoArgSettings>(::NoArgSettings)
+    
+    @ContextAgnostic
+    @SchemaDoc("Configure [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)")
+    var allOpen by value<AllOpenSettings>(::AllOpenSettings)
 }

@@ -231,4 +231,13 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         )
         result.assertStderrContains("Process exited with exit code 5")
     }
+
+    @Test
+    fun `spring-boot-kotlin allOpen enabled should work`() = runSlowTest {
+        val projectRoot = testProject("spring-boot-kotlin")
+
+        val result = runCli(projectRoot = projectRoot, "run")
+
+        result.assertStdoutContains("Started MainKt")
+    }
 }

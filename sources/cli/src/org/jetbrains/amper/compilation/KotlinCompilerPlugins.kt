@@ -41,6 +41,27 @@ internal data class CompilerPlugin(
                 Option(name = "generateFunctionKeyMetaAnnotations", value = "function"),
             )
         )
+
+        // https://kotlinlang.org/docs/no-arg-plugin.html
+        fun noArg(jarPath: Path, annotations: List<String>, presets: List<String>, invokeInitializers: Boolean) = CompilerPlugin(
+            id = "org.jetbrains.kotlin.noarg",
+            jarPath = jarPath,
+            options = buildList {
+                addAll(annotations.map { Option(name = "annotation", value = it) })
+                addAll(presets.map { Option(name = "preset", value = it) })
+                add(Option(name = "invokeInitializers", value = invokeInitializers.toString()))
+            }
+        )
+
+        // https://kotlinlang.org/docs/all-open-plugin.html
+        fun allOpen(jarPath: Path, annotations: List<String>, presets: List<String>) = CompilerPlugin(
+            id = "org.jetbrains.kotlin.allopen",
+            jarPath = jarPath,
+            options = buildList {
+                addAll(annotations.map { Option(name = "annotation", value = it) })
+                addAll(presets.map { Option(name = "preset", value = it) })
+            }
+        )
     }
 }
 
@@ -66,6 +87,27 @@ internal suspend fun KotlinArtifactsDownloader.downloadCompilerPlugins(
                 CompilerPlugin.parcelize(
                     jarPath = downloadKotlinParcelizePlugin(kotlinVersion),
                     additionalAnnotations = kotlinUserSettings.parcelizeAdditionalAnnotations,
+                )
+            }
+            add(plugin)
+        }
+        if (kotlinUserSettings.noArg.enabled) {
+            val plugin = async {
+                CompilerPlugin.noArg(
+                    jarPath = downloadKotlinNoArgPlugin(kotlinVersion),
+                    annotations = kotlinUserSettings.noArg.annotations,
+                    presets = kotlinUserSettings.noArg.presets,
+                    invokeInitializers = kotlinUserSettings.noArg.invokeInitializers
+                )
+            }
+            add(plugin)
+        }
+        if (kotlinUserSettings.allOpen.enabled) {
+            val plugin = async {
+                CompilerPlugin.allOpen(
+                    jarPath = downloadKotlinAllOpenPlugin(kotlinVersion),
+                    annotations = kotlinUserSettings.allOpen.annotations,
+                    presets = kotlinUserSettings.allOpen.presets
                 )
             }
             add(plugin)

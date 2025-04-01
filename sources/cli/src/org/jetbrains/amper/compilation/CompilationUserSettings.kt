@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.compilation
@@ -20,6 +20,21 @@ internal data class CompilationUserSettings(
 )
 
 @Serializable
+internal data class NoArgConfig(
+    val enabled: Boolean = false,
+    val annotations: List<String> = emptyList(),
+    val invokeInitializers: Boolean = false,
+    val presets: List<String> = emptyList()
+)
+
+@Serializable
+internal data class AllOpenConfig(
+    val enabled: Boolean = false,
+    val annotations: List<String> = emptyList(),
+    val presets: List<String> = emptyList()
+)
+
+@Serializable
 internal data class KotlinUserSettings(
     val languageVersion: KotlinVersion,
     val apiVersion: KotlinVersion,
@@ -35,6 +50,8 @@ internal data class KotlinUserSettings(
     val parcelizeEnabled: Boolean,
     val parcelizeAdditionalAnnotations: List<String>,
     val composeEnabled: Boolean,
+    val noArg: NoArgConfig = NoArgConfig(),
+    val allOpen: AllOpenConfig = AllOpenConfig()
 )
 
 internal fun List<Fragment>.mergedCompilationSettings(): CompilationUserSettings = CompilationUserSettings(
@@ -63,6 +80,19 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
     parcelizeAdditionalAnnotations = unanimousOptionalSetting("android.parcelize.additionalAnnotations") { it.android.parcelize.additionalAnnotations }
         ?.map { it.value }.orEmpty(),
     composeEnabled = unanimousOptionalSetting("compose.enabled") { it.compose.enabled } == true,
+    noArg = NoArgConfig(
+        enabled = unanimousOptionalKotlinSetting("noArg.enabled") { it.noArg.enabled } == true,
+        annotations = unanimousOptionalKotlinSetting("noArg.annotations") { it.noArg.annotations }
+            ?.map { it.value }.orEmpty(),
+        invokeInitializers = unanimousOptionalKotlinSetting("noArg.invokeInitializers") { it.noArg.invokeInitializers } ?: false,
+        presets = unanimousOptionalKotlinSetting("noArg.presets") { it.noArg.presets }?.map { it.schemaValue }.orEmpty()
+    ),
+    allOpen = AllOpenConfig(
+        enabled = unanimousOptionalKotlinSetting("allOpen.enabled") { it.allOpen.enabled } == true,
+        annotations = unanimousOptionalKotlinSetting("allOpen.annotations") { it.allOpen.annotations }
+            ?.map { it.value }.orEmpty(),
+        presets = unanimousOptionalKotlinSetting("allOpen.presets") { it.allOpen.presets }?.map { it.schemaValue }.orEmpty()
+    )
 )
 
 private fun Fragment.hasAndroidTarget(): Boolean = platforms.contains(Platform.ANDROID)

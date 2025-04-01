@@ -26,6 +26,8 @@ import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.TaskSettings
+import org.jetbrains.amper.frontend.schema.NoArgSettings
+import org.jetbrains.amper.frontend.schema.AllOpenSettings
 
 
 /**
@@ -47,6 +49,23 @@ fun Base.mergeTemplate(overwrite: Base, target: () -> Base) =
         mergeProperty(Base::settings) { mergeMap(it) { overwriteSettings -> mergeSettings(overwriteSettings) } }
         mergeProperty(Base::`test-settings`) { mergeMap(it) { overwriteSettings -> mergeSettings(overwriteSettings) } }
         mergeProperty(Base::tasks) { mergeMap(it) { overwriteTaskSettings -> mergeTaskSettings(overwriteTaskSettings) } }
+    }
+
+context(MergeCtxWithProp<*, *>)
+private fun NoArgSettings.mergeNoArgSettings(overwrite: NoArgSettings?) =
+    mergeNode(overwrite, ::NoArgSettings) {
+        mergeScalarProperty(NoArgSettings::enabled)
+        mergeNullableCollectionProperty(NoArgSettings::annotations)
+        mergeScalarProperty(NoArgSettings::invokeInitializers)
+        mergeNullableCollectionProperty(NoArgSettings::presets)
+    }
+
+context(MergeCtxWithProp<*, *>)
+private fun AllOpenSettings.mergeAllOpenSettings(overwrite: AllOpenSettings?) =
+    mergeNode(overwrite, ::AllOpenSettings) {
+        mergeScalarProperty(AllOpenSettings::enabled)
+        mergeNullableCollectionProperty(AllOpenSettings::annotations)
+        mergeNullableCollectionProperty(AllOpenSettings::presets)
     }
 
 context(MergeCtxWithProp<*, *>)
@@ -116,6 +135,8 @@ private fun KotlinSettings.mergeKotlinSettings(overwrite: KotlinSettings) =
 
         mergeProperty(KotlinSettings::ksp, KspSettings::mergeKspSettings)
         mergeProperty(KotlinSettings::serialization, SerializationSettings::mergeSerializationSettings)
+        mergeProperty(KotlinSettings::noArg, NoArgSettings::mergeNoArgSettings)
+        mergeProperty(KotlinSettings::allOpen, AllOpenSettings::mergeAllOpenSettings)
     }
 
 context(MergeCtxWithProp<*, *>)

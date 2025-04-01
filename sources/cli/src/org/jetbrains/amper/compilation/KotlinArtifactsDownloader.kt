@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.compilation
@@ -78,6 +78,28 @@ class KotlinArtifactsDownloader(
         artifactId = "kotlin-parcelize-compiler",
         version = version,
     ).single { it.name == "kotlin-parcelize-compiler-$version.jar" } // this one is not a far jar, but we still need one jar
+
+    /**
+     * Downloads the Kotlin No-arg compiler plugin for the given Kotlin [version].
+     *
+     * The [version] should match the Kotlin version requested by the user.
+     */
+    suspend fun downloadKotlinNoArgPlugin(version: String): Path = downloadKotlinCompilerPlugin(
+        groupId = KOTLIN_GROUP_ID,
+        artifactId = "kotlin-noarg-compiler-plugin-embeddable",
+        version = version,
+    )
+
+    /**
+     * Downloads the Kotlin All-open compiler plugin for the given Kotlin [version].
+     *
+     * The [version] should match the Kotlin version requested by the user.
+     */
+    suspend fun downloadKotlinAllOpenPlugin(version: String): Path = downloadKotlinCompilerPlugin(
+        groupId = KOTLIN_GROUP_ID,
+        artifactId = "kotlin-allopen-compiler-plugin-embeddable",
+        version = version,
+    )
 
     /**
      * Downloads the Kotlin Compose compiler plugin for the given [kotlinVersion] (NOT the compose library version).
