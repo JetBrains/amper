@@ -184,7 +184,6 @@ fun updateWrapperTemplates() {
 
     sequenceOf(
         cliDir / "resources/wrappers/amper.template.sh",
-        cliDir / "amper-from-sources.sh",
         amperRootDir / "amper-from-sources",
     ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
