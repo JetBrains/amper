@@ -44,14 +44,6 @@ fun main(args: Array<String>) {
                 properties["commitHash"] = head.newId.name
                 properties["commitShortHash"] = shortHash
                 properties["commitDate"] = head.who.whenAsInstant.toString()
-
-                // When developing locally, we want to somehow capture changes to the local sources because we want to
-                // invalidate incremental state files based on this. If we don't, changing some Amper code will not
-                // cause state invalidation, and some tasks will be marked up-to-date even though their code has changed
-                // and they would produce a different output.
-                // Using the git index for this is insufficient because it only captures the paths but not the contents
-                // of the files. That's why we use a digest of the whole diff.
-                properties["localChangesHash"] = git.localChangesHash()
             }
         }
     } else {

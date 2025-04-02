@@ -47,17 +47,3 @@ private class NoopFileBasedConfig(parent: Config?, fs: FS?) : FileBasedConfig(pa
     override fun load() {}
     override fun isOutdated(): Boolean = false
 }
-
-/**
- * Returns a hash of the entire local changes diff content.
- */
-fun Git.localChangesHash() = diff().call().map { it.newId.toObjectId().name }.hash()
-
-@OptIn(ExperimentalStdlibApi::class)
-private fun Iterable<String>.hash(): String {
-    val hasher = MessageDigest.getInstance("md5")
-    forEach {
-        hasher.update(it.encodeToByteArray())
-    }
-    return hasher.digest().toHexString()
-}
