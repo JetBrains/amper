@@ -162,7 +162,7 @@ class LocalRepositoryTest: BaseDRTest() {
         |\--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2""".trimMargin()
             )
 
-            downloadAndAssertFiles("""atomicfu-jvm-0.23.2.jar""".trimMargin(), root)
+            downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
         }
     }
 
@@ -212,7 +212,7 @@ class LocalRepositoryTest: BaseDRTest() {
         )
 
         runBlocking {
-            downloadAndAssertFiles("""atomicfu-jvm-0.23.2.jar""".trimMargin(), root)
+            downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
         }
 
         val notDownloaded = filesThatMustBeDownloaded.filterNot { URI.create("$urlPrefix/$it") in httpClient.processedUrls }

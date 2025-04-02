@@ -7,15 +7,21 @@ package org.jetbrains.amper.dependency.resolution
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.TestInfo
+import org.junit.jupiter.api.fail
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.Path
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
+import kotlin.io.path.readText
 import kotlin.test.assertTrue
-import kotlin.test.assertEquals
 
 abstract class BaseDRTest {
+    protected open val testDataPath: Path
+        get() = Path("testData")
 
     protected suspend fun doTest(
         root: DependencyNodeHolder,
@@ -74,6 +80,31 @@ abstract class BaseDRTest {
         filterMessages
     )
 
+    protected fun doTestByFile(
+        testInfo: TestInfo,
+        dependency: String = testInfo.nameToDependency(),
+        scope: ResolutionScope = ResolutionScope.COMPILE,
+        platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
+        repositories: List<String> = listOf(REDIRECTOR_MAVEN_CENTRAL),
+        verifyMessages: Boolean = true,
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+    ): DependencyNode {
+        val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
+        if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
+        val expected = goldenFile.readText().replace("\r\n", "\n").trim()
+        return doTest(
+            testInfo,
+            listOf(dependency),
+            scope,
+            platform,
+            repositories,
+            verifyMessages,
+            expected,
+            cacheBuilder,
+            filterMessages
+        )
+    }
 
     protected fun doTest(
         testInfo: TestInfo,
@@ -127,7 +158,7 @@ abstract class BaseDRTest {
     }
 
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
-        assertEquals(expected, root.prettyPrint().trimEnd())
+        assertEqualsWithDiff(expected.trimEnd().lines(), root.prettyPrint().trimEnd().lines())
 
     protected fun List<String>.toRootNode(context: Context) =
         DependencyNodeHolder(name = "root", children = map { it.toMavenNode(context) }, context)
@@ -142,7 +173,7 @@ abstract class BaseDRTest {
     }
 
     protected fun assertFiles(
-        files: String, root: DependencyNode,
+        files: List<String>, root: DependencyNode,
         withSources: Boolean = false,
         checkExistence: Boolean = false,// could be set to true only in case dependency files were downloaded by caller already
         checkAutoAddedDocumentation: Boolean = true // auto-added documentation files are skipped fom check if this flag is false.
@@ -155,7 +186,7 @@ abstract class BaseDRTest {
             .sortedBy { it.name }
             .toSet()
             .let {
-                assertEquals(files, it.joinToString("\n") { it.name })
+                assertEqualsWithDiff(files, it.map { file -> file.name })
                 if (checkExistence) {
                     it.forEach {
                         check(it.exists()) {
@@ -166,21 +197,69 @@ abstract class BaseDRTest {
             }
     }
 
+    protected fun assertFiles(
+        testInfo: TestInfo,
+        root: DependencyNode,
+        withSources: Boolean = false,
+        checkExistence: Boolean = false,
+        checkAutoAddedDocumentation: Boolean = true,
+    ) {
+        val fileList = testDataPath / "${testInfo.nameToGoldenFile()}.files.txt"
+        if (!fileList.exists()) fail("Golden file with the downloaded files '$fileList' doesn't exist")
+        val expected = fileList.readText().trim().lines()
+        assertFiles(expected, root, withSources, checkExistence, checkAutoAddedDocumentation)
+    }
+
     protected suspend fun downloadAndAssertFiles(
-        files: String, root: DependencyNode, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true,
+        testInfo: TestInfo,
+        root: DependencyNode,
+        withSources: Boolean = false,
+        checkAutoAddedDocumentation: Boolean = true,
+        verifyMessages: Boolean = false,
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+    ) {
+        downloadDependencies(root, withSources, verifyMessages, filterMessages)
+        assertFiles(
+            testInfo,
+            root,
+            withSources,
+            checkExistence = true,
+            checkAutoAddedDocumentation = checkAutoAddedDocumentation
+        )
+    }
+
+    protected suspend fun downloadAndAssertFiles(
+        files: List<String>, root: DependencyNode, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true,
         verifyMessages: Boolean = false, filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+    ) {
+        downloadDependencies(root, withSources, verifyMessages, filterMessages)
+        assertFiles(
+            files,
+            root,
+            withSources,
+            checkExistence = true,
+            checkAutoAddedDocumentation = checkAutoAddedDocumentation
+        )
+    }
+
+    private suspend fun downloadDependencies(
+        root: DependencyNode,
+        withSources: Boolean,
+        verifyMessages: Boolean,
+        filterMessages: List<Message>.() -> List<Message>
     ) {
         Resolver().downloadDependencies(root, withSources)
         if (verifyMessages) {
             root.verifyMessages(filterMessages)
         }
-        assertFiles(files, root, withSources, checkExistence = true,  checkAutoAddedDocumentation = checkAutoAddedDocumentation)
     }
 
     companion object {
         internal const val REDIRECTOR_MAVEN_CENTRAL = "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2"
-        internal const val REDIRECTOR_INTELLIJ_SNAPSHOTS = "https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/snapshots"
-        internal const val REDIRECTOR_INTELLIJ_DEPS = "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies"
+        internal const val REDIRECTOR_INTELLIJ_SNAPSHOTS =
+            "https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/snapshots"
+        internal const val REDIRECTOR_INTELLIJ_DEPS =
+            "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies"
         internal const val REDIRECTOR_MAVEN_GOOGLE = "https://cache-redirector.jetbrains.com/maven.google.com"
         internal const val REDIRECTOR_DL_GOOGLE_ANDROID =
             "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2"

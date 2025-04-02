@@ -1,0 +1,71 @@
+root
+\--- org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.10
+     \--- org.jetbrains.compose.desktop:desktop:1.5.10
+          \--- org.jetbrains.compose.desktop:desktop-jvm:1.5.10
+               +--- org.jetbrains.compose.foundation:foundation:1.5.10
+               |    \--- org.jetbrains.compose.foundation:foundation-desktop:1.5.10
+               |         +--- org.jetbrains.compose.animation:animation:1.5.10
+               |         |    \--- org.jetbrains.compose.animation:animation-desktop:1.5.10
+               |         |         +--- org.jetbrains.compose.animation:animation-core:1.5.10
+               |         |         |    \--- org.jetbrains.compose.animation:animation-core-desktop:1.5.10
+               |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+               |         |         |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4
+               |         |         |                   +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
+               |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 -> 1.8.20
+               |         |         |                   |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20
+               |         |         |                   |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20
+               |         |         |                   |    |    \--- org.jetbrains:annotations:13.0
+               |         |         |                   |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20
+               |         |         |                   |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 (*)
+               |         |         |                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21 -> 1.8.20
+               |         |         +--- org.jetbrains.compose.foundation:foundation-layout:1.5.10
+               |         |         |    \--- org.jetbrains.compose.foundation:foundation-layout-desktop:1.5.10
+               |         |         |         \--- org.jetbrains.compose.ui:ui:1.5.10
+               |         |         |              \--- org.jetbrains.compose.ui:ui-desktop:1.5.10
+               |         |         |                   +--- org.jetbrains.compose.runtime:runtime-saveable:1.5.10
+               |         |         |                   |    \--- org.jetbrains.compose.runtime:runtime-saveable-desktop:1.5.10
+               |         |         |                   |         \--- org.jetbrains.compose.runtime:runtime:1.5.10
+               |         |         |                   |              \--- org.jetbrains.compose.runtime:runtime-desktop:1.5.10
+               |         |         |                   |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+               |         |         |                   +--- org.jetbrains.compose.ui:ui-geometry:1.5.10
+               |         |         |                   |    \--- org.jetbrains.compose.ui:ui-geometry-desktop:1.5.10
+               |         |         |                   +--- org.jetbrains.compose.ui:ui-graphics:1.5.10
+               |         |         |                   |    \--- org.jetbrains.compose.ui:ui-graphics-desktop:1.5.10
+               |         |         |                   |         +--- org.jetbrains.compose.ui:ui-unit:1.5.10
+               |         |         |                   |         |    \--- org.jetbrains.compose.ui:ui-unit-desktop:1.5.10
+               |         |         |                   |         |         \--- org.jetbrains.compose.ui:ui-geometry:1.5.10 (*)
+               |         |         |                   |         \--- org.jetbrains.skiko:skiko:0.7.85
+               |         |         |                   |              \--- org.jetbrains.skiko:skiko-awt:0.7.85
+               |         |         |                   |                   \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 (*)
+               |         |         |                   +--- org.jetbrains.compose.ui:ui-text:1.5.10
+               |         |         |                   |    \--- org.jetbrains.compose.ui:ui-text-desktop:1.5.10
+               |         |         |                   |         +--- org.jetbrains.compose.ui:ui-graphics:1.5.10 (*)
+               |         |         |                   |         +--- org.jetbrains.compose.ui:ui-unit:1.5.10 (*)
+               |         |         |                   |         \--- org.jetbrains.skiko:skiko:0.7.85 (*)
+               |         |         |                   +--- org.jetbrains.compose.ui:ui-unit:1.5.10 (*)
+               |         |         |                   \--- org.jetbrains.skiko:skiko:0.7.85 (*)
+               |         |         +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+               |         |         +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+               |         |         \--- org.jetbrains.compose.ui:ui-geometry:1.5.10 (*)
+               |         +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+               |         +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+               |         \--- org.jetbrains.skiko:skiko:0.7.85 (*)
+               +--- org.jetbrains.compose.material:material:1.5.10
+               |    \--- org.jetbrains.compose.material:material-desktop:1.5.10
+               |         +--- org.jetbrains.compose.animation:animation-core:1.5.10 (*)
+               |         +--- org.jetbrains.compose.foundation:foundation:1.5.10 (*)
+               |         +--- org.jetbrains.compose.material:material-icons-core:1.5.10
+               |         |    \--- org.jetbrains.compose.material:material-icons-core-desktop:1.5.10
+               |         |         \--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+               |         +--- org.jetbrains.compose.material:material-ripple:1.5.10
+               |         |    \--- org.jetbrains.compose.material:material-ripple-desktop:1.5.10
+               |         |         +--- org.jetbrains.compose.foundation:foundation:1.5.10 (*)
+               |         |         \--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+               |         +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+               |         +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+               |         \--- org.jetbrains.compose.ui:ui-text:1.5.10 (*)
+               +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+               +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+               \--- org.jetbrains.compose.ui:ui-tooling-preview:1.5.10
+                    \--- org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.5.10
+                         \--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)

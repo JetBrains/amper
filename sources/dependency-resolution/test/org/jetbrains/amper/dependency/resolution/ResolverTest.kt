@@ -51,12 +51,14 @@ class ResolverTest: BaseDRTest() {
             )
 
             downloadAndAssertFiles(
-                """apiguardian-api-1.1.0.jar
-                |junit-jupiter-api-5.7.2.jar
-                |junit-jupiter-params-5.7.2-all.jar
-                |junit-jupiter-params-5.7.2.jar
-                |junit-platform-commons-1.7.2.jar
-                |opentest4j-1.2.0.jar""".trimMargin(),
+                listOf(
+                    "apiguardian-api-1.1.0.jar",
+                    "junit-jupiter-api-5.7.2.jar",
+                    "junit-jupiter-params-5.7.2-all.jar",
+                    "junit-jupiter-params-5.7.2.jar",
+                    "junit-platform-commons-1.7.2.jar",
+                    "opentest4j-1.2.0.jar",
+                ),
                 root
             )
         }
@@ -83,22 +85,23 @@ class ResolverTest: BaseDRTest() {
 
         runBlocking {
             downloadAndAssertFiles(
+                listOf(
+                    "atomicfu-commonMain-0.23.1-sources.jar",
+                    "atomicfu-commonMain-0.23.1.klib",
+                    "atomicfu-nativeMain-0.23.1-sources.jar",
+                    "atomicfu-nativeMain-0.23.1.klib",
+                    "kotlin-stdlib-commonMain-1.9.21-sources.jar",
+                    "kotlin-stdlib-commonMain-1.9.21.klib",
+                    "kotlinx-coroutines-core-commonMain-1.8.0-sources.jar",
+                    "kotlinx-coroutines-core-commonMain-1.8.0.klib",
+                    "kotlinx-coroutines-core-concurrentMain-1.8.0-sources.jar",
+                    "kotlinx-coroutines-core-concurrentMain-1.8.0.klib",
+                    "kotlinx-coroutines-core-nativeDarwinMain-1.8.0-sources.jar",
+                    "kotlinx-coroutines-core-nativeDarwinMain-1.8.0.klib",
+                    "kotlinx-coroutines-core-nativeMain-1.8.0-sources.jar",
+                    "kotlinx-coroutines-core-nativeMain-1.8.0.klib",
+                ),
                 withSources = true,
-                files = """
-                    |atomicfu-commonMain-0.23.1-sources.jar
-                    |atomicfu-commonMain-0.23.1.klib
-                    |atomicfu-nativeMain-0.23.1-sources.jar
-                    |atomicfu-nativeMain-0.23.1.klib
-                    |kotlin-stdlib-commonMain-1.9.21-sources.jar
-                    |kotlin-stdlib-commonMain-1.9.21.klib
-                    |kotlinx-coroutines-core-commonMain-1.8.0-sources.jar
-                    |kotlinx-coroutines-core-commonMain-1.8.0.klib
-                    |kotlinx-coroutines-core-concurrentMain-1.8.0-sources.jar
-                    |kotlinx-coroutines-core-concurrentMain-1.8.0.klib
-                    |kotlinx-coroutines-core-nativeDarwinMain-1.8.0-sources.jar
-                    |kotlinx-coroutines-core-nativeDarwinMain-1.8.0.klib
-                    |kotlinx-coroutines-core-nativeMain-1.8.0-sources.jar
-                    |kotlinx-coroutines-core-nativeMain-1.8.0.klib""".trimMargin(),
                 root = root
             )
         }
@@ -121,10 +124,11 @@ class ResolverTest: BaseDRTest() {
 
         runBlocking {
             downloadAndAssertFiles(
+                listOf(
+                    "jackson-core-2.17.2-sources.jar",
+                    "jackson-core-2.17.2.jar",
+                ),
                 withSources = true,
-                files = """
-                    |jackson-core-2.17.2-sources.jar
-                    |jackson-core-2.17.2.jar""".trimMargin(),
                 root = root
             )
         }
