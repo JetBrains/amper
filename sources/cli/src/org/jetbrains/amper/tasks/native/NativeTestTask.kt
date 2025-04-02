@@ -21,6 +21,7 @@ import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
+import org.slf4j.LoggerFactory
 import kotlin.io.path.pathString
 
 class NativeTestTask(
@@ -30,6 +31,9 @@ class NativeTestTask(
     private val commonRunSettings: CommonRunSettings,
     override val platform: Platform,
 ) : TestTask {
+
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         DeadLockMonitor.disable()
 
@@ -41,6 +45,8 @@ class NativeTestTask(
         return spanBuilder("native-test")
             .setAttribute("executable", executable.pathString)
             .use { span ->
+                logger.info("Testing module '${module.userReadableName}' for platform '${platform.pretty}'...")
+
                 val workingDir = module.source.moduleDir ?: projectRoot.path
 
                 val result = BuildPrimitives.runProcessAndGetOutput(

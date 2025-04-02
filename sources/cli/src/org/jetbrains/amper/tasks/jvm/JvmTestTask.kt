@@ -169,6 +169,8 @@ class JvmTestTask(
                 .setListAttribute("jvm-args", jvmArgs)
                 .setListAttribute("junit-args", junitArgs)
                 .use { span ->
+                    logger.info("Testing module '${module.userReadableName}' for platform '${platform.pretty}'...")
+
                     DeadLockMonitor.disable()
 
                     val result = BuildPrimitives.runProcessAndGetOutput(
