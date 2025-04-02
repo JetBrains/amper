@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.detailedMessage
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
@@ -16,16 +17,40 @@ import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.assertEqualsWithDiff
+import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
+import kotlin.io.path.readText
 import kotlin.sequences.forEach
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 abstract class BaseModuleDrTest {
-
+    protected open val testGoldenFilesRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/goldenFiles")
     protected val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
+
+    private val defaultMessagesCheck: (DependencyNode) -> Unit = { node ->
+        val messages = node.messages.defaultFilterMessages()
+        assertTrue(messages.isEmpty(), "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}")
+    }
+
+    protected suspend fun doTestByFile(
+        testInfo: TestInfo,
+        aom: Model,
+        resolutionInput: ResolutionInput,
+        verifyMessages: Boolean = true,
+        module: String? = null,
+        fragment: String? = null,
+        messagesCheck: (DependencyNode) -> Unit = defaultMessagesCheck
+    ): DependencyNode {
+        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.tree.txt"
+        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for resolved tree")
+        return doTest(aom, resolutionInput, verifyMessages, expected, module, fragment, messagesCheck)
+    }
 
     protected suspend fun doTest(
         aom: Model,
@@ -34,10 +59,7 @@ abstract class BaseModuleDrTest {
         @Language("text") expected: String? = null,
         module: String? = null,
         fragment: String? = null,
-        messagesCheck: (DependencyNode) -> Unit = { node ->
-            val messages = node.messages.defaultFilterMessages()
-            assertTrue(messages.isEmpty(), "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}")
-        }
+        messagesCheck: (DependencyNode) -> Unit = defaultMessagesCheck
     ): DependencyNode {
         val resolutionInputCopy = resolutionInput.copy(fileCacheBuilder = cacheBuilder(Dirs.userCacheRoot))
 
@@ -71,10 +93,10 @@ abstract class BaseModuleDrTest {
     }
 
     protected fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
-        assertEquals(expected, root.prettyPrint().trimEnd())
+        assertEqualsWithDiff(expected.trimEnd().lines(), root.prettyPrint().trimEnd().lines())
 
     protected suspend fun downloadAndAssertFiles(
-        files: String,
+        files: List<String>,
         root: DependencyNode,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true
@@ -89,9 +111,21 @@ abstract class BaseModuleDrTest {
         )
     }
 
+    protected fun assertFiles(
+        testInfo: TestInfo,
+        root: DependencyNode,
+        withSources: Boolean = false,
+        checkExistence: Boolean = false,
+        checkAutoAddedDocumentation: Boolean = true
+    ) {
+        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.files.txt"
+        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for files")
+        assertFiles(expected.trim().lines(), root, withSources, checkExistence, checkAutoAddedDocumentation)
+    }
+
     // todo (AB) : Reuse utility methods from dependence-resolution test module
     protected fun assertFiles(
-        files: String, root: DependencyNode,
+        files: List<String>, root: DependencyNode,
         withSources: Boolean = false,
         checkExistence: Boolean = false,// could be set to true only in case dependency files were downloaded by caller already
         checkAutoAddedDocumentation: Boolean = true // auto-added documentation files are skipped fom check if this flag is false.
@@ -104,7 +138,7 @@ abstract class BaseModuleDrTest {
             .sortedBy { it.name }
             .toSet()
             .let {
-                assertEquals(files, it.joinToString("\n") { it.name })
+                assertEqualsWithDiff(files, it.map { file -> file.name })
                 if (checkExistence) {
                     it.forEach {
                         check(it.exists()) {
@@ -113,6 +147,15 @@ abstract class BaseModuleDrTest {
                     }
                 }
             }
+    }
+
+    protected fun getGoldenFileText(fileName: String, fileDescription: String): String {
+        val goldenFile = testGoldenFilesRoot / fileName
+        if (!goldenFile.exists()) fail("$fileDescription $goldenFile doesn't exist")
+        return goldenFile
+            .readText()
+            .replace("#kotlinVersion", UsedVersions.kotlinVersion)
+            .trim()
     }
 
     companion object {

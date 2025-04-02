@@ -90,14 +90,14 @@ class DiagnosticsTest : BaseModuleDrTest() {
 
         runBlocking {
             downloadAndAssertFiles(
-                files = """
-                |annotations-13.0.jar
-                |hamcrest-core-1.3.jar
-                |junit-4.13.2.jar
-                |kotlin-stdlib-${UsedVersions.kotlinVersion}.jar
-                |kotlin-test-${UsedVersions.kotlinVersion}.jar
-                |kotlin-test-junit-${UsedVersions.kotlinVersion}.jar
-                """.trimMargin(),
+                listOf(
+                    "annotations-13.0.jar",
+                    "hamcrest-core-1.3.jar",
+                    "junit-4.13.2.jar",
+                    "kotlin-stdlib-${UsedVersions.kotlinVersion}.jar",
+                    "kotlin-test-${UsedVersions.kotlinVersion}.jar",
+                    "kotlin-test-junit-${UsedVersions.kotlinVersion}.jar",
+                ),
                 sharedTestFragmentDeps
             )
         }
