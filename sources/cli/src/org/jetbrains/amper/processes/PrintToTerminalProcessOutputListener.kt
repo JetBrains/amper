@@ -6,12 +6,27 @@ package org.jetbrains.amper.processes
 
 import com.github.ajalt.mordant.terminal.Terminal
 
+/**
+ * A [ProcessOutputListener] that writes the output through the Mordant [terminal].
+ * This plays nice with the Mordant widgets we're using, such as task progress indicators.
+ *
+ * Using the raw stdout/stderr would interlace with the task progress widgets and break them.
+ *
+ * Note: the Mordant terminal is used in a way that respects the process's output (\t chars are not replaced with
+ * a variable number of spaces, and ANSI codes are printed as-is without escaping).
+ */
 open class PrintToTerminalProcessOutputListener(private val terminal: Terminal) : ProcessOutputListener {
     override fun onStdoutLine(line: String, pid: Long) {
-        terminal.println(line)
+        // Using rawPrint instead of println because we don't want to modify the output of the process.
+        // Terminal.println would replace \t with a variable number of spaces, and escape ANSI codes.
+        terminal.rawPrint(line)
+        terminal.println() // we still want a line break
     }
 
     override fun onStderrLine(line: String, pid: Long) {
-        terminal.println(line, stderr = true)
+        // Using rawPrint instead of println because we don't want to modify the output of the process.
+        // Terminal.println would replace \t with a variable number of spaces, and escape ANSI codes.
+        terminal.rawPrint(line, stderr = true)
+        terminal.println(stderr = true) // we still want a line break
     }
 }

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.native
 
+import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
@@ -13,7 +14,7 @@ import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.processes.ProcessOutputListener
+import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestResultsFormat
@@ -30,6 +31,7 @@ class NativeTestTask(
     private val projectRoot: AmperProjectRoot,
     private val commonRunSettings: CommonRunSettings,
     override val platform: Platform,
+    private val terminal: Terminal,
 ) : TestTask {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -64,10 +66,7 @@ class NativeTestTask(
                         add("--ktest_logger=$ktestLogger")
                     },
                     span = span,
-                    // We need to respect the exact output of the tests, so we shouldn't go through the Mordant
-                    // terminal, because it processes line wrapping and tab conversions to spaces with tab stops.
-                    // This can break TeamCity messages for instance.
-                    outputListener = ProcessOutputListener.Streaming(),
+                    outputListener = PrintToTerminalProcessOutputListener(terminal),
                 )
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' with exit code ${result.exitCode} (see errors above)")

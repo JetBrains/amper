@@ -177,14 +177,7 @@ class JvmTestTask(
                         workingDir = workingDirectory,
                         command = jvmCommand,
                         span = span,
-                        // Using the Mordant terminal allows streaming the output among the logs, respecting the task
-                        // progress cells. However, it also converts tab characters to spaces with tab stops.
-                        // When using the TeamCity format, we need to respect the tab characters and cannot use Mordant,
-                        // so we sacrifice the human-readable output and accept to "break" the task progress.
-                        outputListener = when (commonRunSettings.testResultsFormat) {
-                            TestResultsFormat.Pretty -> PrintToTerminalProcessOutputListener(terminal)
-                            TestResultsFormat.TeamCity -> ProcessOutputListener.Streaming()
-                        },
+                        outputListener = PrintToTerminalProcessOutputListener(terminal),
                     )
 
                     // TODO exit code from junit launcher should be carefully become some kind of exit code for entire Amper run
