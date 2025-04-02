@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.dependency.resolution
 
@@ -485,7 +485,7 @@ interface DependencyNode {
         if (indent.isNotEmpty()) {
             indent.setLength(indent.length - 5)
             if (addLevel) {
-                indent.append("|    ")
+                indent.append("│    ")
             } else {
                 indent.append("     ")
             }
@@ -497,9 +497,9 @@ interface DependencyNode {
                 filteredNodes.forEachIndexed { i, it ->
                     val addAnotherLevel = i < filteredNodes.size - 1
                     if (addAnotherLevel) {
-                        indent.append("+--- ")
+                        indent.append("├─── ")
                     } else {
-                        indent.append("\\--- ")
+                        indent.append("╰─── ")
                     }
                     it.prettyPrint(builder, allMavenDepsKeys, indent, visited, addAnotherLevel)
                     indent.setLength(indent.length - 5)

@@ -31,7 +31,7 @@ import kotlin.io.path.exists
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class LocalRepositoryTest: BaseDRTest() {
+class LocalRepositoryTest : BaseDRTest() {
     @TempDir
     lateinit var cacheRoot: Path
 
@@ -89,11 +89,12 @@ class LocalRepositoryTest: BaseDRTest() {
             // Corrupt JAR file stored in maven local storage, => it should be re-downloaded
             updateLocalRepository = { gradleLocalRepository ->
                 val gradleLocalPath = (gradleLocalRepository as GradleLocalRepository).filesPath
-                val atomicfuJarPath = gradleLocalPath.resolve("org.jetbrains.kotlinx/atomicfu-jvm/0.23.2/a4601dc42dceb031a586058e8356ff778a57dea0/atomicfu-jvm-0.23.2.jar")
+                val atomicfuJarPath =
+                    gradleLocalPath.resolve("org.jetbrains.kotlinx/atomicfu-jvm/0.23.2/a4601dc42dceb031a586058e8356ff778a57dea0/atomicfu-jvm-0.23.2.jar")
                 assertTrue(atomicfuJarPath.exists())
                 atomicfuJarPath.appendText("No artifact from local storage have incorrect checksum and should be ignored")
             },
-            initLocalRepository = { cacheRoot ->  initEtalonGradleLocalStorage(cacheRoot) }
+            initLocalRepository = { cacheRoot -> initEtalonGradleLocalStorage(cacheRoot) }
         )
     }
 
@@ -114,11 +115,12 @@ class LocalRepositoryTest: BaseDRTest() {
             // Corrupt JAR file stored in maven local storage, => it should be re-downloaded
             updateLocalRepository = { mavenLocalRepository ->
                 val mavenLocalPath = (mavenLocalRepository as MavenLocalRepository).repository
-                val atomicfuJarPath = mavenLocalPath.resolve("org/jetbrains/kotlinx/atomicfu-jvm/0.23.2/atomicfu-jvm-0.23.2.jar")
+                val atomicfuJarPath =
+                    mavenLocalPath.resolve("org/jetbrains/kotlinx/atomicfu-jvm/0.23.2/atomicfu-jvm-0.23.2.jar")
                 assertTrue(atomicfuJarPath.exists())
                 atomicfuJarPath.appendText("No artifact from local storage have incorrect checksum and should be ignored")
             },
-            initLocalRepository = { cacheRoot ->  initEtalonMavenLocalStorage(cacheRoot) }
+            initLocalRepository = { cacheRoot -> initEtalonMavenLocalStorage(cacheRoot) }
         )
     }
 
@@ -158,8 +160,10 @@ class LocalRepositoryTest: BaseDRTest() {
         runBlocking {
             doTest(
                 root,
-                expected = """root
-        |\--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2""".trimMargin()
+                expected = """
+                root
+                ╰─── org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
+                """.trimIndent()
             )
 
             downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
@@ -173,7 +177,8 @@ class LocalRepositoryTest: BaseDRTest() {
         initLocalRepository: (Path) -> LocalRepository = { cacheRoot -> initEtalonMavenLocalStorage(cacheRoot) }
     ) {
         val atomicfuCoordinates = "org.jetbrains.kotlinx:atomicfu-jvm:0.23.2"
-        val urlPrefix = "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2/org/jetbrains/kotlinx/atomicfu-jvm/0.23.2"
+        val urlPrefix =
+            "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2/org/jetbrains/kotlinx/atomicfu-jvm/0.23.2"
 
         // Installing maven local repository at the custom location
         val localExternalRepository = initLocalRepository(cacheRoot)
@@ -194,14 +199,18 @@ class LocalRepositoryTest: BaseDRTest() {
         updateLocalRepository(localExternalRepository)
 
         assertFalse(
-            (cache.localRepository as MavenLocalRepository).repository.resolve("org/jetbrains/kotlinx/atomicfu-jvm").exists(),
-            "Local repository should not contain atomicfu-jvm")
+            (cache.localRepository as MavenLocalRepository).repository.resolve("org/jetbrains/kotlinx/atomicfu-jvm")
+                .exists(),
+            "Local repository should not contain atomicfu-jvm"
+        )
 
         runBlocking {
             doTest(
                 root,
-                expected = """root
-                        |\--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2""".trimMargin()
+                expected = """
+                    root
+                    ╰─── org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
+                """.trimIndent()
             )
         }
 
@@ -215,10 +224,12 @@ class LocalRepositoryTest: BaseDRTest() {
             downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
         }
 
-        val notDownloaded = filesThatMustBeDownloaded.filterNot { URI.create("$urlPrefix/$it") in httpClient.processedUrls }
+        val notDownloaded =
+            filesThatMustBeDownloaded.filterNot { URI.create("$urlPrefix/$it") in httpClient.processedUrls }
         assertTrue(
             notDownloaded.isEmpty(),
-            "The following artifacts should have been downloaded, but they were not: ${notDownloaded.joinToString("\n")}")
+            "The following artifacts should have been downloaded, but they were not: ${notDownloaded.joinToString("\n")}"
+        )
     }
 
     /**

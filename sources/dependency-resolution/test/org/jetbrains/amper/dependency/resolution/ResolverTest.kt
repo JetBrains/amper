@@ -25,28 +25,29 @@ class ResolverTest: BaseDRTest() {
         runBlocking {
             doTest(
                 root,
-                expected = """root
-                |+--- org.junit.jupiter:junit-jupiter-params:5.7.2
-                ||    +--- org.junit:junit-bom:5.7.2
-                ||    +--- org.apiguardian:apiguardian-api:1.1.0
-                ||    \--- org.junit.jupiter:junit-jupiter-api:5.7.2
-                ||         +--- org.junit:junit-bom:5.7.2
-                ||         +--- org.apiguardian:apiguardian-api:1.1.0
-                ||         +--- org.opentest4j:opentest4j:1.2.0
-                ||         \--- org.junit.platform:junit-platform-commons:1.7.2
-                ||              +--- org.junit:junit-bom:5.7.2
-                ||              \--- org.apiguardian:apiguardian-api:1.1.0
-                |\--- org.junit.jupiter:junit-jupiter-params:5.7.2
-                |     +--- org.junit:junit-bom:5.7.2
-                |     +--- org.apiguardian:apiguardian-api:1.1.0
-                |     \--- org.junit.jupiter:junit-jupiter-api:5.7.2
-                |          +--- org.junit:junit-bom:5.7.2
-                |          +--- org.apiguardian:apiguardian-api:1.1.0
-                |          +--- org.opentest4j:opentest4j:1.2.0
-                |          \--- org.junit.platform:junit-platform-commons:1.7.2
-                |               +--- org.junit:junit-bom:5.7.2
-                |               \--- org.apiguardian:apiguardian-api:1.1.0
-            """.trimMargin(),
+                expected = """
+                root
+                ├─── org.junit.jupiter:junit-jupiter-params:5.7.2
+                │    ├─── org.junit:junit-bom:5.7.2
+                │    ├─── org.apiguardian:apiguardian-api:1.1.0
+                │    ╰─── org.junit.jupiter:junit-jupiter-api:5.7.2
+                │         ├─── org.junit:junit-bom:5.7.2
+                │         ├─── org.apiguardian:apiguardian-api:1.1.0
+                │         ├─── org.opentest4j:opentest4j:1.2.0
+                │         ╰─── org.junit.platform:junit-platform-commons:1.7.2
+                │              ├─── org.junit:junit-bom:5.7.2
+                │              ╰─── org.apiguardian:apiguardian-api:1.1.0
+                ╰─── org.junit.jupiter:junit-jupiter-params:5.7.2
+                     ├─── org.junit:junit-bom:5.7.2
+                     ├─── org.apiguardian:apiguardian-api:1.1.0
+                     ╰─── org.junit.jupiter:junit-jupiter-api:5.7.2
+                          ├─── org.junit:junit-bom:5.7.2
+                          ├─── org.apiguardian:apiguardian-api:1.1.0
+                          ├─── org.opentest4j:opentest4j:1.2.0
+                          ╰─── org.junit.platform:junit-platform-commons:1.7.2
+                               ├─── org.junit:junit-bom:5.7.2
+                               ╰─── org.apiguardian:apiguardian-api:1.1.0
+                """.trimIndent(),
                 verifyMessages = false
             )
 
@@ -72,14 +73,15 @@ class ResolverTest: BaseDRTest() {
             testInfo,
             dependency = listOf(kmpLibrary),
             platform = setOf(ResolutionPlatform.IOS_ARM64, ResolutionPlatform.IOS_SIMULATOR_ARM64),
-            expected = """root
-                |\--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-                |     +--- org.jetbrains.kotlinx:atomicfu:0.23.1
-                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
-                |     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21
-                |     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
-                |     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
-            """.trimMargin(),
+            expected = """
+                root
+                ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+                     ├─── org.jetbrains.kotlinx:atomicfu:0.23.1
+                     │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21
+                     │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+            """.trimIndent(),
             verifyMessages = false,
         )
 
@@ -115,10 +117,11 @@ class ResolverTest: BaseDRTest() {
             testInfo,
             dependency = listOf(library),
             platform = setOf(ResolutionPlatform.JVM),
-            expected = """root
-                |\--- com.fasterxml.jackson.core:jackson-core:2.17.2
-                |     \--- com.fasterxml.jackson:jackson-bom:2.17.2
-            """.trimMargin(),
+            expected = """
+                root
+                ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2
+                     ╰─── com.fasterxml.jackson:jackson-bom:2.17.2
+            """.trimIndent(),
             verifyMessages = false,
         )
 
@@ -142,9 +145,10 @@ class ResolverTest: BaseDRTest() {
             testInfo,
             dependency = listOf(library),
             platform = setOf(ResolutionPlatform.JVM),
-            expected = """root
-                |\--- com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared
-            """.trimMargin(),
+            expected = """
+                root
+                ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared
+            """.trimIndent(),
             verifyMessages = false,
         )
 

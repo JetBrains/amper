@@ -44,38 +44,40 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
                 ),
                 module = "shared",
-                expected = """module:shared
-                    |+--- shared:common:org.jetbrains.compose.foundation:foundation:12.12.12
-                    ||    \--- org.jetbrains.compose.foundation:foundation:12.12.12
-                    |+--- shared:common:org.jetbrains.compose.material3:material3:12.12.12
-                    ||    \--- org.jetbrains.compose.material3:material3:12.12.12
-                    |+--- shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    ||    \--- org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    |+--- shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
-                    ||         \--- org.jetbrains:annotations:13.0
-                    |+--- shared:common:org.jetbrains.compose.runtime:runtime:12.12.12
-                    ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
-                    |+--- shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    |+--- shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
-                    ||         +--- org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
-                    ||         |    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ||         \--- junit:junit:4.13.2
-                    ||              \--- org.hamcrest:hamcrest-core:1.3
-                    |+--- shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12
-                    ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
-                    |+--- shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    |+--- shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
-                    ||    \--- org.jetbrains.compose.runtime:runtime:12.12.12
-                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    |+--- shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                    ||    \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)
-                    |\--- shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
-                    |     \--- org.jetbrains.compose.runtime:runtime:12.12.12""".trimMargin(),
+                expected = """
+                    module:shared
+                    ├─── shared:common:org.jetbrains.compose.foundation:foundation:12.12.12
+                    │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
+                    ├─── shared:common:org.jetbrains.compose.material3:material3:12.12.12
+                    │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
+                    ├─── shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                    │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                    ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                    │         ╰─── org.jetbrains:annotations:13.0
+                    ├─── shared:common:org.jetbrains.compose.runtime:runtime:12.12.12
+                    │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                    ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                    ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
+                    │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
+                    │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                    │         ╰─── junit:junit:4.13.2
+                    │              ╰─── org.hamcrest:hamcrest-core:1.3
+                    ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12
+                    │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                    ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                    ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
+                    │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                    ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                    ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)
+                    ╰─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
+                         ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                    """.trimIndent(),
                 messagesCheck = { node ->
                     if (!assertDependencyError(node, "org.jetbrains.compose.foundation", "foundation")
                         && !assertDependencyError(node, "org.jetbrains.compose.material3", "material3")
@@ -155,20 +157,22 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 ),
                 module = "jvm-invalid-dependencies",
                 fragment = "common",
-                expected = """Fragment 'jvm-invalid-dependencies.common' dependencies
-                    |+--- jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
-                    ||    \--- com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
-                    |+--- jvm-invalid-dependencies:common:com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
-                    ||    \--- com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
-                    |+--- jvm-invalid-dependencies:common:com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
-                    ||    \--- com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
-                    |+--- jvm-invalid-dependencies:common:com.fasterxml.jackson.core, unresolved
-                    ||    \--- com.fasterxml.jackson.core, unresolved
-                    |+--- jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
-                    ||    \--- com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
-                    |\--- jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    |     \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
-                    |          \--- org.jetbrains:annotations:13.0""".trimMargin(),
+                expected = """
+                    Fragment 'jvm-invalid-dependencies.common' dependencies
+                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
+                    │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
+                    ├─── jvm-invalid-dependencies:common:com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
+                    │    ╰─── com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
+                    ├─── jvm-invalid-dependencies:common:com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
+                    │    ╰─── com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
+                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core, unresolved
+                    │    ╰─── com.fasterxml.jackson.core, unresolved
+                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
+                    │    ╰─── com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
+                    ╰─── jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                         ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                              ╰─── org.jetbrains:annotations:13.0
+                """.trimIndent(),
                 verifyMessages = false
             )
         }

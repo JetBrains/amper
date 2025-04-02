@@ -35,15 +35,15 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.18.2
-                     +--- com.fasterxml.jackson.core:jackson-core:2.18.2
-                     |    \--- com.fasterxml.jackson:jackson-bom:2.18.2
-                     +--- com.fasterxml.jackson.core:jackson-databind:2.18.2
-                     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.18.2
-                     |    |    \--- com.fasterxml.jackson:jackson-bom:2.18.2
-                     |    +--- com.fasterxml.jackson.core:jackson-core:2.18.2 (*)
-                     |    \--- com.fasterxml.jackson:jackson-bom:2.18.2
-                     \--- com.fasterxml.jackson:jackson-bom:2.18.2
+                ╰─── com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.18.2
+                     ├─── com.fasterxml.jackson.core:jackson-core:2.18.2
+                     │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.2
+                     ├─── com.fasterxml.jackson.core:jackson-databind:2.18.2
+                     │    ├─── com.fasterxml.jackson.core:jackson-annotations:2.18.2
+                     │    │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.2
+                     │    ├─── com.fasterxml.jackson.core:jackson-core:2.18.2 (*)
+                     │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.2
+                     ╰─── com.fasterxml.jackson:jackson-bom:2.18.2
             """.trimIndent()
         )
         runBlocking {
@@ -89,40 +89,40 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- org.springframework.data:spring-data-jpa:3.4.2
-                     +--- org.springframework.data:spring-data-commons:3.4.2
-                     |    +--- org.springframework:spring-core:6.2.2
-                     |    |    \--- org.springframework:spring-jcl:6.2.2
-                     |    +--- org.springframework:spring-beans:6.2.2
-                     |    |    \--- org.springframework:spring-core:6.2.2 (*)
-                     |    \--- org.slf4j:slf4j-api:2.0.2
-                     +--- org.springframework:spring-orm:6.2.2
-                     |    +--- org.springframework:spring-beans:6.2.2 (*)
-                     |    +--- org.springframework:spring-core:6.2.2 (*)
-                     |    +--- org.springframework:spring-jdbc:6.2.2
-                     |    |    +--- org.springframework:spring-beans:6.2.2 (*)
-                     |    |    +--- org.springframework:spring-core:6.2.2 (*)
-                     |    |    \--- org.springframework:spring-tx:6.2.2
-                     |    |         +--- org.springframework:spring-beans:6.2.2 (*)
-                     |    |         \--- org.springframework:spring-core:6.2.2 (*)
-                     |    \--- org.springframework:spring-tx:6.2.2 (*)
-                     +--- org.springframework:spring-context:6.2.2
-                     |    +--- org.springframework:spring-aop:6.2.2
-                     |    |    +--- org.springframework:spring-beans:6.2.2 (*)
-                     |    |    \--- org.springframework:spring-core:6.2.2 (*)
-                     |    +--- org.springframework:spring-beans:6.2.2 (*)
-                     |    +--- org.springframework:spring-core:6.2.2 (*)
-                     |    +--- org.springframework:spring-expression:6.2.2
-                     |    |    \--- org.springframework:spring-core:6.2.2 (*)
-                     |    \--- io.micrometer:micrometer-observation:1.14.3
-                     |         \--- io.micrometer:micrometer-commons:1.14.3
-                     +--- org.springframework:spring-aop:6.2.2 (*)
-                     +--- org.springframework:spring-tx:6.2.2 (*)
-                     +--- org.springframework:spring-beans:6.2.2 (*)
-                     +--- org.springframework:spring-core:6.2.2 (*)
-                     +--- org.antlr:antlr4-runtime:4.13.0
-                     +--- jakarta.annotation:jakarta.annotation-api:2.0.0
-                     \--- org.slf4j:slf4j-api:2.0.2
+                ╰─── org.springframework.data:spring-data-jpa:3.4.2
+                     ├─── org.springframework.data:spring-data-commons:3.4.2
+                     │    ├─── org.springframework:spring-core:6.2.2
+                     │    │    ╰─── org.springframework:spring-jcl:6.2.2
+                     │    ├─── org.springframework:spring-beans:6.2.2
+                     │    │    ╰─── org.springframework:spring-core:6.2.2 (*)
+                     │    ╰─── org.slf4j:slf4j-api:2.0.2
+                     ├─── org.springframework:spring-orm:6.2.2
+                     │    ├─── org.springframework:spring-beans:6.2.2 (*)
+                     │    ├─── org.springframework:spring-core:6.2.2 (*)
+                     │    ├─── org.springframework:spring-jdbc:6.2.2
+                     │    │    ├─── org.springframework:spring-beans:6.2.2 (*)
+                     │    │    ├─── org.springframework:spring-core:6.2.2 (*)
+                     │    │    ╰─── org.springframework:spring-tx:6.2.2
+                     │    │         ├─── org.springframework:spring-beans:6.2.2 (*)
+                     │    │         ╰─── org.springframework:spring-core:6.2.2 (*)
+                     │    ╰─── org.springframework:spring-tx:6.2.2 (*)
+                     ├─── org.springframework:spring-context:6.2.2
+                     │    ├─── org.springframework:spring-aop:6.2.2
+                     │    │    ├─── org.springframework:spring-beans:6.2.2 (*)
+                     │    │    ╰─── org.springframework:spring-core:6.2.2 (*)
+                     │    ├─── org.springframework:spring-beans:6.2.2 (*)
+                     │    ├─── org.springframework:spring-core:6.2.2 (*)
+                     │    ├─── org.springframework:spring-expression:6.2.2
+                     │    │    ╰─── org.springframework:spring-core:6.2.2 (*)
+                     │    ╰─── io.micrometer:micrometer-observation:1.14.3
+                     │         ╰─── io.micrometer:micrometer-commons:1.14.3
+                     ├─── org.springframework:spring-aop:6.2.2 (*)
+                     ├─── org.springframework:spring-tx:6.2.2 (*)
+                     ├─── org.springframework:spring-beans:6.2.2 (*)
+                     ├─── org.springframework:spring-core:6.2.2 (*)
+                     ├─── org.antlr:antlr4-runtime:4.13.0
+                     ├─── jakarta.annotation:jakarta.annotation-api:2.0.0
+                     ╰─── org.slf4j:slf4j-api:2.0.2
             """.trimIndent()
         )
         runBlocking {
@@ -172,10 +172,10 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- org.jetbrains.kotlin:kotlin-test:1.9.10
-                     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.10
-                          +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.10
-                          \--- org.jetbrains:annotations:13.0
+                ╰─── org.jetbrains.kotlin:kotlin-test:1.9.10
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.10
+                          ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.10
+                          ╰─── org.jetbrains:annotations:13.0
             """.trimIndent()
         )
         assertFiles(
@@ -206,7 +206,7 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- org.eclipse.sisu:org.eclipse.sisu.inject:0.3.5
+                ╰─── org.eclipse.sisu:org.eclipse.sisu.inject:0.3.5
             """.trimIndent()
         )
         runBlocking {
@@ -234,9 +234,9 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf("https://jetbrains.team/p/amper/reviews/", REDIRECTOR_MAVEN_CENTRAL),
             expected = """
                 root
-                \--- com.squareup.retrofit2:retrofit:2.11.0
-                     \--- com.squareup.okhttp3:okhttp:3.14.9
-                          \--- com.squareup.okio:okio:1.17.2
+                ╰─── com.squareup.retrofit2:retrofit:2.11.0
+                     ╰─── com.squareup.okhttp3:okhttp:3.14.9
+                          ╰─── com.squareup.okio:okio:1.17.2
             """.trimIndent()
         )
         runBlocking {
@@ -277,14 +277,14 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """
                 root
-                \--- androidx.sqlite:sqlite:2.5.0-alpha11
-                     \--- androidx.sqlite:sqlite-android:2.5.0-alpha11
-                          +--- androidx.annotation:annotation:1.8.1
-                          |    \--- androidx.annotation:annotation-jvm:1.8.1
-                          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 1.8.22
-                          |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22
-                          |              \--- org.jetbrains:annotations:13.0
-                          \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
+                ╰─── androidx.sqlite:sqlite:2.5.0-alpha11
+                     ╰─── androidx.sqlite:sqlite-android:2.5.0-alpha11
+                          ├─── androidx.annotation:annotation:1.8.1
+                          │    ╰─── androidx.annotation:annotation-jvm:1.8.1
+                          │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 1.8.22
+                          │              ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22
+                          │              ╰─── org.jetbrains:annotations:13.0
+                          ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
             """.trimIndent()
         )
         runBlocking {
@@ -312,14 +312,14 @@ class BuildGraphTest : BaseDRTest() {
 
             expected = """
                 root
-                \--- androidx.sqlite:sqlite:2.5.0-alpha11
-                     \--- androidx.sqlite:sqlite-jvm:2.5.0-alpha11
-                          +--- androidx.annotation:annotation:1.8.1
-                          |    \--- androidx.annotation:annotation-jvm:1.8.1
-                          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 1.8.22
-                          |              +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22
-                          |              \--- org.jetbrains:annotations:13.0
-                          \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
+                ╰─── androidx.sqlite:sqlite:2.5.0-alpha11
+                     ╰─── androidx.sqlite:sqlite-jvm:2.5.0-alpha11
+                          ├─── androidx.annotation:annotation:1.8.1
+                          │    ╰─── androidx.annotation:annotation-jvm:1.8.1
+                          │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 1.8.22
+                          │              ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22
+                          │              ╰─── org.jetbrains:annotations:13.0
+                          ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
             """.trimIndent()
         )
         runBlocking {
@@ -344,7 +344,7 @@ class BuildGraphTest : BaseDRTest() {
             platform = setOf(ResolutionPlatform.JVM),
             expected = """
                 root
-                \--- com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+                ╰─── com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
             """.trimIndent()
         )
         runBlocking {
@@ -368,9 +368,9 @@ class BuildGraphTest : BaseDRTest() {
             ),
             expected = """
                 root
-                \--- org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0
-                     \--- org.jetbrains.kotlin:kotlin-test:2.0.0
-                          \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.0
+                ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0
+                     ╰─── org.jetbrains.kotlin:kotlin-test:2.0.0
+                          ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0
             """.trimIndent()
         )
         runBlocking {
@@ -454,8 +454,8 @@ class BuildGraphTest : BaseDRTest() {
             ),
             expected = """
                 root
-                \--- org.jetbrains.kotlin:kotlin-test-annotations-common:1.9.0
-                     \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.0
+                ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:1.9.0
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.0
             """.trimIndent()
         )
         assertFiles(
@@ -473,8 +473,8 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- org.jetbrains.kotlinx:atomicfu:0.23.2
-                     \--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
+                ╰─── org.jetbrains.kotlinx:atomicfu:0.23.2
+                     ╰─── org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
             """.trimIndent()
         )
         assertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
@@ -495,9 +495,9 @@ class BuildGraphTest : BaseDRTest() {
             scope = ResolutionScope.RUNTIME,
             expected = """
                 root
-                \--- org.jetbrains.kotlin:kotlin-test:1.9.20
-                     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
-                          \--- org.jetbrains:annotations:13.0
+                ╰─── org.jetbrains.kotlin:kotlin-test:1.9.20
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+                          ╰─── org.jetbrains:annotations:13.0
             """.trimIndent()
         )
         assertFiles(
@@ -520,26 +520,26 @@ class BuildGraphTest : BaseDRTest() {
             scope = ResolutionScope.RUNTIME,
             expected = """
                 root
-                \--- org.jetbrains.compose.runtime:runtime-saveable-desktop:1.5.10
-                     +--- org.jetbrains.compose.runtime:runtime:1.5.10
-                     |    \--- org.jetbrains.compose.runtime:runtime-desktop:1.5.10
-                     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21
-                     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
-                     |         |    \--- org.jetbrains:annotations:13.0
-                     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
-                     |         +--- org.jetbrains.kotlinx:atomicfu:0.17.0
-                     |         |    \--- org.jetbrains.kotlinx:atomicfu-jvm:0.17.0
-                     |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.0 -> 1.8.21 (*)
-                     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.8.21
-                     |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
-                     |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4
-                     |                   +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
-                     |                   +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
-                     |                   |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 1.8.21 (*)
-                     |                   |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
-                     |                   |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 1.8.21 (*)
-                     |                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21 -> 1.8.21
-                     \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                ╰─── org.jetbrains.compose.runtime:runtime-saveable-desktop:1.5.10
+                     ├─── org.jetbrains.compose.runtime:runtime:1.5.10
+                     │    ╰─── org.jetbrains.compose.runtime:runtime-desktop:1.5.10
+                     │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.21
+                     │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     │         │    ╰─── org.jetbrains:annotations:13.0
+                     │         ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     │         ├─── org.jetbrains.kotlinx:atomicfu:0.17.0
+                     │         │    ╰─── org.jetbrains.kotlinx:atomicfu-jvm:0.17.0
+                     │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.6.0 -> 1.8.21 (*)
+                     │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.8.21
+                     │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+                     │              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4
+                     │                   ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
+                     │                   ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+                     │                   │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 1.8.21 (*)
+                     │                   │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+                     │                   │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 1.8.21 (*)
+                     │                   ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21 -> 1.8.21
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
             """.trimIndent()
         )
     }
@@ -550,16 +550,16 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
-                     \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4
-                          +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
-                          +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
-                          |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
-                          |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
-                          |    |    \--- org.jetbrains:annotations:13.0
-                          |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
-                          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
-                          \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+                ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+                     ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4
+                          ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
+                          ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+                          │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+                          │    │    ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+                          │    │    ╰─── org.jetbrains:annotations:13.0
+                          │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+                          │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+                          ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
             """.trimIndent()
         )
     }
@@ -571,14 +571,14 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV),
             expected = """
                 root
-                \--- org.jetbrains.skiko:skiko:0.7.85
-                     \--- org.jetbrains.skiko:skiko-awt:0.7.85
-                          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20
-                               +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20
-                               |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20
-                               |    \--- org.jetbrains:annotations:13.0
-                               \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20
-                                    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 (*)
+                ╰─── org.jetbrains.skiko:skiko:0.7.85
+                     ╰─── org.jetbrains.skiko:skiko-awt:0.7.85
+                          ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20
+                               ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.20
+                               │    ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20
+                               │    ╰─── org.jetbrains:annotations:13.0
+                               ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20
+                                    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.20 (*)
             """.trimIndent()
         )
     }
@@ -603,11 +603,11 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """
                 root
-                \--- androidx.annotation:annotation:1.6.0
-                     \--- androidx.annotation:annotation-jvm:1.6.0
-                          \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.0
-                               +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.0
-                               \--- org.jetbrains:annotations:13.0
+                ╰─── androidx.annotation:annotation:1.6.0
+                     ╰─── androidx.annotation:annotation-jvm:1.6.0
+                          ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.0
+                               ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.0
+                               ╰─── org.jetbrains:annotations:13.0
             """.trimIndent()
         )
     }
@@ -637,9 +637,9 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- org.tinylog:slf4j-tinylog:2.7.0-M1
-                     +--- org.slf4j:slf4j-api:2.0.9
-                     \--- org.tinylog:tinylog-api:2.7.0-M1
+                ╰─── org.tinylog:slf4j-tinylog:2.7.0-M1
+                     ├─── org.slf4j:slf4j-api:2.0.9
+                     ╰─── org.tinylog:tinylog-api:2.7.0-M1
             """.trimIndent()
         )
     }
@@ -650,7 +650,7 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- org.tinylog:tinylog-api:2.7.0-M1
+                ╰─── org.tinylog:tinylog-api:2.7.0-M1
             """.trimIndent()
         )
     }
@@ -694,13 +694,13 @@ class BuildGraphTest : BaseDRTest() {
             platform = setOf(ResolutionPlatform.ANDROID),
             expected = """
                 root
-                \--- com.google.guava:guava:33.0.0-android
-                     +--- com.google.guava:failureaccess:1.0.2
-                     +--- com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
-                     +--- com.google.code.findbugs:jsr305:3.0.2
-                     +--- org.checkerframework:checker-qual:3.41.0
-                     +--- com.google.errorprone:error_prone_annotations:2.23.0
-                     \--- com.google.j2objc:j2objc-annotations:2.8
+                ╰─── com.google.guava:guava:33.0.0-android
+                     ├─── com.google.guava:failureaccess:1.0.2
+                     ├─── com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+                     ├─── com.google.code.findbugs:jsr305:3.0.2
+                     ├─── org.checkerframework:checker-qual:3.41.0
+                     ├─── com.google.errorprone:error_prone_annotations:2.23.0
+                     ╰─── com.google.j2objc:j2objc-annotations:2.8
             """.trimIndent()
         )
         assertFiles(
@@ -742,13 +742,13 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- com.google.guava:guava:32.1.1-jre
-                     +--- com.google.guava:guava-parent:32.1.1-jre
-                     +--- com.google.guava:failureaccess:1.0.1
-                     +--- com.google.code.findbugs:jsr305:3.0.2
-                     +--- org.checkerframework:checker-qual:3.33.0
-                     +--- com.google.errorprone:error_prone_annotations:2.18.0
-                     \--- com.google.j2objc:j2objc-annotations:2.8
+                ╰─── com.google.guava:guava:32.1.1-jre
+                     ├─── com.google.guava:guava-parent:32.1.1-jre
+                     ├─── com.google.guava:failureaccess:1.0.1
+                     ├─── com.google.code.findbugs:jsr305:3.0.2
+                     ├─── org.checkerframework:checker-qual:3.33.0
+                     ├─── com.google.errorprone:error_prone_annotations:2.18.0
+                     ╰─── com.google.j2objc:j2objc-annotations:2.8
             """.trimIndent()
         )
         runBlocking {
@@ -780,13 +780,13 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
             expected = """
                 root
-                \--- org.jetbrains.packagesearch:packagesearch-plugin:1.0.0-SNAPSHOT
-                     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0
-                          +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.0
-                          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.0
-                          |    \--- org.jetbrains:annotations:13.0
-                          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0
-                               \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.0 (*)
+                ╰─── org.jetbrains.packagesearch:packagesearch-plugin:1.0.0-SNAPSHOT
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0
+                          ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.0
+                          │    ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.0
+                          │    ╰─── org.jetbrains:annotations:13.0
+                          ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0
+                               ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.0 (*)
             """.trimIndent()
         )
 
@@ -816,15 +816,15 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_INTELLIJ_DEPS, REDIRECTOR_INTELLIJ_SNAPSHOTS),
             expected = """
                 root
-                \--- com.jetbrains.intellij.platform:core-impl:251.23774.109-EAP-SNAPSHOT
-                     +--- com.jetbrains.intellij.platform:core:251.23774.109-EAP-SNAPSHOT
-                     |    \--- com.jetbrains.intellij.platform:extensions:251.23774.109-EAP-SNAPSHOT
-                     |         \--- com.intellij.platform:kotlinx-coroutines-core-jvm:1.8.0-intellij-12
-                     |              +--- org.jetbrains:annotations:23.0.0
-                     |              +--- com.intellij.platform:kotlinx-coroutines-bom:1.8.0-intellij-12
-                     |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.10
-                     |                   \--- org.jetbrains:annotations:13.0 -> 23.0.0
-                     \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.10 (*)
+                ╰─── com.jetbrains.intellij.platform:core-impl:251.23774.109-EAP-SNAPSHOT
+                     ├─── com.jetbrains.intellij.platform:core:251.23774.109-EAP-SNAPSHOT
+                     │    ╰─── com.jetbrains.intellij.platform:extensions:251.23774.109-EAP-SNAPSHOT
+                     │         ╰─── com.intellij.platform:kotlinx-coroutines-core-jvm:1.8.0-intellij-12
+                     │              ├─── org.jetbrains:annotations:23.0.0
+                     │              ├─── com.intellij.platform:kotlinx-coroutines-bom:1.8.0-intellij-12
+                     │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 2.1.10
+                     │                   ╰─── org.jetbrains:annotations:13.0 -> 23.0.0
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 (*)
             """.trimIndent()
         )
     }
@@ -842,7 +842,7 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
             expected = """
                 root
-                \--- io.ktor:ktor-bom:2.3.9
+                ╰─── io.ktor:ktor-bom:2.3.9
             """.trimIndent()
         )
 
@@ -869,7 +869,7 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
             expected = """
                 root
-                \--- io.ktor:ktor-bom:2.3.9
+                ╰─── io.ktor:ktor-bom:2.3.9
             """.trimIndent(),
             verifyMessages = false
         )
@@ -905,7 +905,7 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
             expected = """
                 root
-                \--- com.fasterxml.jackson:jackson-bom:2.18.3
+                ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
             """.trimIndent()
         )
 
@@ -958,7 +958,7 @@ class BuildGraphTest : BaseDRTest() {
             scope = ResolutionScope.RUNTIME,
             expected = """
                 root
-                \--- com.fasterxml.jackson:jackson-bom:2.18.3
+                ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
             """.trimIndent()
         )
 
@@ -985,14 +985,14 @@ class BuildGraphTest : BaseDRTest() {
             ),
             expected = """
                 root
-                +--- com.fasterxml.jackson.core:jackson-annotations:2.18.3
-                |    \--- com.fasterxml.jackson:jackson-bom:2.18.3
-                |         \--- com.fasterxml.jackson.core:jackson-databind:2.18.3 (c)
-                \--- com.fasterxml.jackson.core:jackson-databind:2.18.2 -> 2.18.3
-                     +--- com.fasterxml.jackson.core:jackson-annotations:2.18.3 (*)
-                     +--- com.fasterxml.jackson.core:jackson-core:2.18.3
-                     |    \--- com.fasterxml.jackson:jackson-bom:2.18.3
-                     \--- com.fasterxml.jackson:jackson-bom:2.18.3
+                ├─── com.fasterxml.jackson.core:jackson-annotations:2.18.3
+                │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
+                │         ╰─── com.fasterxml.jackson.core:jackson-databind:2.18.3 (c)
+                ╰─── com.fasterxml.jackson.core:jackson-databind:2.18.2 -> 2.18.3
+                     ├─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (*)
+                     ├─── com.fasterxml.jackson.core:jackson-core:2.18.3
+                     │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
+                     ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
             """.trimIndent()
         )
         runBlocking {
@@ -1019,98 +1019,98 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, "https://packages.jetbrains.team/maven/p/amper/amper"),
             expected = """
                 root
-                \--- org.jetbrains.amper:amper-dr-test-bom-usages:1.0
-                     +--- io.ktor:ktor-bom:2.3.9
-                     |    \--- io.ktor:ktor-client-core-jvm:2.3.9 (c)
-                     +--- io.ktor:ktor-io-jvm:2.3.9
-                     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22
-                     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20
-                     |    |         +--- org.jetbrains:annotations:13.0 -> 23.0.0
-                     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (c)
-                     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22
-                     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
-                     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1
-                     |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1
-                     |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1
-                     |    |    |         +--- org.jetbrains:annotations:23.0.0
-                     |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
-                     |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 2.0.20
-                     |    |    |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
-                     |    |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
-                     |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
-                     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
-                     |    +--- org.slf4j:slf4j-api:1.7.36
-                     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
-                     +--- io.ktor:ktor-client-core-jvm:2.3.8 -> 2.3.9
-                     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                     |    +--- org.slf4j:slf4j-api:1.7.36
-                     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                     |    +--- io.ktor:ktor-http:2.3.9
-                     |    |    \--- io.ktor:ktor-http-jvm:2.3.9
-                     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                     |    |         +--- org.slf4j:slf4j-api:1.7.36
-                     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                     |    |         +--- io.ktor:ktor-utils:2.3.9
-                     |    |         |    \--- io.ktor:ktor-utils-jvm:2.3.9
-                     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                     |    |         |         +--- org.slf4j:slf4j-api:1.7.36
-                     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                     |    |         |         +--- io.ktor:ktor-io:2.3.9
-                     |    |         |         |    \--- io.ktor:ktor-io-jvm:2.3.9 (*)
-                     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
-                     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
-                     |    +--- io.ktor:ktor-events:2.3.9
-                     |    |    \--- io.ktor:ktor-events-jvm:2.3.9
-                     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                     |    |         +--- org.slf4j:slf4j-api:1.7.36
-                     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                     |    |         +--- io.ktor:ktor-http:2.3.9 (*)
-                     |    |         +--- io.ktor:ktor-utils:2.3.9 (*)
-                     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
-                     |    +--- io.ktor:ktor-websocket-serialization:2.3.9
-                     |    |    \--- io.ktor:ktor-websocket-serialization-jvm:2.3.9
-                     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                     |    |         +--- org.slf4j:slf4j-api:1.7.36
-                     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                     |    |         +--- io.ktor:ktor-http:2.3.9 (*)
-                     |    |         +--- io.ktor:ktor-serialization:2.3.9
-                     |    |         |    \--- io.ktor:ktor-serialization-jvm:2.3.9
-                     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                     |    |         |         +--- org.slf4j:slf4j-api:1.7.36
-                     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                     |    |         |         +--- io.ktor:ktor-http:2.3.9 (*)
-                     |    |         |         +--- io.ktor:ktor-websockets:2.3.9
-                     |    |         |         |    \--- io.ktor:ktor-websockets-jvm:2.3.9
-                     |    |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
-                     |    |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
-                     |    |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
-                     |    |         |         |         +--- org.slf4j:slf4j-api:1.7.36
-                     |    |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                     |    |         |         |         +--- io.ktor:ktor-http:2.3.9 (*)
-                     |    |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
-                     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
-                     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
-                     |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
-                     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.1
-                     |         +--- org.slf4j:slf4j-api:1.7.32 -> 1.7.36
-                     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-                     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
-                     |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
-                     \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
+                ╰─── org.jetbrains.amper:amper-dr-test-bom-usages:1.0
+                     ├─── io.ktor:ktor-bom:2.3.9
+                     │    ╰─── io.ktor:ktor-client-core-jvm:2.3.9 (c)
+                     ├─── io.ktor:ktor-io-jvm:2.3.9
+                     │    ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22
+                     │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20
+                     │    │         ├─── org.jetbrains:annotations:13.0 -> 23.0.0
+                     │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (c)
+                     │    ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22
+                     │    │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
+                     │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                     │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1
+                     │    │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1
+                     │    │    │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1
+                     │    │    │         ├─── org.jetbrains:annotations:23.0.0
+                     │    │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+                     │    │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 2.0.20
+                     │    │    │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
+                     │    │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+                     │    │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+                     │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+                     │    ├─── org.slf4j:slf4j-api:1.7.36
+                     │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+                     ├─── io.ktor:ktor-client-core-jvm:2.3.8 -> 2.3.9
+                     │    ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                     │    ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                     │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                     │    ├─── org.slf4j:slf4j-api:1.7.36
+                     │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                     │    ├─── io.ktor:ktor-http:2.3.9
+                     │    │    ╰─── io.ktor:ktor-http-jvm:2.3.9
+                     │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                     │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                     │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                     │    │         ├─── org.slf4j:slf4j-api:1.7.36
+                     │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                     │    │         ├─── io.ktor:ktor-utils:2.3.9
+                     │    │         │    ╰─── io.ktor:ktor-utils-jvm:2.3.9
+                     │    │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                     │    │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                     │    │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                     │    │         │         ├─── org.slf4j:slf4j-api:1.7.36
+                     │    │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                     │    │         │         ├─── io.ktor:ktor-io:2.3.9
+                     │    │         │         │    ╰─── io.ktor:ktor-io-jvm:2.3.9 (*)
+                     │    │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+                     │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+                     │    ├─── io.ktor:ktor-events:2.3.9
+                     │    │    ╰─── io.ktor:ktor-events-jvm:2.3.9
+                     │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                     │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                     │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                     │    │         ├─── org.slf4j:slf4j-api:1.7.36
+                     │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                     │    │         ├─── io.ktor:ktor-http:2.3.9 (*)
+                     │    │         ├─── io.ktor:ktor-utils:2.3.9 (*)
+                     │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+                     │    ├─── io.ktor:ktor-websocket-serialization:2.3.9
+                     │    │    ╰─── io.ktor:ktor-websocket-serialization-jvm:2.3.9
+                     │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                     │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                     │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                     │    │         ├─── org.slf4j:slf4j-api:1.7.36
+                     │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                     │    │         ├─── io.ktor:ktor-http:2.3.9 (*)
+                     │    │         ├─── io.ktor:ktor-serialization:2.3.9
+                     │    │         │    ╰─── io.ktor:ktor-serialization-jvm:2.3.9
+                     │    │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                     │    │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                     │    │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                     │    │         │         ├─── org.slf4j:slf4j-api:1.7.36
+                     │    │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                     │    │         │         ├─── io.ktor:ktor-http:2.3.9 (*)
+                     │    │         │         ├─── io.ktor:ktor-websockets:2.3.9
+                     │    │         │         │    ╰─── io.ktor:ktor-websockets-jvm:2.3.9
+                     │    │         │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                     │    │         │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                     │    │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                     │    │         │         │         ├─── org.slf4j:slf4j-api:1.7.36
+                     │    │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                     │    │         │         │         ├─── io.ktor:ktor-http:2.3.9 (*)
+                     │    │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+                     │    │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+                     │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+                     │    ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20 (*)
+                     │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.1
+                     │         ├─── org.slf4j:slf4j-api:1.7.32 -> 1.7.36
+                     │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                     │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+                     │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
             """.trimIndent()
         )
     }
@@ -1122,8 +1122,8 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             expected = """
                 root
-                \--- junit:junit:4.10
-                     \--- org.hamcrest:hamcrest-core:1.1
+                ╰─── junit:junit:4.10
+                     ╰─── org.hamcrest:hamcrest-core:1.1
             """.trimIndent()
         )
     }
@@ -1140,14 +1140,14 @@ class BuildGraphTest : BaseDRTest() {
             platform = setOf(ResolutionPlatform.MACOS_ARM64),
             expected = """
                 root
-                \--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
-                     \--- org.jetbrains.kotlinx:kotlinx-datetime-macosarm64:0.5.0
-                          +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
-                          |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-macosarm64:1.6.2
-                          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21
-                          |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
-                          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
-                          \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+                ╰─── org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
+                     ╰─── org.jetbrains.kotlinx:kotlinx-datetime-macosarm64:0.5.0
+                          ├─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
+                          │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core-macosarm64:1.6.2
+                          │         ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21
+                          │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+                          │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+                          ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21
             """.trimIndent()
         )
         assertFiles(
@@ -1166,15 +1166,15 @@ class BuildGraphTest : BaseDRTest() {
             platform = setOf(ResolutionPlatform.MACOS_ARM64),
             expected = """
                  root
-                 \--- org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2
-                      \--- org.jetbrains.kotlinx:kotlinx-serialization-json-macosarm64:1.7.2
-                           +--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20
-                           |    \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20
-                           +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.2
-                           |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-macosarm64:1.7.2
-                           |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (*)
-                           |         \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20
-                           \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20
+                 ╰─── org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2
+                      ╰─── org.jetbrains.kotlinx:kotlinx-serialization-json-macosarm64:1.7.2
+                           ├─── org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20
+                           │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.20
+                           ├─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.2
+                           │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core-macosarm64:1.7.2
+                           │         ├─── org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (*)
+                           │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.20
+                           ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.20
             """.trimIndent()
         )
         assertFiles(
@@ -1204,15 +1204,15 @@ class BuildGraphTest : BaseDRTest() {
             assertEquals(
                 """
                 root
-                +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
-                |    \--- org.jetbrains:annotations:13.0
-                +--- org.jetbrains.kotlin:kotlin-test-junit:1.9.20
-                |    +--- org.jetbrains.kotlin:kotlin-test:1.9.20
-                |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
-                |    \--- junit:junit:4.13.2
-                |         \--- org.hamcrest:hamcrest-core:1.3
-                +--- org.jetbrains.kotlin:kotlin-test:1.9.20 (*)
-                \--- junit:junit:4.12 -> 4.13.2 (*)
+                ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+                │    ╰─── org.jetbrains:annotations:13.0
+                ├─── org.jetbrains.kotlin:kotlin-test-junit:1.9.20
+                │    ├─── org.jetbrains.kotlin:kotlin-test:1.9.20
+                │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+                │    ╰─── junit:junit:4.13.2
+                │         ╰─── org.hamcrest:hamcrest-core:1.3
+                ├─── org.jetbrains.kotlin:kotlin-test:1.9.20 (*)
+                ╰─── junit:junit:4.12 -> 4.13.2 (*)
                 """.trimIndent(),
                 root
             )
@@ -1240,8 +1240,8 @@ class BuildGraphTest : BaseDRTest() {
             verifyMessages = true,
             expected = """
                 root
-                \--- org.apache.logging.log4j:log4j-core:2.17.1
-                     \--- org.apache.logging.log4j:log4j-api:2.17.1
+                ╰─── org.apache.logging.log4j:log4j-core:2.17.1
+                     ╰─── org.apache.logging.log4j:log4j-api:2.17.1
             """.trimIndent()
         )
 
@@ -1265,7 +1265,7 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             expected = """
                 root
-                \--- org.openjfx:javafx:24-ea+5
+                ╰─── org.openjfx:javafx:24-ea+5
                 """
                 .trimIndent()
         )
@@ -1283,16 +1283,16 @@ class BuildGraphTest : BaseDRTest() {
             verifyMessages = false, // todo (AB) : It should be replaced, resolution warning should be fixed
             expected = """
                 root
-                \--- org.junit.jupiter:junit-jupiter-params:5.7.2
-                     +--- org.junit:junit-bom:5.7.2
-                     +--- org.apiguardian:apiguardian-api:1.1.0
-                     \--- org.junit.jupiter:junit-jupiter-api:5.7.2
-                          +--- org.junit:junit-bom:5.7.2
-                          +--- org.apiguardian:apiguardian-api:1.1.0
-                          +--- org.opentest4j:opentest4j:1.2.0
-                          \--- org.junit.platform:junit-platform-commons:1.7.2
-                               +--- org.junit:junit-bom:5.7.2
-                               \--- org.apiguardian:apiguardian-api:1.1.0
+                ╰─── org.junit.jupiter:junit-jupiter-params:5.7.2
+                     ├─── org.junit:junit-bom:5.7.2
+                     ├─── org.apiguardian:apiguardian-api:1.1.0
+                     ╰─── org.junit.jupiter:junit-jupiter-api:5.7.2
+                          ├─── org.junit:junit-bom:5.7.2
+                          ├─── org.apiguardian:apiguardian-api:1.1.0
+                          ├─── org.opentest4j:opentest4j:1.2.0
+                          ╰─── org.junit.platform:junit-platform-commons:1.7.2
+                               ├─── org.junit:junit-bom:5.7.2
+                               ╰─── org.apiguardian:apiguardian-api:1.1.0
             """.trimIndent()
         )
 
@@ -1341,20 +1341,20 @@ class BuildGraphTest : BaseDRTest() {
             assertEquals(
                 """
                root
-               +--- org.jetbrains.kotlin:kotlin-test-junit5:1.9.20
-               |    +--- org.jetbrains.kotlin:kotlin-test:1.9.20
-               |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
-               |    |         \--- org.jetbrains:annotations:13.0
-               |    \--- org.junit.jupiter:junit-jupiter-api:5.6.3
-               |         +--- org.junit:junit-bom:5.6.3
-               |         +--- org.apiguardian:apiguardian-api:1.1.0
-               |         +--- org.opentest4j:opentest4j:1.2.0
-               |         \--- org.junit.platform:junit-platform-commons:1.6.3
-               |              +--- org.junit:junit-bom:5.6.3
-               |              \--- org.apiguardian:apiguardian-api:1.1.0
-               +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
-               \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20
-                    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+               ├─── org.jetbrains.kotlin:kotlin-test-junit5:1.9.20
+               │    ├─── org.jetbrains.kotlin:kotlin-test:1.9.20
+               │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+               │    │         ╰─── org.jetbrains:annotations:13.0
+               │    ╰─── org.junit.jupiter:junit-jupiter-api:5.6.3
+               │         ├─── org.junit:junit-bom:5.6.3
+               │         ├─── org.apiguardian:apiguardian-api:1.1.0
+               │         ├─── org.opentest4j:opentest4j:1.2.0
+               │         ╰─── org.junit.platform:junit-platform-commons:1.6.3
+               │              ├─── org.junit:junit-bom:5.6.3
+               │              ╰─── org.apiguardian:apiguardian-api:1.1.0
+               ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+               ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20
+                    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
                 """.trimIndent(),
                 root
             )
@@ -1376,21 +1376,21 @@ class BuildGraphTest : BaseDRTest() {
             assertEquals(
                 """
                 root
-                +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
-                |    +--- org.jetbrains:annotations:13.0
-                |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20 (c)
-                +--- org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-                |    \--- org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.4.0
-                |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.0 -> 1.9.20 (*)
-                |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.0 -> 1.9.20
-                |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
-                +--- org.jetbrains.kotlin:kotlin-test:1.9.0 -> 1.9.20
-                |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
-                +--- org.jetbrains.kotlin:kotlin-test-junit:1.9.20
-                |    +--- org.jetbrains.kotlin:kotlin-test:1.9.20 (*)
-                |    \--- junit:junit:4.13.2
-                |         \--- org.hamcrest:hamcrest-core:1.3
-                \--- junit:junit:4.12 -> 4.13.2 (*)
+                ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+                │    ├─── org.jetbrains:annotations:13.0
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20 (c)
+                ├─── org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+                │    ╰─── org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.4.0
+                │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.7.0 -> 1.9.20 (*)
+                │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.7.0 -> 1.9.20
+                │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+                ├─── org.jetbrains.kotlin:kotlin-test:1.9.0 -> 1.9.20
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+                ├─── org.jetbrains.kotlin:kotlin-test-junit:1.9.20
+                │    ├─── org.jetbrains.kotlin:kotlin-test:1.9.20 (*)
+                │    ╰─── junit:junit:4.13.2
+                │         ╰─── org.hamcrest:hamcrest-core:1.3
+                ╰─── junit:junit:4.12 -> 4.13.2 (*)
                 """.trimIndent(),
                 root
             )
@@ -1416,31 +1416,31 @@ class BuildGraphTest : BaseDRTest() {
             assertEquals(
                 """
                 root
-                +--- org.antlr:antlr4-runtime:4.7.1
-                +--- org.abego.treelayout:org.abego.treelayout.core:1.0.3
-                +--- com.fasterxml.jackson.core:jackson-core:2.9.9
-                +--- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.9
-                |    +--- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.9.9
-                |    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.9
-                |    |    \--- com.fasterxml.jackson.core:jackson-databind:2.9.9
-                |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.9.0
-                |    |         \--- com.fasterxml.jackson.core:jackson-core:2.9.9
-                |    \--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.9.9
-                |         +--- com.fasterxml.jackson.core:jackson-annotations:2.9.0
-                |         +--- com.fasterxml.jackson.core:jackson-core:2.9.9
-                |         \--- com.fasterxml.jackson.core:jackson-databind:2.9.9 (*)
-                +--- org.apache.commons:commons-lang3:3.9
-                +--- commons-io:commons-io:2.6
-                +--- org.reflections:reflections:0.9.8
-                |    +--- com.google.guava:guava:11.0.2
-                |    |    \--- com.google.code.findbugs:jsr305:1.3.9
-                |    +--- javassist:javassist:3.12.1.GA
-                |    \--- dom4j:dom4j:1.6.1
-                |         \--- xml-apis:xml-apis:1.0.b2
-                +--- javax.inject:javax.inject:1
-                \--- net.openhft:compiler:2.3.4
-                     +--- org.slf4j:slf4j-api:1.7.25
-                     \--- com.intellij:annotations:12.0
+                ├─── org.antlr:antlr4-runtime:4.7.1
+                ├─── org.abego.treelayout:org.abego.treelayout.core:1.0.3
+                ├─── com.fasterxml.jackson.core:jackson-core:2.9.9
+                ├─── com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.9
+                │    ├─── com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.9.9
+                │    │    ├─── com.fasterxml.jackson.core:jackson-core:2.9.9
+                │    │    ╰─── com.fasterxml.jackson.core:jackson-databind:2.9.9
+                │    │         ├─── com.fasterxml.jackson.core:jackson-annotations:2.9.0
+                │    │         ╰─── com.fasterxml.jackson.core:jackson-core:2.9.9
+                │    ╰─── com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.9.9
+                │         ├─── com.fasterxml.jackson.core:jackson-annotations:2.9.0
+                │         ├─── com.fasterxml.jackson.core:jackson-core:2.9.9
+                │         ╰─── com.fasterxml.jackson.core:jackson-databind:2.9.9 (*)
+                ├─── org.apache.commons:commons-lang3:3.9
+                ├─── commons-io:commons-io:2.6
+                ├─── org.reflections:reflections:0.9.8
+                │    ├─── com.google.guava:guava:11.0.2
+                │    │    ╰─── com.google.code.findbugs:jsr305:1.3.9
+                │    ├─── javassist:javassist:3.12.1.GA
+                │    ╰─── dom4j:dom4j:1.6.1
+                │         ╰─── xml-apis:xml-apis:1.0.b2
+                ├─── javax.inject:javax.inject:1
+                ╰─── net.openhft:compiler:2.3.4
+                     ├─── org.slf4j:slf4j-api:1.7.25
+                     ╰─── com.intellij:annotations:12.0
                 """.trimIndent(),
                 root
             )
@@ -1461,7 +1461,7 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE),
             expected = """
                 root
-                \--- org.jetbrains.compose.ui:ui-uikit:1.6.10
+                ╰─── org.jetbrains.compose.ui:ui-uikit:1.6.10
             """.trimIndent()
         )
 
@@ -1478,8 +1478,8 @@ class BuildGraphTest : BaseDRTest() {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE),
             expected = """
                 root
-                \--- org.jetbrains.compose.ui:ui-uikit:1.6.10
-                     \--- org.jetbrains.compose.ui:ui-uikit-uikitsimarm64:1.6.10
+                ╰─── org.jetbrains.compose.ui:ui-uikit:1.6.10
+                     ╰─── org.jetbrains.compose.ui:ui-uikit-uikitsimarm64:1.6.10
             """.trimIndent()
         )
 
@@ -1505,8 +1505,8 @@ class BuildGraphTest : BaseDRTest() {
 //                "set-test-password"
 //            )),
 //            expected = """root
-//                |\--- jetbrains.ring.bundle:bundle-api:2.0.65
-//                |     \--- org.jetbrains:annotations:13.0
+//                │╰─── jetbrains.ring.bundle:bundle-api:2.0.65
+//                │     ╰─── org.jetbrains:annotations:13.0
 //            """.trimMargin()
 //        )
 //

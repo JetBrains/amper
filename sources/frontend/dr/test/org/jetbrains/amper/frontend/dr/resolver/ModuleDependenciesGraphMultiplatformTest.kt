@@ -55,23 +55,23 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 module = "jvm-empty",
                 expected = """
                 module:jvm-empty
-                +--- jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                |    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
-                |         \--- org.jetbrains:annotations:13.0
-                +--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                |    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                +--- jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                |    \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
-                |         +--- org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
-                |         |    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                |         \--- junit:junit:4.13.2
-                |              \--- org.hamcrest:hamcrest-core:1.3
-                +--- jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                |    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                +--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                |    \--- org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                \--- jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                     \--- org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)
+                ├─── jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                │         ╰─── org.jetbrains:annotations:13.0
+                ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
+                │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
+                │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                │         ╰─── junit:junit:4.13.2
+                │              ╰─── org.hamcrest:hamcrest-core:1.3
+                ├─── jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)
                 """.trimIndent()
             )
         }
