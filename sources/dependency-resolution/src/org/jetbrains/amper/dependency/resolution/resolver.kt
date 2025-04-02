@@ -59,8 +59,13 @@ class Resolver {
      * @param level whether resolution should be performed with (default) or without network access
      * @return current instance
      */
-    suspend fun buildGraph(root: DependencyNode, level: ResolutionLevel = ResolutionLevel.NETWORK, transitive: Boolean = true) {
-        val conflictResolver = ConflictResolver(root.context.settings.conflictResolutionStrategies)
+    suspend fun buildGraph(
+        root: DependencyNode,
+        level: ResolutionLevel = ResolutionLevel.NETWORK,
+        transitive: Boolean = true,
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNode>? = null
+    ) {
+        val conflictResolver = ConflictResolver(root.context.settings.conflictResolutionStrategies, unspecifiedVersionResolver)
 
         // Contains all nodes that we resolved (we populated the children of their internal dependency), and for which
         // all child nodes resolutions have either completed or been canceled.
@@ -122,7 +127,7 @@ class Resolver {
             // Register this node and its children to the conflictResolver,
             // since it might be a resolved node from the canceled resolution
             // All nodes resolved during the canceled resolution were unregistered from conflict resolver.
-            // So, they should be re-registered there as soon as those nodes are started using in a graph again.
+            // So, they should be re-registered there as soon as those nodes are started being used in a graph again.
             conflictResolver.registerAndDetectConflictsWithChildren(this)
             return // skipping already resolved node
         }
@@ -183,7 +188,10 @@ class Resolver {
     }
 }
 
-private class ConflictResolver(val conflictResolutionStrategies: List<ConflictResolutionStrategy>) {
+private class ConflictResolver(
+    val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
+    unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNode>? = null
+) {
     /**
      * Maps each key (group:artifact) to the list of "similar" nodes that have that same key, and thus are potential
      * sources of dependency conflicts.
@@ -194,6 +202,8 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
     private val similarNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<DependencyNode>>()
     private val conflictedKeys = ConcurrentHashMap.newKeySet<Key<*>>()
     private val conflictDetectionMutexByKey = StripedMutex(64)
+
+    private val unspecifiedVersionHelper = unspecifiedVersionResolver?.let { UnspecifiedMavenDependencyVersionHelper(it) }
 
     /**
      * Registers this node and all its children transitively for potential conflict resolution
@@ -247,6 +257,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
             conflictDetectionMutexByKey.withLock(it.key.hashCode()) {
                 val similarNodes = similarNodesByKey.computeIfAbsent(it.key) { mutableSetOf() }
                 similarNodes.remove(it)
+                unspecifiedVersionHelper?.unregisterNode(it)
             }
         }
     }
@@ -268,6 +279,9 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
         conflictDetectionMutexByKey.withLock(node.key.hashCode()) {
             val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
             similarNodes.add(node) // register the node for potential future conflict resolution
+
+            unspecifiedVersionHelper?.registerNode(node) // register the node for potential future version resolution
+
             if (node.key in conflictedKeys) {
                 return true
             }
@@ -308,6 +322,9 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
                 conflictedKeys.clear()
             }
             .toSet()
+            .let {
+                it + (unspecifiedVersionHelper?.resolveVersions() ?: emptyList())
+            }
     }
 
     private fun conflictingNodes(): List<Set<DependencyNode>> = conflictedKeys.map { key ->
@@ -318,6 +335,44 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
         val strategy = conflictResolutionStrategies.find { it.isApplicableFor(this) && it.seesConflictsIn(this) }
             ?: return true // if no strategy sees the conflict, there is no conflict, so it is considered resolved
         return strategy.resolveConflictsIn(this)
+    }
+}
+
+private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProvider: UnspecifiedVersionResolver<MavenDependencyNode>) {
+    private val unversionedNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<MavenDependencyNode>>()
+
+    fun registerNode(node: DependencyNode) = doIfApplicable(node) {
+        val unversionedNodes = unversionedNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
+        unversionedNodes.add(it)
+    }
+
+    fun unregisterNode(node: DependencyNode) = doIfApplicable(node) {
+        val unversionedNodes = unversionedNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
+        unversionedNodes.remove(it)
+    }
+
+    private fun doIfApplicable(node: DependencyNode, block: (MavenDependencyNode) -> Unit) {
+        if (node is MavenDependencyNode && node.resolvedVersion() == null && unspecifiedVersionProvider.isApplicable(node)) {
+            block(node)
+        }
+    }
+
+    /**
+     * Try to resolve unspecified dependency versions.
+     *
+     * @return successfully resolved unspecified versions
+     */
+    fun resolveVersions(): List<MavenDependencyNode> {
+        return unversionedNodesByKey.values.flatMap { nodes ->
+            val resolvedNodes = unspecifiedVersionProvider.resolveVersions(nodes)
+
+            resolvedNodes.forEach { (node, resolvedVersion) ->
+                node.dependency = node.context.createOrReuseDependency(node.group, node.module, resolvedVersion)
+                nodes.remove(node)
+            }
+
+            resolvedNodes.keys
+        }
     }
 }
 
@@ -460,7 +515,7 @@ interface DependencyNode {
                 dep.version == dep.dependency.version && dep.version == this.version.resolve()
             } == true
                     &&
-                    // Constraint version is the same as the resulted dependency version,
+                    // The constraint version is the same as the resulted dependency version,
                     // and the original dependency version is different (⇒ constraint might have affected resolution)
                     allMavenDepsKeys[this.key]?.any { dep ->
                         this.version.resolve() == dep.dependency.version && dep.version != dep.dependency.version
@@ -530,6 +585,18 @@ enum class ResolutionState {
 enum class ResolutionLevel(val state: ResolutionState) {
     LOCAL(ResolutionState.UNSURE),
     NETWORK(ResolutionState.RESOLVED),
+}
+
+/**
+ * Provide versions for nodes that were initially added to the resolution graph without a version.
+ * Such a version could have been known after some subgraph resolution has finished.
+ *
+ * For instance, maven dependencies specified without versions could be supplied with versions as soon as imported BOM
+ * is resolved.
+ */
+interface UnspecifiedVersionResolver<T> {
+    fun isApplicable(node: T): Boolean
+    fun resolveVersions(nodes: Set<T>): Map<T, String>
 }
 
 class Progress

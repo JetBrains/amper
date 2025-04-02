@@ -14,6 +14,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.RepositoriesModulePart
@@ -56,7 +57,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     protected fun MavenDependencyBase.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
         val dependencyNode = when (val result = parseCoordinates()) {
             is ParsedCoordinates.Failure -> UnresolvedMavenDependencyNode(this.coordinates.value, context, reasons = result.errors)
-            is ParsedCoordinates.Success -> context.toMavenDependencyNode(result.coordinates)
+            is ParsedCoordinates.Success -> context.toMavenDependencyNode(result.coordinates, this is BomDependency)
         }
 
         val node = DirectFragmentDependencyNodeHolder(
@@ -72,8 +73,8 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     /**
      * the caller should specify the parent node after this method is called
      */
-    private fun Context.toMavenDependencyNode(coordinates: MavenCoordinates): MavenDependencyNode {
-        val mavenDependency = createOrReuseDependency(coordinates.groupId, coordinates.artifactId, coordinates.version, coordinates.isBom)
+    private fun Context.toMavenDependencyNode(coordinates: MavenCoordinates, isBom: Boolean): MavenDependencyNode {
+        val mavenDependency = createOrReuseDependency(coordinates.groupId, coordinates.artifactId, coordinates.version, isBom = isBom)
         return getOrCreateNode(mavenDependency,null)
     }
 

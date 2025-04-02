@@ -1,0 +1,10 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - org.projectlombok:lombok:1.18.32: exported
+  - net.freeutils:jcharset:2.1
+
+
+

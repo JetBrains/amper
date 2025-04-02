@@ -15,6 +15,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.message
+import org.jetbrains.amper.dependency.resolution.orUnspecified
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
 
@@ -213,7 +214,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         if (node.isMavenDependency(group, module)) {
             node as MavenDependencyNode
             assertEquals(
-                setOf("Unable to resolve dependency ${node.dependency.group}:${node.dependency.module}:${node.dependency.version}"),
+                setOf("Unable to resolve dependency ${node.dependency.group}:${node.dependency.module}:${node.dependency.version.orUnspecified()}"),
                 node.messages.map { it.text }.toSet()
             )
             return true
@@ -236,7 +237,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
 
             assertEquals(
                 setOf(
-                    "Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version}" +
+                    "Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version.orUnspecified()}" +
                             (if (versionLineNumber != null) ". The version ${mavenDependency.version} is defined at $filePath:$versionLineNumber" else "")
                 ),
                 setOf(buildProblem.errorMessage.text)

@@ -78,7 +78,7 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
             val dependenciesAndConstraints = entry.value
 
             val effectiveNodes = dependenciesAndConstraints.filter {
-                it is MavenDependencyNode && it.version == it.dependency.version
+                it is MavenDependencyNode &&  it.dependency.version != null && it.version == it.dependency.version
                         || it is MavenDependencyConstraintNode && it.version == it.dependencyConstraint.version
             }.toSet()
 

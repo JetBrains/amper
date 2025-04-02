@@ -11,6 +11,7 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.orUnspecified
 import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
@@ -39,8 +40,8 @@ class OverriddenDirectModuleDependencies: DrDiagnosticsReporter{
             if (psiElement != null) {
                 problemReporter.reportMessage(
                     ModuleDependencyWithOverriddenVersion(
-                        node.dependencyNode.version,
-                        node.dependencyNode.dependency.version,
+                        node.dependencyNode.version.orUnspecified(),
+                        node.dependencyNode.dependency.version.orUnspecified(),
                         null,
 //                        node.dependencyNode.overriddenByChain(graphRoot),  // this wordy details could be uncommented and passed instead of null and then shown in IDEA by request
                         node.dependencyNode.key.name,

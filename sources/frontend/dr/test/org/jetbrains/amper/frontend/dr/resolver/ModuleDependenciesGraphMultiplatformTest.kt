@@ -10,6 +10,8 @@ import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.message
+import org.junit.jupiter.api.TestInfo
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertEquals
@@ -2231,6 +2233,53 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                     "Unexpected coordinates for publishing were resolved for the library [$originalCoordinates]"
                 )
             }
+    }
+
+    /**
+     * Version of a direct dependency is resolved from BOM if it was left unspecified.
+     */
+    @Test
+    fun `resolving version of a direct dependency from BOM`() {
+        val aom = getTestProjectModel("jvm-bom-support", testDataRoot)
+
+        val jvmAppDeps = runBlocking {
+            doTest(
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.ClassPathType(
+                        ResolutionScope.COMPILE,
+                        setOf(ResolutionPlatform.JVM),
+                        false,
+                        false)
+                    ,
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
+                verifyMessages = false,
+                module = "app",
+                expected = """app:COMPILE:JVM
++--- app:common:com.fasterxml.jackson.core:jackson-annotations:unspecified
+|    \--- com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3
+|         \--- com.fasterxml.jackson:jackson-bom:2.18.3
+|              \--- com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
++--- app:common:com.fasterxml.jackson:jackson-bom:2.18.3
+|    \--- com.fasterxml.jackson:jackson-bom:2.18.3
++--- app:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20
+|         \--- org.jetbrains:annotations:13.0
+\--- app:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+     \--- org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+             """.trimIndent(),
+            )
+        }
+        assertFiles(
+            files = """
+                |annotations-13.0.jar
+                |jackson-annotations-2.18.3.jar
+                |kotlin-stdlib-2.1.20.jar
+                """.trimMargin(),
+            jvmAppDeps
+        )
     }
 
     private fun String.toMavenCoordinates() =

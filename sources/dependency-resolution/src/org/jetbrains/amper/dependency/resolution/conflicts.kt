@@ -48,7 +48,7 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
      */
     override fun seesConflictsIn(candidates: Collection<DependencyNode>): Boolean =
         candidates.asSequence()
-            .mapNotNull { it.resolvedVersion() }
+            .mapNotNull { it.resolvedVersion() } // An unspecified version doesn't produce conflict on its own
             .distinct()
             .distinctBy { ComparableVersion(it) }
             .take(2)
@@ -85,7 +85,7 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
     }
 }
 
-fun DependencyNode.resolvedVersion() =
+fun DependencyNode.resolvedVersion(): String? =
     when(this) {
         is MavenDependencyNode -> dependency.version
         is MavenDependencyConstraintNode -> dependencyConstraint.version.resolve()

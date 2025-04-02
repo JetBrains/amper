@@ -1811,6 +1811,31 @@ class BuildGraphTest: BaseDRTest() {
     }
 
     /**
+     * Direct dependency with an unspecified version is properly reported.
+     */
+    @Test
+    fun `error if direct dependency version is unspecified`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "com.fasterxml.jackson.core:jackson-annotations",
+            scope = ResolutionScope.RUNTIME,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
+            expected = """root
+               |\--- com.fasterxml.jackson.core:jackson-annotations:unspecified
+            """.trimMargin(),
+            verifyMessages = false
+        )
+
+        val messages = root.children.single().messages.defaultFilterMessages()
+        assertNotNull(messages.singleOrNull(), "The only error message is expected, but found: ${messages.toSet()}")
+        assertEquals(
+            "Version of dependency is not specified, it has not been resolved by dependency resolution",
+            messages.singleOrNull()!!.message,
+            "Unexpected error message"
+        )
+    }
+
+    /**
      * Dependency on a BOM as on a regular dependency is NOOP if BOM is published as a pom.xml only (without Gradle metadata)
      */
     @Test

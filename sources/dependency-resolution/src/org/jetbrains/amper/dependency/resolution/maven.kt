@@ -67,7 +67,7 @@ class MavenDependencyNode internal constructor(
         templateContext: Context,
         group: String,
         module: String,
-        version: String,
+        version: String?,
         isBom: Boolean,
         parentNodes: List<DependencyNode> = emptyList(),
     ) : this(
@@ -86,7 +86,7 @@ class MavenDependencyNode internal constructor(
 
     val group: String = dependency.group
     val module: String = dependency.module
-    val version: String = dependency.version
+    val version: String? = dependency.version
     val isBom: Boolean = dependency.isBom
 
     var overriddenBy: List<DependencyNode> = emptyList()
@@ -127,7 +127,7 @@ class MavenDependencyNode internal constructor(
     override fun toString(): String = if (dependency.version == version) {
         dependency.toString()
     } else {
-        "$group:$module:$version -> ${dependency.version}"
+        "$group:$module:${version.orUnspecified()} -> ${dependency.version}"
     }
 
     private fun DependencyNode.isDescendantOf(parent: DependencyNode): Boolean {
@@ -279,9 +279,9 @@ private class PropertyWithDependencyGeneric<T, out V: Any>(
 fun Context.createOrReuseDependency(
     group: String,
     module: String,
-    version: String,
+    version: String?,
     isBom: Boolean = false
-): MavenDependency = this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version:$isBom")) {
+): MavenDependency = this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:${version.orUnspecified()}:$isBom")) {
     MavenDependency(this.settings, group, module, version, isBom)
 }
 
@@ -313,12 +313,12 @@ class MavenDependency internal constructor(
     val coordinates: MavenCoordinates,
     val isBom: Boolean
 ) {
-    internal constructor(settings: Settings, groupId: String, artifactId: String, version: String, isBom: Boolean = false)
+    internal constructor(settings: Settings, groupId: String, artifactId: String, version: String?, isBom: Boolean = false)
             : this(settings, MavenCoordinates(groupId, artifactId, version), isBom)
 
     val group: String = coordinates.groupId
     val module: String = coordinates.artifactId
-    val version: String = coordinates.version
+    val version: String? = coordinates.version
 
     @Volatile
     var state: ResolutionState = ResolutionState.INITIAL
@@ -347,12 +347,20 @@ class MavenDependency internal constructor(
     internal var metadataResolutionFailureMessage: Message? = null
 
     internal val messages: List<Message>
-        get() =
+        get() = if (version == null) {
+            listOf(
+                Message(
+                    "Version of dependency is not specified, it has not been resolved by dependency resolution",
+                    severity = Severity.ERROR
+                )
+            )
+        } else {
             metadataResolutionFailureMessage
                 ?.let { listOf(it) }
                 ?: (pom.diagnosticsReporter.getMessages() +
                         moduleFile.diagnosticsReporter.getMessages() +
                         files(withSources = true).flatMap { it.diagnosticsReporter.getMessages() })
+        }
 
     private val mutex = Mutex()
 
@@ -426,7 +434,7 @@ class MavenDependency internal constructor(
             }
         }
 
-    override fun toString(): String = "$group:$module:$version"
+    override fun toString(): String = "$group:$module:${version.orUnspecified()}"
 
     suspend fun resolveChildren(context: Context, level: ResolutionLevel) {
         if (state < level.state) {
@@ -440,6 +448,9 @@ class MavenDependency internal constructor(
 
     private suspend fun resolve(context: Context, level: ResolutionLevel) {
         try {
+            if (version == null)
+                return
+
             resetMetadataDiagnostics()
 
             val settings = context.settings
@@ -1007,7 +1018,7 @@ class MavenDependency internal constructor(
             ?: run {
                 diagnosticReporter.addMessage(
                     Message(
-                        "Kotlin metadata file is not resolved for maven dependency ${group}:${module}:${version}",
+                        "Kotlin metadata file is not resolved for maven dependency ${group}:${module}:${version.orUnspecified()}",
                         severity = Severity.ERROR,
                 ))
                 null
@@ -1023,7 +1034,7 @@ class MavenDependency internal constructor(
         return metadataVariants.firstOrNull() ?: run {
             diagnosticReporter.addMessage(
                 Message(
-                    "More than a single variant provided for multiplatform dependency ${group}:${module}:${version}, " +
+                    "More than a single variant provided for multiplatform dependency ${group}:${module}:${version.orUnspecified()}, " +
                             "but kotlin metadata is not found " +
                             "(none of variants has attribute 'org.gradle.usage' equal to 'kotlin-metadata')",
                     severity = Severity.ERROR,
@@ -1233,7 +1244,7 @@ class MavenDependency internal constructor(
 
     private fun Variant.isKotlinException() =
         isKotlinTestJunit() && capabilities.sortedBy { it.name } == listOf(
-            Capability(group, "kotlin-test-framework-impl", version),
+            Capability(group, "kotlin-test-framework-impl", version.orUnspecified()),
             toCapability()
         )
 
@@ -1252,9 +1263,9 @@ class MavenDependency internal constructor(
 
     private fun Variant.isGuavaException() =
         isGuava()
-                && capabilities.contains(Capability("com.google.collections", "google-collections", version))
+                && capabilities.contains(Capability("com.google.collections", "google-collections", version.orUnspecified()))
                 && capabilities.contains(toCapability())
-                && attributes["org.gradle.jvm.environment"] == when (version.substringAfterLast('-')) {
+                && attributes["org.gradle.jvm.environment"] == when (version?.substringAfterLast('-')) {
             "android" -> "android"
             "jre" -> "standard-jvm"
             else -> null
@@ -1262,7 +1273,7 @@ class MavenDependency internal constructor(
 
     private fun isGuava() = group == "com.google.guava" && module == "guava"
 
-    private fun MavenDependency.toCapability() = Capability(group, module, version)
+    private fun MavenDependency.toCapability() = Capability(group, module, version.orUnspecified())
 
     private fun nativeTargetMatches(variant: Variant, platform: ResolutionPlatform) =
         variant.attributes["org.jetbrains.kotlin.platform.type"] != PlatformType.NATIVE.value
@@ -1588,12 +1599,11 @@ data class MavenCoordinates(
     val groupId: String,
     val artifactId: String,
     // todo (AB) : [AMPER-4112] Support unspecified version of direct dependencies (it could be resolved from BOM later)
-    val version: String,
-    val classifier: String? = null,
-    val isBom: Boolean = false
+    val version: String?,
+    val classifier: String? = null
 ) {
     override fun toString(): String {
-        return "$groupId:$artifactId:$version${if (classifier != null) ":$classifier" else ""}"
+        return "$groupId:$artifactId:${version.orUnspecified()}${if (classifier != null) ":$classifier" else ""}"
     }
 }
 
@@ -1667,3 +1677,5 @@ object LocalM2RepositoryFinder {
             ?.localRepository()
     }
 }
+
+fun String?.orUnspecified() = this ?: "unspecified"

@@ -164,7 +164,7 @@ class GradleLocalRepository(internal val filesPath: Path) : LocalRepository {
     }
 
     private fun getLocation(dependency: MavenDependency) =
-        filesPath.resolve("${dependency.group}/${dependency.module}/${dependency.version}")
+        filesPath.resolve("${dependency.group}/${dependency.module}/${dependency.version.orUnspecified()}")
 }
 
 /**
@@ -197,7 +197,7 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
 
     private fun getLocation(dependency: MavenDependency) =
         repository.resolve(
-            "${dependency.group.split('.').joinToString("/")}/${dependency.module}/${dependency.version}"
+            "${dependency.group.split('.').joinToString("/")}/${dependency.module}/${dependency.version.orUnspecified()}"
         )
 }
 
@@ -213,7 +213,9 @@ fun getDependencyFile(
     extension: String,
     isAutoAddedDocumentation: Boolean = false,
 ) =
-    if (dependency.version.endsWith("-SNAPSHOT")) {
+    // todo (AB) : What if version is nt specified, but later we will find out that it ends with "-SNAPSHOT",
+    // todo (AB) : such a dependency file should be converted to SnapshotDependency
+    if (dependency.version?.endsWith("-SNAPSHOT") == true) {
         SnapshotDependencyFile(
             dependency,
             nameWithoutExtension,
@@ -594,7 +596,7 @@ open class DependencyFile(
             if (repository == null) "File ${target.name}" else "Downloaded file ${target.name}",
             dependency.group,
             dependency.module,
-            dependency.version,
+            dependency.version.orUnspecified(),
             target.parent
         )
 
@@ -790,7 +792,7 @@ open class DependencyFile(
         val url = repository.url.trimEnd('/') +
                 "/${dependency.group.replace('.', '/')}" +
                 "/${dependency.module}" +
-                "/${dependency.version}" +
+                "/${dependency.version.orUnspecified()}" +
                 "/$name"
 
         fun getContentLengthHeaderValue(response: HttpResponse<InputStream>): Long? = response.headers()
@@ -1108,7 +1110,7 @@ class SnapshotDependencyFile(
             isMavenMetadataDownloadedOrDownload(repository, progress, cache, diagnosticsReporter = diagnosticsReporter)
         ) {
             getSnapshotVersion()
-                ?.let { name.replace(dependency.version, it) }
+                ?.let { name.replace(dependency.version.orUnspecified(), it) }
                 ?.let {
                     return "$it.$extension"
                 }
@@ -1150,7 +1152,7 @@ class SnapshotDependencyFile(
     }
 }
 
-internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.module}-${node.version}"
+internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.module}-${node.version.orUnspecified()}"
 
 private fun fileFromVariant(dependency: MavenDependency, name: String) =
     dependency.variants.flatMap { it.files }.singleOrNull { it.name == name }

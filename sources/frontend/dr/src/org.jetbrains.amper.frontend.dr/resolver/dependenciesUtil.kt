@@ -60,13 +60,13 @@ fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates {
         is BomDependency -> coordinates.value.trim().removePrefix("bom:")
     }
 
-    return parseCoordinates(mavenCoordinates, this is BomDependency)
+    return parseCoordinates(mavenCoordinates)
 }
 
-private fun parseCoordinates(coordinates: String, isBom: Boolean = false): ParsedCoordinates {
+private fun parseCoordinates(coordinates: String): ParsedCoordinates {
     val parts = coordinates.trim().split(":")
 
-    if (parts.size < 3) {
+    if (parts.size < 2) {
         val errors = buildList {
             add(FrontendDrBundle.message("dependency.coordinates.have.too.few.parts", coordinates))
             reportIfCoordinatesAreGradleLike(coordinates, this)
@@ -110,11 +110,11 @@ private fun parseCoordinates(coordinates: String, isBom: Boolean = false): Parse
 
     val groupId = parts[0].trim()
     val artifactId = parts[1].trim()
-    val version = parts[2].trim()
+    val version = if (parts.size > 2) parts[2].trim() else null
     val classifier = if (parts.size > 3) parts[3].trim() else null
 
     return ParsedCoordinates.Success(
-        MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier, isBom = isBom))
+        MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier))
 }
 
 private fun reportIfCoordinatesAreGradleLike(coordinates: String, messages: MutableList<String>) {
