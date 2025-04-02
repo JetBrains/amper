@@ -44,12 +44,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
       }
       kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
         debug: <default> true
@@ -64,6 +69,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: <default> 2.1
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -83,6 +94,10 @@ Fragments:
         entryPoint: package.main
       }
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   commonTest
@@ -133,12 +148,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
       }
       kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
         debug: <default> true
@@ -153,6 +173,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: <default> 2.1
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -172,6 +198,10 @@ Fragments:
         entryPoint: package.main
       }
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   linux
@@ -220,12 +250,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
       }
       kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
         debug: <default> true
@@ -240,6 +275,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: <default> 2.1
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -259,6 +300,10 @@ Fragments:
         entryPoint: package.main
       }
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   linuxArm64
@@ -307,12 +352,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
       }
       kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
         debug: <default> true
@@ -327,6 +377,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: <default> 2.1
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -346,6 +402,10 @@ Fragments:
         entryPoint: package.main
       }
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   linuxArm64Test
@@ -397,12 +457,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
       }
       kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
         debug: <default> true
@@ -417,6 +482,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: <default> 2.1
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -436,6 +507,10 @@ Fragments:
         entryPoint: package.main
       }
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   linuxTest
@@ -487,12 +562,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
       }
       kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
         debug: <default> true
@@ -507,6 +587,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: <default> 2.1
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -526,6 +612,10 @@ Fragments:
         entryPoint: package.main
       }
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   native
@@ -574,12 +664,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
       }
       kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
         debug: <default> true
@@ -594,6 +689,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: <default> 2.1
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -613,6 +714,10 @@ Fragments:
         entryPoint: package.main
       }
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   nativeTest
@@ -664,12 +769,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
       }
       kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
         debug: <default> true
@@ -684,6 +794,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: <default> 2.1
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -703,6 +819,10 @@ Fragments:
         entryPoint: package.main
       }
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
 Artifacts:

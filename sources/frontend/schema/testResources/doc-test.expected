@@ -57,13 +57,14 @@ Settings
 	android: AndroidSettings - Android toolchain and platform settings
 	compose: ComposeSettings - [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework.Read more about [Compose configuration](#configuring-compose-multiplatform)
 	ios: IosSettings - iOS toolchain and platform settings
-	junit: JUnitVersion, default: junit-4 - JUnit test runner on the JVM and Android platforms. Read more about [testing support](#tests)
+	junit: JUnitVersion, default: junit-5 - JUnit test runner on the JVM and Android platforms. Read more about [testing support](#tests)
 	jvm: JvmSettings - JVM platform-specific settings
 	kotlin: KotlinSettings - Kotlin language and the compiler settings
 	kover: KoverSettings - Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
 	ktor: KtorServerSettings - Ktor server settings
 	native: NativeSettings - Native applications settings
 	publishing: PublishingSettings - Publishing settings
+	springBoot: SpringBootSettings - Spring Boot settings
 
 AndroidSettings
 ---------------
@@ -125,6 +126,7 @@ JvmSettings
 
 KotlinSettings
 --------------
+	allOpen: AllOpenSettings - Configure [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)
 	allWarningsAsErrors: Boolean, default: false - Turn any warnings into a compilation error
 	apiVersion: KotlinVersion - Allow using declarations only from the specified version of Kotlin bundled libraries
 	debug: Boolean, default: true - (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information
@@ -133,17 +135,31 @@ KotlinSettings
 	languageFeatures: List<String>
 	languageVersion: KotlinVersion, default: 2.1 - Source compatibility with the specified version of Kotlin
 	linkerOpts: List<String>
+	noArg: NoArgSettings - Configure [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html)
 	optIns: List<String> - Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name
 	progressiveMode: Boolean, default: false - Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)
 	serialization: SerializationSettings - Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)
 	suppressWarnings: Boolean, default: false - Suppress the compiler from displaying warnings during compilation
 	verbose: Boolean, default: false - Enable verbose logging output which includes details of the compilation process
 
+AllOpenSettings
+---------------
+	annotations: List<String> - List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open.
+	enabled: Boolean, default: false - Enable the Kotlin all-open compiler plugin
+	presets: List<AllOpenPreset> - Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework.
+
 KspSettings
 -----------
 	processorOptions: Map<String, String>, default: {} - Some options to pass to KSP processors. Refer to each processor documentation for details.
 	processors: List<KspProcessorDeclaration>, default: [] - The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates.
 	version: String, default: 2.1.20-1.0.31 - The version of KSP to use
+
+NoArgSettings
+-------------
+	annotations: List<String> - List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated.
+	enabled: Boolean, default: false - Enable the Kotlin no-arg compiler plugin
+	invokeInitializers: Boolean, default: false - Whether to call initializers in the synthesized constructor. By default, initializers are not called.
+	presets: List<NoArgPreset> - Predefined sets of annotations. Currently only 'jpa' preset is supported, which automatically includes JPA entity annotations.
 
 SerializationSettings
 ---------------------
@@ -183,6 +199,11 @@ PublishingSettings
 	group: String - Group ID of the published Maven artifact
 	name: String - Artifact ID of the published Maven artifact
 	version: String - Version of the published Maven artifact
+
+SpringBootSettings
+------------------
+	enabled: Boolean, default: false - Enable Spring Boot
+	version: String, default: 3.4.3 - Spring Boot version
 
 TaskSettings
 ------------

@@ -67,8 +67,13 @@ class Settings : SchemaNode() {
     @PlatformSpecific(Platform.NATIVE)
     var native by nullableValue<NativeSettings>()
 
+    @PlatformSpecific(Platform.JVM)
     @SchemaDoc("Ktor server settings")
     var ktor by value(::KtorServerSettings)
+
+    @PlatformSpecific(Platform.JVM)
+    @SchemaDoc("Spring Boot settings")
+    var springBoot by value(::SpringBootSettings)
 }
 
 class ComposeSettings : SchemaNode() {
@@ -217,4 +222,12 @@ class KtorServerSettings: SchemaNode() {
 
     @SchemaDoc("Ktor version")
     var version by value(default = UsedVersions.ktorVersion)
+}
+
+class SpringBootSettings: SchemaNode() {
+    @SchemaDoc("Enable Spring Boot")
+    var enabled by value(default = false)
+
+    @SchemaDoc("Spring Boot version")
+    var version by value(default = UsedVersions.springBootVersion)
 }

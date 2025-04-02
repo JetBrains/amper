@@ -233,7 +233,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `spring-boot-kotlin allOpen enabled should work`() = runSlowTest {
+    fun `spring-boot-kotlin springboot enabled should work`() = runSlowTest {
         val projectRoot = testProject("spring-boot-kotlin")
 
         val result = runCli(projectRoot = projectRoot, "run")

@@ -32,6 +32,8 @@ private val kotlinTestJUnit = kotlinDependencyOf("kotlin-test-junit")
 private val kotlinTestJUnit5 = kotlinDependencyOf("kotlin-test-junit5")
 private val kotlinTestTestNG = kotlinDependencyOf("kotlin-test-testng")
 
+private val kotlinReflect = kotlinDependencyOf("kotlin-reflect")
+
 private val kotlinParcelizeRuntime = kotlinDependencyOf("kotlin-parcelize-runtime")
 
 private val hotReloadDependency = MavenDependency(
@@ -73,6 +75,20 @@ private fun ktorServerTestHost(ktorVersion: TraceableString): MavenDependency = 
 private fun ktorBomDependency(ktorVersion: TraceableString): MavenDependency = MavenDependency(
     coordinates = library("bom:io.ktor:ktor-bom", ktorVersion),
 ).withTraceFrom(ktorVersion)
+
+private fun springBootBomDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
+    coordinates = library("bom:org.springframework.boot:spring-boot-dependencies", springBootVersion),
+).withTraceFrom(springBootVersion)
+
+private fun springBootStarterDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
+    coordinates = library("org.springframework.boot:spring-boot-starter", springBootVersion),
+).withTraceFrom(springBootVersion)
+
+private fun springBootStarterTestDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
+    coordinates = library("org.springframework.boot:spring-boot-starter-test", springBootVersion),
+).withTraceFrom(springBootVersion)
+
+
 
 /**
  * Add automatically-added implicit dependencies to default module impl.
@@ -167,6 +183,13 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
         add(ktorBomDependency(ktorVersion))
         add(logbackDependency())
     }
+
+    if (settings.springBoot.enabled) {
+        val springBootVersion = TraceableVersion(checkNotNull(settings.springBoot.version), settings.springBoot::version.valueBase)
+        add(springBootBomDependency(springBootVersion))
+        add(springBootStarterDependency(springBootVersion))
+        add(kotlinReflect)
+    }
 }
 
 private fun Fragment.inferredTestDependencies(): List<MavenDependency> {
@@ -187,6 +210,11 @@ private fun Fragment.inferredTestDependencies(): List<MavenDependency> {
         if (settings.ktor.enabled) {
             val ktorVersion = TraceableVersion(checkNotNull(settings.ktor.version), settings.ktor::version.valueBase)
             add(ktorServerTestHost(ktorVersion))
+        }
+
+        if (settings.springBoot.enabled) {
+            val springBootVersion = TraceableVersion(checkNotNull(settings.springBoot.version), settings.springBoot::version.valueBase)
+            add(springBootStarterTestDependency(springBootVersion))
         }
     }
 }

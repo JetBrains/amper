@@ -49,6 +49,7 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
+import org.jetbrains.amper.frontend.processing.configureSpringBootKotlinCompilerPlugins
 import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
@@ -111,6 +112,7 @@ internal fun doBuild(
                 nonProcessed
                     .replaceCatalogDependencies(chosenCatalog)
                     .replaceComposeOsSpecific()
+                    .configureSpringBootKotlinCompilerPlugins()
             }
 
             IsmDiagnosticFactories.forEach {

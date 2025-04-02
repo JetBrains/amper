@@ -12,6 +12,9 @@
       version: 1.6.10 [template.module-template.yaml]
 
    kotlin:
+      allOpen:
+         enabled: false [default]
+
       allWarningsAsErrors: false [default]
       apiVersion: 2.1 [Inherited from 'languageVersion']
       debug: true [default]
@@ -21,6 +24,10 @@
          version: 2.1.20-1.0.31 [default]
 
       languageVersion: 2.1 [default]
+      noArg:
+         enabled: false [default]
+         invokeInitializers: false [default]
+
       progressiveMode: false [default]
       serialization:
          enabled: false [Enabled when 'format' is specified]
@@ -30,7 +37,3 @@
 
       suppressWarnings: false [default]
       verbose: false [default]
-
-   ktor:
-      enabled: false [default]
-      version: 3.1.1 [default]

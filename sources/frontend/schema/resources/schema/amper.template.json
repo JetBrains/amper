@@ -360,6 +360,7 @@
         "ktor": {
           "x-intellij-html-description": "Ktor server settings",
           "title": "Ktor server settings",
+          "x-intellij-metadata": {"platforms": ["jvm"]},
           "$ref": "#/$defs/KtorServerSettings"
         },
         "native": {
@@ -372,6 +373,12 @@
           "x-intellij-html-description": "Publishing settings",
           "title": "Publishing settings",
           "$ref": "#/$defs/PublishingSettings"
+        },
+        "springBoot": {
+          "x-intellij-html-description": "Spring Boot settings",
+          "title": "Spring Boot settings",
+          "x-intellij-metadata": {"platforms": ["jvm"]},
+          "$ref": "#/$defs/SpringBootSettings"
         }
       },
       "additionalProperties": false
@@ -642,6 +649,11 @@
     "KotlinSettings": {
       "type": "object",
       "properties": {
+        "allOpen": {
+          "x-intellij-html-description": "Configure [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)",
+          "title": "Configure Kotlin all-open compiler plugin",
+          "$ref": "#/$defs/AllOpenSettings"
+        },
         "allWarningsAsErrors": {
           "x-intellij-html-description": "Turn any warnings into a compilation error",
           "title": "Turn any warnings into a compilation error",
@@ -695,6 +707,11 @@
             "type": "string"
           }
         },
+        "noArg": {
+          "x-intellij-html-description": "Configure [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html)",
+          "title": "Configure Kotlin no-arg compiler plugin",
+          "$ref": "#/$defs/NoArgSettings"
+        },
         "optIns": {
           "x-intellij-html-description": "Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name",
           "title": "Usages of API that requires opt-in with a requirement annotation with the given fully qualified name",
@@ -726,6 +743,45 @@
         }
       },
       "additionalProperties": false
+    },
+    "AllOpenSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "x-intellij-html-description": "List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open.",
+              "title": "List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open",
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "enabled": {
+              "x-intellij-html-description": "Enable the Kotlin all-open compiler plugin",
+              "title": "Enable the Kotlin all-open compiler plugin",
+              "type": "boolean"
+            },
+            "presets": {
+              "x-intellij-html-description": "Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework.",
+              "title": "Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework",
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": ["spring","micronaut","quarkus"],
+                "x-intellij-enum-metadata": {"spring": "(Automatically adds annotations used by the Spring framework)","micronaut": "(Automatically adds annotations used by the Micronaut framework)","quarkus": "(Automatically adds annotations used by the Quarkus framework)"}
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
     },
     "KspSettings": {
       "type": "object",
@@ -759,6 +815,50 @@
         }
       },
       "additionalProperties": false
+    },
+    "NoArgSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "x-intellij-html-description": "List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated.",
+              "title": "List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated",
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "enabled": {
+              "x-intellij-html-description": "Enable the Kotlin no-arg compiler plugin",
+              "title": "Enable the Kotlin no-arg compiler plugin",
+              "type": "boolean"
+            },
+            "invokeInitializers": {
+              "x-intellij-html-description": "Whether to call initializers in the synthesized constructor. By default, initializers are not called.",
+              "title": "Whether to call initializers in the synthesized constructor. By default, initializers are not called",
+              "type": "boolean"
+            },
+            "presets": {
+              "x-intellij-html-description": "Predefined sets of annotations. Currently only 'jpa' preset is supported, which automatically includes JPA entity annotations.",
+              "title": "Predefined sets of annotations. Currently only 'jpa' preset is supported, which automatically includes JPA entity annotations",
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": ["jpa"],
+                "x-intellij-enum-metadata": {"jpa": "(Automatically adds no-arg constructors to JPA entity classes)"}
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
     },
     "SerializationSettings": {
       "anyOf": [
@@ -924,6 +1024,31 @@
         }
       },
       "additionalProperties": false
+    },
+    "SpringBootSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "x-intellij-html-description": "Enable Spring Boot",
+              "title": "Enable Spring Boot",
+              "type": "boolean"
+            },
+            "version": {
+              "x-intellij-html-description": "Spring Boot version",
+              "title": "Spring Boot version",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
     },
     "TaskSettings": {
       "type": "object",

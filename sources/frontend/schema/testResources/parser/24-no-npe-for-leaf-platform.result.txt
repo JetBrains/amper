@@ -55,6 +55,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -71,6 +76,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -102,6 +113,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   androidTest
@@ -160,6 +175,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -176,6 +196,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -207,6 +233,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   apple
@@ -262,6 +292,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -278,6 +313,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -309,6 +350,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   appleTest
@@ -366,6 +411,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -382,6 +432,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -413,6 +469,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   common
@@ -468,6 +528,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -484,6 +549,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -515,6 +586,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   commonTest
@@ -572,6 +647,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -588,6 +668,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -619,6 +705,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   ios
@@ -674,6 +764,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -690,6 +785,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -721,6 +822,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   iosArm64
@@ -776,6 +881,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -792,6 +902,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -823,6 +939,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   iosArm64Test
@@ -880,6 +1000,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -896,6 +1021,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -927,6 +1058,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   iosTest
@@ -984,6 +1119,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -1000,6 +1140,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -1031,6 +1177,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   jvm
@@ -1088,6 +1238,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -1104,6 +1259,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -1135,6 +1296,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   jvmAndAndroid
@@ -1190,6 +1355,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -1206,6 +1376,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -1237,6 +1413,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   jvmAndAndroidTest
@@ -1294,6 +1474,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -1310,6 +1495,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -1341,6 +1532,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   jvmTest
@@ -1397,6 +1592,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -1413,6 +1613,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -1444,6 +1650,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   native
@@ -1499,6 +1709,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -1515,6 +1730,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -1546,6 +1767,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   nativeTest
@@ -1603,6 +1828,11 @@ Fragments:
         release: <default> VERSION_17
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
@@ -1619,6 +1849,12 @@ Fragments:
         languageFeatures: <default> null
         languageVersion: 1.8
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: [
           - kotlinx.Experimental
         ]
@@ -1650,6 +1886,10 @@ Fragments:
       }
       native: <default> null
       publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
 Artifacts:

@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.KspSettings
 import org.jetbrains.amper.frontend.schema.KtorServerSettings
+import org.jetbrains.amper.frontend.schema.SpringBootSettings
 import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.ParcelizeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
@@ -85,6 +86,7 @@ fun Settings.mergeSettings(overwrite: Settings) =
         mergeProperty(Settings::publishing, PublishingSettings::mergePublishingSettings)
         mergeProperty(Settings::native, NativeSettings::mergeNativeSettings)
         mergeProperty(Settings::ktor, KtorServerSettings::mergeKtorServerSettings)
+        mergeProperty(Settings::springBoot, SpringBootSettings::mergeSpringBootSettings)
 
         mergeScalarProperty(Settings::junit)
     }
@@ -245,4 +247,11 @@ private fun KoverXmlSettings.mergeKoverXmlSettings(overwrite: KoverXmlSettings) 
     mergeNode(overwrite, ::KoverXmlSettings) {
         mergeScalarProperty(KoverXmlSettings::onCheck)
         mergeScalarProperty(KoverXmlSettings::reportFile)
+    }
+
+context(MergeCtxWithProp<*, *>)
+private fun SpringBootSettings.mergeSpringBootSettings(overwrite: SpringBootSettings) =
+    mergeNode(overwrite, ::SpringBootSettings) {
+        mergeScalarProperty(SpringBootSettings::enabled)
+        mergeScalarProperty(SpringBootSettings::version)
     }

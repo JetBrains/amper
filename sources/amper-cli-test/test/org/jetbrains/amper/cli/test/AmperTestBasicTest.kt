@@ -224,4 +224,15 @@ class AmperTestBasicTest : AmperCliTestBase() {
         result.assertStdoutContains("Passed testProvideFakeRandom")
         result.assertStdoutContains("1 tests successful")
     }
+
+    @Test
+    fun `spring-boot-kotlin springboot enabled should work`() = runSlowTest {
+        val projectRoot = testProject("spring-boot-kotlin")
+
+        // TODO: attach mockito as agent explicitly
+        val result = runCli(projectRoot = projectRoot, "test", assertEmptyStdErr = false)
+
+        result.assertStdoutContains("Passed DemoApplicationTests")
+        result.assertStdoutContains("1 tests successful")
+    }
 }

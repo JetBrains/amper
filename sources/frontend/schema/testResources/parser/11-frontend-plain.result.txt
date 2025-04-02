@@ -48,12 +48,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: {
         mainClass: <default> null
         release: VERSION_21
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 1.9
         debug: <default> true
@@ -70,6 +75,12 @@ Fragments:
         ]
         languageVersion: 1.9
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -91,13 +102,17 @@ Fragments:
         name: <default> null
         version: 42-SNAPSHOT
       }
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   commonTest
     External dependencies:
       MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-api:5.9.2, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-engine:5.9.2, compile=true, runtime=true, exported=false)
@@ -144,12 +159,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: {
         mainClass: <default> null
         release: VERSION_21
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 1.9
         debug: <default> true
@@ -166,6 +186,12 @@ Fragments:
         ]
         languageVersion: 1.9
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -186,6 +212,10 @@ Fragments:
         group: org.jetbrains.amper.frontend.without-fragments.yaml
         name: <default> null
         version: 42-SNAPSHOT
+      }
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
       }
     }
 
@@ -235,12 +265,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: {
         mainClass: <default> null
         release: VERSION_21
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 1.9
         debug: <default> true
@@ -257,6 +292,12 @@ Fragments:
         ]
         languageVersion: 1.9
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -278,12 +319,16 @@ Fragments:
         name: <default> null
         version: 42-SNAPSHOT
       }
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
     }
 
   jvmTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)
@@ -328,12 +373,17 @@ Fragments:
         }
         teamId: <default> null
       }
-      junit: <default> JUNIT4
+      junit: <default> JUNIT5
       jvm: {
         mainClass: <default> null
         release: VERSION_21
       }
       kotlin: {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 1.9
         debug: <default> true
@@ -350,6 +400,12 @@ Fragments:
         ]
         languageVersion: 1.9
         linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
         optIns: <default> null
         progressiveMode: <default> false
         serialization: <default> {
@@ -370,6 +426,10 @@ Fragments:
         group: org.jetbrains.amper.frontend.without-fragments.yaml
         name: <default> null
         version: 42-SNAPSHOT
+      }
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
       }
     }
 
