@@ -18,10 +18,6 @@ import kotlin.io.path.inputStream
 import kotlin.io.path.name
 import kotlin.io.path.outputStream
 
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
-
 suspend fun main(args: Array<String>) = BuildTgzDistCommand().main(args)
 
 class BuildTgzDistCommand : CacheableTaskCommand() {

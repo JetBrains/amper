@@ -1,12 +1,12 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.amper.dependency.resolution.metadata.json.module
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import org.jetbrains.amper.dependency.resolution.metadata.json.json
-
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
 
 /**
  * [Gradle Module Metadata specification](https://github.com/gradle/gradle/blob/master/platforms/documentation/docs/src/docs/design/gradle-module-metadata-latest-specification.md)

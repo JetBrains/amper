@@ -7,11 +7,6 @@ import org.eclipse.jgit.lib.Config
 import org.eclipse.jgit.storage.file.FileBasedConfig
 import org.eclipse.jgit.util.FS
 import org.eclipse.jgit.util.SystemReader
-import java.security.MessageDigest
-
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
 
 /**
  * Runs the provided [block] of code with an empty system and user git config.

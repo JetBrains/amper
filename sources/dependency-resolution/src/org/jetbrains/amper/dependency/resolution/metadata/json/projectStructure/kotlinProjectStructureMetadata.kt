@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure
@@ -7,10 +7,6 @@ package org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import org.jetbrains.amper.dependency.resolution.metadata.json.json
-
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
 
 internal fun String.parseKmpLibraryMetadata(): KotlinProjectStructureMetadata = json.decodeFromString(this)
 
@@ -45,5 +41,3 @@ internal data class SourceSet(
     val binaryLayout: String? = null,
     val hostSpecific: String? = null,
 )
-
-

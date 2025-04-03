@@ -11,10 +11,6 @@ import java.security.MessageDigest
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
-
 @OptIn(ExperimentalStdlibApi::class)
 object AmperWrappers {
 
