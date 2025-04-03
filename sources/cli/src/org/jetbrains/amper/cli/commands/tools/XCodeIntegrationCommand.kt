@@ -14,8 +14,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.tasks.ios.IosConventions
 import org.jetbrains.amper.util.BuildType
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -28,7 +26,7 @@ import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 
 internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integration") {
-    private val logger: Logger = LoggerFactory.getLogger(javaClass)
+
     private val env: Map<String, String> = System.getenv()
 
     override val hiddenFromHelp: Boolean

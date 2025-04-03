@@ -6,8 +6,14 @@ package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.requireObject
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 internal abstract class AmperSubcommand(name: String) : SuspendingCliktCommand(name = name) {
+    /**
+     * The logger for this command.
+     */
+    protected val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     /**
      * The common options that can be passed to the root command.
