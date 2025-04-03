@@ -1468,6 +1468,33 @@ class BuildGraphTest : BaseDRTest() {
         assertFiles(listOf("ui-uikit-uikitMain-1.6.10.klib"), root)
     }
 
+    @Test
+    fun `org_jetbrains_compose_ui ui-util 1_7_3 multiplatform`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "org.jetbrains.compose.ui:ui-util:1.7.3",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(
+                ResolutionPlatform.MACOS_ARM64,
+                ResolutionPlatform.MACOS_X64,
+            ),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE),
+            expected = """
+                root
+                ╰─── org.jetbrains.compose.ui:ui-util:1.7.3
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24
+                          ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24
+            """.trimIndent()
+        )
+
+        assertFiles(listOf(
+            "kotlin-stdlib-commonMain-1.9.24.klib",
+            "ui-util-commonMain-1.7.3.klib",
+            "ui-util-macosMain-1.7.3.klib",
+            "ui-util-nonJvmMain-1.7.3.klib",
+        ), root)
+    }
+
     /**
      * This test checks that cinterop dependency is correctly resolved in a single-platform context
      * and is taken into account

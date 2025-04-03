@@ -1224,22 +1224,22 @@ class MavenDependency internal constructor(
     } else if (kotlinProjectStructureMetadata == null) {
         null
     } else {
-        val contextIosPlatforms = allIosPlatforms.intersect(context.settings.platforms)
-        if (contextIosPlatforms.isNotEmpty()) {
+        val contextApplePlatforms = allApplePlatforms.intersect(context.settings.platforms)
+        if (contextApplePlatforms.isNotEmpty()) {
             // 1. Find names of all variants that declare this sourceSet
             val variantsWithSourceSet = kotlinProjectStructureMetadata.projectStructure.variants
                 .filter { it.sourceSet.contains(sourceSetName) }
                 .map { it.name }
 
-            // 2. Find iOS variants for actual iOS platforms
-            val iosVariants = contextIosPlatforms.flatMap { platform ->
+            // 2. Find Apple variants for actual Apple platforms
+            val appleVariants = contextApplePlatforms.flatMap { platform ->
                 resolveVariants(moduleMetadata, context.settings, platform)
                     .withoutDocumentationAndMetadata
                     .map { it to platform }
             }
 
-            iosVariants.firstOrNull {
-                // 3. Filter the first iOS variant that declares sourceSet
+            appleVariants.firstOrNull {
+                // 3. Filter the first variant that declares sourceSet
                 it.first.name.removeSuffix("-published") in variantsWithSourceSet
             }?.let {
                 val platform = it.second
@@ -1675,8 +1675,12 @@ internal fun AvailableAt.toCoordinates() = MavenCoordinates(group, module, versi
 private fun Dependency.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
 private fun Variant.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
 
-// todo (AB) : This behaviour is applicable perhaps to ALL native platforms
-private val allIosPlatforms = ResolutionPlatform.entries.filter { it.name.startsWith("IOS_") }
+private val allApplePlatforms = ResolutionPlatform.entries.filter {
+    it.name.startsWith("IOS_")
+            || it.name.startsWith("MACOS_")
+            || it.name.startsWith("TVOS_")
+            || it.name.startsWith("WATCHOS_")
+}
 
 // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
 internal fun Version.resolve() = strictly?.resolveSingleVersion()
