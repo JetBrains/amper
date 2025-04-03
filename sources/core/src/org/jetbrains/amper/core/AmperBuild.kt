@@ -9,6 +9,8 @@ import java.io.InputStream
 import java.nio.file.Path
 import java.security.MessageDigest
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.inputStream
@@ -23,26 +25,29 @@ object AmperBuild {
 
     private val commitHash: String?
     private val commitShortHash: String?
-    private val buildDate: Instant?
+    private val buildInstant: Instant?
     private val distributionHash: String?
 
     /**
      * The Amper product name and version.
      */
     val banner: String
-        get() = "JetBrains Amper version $codeIdentifier"
+        get() {
+            val buildDate = buildInstant?.atZone(ZoneId.systemDefault())?.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val distInfoIfSnapshot = if (isSNAPSHOT) "\nDistribution hash: $distributionHash" else ""
+            return "JetBrains Amper version $mavenVersion ($commitShortHash, built on $buildDate)$distInfoIfSnapshot"
+        }
 
     /**
      * A reliable number representing the state of the Amper code being run.
      *
-     * In official CI builds (release or dev), this is the Amper version and the build commit's short hash.
-     * In snapshots builds (Amper from sources), this is the Amper version, commit hash, and distribution hash.
+     * In non-snapshot builds (release or dev), this is the [mavenVersion] (which uniquely identifies the build).
+     * In snapshot builds (for example, from sources), this includes the maven version and the distribution jars hash.
      */
     val codeIdentifier: String
         get() {
-            val commitHash = commitShortHash?.let { "+$it" } ?: ""
             val localChanges = distributionHash?.let { "+$it" } ?: ""
-            return if (isSNAPSHOT) "$mavenVersion$commitHash$localChanges" else "$mavenVersion$commitHash"
+            return if (isSNAPSHOT) "$mavenVersion$localChanges" else mavenVersion
         }
 
     init {
@@ -64,7 +69,7 @@ object AmperBuild {
             isSNAPSHOT = mavenVersion.contains("-SNAPSHOT")
             commitHash = props.getProperty("commitHash")
             commitShortHash = props.getProperty("commitShortHash")
-            buildDate = props.getProperty("commitDate")?.let { Instant.parse(it) }
+            buildInstant = props.getProperty("commitDate")?.let { Instant.parse(it) }
 
             // The incremental cache always invalidates any state that was produced by a different Amper version.
             // When developing locally, the version is always 1.0-SNAPSHOT, so this mechanism isn't triggered.
@@ -76,8 +81,8 @@ object AmperBuild {
     }
 }
 
-private fun computeDistributionHash(): String? {
-    val classPath = System.getProperty("java.class.path").ifEmpty { null } ?: return null
+private fun computeDistributionHash(): String {
+    val classPath = System.getProperty("java.class.path").ifEmpty { null } ?: return "empty"
     val classPathFiles = classPath.split(File.pathSeparator).map { Path(it) }
     return md5All(classPathFiles)
 }
