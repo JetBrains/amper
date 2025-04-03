@@ -1447,6 +1447,16 @@ class BuildGraphTest : BaseDRTest() {
         }
     }
 
+    /**
+     * This test checks that host-specific sourceSet not included in a KMP library
+     * is resolved from a platform-specific artifact.
+     *
+     * Source set 'uikitMain' is not included in the common library 'ui-uikit:1.6.10.jar',
+     * though it is mentioned in the KMP descriptor of the library (kotlin-project-structure-metadata.json).
+     *
+     * The source set is resolved from a platform-specific library 'ui-uikit-uikitarm64'
+     * (ui-uikit-uikitarm64-1.6.10-metadata.jar)
+     */
     @Test
     fun `org_jetbrains_compose_ui ui-uikit 1_6_10 multiplatform`(testInfo: TestInfo) {
         val root = doTest(
@@ -1468,6 +1478,16 @@ class BuildGraphTest : BaseDRTest() {
         assertFiles(listOf("ui-uikit-uikitMain-1.6.10.klib"), root)
     }
 
+    /**
+     * This test checks that host-specific sourceSet not included in a KMP library
+     * is resolved from a platform-specific artifact.
+     *
+     * Source set 'macosMain' is not included in the common library 'ui-util:1.7.3.jar',
+     * though it is mentioned in the KMP descriptor of the library (kotlin-project-structure-metadata.json).
+     *
+     * The source set is resolved from a platform-specific library 'ui-util-macosx64'
+     * (ui-util-macosx64-1.7.3-metadata.jar)
+     */
     @Test
     fun `org_jetbrains_compose_ui ui-util 1_7_3 multiplatform`(testInfo: TestInfo) {
         val root = doTest(
