@@ -50,7 +50,6 @@ internal suspend fun <T> withBackend(
         }
 
         val backgroundScope = childScope("project background scope")
-        commonOptions.terminal.println(AmperBuild.banner)
 
         val cliContext = spanBuilder("Create CLI context").use {
             CliContext.create(
