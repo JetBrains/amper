@@ -25,7 +25,7 @@ object AmperBuild {
 
     private val commitHash: String?
     private val commitShortHash: String?
-    private val buildInstant: Instant?
+    private val commitInstant: Instant?
     private val distributionHash: String?
 
     /**
@@ -33,9 +33,9 @@ object AmperBuild {
      */
     val banner: String
         get() {
-            val buildDate = buildInstant?.atZone(ZoneId.systemDefault())?.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val commitDate = commitInstant?.atZone(ZoneId.systemDefault())?.format(DateTimeFormatter.ISO_LOCAL_DATE)
             val distInfoIfSnapshot = if (isSNAPSHOT) "\nDistribution hash: $distributionHash" else ""
-            return "JetBrains Amper version $mavenVersion ($commitShortHash, built on $buildDate)$distInfoIfSnapshot"
+            return "JetBrains Amper version $mavenVersion ($commitShortHash, $commitDate)$distInfoIfSnapshot"
         }
 
     /**
@@ -69,7 +69,7 @@ object AmperBuild {
             isSNAPSHOT = mavenVersion.contains("-SNAPSHOT")
             commitHash = props.getProperty("commitHash")
             commitShortHash = props.getProperty("commitShortHash")
-            buildInstant = props.getProperty("commitDate")?.let { Instant.parse(it) }
+            commitInstant = props.getProperty("commitDate")?.let { Instant.parse(it) }
 
             // The incremental cache always invalidates any state that was produced by a different Amper version.
             // When developing locally, the version is always 1.0-SNAPSHOT, so this mechanism isn't triggered.
