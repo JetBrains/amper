@@ -1468,6 +1468,73 @@ class BuildGraphTest : BaseDRTest() {
         assertFiles(listOf("ui-uikit-uikitMain-1.6.10.klib"), root)
     }
 
+    /**
+     * This test checks that cinterop dependency is correctly resolved in a single-platform context
+     * and is taken into account
+     */
+    @Test
+    fun `co_touchlab sqliter-driver-iosarm64 1_3_1`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(
+                ResolutionPlatform.IOS_ARM64,
+            ),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
+            expected = """
+                root
+                ╰─── co.touchlab:sqliter-driver-iosarm64:1.3.1
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+            """.trimIndent()
+        )
+
+        runBlocking {
+            downloadAndAssertFiles(
+                listOf(
+                    "sqliter-driver-iosarm64-1.3.1-cinterop-sqlite3.klib",
+                    "sqliter-driver-iosarm64-1.3.1.klib"
+                ),
+                root
+            )
+        }
+    }
+
+    /**
+     * This test checks that cinterop dependency is correctly resolved in a multiplatform context and is taken into account
+     * todo (AB) : In fact this test shows that cinterop sourceSet is not picked up by Amper DR.
+     * todo (AB) : This should be fixed in scope of https://youtrack.jetbrains.com/issue/AMPER-4237/
+     */
+    @Test
+    fun `co_touchlab sqliter-driver-iosarm64 1_3_1 multiplatform`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "co.touchlab:sqliter-driver:1.3.1",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(
+                ResolutionPlatform.IOS_ARM64,
+                ResolutionPlatform.IOS_SIMULATOR_ARM64,
+                ResolutionPlatform.IOS_X64,
+            ),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, /*REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE*/),
+            expected = """
+                root
+                ╰─── co.touchlab:sqliter-driver:1.3.1
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+            """.trimIndent()
+        )
+
+        runBlocking {
+            downloadAndAssertFiles(
+                listOf(
+                    "kotlin-stdlib-commonMain-1.9.20.klib",
+                    "sqliter-driver-appleMain-1.3.1.klib",
+                    "sqliter-driver-nativeCommonMain-1.3.1.klib"
+                ),
+                root
+            )
+        }
+    }
+
     @Test
     fun `org_jetbrains_compose_ui ui-uikit 1_6_10 single platform`(testInfo: TestInfo) {
         val root = doTest(
