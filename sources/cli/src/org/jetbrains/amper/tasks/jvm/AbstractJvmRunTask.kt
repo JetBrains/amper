@@ -73,8 +73,13 @@ abstract class AbstractJvmRunTask(
 
     protected open suspend fun getJdk(): Jdk = JdkDownloader.getJdk(userCacheRoot)
 
-    protected open suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> = 
-        listOf("-ea") + commonRunSettings.userJvmArgs
+    protected open suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> = buildList {
+        if (fragments.any { it.settings.ktor.enabled }) {
+            add("-Dio.ktor.development=true")
+        }
+        add("-ea")
+        addAll(commonRunSettings.userJvmArgs)
+    }
 
     protected open suspend fun getClasspath(dependenciesResult: List<TaskResult>): List<Path> {
         val runtimeClasspathTask = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>().singleOrNull()

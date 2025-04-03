@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 
 
@@ -50,7 +51,7 @@ class Settings : SchemaNode() {
     @SchemaDoc("JUnit test runner on the JVM and Android platforms. " +
             "Read more about [testing support](#tests)")
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
-    var junit by value(JUnitVersion.JUNIT4)
+    var junit by value(JUnitVersion.JUNIT5)
 
     @SchemaDoc("iOS toolchain and platform settings")
     @PlatformSpecific(Platform.IOS)

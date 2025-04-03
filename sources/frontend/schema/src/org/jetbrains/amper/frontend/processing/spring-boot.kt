@@ -4,12 +4,13 @@
 
 package org.jetbrains.amper.frontend.processing
 
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
-import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.NoArgPreset
 
 fun Module.configureSpringBootKotlinCompilerPlugins() = apply {
+    // temporary ugly hack until we have dependent values on external nodes
     settings.values.forEach { fragmentSettings ->
         if (fragmentSettings.springBoot.enabled) {
             if (fragmentSettings.kotlin.allOpen.trace == null) { // the user explicitly hasn't touched the setting
@@ -22,7 +23,10 @@ fun Module.configureSpringBootKotlinCompilerPlugins() = apply {
                 fragmentSettings.kotlin.noArg.presets = listOf(NoArgPreset.Jpa)
             }
 
-            fragmentSettings.junit = JUnitVersion.JUNIT5
+            // as default is empty at this stage, it means the user hasn't touched it
+            if (fragmentSettings.kotlin.freeCompilerArgs?.isEmpty() == true) {
+                fragmentSettings.kotlin.freeCompilerArgs = listOf(TraceableString("-Xjsr305=strict"))
+            }
         }
     }
 }
