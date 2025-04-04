@@ -60,10 +60,6 @@ private fun composeResourcesDependency(composeVersion: TraceableString) = MavenD
     coordinates = library("org.jetbrains.compose.components:components-resources", composeVersion),
 ).withTraceFrom(composeVersion)
 
-private fun logbackDependency(): MavenDependency = MavenDependency(
-    coordinates = library("ch.qos.logback:logback-classic", UsedVersions.logbackVersion),
-)
-
 private fun ktorBomDependency(ktorVersion: TraceableString): MavenDependency = MavenDependency(
     coordinates = library("bom:io.ktor:ktor-bom", ktorVersion),
 ).withTraceFrom(ktorVersion)
@@ -172,7 +168,6 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
     if (settings.ktor.enabled) {
         val ktorVersion = TraceableVersion(checkNotNull(settings.ktor.version), settings.ktor::version.valueBase)
         add(ktorBomDependency(ktorVersion))
-        add(logbackDependency())
     }
 
     if (settings.springBoot.enabled) {
