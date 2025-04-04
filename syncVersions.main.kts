@@ -45,6 +45,13 @@ val composeVersion = "1.7.3"
 val composeVersionForGradleBasedAmper = "1.6.10"
 val hotReloadVersion = "1.0.0-alpha02"
 val springBootVersion = "3.4.3"
+val springCloudVersion = "2024.0.1"
+val springCloudAzureVersion = "5.21.0"
+val springCloudGcpVersion = "6.1.1"
+val springCloudServicesVersion = "4.2.0"
+val springShellVersion = "3.4.0"
+val springAiVersion = "1.0.0-M6"
+val springAiTimeFoldVersion = "1.20.1"
 val slf4jVersion = "2.0.17"
 val ktorVersion = "3.1.1"
 val logbackVersion = "1.5.18"
@@ -113,6 +120,13 @@ fun updateUsedVersionsKt() {
             .replaceBundledVersionVariable(variableName = "kspVersion", newValue = kspVersion)
             .replaceBundledVersionVariable(variableName = "hotReloadVersion", newValue = hotReloadVersion)
             .replaceBundledVersionVariable(variableName = "springBootVersion", newValue = springBootVersion)
+            .replaceBundledVersionVariable(variableName = "springCloudVersion", newValue = springCloudVersion)
+            .replaceBundledVersionVariable(variableName = "springCloudAzureVersion", newValue = springCloudAzureVersion)
+            .replaceBundledVersionVariable(variableName = "springCloudGcpVersion", newValue = springCloudGcpVersion)
+            .replaceBundledVersionVariable(variableName = "springCloudServicesVersion", newValue = springCloudServicesVersion)
+            .replaceBundledVersionVariable(variableName = "springShellVersion", newValue = springShellVersion)
+            .replaceBundledVersionVariable(variableName = "springAiVersion", newValue = springAiVersion)
+            .replaceBundledVersionVariable(variableName = "springAiTimeFoldVersion", newValue = springAiTimeFoldVersion)
             .replaceBundledVersionVariable(variableName = "slf4jVersion", newValue = slf4jVersion)
             .replaceBundledVersionVariable(variableName = "ktorVersion", newValue = ktorVersion)
             .replaceBundledVersionVariable(variableName = "logbackVersion", newValue = logbackVersion)

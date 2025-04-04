@@ -210,6 +210,7 @@ private fun ProblemReporterContext.addBuiltInCatalog(
     val commonSettings = nonProcessed.settings[noModifiers]
     val compose = commonSettings?.compose
     val ktorServer = commonSettings?.ktor
+    val springBoot = commonSettings?.springBoot
     val serialization = commonSettings?.kotlin?.serialization
     val builtInCatalog = BuiltInCatalog(
         serializationVersion = serialization?.version?.takeIf { serialization.enabled }
@@ -220,10 +221,14 @@ private fun ProblemReporterContext.addBuiltInCatalog(
             ?.let {
                 version(TraceableVersion(it, compose::version.valueBase!!), UsedVersions.composeVersion)
             },
-        ktorVersion = ktorServer?.version
+        ktorVersion = ktorServer?.version?.takeIf { ktorServer.enabled }
             ?.let {
                 version(TraceableVersion(it, ktorServer::version.valueBase!!), UsedVersions.ktorVersion)
-            }
+            },
+        springBootVersion = springBoot?.version?.takeIf { springBoot.enabled }
+            ?.let {
+                version(TraceableVersion(it, springBoot::version.valueBase!!), UsedVersions.springBootVersion)
+            },
     )
     val catalogs = otherCatalog?.let { listOf(it) }.orEmpty() + builtInCatalog
     val compositeCatalog = CompositeVersionCatalog(catalogs)

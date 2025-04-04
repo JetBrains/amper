@@ -23,6 +23,20 @@ object UsedVersions {
 
     /*magic_replacement*/ val springBootVersion = "3.4.3"
 
+    /*magic_replacement*/ val springCloudVersion = "2024.0.1"
+
+    /*magic_replacement*/ val springCloudAzureVersion = "5.21.0"
+
+    /*magic_replacement*/ val springCloudGcpVersion = "6.1.1"
+
+    /*magic_replacement*/ val springCloudServicesVersion = "4.2.0"
+
+    /*magic_replacement*/ val springShellVersion = "3.4.0"
+    
+    /*magic_replacement*/ val springAiVersion = "1.0.0-M6"
+
+    /*magic_replacement*/ val springAiTimeFoldVersion = "1.20.1"
+
     /*magic_replacement*/ val slf4jVersion = "2.0.17"
 
     /*magic_replacement*/ val ktorVersion = "3.1.1"
