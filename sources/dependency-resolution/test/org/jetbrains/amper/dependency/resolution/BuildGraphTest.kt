@@ -1475,7 +1475,13 @@ class BuildGraphTest : BaseDRTest() {
             """.trimIndent()
         )
 
-        assertFiles(listOf("ui-uikit-uikitMain-1.6.10.klib"), root)
+        assertFiles(
+            listOf(
+                "ui-uikit-uikitMain-1.6.10.klib",
+                "ui-uikit-uikitMain-cinterop-1.6.10.klib"
+                ),
+            root
+        )
     }
 
     /**
@@ -1547,9 +1553,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
-     * This test checks that cinterop dependency is correctly resolved in a multiplatform context and is taken into account
-     * todo (AB) : In fact this test shows that cinterop sourceSet is not picked up by Amper DR.
-     * todo (AB) : This should be fixed in scope of https://youtrack.jetbrains.com/issue/AMPER-4237/
+     * This test checks that cinterop dependency is correctly resolved in a multiplatform context and is taken into account.
      */
     @Test
     fun `co_touchlab sqliter-driver-iosarm64 1_3_1 multiplatform`(testInfo: TestInfo) {
@@ -1562,7 +1566,7 @@ class BuildGraphTest : BaseDRTest() {
                 ResolutionPlatform.IOS_SIMULATOR_ARM64,
                 ResolutionPlatform.IOS_X64,
             ),
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, /*REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE*/),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
             expected = """
                 root
                 ╰─── co.touchlab:sqliter-driver:1.3.1
@@ -1573,11 +1577,17 @@ class BuildGraphTest : BaseDRTest() {
         runBlocking {
             downloadAndAssertFiles(
                 listOf(
+                    "kotlin-stdlib-commonMain-1.9.20-sources.jar",
                     "kotlin-stdlib-commonMain-1.9.20.klib",
+                    "sqliter-driver-appleMain-1.3.1-sources.jar",
                     "sqliter-driver-appleMain-1.3.1.klib",
+                    // There is no such thing as sources for cinterop sourceSet
+                    "sqliter-driver-appleMain-cinterop-1.3.1.klib",
+                    "sqliter-driver-nativeCommonMain-1.3.1-sources.jar",
                     "sqliter-driver-nativeCommonMain-1.3.1.klib"
                 ),
-                root
+                root,
+                withSources = true
             )
         }
     }

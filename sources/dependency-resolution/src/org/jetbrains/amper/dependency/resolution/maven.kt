@@ -41,7 +41,6 @@ import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Version
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.parseMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.KotlinProjectStructureMetadata
-import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.SourceSet
 import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.parseKmpLibraryMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependencies
 import org.jetbrains.amper.dependency.resolution.metadata.xml.DependencyManagement
@@ -72,7 +71,7 @@ private val logger = LoggerFactory.getLogger("maven.kt")
  * The node doesn't do actual work but simply delegate to the [dependency] that can change over time.
  * This allows reusing dependency resolution results but still holding information about the origin.
  *
- * It's a responsibility of the caller to set a parent for this node if none was provided via the constructor.
+ * It's the responsibility of the caller to set a parent for this node if none was provided via the constructor.
  *
  * @see [DependencyNodeHolder]
  */
@@ -451,7 +450,7 @@ class MavenDependency internal constructor(
 
     /**
      * The repository module/pom file was downloaded from.
-     * If we download module/pom file from some repository,
+     * If we download a module/pom file from some repository,
      * then it would be optimal to try downloading resolved variants and hashes from the same repository first as well,
      * instead of traversing the list in an original order.
      */
@@ -752,13 +751,13 @@ class MavenDependency internal constructor(
         )
 
     /**
-     * Some pretty basic libraries that are used in KMP world mimic for a pure JVM libraries,
+     * Some pretty basic libraries that are used in a KMP world mimic for pure JVM libraries,
      * those cases should be processed in a custom way.
      *
-     * If this method returns true, it means such a library was detected and processed (library dependencies are registered to graph),
-     * no further processing by a usual way is needed.
+     * If this method returns true, it means such a library was detected and processed
+     * (library dependencies are registered to graph); no further processing by a usual way is needed.
      *
-     * @return true, in case Kmp library that needs special treatment was detected and processed, false - otherwise
+     * @return true, in case a Kmp library that needs special treatment was detected and processed, false - otherwise
      */
     private suspend fun processSpecialKmpLibraries(
         context: Context,
@@ -950,9 +949,9 @@ class MavenDependency internal constructor(
 
         val kotlinMetadataVariant =
             getKotlinMetadataVariant(resolvedModuleMetadata.variants, platform, diagnosticsReporter)
-                ?: return null  // children list is empty in case kmp common variant is not resolved
+                ?: return null  // the children list is empty in case kmp common variant is not resolved
         val kotlinMetadataFile = getKotlinMetadataFile(kotlinMetadataVariant, diagnosticsReporter)
-            ?: return null  // children list is empty if kmp common variant file is not resolved
+            ?: return null  // the children list is empty if kmp common variant file is not resolved
 
         val kmpMetadataDependencyFile = getDependencyFile(this, kotlinMetadataFile)
 
@@ -997,6 +996,8 @@ class MavenDependency internal constructor(
             resolveVariants(moduleMetadata, context.settings, it).withoutDocumentationAndMetadata
         }.associateBy { it.name }
 
+        val allSourceSetNames = kotlinProjectStructureMetadata.projectStructure.sourceSets.map { it.name }
+
         // Selecting source sets related to target platforms (intersection).
         val sourceSetsIntersection = kotlinProjectStructureMetadata.projectStructure.variants
             .filter { it.name in (allPlatformsVariants.keys + allPlatformsVariants.keys.map { it.removeSuffix("-published") }) }
@@ -1004,14 +1005,20 @@ class MavenDependency internal constructor(
             .let {
                 if (it.isEmpty()) emptySet() else it.reduce { l1, l2 -> l1.intersect(l2) }
             }
+            .filter { it in allSourceSetNames}.toSet()
+
+        val allMatchingSourceSetNames = sourceSetsIntersection.toMutableSet()
+        resolveCinteropSourceSet(sourceSetsIntersection, kotlinProjectStructureMetadata)?.let {
+            allMatchingSourceSetNames.add(it)
+        }
 
         // Transforming it right here, since it doesn't require network access in most cases.
         sourceSetsFiles = coroutineScope {
-            kotlinProjectStructureMetadata.projectStructure.sourceSets
-                .filter { it.name in sourceSetsIntersection }
+            allMatchingSourceSetNames
                 .map {
                     async(Dispatchers.IO) {
-                        it.toDependencyFile(
+                        toDependencyFile(
+                            sourceSetName = it,
                             kmpMetadataFile,
                             moduleMetadata,
                             kotlinProjectStructureMetadata,
@@ -1054,6 +1061,42 @@ class MavenDependency internal constructor(
         // todo (AB) : take kotlinMetadataVariant.dependencyConstraints into account as well? What subset on constraints should be taken into account?
     }
 
+    /**
+     * Cinterop source set is packaged differently from the regular sourceSets.
+     * Each cinterop sourceSet has all available APIs.
+     * For instance, macosSourceSet would have not only macOS-related API, but also apple, native and common ones.
+     *
+     * This way we have to select the only cinterop sourceSet - the most specific one matching target platforms.
+     *
+     * The code is inspired by the similar code from KGP plugin:
+     * https://jetbrains.team/p/kt/repositories/kotlin/files/e8edf53610f82ecabfc2f8ae7aea8dc6f68409f2/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/native/internal/CInteropMetadataDependencyClasspath.kt?tab=source&line=66&lines-count=1
+     */
+    private fun resolveCinteropSourceSet(
+        sourceSetNames: Set<String>,
+        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata
+    ): String? {
+        val sourceSetsWithCinterop = kotlinProjectStructureMetadata.projectStructure.sourceSets
+            .filter { it.name in sourceSetNames && it.sourceSetCInteropMetadataDirectory != null }
+
+        // All dependencies of given sourceSets
+        val dependsOnSourceSets = sourceSetsWithCinterop
+            .flatMap { it.dependsOn }
+            .toSet()
+
+        // Choose a sourceSet that nobody depends on from the list of matching sourceSets with cinterop,
+        // such a source set contains the reachest API surface available for target platforms.
+        val bottomSourceSets = sourceSetsWithCinterop.filter { it.name !in dependsOnSourceSets }.toSet()
+
+        // Select the source set participating in the least number of variants (the most special one)
+        val cinteropSourceSet = bottomSourceSets.minByOrNull { sourceSet ->
+            kotlinProjectStructureMetadata.projectStructure.variants.count {
+                sourceSet.name in it.sourceSet
+            }
+        }
+
+        return cinteropSourceSet?.sourceSetCInteropMetadataDirectory
+    }
+
     private fun getKotlinMetadataFile(kotlinMetadataVariant: Variant, diagnosticReporter: DiagnosticReporter) =
         kotlinMetadataVariant.files.singleOrNull()
             ?: run {
@@ -1082,25 +1125,8 @@ class MavenDependency internal constructor(
         return validVariants.firstOrNull { it.isKotlinMetadataSources(platform) }
     }
 
-    private suspend fun SourceSet.toDependencyFile(
-        kmpMetadataFile: DependencyFile,
-        moduleMetadata: Module,
-        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata? = null, // is empty for sources only
-        context: Context,
-        level: ResolutionLevel,
-        diagnosticReporter: DiagnosticReporter
-    ): DependencyFile? =
-        toDependencyFile(
-            name,
-            kmpMetadataFile,
-            moduleMetadata,
-            kotlinProjectStructureMetadata,
-            context,
-            level,
-            diagnosticReporter
-        )
-
-    // todo (AB) : All this logic might be wrapped into ExecuteOnChange in order to skip metadata resolution in case targetFile exists already
+    // todo (AB) : All this logic might be wrapped into ExecuteOnChange
+    // todo (AB) : in order to skip metadata resolution in case targetFile exists already
     private suspend fun toDependencyFile(
         sourceSetName: String,
         kmpMetadataFile: DependencyFile,
@@ -1157,7 +1183,7 @@ class MavenDependency internal constructor(
             .resolve("kotlin/kotlinTransformedMetadataLibraries/")
             .resolve(group)
             .resolve(module)
-            .resolve(version)
+            .resolve(version.orUnspecified())
             .resolve(sha1)
             .resolve(targetFileName)
 
@@ -1187,7 +1213,7 @@ class MavenDependency internal constructor(
     }
 
     /**
-     * This method return kotlin metadata library that contains given sourceSet.
+     * This method returns kotlin metadata library that contains given sourceSet.
      *
      * Usually, a kotlin metadata library contains both:
      * - sourceSets' descriptor: META-INF/kotlin-project-structure-metadata.json
@@ -1207,7 +1233,7 @@ class MavenDependency internal constructor(
      *  (https://maven.pkg.jetbrains.space/public/p/compose/dev/org/jetbrains/compose/ui/ui-uikit/1.6.10/ui-uikit-1.6.10.jar),
      *
      *  Instead, sourceSet 'uikitMain' is included in the kotlin metadata variant of
-     *  EACH platform-specific dependency of the ui-uikit common library
+     *  Each platform-specific dependency of the ui-uikit common library
      *  (for instance, in org.jetbrains.compose.ui:ui-uikit-uikitarm64:1.6.10)
      *  (https://maven.pkg.jetbrains.space/public/p/compose/dev/org/jetbrains/compose/ui/ui-uikit-uikitarm64/1.6.10/ui-uikit-uikitarm64-1.6.10-metadata.jar)
      */
@@ -1228,7 +1254,7 @@ class MavenDependency internal constructor(
         if (contextApplePlatforms.isNotEmpty()) {
             // 1. Find names of all variants that declare this sourceSet
             val variantsWithSourceSet = kotlinProjectStructureMetadata.projectStructure.variants
-                .filter { it.sourceSet.contains(sourceSetName) }
+                .filter { it.sourceSet.contains(sourceSetName.removeSuffix("-cinterop")) }
                 .map { it.name }
 
             // 2. Find Apple variants for actual Apple platforms
@@ -1710,9 +1736,9 @@ object LocalM2RepositoryFinder {
      * It looks at the following locations, in order of precedence:
      *
      * 1. The value of system property 'maven.repo.local' if set;
-     * 2. The value of element `<localRepository>` of `~/.m2/settings.xml` if this file exists and element is set;
+     * 2. The value of element `<localRepository>` of `~/.m2/settings.xml` if this file exists and an element is set;
      * 3. The value of element `<localRepository>` of `$M2_HOME/conf/settings.xml` (where `$M2_HOME` is the value of the
-     *    environment variable with that name) if this file exists and element is set;
+     *    environment variable with that name) if this file exists and an element is set;
      * 4. The path `<user.home>/.m2/repository` (where the user home is taken from the system property `user.home`)
      */
     fun findPath(): Path = Path(findLocalM2RepoPathString())
@@ -1745,4 +1771,4 @@ object LocalM2RepositoryFinder {
     }
 }
 
-fun String?.orUnspecified() = this ?: "unspecified"
+fun String?.orUnspecified() : String = this ?: "unspecified"

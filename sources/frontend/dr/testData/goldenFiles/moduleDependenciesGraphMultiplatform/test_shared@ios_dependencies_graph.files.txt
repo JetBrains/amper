@@ -9,6 +9,7 @@ annotation-commonMain-1.7.3.klib
 annotation-nonJvmMain-1.7.3.klib
 atomicfu-commonMain-0.23.2.klib
 atomicfu-nativeMain-0.23.2.klib
+atomicfu-nativeMain-cinterop-0.23.2.klib
 collection-commonMain-1.7.3.klib
 collection-jbMain-1.7.3.klib
 collection-jsNativeMain-1.7.3.klib
@@ -84,6 +85,7 @@ ui-text-jsNativeMain-1.7.3.klib
 ui-text-nativeMain-1.7.3.klib
 ui-text-skikoMain-1.7.3.klib
 ui-uikit-uikitMain-1.7.3.klib
+ui-uikit-uikitMain-cinterop-1.7.3.klib
 ui-uikitMain-1.7.3.klib
 ui-unit-commonMain-1.7.3.klib
 ui-unit-jbMain-1.7.3.klib

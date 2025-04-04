@@ -92,6 +92,7 @@ class ResolverTest: BaseDRTest() {
                     "atomicfu-commonMain-0.23.1.klib",
                     "atomicfu-nativeMain-0.23.1-sources.jar",
                     "atomicfu-nativeMain-0.23.1.klib",
+                    "atomicfu-nativeMain-cinterop-0.23.1.klib",
                     "kotlin-stdlib-commonMain-1.9.21-sources.jar",
                     "kotlin-stdlib-commonMain-1.9.21.klib",
                     "kotlinx-coroutines-core-commonMain-1.8.0-sources.jar",
