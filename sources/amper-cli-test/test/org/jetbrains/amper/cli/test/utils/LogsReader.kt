@@ -51,7 +51,7 @@ private sealed interface LogFileLine {
 }
 
 // See how it's defined for files in sources/cli/resources/tinylog.properties
-private val logLineRegex = Regex("""(?<time>\d{2}:\d{2}.\d{3}+)\s+(?<level>[A-Z]+)\s+((?<amperTaskName>:[:\-\w]+)\s+)?(?<class>\S+)\s+(?<message>.*)""")
+private val logLineRegex = Regex("""(?<time>\d{2}:\d{2}.\d{3}+)\s+(?<level>[A-Z]+)\s+((?<amperTaskName>:\S+)\s+)?(?<class>(?!:)\S+)\s+(?<message>.*)""")
 
 private fun parseLine(line: String): LogFileLine {
     val match = logLineRegex.matchEntire(line) ?: return LogFileLine.Plain(line)
