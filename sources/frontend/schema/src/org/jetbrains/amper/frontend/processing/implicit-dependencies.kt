@@ -60,17 +60,9 @@ private fun composeResourcesDependency(composeVersion: TraceableString) = MavenD
     coordinates = library("org.jetbrains.compose.components:components-resources", composeVersion),
 ).withTraceFrom(composeVersion)
 
-private fun ktorServerCoreDependency(ktorVersion: TraceableString): MavenDependency = MavenDependency(
-    coordinates = library("io.ktor:ktor-server-core", ktorVersion),
-).withTraceFrom(ktorVersion)
-
 private fun logbackDependency(): MavenDependency = MavenDependency(
     coordinates = library("ch.qos.logback:logback-classic", UsedVersions.logbackVersion),
 )
-
-private fun ktorServerTestHost(ktorVersion: TraceableString): MavenDependency = MavenDependency(
-    coordinates = library("io.ktor:ktor-server-test-host", ktorVersion),
-).withTraceFrom(ktorVersion)
 
 private fun ktorBomDependency(ktorVersion: TraceableString): MavenDependency = MavenDependency(
     coordinates = library("bom:io.ktor:ktor-bom", ktorVersion),
@@ -79,14 +71,6 @@ private fun ktorBomDependency(ktorVersion: TraceableString): MavenDependency = M
 private fun springBootBomDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
     coordinates = library("bom:org.springframework.boot:spring-boot-dependencies", springBootVersion),
 ).withTraceFrom(springBootVersion)
-
-private fun springCloudBomDependency(springCloudVersion: TraceableString): MavenDependency = MavenDependency(
-    coordinates = library("bom:org.springframework.boot:spring-cloud-dependencies", springCloudVersion),
-).withTraceFrom(springCloudVersion)
-
-private fun springAiBomDependency(springAiVersion: TraceableString): MavenDependency = MavenDependency(
-    coordinates = library("bom:org.springframework.boot:spring-ai-dependencies", springAiVersion),
-).withTraceFrom(springAiVersion)
 
 private fun springBootStarterDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
     coordinates = library("org.springframework.boot:spring-boot-starter", springBootVersion),
@@ -187,7 +171,6 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
 
     if (settings.ktor.enabled) {
         val ktorVersion = TraceableVersion(checkNotNull(settings.ktor.version), settings.ktor::version.valueBase)
-        add(ktorServerCoreDependency(ktorVersion))
         add(ktorBomDependency(ktorVersion))
         add(logbackDependency())
     }
@@ -214,11 +197,6 @@ private fun Fragment.inferredTestDependencies(): List<MavenDependency> {
         } else {
             add(kotlinTest)
             add(kotlinTestAnnotationsCommon)
-        }
-
-        if (settings.ktor.enabled) {
-            val ktorVersion = TraceableVersion(checkNotNull(settings.ktor.version), settings.ktor::version.valueBase)
-            add(ktorServerTestHost(ktorVersion))
         }
 
         if (settings.springBoot.enabled) {

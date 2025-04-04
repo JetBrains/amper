@@ -224,6 +224,7 @@ class BuiltInCatalog(
         put("ktor.server.sse", library("io.ktor:ktor-server-sse", ktorVersion))
         put("ktor.server.statusPages", library("io.ktor:ktor-server-status-pages", ktorVersion))
         put("ktor.server.swagger", library("io.ktor:ktor-server-swagger", ktorVersion))
+        put("ktor.server.testHost", library("io.ktor:ktor-server-test-host", ktorVersion))
         put("ktor.server.thymeleaf", library("io.ktor:ktor-server-thymeleaf", ktorVersion))
         put("ktor.server.tomcat", library("io.ktor:ktor-server-tomcat", ktorVersion))
         put("ktor.server.tomcat.jakarta", library("io.ktor:ktor-server-tomcat-jakarta", ktorVersion))

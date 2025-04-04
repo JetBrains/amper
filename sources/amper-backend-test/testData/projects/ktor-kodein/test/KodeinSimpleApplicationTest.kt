@@ -7,12 +7,12 @@ package io.ktor.samples.kodein
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.server.testing.*
-import org.junit.Assert.assertEquals
-import org.junit.Test
 import org.kodein.di.DI
 import org.kodein.di.bind
 import org.kodein.di.singleton
 import java.util.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /**
  * Integration tests for the [myKodeinApp] module from KodeinSimpleApplication.
