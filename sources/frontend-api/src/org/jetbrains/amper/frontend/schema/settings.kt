@@ -231,4 +231,146 @@ class SpringBootSettings: SchemaNode() {
 
     @SchemaDoc("Spring Boot version")
     var version by value(default = UsedVersions.springBootVersion)
+
+    @SchemaDoc("Spring Cloud settings")
+    var cloud by dependentValue(::version) {
+        SpringCloudSettings(version)
+    }
+
+    @SchemaDoc("Spring AI settings")
+    var ai by value(::SpringAiSettings)
+}
+
+
+class SpringCloudSettings(private val springBootVersion: String): SchemaNode() {
+
+    val springCloudDefaultVersion: String get() {
+        val versionParts = springBootVersion.split(".")
+        if (versionParts.size < 2) {
+            return "2025.0.0-M1"
+        }
+
+        val major = versionParts[0].toIntOrNull() ?: return "2025.0.0-M1"
+        val minor = versionParts[1].toIntOrNull() ?: return "2025.0.0-M1"
+
+        // Map of Spring Boot versions to Spring Cloud release trains
+        return when {
+            // Spring Boot 3.5.x -> Spring Cloud 2025.0.x (Northfields)
+            major == 3 && minor == 5 -> "2025.0.0-M1"
+
+            // Spring Boot 3.4.x -> Spring Cloud 2024.0.x (Moorgate)
+            major == 3 && minor == 4 -> "2024.0.0"
+
+            // Spring Boot 3.3.x, 3.2.x -> Spring Cloud 2023.0.x (Leyton)
+            major == 3 && (minor == 3 || minor == 2) -> "2023.0.4"
+
+            // Spring Boot 3.1.x, 3.0.x -> Spring Cloud 2022.0.x (Kilburn)
+            major == 3 && (minor == 1 || minor == 0) -> "2022.0.3"
+
+            // Spring Boot 2.7.x, 2.6.x -> Spring Cloud 2021.0.x (Jubilee)
+            major == 2 && (minor == 7 || minor == 6) -> "2021.0.8"
+
+            // Spring Boot 2.5.x, 2.4.x -> Spring Cloud 2020.0.x (Ilford)
+            major == 2 && (minor == 5 || minor == 4) -> "2020.0.3"
+
+            // Spring Boot 2.3.x, 2.2.x -> Spring Cloud Hoxton
+            major == 2 && (minor == 3 || minor == 2) -> "Hoxton.SR12"
+
+            // Spring Boot 2.1.x -> Spring Cloud Greenwich
+            major == 2 && minor == 1 -> "Greenwich.SR6"
+
+            // Spring Boot 2.0.x -> Spring Cloud Finchley
+            major == 2 && minor == 0 -> "Finchley.SR4"
+
+            // Spring Boot 1.5.x -> Spring Cloud Edgware/Dalston
+            major == 1 && minor == 5 -> "Edgware.SR5"
+
+            // For higher versions, use the latest known version
+            major > 3 || (major == 3 && minor > 5) -> "2025.0.0-M1"
+
+            // For other versions, use the latest version
+            else -> "2025.0.0-M1"
+        }
+    }
+
+    @SchemaDoc("Enable Spring Cloud")
+    var enabled by value(default = false)
+
+    @SchemaDoc("Spring Cloud version")
+    @KnownStringValues(
+        "2025.0.0-M1",
+        "2024.0.1",
+        "2024.0.0",
+        "2023.0.5",
+        "2023.0.4",
+        "2023.0.3",
+        "2023.0.2",
+        "2023.0.1",
+        "2023.0.0",
+        "2022.0.5",
+        "2022.0.4",
+        "2022.0.3",
+        "2022.0.2",
+        "2022.0.1",
+        "2022.0.0",
+        "2021.0.9",
+        "2021.0.8",
+        "2021.0.7",
+        "2021.0.6",
+        "2021.0.5",
+        "2021.0.4",
+        "2021.0.3",
+        "2021.0.2",
+        "2021.0.1",
+        "2021.0.0",
+        "2020.0.6",
+        "2020.0.5",
+        "2020.0.4",
+        "2020.0.3",
+        "2020.0.2",
+        "2020.0.1",
+        "2020.0.0",
+        "Hoxton.SR12",
+        "Hoxton.SR11",
+        "Hoxton.SR10",
+        "Hoxton.SR9",
+        "Hoxton.SR8",
+        "Hoxton.SR7",
+        "Hoxton.SR6",
+        "Hoxton.SR5",
+        "Hoxton.SR4",
+        "Hoxton.SR3",
+        "Hoxton.SR2",
+        "Hoxton.SR1",
+        "Hoxton.RELEASE",
+        "Greenwich.SR6",
+        "Greenwich.SR5",
+        "Greenwich.SR4",
+        "Greenwich.SR3",
+        "Greenwich.SR2",
+        "Greenwich.SR1",
+        "Greenwich.RELEASE",
+        "Finchley.SR4",
+        "Finchley.SR3",
+        "Finchley.SR2",
+        "Finchley.SR1",
+        "Finchley.RELEASE",
+        "Edgware.SR6",
+        "Edgware.SR5",
+        "Edgware.SR4",
+        "Edgware.SR3",
+        "Edgware.SR2",
+        "Edgware.SR1",
+        "Edgware.RELEASE",
+    )
+    var version by value(default = springCloudDefaultVersion)
+}
+
+
+class SpringAiSettings: SchemaNode() {
+    @SchemaDoc("Enable Spring AI")
+    var enabled by value(default = false)
+
+    @SchemaDoc("Spring AI version")
+    var version by value(default = "1.0.0-M6")
 }

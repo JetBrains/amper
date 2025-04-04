@@ -301,6 +301,142 @@ class BuiltInCatalog(
 
     put("logback.classic", library("ch.qos.logback:logback-classic", logbackVersion))
 
+    // Spring Boot dependencies (from Spring Initializr API - version 3.4.4)
+    val springBootVersion = "3.4.4"
+    
+    // Core Spring Boot
+    put("spring.boot", library("org.springframework.boot:spring-boot", springBootVersion))
+    put("spring.boot.starter", library("org.springframework.boot:spring-boot-starter", springBootVersion))
+    put("spring.boot.starter.actuator", library("org.springframework.boot:spring-boot-starter-actuator", springBootVersion))
+    put("spring.boot.starter.validation", library("org.springframework.boot:spring-boot-starter-validation", springBootVersion))
+    put("spring.boot.starter.cache", library("org.springframework.boot:spring-boot-starter-cache", springBootVersion))
+    put("spring.boot.devtools", library("org.springframework.boot:spring-boot-devtools", springBootVersion))
+    put("spring.boot.configuration.processor", library("org.springframework.boot:spring-boot-configuration-processor", springBootVersion))
+    put("spring.boot.docker.compose", library("org.springframework.boot:spring-boot-docker-compose", springBootVersion))
+    
+    // Web
+    put("spring.boot.starter.web", library("org.springframework.boot:spring-boot-starter-web", springBootVersion))
+    put("spring.boot.starter.webflux", library("org.springframework.boot:spring-boot-starter-webflux", springBootVersion))
+    put("spring.boot.starter.websocket", library("org.springframework.boot:spring-boot-starter-websocket", springBootVersion))
+    put("spring.boot.starter.web.services", library("org.springframework.boot:spring-boot-starter-web-services", springBootVersion))
+    put("spring.boot.starter.jersey", library("org.springframework.boot:spring-boot-starter-jersey", springBootVersion))
+    put("spring.boot.starter.hateoas", library("org.springframework.boot:spring-boot-starter-hateoas", springBootVersion))
+    put("spring.boot.starter.graphql", library("org.springframework.boot:spring-boot-starter-graphql", springBootVersion))
+    put("spring.boot.starter.rsocket", library("org.springframework.boot:spring-boot-starter-rsocket", springBootVersion))
+    
+    // Security
+    put("spring.boot.starter.security", library("org.springframework.boot:spring-boot-starter-security", springBootVersion))
+    put("spring.boot.starter.oauth2.client", library("org.springframework.boot:spring-boot-starter-oauth2-client", springBootVersion))
+    put("spring.boot.starter.oauth2.resource.server", library("org.springframework.boot:spring-boot-starter-oauth2-resource-server", springBootVersion))
+    put("spring.boot.starter.oauth2.authorization.server", library("org.springframework.boot:spring-boot-starter-oauth2-authorization-server", springBootVersion))
+    
+    // Templates
+    put("spring.boot.starter.thymeleaf", library("org.springframework.boot:spring-boot-starter-thymeleaf", springBootVersion))
+    put("spring.boot.starter.freemarker", library("org.springframework.boot:spring-boot-starter-freemarker", springBootVersion))
+    put("spring.boot.starter.mustache", library("org.springframework.boot:spring-boot-starter-mustache", springBootVersion))
+    put("spring.boot.starter.groovy.templates", library("org.springframework.boot:spring-boot-starter-groovy-templates", springBootVersion))
+    
+    // Data
+    put("spring.boot.starter.data.jpa", library("org.springframework.boot:spring-boot-starter-data-jpa", springBootVersion))
+    put("spring.boot.starter.data.jdbc", library("org.springframework.boot:spring-boot-starter-data-jdbc", springBootVersion))
+    put("spring.boot.starter.data.r2dbc", library("org.springframework.boot:spring-boot-starter-data-r2dbc", springBootVersion))
+    put("spring.boot.starter.jdbc", library("org.springframework.boot:spring-boot-starter-jdbc", springBootVersion))
+    put("spring.boot.starter.data.elasticsearch", library("org.springframework.boot:spring-boot-starter-data-elasticsearch", springBootVersion))
+    put("spring.boot.starter.data.mongodb", library("org.springframework.boot:spring-boot-starter-data-mongodb", springBootVersion))
+    put("spring.boot.starter.data.mongodb.reactive", library("org.springframework.boot:spring-boot-starter-data-mongodb-reactive", springBootVersion))
+    put("spring.boot.starter.data.neo4j", library("org.springframework.boot:spring-boot-starter-data-neo4j", springBootVersion))
+    put("spring.boot.starter.data.redis", library("org.springframework.boot:spring-boot-starter-data-redis", springBootVersion))
+    put("spring.boot.starter.data.redis.reactive", library("org.springframework.boot:spring-boot-starter-data-redis-reactive", springBootVersion))
+    put("spring.boot.starter.data.cassandra", library("org.springframework.boot:spring-boot-starter-data-cassandra", springBootVersion))
+    put("spring.boot.starter.data.cassandra.reactive", library("org.springframework.boot:spring-boot-starter-data-cassandra-reactive", springBootVersion))
+    put("spring.boot.starter.data.couchbase", library("org.springframework.boot:spring-boot-starter-data-couchbase", springBootVersion))
+    put("spring.boot.starter.data.couchbase.reactive", library("org.springframework.boot:spring-boot-starter-data-couchbase-reactive", springBootVersion))
+    put("spring.boot.starter.data.ldap", library("org.springframework.boot:spring-boot-starter-data-ldap", springBootVersion))
+    put("spring.boot.starter.data.rest", library("org.springframework.boot:spring-boot-starter-data-rest", springBootVersion))
+    put("spring.boot.starter.jooq", library("org.springframework.boot:spring-boot-starter-jooq", springBootVersion))
+    
+    // Messaging
+    put("spring.boot.starter.activemq", library("org.springframework.boot:spring-boot-starter-activemq", springBootVersion))
+    put("spring.boot.starter.amqp", library("org.springframework.boot:spring-boot-starter-amqp", springBootVersion))
+    put("spring.boot.starter.artemis", library("org.springframework.boot:spring-boot-starter-artemis", springBootVersion))
+    put("spring.boot.starter.integration", library("org.springframework.boot:spring-boot-starter-integration", springBootVersion))
+    put("spring.boot.starter.quartz", library("org.springframework.boot:spring-boot-starter-quartz", springBootVersion))
+    put("spring.boot.starter.batch", library("org.springframework.boot:spring-boot-starter-batch", springBootVersion))
+    put("spring.boot.starter.mail", library("org.springframework.boot:spring-boot-starter-mail", springBootVersion))
+    put("spring.boot.starter.pulsar", library("org.springframework.boot:spring-boot-starter-pulsar", springBootVersion))
+    put("spring.boot.starter.pulsar.reactive", library("org.springframework.boot:spring-boot-starter-pulsar-reactive", springBootVersion))
+    
+    // Database drivers 
+    put("spring.db.h2", library("com.h2database:h2", "2.2.224"))
+    put("spring.db.mysql", library("com.mysql:mysql-connector-j", "8.4.0"))
+    put("spring.db.postgresql", library("org.postgresql:postgresql", "42.7.3"))
+    put("spring.db.mariadb", library("org.mariadb.jdbc:mariadb-java-client", "3.4.0"))
+    put("spring.db.mssql", library("com.microsoft.sqlserver:mssql-jdbc", "12.6.1.jre11"))
+    put("spring.db.oracle", library("com.oracle.database.jdbc:ojdbc11", "23.4.0.23.09"))
+    put("spring.db.db2", library("com.ibm.db2:jcc", "11.5.9.0"))
+    put("spring.db.derby", library("org.apache.derby:derby", "10.17.1.0"))
+    put("spring.db.hsql", library("org.hsqldb:hsqldb", "2.7.2"))
+    
+    // Observability
+    put("spring.micrometer.tracing", library("io.micrometer:micrometer-tracing-bridge-brave", "1.3.3"))
+    put("spring.micrometer.prometheus", library("io.micrometer:micrometer-registry-prometheus", "1.12.4"))
+    put("spring.micrometer.datadog", library("io.micrometer:micrometer-registry-datadog", "1.12.4"))
+    put("spring.micrometer.graphite", library("io.micrometer:micrometer-registry-graphite", "1.12.4"))
+    put("spring.micrometer.new.relic", library("io.micrometer:micrometer-registry-new-relic", "1.12.4"))
+    put("spring.micrometer.wavefront", library("io.micrometer:micrometer-registry-wavefront", "1.12.4"))
+    put("spring.micrometer.dynatrace", library("io.micrometer:micrometer-registry-dynatrace", "1.12.4"))
+    put("spring.micrometer.influx", library("io.micrometer:micrometer-registry-influx", "1.12.4"))
+    put("spring.micrometer.otlp", library("io.micrometer:micrometer-registry-otlp", "1.12.4"))
+    
+    // Spring Cloud
+    put("spring.cloud.config.client", library("org.springframework.cloud:spring-cloud-starter-config", "2024.0.1"))
+    put("spring.cloud.config.server", library("org.springframework.cloud:spring-cloud-config-server", "2024.0.1"))
+    put("spring.cloud.eureka.client", library("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client", "2024.0.1"))
+    put("spring.cloud.eureka.server", library("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server", "2024.0.1"))
+    put("spring.cloud.gateway.mvc", library("org.springframework.cloud:spring-cloud-starter-gateway-mvc", "2024.0.1"))
+    put("spring.cloud.gateway", library("org.springframework.cloud:spring-cloud-starter-gateway", "2024.0.1"))
+    put("spring.cloud.openfeign", library("org.springframework.cloud:spring-cloud-starter-openfeign", "2024.0.1"))
+    put("spring.cloud.loadbalancer", library("org.springframework.cloud:spring-cloud-starter-loadbalancer", "2024.0.1"))
+    put("spring.cloud.resilience4j", library("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j", "2024.0.1"))
+    put("spring.cloud.stream", library("org.springframework.cloud:spring-cloud-stream", "2024.0.1"))
+    put("spring.cloud.task", library("org.springframework.cloud:spring-cloud-starter-task", "2024.0.1"))
+    put("spring.cloud.bus", library("org.springframework.cloud:spring-cloud-bus", "2024.0.1"))
+    put("spring.cloud.function", library("org.springframework.cloud:spring-cloud-function-context", "2024.0.1"))
+    put("spring.cloud.vault", library("org.springframework.cloud:spring-cloud-starter-vault-config", "2024.0.1"))
+    put("spring.cloud.zookeeper.config", library("org.springframework.cloud:spring-cloud-starter-zookeeper-config", "2024.0.1"))
+    put("spring.cloud.zookeeper.discovery", library("org.springframework.cloud:spring-cloud-starter-zookeeper-discovery", "2024.0.1"))
+    put("spring.cloud.consul.config", library("org.springframework.cloud:spring-cloud-starter-consul-config", "2024.0.1"))
+    put("spring.cloud.consul.discovery", library("org.springframework.cloud:spring-cloud-starter-consul-discovery", "2024.0.1"))
+    
+    // Spring AI
+    put("spring.ai.openai", library("org.springframework.ai:spring-ai-openai-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.azure.openai", library("org.springframework.ai:spring-ai-azure-openai-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.ollama", library("org.springframework.ai:spring-ai-ollama-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.mistral", library("org.springframework.ai:spring-ai-mistral-ai-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.anthropic", library("org.springframework.ai:spring-ai-anthropic-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.bedrock", library("org.springframework.ai:spring-ai-bedrock-ai-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.vertexai.gemini", library("org.springframework.ai:spring-ai-vertex-ai-gemini-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.stabilityai", library("org.springframework.ai:spring-ai-stability-ai-spring-boot-starter", "1.0.0-M6"))
+    
+    // Spring AI Vector Stores
+    put("spring.ai.vectorstore.pgvector", library("org.springframework.ai:spring-ai-pgvector-store-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.vectorstore.redis", library("org.springframework.ai:spring-ai-redis-store-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.vectorstore.milvus", library("org.springframework.ai:spring-ai-milvus-store-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.vectorstore.elasticsearch", library("org.springframework.ai:spring-ai-elasticsearch-store-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.vectorstore.pinecone", library("org.springframework.ai:spring-ai-pinecone-store-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.vectorstore.weaviate", library("org.springframework.ai:spring-ai-weaviate-store-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.vectorstore.chroma", library("org.springframework.ai:spring-ai-chroma-store-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.vectorstore.qdrant", library("org.springframework.ai:spring-ai-qdrant-store-spring-boot-starter", "1.0.0-M6"))
+    put("spring.ai.vectorstore.neo4j", library("org.springframework.ai:spring-ai-neo4j-store-spring-boot-starter", "1.0.0-M6"))
+    
+    // Other frameworks and libraries
+    put("spring.kafka", library("org.springframework.kafka:spring-kafka", "3.2.3"))
+    put("spring.session", library("org.springframework.session:spring-session-core", "3.4.1"))
+    put("spring.testcontainers", library("org.testcontainers:junit-jupiter", "1.19.7"))
+    put("spring.mybatis", library("org.mybatis.spring.boot:mybatis-spring-boot-starter", "3.0.4"))
+    put("spring.liquibase", library("org.liquibase:liquibase-core", "4.27.0"))
+    put("spring.flyway", library("org.flywaydb:flyway-core", "10.8.1"))
+    put("spring.lombok", library("org.projectlombok:lombok", "1.18.32"))
 }) {
     init {
         entries.forEach {
