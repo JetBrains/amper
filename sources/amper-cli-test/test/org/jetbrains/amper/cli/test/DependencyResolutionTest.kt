@@ -14,8 +14,7 @@ class DependencyResolutionTest : AmperCliTestBase() {
     fun `jvm exported dependencies`() = runSlowTest {
         val result = runCli(testProject("jvm-exported-dependencies"), "run", "--module=cli")
 
-        val find = "Process exited with exit code 0"
-        result.assertLogStartsWith(find, Level.INFO)
+        result.assertLogStartsWith("Process exited with exit code 0", Level.INFO)
         result.assertStdoutContains("From Root Module + OneTwo")
     }
 }

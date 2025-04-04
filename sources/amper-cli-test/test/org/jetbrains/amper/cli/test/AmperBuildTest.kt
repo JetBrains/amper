@@ -13,7 +13,9 @@ import java.util.jar.JarFile
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.io.path.walk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -81,6 +83,16 @@ class AmperBuildTest : AmperCliTestBase() {
             ERROR: Task ':shared:compileJvm' failed: Kotlin compilation failed:
             e: $file:2:26 Unresolved reference 'XXXX'.
         """.trimIndent(), lastLines.joinToString("\n"))
+    }
+
+    @Test
+    fun `simple multiplatform cli should compile windows on any platform`() = runSlowTest {
+        val projectContext = testProject("simple-multiplatform-cli")
+        val result = runCli(projectRoot = projectContext, "build", "--platform=mingwX64")
+
+        assertTrue("build must generate a 'windows-cli.exe' file somewhere") {
+            result.buildOutputRoot.walk().any { it.name == "windows-cli.exe" }
+        }
     }
 
     @Test
