@@ -19,7 +19,7 @@ import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.KspSettings
-import org.jetbrains.amper.frontend.schema.KtorServerSettings
+import org.jetbrains.amper.frontend.schema.KtorSettings
 import org.jetbrains.amper.frontend.schema.SpringBootSettings
 import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.ParcelizeSettings
@@ -85,7 +85,7 @@ fun Settings.mergeSettings(overwrite: Settings) =
         mergeProperty(Settings::ios, IosSettings::mergeIosSettings)
         mergeProperty(Settings::publishing, PublishingSettings::mergePublishingSettings)
         mergeProperty(Settings::native, NativeSettings::mergeNativeSettings)
-        mergeProperty(Settings::ktor, KtorServerSettings::mergeKtorServerSettings)
+        mergeProperty(Settings::ktor, KtorSettings::mergeKtorServerSettings)
         mergeProperty(Settings::springBoot, SpringBootSettings::mergeSpringBootSettings)
 
         mergeScalarProperty(Settings::junit)
@@ -236,10 +236,10 @@ private fun KoverHtmlSettings.mergeKoverHtmlSettings(overwrite: KoverHtmlSetting
     }
 
 context(MergeCtxWithProp<*, *>)
-private fun KtorServerSettings.mergeKtorServerSettings(overwrite: KtorServerSettings) =
-    mergeNode(overwrite, ::KtorServerSettings) {
-        mergeScalarProperty(KtorServerSettings::enabled)
-        mergeScalarProperty(KtorServerSettings::version)
+private fun KtorSettings.mergeKtorServerSettings(overwrite: KtorSettings) =
+    mergeNode(overwrite, ::KtorSettings) {
+        mergeScalarProperty(KtorSettings::enabled)
+        mergeScalarProperty(KtorSettings::version)
     }
 
 context(MergeCtxWithProp<*, *>)

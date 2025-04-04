@@ -67,9 +67,8 @@ class Settings : SchemaNode() {
     @PlatformSpecific(Platform.NATIVE)
     var native by nullableValue<NativeSettings>()
 
-    @PlatformSpecific(Platform.JVM)
     @SchemaDoc("Ktor server settings")
-    var ktor by value(::KtorServerSettings)
+    var ktor by value(::KtorSettings)
 
     @PlatformSpecific(Platform.JVM)
     @SchemaDoc("Spring Boot settings")
@@ -216,7 +215,7 @@ class NativeSettings : SchemaNode() {
     var entryPoint by nullableValue<String>()
 }
 
-class KtorServerSettings: SchemaNode() {
+class KtorSettings: SchemaNode() {
     @SchemaDoc("Enable Ktor server")
     var enabled by value(default = false)
 
