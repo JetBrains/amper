@@ -197,16 +197,6 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
         add(springBootBomDependency(springBootVersion))
         add(springBootStarterDependency(springBootVersion))
         add(kotlinReflect)
-
-        if (settings.springBoot.cloud.enabled) {
-            val springCloudVersion = TraceableVersion(checkNotNull(settings.springBoot.cloud.version), settings.springBoot.cloud::version.valueBase)
-            add(springCloudBomDependency(springCloudVersion))
-        }
-
-        if (settings.springBoot.ai.enabled) {
-            val springAiVersion = TraceableVersion(checkNotNull(settings.springBoot.ai.version), settings.springBoot.ai::version.valueBase)
-            add(springCloudBomDependency(springAiVersion))
-        }
     }
 }
 
