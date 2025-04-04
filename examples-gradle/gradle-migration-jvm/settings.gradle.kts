@@ -12,7 +12,7 @@ pluginManagement {
 
 plugins {
     // apply the plugin:
-    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2627")
+    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2631")
     id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
 }
 
