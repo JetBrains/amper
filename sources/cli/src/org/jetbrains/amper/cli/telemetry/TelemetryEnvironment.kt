@@ -5,10 +5,14 @@
 package org.jetbrains.amper.cli.telemetry
 
 import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.context.Context
 import io.opentelemetry.exporter.logging.otlp.internal.traces.OtlpStdoutSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
+import io.opentelemetry.sdk.trace.ReadWriteSpan
+import io.opentelemetry.sdk.trace.ReadableSpan
 import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.SpanProcessor
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.unwrap
@@ -23,6 +27,7 @@ import java.nio.file.StandardOpenOption.WRITE
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.concurrent.thread
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
@@ -32,6 +37,36 @@ import kotlin.io.path.exists
 import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.outputStream
+
+object CustomListenerSpanProcessor : SpanProcessor {
+
+    interface Listener {
+        fun onStart(context: Context, span: ReadWriteSpan) = Unit
+        fun onEnd(span: ReadableSpan) = Unit
+    }
+
+    val listeners = CopyOnWriteArrayList<Listener>()
+
+    override fun onStart(p0: Context, p1: ReadWriteSpan) {
+        listeners.forEach { it.onStart(p0, p1) }
+    }
+
+    override fun isStartRequired(): Boolean = true
+
+    override fun onEnd(p0: ReadableSpan) {
+        listeners.forEach { it.onEnd(p0) }
+    }
+
+    override fun isEndRequired(): Boolean = true
+
+    fun addListener(listener: Listener) {
+        listeners.addIfAbsent(listener)
+    }
+
+    fun removeListener(listener: Listener) {
+        listeners.remove(listener)
+    }
+}
 
 object TelemetryEnvironment {
 
@@ -89,6 +124,7 @@ object TelemetryEnvironment {
             .build()
         val tracerProvider = SdkTracerProvider.builder()
             .addSpanProcessor(BatchSpanProcessor.builder(exporter).build())
+            .addSpanProcessor(CustomListenerSpanProcessor)
             .setResource(resource)
             .build()
         val openTelemetry = OpenTelemetrySdk.builder()

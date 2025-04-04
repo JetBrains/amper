@@ -66,6 +66,14 @@ dependencies:
   - $libs.hot.reload.core
   - $libs.hot.reload.orchestration
 
+  - $libs.ktor.server.core
+  - $libs.ktor.server.netty
+  - $libs.ktor.server.sse
+  - $libs.ktor.server.content.negotiation
+
+  - $libs.ktor.serialization.kotlinx.json
+
+
 test-dependencies:
   - ../test-base
 

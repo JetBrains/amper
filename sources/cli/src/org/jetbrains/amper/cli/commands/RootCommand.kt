@@ -51,6 +51,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
             PackageCommand(),
             PublishCommand(),
             RunCommand(),
+            ServerCommand(),
             ShowCommand(),
             TaskCommand(),
             TestCommand(),
