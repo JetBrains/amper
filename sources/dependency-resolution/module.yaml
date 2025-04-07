@@ -28,4 +28,6 @@ test-dependencies:
 
 settings:
   kotlin:
-    serialization: json
+    serialization:
+      format: json
+      version: 1.7.3 # Should be aligned with the version of serialization used in the IntelliJ
