@@ -19,6 +19,10 @@ import kotlin.system.exitProcess
 
 suspend fun main(args: Array<String>) {
     try {
+        // We don't use RuntimeMXBean.startTime because it might give incorrect results if the system time changes.
+        // The uptime value used to have a bug because of this, but now uses a more precise OS-provided value.
+        // See https://bugs.openjdk.org/browse/JDK-6523160
+        val jvmUptimeMillisAtMainStart = ManagementFactory.getRuntimeMXBean().uptime
         val mainStartTime = Instant.now()
         TelemetryEnvironment.setup()
         spanBuilder("Root")
@@ -26,6 +30,11 @@ suspend fun main(args: Array<String>) {
             .setListAttribute("args", args.toList())
             .setListAttribute("jvm-args", ManagementFactory.getRuntimeMXBean().inputArguments)
             .use {
+                spanBuilder("JVM startup")
+                    .setStartTimestamp(mainStartTime.minusMillis(jvmUptimeMillisAtMainStart))
+                    .startSpan()
+                    .end(mainStartTime)
+
                 // we add a fake span here to represent the telemetry setup
                 spanBuilder("Setup telemetry").setStartTimestamp(mainStartTime).startSpan().end()
 
