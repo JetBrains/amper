@@ -14,6 +14,8 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.inputStream
+import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
 
 object AmperBuild {
     val isSNAPSHOT: Boolean
@@ -90,14 +92,20 @@ private fun computeDistributionHash(): String {
 @OptIn(ExperimentalStdlibApi::class)
 private fun md5All(classPathFiles: List<Path>): String {
     val hasher = MessageDigest.getInstance("md5")
-    classPathFiles.forEach { file ->
-        hasher.update(file)
-    }
+    hasher.update(classPathFiles)
     return hasher.digest().toHexString()
 }
 
+private fun MessageDigest.update(files: List<Path>) {
+    files.forEach { update(it) }
+}
+
 private fun MessageDigest.update(file: Path) {
-    file.inputStream().use { update(it) }
+    if (file.isDirectory()) {
+        update(file.listDirectoryEntries())
+    } else {
+        file.inputStream().use { update(it) }
+    }
 }
 
 private fun MessageDigest.update(data: InputStream) {
