@@ -376,12 +376,7 @@ class MavenDependency internal constructor(
 
     internal val messages: List<Message>
         get() = if (version == null) {
-            listOf(
-                Message(
-                    "Version of dependency is not specified, it has not been resolved by dependency resolution",
-                    severity = Severity.ERROR
-                )
-            )
+            listOf(DependencyResolutionDiagnostics.UnspecifiedDependencyVersion.asMessage())
         } else {
             metadataResolutionFailureMessage
                 ?.let { listOf(it) }

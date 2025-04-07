@@ -10,6 +10,7 @@ import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.fail
+import org.opentest4j.AssertionFailedError
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
@@ -17,6 +18,10 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
+import kotlin.io.path.writeLines
+import kotlin.io.path.writeText
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 abstract class BaseDRTest {
@@ -91,19 +96,37 @@ abstract class BaseDRTest {
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNode {
         val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
-        if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
-        val expected = goldenFile.readText().replace("\r\n", "\n").trim()
-        return doTest(
-            testInfo,
-            listOf(dependency),
-            scope,
-            platform,
-            repositories,
-            verifyMessages,
-            expected,
-            cacheBuilder,
-            filterMessages
-        )
+        return withActualDump(goldenFile) {
+            if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
+            val expected = goldenFile.readText().replace("\r\n", "\n").trim()
+            doTest(
+                testInfo,
+                listOf(dependency),
+                scope,
+                platform,
+                repositories,
+                verifyMessages,
+                expected,
+                cacheBuilder,
+                filterMessages
+            )
+        }
+    }
+
+    private fun <T> withActualDump(expectedResultPath: Path? = null, block: () -> T): T {
+        return try {
+            block()
+        } catch (e: AssertionFailedError) {
+            if (e.isExpectedDefined && e.isActualDefined && expectedResultPath != null) {
+                val actualResultPath = expectedResultPath.parent.resolve(expectedResultPath.fileName.name + ".tmp")
+                when(e.actual.value) {
+                    is List<*> -> actualResultPath.writeLines((e.actual.value as List<*>).map { it.toString() })
+                    is String -> actualResultPath.writeText(e.actual.value as String)
+                    else -> { /* do nothing */ }
+                }
+            }
+            throw e
+        }
     }
 
     protected fun doTest(
@@ -207,7 +230,9 @@ abstract class BaseDRTest {
         val fileList = testDataPath / "${testInfo.nameToGoldenFile()}.files.txt"
         if (!fileList.exists()) fail("Golden file with the downloaded files '$fileList' doesn't exist")
         val expected = fileList.readText().trim().lines()
-        assertFiles(expected, root, withSources, checkExistence, checkAutoAddedDocumentation)
+        withActualDump(fileList) {
+            assertFiles(expected, root, withSources, checkExistence, checkAutoAddedDocumentation)
+        }
     }
 
     protected suspend fun downloadAndAssertFiles(
@@ -290,6 +315,20 @@ abstract class BaseDRTest {
             assertTrue(
                 messages.isEmpty(),
                 "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}"
+            )
+        }
+        internal fun assertTheOnlyNonInfoMessage(root: DependencyNode, diagnostic: DiagnosticDescriptor, severity: Severity = diagnostic.defaultSeverity) {
+            val messages = root.children.single().messages.defaultFilterMessages()
+            assertNotNull(messages.singleOrNull(), "The only error message is expected, but found: ${messages.toSet()}")
+            assertEquals(
+                diagnostic.id,
+                messages.singleOrNull()!!.id,
+                "Unexpected error message"
+            )
+            assertEquals(
+                severity,
+                messages.singleOrNull()!!.severity,
+                "Unexpected severity of the error message"
             )
         }
     }

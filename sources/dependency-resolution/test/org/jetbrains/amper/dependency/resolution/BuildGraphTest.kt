@@ -13,7 +13,6 @@ import kotlin.io.path.extension
 import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class BuildGraphTest : BaseDRTest() {
@@ -479,13 +478,7 @@ class BuildGraphTest : BaseDRTest() {
         )
         assertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
 
-        root.distinctBfsSequence().forEach {
-            assertTrue(
-                it.messages.none { it.severity == Severity.ERROR },
-                "There should be no messages for $it: ${it.messages.filter { it.severity == Severity.ERROR }}"
-            )
-        }
-
+        root.verifyMessages()
     }
 
     @Test
@@ -874,13 +867,7 @@ class BuildGraphTest : BaseDRTest() {
             verifyMessages = false
         )
 
-        val messages = root.children.single().messages.defaultFilterMessages()
-        assertNotNull(messages.singleOrNull(), "The only error message is expected, but found: ${messages.toSet()}")
-        assertEquals(
-            "No variant for the platform jvm is provided by the library io.ktor:ktor-bom:2.3.9",
-            messages.singleOrNull()!!.message,
-            "Unexpected error message"
-        )
+        assertTheOnlyNonInfoMessage(root, DependencyResolutionDiagnostics.NoVariantForPlatform)
 
         val constraintsNumber = root
             .distinctBfsSequence()
@@ -938,13 +925,7 @@ class BuildGraphTest : BaseDRTest() {
             verifyMessages = false
         )
 
-        val messages = root.children.single().messages.defaultFilterMessages()
-        assertNotNull(messages.singleOrNull(), "The only error message is expected, but found: ${messages.toSet()}")
-        assertEquals(
-            "Version of dependency is not specified, it has not been resolved by dependency resolution",
-            messages.singleOrNull()!!.message,
-            "Unexpected error message"
-        )
+        assertTheOnlyNonInfoMessage(root, DependencyResolutionDiagnostics.UnspecifiedDependencyVersion)
     }
 
     /**
@@ -1309,6 +1290,25 @@ class BuildGraphTest : BaseDRTest() {
                 root
             )
         }
+    }
+
+    /**
+     * This test checks that the severity of errors occurred on resolving .module file is lowered to WARNING in case
+     * resolution was successfully finished with the help of pom.xml.
+     *
+     * Library accessibility-test-framework:4.1.1 has incorrectly published checksums
+     */
+    @Test
+    fun `com_google_android_apps_common_testing_accessibility_framework accessibility-test-framework 4_1_1`(testInfo: TestInfo) {
+        val root = doTestByFile(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
+            verifyMessages = false
+        )
+
+        assertTheOnlyNonInfoMessage(root, DependencyResolutionDiagnostics.UnableToDownloadChecksums, Severity.WARNING)
+        assertFiles (testInfo, root)
     }
 
     /**

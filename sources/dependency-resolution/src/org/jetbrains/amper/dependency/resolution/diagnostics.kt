@@ -51,4 +51,5 @@ object DependencyResolutionDiagnostics {
     val UnableToSaveDownloadedFile = DiagnosticDescriptor("unable.to.save.downloaded.file", Severity.ERROR)
     val UnexpectedErrorOnDownload = DiagnosticDescriptor("unexpected.error.on.download", Severity.ERROR)
     val UnexpectedDependencyFormat = DiagnosticDescriptor("unexpected.dependency.format", Severity.ERROR)
+    val UnspecifiedDependencyVersion = DiagnosticDescriptor("unspecified.dependency.version", Severity.ERROR)
 }

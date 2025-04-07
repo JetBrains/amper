@@ -1,0 +1,147 @@
+root
+╰─── com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1
+     ├─── androidx.core:core:1.8.0
+     │    ├─── androidx.annotation:annotation:1.2.0
+     │    ├─── androidx.annotation:annotation-experimental:1.1.0
+     │    ├─── androidx.collection:collection:1.0.0 -> 1.1.0
+     │    │    ╰─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    ├─── androidx.concurrent:concurrent-futures:1.0.0
+     │    │    ├─── com.google.guava:listenablefuture:1.0 -> 9999.0-empty-to-avoid-conflict-with-guava
+     │    │    ╰─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    ├─── androidx.lifecycle:lifecycle-runtime:2.3.1
+     │    │    ├─── androidx.arch.core:core-runtime:2.1.0
+     │    │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    │    ╰─── androidx.arch.core:core-common:2.1.0
+     │    │    │         ╰─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    ├─── androidx.lifecycle:lifecycle-common:2.3.1
+     │    │    │    ╰─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    ├─── androidx.arch.core:core-common:2.1.0 (*)
+     │    │    ╰─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    ╰─── androidx.versionedparcelable:versionedparcelable:1.1.1
+     │         ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │         ╰─── androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+     ├─── androidx.test.services:storage:1.4.1
+     │    ├─── androidx.annotation:annotation:1.2.0
+     │    ├─── androidx.test:monitor:1.5.0
+     │    │    ├─── androidx.annotation:annotation:1.2.0
+     │    │    ╰─── androidx.test:annotation:1.0.0
+     │    │         ├─── androidx.annotation:annotation:1.2.0
+     │    │         ╰─── androidx.annotation:annotation-experimental:1.1.0
+     │    ├─── com.google.code.findbugs:jsr305:2.0.1 -> 3.0.2
+     │    ╰─── androidx.test:annotation:1.0.0 (*)
+     ├─── androidx.test.espresso:espresso-core:3.4.0
+     │    ├─── androidx.test:runner:1.4.0
+     │    │    ├─── androidx.annotation:annotation:1.0.0 -> 1.2.0
+     │    │    ├─── androidx.test:monitor:1.4.0 -> 1.5.0 (*)
+     │    │    ├─── androidx.test.services:storage:1.4.0 -> 1.4.1 (*)
+     │    │    ╰─── junit:junit:4.12
+     │    │         ╰─── org.hamcrest:hamcrest-core:1.3
+     │    ├─── androidx.test.espresso:espresso-idling-resource:3.4.0
+     │    ├─── com.squareup:javawriter:2.1.1
+     │    ├─── javax.inject:javax.inject:1
+     │    ├─── org.hamcrest:hamcrest-library:1.3
+     │    │    ╰─── org.hamcrest:hamcrest-core:1.3
+     │    ├─── org.hamcrest:hamcrest-integration:1.3
+     │    │    ╰─── org.hamcrest:hamcrest-library:1.3 (*)
+     │    ╰─── com.google.code.findbugs:jsr305:2.0.1 -> 3.0.2
+     ├─── androidx.test:runner:1.4.0 (*)
+     ├─── androidx.test:rules:1.4.0
+     │    ╰─── androidx.test:runner:1.4.0 (*)
+     ├─── com.google.android.material:material:1.2.0-rc01
+     │    ├─── androidx.annotation:annotation:1.0.1 -> 1.2.0
+     │    ├─── androidx.appcompat:appcompat:1.1.0
+     │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    ├─── androidx.core:core:1.1.0 -> 1.8.0 (*)
+     │    │    ├─── androidx.cursoradapter:cursoradapter:1.0.0
+     │    │    │    ╰─── androidx.annotation:annotation:1.0.0 -> 1.2.0
+     │    │    ├─── androidx.fragment:fragment:1.1.0
+     │    │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    │    ├─── androidx.core:core:1.1.0 -> 1.8.0 (*)
+     │    │    │    ├─── androidx.collection:collection:1.1.0 (*)
+     │    │    │    ├─── androidx.viewpager:viewpager:1.0.0
+     │    │    │    │    ├─── androidx.annotation:annotation:1.0.0 -> 1.2.0
+     │    │    │    │    ├─── androidx.core:core:1.0.0 -> 1.8.0 (*)
+     │    │    │    │    ╰─── androidx.customview:customview:1.0.0
+     │    │    │    │         ├─── androidx.annotation:annotation:1.0.0 -> 1.2.0
+     │    │    │    │         ╰─── androidx.core:core:1.0.0 -> 1.8.0 (*)
+     │    │    │    ├─── androidx.loader:loader:1.0.0
+     │    │    │    │    ├─── androidx.annotation:annotation:1.0.0 -> 1.2.0
+     │    │    │    │    ├─── androidx.core:core:1.0.0 -> 1.8.0 (*)
+     │    │    │    │    ├─── androidx.lifecycle:lifecycle-livedata:2.0.0
+     │    │    │    │    │    ├─── androidx.arch.core:core-runtime:2.0.0 -> 2.1.0 (*)
+     │    │    │    │    │    ├─── androidx.lifecycle:lifecycle-livedata-core:2.0.0
+     │    │    │    │    │    │    ├─── androidx.lifecycle:lifecycle-common:2.0.0 -> 2.3.1 (*)
+     │    │    │    │    │    │    ├─── androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
+     │    │    │    │    │    │    ╰─── androidx.arch.core:core-runtime:2.0.0 -> 2.1.0 (*)
+     │    │    │    │    │    ╰─── androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
+     │    │    │    │    ╰─── androidx.lifecycle:lifecycle-viewmodel:2.0.0 -> 2.1.0
+     │    │    │    │         ╰─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    │    ├─── androidx.activity:activity:1.0.0
+     │    │    │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    │    │    ├─── androidx.core:core:1.1.0 -> 1.8.0 (*)
+     │    │    │    │    ├─── androidx.lifecycle:lifecycle-runtime:2.1.0 -> 2.3.1 (*)
+     │    │    │    │    ├─── androidx.lifecycle:lifecycle-viewmodel:2.1.0 (*)
+     │    │    │    │    ╰─── androidx.savedstate:savedstate:1.0.0
+     │    │    │    │         ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    │    │         ├─── androidx.arch.core:core-common:2.0.1 -> 2.1.0 (*)
+     │    │    │    │         ╰─── androidx.lifecycle:lifecycle-common:2.0.0 -> 2.3.1 (*)
+     │    │    │    ╰─── androidx.lifecycle:lifecycle-viewmodel:2.0.0 -> 2.1.0 (*)
+     │    │    ├─── androidx.appcompat:appcompat-resources:1.1.0
+     │    │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    │    ├─── androidx.core:core:1.0.1 -> 1.8.0 (*)
+     │    │    │    ├─── androidx.vectordrawable:vectordrawable:1.1.0
+     │    │    │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    │    │    ├─── androidx.core:core:1.1.0 -> 1.8.0 (*)
+     │    │    │    │    ╰─── androidx.collection:collection:1.1.0 (*)
+     │    │    │    ├─── androidx.vectordrawable:vectordrawable-animated:1.1.0
+     │    │    │    │    ├─── androidx.vectordrawable:vectordrawable:1.1.0 (*)
+     │    │    │    │    ├─── androidx.interpolator:interpolator:1.0.0
+     │    │    │    │    │    ╰─── androidx.annotation:annotation:1.0.0 -> 1.2.0
+     │    │    │    │    ╰─── androidx.collection:collection:1.1.0 (*)
+     │    │    │    ╰─── androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+     │    │    ├─── androidx.drawerlayout:drawerlayout:1.0.0
+     │    │    │    ├─── androidx.annotation:annotation:1.0.0 -> 1.2.0
+     │    │    │    ├─── androidx.core:core:1.0.0 -> 1.8.0 (*)
+     │    │    │    ╰─── androidx.customview:customview:1.0.0 (*)
+     │    │    ╰─── androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+     │    ├─── androidx.cardview:cardview:1.0.0
+     │    │    ╰─── androidx.annotation:annotation:1.0.0 -> 1.2.0
+     │    ├─── androidx.coordinatorlayout:coordinatorlayout:1.1.0
+     │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    ├─── androidx.core:core:1.1.0 -> 1.8.0 (*)
+     │    │    ├─── androidx.customview:customview:1.0.0 (*)
+     │    │    ╰─── androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+     │    ├─── androidx.core:core:1.2.0 -> 1.8.0 (*)
+     │    ├─── androidx.annotation:annotation-experimental:1.0.0 -> 1.1.0
+     │    ├─── androidx.fragment:fragment:1.0.0 -> 1.1.0 (*)
+     │    ├─── androidx.lifecycle:lifecycle-runtime:2.0.0 -> 2.3.1 (*)
+     │    ├─── androidx.recyclerview:recyclerview:1.0.0 -> 1.1.0
+     │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    ├─── androidx.core:core:1.1.0 -> 1.8.0 (*)
+     │    │    ├─── androidx.customview:customview:1.0.0 (*)
+     │    │    ╰─── androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+     │    ├─── androidx.transition:transition:1.2.0
+     │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │    │    ├─── androidx.core:core:1.0.1 -> 1.8.0 (*)
+     │    │    ╰─── androidx.collection:collection:1.0.0 -> 1.1.0 (*)
+     │    ├─── androidx.vectordrawable:vectordrawable:1.1.0 (*)
+     │    ╰─── androidx.viewpager2:viewpager2:1.0.0
+     │         ├─── androidx.annotation:annotation:1.1.0 -> 1.2.0
+     │         ├─── androidx.fragment:fragment:1.1.0 (*)
+     │         ├─── androidx.recyclerview:recyclerview:1.1.0 (*)
+     │         ├─── androidx.core:core:1.1.0 -> 1.8.0 (*)
+     │         ╰─── androidx.collection:collection:1.1.0 (*)
+     ├─── com.google.errorprone:error_prone_annotations:2.14.0
+     ├─── com.google.guava:guava:31.0.1-android
+     │    ├─── com.google.guava:failureaccess:1.0.1
+     │    ├─── com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+     │    ├─── com.google.code.findbugs:jsr305:3.0.2
+     │    ├─── org.checkerframework:checker-qual:3.12.0 -> 3.22.1
+     │    ├─── org.checkerframework:checker-compat-qual:2.5.5
+     │    ├─── com.google.errorprone:error_prone_annotations:2.7.1 -> 2.14.0
+     │    ╰─── com.google.j2objc:j2objc-annotations:1.3
+     ├─── com.google.protobuf:protobuf-javalite:3.19.1
+     ├─── org.checkerframework:checker-qual:3.22.1
+     ├─── org.hamcrest:hamcrest-core:1.3
+     ├─── org.hamcrest:hamcrest-library:1.3 (*)
+     ╰─── org.jsoup:jsoup:1.15.1
