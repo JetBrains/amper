@@ -78,7 +78,7 @@ data class AmperUserCacheRoot(val path: Path) : AmperUserCacheInitializationResu
             val localAppDataFromEnv = System.getenv("LOCALAPPDATA")?.takeIf { it.isNotBlank() }
             if (localAppDataFromEnv != null) {
                 val localAppDataFolder =
-                    localAppDataFromEnv.buildAmperCacheRoot(source = "\"LOCALAPPDATA\" environment variable")
+                    localAppDataFromEnv.buildAmperCacheRoot(source = "\"LOCALAPPDATA\" environment variable") { this / AMPER_CACHE_SUBFOLDER }
                 /**
                  * If the LOCALAPPDATA environment variable is corrupted in some way, we'll try retrieving
                  * the cache folder via the Known Folders system.
