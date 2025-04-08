@@ -360,8 +360,7 @@
         "ktor": {
           "x-intellij-html-description": "Ktor server settings",
           "title": "Ktor server settings",
-          "x-intellij-metadata": {"platforms": ["jvm"]},
-          "$ref": "#/$defs/KtorServerSettings"
+          "$ref": "#/$defs/KtorSettings"
         },
         "native": {
           "x-intellij-html-description": "Native applications settings",
@@ -967,7 +966,7 @@
       },
       "additionalProperties": false
     },
-    "KtorServerSettings": {
+    "KtorSettings": {
       "anyOf": [
         {
           "type": "object",
