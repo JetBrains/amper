@@ -18,7 +18,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.concurrency.withReentrantLock
-import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.extract.readEntireFileToByteArray
 import org.jetbrains.amper.core.extract.writeFully
 import org.jetbrains.amper.core.hashing.sha256String
@@ -46,11 +45,25 @@ import kotlin.io.path.visitFileTree
 import kotlin.time.measureTimedValue
 
 class ExecuteOnChangedInputs(
+    /**
+     * The directory where the cache state should be stored.
+     */
     private val stateRoot: Path,
-    private val currentAmperBuildNumber: String = AmperBuild.codeIdentifier,
+    /**
+     * Represents the identity of the code being executed. It should change when the cached logic changes.
+     * The cache will be discarded and rebuilt if it was stored using a different [codeVersion].
+     *
+     * One suitable option for this [codeVersion] is to use the hash of the currently running code.
+     * The [computeClassPathHash] helper provides a way to create a hash of all jars on the classpath.
+     *
+     * Note: this doesn't denote a namespace. If multiple instances of [ExecuteOnChangedInputs] are used with the same
+     * [stateRoot] but different [codeVersion]s, they will overwrite a single state, not access independent states.
+     * Use different [stateRoot]s if you need independent states.
+     */
+    private val codeVersion: String,
 ) {
     // increment this counter if you change the state file format
-    private val stateFileFormatVersion = 2
+    private val stateFileFormatVersion = 3
 
     /**
      * Executes the given [block] or returns an existing result from the incremental cache.
@@ -139,7 +152,7 @@ class ExecuteOnChangedInputs(
 
     private fun writeStateFile(stateFileChannel: FileChannel, configuration: Map<String, String>, inputs: List<Path>, result: ExecutionResult) {
         val state = State(
-            amperBuild = currentAmperBuildNumber,
+            codeVersion = codeVersion,
             configuration = configuration,
             inputs = inputs.map { it.pathString }.toSet(),
             inputsState = getPathListState(inputs, failOnMissing = false),
@@ -168,7 +181,7 @@ class ExecuteOnChangedInputs(
 
     @Serializable
     data class State(
-        val amperBuild: String,
+        val codeVersion: String,
         @Serializable(with = SortedMapSerializer::class)
         val configuration: Map<String, String>,
         val inputs: Set<String>,
@@ -251,11 +264,11 @@ class ExecuteOnChangedInputs(
             return null
         }
 
-        if (state.amperBuild != currentAmperBuildNumber) {
+        if (state.codeVersion != codeVersion) {
             logger.debug(
-                "[inc] State file '$stateFile' has a different Amper build number -> rebuilding\n" +
-                        "old: ${state.amperBuild}\n" +
-                        "current: $currentAmperBuildNumber"
+                "[inc] State file '$stateFile' was generated with potentially different logic -> rebuilding\n" +
+                        "old: ${state.codeVersion}\n" +
+                        "current: $codeVersion"
             )
             return CachedState(state = state, outdated = true)
         }

@@ -22,7 +22,9 @@ class ExecuteOnChangedInputsTest {
     @TempDir
     lateinit var tempDir: Path
 
-    private val executeOnChanged by lazy { ExecuteOnChangedInputs(tempDir / "incremental.state") }
+    private val executeOnChanged by lazy {
+        ExecuteOnChangedInputs(stateRoot = tempDir / "incremental.state", codeVersion = "1")
+    }
     private val executionsCount = AtomicInteger(0)
 
     @Test
@@ -58,8 +60,8 @@ class ExecuteOnChangedInputsTest {
     fun changeAmperBuildNumber() {
         val file = tempDir.resolve("file.txt").also { it.writeText("a") }
 
-        fun call(amperBuild: String) = runBlocking {
-            ExecuteOnChangedInputs(tempDir / "incremental.state", currentAmperBuildNumber = amperBuild).execute(
+        fun call(codeVersion: String) = runBlocking {
+            ExecuteOnChangedInputs(tempDir / "incremental.state", codeVersion = codeVersion).execute(
                 "1", emptyMap(), listOf(file)) {
                 executionsCount.incrementAndGet()
                 ExecuteOnChangedInputs.ExecutionResult(emptyList())

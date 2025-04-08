@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.test.android
 
-import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.suspendingRetryWithExponentialBackOff
@@ -74,10 +73,10 @@ internal object AndroidToolsInstaller {
 
         val result = ExecuteOnChangedInputs(
             stateRoot = androidSetupCacheDir / "incremental.state",
-            // We override the number here so that local changes DON'T invalidate the cache for this specific case.
-            // The idea is that, the vast majority of the time, nothing changes in how we download/store the SDK
-            // tools, so we don't want to re-download everything after every single change.
-            currentAmperBuildNumber = AmperBuild.mavenVersion,
+            // The cache should be invalidated when the code that downloads the tools changes.
+            // We don't need the full classpath hash here, because it would change each time we change a test.
+            // This constant string is a good compromise, but we must remember to update it if we change the code.
+            codeVersion = "android-sdk-1",
         ).execute(
             id = "android-sdk",
             configuration = configuration,
