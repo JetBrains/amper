@@ -302,7 +302,7 @@ class BuiltInCatalog(
         put("ktor.utils", library("io.ktor:ktor-utils"))
         put("ktor.websocket.serialization", library("io.ktor:ktor-websocket-serialization"))
 
-        put("logback.classic", library("ch.qos.logback:logback-classic"))
+        put("logback.classic", library("ch.qos.logback:logback-classic", logbackVersion))
     }
 
     // Spring Boot dependencies

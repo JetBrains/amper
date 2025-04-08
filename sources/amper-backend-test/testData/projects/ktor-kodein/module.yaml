@@ -6,6 +6,7 @@ dependencies:
   - $ktor.server.resources
   - $ktor.server.defaultHeaders
   - $ktor.server.htmlBuilder
+  - $logback.classic
   - org.kodein.di:kodein-di:7.17.0
 
 test-dependencies:

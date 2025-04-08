@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.MavenDependencyBase
@@ -60,11 +61,11 @@ private fun composeResourcesDependency(composeVersion: TraceableString) = MavenD
     coordinates = library("org.jetbrains.compose.components:components-resources", composeVersion),
 ).withTraceFrom(composeVersion)
 
-private fun ktorBomDependency(ktorVersion: TraceableString): MavenDependency = MavenDependency(
+private fun ktorBomDependency(ktorVersion: TraceableString): BomDependency = BomDependency(
     coordinates = library("bom:io.ktor:ktor-bom", ktorVersion),
 ).withTraceFrom(ktorVersion)
 
-private fun springBootBomDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
+private fun springBootBomDependency(springBootVersion: TraceableString): BomDependency = BomDependency(
     coordinates = library("bom:org.springframework.boot:spring-boot-dependencies", springBootVersion),
 ).withTraceFrom(springBootVersion)
 
@@ -125,7 +126,7 @@ private fun Fragment.allExternalMavenDependencies() = ancestralPath()
     .flatMap { it.externalDependencies }
     .filterIsInstance<MavenDependencyBase>()
 
-private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = buildList {
+private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> = buildList {
     add(kotlinStdlib)
 
     // hack for avoiding classpath clashes in android dependencies, until DR support dependency constraints from
