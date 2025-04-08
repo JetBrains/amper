@@ -16,10 +16,11 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.use
 
-private const val AMPER_SCOPE_NAME = "amper"
-
+// Note: the tracer name is not used in traces, and should just be linked to the instrumentation library itself.
+// It is different from the service name, which does appear in traces.
+// We use the package here, not as the service name, but as a way to refer to this library.
 private val tracer: Tracer
-    get() = GlobalOpenTelemetry.getTracer(AMPER_SCOPE_NAME)
+    get() = GlobalOpenTelemetry.getTracer("org.jetbrains.amper.telemetry")
 
 /**
  * Creates a [SpanBuilder] to configure a new span with the given [spanName].
