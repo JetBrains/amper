@@ -52,6 +52,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -172,6 +173,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -289,6 +291,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -408,6 +411,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -525,6 +529,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -644,6 +649,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -761,6 +767,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -878,6 +885,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -997,6 +1005,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -1116,6 +1125,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -1235,6 +1245,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -1352,6 +1363,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -1471,6 +1483,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -1589,6 +1602,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -1706,6 +1720,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {
@@ -1825,6 +1840,7 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: {

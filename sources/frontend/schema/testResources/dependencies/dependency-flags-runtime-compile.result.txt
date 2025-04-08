@@ -50,6 +50,7 @@ Fragments:
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: <default> {
@@ -151,6 +152,7 @@ Fragments:
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: <default> {
@@ -251,6 +253,7 @@ Fragments:
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: <default> {
@@ -353,6 +356,7 @@ Fragments:
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
+        parameters: <default> false
         release: <default> VERSION_17
       }
       kotlin: <default> {
