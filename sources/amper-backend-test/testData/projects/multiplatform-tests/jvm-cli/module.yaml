@@ -7,3 +7,4 @@ dependencies:
 settings:
   jvm:
     mainClass: package1.Program1Kt
+  junit: junit-4
