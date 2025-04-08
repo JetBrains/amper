@@ -11,3 +11,4 @@ settings:
   android:
     namespace: "com.jetbrains.sample.app"
   compose: enabled
+  junit: junit-4

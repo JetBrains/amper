@@ -11,3 +11,4 @@ settings:
     namespace: "com.jetbrains.sample.app"
     signing: enabled
   compose: enabled
+  junit: junit-4

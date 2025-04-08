@@ -5,3 +5,4 @@ dependencies:
 
 settings:
   compose: enabled
+  junit: junit-4
