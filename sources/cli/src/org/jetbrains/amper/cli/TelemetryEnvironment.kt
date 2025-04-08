@@ -5,8 +5,6 @@
 package org.jetbrains.amper.cli
 
 import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.api.common.AttributeKey
-import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.exporter.logging.otlp.internal.traces.OtlpStdoutSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
@@ -20,9 +18,9 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption.APPEND
 import java.nio.file.StandardOpenOption.CREATE
 import java.nio.file.StandardOpenOption.WRITE
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 import kotlin.concurrent.thread
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
@@ -47,15 +45,16 @@ object TelemetryEnvironment {
 
     private var movableFileOutputStream: MovableFileOutputStream? = null
 
-    private val resource: Resource = Resource.create(
-        Attributes.builder()
-            .put(AttributeKey.stringKey("service.name"), "Amper")
-            .put(AttributeKey.stringKey("service.version"), AmperBuild.mavenVersion)
-            .put(AttributeKey.stringKey("service.namespace"), "amper")
-            .put(AttributeKey.stringKey("os.type"), System.getProperty("os.name"))
-            .put(AttributeKey.stringKey("os.version"), System.getProperty("os.version").lowercase())
-            .put(AttributeKey.stringKey("host.arch"), System.getProperty("os.arch"))
-            .put(AttributeKey.stringKey("service.instance.id"), DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+    // Some standard attributes from https://opentelemetry.io/docs/specs/semconv/resource/
+    private val resource: Resource = Resource.getDefault().merge(
+        Resource.builder()
+            .put("service.name", "Amper")
+            .put("service.namespace", "org.jetbrains.amper")
+            .put("service.instance.id", UUID.randomUUID().toString())
+            .put("service.version", AmperBuild.mavenVersion)
+            .put("os.type", System.getProperty("os.name"))
+            .put("os.version", System.getProperty("os.version"))
+            .put("host.arch", System.getProperty("os.arch"))
             .build()
     )
 
