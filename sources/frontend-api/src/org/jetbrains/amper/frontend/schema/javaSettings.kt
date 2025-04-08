@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -76,4 +76,8 @@ class JvmSettings : SchemaNode() {
     @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application")
     @ProductTypeSpecific(ProductType.JVM_APP)
     var mainClass by nullableValue<String>()
+
+    @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). Add -parameters flag when calling [javac](https://docs.oracle.com/en/java/javase/17/docs/specs/man/javac.html).")
+    @ProductTypeSpecific(ProductType.JVM_APP)
+    var parameters by value(false)
 }

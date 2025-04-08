@@ -17,6 +17,7 @@ import org.jetbrains.amper.settings.unanimousSetting
 internal data class CompilationUserSettings(
     val kotlin: KotlinUserSettings,
     val jvmRelease: JavaVersion?,
+    val java: JavaUserSettings = JavaUserSettings(),
 )
 
 @Serializable
@@ -54,9 +55,13 @@ internal data class KotlinUserSettings(
     val allOpen: AllOpenConfig = AllOpenConfig()
 )
 
+@Serializable
+internal data class JavaUserSettings(val parameters: Boolean = false)
+
 internal fun List<Fragment>.mergedCompilationSettings(): CompilationUserSettings = CompilationUserSettings(
     kotlin = mergedKotlinSettings(),
     jvmRelease = unanimousOptionalSetting("jvm.release") { it.jvm.release },
+    java = mergedJavaSettings(),
 )
 
 // TODO Consider for which Kotlin settings we should enforce consistency between fragments.
@@ -93,6 +98,10 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
             ?.map { it.value }.orEmpty(),
         presets = unanimousOptionalKotlinSetting("allOpen.presets") { it.allOpen.presets }?.map { it.schemaValue }.orEmpty()
     )
+)
+
+internal fun List<Fragment>.mergedJavaSettings(): JavaUserSettings = JavaUserSettings(
+    parameters = unanimousSetting("jvm.parameters") { it.jvm.parameters },
 )
 
 private fun Fragment.hasAndroidTarget(): Boolean = platforms.contains(Platform.ANDROID)

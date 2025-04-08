@@ -319,12 +319,14 @@ class BuiltInCatalog(
 
         // Spring Boot
         put("spring.boot.starter", library("org.springframework.boot:spring-boot-starter"))
+        put("spring.boot.starter.test", library("org.springframework.boot:spring-boot-starter-test"))
         put("spring.boot.starter.actuator", library("org.springframework.boot:spring-boot-starter-actuator"))
         put("spring.boot.starter.validation", library("org.springframework.boot:spring-boot-starter-validation"))
         put("spring.boot.starter.cache", library("org.springframework.boot:spring-boot-starter-cache"))
         put("spring.boot.devtools", library("org.springframework.boot:spring-boot-devtools"))
         put("spring.boot.configuration.processor", library("org.springframework.boot:spring-boot-configuration-processor"))
         put("spring.boot.docker.compose", library("org.springframework.boot:spring-boot-docker-compose"))
+        put("spring.boot.testcontainers", library("org.springframework.boot:spring-boot-testcontainers"))
 
         // Web
         put("spring.boot.starter.web", library("org.springframework.boot:spring-boot-starter-web"))
@@ -474,14 +476,11 @@ class BuiltInCatalog(
         // Other frameworks and libraries
         put("spring.kafka", library("org.springframework.kafka:spring-kafka"))
         put("spring.session", library("org.springframework.session:spring-session-core"))
-        put("spring.testcontainers", library("org.testcontainers:junit-jupiter"))
         put("spring.mybatis", library("org.mybatis.spring.boot:mybatis-spring-boot-starter", "3.0.4"))
-        put("spring.lombok", library("org.projectlombok:lombok"))
+        put("lombok", library("org.projectlombok:lombok"))
         put("spring.restdocs", library("org.springframework.restdocs:spring-restdocs-mockmvc"))
-        put("spring.liquibase", library("org.liquibase:liquibase-core"))
-        put("spring.flyway", library("org.flywaydb:flyway-core"))
-
-        put("unboundid.ldap", library("com.unboundid:unboundid-ldapsdk"))
+        put("liquibase", library("org.liquibase:liquibase-core"))
+        put("flyway", library("org.flywaydb:flyway-core"))
     }
     
 

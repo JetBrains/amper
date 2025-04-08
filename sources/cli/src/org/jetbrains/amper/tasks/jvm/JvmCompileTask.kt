@@ -333,6 +333,10 @@ class JvmCompileTask(
                 add(userSettings.jvmRelease.releaseNumber.toString())
             }
 
+            if (userSettings.java.parameters) {
+                add("-parameters")
+            }
+
             add("-classpath")
             add(classpath.joinToString(File.pathSeparator))
 
