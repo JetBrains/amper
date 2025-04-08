@@ -72,7 +72,7 @@ interface ModuleDependenciesResolver {
         resolutionInput: ResolutionInput
     ): DependencyNode
 
-    fun dependencyInsight(group: String, module: String, node: DependencyNode): DependencyNode
+    fun dependencyInsight(group: String, module: String, node: DependencyNode, resolvedVersionOnly: Boolean = false): DependencyNode
 
     suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder
 }

@@ -24,22 +24,47 @@ class DependencyNodeWithChildren(internal val node: DependencyNode): DependencyN
  *
  * Every node of the returned graph is of the type [DependencyNodeWithChildren] holding the corresponding node of the original graph inside.
  */
-fun filterGraph(group: String, module: String, graph: DependencyNode): DependencyNode {
-    val nodes = graph.distinctBfsSequence()
-        .filter {
-            it is MavenDependencyNode &&  it.group == group && it.module == module
-                    || it is MavenDependencyConstraintNode && it.group == group && it.module == module
+fun filterGraph(group: String, module: String, graph: DependencyNode, resolvedVersionOnly: Boolean = false): DependencyNode {
+    val nodes = graph.distinctBfsSequence(
+        childrenPredicate = { child, parent ->
+            !resolvedVersionOnly
+                    || child.correspondsToResolvedVersionOf(group, module)
+                    || (!child.belongsTo(group, module) && parent.children.none { it.correspondsToResolvedVersionOf(group, module) })
         }
+    ).filter { it.belongsTo(group, module) }
         .toSet()
+        .let {
+            if (resolvedVersionOnly && it.any { it is MavenDependencyNode })
+                // Ignoring redundant constraints
+                it.filterIsInstance<MavenDependencyNode>().toSet()
+            else
+                it
+        }
 
     if (nodes.isEmpty()) return DependencyNodeWithChildren(graph) // root node without children
 
     val nodesWithDecisiveParents = mutableSetOf<DependencyNode>()
-    nodes.addDecisiveParents(nodesWithDecisiveParents, graph)
+    nodes.addDecisiveParents(nodesWithDecisiveParents, graph, group, module, resolvedVersionOnly)
 
-    val filteredGraph = graph.withFilteredChildren { it in nodesWithDecisiveParents }
+    val filteredGraph = graph.withFilteredChildren { child, parent ->
+        !resolvedVersionOnly && child in nodesWithDecisiveParents
+                ||
+                (resolvedVersionOnly
+                        && child in nodesWithDecisiveParents
+                        && (child.correspondsToResolvedVersionOf(group, module)
+                        || !parent.correspondsToResolvedVersionOf(group, module)
+                        && !parent.children.any { it.correspondsToResolvedVersionOf(group, module) })
+                        )
+    }
     return filteredGraph
 }
+
+private fun DependencyNode.belongsTo(group: String, module: String): Boolean =
+    this is MavenDependencyNode && this.group == group && this.module == module
+            || this is MavenDependencyConstraintNode && this.group == group && this.module == module
+
+private fun DependencyNode.correspondsToResolvedVersionOf(group: String, module: String): Boolean =
+     this.belongsTo(group, module) && this.originalVersion() == this.resolvedVersion()
 
 /**
  * It takes a collection of nodes and calculates all intermediate nodes up to the root
@@ -58,7 +83,7 @@ fun filterGraph(group: String, module: String, graph: DependencyNode): Dependenc
  *   then all dependency nodes together with effective constraint are added to the resulting set,
  *   and the method is called for parents of the resulting set nodes.
  */
-private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: MutableSet<DependencyNode>, graph: DependencyNode) {
+private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: MutableSet<DependencyNode>, graph: DependencyNode, groupForInsight: String, moduleForInsight: String, resolvedVersionOnly: Boolean) {
     val allDependenciesAndConstraints = filter { it is MavenDependencyNode || it is MavenDependencyConstraintNode }.toSet()
     val noneFilterableNodes = this - allDependenciesAndConstraints
 
@@ -110,6 +135,10 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
                     // constraints only => take both dependencies and constraints
                     (dependencies + effectiveNodes).toSet()
                 }
+            }.filter {
+                !resolvedVersionOnly
+                        || it.isThereAPathToTopBypassingEffectiveParents(group, module)
+                        && it.isThereAPathToTopBypassingEffectiveParents(groupForInsight, moduleForInsight)
             }
         }
     } + noneFilterableNodes
@@ -118,8 +147,33 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
 
     addedNodes.forEach {
         // todo (AB) : Some parents might be obsolete (unreachable from the root) in case those are left from canceled conflicting subgraph
-        it.parents.toSet().addDecisiveParents(nodesWithDecisiveParents, graph)
+        it.parents.toSet().addDecisiveParents(nodesWithDecisiveParents, graph, groupForInsight, moduleForInsight, resolvedVersionOnly)
     }
+}
+
+/**
+ * This method check that the node is reachable from the root via some path
+ * that doesn't contain the given dependency of the effective (resolved) version.
+ *
+ * If there is no such path, that means that the node can't affect the version of given dependency, bcause it was added
+ * to the graph because of that dependency in the first place.
+ *
+ * Effective parents are either
+ * parents if a dependency version was not overridden
+ * or a set of nodes that caused the version of dependency to be overridden
+ */
+private fun DependencyNode.isThereAPathToTopBypassingEffectiveParents(group: String, module: String): Boolean {
+    if (parents.isEmpty()) return true // we reach the root
+
+    val filteredEffectiveParents = when(this) {
+        is MavenDependencyNode -> if (this.resolvedVersion() != this.originalVersion()) overriddenBy else parents
+        is MavenDependencyConstraintNode -> if (this.resolvedVersion() != this.originalVersion()) overriddenBy else parents
+        else -> parents
+    }.filterNot { it.correspondsToResolvedVersionOf(group, module) }
+
+    if (filteredEffectiveParents.isEmpty()) return false // node has effective parents, but all of them are among those we should bypass along the way to root
+
+    return filteredEffectiveParents.any { it.isThereAPathToTopBypassingEffectiveParents(group, module) }
 }
 
 /**
@@ -130,15 +184,16 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
  */
 private fun DependencyNode.withFilteredChildren(
     cachedChildrenMap: MutableMap<DependencyNode, DependencyNodeWithChildren> = mutableMapOf(),
-    childrenFilter: (DependencyNode) -> Boolean
+    childrenFilter: (DependencyNode, DependencyNode) -> Boolean
 ): DependencyNodeWithChildren {
-    return cachedChildrenMap[this] ?: run {
-        val nodeWithFilteredChildren = DependencyNodeWithChildren(this)
+    val currentNode = this
+    return cachedChildrenMap[currentNode] ?: run {
+        val nodeWithFilteredChildren = DependencyNodeWithChildren(currentNode)
         // Put the node in the map before traversing children
-        cachedChildrenMap[this] = nodeWithFilteredChildren
+        cachedChildrenMap[currentNode] = nodeWithFilteredChildren
 
         val children = children
-            .filter(childrenFilter)
+            .filter { childrenFilter(it, currentNode) }
             .map { it.withFilteredChildren(cachedChildrenMap, childrenFilter) }
         nodeWithFilteredChildren.children.addAll(children)
 

@@ -162,7 +162,7 @@ class Resolver {
     suspend fun downloadDependencies(node: DependencyNode, downloadSources: Boolean = false) {
         coroutineScope {
             node
-                .distinctBfsSequence { it !is MavenDependencyConstraintNode }
+                .distinctBfsSequence { child, _ -> child !is MavenDependencyConstraintNode }
                 .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
                 .forEach {
                     launch {
@@ -176,7 +176,7 @@ class Resolver {
 
     private suspend fun DependencyNode.closeResolutionContexts() {
         coroutineScope {
-            distinctBfsSequence { it !is MavenDependencyConstraintNode }
+            distinctBfsSequence { child, _ -> child !is MavenDependencyConstraintNode }
                 .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
                 .map { it.context }.distinct()
                 .forEach {
@@ -243,13 +243,13 @@ private class ConflictResolver(
      */
     private suspend fun unregisterOrphanNodes(nodes: Collection<DependencyNode>) {
         nodes.flatMap {
-            it.distinctBfsSequence {
-                // the only parent leads to the unregistered top node
+            it.distinctBfsSequence { child, _ ->
+            // the only parent leads to the unregistered top node
                 // => the node could be unregistered as well with all children
-                it.parents.size == 1
+                child.parents.size == 1
                         // all parents lead to one of the unregistered top nodes
                         // => the node could be unregistered as well with all children
-                        || !it.isThereAPathToTopBypassing(nodes)
+                        || !child.isThereAPathToTopBypassing(nodes)
                 // otherwise, the node is referenced from some resolved non-conflicted node
                 // => it should be kept with all children (avoid unregistering)
             }
@@ -421,7 +421,7 @@ interface DependencyNode {
      * If [childrenPredicate] is false for a node, the node is skipped and will not appear in the sequence.
      * The subgraph of the skipped node is also not traversed, so these descendant nodes won't be in the sequence unless
      * they are reached via some other node.
-     * Using [childrenPredicate] is, therefore, not the same as filtering the resulting sequence after the fact.
+     * Using [childrenPredicate] is, therefore, different from filtering the resulting sequence after the fact.
      *
      * The nodes are distinct in terms of referential identity, which is enough to eliminate duplicate "requested"
      * dependency triplets. This does NOT eliminate nodes that requested the same dependency in different versions,
@@ -429,14 +429,14 @@ interface DependencyNode {
      *
      * The returned sequence is guaranteed to be finite, as it prunes the graph when encountering duplicates (and thus cycles).
      */
-    fun distinctBfsSequence(childrenPredicate: (DependencyNode) -> Boolean = { true }): Sequence<DependencyNode> = sequence {
+    fun distinctBfsSequence(childrenPredicate: (DependencyNode, DependencyNode) -> Boolean = { _,_ -> true }): Sequence<DependencyNode> = sequence {
         val queue = LinkedList(listOf(this@DependencyNode))
         val visited = mutableSetOf<DependencyNode>()
         while (queue.isNotEmpty()) {
             val node = queue.remove()
             if (visited.add(node)) {
                 yield(node)
-                queue.addAll(node.children.filter { it !in visited && childrenPredicate(it) })
+                queue.addAll(node.children.filter { it !in visited && childrenPredicate(it, node) })
             }
         }
     }

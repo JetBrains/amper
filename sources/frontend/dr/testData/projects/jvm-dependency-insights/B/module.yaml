@@ -1,0 +1,9 @@
+product: jvm/app
+
+dependencies:
+  - org.jetbrains.compose.ui:ui-tooling:1.6.0
+
+settings:
+  compose:
+    enabled: true
+    version: 1.5.0

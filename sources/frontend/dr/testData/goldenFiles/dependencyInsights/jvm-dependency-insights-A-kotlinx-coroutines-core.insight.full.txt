@@ -1,0 +1,12 @@
+A:COMPILE:JVM
+├─── A:common:org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0
+│    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0 -> 1.9.0
+│         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
+│         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0
+│         │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
+│         │              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.9.0 (c)
+│         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0 (*)
+╰─── A:common:org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0
+     ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0
+          ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
+          ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0 (*)

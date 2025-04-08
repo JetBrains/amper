@@ -74,8 +74,8 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         }
     }
 
-    override fun dependencyInsight(group: String, module: String, node: DependencyNode): DependencyNode =
-        filterGraph(group, module, node)
+    override fun dependencyInsight(group: String, module: String, node: DependencyNode, resolvedVersionOnly: Boolean): DependencyNode =
+        filterGraph(group, module, node, resolvedVersionOnly)
 
     override suspend fun AmperModule.dependencyInsight(group: String, module: String, resolutionInput: ResolutionInput): DependencyNode {
         val graph = resolveDependencies(resolutionInput)
@@ -118,7 +118,7 @@ class DirectMavenDependencyUnspecifiedVersionResolver(): UnspecifiedVersionResol
         boms.forEach { bom ->
             val resolvedVersion = bom.children
                 .filterIsInstance<MavenDependencyConstraintNode>()
-                .firstOrNull() { it.key == node.key }
+                .firstOrNull { it.key == node.key }
                 ?.resolvedVersion()
 
             if (resolvedVersion != null) {

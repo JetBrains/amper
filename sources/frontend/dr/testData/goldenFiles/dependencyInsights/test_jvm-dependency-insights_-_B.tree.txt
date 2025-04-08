@@ -1,0 +1,51 @@
+B:COMPILE:JVM
+├─── B:common:org.jetbrains.compose.ui:ui-tooling:1.6.0
+│    ╰─── org.jetbrains.compose.ui:ui-tooling:1.6.0
+│         ╰─── org.jetbrains.compose.ui:ui-tooling-desktop:1.6.0
+│              ├─── org.jetbrains.compose.runtime:runtime:1.6.0
+│              │    ╰─── org.jetbrains.compose.runtime:runtime-desktop:1.6.0
+│              │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.9.0
+│              │              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0
+│              │                   ├─── org.jetbrains:annotations:23.0.0
+│              │                   ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
+│              │                   │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (c)
+│              │                   ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20
+│              │                        ╰─── org.jetbrains:annotations:13.0 -> 23.0.0
+│              ├─── org.jetbrains.compose.ui:ui:1.6.0
+│              │    ╰─── org.jetbrains.compose.ui:ui-desktop:1.6.0
+│              │         ├─── org.jetbrains.compose.runtime:runtime-saveable:1.6.0
+│              │         │    ╰─── org.jetbrains.compose.runtime:runtime-saveable-desktop:1.6.0
+│              │         │         ╰─── org.jetbrains.compose.runtime:runtime:1.6.0 (*)
+│              │         ├─── org.jetbrains.compose.ui:ui-geometry:1.6.0
+│              │         │    ╰─── org.jetbrains.compose.ui:ui-geometry-desktop:1.6.0
+│              │         ├─── org.jetbrains.compose.ui:ui-graphics:1.6.0
+│              │         │    ╰─── org.jetbrains.compose.ui:ui-graphics-desktop:1.6.0
+│              │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.6.0
+│              │         │         │    ╰─── org.jetbrains.compose.ui:ui-unit-desktop:1.6.0
+│              │         │         │         ╰─── org.jetbrains.compose.ui:ui-geometry:1.6.0 (*)
+│              │         │         ╰─── org.jetbrains.skiko:skiko:0.7.93
+│              │         │              ╰─── org.jetbrains.skiko:skiko-awt:0.7.93
+│              │         ├─── org.jetbrains.compose.ui:ui-text:1.6.0
+│              │         │    ╰─── org.jetbrains.compose.ui:ui-text-desktop:1.6.0
+│              │         │         ├─── org.jetbrains.compose.ui:ui-graphics:1.6.0 (*)
+│              │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.6.0 (*)
+│              │         │         ╰─── org.jetbrains.skiko:skiko:0.7.93 (*)
+│              │         ├─── org.jetbrains.compose.ui:ui-unit:1.6.0 (*)
+│              │         ├─── org.jetbrains.compose.ui:ui-util:1.6.0
+│              │         │    ╰─── org.jetbrains.compose.ui:ui-util-desktop:1.6.0
+│              │         ╰─── org.jetbrains.skiko:skiko:0.7.93 (*)
+│              ├─── org.jetbrains.compose.ui:ui-tooling-data:1.6.0
+│              │    ╰─── org.jetbrains.compose.ui:ui-tooling-data-desktop:1.6.0
+│              │         ├─── org.jetbrains.compose.runtime:runtime:1.6.0 (*)
+│              │         ╰─── org.jetbrains.compose.ui:ui:1.6.0 (*)
+│              ╰─── org.jetbrains.compose.ui:ui-tooling-preview:1.6.0
+│                   ╰─── org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.6.0
+│                        ╰─── org.jetbrains.compose.runtime:runtime:1.6.0 (*)
+├─── B:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+├─── B:common:org.jetbrains.compose.runtime:runtime:1.5.0
+│    ╰─── org.jetbrains.compose.runtime:runtime:1.5.0 -> 1.6.0 (*)
+├─── B:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+╰─── B:jvm:org.jetbrains.compose.runtime:runtime:1.5.0
+     ╰─── org.jetbrains.compose.runtime:runtime:1.5.0 -> 1.6.0 (*)

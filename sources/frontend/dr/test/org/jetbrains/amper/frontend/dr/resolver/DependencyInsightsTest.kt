@@ -206,14 +206,127 @@ class DependencyInsightsTest : BaseModuleDrTest() {
         }
     }
 
-    private fun assertInsightByFile(group: String, module: String, graph: DependencyNode, insightFile: String) {
-        val expected = getGoldenFileText("$insightFile.insight.txt", fileDescription = "Golden file with insight")
-        assertInsight(group, module, graph, expected)
+    @Test
+    fun `test jvm-dependency-insights - BOM from updated branch is not reported`(testInfo: TestInfo) {
+        val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
+
+        val aGraph = runBlocking {
+            doTestByFile(
+                testInfo,
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.ClassPathType(
+                        scope = ResolutionScope.COMPILE,
+                        platforms = setOf(ResolutionPlatform.JVM),
+                        isTest = false,
+                    ),
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
+                module = "A",
+            )
+        }
+
+        // Subgraph for "org.jetbrains.kotlinx:kotlin-coroutine-core" shows places referencing the dependency
+        // of the exact effective version only (${UsedVersions.kotlinVersion}).
+        // There are other paths to this dependency referencing another version of this dependency, those are skipped as well as same-version constraints.
+        runBlocking {
+            assertInsightByFile(
+                group = "org.jetbrains.kotlinx",
+                module = "kotlinx-coroutines-core",
+                graph = aGraph,
+                insightFile = "jvm-dependency-insights-A-kotlinx-coroutines-core"
+            )
+
+            // Assert that all dependencies "org.jetbrains.kotlin:kotlinx-coroutines-core" have a correct overriddenBy
+            aGraph
+                .distinctBfsSequence()
+                .filterIsInstance<MavenDependencyNode>()
+                .filter { it.group == "org.jetbrains.kotlinx" && it.module == "kotlinx-coroutines-core" }
+                .forEach {
+                    if (it.originalVersion() == it.resolvedVersion()) {
+                        assertNull(it.overriddenBy.takeIf { it.isNotEmpty() })
+                    } else {
+                        assertNotNull(
+                            it.overriddenBy,
+                            "Expected non-null 'overriddenBy' since ${it.resolvedVersion()} doesn't match ${it.originalVersion()}"
+                        )
+                        val dependencyNode = it.overriddenBy.filterIsInstance<MavenDependencyNode>().singleOrNull()
+                        assertNotNull(
+                            dependencyNode,
+                            "Expected the only dependency node in 'overriddenBy', but found ${
+                                it.overriddenBy.map { it.key }.toSet()
+                            }"
+                        )
+                        assertEquals(
+                            dependencyNode.key.name, "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+                            "Unexpected dependency node ${dependencyNode.key}"
+                        )
+                        val constraintNode = it.overriddenBy.filterIsInstance<MavenDependencyConstraintNode>().singleOrNull()
+                        assertNotNull(
+                            constraintNode,
+                            "Expected the only constraint node in 'overriddenBy', but found ${
+                                it.overriddenBy.map { it.key }.toSet()
+                            }"
+                        )
+                        assertEquals(
+                            constraintNode.key.name, "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+                            "Unexpected constraint node ${constraintNode.key}"
+                        )
+                    }
+                }
+        }
     }
 
-    private fun assertInsight(group: String, module: String, graph: DependencyNode, expected: String) {
+    @Test
+    fun `test jvm-dependency-insights - B`(testInfo: TestInfo) {
+        val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
+
+        val bGraph = runBlocking {
+            doTestByFile(
+                testInfo,
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.ClassPathType(
+                        scope = ResolutionScope.COMPILE,
+                        platforms = setOf(ResolutionPlatform.JVM),
+                        isTest = false,
+                    ),
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
+                module = "B",
+            )
+        }
+
+        // Subgraph for "org.jetbrains.kotlinx:kotlin-coroutine-core" shows places referencing the dependency
+        // of the exact effective version only (${UsedVersions.kotlinVersion}).
+        // There are other paths to this dependency referencing another version of this dependency, those are skipped as well as same-version constraints.
+        runBlocking {
+            assertInsightByFile(
+                group = "org.jetbrains.compose.runtime",
+                module = "runtime",
+                graph = bGraph,
+                insightFile = "jvm-dependency-insights-B-compose-runtime"
+            )
+        }
+    }
+
+    private fun assertInsightByFile(group: String, module: String, graph: DependencyNode, insightFile: String) {
+        val expectedResolved = getGoldenFileText("$insightFile.insight.resolved.txt", fileDescription = "Golden file with insight for resolved version only")
+        withActualDump(expectedResultPath = testGoldenFilesRoot.resolve("$insightFile.insight.resolved.txt")) {
+            assertInsight(group, module, graph, expectedResolved, resolvedVersionOnly = true)
+        }
+
+        val expectedFull = getGoldenFileText("$insightFile.insight.full.txt", fileDescription = "Golden file with full insight")
+        withActualDump(expectedResultPath = testGoldenFilesRoot.resolve("$insightFile.insight.full.txt")) {
+            assertInsight(group, module, graph, expectedFull, resolvedVersionOnly = false)
+        }
+    }
+
+    private fun assertInsight(group: String, module: String, graph: DependencyNode, expected: String, resolvedVersionOnly: Boolean = false) {
         with(moduleDependenciesResolver) {
-            val subGraph = dependencyInsight(group, module, graph)
+            val subGraph = dependencyInsight(group, module, graph, resolvedVersionOnly)
             assertEquals(expected, subGraph)
         }
     }

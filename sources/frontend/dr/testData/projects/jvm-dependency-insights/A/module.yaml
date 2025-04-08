@@ -1,0 +1,11 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+# Direct dependencies on other modules.
+# Corresponding test case checks that transitive dependencies are collected correctly
+dependencies:
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1
+  - org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0
+  - org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0
+

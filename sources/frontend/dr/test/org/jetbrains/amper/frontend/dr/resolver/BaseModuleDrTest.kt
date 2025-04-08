@@ -19,11 +19,14 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.TestInfo
+import org.opentest4j.AssertionFailedError
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
+import kotlin.io.path.writeLines
+import kotlin.io.path.writeText
 import kotlin.sequences.forEach
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -49,7 +52,9 @@ abstract class BaseModuleDrTest {
     ): DependencyNode {
         val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.tree.txt"
         val expected = getGoldenFileText(fileName, fileDescription = "Golden file for resolved tree")
-        return doTest(aom, resolutionInput, verifyMessages, expected, module, fragment, messagesCheck)
+        return withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+            doTest(aom, resolutionInput, verifyMessages, expected, module, fragment, messagesCheck)
+        }
     }
 
     protected suspend fun doTest(
@@ -168,6 +173,22 @@ abstract class BaseModuleDrTest {
                 messages.isEmpty(),
                 "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}"
             )
+        }
+
+        internal inline fun <T> withActualDump(expectedResultPath: Path? = null, block: () -> T): T {
+            return try {
+                block()
+            } catch (e: AssertionFailedError) {
+                if (e.isExpectedDefined && e.isActualDefined && expectedResultPath != null) {
+                    val actualResultPath = expectedResultPath.parent.resolve(expectedResultPath.fileName.name + ".tmp")
+                    when(e.actual.value) {
+                        is List<*> -> actualResultPath.writeLines((e.actual.value as List<*>).map { it.toString() })
+                        is String -> actualResultPath.writeText(e.actual.value as String)
+                        else -> { /* do nothing */ }
+                    }
+                }
+                throw e
+            }
         }
     }
 }

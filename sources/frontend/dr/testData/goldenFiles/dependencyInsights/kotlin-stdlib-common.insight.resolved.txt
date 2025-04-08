@@ -1,0 +1,11 @@
+shared:COMPILE:IOS_ARM64
+├─── shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
+├─── shared:apple:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+├─── shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+╰─── shared:native:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)

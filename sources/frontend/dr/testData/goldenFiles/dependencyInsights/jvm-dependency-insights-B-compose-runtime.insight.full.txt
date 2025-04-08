@@ -1,0 +1,17 @@
+B:COMPILE:JVM
+╰─── B:common:org.jetbrains.compose.ui:ui-tooling:1.6.0
+     ╰─── org.jetbrains.compose.ui:ui-tooling:1.6.0
+          ╰─── org.jetbrains.compose.ui:ui-tooling-desktop:1.6.0
+               ├─── org.jetbrains.compose.runtime:runtime:1.6.0
+               ├─── org.jetbrains.compose.ui:ui:1.6.0
+               │    ╰─── org.jetbrains.compose.ui:ui-desktop:1.6.0
+               │         ╰─── org.jetbrains.compose.runtime:runtime-saveable:1.6.0
+               │              ╰─── org.jetbrains.compose.runtime:runtime-saveable-desktop:1.6.0
+               │                   ╰─── org.jetbrains.compose.runtime:runtime:1.6.0
+               ├─── org.jetbrains.compose.ui:ui-tooling-data:1.6.0
+               │    ╰─── org.jetbrains.compose.ui:ui-tooling-data-desktop:1.6.0
+               │         ├─── org.jetbrains.compose.runtime:runtime:1.6.0
+               │         ╰─── org.jetbrains.compose.ui:ui:1.6.0 (*)
+               ╰─── org.jetbrains.compose.ui:ui-tooling-preview:1.6.0
+                    ╰─── org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.6.0
+                         ╰─── org.jetbrains.compose.runtime:runtime:1.6.0

@@ -47,7 +47,7 @@ internal fun AmperModule.buildDependenciesGraph(
 }
 
 private fun ModuleDependencyNodeWithModule.getModuleDependencies(): Sequence<AmperModule> {
-    return distinctBfsSequence { it is ModuleDependencyNodeWithModule }
+    return distinctBfsSequence { child, _ ->  child is ModuleDependencyNodeWithModule }
         .drop(1)
         .filterIsInstance<ModuleDependencyNodeWithModule>()
         .map { it.module }
