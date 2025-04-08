@@ -5,8 +5,11 @@
 package org.jetbrains.amper.util
 
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.cli.AmperVersion
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 
 fun ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot): ExecuteOnChangedInputs =
-    ExecuteOnChangedInputs(buildOutputRoot.path.resolve("incremental.state"), AmperBuild.codeIdentifier)
+    ExecuteOnChangedInputs(
+        stateRoot = buildOutputRoot.path.resolve("incremental.state"),
+        codeVersion = AmperVersion.codeIdentifier,
+    )

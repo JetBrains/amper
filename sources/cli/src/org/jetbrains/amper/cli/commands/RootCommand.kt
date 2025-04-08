@@ -18,6 +18,7 @@ import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.cli.AmperVersion
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.TelemetryEnvironment
 import org.jetbrains.amper.cli.commands.show.ShowCommand
@@ -36,7 +37,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         versionOption(
             version = AmperBuild.mavenVersion,
             names = setOf("--version", "-v"),
-            message = { AmperBuild.banner },
+            message = { AmperVersion.banner },
         )
         subcommands(
             BuildCommand(),

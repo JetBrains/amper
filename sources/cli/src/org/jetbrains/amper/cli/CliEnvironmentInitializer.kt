@@ -52,7 +52,7 @@ object CliEnvironmentInitializer {
 
     fun setupFileLogging(logsRoot: AmperBuildLogsRoot) {
         val logFileBanner = """
-            ${AmperBuild.banner}
+            ${AmperVersion.banner}
             running on ${System.getProperty("os.name")} ${System.getProperty("os.version").lowercase()} jvm arch ${System.getProperty("os.arch")}
         """.trimIndent().trim() + "\n\n"
 
