@@ -1,6 +1,7 @@
 product: android/app
 
 settings:
+  junit: junit-4
   android:
     namespace: com.jetbrains.sample.app
     parcelize:
