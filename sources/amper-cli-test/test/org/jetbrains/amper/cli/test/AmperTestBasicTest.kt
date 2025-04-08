@@ -29,9 +29,9 @@ class AmperTestBasicTest : AmperCliTestBase() {
         result.assertStdoutContains("[         1 tests successful      ]")
         result.assertStdoutContains("[         0 tests failed          ]")
 
-        val xmlReport = result.buildOutputRoot.resolve("reports/jvm-kotlin-test-smoke/jvm/TEST-junit-vintage.xml")
+        val xmlReport = result.buildOutputRoot.resolve("reports/jvm-kotlin-test-smoke/jvm/TEST-junit-jupiter.xml")
             .readText()
-        assertContains(xmlReport, "<testcase name=\"smoke\" classname=\"apkg.ATest\"")
+        assertContains(xmlReport, "<testcase name=\"smoke()\" classname=\"apkg.ATest\"")
     }
 
     @Test
@@ -40,7 +40,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
         val result = runCli(projectRoot = projectRoot, "test", assertEmptyStdErr = false, expectedExitCode = 1)
         result.assertStderrContains("ERROR: JVM tests failed for module 'jvm-failed-test' with exit code 1 (see errors above)")
         result.assertStdoutContains("MethodSource [className = 'FailedTest', methodName = 'shouldFail', methodParameterTypes = '']")
-        result.assertStdoutContains("=> java.lang.AssertionError: Expected value to be true.")
+        result.assertStdoutContains("=> Exception: org.opentest4j.AssertionFailedError: Expected value to be true.")
     }
 
     @Test
