@@ -317,16 +317,12 @@ class BuiltInCatalog(
         put("spring.ai.bom", library("bom:org.springframework.ai:spring-ai-bom", UsedVersions.springAiVersion))
         put("spring.ai.bom.timefold", library("bom:ai.timefold.solver:timefold-solver-bom", UsedVersions.springAiTimeFoldVersion))
 
-        // Spring Boot
+        // Generic starters
         put("spring.boot.starter", library("org.springframework.boot:spring-boot-starter"))
         put("spring.boot.starter.test", library("org.springframework.boot:spring-boot-starter-test"))
         put("spring.boot.starter.actuator", library("org.springframework.boot:spring-boot-starter-actuator"))
         put("spring.boot.starter.validation", library("org.springframework.boot:spring-boot-starter-validation"))
         put("spring.boot.starter.cache", library("org.springframework.boot:spring-boot-starter-cache"))
-        put("spring.boot.devtools", library("org.springframework.boot:spring-boot-devtools"))
-        put("spring.boot.configuration.processor", library("org.springframework.boot:spring-boot-configuration-processor"))
-        put("spring.boot.docker.compose", library("org.springframework.boot:spring-boot-docker-compose"))
-        put("spring.boot.testcontainers", library("org.springframework.boot:spring-boot-testcontainers"))
 
         // Web
         put("spring.boot.starter.web", library("org.springframework.boot:spring-boot-starter-web"))
@@ -341,14 +337,14 @@ class BuiltInCatalog(
         // Security
         put("spring.boot.starter.security", library("org.springframework.boot:spring-boot-starter-security"))
         put("spring.boot.starter.oauth2.client", library("org.springframework.boot:spring-boot-starter-oauth2-client"))
-        put("spring.boot.starter.oauth2.resource.server", library("org.springframework.boot:spring-boot-starter-oauth2-resource-server"))
-        put("spring.boot.starter.oauth2.authorization.server", library("org.springframework.boot:spring-boot-starter-oauth2-authorization-server"))
+        put("spring.boot.starter.oauth2.resourceServer", library("org.springframework.boot:spring-boot-starter-oauth2-resource-server"))
+        put("spring.boot.starter.oauth2.authorizationServer", library("org.springframework.boot:spring-boot-starter-oauth2-authorization-server"))
 
         // Templates
         put("spring.boot.starter.thymeleaf", library("org.springframework.boot:spring-boot-starter-thymeleaf"))
         put("spring.boot.starter.freemarker", library("org.springframework.boot:spring-boot-starter-freemarker"))
         put("spring.boot.starter.mustache", library("org.springframework.boot:spring-boot-starter-mustache"))
-        put("spring.boot.starter.groovy.templates", library("org.springframework.boot:spring-boot-starter-groovy-templates"))
+        put("spring.boot.starter.groovyTemplates", library("org.springframework.boot:spring-boot-starter-groovy-templates"))
 
         // Data
         put("spring.boot.starter.data.jpa", library("org.springframework.boot:spring-boot-starter-data-jpa"))
@@ -367,7 +363,7 @@ class BuiltInCatalog(
         put("spring.boot.starter.data.couchbase.reactive", library("org.springframework.boot:spring-boot-starter-data-couchbase-reactive"))
         put("spring.boot.starter.data.ldap", library("org.springframework.boot:spring-boot-starter-data-ldap"))
         put("spring.boot.starter.data.rest", library("org.springframework.boot:spring-boot-starter-data-rest"))
-        // don't support yet
+// we don't support jooq yet
 //    put("spring.boot.starter.jooq", library("org.springframework.boot:spring-boot-starter-jooq"))
 
         // Messaging
@@ -380,6 +376,12 @@ class BuiltInCatalog(
         put("spring.boot.starter.mail", library("org.springframework.boot:spring-boot-starter-mail"))
         put("spring.boot.starter.pulsar", library("org.springframework.boot:spring-boot-starter-pulsar"))
         put("spring.boot.starter.pulsar.reactive", library("org.springframework.boot:spring-boot-starter-pulsar-reactive"))
+
+        // Devtools
+        put("spring.boot.devtools", library("org.springframework.boot:spring-boot-devtools"))
+        put("spring.boot.configuration.processor", library("org.springframework.boot:spring-boot-configuration-processor"))
+        put("spring.boot.docker.compose", library("org.springframework.boot:spring-boot-docker-compose"))
+        put("spring.boot.testcontainers", library("org.springframework.boot:spring-boot-testcontainers"))
 
         // Database drivers
         put("db.h2", library("com.h2database:h2"))
@@ -423,6 +425,18 @@ class BuiltInCatalog(
         put("spring.cloud.consul.config", library("org.springframework.cloud:spring-cloud-starter-consul-config"))
         put("spring.cloud.consul.discovery", library("org.springframework.cloud:spring-cloud-starter-consul-discovery"))
 
+        // Azure
+        put("spring.cloud.azure.support", library("com.azure.spring:spring-cloud-azure-starter"))
+        put("spring.cloud.azure.keyvault", library("com.azure.spring:spring-cloud-azure-starter-keyvault"))
+        put("spring.cloud.azure.activeDirectory", library("com.azure.spring:spring-cloud-azure-starter-active-directory"))
+        put("spring.cloud.azure.cosmos", library("com.azure.spring:spring-cloud-azure-starter-data-cosmos"))
+        put("spring.cloud.azure.storage", library("com.azure.spring:spring-cloud-azure-starter-storage"))
+
+        // Google Cloud
+        put("spring.cloud.gcp", library("com.google.cloud:spring-cloud-gcp-starter"))
+        put("spring.cloud.gcp.pubsub", library("com.google.cloud:spring-cloud-gcp-starter-pubsub"))
+        put("spring.cloud.gcp.storage", library("com.google.cloud:spring-cloud-gcp-starter-storage"))
+
         // Spring AI
         put("spring.ai.openai", library("org.springframework.ai:spring-ai-openai-spring-boot-starter"))
         put("spring.ai.azure.openai", library("org.springframework.ai:spring-ai-azure-openai-spring-boot-starter"))
@@ -451,38 +465,28 @@ class BuiltInCatalog(
         put("spring.ai.markdown.document.reader", library("org.springframework.ai:spring-ai-markdown-document-reader"))
         put("spring.ai.tika.document.reader", library("org.springframework.ai:spring-ai-tika-document-reader"))
 
-        // Azure
-        put("spring.azure.support", library("com.azure.spring:spring-cloud-azure-starter"))
-        put("spring.azure.keyvault", library("com.azure.spring:spring-cloud-azure-starter-keyvault"))
-        put("spring.azure.active.directory", library("com.azure.spring:spring-cloud-azure-starter-active-directory"))
-        put("spring.azure.cosmos.db", library("com.azure.spring:spring-cloud-azure-starter-data-cosmos"))
-        put("spring.azure.storage", library("com.azure.spring:spring-cloud-azure-starter-storage"))
-
-        // Google Cloud
-        put("spring.cloud.gcp", library("com.google.cloud:spring-cloud-gcp-starter"))
-        put("spring.cloud.gcp.pubsub", library("com.google.cloud:spring-cloud-gcp-starter-pubsub"))
-        put("spring.cloud.gcp.storage", library("com.google.cloud:spring-cloud-gcp-starter-storage"))
-
         // Admin components
-        put("spring.codecentric.boot.admin.client", library("de.codecentric:spring-boot-admin-starter-client"))
-        put("spring.codecentric.boot.admin.server", library("de.codecentric:spring-boot-admin-starter-server"))
+        put("spring.boot.admin.client.codecentric", library("de.codecentric:spring-boot-admin-starter-client"))
+        put("spring.boot.admin.server.codecentric", library("de.codecentric:spring-boot-admin-starter-server"))
 
         // Advanced capabilities
         put("spring.modulith", library("org.springframework.modulith:spring-modulith-starter-core"))
         put("spring.shell", library("org.springframework.shell:spring-shell-starter"))
-        // don't support yet
+
+// we don't support grpc yet
 //    put("spring.grpc", library("org.springframework.grpc:spring-grpc-spring-boot-starter"))
 
         // Other frameworks and libraries
         put("spring.kafka", library("org.springframework.kafka:spring-kafka"))
         put("spring.session", library("org.springframework.session:spring-session-core"))
-        put("spring.mybatis", library("org.mybatis.spring.boot:mybatis-spring-boot-starter", "3.0.4"))
-        put("lombok", library("org.projectlombok:lombok"))
+        put("spring.mybatis", library("org.mybatis.spring.boot:mybatis-spring-boot-starter"))
         put("spring.restdocs", library("org.springframework.restdocs:spring-restdocs-mockmvc"))
+
+        put("lombok", library("org.projectlombok:lombok"))
         put("liquibase", library("org.liquibase:liquibase-core"))
         put("flyway", library("org.flywaydb:flyway-core"))
     }
-    
+
 
 }) {
     init {
