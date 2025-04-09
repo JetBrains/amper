@@ -2,17 +2,32 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.TempDirExtension
+import org.jetbrains.amper.test.server.withFileServer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
+import org.junit.jupiter.api.extension.RegisterExtension
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.writeText
 import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
+
+    @RegisterExtension
+    private val tempDirExtension = TempDirExtension()
+
+    private val tempRoot: Path
+        get() = tempDirExtension.path
 
     @Test
     fun `running jvm - Gradle 8_7`() = test(
@@ -438,11 +453,30 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun `respect dependencyResolutionManagement block in non-amper subprojects`() = test(
-        projectName = "gradle-interoperability-settings-deps-management",
-        "assemble",
-        expectOutputToHave = "BUILD SUCCESSFUL",
-    )
+    fun `respect dependencyResolutionManagement block in non-amper subprojects`() = runTest {
+        val fakeMavenRoot = tempRoot.resolve("fake-maven-root").also { it.createDirectories() }
+
+        val fakeDepDir = fakeMavenRoot.resolve("com/example/unique/my-unique-dep/1.0.0").createDirectories()
+        fakeDepDir.resolve("my-unique-dep-1.0.0.pom").writeText("""
+            <project>
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example.unique</groupId>
+              <artifactId>my-unique-dep</artifactId>
+              <version>1.0.0</version>
+            </project>
+        """.trimIndent())
+        val testJar = Path("${pathToProjects}/gradle-interoperability-settings-deps-management/my-unique-dep-1.0.0.jar")
+        testJar.copyTo(fakeDepDir.resolve("my-unique-dep-1.0.0.jar"))
+
+        withFileServer(wwwRoot = fakeMavenRoot, testReporter = testReporter) { baseUrl ->
+            test(
+                projectName = "gradle-interoperability-settings-deps-management",
+                "assemble",
+                expectOutputToHave = "BUILD SUCCESSFUL",
+                additionalEnv = mapOf("FAKE_MAVEN_REPO_URL" to baseUrl)
+            )
+        }
+    }
 
     @Test
     fun `compose-desktop packaging`() = test(

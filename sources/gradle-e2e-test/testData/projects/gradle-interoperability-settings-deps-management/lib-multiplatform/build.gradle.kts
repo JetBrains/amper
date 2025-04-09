@@ -13,9 +13,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                // only in https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental
-                // which is declared in settings.gradle.kts in the dependencyResolutionManagement block
-                implementation("io.ktor:ktor-client-core:3.0.0-wasm2")
+                // from the fake maven repo, declared in settings.gradle.kts in the dependencyResolutionManagement block
+                implementation("com.example.unique:my-unique-dep:1.0.0")
             }
         }
     }

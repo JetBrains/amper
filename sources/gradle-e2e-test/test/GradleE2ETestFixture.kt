@@ -38,7 +38,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
     val daemonManagerExtension = GradleDaemonManager
 
     @RegisterExtension
-    private val testReporter = TestReporterExtension()
+    protected val testReporter = TestReporterExtension()
 
     /**
      * Daemon, used to run this test.

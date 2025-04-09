@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         google()
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
+        maven(System.getenv("FAKE_MAVEN_REPO_URL"))
     }
 }
 
