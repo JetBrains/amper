@@ -45,14 +45,18 @@ private fun HttpExchange.sendResponse(code: Int, body: String? = null) {
     responseBody.buffered().use { it.write(bytes) }
 }
 
-internal fun HttpExchange.respondWithLocalFile(filePath: Path) {
+internal fun HttpExchange.respondWithLocalFile(filePath: Path, headersOnly: Boolean = false) {
     if (!filePath.isRegularFile()) {
         sendResponseHeaders(404, -1)
         responseBody.close()
         return
     }
     sendResponseHeaders(200, filePath.fileSize())
-    responseBody.writeFileContents(filePath)
+    if (headersOnly) {
+        responseBody.close()
+    } else {
+        responseBody.writeFileContents(filePath)
+    }
 }
 
 internal fun OutputStream.writeFileContents(cachedFile: Path) {

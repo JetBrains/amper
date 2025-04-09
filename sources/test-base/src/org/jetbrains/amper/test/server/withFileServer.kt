@@ -46,6 +46,7 @@ suspend fun withFileServer(
             }
 
             when (exchange.requestMethod) {
+                "HEAD" -> exchange.respondWithLocalFile(fsPath, headersOnly = true)
                 "GET" -> exchange.respondWithLocalFile(fsPath)
                 "PUT" -> {
                     val bytes = exchange.requestBody.use { it.readBytes() }
@@ -68,7 +69,7 @@ suspend fun withFileServer(
                         return@createContext
                     }
                 }
-                else -> exchange.respondInvalidMethod(listOf("GET", "PUT"))
+                else -> exchange.respondInvalidMethod(listOf("GET", "PUT", "HEAD"))
             }
         }
         context.authenticator = authenticator
