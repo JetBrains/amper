@@ -1,0 +1,5 @@
+product: jvm/app
+
+dependencies:
+  - io.ktor:ktor-client:3.0.3
+  - org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0

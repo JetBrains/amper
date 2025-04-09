@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.dr.resolver
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
@@ -17,12 +18,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import kotlin.io.path.div
-import kotlin.io.path.exists
-import kotlin.io.path.readText
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.fail
 
 class DependencyInsightsTest : BaseModuleDrTest() {
     override val testGoldenFilesRoot: Path = super.testGoldenFilesRoot / "dependencyInsights"
@@ -206,8 +204,13 @@ class DependencyInsightsTest : BaseModuleDrTest() {
         }
     }
 
+    /**
+     * Test checks that if node has child that caused version overriding,
+     * then other children of this node are not included in the insight graph
+     * built for a resolved version diagnostic.
+     */
     @Test
-    fun `test jvm-dependency-insights - BOM from updated branch is not reported`(testInfo: TestInfo) {
+    fun `test jvm-dependency-insights - A`(testInfo: TestInfo) {
         val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
 
         val aGraph = runBlocking {
@@ -312,6 +315,68 @@ class DependencyInsightsTest : BaseModuleDrTest() {
         }
     }
 
+    @Test
+    fun `test jvm-dependency-insights - C`(testInfo: TestInfo) {
+        val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
+
+        val cGraph = runBlocking {
+            doTestByFile(
+                testInfo,
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.ClassPathType(
+                        scope = ResolutionScope.COMPILE,
+                        platforms = setOf(ResolutionPlatform.JVM),
+                        isTest = false,
+                    ),
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
+                module = "C",
+            )
+        }
+
+        runBlocking {
+            assertInsightByFile(
+                group = "org.jetbrains.kotlinx",
+                module = "kotlinx-coroutines-test",
+                graph = cGraph,
+                insightFile = "jvm-dependency-insights-C-kotlinx-coroutines-test"
+            )
+        }
+    }
+
+    @Test
+    fun `test jvm-dependency-insights - D`(testInfo: TestInfo) {
+        val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
+
+        val dGraph = runBlocking {
+            doTestByFile(
+                testInfo,
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.ClassPathType(
+                        scope = ResolutionScope.COMPILE,
+                        platforms = setOf(ResolutionPlatform.JVM),
+                        isTest = false,
+                    ),
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
+                module = "D",
+            )
+        }
+
+        runBlocking {
+            assertInsightByFile(
+                group = "org.jetbrains.kotlinx",
+                module = "kotlinx-coroutines-test",
+                graph = dGraph,
+                insightFile = "jvm-dependency-insights-D-kotlinx-coroutines-test"
+            )
+        }
+    }
+
     private fun assertInsightByFile(group: String, module: String, graph: DependencyNode, insightFile: String) {
         val expectedResolved = getGoldenFileText("$insightFile.insight.resolved.txt", fileDescription = "Golden file with insight for resolved version only")
         withActualDump(expectedResultPath = testGoldenFilesRoot.resolve("$insightFile.insight.resolved.txt")) {
@@ -327,7 +392,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
     private fun assertInsight(group: String, module: String, graph: DependencyNode, expected: String, resolvedVersionOnly: Boolean = false) {
         with(moduleDependenciesResolver) {
             val subGraph = dependencyInsight(group, module, graph, resolvedVersionOnly)
-            assertEquals(expected, subGraph)
+            assertEquals(expected, subGraph, MavenCoordinates(group, module, null))
         }
     }
 }

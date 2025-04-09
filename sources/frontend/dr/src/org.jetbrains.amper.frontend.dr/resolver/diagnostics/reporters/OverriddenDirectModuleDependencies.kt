@@ -17,6 +17,7 @@ import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
+import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
@@ -56,7 +57,7 @@ class OverriddenDirectModuleDependencies: DrDiagnosticsReporter{
             null
         } else {
             val subgraph = moduleDependenciesResolver.dependencyInsight(this.group, this.module, graph)
-            return subgraph.prettyPrint().trimEnd()
+            return subgraph.prettyPrint(forMavenNode = this.mavenCoordinates()).trimEnd()
         }
     }
 }

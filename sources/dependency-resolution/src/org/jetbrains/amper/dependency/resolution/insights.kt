@@ -46,7 +46,7 @@ fun filterGraph(group: String, module: String, graph: DependencyNode, resolvedVe
     val nodesWithDecisiveParents = mutableSetOf<DependencyNode>()
     nodes.addDecisiveParents(nodesWithDecisiveParents, graph, group, module, resolvedVersionOnly)
 
-    val filteredGraph = graph.withFilteredChildren { child, parent ->
+    val filteredGraph = graph.withFilteredChildren(resolvedVersionOnly = resolvedVersionOnly) { child, parent ->
         !resolvedVersionOnly && child in nodesWithDecisiveParents
                 ||
                 (resolvedVersionOnly
@@ -184,6 +184,7 @@ private fun DependencyNode.isThereAPathToTopBypassingEffectiveParents(group: Str
  */
 private fun DependencyNode.withFilteredChildren(
     cachedChildrenMap: MutableMap<DependencyNode, DependencyNodeWithChildren> = mutableMapOf(),
+    resolvedVersionOnly: Boolean = false,
     childrenFilter: (DependencyNode, DependencyNode) -> Boolean
 ): DependencyNodeWithChildren {
     val currentNode = this
@@ -194,7 +195,9 @@ private fun DependencyNode.withFilteredChildren(
 
         val children = children
             .filter { childrenFilter(it, currentNode) }
-            .map { it.withFilteredChildren(cachedChildrenMap, childrenFilter) }
+            // Leaving he only transitive subtree (all other subtrees don't add valuable information)
+            .let { if (it.size > 1 && resolvedVersionOnly && this.parents.all { it is MavenDependencyNode }) it.subList(0,1) else it }
+            .map { it.withFilteredChildren(cachedChildrenMap, resolvedVersionOnly, childrenFilter) }
         nodeWithFilteredChildren.children.addAll(children)
 
         nodeWithFilteredChildren

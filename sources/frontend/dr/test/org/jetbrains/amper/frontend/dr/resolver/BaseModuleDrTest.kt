@@ -11,6 +11,7 @@ import org.jetbrains.amper.dependency.resolution.detailedMessage
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Resolver
@@ -97,8 +98,8 @@ abstract class BaseModuleDrTest {
         readOnlyExternalRepositories = emptyList()
     }
 
-    protected fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
-        assertEqualsWithDiff(expected.trimEnd().lines(), root.prettyPrint().trimEnd().lines())
+    protected fun assertEquals(@Language("text") expected: String, root: DependencyNode, forMavenNode: MavenCoordinates? = null) =
+        assertEqualsWithDiff(expected.trimEnd().lines(), root.prettyPrint(forMavenNode).trimEnd().lines())
 
     protected suspend fun downloadAndAssertFiles(
         files: List<String>,

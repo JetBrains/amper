@@ -444,12 +444,12 @@ interface DependencyNode {
     /**
      * Prints the graph below the node using a Gradle-like output style.
      */
-    fun prettyPrint(): String = buildString {
+    fun prettyPrint(forMavenNode: MavenCoordinates? = null): String = buildString {
         val allMavenDepsKeys = distinctBfsSequence()
             .map { it.unwrap() }
             .filterIsInstance<MavenDependencyNode>()
             .groupBy { it.key }
-        prettyPrint(this, allMavenDepsKeys)
+        prettyPrint(this, allMavenDepsKeys,forMavenNode = forMavenNode)
     }
 
     private fun DependencyNode.unwrap(): DependencyNode =
@@ -464,6 +464,7 @@ interface DependencyNode {
         indent: StringBuilder = StringBuilder(),
         visited: MutableSet<Pair<Key<*>, Any?>> = mutableSetOf(),
         addLevel: Boolean = false,
+        forMavenNode: MavenCoordinates? = null
     ) {
         val thisUnwrapped = unwrap()
         builder.append(indent).append(toString())
@@ -492,7 +493,7 @@ interface DependencyNode {
         }
 
         children
-            .filter { it.unwrap().let { it !is MavenDependencyConstraintNode || it.isConstraintAffectingTheGraph(allMavenDepsKeys) } }
+            .filter { it.unwrap().let { it !is MavenDependencyConstraintNode || it.isConstraintAffectingTheGraph(allMavenDepsKeys, forMavenNode) } }
             .let { filteredNodes ->
                 filteredNodes.forEachIndexed { i, it ->
                     val addAnotherLevel = i < filteredNodes.size - 1
@@ -501,25 +502,29 @@ interface DependencyNode {
                     } else {
                         indent.append("╰─── ")
                     }
-                    it.prettyPrint(builder, allMavenDepsKeys, indent, visited, addAnotherLevel)
+                    it.prettyPrint(builder, allMavenDepsKeys, indent, visited, addAnotherLevel, forMavenNode)
                     indent.setLength(indent.length - 5)
                 }
             }
     }
 
     fun MavenDependencyConstraintNode.isConstraintAffectingTheGraph(
-        allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>
-    ): Boolean = (
+        allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>,
+        forMavenNode: MavenCoordinates?
+    ): Boolean =
+        allMavenDepsKeys[this.key]?.let { affectedNode ->
             // If there is a dependency with the original version equal to the constraint version, then constraint is noop.
-            allMavenDepsKeys[this.key]?.none { dep ->
+            affectedNode.none { dep ->
                 dep.version == dep.dependency.version && dep.version == this.version.resolve()
-            } == true
+            }
                     &&
                     // The constraint version is the same as the resulted dependency version,
                     // and the original dependency version is different (⇒ constraint might have affected resolution)
-                    allMavenDepsKeys[this.key]?.any { dep ->
+                    affectedNode.any { dep ->
                         this.version.resolve() == dep.dependency.version && dep.version != dep.dependency.version
-                    } == true)
+                    }
+        } ?: forMavenNode?.let { group == it.groupId && module == it.artifactId }
+        ?: false
 
     suspend fun dependencyPaths(nodeBlock: (DependencyNode) -> Unit = {}): List<Path> {
         val files = mutableSetOf<Path>()
