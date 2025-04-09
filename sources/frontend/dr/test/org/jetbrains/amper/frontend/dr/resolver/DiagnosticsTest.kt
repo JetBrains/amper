@@ -59,12 +59,17 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                     ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
+                    ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
                     │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
                     │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    │         ╰─── junit:junit:4.13.2
-                    │              ╰─── org.hamcrest:hamcrest-core:1.3
+                    │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
+                    │              ├─── org.junit:junit-bom:5.10.1
+                    │              ├─── org.opentest4j:opentest4j:1.3.0
+                    │              ├─── org.junit.platform:junit-platform-commons:1.10.1
+                    │              │    ├─── org.junit:junit-bom:5.10.1
+                    │              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
+                    │              ╰─── org.apiguardian:apiguardian-api:1.1.2
                     ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12
                     │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                     ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
@@ -73,8 +78,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                     ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)
+                    ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion} (*)
                     ╰─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
                          ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                     """.trimIndent(),
@@ -94,11 +99,13 @@ class DiagnosticsTest : BaseModuleDrTest() {
             downloadAndAssertFiles(
                 listOf(
                     "annotations-13.0.jar",
-                    "hamcrest-core-1.3.jar",
-                    "junit-4.13.2.jar",
+                    "apiguardian-api-1.1.2.jar",
+                    "junit-jupiter-api-5.10.1.jar",
+                    "junit-platform-commons-1.10.1.jar",
                     "kotlin-stdlib-${UsedVersions.kotlinVersion}.jar",
                     "kotlin-test-${UsedVersions.kotlinVersion}.jar",
-                    "kotlin-test-junit-${UsedVersions.kotlinVersion}.jar",
+                    "kotlin-test-junit5-${UsedVersions.kotlinVersion}.jar",
+                    "opentest4j-1.3.0.jar",
                 ),
                 sharedTestFragmentDeps
             )

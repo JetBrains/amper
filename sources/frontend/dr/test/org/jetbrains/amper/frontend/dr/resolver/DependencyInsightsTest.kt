@@ -50,18 +50,23 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     │         ╰─── org.jetbrains:annotations:13.0
                     ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
+                    ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
                     │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
                     │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    │         ╰─── junit:junit:4.13.2
-                    │              ╰─── org.hamcrest:hamcrest-core:1.3
+                    │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
+                    │              ├─── org.junit:junit-bom:5.10.1
+                    │              ├─── org.opentest4j:opentest4j:1.3.0
+                    │              ├─── org.junit.platform:junit-platform-commons:1.10.1
+                    │              │    ├─── org.junit:junit-bom:5.10.1
+                    │              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
+                    │              ╰─── org.apiguardian:apiguardian-api:1.1.2
                     ├─── jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
                     ├─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                         ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)
+                    ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                         ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion} (*)
                     """.trimIndent()
             )
         }
@@ -77,42 +82,42 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
                     ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
-                    ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
+                    ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
                     │         ╰─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
                     │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
                     ├─── jvm-empty:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
                     ├─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
-                    ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                         ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)
+                    ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                         ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion} (*)
                 """.trimIndent()
             )
             assertInsight(
-                group = "org.hamcrest",
-                module = "hamcrest-core",
+                group = "org.opentest4j",
+                module = "opentest4j",
                 graph = jvmEmptyModuleGraph,
                 expected = """
                     module:jvm-empty
-                    ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
-                    │         ╰─── junit:junit:4.13.2
-                    │              ╰─── org.hamcrest:hamcrest-core:1.3
-                    ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                         ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion} (*)
+                    ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
+                    │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
+                    │              ╰─── org.opentest4j:opentest4j:1.3.0
+                    ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                         ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion} (*)
                 """.trimIndent()
             )
             assertInsight(
                 group = "org.jetbrains.kotlin",
-                module = "kotlin-test-junit",
+                module = "kotlin-test-junit5",
                 graph = jvmEmptyModuleGraph,
                 expected = """
                     module:jvm-empty
-                    ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
-                    ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}, implicit
-                         ╰─── org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}
+                    ├─── jvm-empty:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
+                    ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                         ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
                 """.trimIndent()
             )
             assertInsight(
