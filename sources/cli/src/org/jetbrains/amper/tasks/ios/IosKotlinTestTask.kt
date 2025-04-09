@@ -18,7 +18,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
-import org.jetbrains.amper.tasks.BaseTaskResult
+import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.telemetry.spanBuilder
@@ -69,7 +69,7 @@ class IosKotlinTestTask(
                         )
                     }
                     shutdownDevice(chosenDevice.deviceId)
-                    BaseTaskResult()
+                    EmptyTaskResult
                 }
         }
     }

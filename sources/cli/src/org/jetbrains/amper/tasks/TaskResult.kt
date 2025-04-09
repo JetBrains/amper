@@ -6,7 +6,4 @@ package org.jetbrains.amper.tasks
 
 interface TaskResult
 
-open class BaseTaskResult(
-) : TaskResult
-
-object EmptyTaskResult : BaseTaskResult()
+object EmptyTaskResult : TaskResult

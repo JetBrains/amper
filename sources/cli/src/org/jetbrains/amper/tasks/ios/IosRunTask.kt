@@ -11,8 +11,8 @@ import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.tasks.BaseTaskResult
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
@@ -42,6 +42,6 @@ class IosRunTask(
             installAppOnPhysicalDevice(deviceId, builtApp.appPath)
             launchAppOnPhysicalDevice(deviceId, builtApp.bundleId)
         }
-        return BaseTaskResult()
+        return EmptyTaskResult
     }
 }
