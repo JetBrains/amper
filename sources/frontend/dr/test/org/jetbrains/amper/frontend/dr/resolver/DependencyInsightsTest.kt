@@ -382,6 +382,37 @@ class DependencyInsightsTest : BaseModuleDrTest() {
         }
     }
 
+    @Test
+    fun `test jvm-dependency-insights - E`(testInfo: TestInfo) {
+        val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
+
+        val eGraph = runBlocking {
+            doTestByFile(
+                testInfo,
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.ClassPathType(
+                        scope = ResolutionScope.COMPILE,
+                        platforms = setOf(ResolutionPlatform.JVM),
+                        isTest = false,
+                    ),
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
+                module = "E",
+            )
+        }
+
+        runBlocking {
+            assertInsightByFile(
+                group = "org.junit.jupiter",
+                module = "junit-jupiter-api",
+                graph = eGraph,
+                insightFile = "jvm-dependency-insights-E-junit-jupiter-api"
+            )
+        }
+    }
+
     private fun assertInsightByFile(group: String, module: String, graph: DependencyNode, insightFile: String) {
         val expectedResolved = getGoldenFileText("$insightFile.insight.resolved.txt", fileDescription = "Golden file with insight for resolved version only")
         withActualDump(expectedResultPath = testGoldenFilesRoot.resolve("$insightFile.insight.resolved.txt")) {

@@ -1,0 +1,13 @@
+E:COMPILE:JVM
+├─── E:common:org.junit.jupiter:junit-jupiter-api:5.10.2
+│    ╰─── org.junit.jupiter:junit-jupiter-api:5.10.2 -> 5.11.4
+│         ├─── org.junit:junit-bom:5.11.4
+│         │    ╰─── org.junit.jupiter:junit-jupiter-api:5.11.4 (c)
+│         ╰─── org.junit.platform:junit-platform-commons:1.11.4
+│              ╰─── org.junit:junit-bom:5.11.4 (*)
+├─── E:common:org.junit.platform:junit-platform-engine:1.11.4
+│    ╰─── org.junit.platform:junit-platform-engine:1.11.4
+│         ├─── org.junit:junit-bom:5.11.4 (*)
+│         ╰─── org.junit.platform:junit-platform-commons:1.11.4 (*)
+╰─── E:common:org.junit:junit-bom:5.11.4
+     ╰─── org.junit:junit-bom:5.11.4 (*)

@@ -196,7 +196,7 @@ private fun DependencyNode.withFilteredChildren(
         val children = children
             .filter { childrenFilter(it, currentNode) }
             // Leaving he only transitive subtree (all other subtrees don't add valuable information)
-            .let { if (it.size > 1 && resolvedVersionOnly && this.parents.all { it is MavenDependencyNode }) it.subList(0,1) else it }
+            .let { if (it.size > 1 && resolvedVersionOnly && this is MavenDependencyNode) it.subList(0,1) else it }
             .map { it.withFilteredChildren(cachedChildrenMap, resolvedVersionOnly, childrenFilter) }
         nodeWithFilteredChildren.children.addAll(children)
 
