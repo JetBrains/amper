@@ -1,0 +1,6 @@
+ktor:
+    application:
+        modules:
+            - com.example.com.ApplicationKt.module
+    deployment:
+        port: 8080

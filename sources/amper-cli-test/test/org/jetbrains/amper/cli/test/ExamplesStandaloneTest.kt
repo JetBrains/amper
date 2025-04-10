@@ -186,6 +186,37 @@ class ExamplesStandaloneTest: AmperCliTestBase() {
         runCli(projectRoot, "run")
         runCli(projectRoot, "test")
     }
+    
+    @Test
+    fun `spring-petclinic`() = runSlowTest {
+        val projectRoot = exampleProject("spring-petclinic")
+
+        // TODO: enable assertEmptyStdErr when AMPER-4256 is fixed
+        with(runCli(projectRoot, "test", assertEmptyStdErr = false)) {
+            assertContains(stdout, "Test run finished")
+            assertContains(stdout, "tests successful")
+            assertContains(stdout, "0 tests failed")
+        }
+    }
+    
+    @Test
+    fun `spring-petclinic-kotlin`() = runSlowTest {
+        val projectRoot = exampleProject("spring-petclinic-kotlin")
+
+        // TODO: enable assertEmptyStdErr when AMPER-4265 is fixed
+        with(runCli(projectRoot, "test", assertEmptyStdErr = false)) {
+            assertContains(stdout, "Test run finished")
+            assertContains(stdout, "tests successful")
+            assertContains(stdout, "0 tests failed")
+        }
+    }
+
+    @Test
+    fun `ktor-simplest-sample`() = runSlowTest {
+        val projectRoot = exampleProject("ktor-simplest-sample")
+
+        runCli(projectRoot, "build")
+    }
 }
 
 private val jvmBaseTasks = listOf("compileJvm", "resolveDependenciesJvm")

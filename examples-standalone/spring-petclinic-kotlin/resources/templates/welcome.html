@@ -1,0 +1,31 @@
+<!--
+  ~ Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
+
+<body>
+
+
+<div class="row">
+    <div class="col-md-3"><img class="img-responsive" src="../static/resources/images/pets.png"
+                               th:src="@{/resources/images/pets.png}"/></div>
+    <div class="col-md-9"><h1 style="font-size: 32px; font-weight: bold; line-height: 1.5;">Welcome</h1>
+        <h2>Spring PetClinic - Kotlin Edition</h2>
+        <h3><a href="https://github.com/spring-petclinic/spring-petclinic-kotlin">https://github.com/spring-petclinic/spring-petclinic-kotlin</a>
+        </h3>
+        <h3>Built with:</h3>
+        <ul>
+            <li><a href="https://projects.spring.io/spring-boot/">Spring Boot</a></li>
+            <li><a href="https://kotlinlang.org/">The Kotlin programming language</a></li>
+            <li><a href="http://www.thymeleaf.org/">The Thymeleaf template engine</a></li>
+            <li><a href="https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/web.html#mvc">Spring MVC</a></li>
+        </ul>
+    </div>
+</div>
+
+</body>
+
+</html>

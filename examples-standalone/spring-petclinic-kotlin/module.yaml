@@ -1,0 +1,32 @@
+product: jvm/app
+
+settings:
+  springBoot: enabled
+  jvm:
+    mainClass: org.springframework.samples.petclinic.PetClinicApplication
+
+dependencies:
+  - $spring.boot.starter.actuator
+  - $spring.boot.starter.cache
+  - $spring.boot.starter.data.jpa
+  - $spring.boot.starter.validation
+  - $spring.boot.starter.web
+  - $spring.boot.starter.thymeleaf
+  - $libs.jackson.kotlin
+  - $libs.jaxb.core
+  - $libs.jaxb.runtime
+  - $libs.jakarta.xml.bindApi
+  - $libs.javax.cacheApi
+  - $libs.webJarsBootsrtap
+  - $libs.fontawesome
+
+  - $libs.webjarsLocatorLite: runtime-only
+
+  - $db.h2: runtime-only
+  - $db.mysql: runtime-only
+
+  - $spring.boot.devtools: runtime-only
+
+
+test-dependencies:
+  - $spring.boot.starter.webflux

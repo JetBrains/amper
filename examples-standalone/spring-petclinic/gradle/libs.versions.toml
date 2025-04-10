@@ -1,0 +1,14 @@
+[versions]
+webjarsLocatorLiteVersion = "1.0.1"
+webjarsFontawesomeVersion = "4.7.0"
+webjarsBootstrapVersion = "5.3.3"
+
+[libraries]
+webjarsLocatorLite = { module = "org.webjars:webjars-locator-lite", version.ref = "webjarsLocatorLiteVersion" }
+webJarsBootsrtap = { module = "org.webjars.npm:bootstrap", version.ref = "webjarsBootstrapVersion" }
+fontawesome = { module = "org.webjars.npm:font-awesome", version.ref = "webjarsFontawesomeVersion" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }
+javax-cacheApi = { module = "javax.cache:cache-api" }
+jakarta-xml-bindApi = { module = "jakarta.xml.bind:jakarta.xml.bind-api" }
+testcontainers-junitJupiter = { module = "org.testcontainers:junit-jupiter" }
+testcontainers-mysql = { module = "org.testcontainers:mysql" }
