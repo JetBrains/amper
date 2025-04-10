@@ -552,20 +552,23 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun `compose dev version change`() = test(
-        projectName = "compose-dev-version-change",
+    fun `compose default version should fail`() = test(
+        projectName = "compose-default-version",
         "assemble",
-        expectOutputToHave = "Gradle-based Amper does not support Compose version 1.6.0-dev1397. The only supported version is 1.6.10. Either switch to Standalone version of Amper or set the Compose version to 1.6.10 explicitly.",
+        expectOutputToHave = "Gradle-based Amper does not support Compose version 1.7.3 (which is the new default). " +
+                "The only supported version is 1.6.10. Please set the Compose version to 1.6.10 explicitly in your " +
+                "module.yaml settings, or try the standalone version of Amper.",
         shouldSucceed = false,
     )
 
     @Test
-    fun `compose dev version change with Gradle 8_7 should fail`() = test(
-        projectName = "compose-dev-version-change",
+    fun `compose non-1_6_10 version should fail`() = test(
+        projectName = "compose-unsupported-version",
         "assemble",
-        expectOutputToHave = "Gradle-based Amper does not support Compose version 1.6.0-dev1397. The only supported version is 1.6.10. Either switch to Standalone version of Amper or set the Compose version to 1.6.10 explicitly.",
+        expectOutputToHave = "Gradle-based Amper does not support Compose version 1.7.0. The only supported version " +
+                "is 1.6.10. Please set the Compose version to 1.6.10 explicitly in your module.yaml settings, or try " +
+                "the standalone version of Amper.",
         shouldSucceed = false,
-        gradleVersion = "8.7",
     )
 
     @Test

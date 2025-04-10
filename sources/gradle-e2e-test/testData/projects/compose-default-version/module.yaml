@@ -4,6 +4,4 @@ dependencies:
   - $compose.desktop.common
 
 settings:
-  compose:
-    enabled: true
-    version: 1.6.0-dev1397
+  compose: enabled

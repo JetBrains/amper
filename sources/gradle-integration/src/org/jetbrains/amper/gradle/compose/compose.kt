@@ -8,6 +8,7 @@ import com.intellij.util.asSafely
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.amper.gradle.android.AndroidAwarePart
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
@@ -35,9 +36,12 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
         val composeVersion = chooseComposeVersion(model)!!
         val latestSupportedComposeVersion = "1.6.10"
         if (composeVersion != latestSupportedComposeVersion) {
-            throw GradleException("Gradle-based Amper does not support Compose version $composeVersion. " +
-                    "The only supported version is $latestSupportedComposeVersion. Either switch to Standalone version " +
-                    "of Amper or set the Compose version to $latestSupportedComposeVersion explicitly.")
+            val extraInfo = if (composeVersion == UsedVersions.composeVersion) " (which is the new default)" else ""
+            throw GradleException("Gradle-based Amper does not support Compose version $composeVersion$extraInfo. " +
+                    "The only supported version is $latestSupportedComposeVersion. " +
+                    "Please set the Compose version to $latestSupportedComposeVersion explicitly in your module.yaml " +
+                    "settings, or try the standalone version of Amper.\nSee the release notes for more details: " +
+                    "https://github.com/JetBrains/amper/releases/tag/v0.6.0")
         }
         val composeResourcesDir = module.moduleDir.resolve("composeResources").toFile()
 
