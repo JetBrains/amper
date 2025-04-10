@@ -80,10 +80,10 @@ private suspend inline fun InputStream.consumeLinesBlockingCancellable(onEachLin
         } catch (e: IOException) {
             // If the process is killed externally on unix systems, the stream is eagerly closed,
             // and reading from the sequence throws an IOException with "Stream closed" message,
-            // sometimes capitalized as "Stream Closed".
+            // sometimes capitalized as "Stream Closed", or "Bad file descriptor".
             // This check is brittle, but it's kind of the only way to account for this situation
             // by considering this exception as the end of the process output instead of crashing.
-            if (e.message.equals("Stream closed", ignoreCase = true)) {
+            if (e.message?.lowercase() in setOf("stream closed", "bad file descriptor")) {
                 return
             }
             throw e
