@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-class DependencyNodeWithChildren(internal val node: DependencyNode): DependencyNode {
+class DependencyNodeWithChildren(val node: DependencyNode): DependencyNode {
     override val children: MutableList<DependencyNode> = mutableListOf()
     override val context: Context = node.context
     override val key: Key<*> = node.key
