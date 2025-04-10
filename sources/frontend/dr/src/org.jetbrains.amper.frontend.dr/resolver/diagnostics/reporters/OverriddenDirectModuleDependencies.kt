@@ -17,13 +17,11 @@ import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
-import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 
-class OverriddenDirectModuleDependencies: DrDiagnosticsReporter{
-
+class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
     override val level = Level.Warning
 
     override fun reportBuildProblemsForNode(
@@ -34,45 +32,45 @@ class OverriddenDirectModuleDependencies: DrDiagnosticsReporter{
     ) {
         if (node is DirectFragmentDependencyNodeHolder
             && node.dependencyNode is MavenDependencyNode
-            && node.dependencyNode.version != node.dependencyNode.dependency.version)
-        {
+            && node.dependencyNode.originalVersion() != node.dependencyNode.resolvedVersion()
+        ) {
             // for every direct module dependency referencing this dependency node
             val psiElement = node.notation?.trace?.extractPsiElementOrNull()
             if (psiElement != null) {
                 problemReporter.reportMessage(
                     ModuleDependencyWithOverriddenVersion(
-                        node.dependencyNode.version.orUnspecified(),
-                        node.dependencyNode.dependency.version.orUnspecified(),
-                        null,
-//                        node.dependencyNode.overriddenByChain(graphRoot),  // this wordy details could be uncommented and passed instead of null and then shown in IDEA by request
-                        node.dependencyNode.key.name,
+                        node,
+                        overrideInsight = moduleDependenciesResolver.dependencyInsight(
+                            node.dependencyNode.group,
+                            node.dependencyNode.module,
+                            graphRoot,
+                            resolvedVersionOnly = true,
+                        ),
                         psiElement
-                    ))
+                    )
+                )
             }
-        }
-    }
-
-    private fun MavenDependencyNode.overriddenByChain(graph: DependencyNode): String? {
-        return if (originalVersion() == resolvedVersion()) {
-            null
-        } else {
-            val subgraph = moduleDependenciesResolver.dependencyInsight(this.group, this.module, graph)
-            return subgraph.prettyPrint(forMavenNode = this.mavenCoordinates()).trimEnd()
         }
     }
 }
 
 class ModuleDependencyWithOverriddenVersion(
-    @UsedInIdePlugin
-    val originalVersion: String,
-    @UsedInIdePlugin
-    val effectiveVersion: String,
-    val overriddenBy: String?,
-    @UsedInIdePlugin
-    val effectiveCoordinates: String,
-    @UsedInIdePlugin
+    @field:UsedInIdePlugin
+    val originalNode: DirectFragmentDependencyNodeHolder,
+    @field:UsedInIdePlugin
+    val overrideInsight: DependencyNode,
+    @field:UsedInIdePlugin
     override val element: PsiElement,
 ) : PsiBuildProblem(Level.Warning) {
+    val dependencyNode: MavenDependencyNode
+        get() = originalNode.dependencyNode as MavenDependencyNode
+    val originalVersion: String
+        get() = dependencyNode.version.orUnspecified()
+    val effectiveVersion: String
+        get() = dependencyNode.dependency.version.orUnspecified()
+    val effectiveCoordinates: String
+        get() = dependencyNode.key.name
+
     override val buildProblemId: BuildProblemId = ID
     override val message: String
         get() = FrontendDrBundle.message(
@@ -80,11 +78,7 @@ class ModuleDependencyWithOverriddenVersion(
             originalVersion, effectiveCoordinates, effectiveVersion
         )
 
-    val additionalMessage: String?
-        get() = overriddenBy?.let{ FrontendDrBundle.message(messageKey = ADDITIONAL_MESSAGE_KEY, it) }
-
     companion object {
         const val ID = "dependency.version.is.overridden"
-        const val ADDITIONAL_MESSAGE_KEY = "dependency.version.is.overridden.additional"
     }
 }
