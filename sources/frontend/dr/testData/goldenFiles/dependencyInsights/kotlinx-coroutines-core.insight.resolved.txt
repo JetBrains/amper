@@ -11,15 +11,15 @@ shared:COMPILE:IOS_ARM64
 │    ╰─── org.jetbrains.compose.material3:material3:1.7.3
 │         ╰─── org.jetbrains.compose.material3:material3-uikitarm64:1.7.3
 │              ╰─── org.jetbrains.compose.animation:animation-core:1.7.3 (*)
-├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3
 │         ╰─── org.jetbrains.compose.runtime:runtime-uikitarm64:1.7.3
 │              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-├─── shared:apple:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:apple:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-├─── shared:common:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:common:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-├─── shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-╰─── shared:native:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+╰─── shared:native:org.jetbrains.compose.runtime:runtime:1.7.3
      ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)

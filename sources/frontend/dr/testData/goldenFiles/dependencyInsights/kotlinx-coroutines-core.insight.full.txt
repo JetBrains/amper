@@ -85,13 +85,13 @@ shared:COMPILE:IOS_ARM64
 │              ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 │              ├─── org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
 │              ╰─── org.jetbrains.compose.ui:ui-text:1.7.3 (*)
-├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-├─── shared:apple:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:apple:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-├─── shared:common:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:common:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-├─── shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-╰─── shared:native:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+╰─── shared:native:org.jetbrains.compose.runtime:runtime:1.7.3
      ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)

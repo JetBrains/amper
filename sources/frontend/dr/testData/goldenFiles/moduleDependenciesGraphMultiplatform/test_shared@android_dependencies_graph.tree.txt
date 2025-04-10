@@ -9,7 +9,7 @@ Fragment 'shared.android' dependencies
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
 │         ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
-├─── shared:android:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:android:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3
 │         ├─── androidx.compose.runtime:runtime:1.7.6
 │         │    ╰─── androidx.compose.runtime:runtime-android:1.7.6

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.api
@@ -99,7 +99,7 @@ abstract class TraceableValue<T : Any>(val value: T) : Traceable {
 
 open class TraceableString(value: String) : TraceableValue<String>(value)
 
-class TraceableVersion(value: String, source: ValueBase<String?>?) : TraceableString(value) {
+class TraceableVersion(value: String, source: ValueBase<*>?) : TraceableString(value) {
     init {
         trace = source?.trace
     }

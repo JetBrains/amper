@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.aomBuilder.DefaultFragment
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
+import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.schema.JUnitVersion
@@ -44,6 +45,7 @@ private val hotReloadDependency = MavenDependency(
 private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
     coordinates = library("org.jetbrains.kotlin:$artifactId", UsedVersions.kotlinVersion),
 )
+
 // todo (AB) : Why libraries are crated here insteod of being taken from built-in catalogues?
 private fun kotlinxSerializationCoreDependency(version: TraceableVersion) = MavenDependency(
     coordinates = library("org.jetbrains.kotlinx:kotlinx-serialization-core", version),
@@ -76,7 +78,6 @@ private fun springBootStarterDependency(springBootVersion: TraceableString): Mav
 private fun springBootStarterTestDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
     coordinates = library("org.springframework.boot:spring-boot-starter-test", springBootVersion),
 ).withTraceFrom(springBootVersion)
-
 
 
 /**
@@ -144,7 +145,13 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         addAll(inferredTestDependencies())
     }
     if (settings.kotlin.serialization.enabled) {
-        val kotlinSerializationVersion = TraceableVersion(settings.kotlin.serialization.version, settings.kotlin.serialization::version.valueBase)
+        val kotlinSerializationVersion = TraceableVersion(
+            settings.kotlin.serialization.version,
+            getSource(
+                settings.kotlin.serialization::version.valueBase,
+                settings.kotlin.serialization::enabled.valueBase,
+            )
+        )
         // if kotlinx.serialization plugin is enabled, we need the @Serializable annotation, which is in core
         add(kotlinxSerializationCoreDependency(kotlinSerializationVersion))
 
@@ -157,7 +164,13 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         add(kotlinParcelizeRuntime)
     }
     if (settings.compose.enabled) {
-        val composeVersion = TraceableVersion(checkNotNull(settings.compose.version), settings.compose::version.valueBase)
+        val composeVersion = TraceableVersion(
+            checkNotNull(settings.compose.version),
+            getSource(
+                settings.compose::version.valueBase,
+                settings.compose::enabled.valueBase
+            )
+        )
         add(composeRuntimeDependency(composeVersion))
 
         // Have to add dependency because generated code depends on it
@@ -167,16 +180,32 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     }
 
     if (settings.ktor.enabled) {
-        val ktorVersion = TraceableVersion(checkNotNull(settings.ktor.version), settings.ktor::version.valueBase)
+        val ktorVersion = TraceableVersion(
+            checkNotNull(settings.ktor.version),
+            getSource(
+                settings.ktor::version.valueBase,
+                settings.ktor::enabled.valueBase
+            ),
+        )
         add(ktorBomDependency(ktorVersion))
     }
 
     if (settings.springBoot.enabled) {
-        val springBootVersion = TraceableVersion(checkNotNull(settings.springBoot.version), settings.springBoot::version.valueBase)
+        val springBootVersion = TraceableVersion(
+            checkNotNull(settings.springBoot.version),
+            getSource(
+                settings.springBoot::version.valueBase,
+                settings.springBoot::enabled.valueBase
+            ),
+        )
         add(springBootBomDependency(springBootVersion))
         add(springBootStarterDependency(springBootVersion))
         add(kotlinReflect)
     }
+}
+
+private fun getSource(versionValue: ValueBase<*>?, enabledValue: ValueBase<*>?): ValueBase<*>? {
+    return if (versionValue?.withoutDefault == null) enabledValue else versionValue
 }
 
 
@@ -196,7 +225,14 @@ private fun Fragment.inferredTestDependencies(): List<MavenDependency> {
         }
 
         if (settings.springBoot.enabled) {
-            val springBootVersion = TraceableVersion(checkNotNull(settings.springBoot.version), settings.springBoot::version.valueBase)
+            val springBootVersion =
+                TraceableVersion(
+                    checkNotNull(settings.springBoot.version),
+                    getSource(
+                        settings.springBoot::version.valueBase,
+                        settings.springBoot::enabled.valueBase,
+                    )
+                )
             add(springBootStarterTestDependency(springBootVersion))
         }
     }
@@ -220,10 +256,12 @@ private fun RepositoriesModulePart.withImplicitMavenRepositories(fragments: List
     if (!isHotReloadRuntimeApiPresent) {
         return this
     }
-    return RepositoriesModulePart(mavenRepositories = mavenRepositories + RepositoriesModulePart.Repository(
-        id = "firework-dev",
-        url = "https://packages.jetbrains.team/maven/p/firework/dev",
-        publish = false,
-        resolve = true,
-    ))
+    return RepositoriesModulePart(
+        mavenRepositories = mavenRepositories + RepositoriesModulePart.Repository(
+            id = "firework-dev",
+            url = "https://packages.jetbrains.team/maven/p/firework/dev",
+            publish = false,
+            resolve = true,
+        )
+    )
 }

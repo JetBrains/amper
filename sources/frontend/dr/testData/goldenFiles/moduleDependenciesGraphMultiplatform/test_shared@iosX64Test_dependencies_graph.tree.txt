@@ -7,7 +7,7 @@ Fragment 'shared.iosX64Test' dependencies
 ├─── shared:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion
 │         ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
-├─── shared:iosX64Test:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:iosX64Test:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3
 │         ╰─── org.jetbrains.compose.runtime:runtime-uikitx64:1.7.3
 │              ├─── org.jetbrains.compose.collection-internal:collection:1.7.3

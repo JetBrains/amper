@@ -192,21 +192,21 @@ shared:COMPILE:IOS_ARM64
 │                        ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion
 ├─── shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 ├─── shared:apple:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-├─── shared:apple:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:apple:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-├─── shared:common:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:common:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 ├─── shared:ios:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-├─── shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
 ├─── shared:native:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-╰─── shared:native:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+╰─── shared:native:org.jetbrains.compose.runtime:runtime:1.7.3
      ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)

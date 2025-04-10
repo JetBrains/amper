@@ -2,7 +2,7 @@ Fragment 'shared.iosX64' dependencies
 ├─── shared:iosX64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
-├─── shared:iosX64:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── shared:iosX64:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3
 │         ╰─── org.jetbrains.compose.runtime:runtime-uikitx64:1.7.3
 │              ├─── org.jetbrains.compose.collection-internal:collection:1.7.3

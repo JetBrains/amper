@@ -1,7 +1,7 @@
 Fragment 'ios-app.ios' dependencies
 ├─── ios-app:ios:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-├─── ios-app:ios:org.jetbrains.compose.runtime:runtime:1.7.3, implicit
+├─── ios-app:ios:org.jetbrains.compose.runtime:runtime:1.7.3
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3
 │         ├─── org.jetbrains.kotlinx:atomicfu:0.23.2
 │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion
