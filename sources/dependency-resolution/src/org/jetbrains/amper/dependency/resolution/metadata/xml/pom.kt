@@ -110,7 +110,7 @@ object MavenPomPropertiesXmlSerializer : KSerializer<Properties> {
 @XmlSerialName("project", POM_XML_NAMESPACE)
 data class Project(
     @XmlElement(true)
-    val modelVersion: String,
+    val modelVersion: String? = null,
     @XmlElement(true)
     val parent: Parent? = null,
     @XmlElement(true)

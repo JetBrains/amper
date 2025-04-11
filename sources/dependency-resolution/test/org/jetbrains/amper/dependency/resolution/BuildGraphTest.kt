@@ -63,6 +63,21 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that cyclic dependencies are resolved successfully.
+     * The library 'org.apache.solr:solr-solrj-zookeeper:9.8.1' depends on 'org.apache.solr:solr-solrj:9.8.1'
+     * and vice versa.
+     */
+    @Test
+    fun `org_apache_solr solr-solrj-zookeeper 9_8_1`(testInfo: TestInfo) {
+        val root = doTestByFile(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            verifyMessages = true
+        )
+        assertFiles(testInfo, root, true)
+    }
+
+    /**
      * This test checks that a POM file of dependency could use properties defined in the parent POM
      * (or in any of its parents).
      *
@@ -1657,7 +1672,7 @@ class BuildGraphTest : BaseDRTest() {
     fun `huge dependency graph with reused subgraphs`(testInfo: TestInfo) {
         val root = doTestByFile(
             testInfo,
-            dependency = "org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.5.10",
+            dependency = listOf("org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.5.10"),
             scope = ResolutionScope.RUNTIME,
         )
         assertFiles(testInfo, root, true)

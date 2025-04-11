@@ -1,0 +1,107 @@
+root
+╰─── org.apache.solr:solr-solrj-zookeeper:9.8.1
+     ├─── org.apache.zookeeper:zookeeper:3.9.2
+     │    ├─── org.apache.zookeeper:zookeeper-jute:3.9.2
+     │    │    ╰─── org.apache.yetus:audience-annotations:0.12.0
+     │    ├─── org.apache.yetus:audience-annotations:0.12.0
+     │    ├─── io.netty:netty-handler:4.1.105.Final
+     │    │    ├─── io.netty:netty-common:4.1.105.Final
+     │    │    ├─── io.netty:netty-resolver:4.1.105.Final
+     │    │    │    ╰─── io.netty:netty-common:4.1.105.Final
+     │    │    ├─── io.netty:netty-buffer:4.1.105.Final
+     │    │    │    ╰─── io.netty:netty-common:4.1.105.Final
+     │    │    ├─── io.netty:netty-transport:4.1.105.Final
+     │    │    │    ├─── io.netty:netty-common:4.1.105.Final
+     │    │    │    ├─── io.netty:netty-buffer:4.1.105.Final (*)
+     │    │    │    ╰─── io.netty:netty-resolver:4.1.105.Final (*)
+     │    │    ├─── io.netty:netty-transport-native-unix-common:4.1.105.Final
+     │    │    │    ├─── io.netty:netty-common:4.1.105.Final
+     │    │    │    ├─── io.netty:netty-buffer:4.1.105.Final (*)
+     │    │    │    ╰─── io.netty:netty-transport:4.1.105.Final (*)
+     │    │    ╰─── io.netty:netty-codec:4.1.105.Final
+     │    │         ├─── io.netty:netty-common:4.1.105.Final
+     │    │         ├─── io.netty:netty-buffer:4.1.105.Final (*)
+     │    │         ╰─── io.netty:netty-transport:4.1.105.Final (*)
+     │    ├─── io.netty:netty-transport-native-epoll:4.1.105.Final
+     │    │    ├─── io.netty:netty-common:4.1.105.Final
+     │    │    ├─── io.netty:netty-buffer:4.1.105.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.1.105.Final (*)
+     │    │    ├─── io.netty:netty-transport-native-unix-common:4.1.105.Final (*)
+     │    │    ╰─── io.netty:netty-transport-classes-epoll:4.1.105.Final
+     │    │         ├─── io.netty:netty-common:4.1.105.Final
+     │    │         ├─── io.netty:netty-buffer:4.1.105.Final (*)
+     │    │         ├─── io.netty:netty-transport:4.1.105.Final (*)
+     │    │         ╰─── io.netty:netty-transport-native-unix-common:4.1.105.Final (*)
+     │    ├─── io.netty:netty-tcnative-boringssl-static:2.0.61.Final
+     │    │    ╰─── io.netty:netty-tcnative-classes:2.0.61.Final
+     │    ├─── org.slf4j:slf4j-api:1.7.30 -> 2.0.13
+     │    ├─── ch.qos.logback:logback-core:1.2.13
+     │    ├─── ch.qos.logback:logback-classic:1.2.13
+     │    │    ├─── ch.qos.logback:logback-core:1.2.13
+     │    │    ╰─── org.slf4j:slf4j-api:1.7.32 -> 2.0.13
+     │    ╰─── commons-io:commons-io:2.11.0
+     ├─── org.apache.solr:solr-solrj:9.8.1
+     │    ├─── org.apache.solr:solr-api:9.8.1
+     │    │    ├─── io.swagger.core.v3:swagger-annotations-jakarta:2.2.22
+     │    │    ├─── jakarta.ws.rs:jakarta.ws.rs-api:3.1.0
+     │    │    ├─── com.fasterxml.jackson.core:jackson-annotations:2.18.0
+     │    │    │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.0
+     │    │    ├─── org.semver4j:semver4j:5.3.0
+     │    │    ╰─── org.slf4j:slf4j-api:2.0.13
+     │    ├─── org.eclipse.jetty.http2:http2-client:10.0.22
+     │    │    ├─── org.eclipse.jetty:jetty-alpn-client:10.0.22
+     │    │    │    ├─── org.eclipse.jetty:jetty-io:10.0.22
+     │    │    │    │    ├─── org.eclipse.jetty:jetty-util:10.0.22
+     │    │    │    │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    │    │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    │    ├─── org.eclipse.jetty.http2:http2-common:10.0.22
+     │    │    │    ├─── org.eclipse.jetty.http2:http2-hpack:10.0.22
+     │    │    │    │    ├─── org.eclipse.jetty:jetty-http:10.0.22
+     │    │    │    │    │    ├─── org.eclipse.jetty:jetty-io:10.0.22 (*)
+     │    │    │    │    │    ├─── org.eclipse.jetty:jetty-util:10.0.22 (*)
+     │    │    │    │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    │    │    │    ├─── org.eclipse.jetty:jetty-io:10.0.22 (*)
+     │    │    │    │    ├─── org.eclipse.jetty:jetty-util:10.0.22 (*)
+     │    │    │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    ├─── org.apache.httpcomponents:httpmime:4.5.14
+     │    │    ╰─── org.apache.httpcomponents:httpclient:4.5.14
+     │    │         ├─── org.apache.httpcomponents:httpcore:4.4.16
+     │    │         ├─── commons-logging:commons-logging:1.2
+     │    │         ╰─── commons-codec:commons-codec:1.11
+     │    ├─── com.fasterxml.jackson.core:jackson-databind:2.18.0
+     │    │    ├─── com.fasterxml.jackson.core:jackson-annotations:2.18.0 (*)
+     │    │    ├─── com.fasterxml.jackson.core:jackson-core:2.18.0
+     │    │    │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.0
+     │    │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.0
+     │    ├─── com.fasterxml.jackson.core:jackson-annotations:2.18.0 (*)
+     │    ├─── org.slf4j:slf4j-api:2.0.13
+     │    ├─── org.eclipse.jetty.http2:http2-http-client-transport:10.0.22
+     │    │    ├─── org.eclipse.jetty:jetty-alpn-java-client:10.0.22
+     │    │    │    ├─── org.eclipse.jetty:jetty-alpn-client:10.0.22 (*)
+     │    │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    │    ├─── org.eclipse.jetty:jetty-client:10.0.22
+     │    │    │    ├─── org.eclipse.jetty:jetty-alpn-client:10.0.22 (*)
+     │    │    │    ├─── org.eclipse.jetty:jetty-http:10.0.22 (*)
+     │    │    │    ├─── org.eclipse.jetty:jetty-io:10.0.22 (*)
+     │    │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    │    ├─── org.eclipse.jetty.http2:http2-client:10.0.22 (*)
+     │    │    ╰─── org.slf4j:slf4j-api:2.0.9 -> 2.0.13
+     │    ├─── org.eclipse.jetty:jetty-http:10.0.22 (*)
+     │    ├─── org.eclipse.jetty:jetty-client:10.0.22 (*)
+     │    ├─── org.eclipse.jetty:jetty-util:10.0.22 (*)
+     │    ├─── org.eclipse.jetty:jetty-io:10.0.22 (*)
+     │    ├─── org.apache.httpcomponents:httpclient:4.5.14 (*)
+     │    ├─── org.apache.httpcomponents:httpcore:4.4.16
+     │    ├─── org.slf4j:jcl-over-slf4j:2.0.13
+     │    │    ╰─── org.slf4j:slf4j-api:2.0.13
+     │    ├─── org.eclipse.jetty:jetty-alpn-java-client:10.0.22 (*)
+     │    ╰─── org.apache.solr:solr-solrj-streaming:9.8.1
+     │         ├─── org.slf4j:slf4j-api:2.0.13
+     │         ├─── org.apache.httpcomponents:httpclient:4.5.14 (*)
+     │         ├─── org.apache.httpcomponents:httpcore:4.4.16
+     │         ╰─── org.apache.commons:commons-math3:3.6.1
+     ├─── org.slf4j:slf4j-api:2.0.13
+     ╰─── org.apache.zookeeper:zookeeper-jute:3.9.2 (*)

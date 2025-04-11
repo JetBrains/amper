@@ -87,7 +87,7 @@ abstract class BaseDRTest {
 
     protected fun doTestByFile(
         testInfo: TestInfo,
-        dependency: String = testInfo.nameToDependency(),
+        dependency: List<String> = listOf(testInfo.nameToDependency()),
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         repositories: List<String> = listOf(REDIRECTOR_MAVEN_CENTRAL),
@@ -100,8 +100,8 @@ abstract class BaseDRTest {
             if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
             val expected = goldenFile.readText().replace("\r\n", "\n").trim()
             doTest(
-                testInfo,
-                listOf(dependency),
+                testInfo = testInfo,
+                dependency = dependency,
                 scope,
                 platform,
                 repositories,

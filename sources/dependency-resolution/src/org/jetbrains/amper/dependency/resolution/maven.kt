@@ -149,9 +149,13 @@ class MavenDependencyNode internal constructor(
         "$group:$module:${version.orUnspecified()} -> ${dependency.version}"
     }
 
-    private fun DependencyNode.isDescendantOf(parent: DependencyNode): Boolean {
-        return parents.any { it.key == parent.key }
-                || parents.any { it.isDescendantOf(parent) }
+    private fun DependencyNode.isDescendantOf(parent: DependencyNode, visited: MutableSet<DependencyNode> = mutableSetOf()): Boolean {
+        return (parents - visited)
+            .let {
+                visited.addAll(it)
+                it.any { it.key == parent.key }
+                        || it.any { it.isDescendantOf(parent, visited) }
+            }
     }
 
     fun getOriginalMavenCoordinates(): MavenCoordinates = dependency.coordinates.copy(version = version)
