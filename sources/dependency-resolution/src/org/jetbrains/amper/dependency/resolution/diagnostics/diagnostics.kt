@@ -2,11 +2,9 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.dependency.resolution
+package org.jetbrains.amper.dependency.resolution.diagnostics
 
-import org.jetbrains.amper.dependency.resolution.diagnostics.Message
-import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
-import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
+import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
 
 class SimpleDiagnosticDescriptor(val id: String, val defaultSeverity: Severity)
 

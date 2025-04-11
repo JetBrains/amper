@@ -6,6 +6,7 @@ package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
+import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
