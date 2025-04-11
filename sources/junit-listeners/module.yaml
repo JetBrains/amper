@@ -10,6 +10,6 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
-  - $libs.junit.platform.launcher
+  - $libs.junit.platform.launcher: compile-only
   - $libs.mordant
   - $libs.teamcity.serviceMessages
