@@ -13,7 +13,7 @@ import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import java.text.SimpleDateFormat

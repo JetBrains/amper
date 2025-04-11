@@ -5,9 +5,10 @@
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
@@ -41,7 +42,8 @@ internal fun AmperModule.buildDependenciesGraph(
     return with(moduleDependenciesResolver) {
         resolveDependenciesGraph(
             DependenciesFlowType.ClassPathType(dependencyReason, setOf(resolutionPlatform), isTest),
-            getAmperFileCacheBuilder(userCacheRoot)
+            getAmperFileCacheBuilder(userCacheRoot),
+            { spanBuilder(it) }
         )
     }
 }

@@ -8,9 +8,11 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.NoopSpanBuilder
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.AmperModule
@@ -33,16 +35,18 @@ interface DependenciesFlow<T: DependenciesFlowType> {
     fun directDependenciesGraph(
         module: AmperModule,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource?,
     ): ModuleDependencyNodeWithModule
 
     fun directDependenciesGraph(
         modules: List<AmperModule>,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource?,
     ): DependencyNodeHolder {
         val node = DependencyNodeHolder(
             name = "root",
-            children = modules.map { directDependenciesGraph(it, fileCacheBuilder) },
-            emptyContext(fileCacheBuilder)
+            children = modules.map { directDependenciesGraph(it, fileCacheBuilder, spanBuilder) },
+            emptyContext(fileCacheBuilder, spanBuilder)
         )
         return node
     }
@@ -123,6 +127,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         platforms: Set<ResolutionPlatform>,
         scope: ResolutionScope,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource? = null,
     ): Context {
         val repositories = getValidRepositories()
         val context = contextMap.computeIfAbsent(
@@ -137,6 +142,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
                 this.platforms = key.platforms
                 this.repositories = repositories
                 this.cache = fileCacheBuilder
+                this.spanBuilder = spanBuilder ?: { NoopSpanBuilder.create() }
             }
         }
         return context

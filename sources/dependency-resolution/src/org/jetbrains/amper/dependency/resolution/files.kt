@@ -39,6 +39,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnexpectedErrorOnDownload
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
+import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream
@@ -288,18 +289,25 @@ open class DependencyFile(
 
     internal suspend fun hasMatchingChecksumLocally(
         diagnosticsReporter: DiagnosticReporter = this.diagnosticsReporter,
+        context: Context,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
     ): Boolean {
         val path = getPath() ?: return false
-        val hashers = path.computeHash()
-        val result = verifyHashes(hashers, diagnosticsReporter, level)
-        return when (result) {
-            VerificationResult.PASSED -> true
-            VerificationResult.FAILED -> false
-            // todo (AB) : Check behavior, it is not clear,
-            // todo (AB) : why dependency should be considered resolved if it has no matching checksum.
-            VerificationResult.UNKNOWN -> level < ResolutionLevel.NETWORK
-        }
+        return context.spanBuilder("hasMatchingChecksumLocally")
+            .setAttribute("fileName", fileName)
+            .use {
+                val hashers = context.spanBuilder("computeHash").use { path.computeHash() }
+                val result = context.spanBuilder("verifyHashes").use {
+                    verifyHashes(hashers, diagnosticsReporter, level, context)
+                }
+                when (result) {
+                    VerificationResult.PASSED -> true
+                    VerificationResult.FAILED -> false
+                    // todo (AB) : Check behavior, it is not clear,
+                    // todo (AB) : why dependency should be considered resolved if it has no matching checksum.
+                    VerificationResult.UNKNOWN -> level < ResolutionLevel.NETWORK
+                }
+            }
     }
 
     private suspend fun hasMatchingChecksum(expectedHash: Hash): Boolean {
@@ -315,6 +323,7 @@ open class DependencyFile(
             context.settings.repositories.ensureFirst(dependency.repository),
             context.settings.progress,
             context.resolutionCache,
+            context.settings.spanBuilder,
             true,
             diagnosticsReporter,
         )
@@ -323,6 +332,7 @@ open class DependencyFile(
         repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
+        spanBuilderSource: SpanBuilderSource,
         verify: Boolean,
         diagnosticsReporter: DiagnosticReporter,
         fileLockSource: StripedMutex? = null,
@@ -354,7 +364,7 @@ open class DependencyFile(
                     val expectedHash = if (verify) {
                         val expectedHashResolved = expectedHashBeforeLocking
                             ?: getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
-                            ?: downloadHash(repositories, progress, cache, diagnosticsReporter)
+                            ?: downloadHash(repositories, progress, cache, spanBuilderSource, diagnosticsReporter)
                             // if hash is not resolved, but we still need to verify it, then we can't proceed with downloading
                             ?: return@produceResultWithDoubleLock null
                         expectedHashResolved.also {
@@ -385,6 +395,7 @@ open class DependencyFile(
                                 optimizedRepositories,
                                 progress,
                                 cache,
+                                spanBuilderSource,
                                 expectedHash,
                                 diagnosticsReporter,
                                 deleteTempFileOnFinish = false,
@@ -398,7 +409,7 @@ open class DependencyFile(
                             val expectedHashIgnoringMetadata = getExpectedHash(
                                 diagnosticsReporter, ResolutionLevel.NETWORK, false
                             )
-                                ?: downloadHash(repositories, progress, cache, diagnosticsReporter)
+                                ?: downloadHash(repositories, progress, cache, spanBuilderSource, diagnosticsReporter)
                             if (expectedHashIgnoringMetadata != null && expectedHashIgnoringMetadata.hash != expectedHash.hash) {
                                 // Expected checksum was taken from metadata on the previous download attempt, not from the checksum file.
                                 // Trying to download the artifact one more time with the checksum downloaded from the remote repository.
@@ -409,6 +420,7 @@ open class DependencyFile(
                                     optimizedRepositories,
                                     progress,
                                     cache,
+                                    spanBuilderSource,
                                     expectedHashIgnoringMetadata,
                                     diagnosticsReporter,
                                 )
@@ -478,13 +490,14 @@ open class DependencyFile(
         repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
+        spanBuilderSource: SpanBuilderSource,
         verify: Boolean,
         diagnosticsReporter: DiagnosticReporter,
         fileLockSource: StripedMutex? = null,
     ): Boolean {
         val nestedDownloadReporter = CollectingDiagnosticReporter()
 
-        val path = downloadUnderFileLock(repositories, progress, cache, verify, nestedDownloadReporter, fileLockSource)
+        val path = downloadUnderFileLock(repositories, progress, cache, spanBuilderSource, verify, nestedDownloadReporter, fileLockSource)
 
         val messages = if (path != null) {
             nestedDownloadReporter.getMessages()
@@ -528,6 +541,7 @@ open class DependencyFile(
         repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
+        spanBuilderSource: SpanBuilderSource,
         expectedHash: Hash?,      // this should be passed for all files being downloaded, except when hash files are downloaded itself
         diagnosticsReporter: DiagnosticReporter,
         deleteTempFileOnFinish: Boolean = true,
@@ -540,7 +554,7 @@ open class DependencyFile(
                 if (hasher !== sha1Hasher) add(sha1Hasher)  // for calculation of `sha1` hash on download additionally
             }
             val writers = hashers.map { it.writer } + Writer(channel::write)
-            if (!download(writers, repository, progress, cache, diagnosticsReporter)) {
+            if (!download(writers, repository, progress, cache, spanBuilderSource, diagnosticsReporter)) {
                 channel.truncate(0)
                 continue
             }
@@ -636,13 +650,14 @@ open class DependencyFile(
      * The actual hashes of the artifact file are computed using the given [hashers].
      */
     private suspend fun verifyHashes(
-        hashers: Collection<Hasher>,
+        hashers: Collection<Hash>,
         diagnosticsReporter: DiagnosticReporter,
         requestedLevel: ResolutionLevel,
+        context: Context,
     ): VerificationResult {
         for (hasher in hashers) {
             val algorithm = hasher.algorithm
-            val expectedHash = getExpectedHash(algorithm) ?: continue
+            val expectedHash = context.spanBuilder("getExpectedHash").use { getExpectedHash(algorithm, context) } ?: continue
             return checkHash(
                 hasher,
                 expectedHash = object : Hash {
@@ -684,6 +699,7 @@ open class DependencyFile(
         repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
+        spanBuilderSource: SpanBuilderSource,
         diagnosticsReporter: DiagnosticReporter,
     ): Hash? {
         val hashers = createHashers()
@@ -695,7 +711,7 @@ open class DependencyFile(
             val algorithm = hasher.algorithm
             val validRepositories = repositories.filter { !hasher.isWellKnownBrokenHashIn(it.url) }
             val expectedHash =
-                downloadHash(algorithm, validRepositories, progress, cache, nestedDownloadReporter)
+                downloadHash(algorithm, validRepositories, progress, cache, spanBuilderSource, nestedDownloadReporter)
             if (expectedHash != null) {
                 return object : Hash {
                     override val hash: String = expectedHash
@@ -740,8 +756,8 @@ open class DependencyFile(
      * uses them for verification.
      * This way, the checksum file is presented in local storage only in case metadata contains invalid data or is completely missing.
      */
-    internal suspend fun getExpectedHash(algorithm: String, searchInMetadata: Boolean = true): String? =
-        LocalStorageHashSource.getExpectedHash(this, algorithm, searchInMetadata)
+    internal suspend fun getExpectedHash(algorithm: String, context: Context, searchInMetadata: Boolean = true): String? =
+        LocalStorageHashSource.getExpectedHash(this, algorithm, context, searchInMetadata)
 
     /**
      * Downloads hash of a particular type from one of the specified repositories.
@@ -752,6 +768,7 @@ open class DependencyFile(
         repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
+        spanBuilderSource: SpanBuilderSource,
         diagnosticsReporter: DiagnosticReporter,
     ): String? {
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm")
@@ -770,6 +787,7 @@ open class DependencyFile(
                     listOf(repository),
                     progress,
                     cache,
+                    spanBuilderSource,
                     null,
                     diagnosticsReporter,
                 )
@@ -800,13 +818,14 @@ open class DependencyFile(
         repository: Repository,
         progress: Progress,
         cache: Cache,
+        spanBuilderSource: SpanBuilderSource,
         diagnosticsReporter: DiagnosticReporter,
     ): Boolean {
         logger.trace("Trying to download {} from {}", nameWithoutExtension, repository)
 
         val client = cache.computeIfAbsent(httpClientKey) { HttpClientProvider.getHttpClient() }
 
-        val name = getNamePart(repository, nameWithoutExtension, extension, progress, cache, diagnosticsReporter)
+        val name = getNamePart(repository, nameWithoutExtension, extension, progress, cache, spanBuilderSource, diagnosticsReporter)
         val url = repository.url.trimEnd('/') +
                 "/${dependency.group.replace('.', '/')}" +
                 "/${dependency.module}" +
@@ -826,74 +845,76 @@ open class DependencyFile(
                     e is IOException
                 }
             ) {
-                val request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    // Without a user agent header, we don't get snapshot versions in maven-metadata.xml.
-                    // I hope this blows your mind.
-                    .header(HttpHeaders.UserAgent, "JetBrains Amper")
-                    .withBasicAuth(repository)
-                    .timeout(Duration.ofMinutes(2))
-                    .GET()
-                    .build()
+                spanBuilderSource("downloadAttempt").use {
+                    val request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        // Without a user agent header, we don't get snapshot versions in maven-metadata.xml.
+                        // I hope this blows your mind.
+                        .header(HttpHeaders.UserAgent, "JetBrains Amper")
+                        .withBasicAuth(repository)
+                        .timeout(Duration.ofMinutes(2))
+                        .GET()
+                        .build()
 
-                downloadSemaphore.withPermit {
-                    val future = client.sendAsync(request, BodyHandlers.ofInputStream())
-                    val response = future.await()
+                    downloadSemaphore.withPermit {
+                        val future = client.sendAsync(request, BodyHandlers.ofInputStream())
+                        val response = future.await()
 
-                    response.body().use { responseBody ->
-                        when (val status = response.statusCode()) {
-                            200 -> {
-                                val expectedSize = fileFromVariant(dependency, name)?.size
-                                    ?: getContentLengthHeaderValue(response)
-                                val size = responseBody.toByteReadChannel().readTo(writers)
+                        response.body().use { responseBody ->
+                            when (val status = response.statusCode()) {
+                                200 -> {
+                                    val expectedSize = fileFromVariant(dependency, name)?.size
+                                        ?: getContentLengthHeaderValue(response)
+                                    val size = responseBody.toByteReadChannel().readTo(writers)
 //                                val size = responseBody.readTo(writers)
 
-                                val isSuccessfullyDownloaded = if (expectedSize != null && size != expectedSize) {
-                                    val sizeFromResponse = getContentLengthHeaderValue(response)
-                                    // If Content-Length is presented and differs from the actual content length, then it is an error
-                                    // Otherwise, it might be an incorrect record in Gradle metadata.
-                                    // That happens, we just report an INFO message and proceed with checksum verification in that case.
-                                    val overrideSeverity =
-                                        Severity.INFO.takeIf { sizeFromResponse == null || size == sizeFromResponse }
-                                    diagnosticsReporter.addMessage(
-                                        ContentLengthMismatch.asMessage(
-                                            url,
-                                            sizeFromResponse,
-                                            size,
-                                            overrideSeverity = overrideSeverity,
+                                    val isSuccessfullyDownloaded = if (expectedSize != null && size != expectedSize) {
+                                        val sizeFromResponse = getContentLengthHeaderValue(response)
+                                        // If Content-Length is presented and differs from the actual content length, then it is an error
+                                        // Otherwise, it might be an incorrect record in Gradle metadata.
+                                        // That happens, we just report an INFO message and proceed with checksum verification in that case.
+                                        val overrideSeverity =
+                                            Severity.INFO.takeIf { sizeFromResponse == null || size == sizeFromResponse }
+                                        diagnosticsReporter.addMessage(
+                                            ContentLengthMismatch.asMessage(
+                                                url,
+                                                sizeFromResponse,
+                                                size,
+                                                overrideSeverity = overrideSeverity,
+                                            )
                                         )
-                                    )
 
-                                    overrideSeverity != null
-                                } else {
-                                    if (logger.isDebugEnabled) {
-                                        logger.debug(
-                                            "Downloaded {} for the dependency {}:{}:{}",
-                                            url,
-                                            dependency.group,
-                                            dependency.module,
-                                            dependency.version
-                                        )
-                                    } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
-                                        // Reports downloaded dependency to INFO (visible to user by default)
-                                        logger.info("Downloaded $url")
+                                        overrideSeverity != null
+                                    } else {
+                                        if (logger.isDebugEnabled) {
+                                            logger.debug(
+                                                "Downloaded {} for the dependency {}:{}:{}",
+                                                url,
+                                                dependency.group,
+                                                dependency.module,
+                                                dependency.version
+                                            )
+                                        } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
+                                            // Reports downloaded dependency to INFO (visible to user by default)
+                                            logger.info("Downloaded $url")
+                                        }
+
+                                        true
                                     }
 
-                                    true
+                                    isSuccessfullyDownloaded
                                 }
 
-                                isSuccessfullyDownloaded
-                            }
+                                404 -> {
+                                    logger.debug("Not found URL: $url")
+                                    false
+                                }
 
-                            404 -> {
-                                logger.debug("Not found URL: $url")
-                                false
+                                else -> throw IOException(
+                                    "Unexpected response code for $url. " +
+                                            "Expected: ${HttpStatusCode.OK.value}, actual: $status"
+                                )
                             }
-
-                            else -> throw IOException(
-                                "Unexpected response code for $url. " +
-                                        "Expected: ${HttpStatusCode.OK.value}, actual: $status"
-                            )
                         }
                     }
                 }
@@ -910,6 +931,7 @@ open class DependencyFile(
                 )
             )
         }
+
         return false
     }
 
@@ -930,6 +952,7 @@ open class DependencyFile(
         extension: String,
         progress: Progress,
         cache: Cache,
+        spanBuilderSource: SpanBuilderSource,
         diagnosticsReporter: DiagnosticReporter,
     ) =
         "$name.$extension"
@@ -941,19 +964,21 @@ open class DependencyFile(
 
     private enum class LocalStorageHashSource {
         File {
-            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String) =
+            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, context: Context,) =
                 artifact.getHashFromGradleCacheDirectory(algorithm)
                     ?: getDependencyFile(
-                        artifact.dependency,
-                        artifact.nameWithoutExtension,
-                        "${artifact.extension}.$algorithm",
-                    )
-                        .takeIf { it.isDownloaded() }
-                        ?.readText()
+                            artifact.dependency,
+                            artifact.nameWithoutExtension,
+                            "${artifact.extension}.$algorithm",
+                        )
+                        .takeIf { file ->
+                            context.settings.spanBuilder("isDownloaded").use { file.isDownloaded() }
+                        }
+                        ?.let { file -> context.settings.spanBuilder("readText").use { file.readText() } }
                         ?.sanitize()
         },
         MetadataInfo {
-            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String) =
+            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, context: Context,) =
                 with(artifact) {
                     when (algorithm) {
                         "sha512" -> fileFromVariant(dependency, fileName)?.sha512?.fixOldGradleHash(128)
@@ -965,11 +990,11 @@ open class DependencyFile(
                 }
         };
 
-        protected abstract suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String): String?
+        protected abstract suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, context: Context): String?
 
-        private suspend fun getExpectedHash(artifact: DependencyFile): Hash? {
+        private suspend fun getExpectedHash(artifact: DependencyFile, context: Context): Hash? {
             for (hashAlgorithm in hashAlgorithms) {
-                val expectedHash = getExpectedHash(artifact, hashAlgorithm)
+                val expectedHash = getExpectedHash(artifact, hashAlgorithm, context)
                 if (expectedHash != null) {
                     return object : Hash {
                         override val hash: String = expectedHash
@@ -981,16 +1006,21 @@ open class DependencyFile(
         }
 
         companion object {
-            suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, searchInMetadata: Boolean) =
-                File.getExpectedHash(artifact, algorithm)
-                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, algorithm) else null
+            suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, context: Context, searchInMetadata: Boolean) =
+                context.spanBuilder(" File.getExpectedHash").use {
+                    File.getExpectedHash(artifact, algorithm, context)
+                }
+                    ?: if (searchInMetadata) context.spanBuilder("MetadataInfo.getExpectedHash").use {
+                        MetadataInfo.getExpectedHash(artifact, algorithm, context)
+                    } else null
 
             /**
              * @return hash of the artifact resolved from a local artifacts storage
              */
             suspend fun getExpectedHash(artifact: DependencyFile, searchInMetadata: Boolean = true): Hash? =
-                File.getExpectedHash(artifact)
-                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact) else null
+                // todo (AB) : Remove this empty Context {}
+                File.getExpectedHash(artifact, Context {})
+                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, Context {}) else null
         }
     }
 
@@ -1006,19 +1036,17 @@ open class DependencyFile(
             ?.takeIf { it.isNotEmpty() && checkSumRegex.matches(it) }
 
         private fun checkHash(
-            hasher: Hasher,
+            actualHash: Hash,
             expectedHash: Hash,
             diagnosticsReporter: DiagnosticReporter? = null,
         ): VerificationResult {
             // Let's first check hashes available on disk.
-            val algorithm = hasher.algorithm
-            val actualHash = hasher.hash
-            if (expectedHash.algorithm != algorithm) {
-                error("Expected hash type is ${expectedHash.algorithm}, but $algorithm was calculated") // should never happen
-            } else if (!expectedHash.hash.equals(actualHash, true)) {
+            if (expectedHash.algorithm != actualHash.algorithm) {
+                error("Expected hash type is ${expectedHash.algorithm}, but ${actualHash.algorithm} was calculated") // should never happen
+            } else if (!expectedHash.hash.equals(actualHash.hash, true)) {
                 diagnosticsReporter?.addMessage(
                     HashesMismatch.asMessage(
-                        algorithm,
+                        actualHash.algorithm,
                         extra = DependencyResolutionBundle.message(
                             "extra.expected.actual",
                             expectedHash.hash,
@@ -1126,10 +1154,11 @@ class SnapshotDependencyFile(
         extension: String,
         progress: Progress,
         cache: Cache,
+        spanBuilderSource: SpanBuilderSource,
         diagnosticsReporter: DiagnosticReporter,
     ): String {
         if (name != "maven-metadata" &&
-            isMavenMetadataDownloadedOrDownload(repository, progress, cache, diagnosticsReporter = diagnosticsReporter)
+            isMavenMetadataDownloadedOrDownload(repository, progress, cache, spanBuilderSource, diagnosticsReporter = diagnosticsReporter)
         ) {
             getSnapshotVersion()
                 ?.let { name.replace(dependency.version.orUnspecified(), it) }
@@ -1137,15 +1166,15 @@ class SnapshotDependencyFile(
                     return "$it.$extension"
                 }
         }
-        return super.getNamePart(repository, name, extension, progress, cache, diagnosticsReporter)
+        return super.getNamePart(repository, name, extension, progress, cache, spanBuilderSource, diagnosticsReporter)
     }
 
     private suspend fun isMavenMetadataDownloadedOrDownload(
-        repository: Repository, progress: Progress, cache: Cache, diagnosticsReporter: DiagnosticReporter,
+        repository: Repository, progress: Progress, cache: Cache, spanBuilderSource: SpanBuilderSource, diagnosticsReporter: DiagnosticReporter,
     ): Boolean {
         return mavenMetadata.isDownloaded()
                 || mavenMetadata
-            .download(listOf(repository), progress, cache, verify = false, diagnosticsReporter, mavenMetadataFilesLock)
+            .download(listOf(repository), progress, cache, spanBuilderSource, verify = false, diagnosticsReporter, mavenMetadataFilesLock)
     }
 
 

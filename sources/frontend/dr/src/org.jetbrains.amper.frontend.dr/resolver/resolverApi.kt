@@ -10,6 +10,7 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
@@ -30,6 +31,7 @@ data class ResolutionInput(
     val resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
     val downloadSources: Boolean = false,
     val fileCacheBuilder: FileCacheBuilder.() -> Unit,
+    val spanBuilder: SpanBuilderSource?= null,
 )
 
 sealed interface DependenciesFlowType {
@@ -47,6 +49,7 @@ interface ModuleDependenciesResolver {
     fun AmperModule.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource? = null,
     ): ModuleDependencyNodeWithModule
 
     suspend fun DependencyNodeHolder.resolveDependencies(

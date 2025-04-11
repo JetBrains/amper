@@ -24,7 +24,7 @@ import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs.Change.ChangeType
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer

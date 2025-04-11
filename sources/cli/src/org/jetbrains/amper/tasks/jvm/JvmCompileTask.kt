@@ -50,7 +50,7 @@ import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.resourcesFor
 import org.jetbrains.amper.telemetry.setListAttribute
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.kotlin.buildtools.api.CompilationResult

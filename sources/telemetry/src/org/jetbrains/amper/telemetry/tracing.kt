@@ -4,31 +4,15 @@
 
 package org.jetbrains.amper.telemetry
 
-import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.StatusCode
-import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.extension.kotlin.asContextElement
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ThreadContextElement
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.use
-
-// Note: the tracer name is not used in traces, and should just be linked to the instrumentation library itself.
-// It is different from the service name, which does appear in traces.
-// We use the package here, not as the service name, but as a way to refer to this library.
-private val tracer: Tracer
-    get() = GlobalOpenTelemetry.getTracer("org.jetbrains.amper.telemetry")
-
-/**
- * Creates a [SpanBuilder] to configure a new span with the given [spanName].
- *
- * The span can be created and run using [SpanBuilder.use], or [SpanBuilder.useWithoutCoroutines] if we can't use
- * coroutines and won't use coroutines down the line.
- */
-fun spanBuilder(spanName: String): SpanBuilder = tracer.spanBuilder(spanName)
 
 /**
  * Starts the span from this [SpanBuilder] and runs the given [operation] under this span, in contexts that don't know

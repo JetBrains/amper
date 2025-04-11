@@ -5,8 +5,8 @@
 package org.jetbrains.amper.cli
 
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.incrementalcache.computeClassPathHash
-import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

@@ -23,7 +23,7 @@ import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import kotlin.io.path.Path

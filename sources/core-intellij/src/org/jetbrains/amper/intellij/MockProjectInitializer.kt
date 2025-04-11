@@ -25,7 +25,7 @@ import com.intellij.util.ProcessingContext
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage

@@ -13,6 +13,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
+import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -65,30 +66,33 @@ class Resolver {
         transitive: Boolean = true,
         unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNode>? = null
     ) {
-        val conflictResolver = ConflictResolver(root.context.settings.conflictResolutionStrategies, unspecifiedVersionResolver)
+        root.context.spanBuilder("Resolver.buildGraph").use {
+            val conflictResolver =
+                ConflictResolver(root.context.settings.conflictResolutionStrategies, unspecifiedVersionResolver)
 
-        // Contains all nodes that we resolved (we populated the children of their internal dependency), and for which
-        // all child nodes resolutions have either completed or been canceled.
-        // The canceled descendant nodes are
-        // tracked by the conflict resolution structures, so they won't be forgotten anyway, but they don't require a
-        // new resolution of their ancestors. This is why it's ok to mark a parent as resolved in that case.
-        val resolvedNodes = ConcurrentHashMap.newKeySet<DependencyNode>()
+            // Contains all nodes that we resolved (we populated the children of their internal dependency), and for which
+            // all child nodes resolutions have either completed or been canceled.
+            // The canceled descendant nodes are
+            // tracked by the conflict resolution structures, so they won't be forgotten anyway, but they don't require a
+            // new resolution of their ancestors. This is why it's ok to mark a parent as resolved in that case.
+            val resolvedNodes = ConcurrentHashMap.newKeySet<DependencyNode>()
 
-        var nodesToResolve = setOf(root)
-        while(nodesToResolve.isNotEmpty()) {
-            coroutineScope {
-                nodesToResolve.forEach { node ->
-                    node.launchRecursiveResolution(level, conflictResolver, resolvedNodes, transitive)
+            var nodesToResolve = setOf(root)
+            while (nodesToResolve.isNotEmpty()) {
+                coroutineScope {
+                    nodesToResolve.forEach { node ->
+                        node.launchRecursiveResolution(level, conflictResolver, resolvedNodes, transitive)
+                    }
                 }
+
+                nodesToResolve = conflictResolver.resolveConflicts()
+
+                // Some candidates may have been resolved entirely before the conflict was detected
+                // and the resolution canceled.
+                // So we need to "unmark" them as resolved because their dependency may have changed after
+                // conflict resolution (requiring a new resolution).
+                resolvedNodes.removeAll(nodesToResolve.toSet())
             }
-
-            nodesToResolve = conflictResolver.resolveConflicts()
-
-            // Some candidates may have been resolved entirely before the conflict was detected
-            // and the resolution canceled.
-            // So we need to "unmark" them as resolved because their dependency may have changed after
-            // conflict resolution (requiring a new resolution).
-            resolvedNodes.removeAll(nodesToResolve.toSet())
         }
     }
 
@@ -160,18 +164,20 @@ class Resolver {
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
     suspend fun downloadDependencies(node: DependencyNode, downloadSources: Boolean = false) {
-        coroutineScope {
-            node
-                .distinctBfsSequence { child, _ -> child !is MavenDependencyConstraintNode }
-                .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
-                .forEach {
-                    launch {
-                        it.downloadDependencies(downloadSources)
+        node.context.spanBuilder("Resolver.downloadDependencies").use {
+            coroutineScope {
+                node
+                    .distinctBfsSequence { child, _ -> child !is MavenDependencyConstraintNode }
+                    .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
+                    .forEach {
+                        launch {
+                            it.downloadDependencies(downloadSources)
+                        }
                     }
-                }
-        }
+            }
 
-        node.closeResolutionContexts()
+            node.closeResolutionContexts()
+        }
     }
 
     private suspend fun DependencyNode.closeResolutionContexts() {

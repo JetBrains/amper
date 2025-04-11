@@ -10,7 +10,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.telemetry.setListAttribute
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.lang.management.ManagementFactory

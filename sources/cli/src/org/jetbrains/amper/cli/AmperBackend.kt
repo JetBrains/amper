@@ -26,7 +26,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.ios.IosTaskType
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil

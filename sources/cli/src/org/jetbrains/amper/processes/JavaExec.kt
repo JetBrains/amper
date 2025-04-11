@@ -10,7 +10,7 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.jvm.Jdk
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.io.File
 import java.nio.file.Path

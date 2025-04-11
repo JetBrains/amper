@@ -7,7 +7,7 @@ package org.jetbrains.amper.core.downloader
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import kotlinx.coroutines.delay
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.util.*
 import java.util.concurrent.TimeUnit

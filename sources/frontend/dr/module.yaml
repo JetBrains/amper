@@ -11,5 +11,6 @@ test-dependencies:
 dependencies:
   - ../schema
   - ../../core
+  - ../../telemetry
   - ../../dependency-resolution: exported
   - $libs.slf4j.api

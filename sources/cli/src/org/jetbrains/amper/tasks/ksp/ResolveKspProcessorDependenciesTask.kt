@@ -23,7 +23,7 @@ import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import kotlin.io.path.pathString

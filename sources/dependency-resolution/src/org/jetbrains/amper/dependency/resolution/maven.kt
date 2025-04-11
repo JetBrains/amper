@@ -50,10 +50,12 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.localRepository
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseSettings
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
+import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.CancellationException
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -141,7 +143,11 @@ class MavenDependencyNode internal constructor(
     }
 
     override suspend fun downloadDependencies(downloadSources: Boolean) =
-        dependency.downloadDependencies(context, downloadSources)
+        context.spanBuilder("MavenDependencyNode.downloadDependencies")
+            .setAttribute("coordinates", dependency.toString())
+            .use {
+                dependency.downloadDependencies(context, downloadSources)
+            }
 
     override fun toString(): String = if (dependency.version == version) {
         dependency.toString()
@@ -467,7 +473,11 @@ class MavenDependency internal constructor(
         if (state < level.state) {
             mutex.withLock {
                 if (state < level.state) {
-                    resolve(context, level)
+                    context.spanBuilder("MavenDependencyNode.resolveChildren")
+                        .setAttribute("coordinates", this.toString())
+                        .use {
+                            resolve(context, level)
+                        }
                 }
             }
         }
@@ -1139,9 +1149,17 @@ class MavenDependency internal constructor(
         val module = kmpMetadataFile.dependency.module
         val version = kmpMetadataFile.dependency.version
         // kmpMetadataFile hash
-        val sha1 = kmpMetadataFile.getExpectedHash("sha1")
-            ?: kmpMetadataFile.getPath()?.let {
-                computeHash(it, "sha1").hash
+        val sha1 = context.spanBuilder("toDependencyFile -> getExpectedHash")
+            .setAttribute("fileName", kmpMetadataFile.fileName)
+            .use {
+                kmpMetadataFile.getExpectedHash("sha1", context)
+            }
+            ?: kmpMetadataFile.getPath()?.let { path ->
+                context.spanBuilder("toDependencyFile -> computeHash")
+                    .setAttribute("fileName", kmpMetadataFile.fileName)
+                    .use {
+                        computeHash(path, "sha1").hash
+                    }
             }
             ?: run {
                 diagnosticsReporter.addMessage(
@@ -1152,19 +1170,21 @@ class MavenDependency internal constructor(
                 )
                 return null
             }
-
-        val kmpLibraryWithSourceSet = resolveKmpLibraryWithSourceSet(
-            sourceSetName,
-            kmpMetadataFile,
-            context,
-            kotlinProjectStructureMetadata,
-            moduleMetadata,
-            level,
-            diagnosticsReporter
-        ) ?: run {
-            logger.debug("Source set $sourceSetName for Kotlin Multiplatform library ${kmpMetadataFile.fileName} is not found")
-            return null
-        }
+        val kmpLibraryWithSourceSet = context.spanBuilder("resolveKmpLibraryWithSourceSet")
+            .use {
+                resolveKmpLibraryWithSourceSet(
+                    sourceSetName,
+                    kmpMetadataFile,
+                    context,
+                    kotlinProjectStructureMetadata,
+                    moduleMetadata,
+                    level,
+                    diagnosticsReporter
+                ) ?: run {
+                    logger.debug("Source set $sourceSetName for Kotlin Multiplatform library ${kmpMetadataFile.fileName} is not found")
+                    return@use null
+                }
+            } ?: return null
 
         val extension = if (kmpMetadataFile.hasSourcesFilename()) "jar" else "klib"
         val sourcesSuffix = if (kmpMetadataFile.hasSourcesFilename()) "-sources" else ""
@@ -1186,24 +1206,26 @@ class MavenDependency internal constructor(
             .resolve(sha1)
             .resolve(targetFileName)
 
-        produceFileWithDoubleLockAndHash(
-            target = targetPath,
-            tempDir = { with(sourceSetFile) { getTempDir() } },
-        ) { _, fileChannel ->
-            try {
-                copyJarEntryDirToJar(fileChannel, sourceSetName, kmpLibraryWithSourceSet)
-                true
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                diagnosticsReporter.addMessage(
-                    FailedRepackagingKMPLibrary.asMessage(
-                        kmpLibraryWithSourceSet.name,
-                        extra = DependencyResolutionBundle.message("extra.exception", e),
-                        exception = e,
+        context.spanBuilder("produceFileWithDoubleLockAndHash").use {
+            produceFileWithDoubleLockAndHash(
+                target = targetPath,
+                tempDir = { with(sourceSetFile) { getTempDir() } },
+            ) { _, fileChannel ->
+                try {
+                    copyJarEntryDirToJar(fileChannel, sourceSetName, kmpLibraryWithSourceSet)
+                    true
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    diagnosticsReporter.addMessage(
+                        FailedRepackagingKMPLibrary.asMessage(
+                            kmpLibraryWithSourceSet.name,
+                            extra = DependencyResolutionBundle.message("extra.exception", e),
+                            exception = e,
+                        )
                     )
-                )
-                false
+                    false
+                }
             }
         }
 
@@ -1586,7 +1608,7 @@ class MavenDependency internal constructor(
         context: Context,
         diagnosticsReporter: DiagnosticReporter
     ) =
-        isDownloaded() && hasMatchingChecksumLocally(diagnosticsReporter, level)
+        isDownloaded() && hasMatchingChecksumLocally(diagnosticsReporter, context, level)
                 || level == ResolutionLevel.NETWORK && download(context, diagnosticsReporter)
 
     internal val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant>
@@ -1614,7 +1636,7 @@ class MavenDependency internal constructor(
             .filter {
                 (context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
                         || it.kmpSourceSet == null) // (except for artifact with all sources that is not marked with any kmpSourceSet)
-                        && !(it.isDownloaded() && it.hasMatchingChecksumLocally())
+                        && !(it.isDownloaded() && it.hasMatchingChecksumLocally(context = context))
             }
 
         notDownloaded.forEach {
@@ -1649,29 +1671,37 @@ class MavenDependency internal constructor(
         ) {
             // repackage KMP library sources.
             val kmpSourcesFile = this
-            val sourceSetsSources = coroutineScope {
-                sourceSetsFiles
-                    .map {
-                        async(Dispatchers.IO) {
-                            val sourceSetName = it.kmpSourceSet ?: return@async null
-                            val moduleMetadata = moduleMetadata ?: error("moduleMetadata wasn't initialized")
+            val sourceSetsSources = context.spanBuilder("repackageKmpLibrarySources")
+                .setAttribute("fileName", fileName)
+                .use {
+                    coroutineScope {
+                        sourceSetsFiles
+                            .map { sourceSetsFile ->
+                                async (Dispatchers.IO) {
+                                    context.spanBuilder("toDependencyFile")
+                                        .use {
+                                            val sourceSetName = sourceSetsFile.kmpSourceSet ?: return@use null
+                                            val moduleMetadata =
+                                                moduleMetadata ?: error("moduleMetadata wasn't initialized")
 
-                            // Extract sources from this DependencyFile and package extracted sources to separate location
-                            toDependencyFile(
-                                sourceSetName,
-                                kmpSourcesFile,
-                                moduleMetadata,
-                                null,
-                                context,
-                                level,
-                                diagnosticsReporter
-                            )
-                        }
-                    }
-            }.awaitAll()
-                .mapNotNull { it }
-            // replace all-in-one sources file with per-sourceSet files
-            sourceSetsFiles = sourceSetsFiles - this + sourceSetsSources
+                                            // Extract sources from this DependencyFile and package extracted sources to separate location
+                                            toDependencyFile(
+                                                sourceSetName,
+                                                kmpSourcesFile,
+                                                moduleMetadata,
+                                                null,
+                                                context,
+                                                level,
+                                                diagnosticsReporter
+                                            )
+                                        }
+                                }
+                            }
+                    }.awaitAll()
+                        .mapNotNull { it }
+                }
+                // replace all-in-one sources file with per-sourceSet files
+                sourceSetsFiles = sourceSetsFiles - this + sourceSetsSources
         }
     }
 

@@ -8,6 +8,7 @@ import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.Fragment
@@ -65,16 +66,17 @@ internal class IdeSync(
 
     override fun directDependenciesGraph(
         module: AmperModule,
-        fileCacheBuilder: FileCacheBuilder.() -> Unit
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource?,
     ): ModuleDependencyNodeWithModule =
-        module.toGraph(fileCacheBuilder)
+        module.toGraph(fileCacheBuilder, spanBuilder)
 
-    private fun AmperModule.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
+    private fun AmperModule.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource? = null,): ModuleDependencyNodeWithModule {
         val node = ModuleDependencyNodeWithModule(
             name = "module:${userReadableName}",
-            children = fragments.flatMap { it.toGraph(fileCacheBuilder) },
+            children = fragments.flatMap { it.toGraph(fileCacheBuilder, spanBuilder) },
             module = this,
-            templateContext = emptyContext(fileCacheBuilder)
+            templateContext = emptyContext(fileCacheBuilder, spanBuilder)
         )
         return node
     }
@@ -101,7 +103,7 @@ internal class IdeSync(
      * Resolution of the complete COMPILE maven dependencies graph is performed by [Classpath] flow with COMPILE resolution scope.
      * (flag 'exported' takes effect in the case of native modules during graph resolution)
      */
-    private fun Fragment.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit): List<DirectFragmentDependencyNodeHolder> {
+    private fun Fragment.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource? = null,): List<DirectFragmentDependencyNodeHolder> {
         val moduleDependencies = Classpath(
             DependenciesFlowType.ClassPathType(
                 scope = ResolutionScope.COMPILE,
@@ -116,7 +118,7 @@ internal class IdeSync(
                 .flatMap { externalDependencies }
                 .filterIsInstance<MavenDependencyBase>()
                 .distinct()
-                .map { it.toGraph(this, fileCacheBuilder) }
+                .map { it.toGraph(this, fileCacheBuilder, spanBuilder) }
                 .toList()
             // In a single-platform case we could rely on IDE dependencies resolution.
             // Exported dependencies of the fragment on other modules will be taken into account by IDE while preparing
@@ -132,7 +134,7 @@ internal class IdeSync(
             .distinctBy { it.dependencyNode }
             .map {
                 val mavenDependencyNotation = it.notation as MavenDependencyBase
-                val context = mavenDependencyNotation.resolveFragmentContext(this, fileCacheBuilder)
+                val context = mavenDependencyNotation.resolveFragmentContext(this, fileCacheBuilder, spanBuilder)
                 mavenDependencyNotation.toFragmentDirectDependencyNode(this, context)
             }.toList()
 
@@ -156,22 +158,24 @@ internal class IdeSync(
 
     private fun MavenDependencyBase.toGraph(
         fragment: Fragment,
-        fileCacheBuilder: FileCacheBuilder.() -> Unit
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource?
     ): DirectFragmentDependencyNodeHolder {
-        val context = resolveFragmentContext(fragment, fileCacheBuilder)
+        val context = resolveFragmentContext(fragment, fileCacheBuilder, spanBuilder)
         val node = toFragmentDirectDependencyNode(fragment, context)
         return node
     }
 
     private fun MavenDependencyBase.resolveFragmentContext(
         fragment: Fragment,
-        fileCacheBuilder: FileCacheBuilder.() -> Unit
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource? = null,
     ): Context {
         val scope = when (this) {
             is MavenDependency -> if (compile) ResolutionScope.COMPILE else ResolutionScope.RUNTIME
             is BomDependency -> ResolutionScope.COMPILE
         }
-        return fragment.module.resolveModuleContext(fragment.resolutionPlatforms, scope, fileCacheBuilder)
+        return fragment.module.resolveModuleContext(fragment.resolutionPlatforms, scope, fileCacheBuilder, spanBuilder)
     }
 }
 

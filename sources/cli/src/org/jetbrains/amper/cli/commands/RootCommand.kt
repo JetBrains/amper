@@ -27,7 +27,7 @@ import org.jetbrains.amper.cli.amperTypoSuggestor
 import org.jetbrains.amper.cli.unwrap
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.tinylog.Level
 import java.nio.file.Path

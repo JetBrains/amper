@@ -53,9 +53,10 @@ abstract class BaseDRTest {
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
+        spanBuilder: SpanBuilderSource? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNode =
-        context(scope, platform, repositories, cacheBuilder)
+        context(scope, platform, repositories, cacheBuilder, spanBuilder)
             .use { context ->
                 val root = dependency.toRootNode(context)
                 runBlocking {
@@ -72,7 +73,8 @@ abstract class BaseDRTest {
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
-        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
+        spanBuilder: SpanBuilderSource? = null,
     ): DependencyNode = doTest(
         testInfo,
         listOf(dependency),
@@ -82,7 +84,8 @@ abstract class BaseDRTest {
         verifyMessages,
         expected,
         cacheBuilder,
-        filterMessages
+        filterMessages,
+        spanBuilder
     )
 
     protected fun doTestByFile(
@@ -93,7 +96,8 @@ abstract class BaseDRTest {
         repositories: List<String> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         verifyMessages: Boolean = true,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
-        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
+        spanBuilder: SpanBuilderSource? = null,
     ): DependencyNode {
         val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
         return withActualDump(goldenFile) {
@@ -108,7 +112,8 @@ abstract class BaseDRTest {
                 verifyMessages,
                 expected,
                 cacheBuilder,
-                filterMessages
+                filterMessages,
+                spanBuilder
             )
         }
     }
@@ -138,7 +143,8 @@ abstract class BaseDRTest {
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
-        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
+        spanBuilder: SpanBuilderSource? = null,
     ): DependencyNode = doTestImpl(
         testInfo,
         dependency,
@@ -148,7 +154,8 @@ abstract class BaseDRTest {
         verifyMessages,
         expected,
         cacheBuilder,
-        filterMessages
+        spanBuilder,
+        filterMessages,
     )
 
 
@@ -157,11 +164,13 @@ abstract class BaseDRTest {
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories(),
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
+        spanBuilder: SpanBuilderSource? = null,
     ) = Context {
         this.scope = scope
         this.platforms = platform
         this.repositories = repositories
         this.cache = cacheBuilder
+        this.spanBuilder = spanBuilder ?: { NoopSpanBuilder.create() }
     }
 
     protected fun cacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {

@@ -19,7 +19,7 @@ import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException

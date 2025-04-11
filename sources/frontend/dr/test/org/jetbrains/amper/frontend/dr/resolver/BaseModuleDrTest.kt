@@ -82,7 +82,12 @@ abstract class BaseModuleDrTest {
         }
 
         val subGraph = when {
-            module != null && fragment != null -> DependencyNodeHolder("Fragment '$module.$fragment' dependencies", graph.fragmentDeps(module, fragment), emptyContext {})
+            module != null && fragment != null ->
+                DependencyNodeHolder(
+                    "Fragment '$module.$fragment' dependencies",
+                    graph.fragmentDeps(module, fragment),
+                    emptyContext(resolutionInput.fileCacheBuilder, resolutionInput.spanBuilder)
+                )
             module != null -> graph.moduleDeps(module)
             else -> graph
         }

@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.DynamicFileWriter
 import org.jetbrains.amper.diagnostics.DynamicLevelConsoleWriter
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.tinylog.Level
 import org.tinylog.core.TinylogLoggingProvider

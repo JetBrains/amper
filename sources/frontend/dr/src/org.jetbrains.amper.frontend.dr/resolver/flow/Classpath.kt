@@ -8,6 +8,7 @@ import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.DefaultScopedNotation
@@ -62,7 +63,11 @@ internal class Classpath(
     dependenciesFlowType: DependenciesFlowType.ClassPathType
 ): AbstractDependenciesFlow<DependenciesFlowType.ClassPathType>(dependenciesFlowType) {
 
-    override fun directDependenciesGraph(module: AmperModule, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
+    override fun directDependenciesGraph(
+        module: AmperModule,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource?
+    ): ModuleDependencyNodeWithModule {
         return module.fragmentsModuleDependencies(flowType, fileCacheBuilder = fileCacheBuilder)
     }
 
@@ -76,12 +81,13 @@ internal class Classpath(
         notation: DefaultScopedNotation? = null,
         visitedModules: MutableSet<AmperModule> = mutableSetOf(),
         initialFragment: Fragment? = null,
-        fileCacheBuilder: FileCacheBuilder.() -> Unit
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource? = null,
     ): ModuleDependencyNodeWithModule {
 
         visitedModules.add(this)
 
-        val moduleContext = resolveModuleContext(flowType.platforms, flowType.scope, fileCacheBuilder)
+        val moduleContext = resolveModuleContext(flowType.platforms, flowType.scope, fileCacheBuilder, spanBuilder)
         val resolutionPlatforms = moduleContext.settings.platforms
 
         // test fragments couldn't reference test fragments of transitive (non-direct) module dependencies

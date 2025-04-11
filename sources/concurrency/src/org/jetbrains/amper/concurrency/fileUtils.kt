@@ -35,6 +35,11 @@ interface Hash {
     val hash: String
 }
 
+data class SimpleHash(
+    override val hash: String,
+    override val algorithm: String
+) : Hash
+
 @OptIn(ExperimentalStdlibApi::class)
 fun ByteArray.toHex() = toHexString()
 

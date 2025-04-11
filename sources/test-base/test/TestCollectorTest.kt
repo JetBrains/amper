@@ -7,7 +7,7 @@ package org.jetbrains.amper.test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import kotlin.test.Test

@@ -22,10 +22,10 @@ import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.httpClient
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.processes.startLongLivedProcess
-import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.ShellQuoting
 import java.nio.file.Path

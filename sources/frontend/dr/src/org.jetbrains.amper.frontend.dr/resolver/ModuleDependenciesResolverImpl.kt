@@ -6,29 +6,31 @@ package org.jetbrains.amper.frontend.dr.resolver
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
-import org.jetbrains.amper.dependency.resolution.Key
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.Resolver
+import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
-import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
-import java.util.concurrent.ConcurrentHashMap
 
 internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
-    override fun AmperModule.resolveDependenciesGraph(dependenciesFlowType: DependenciesFlowType, fileCacheBuilder: FileCacheBuilder.() -> Unit): ModuleDependencyNodeWithModule {
+    override fun AmperModule.resolveDependenciesGraph(
+        dependenciesFlowType: DependenciesFlowType,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource?,
+    ): ModuleDependencyNodeWithModule {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
         }
 
-        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder)
+        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, spanBuilder)
     }
 
     override suspend fun DependencyNodeHolder.resolveDependencies(resolutionDepth: ResolutionDepth, resolutionLevel: ResolutionLevel, downloadSources: Boolean) {
@@ -51,24 +53,28 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
     override suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNodeWithModule {
         with(resolutionInput) {
-            val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder)
+            val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, spanBuilder)
             moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
             return moduleDependenciesGraph
         }
     }
 
-    private fun List<AmperModule>.resolveDependenciesGraph(dependenciesFlowType: DependenciesFlowType, fileCacheBuilder: FileCacheBuilder.() -> Unit): DependencyNodeHolder {
+    private fun List<AmperModule>.resolveDependenciesGraph(
+        dependenciesFlowType: DependenciesFlowType,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource?,
+    ): DependencyNodeHolder {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
         }
 
-        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder)
+        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, spanBuilder)
     }
 
     override suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder {
         with(resolutionInput) {
-            val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder)
+            val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, resolutionInput.spanBuilder)
             moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
             return moduleDependenciesGraph
         }

@@ -35,7 +35,7 @@ import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.telemetry.setListAttribute
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -124,7 +124,7 @@ class ResolveExternalDependenciesTask(
                                 fragmentsCompileModuleDependencies,
                                 fragmentsRuntimeModuleDependencies
                             ),
-                            emptyContext(userCacheRoot)
+                            emptyContext(userCacheRoot) { spanBuilder(it) }
                         )
 
                         mavenResolver.resolve(

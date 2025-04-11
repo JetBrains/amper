@@ -4,10 +4,18 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.internal.ApiUsageLogger
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.SpanBuilder
+import io.opentelemetry.api.trace.SpanContext
+import io.opentelemetry.api.trace.SpanKind
 import java.io.Closeable
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.TimeUnit
 import kotlin.io.path.Path
 
 /**
@@ -104,6 +112,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var platforms: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM)
     var repositories: List<Repository> = listOf(Repository("https://repo1.maven.org/maven2"))
     var cache: FileCacheBuilder.() -> Unit = {}
+    var spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() }
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
 
     init {
@@ -117,6 +126,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             platforms,
             repositories,
             FileCacheBuilder(cache).build(),
+            spanBuilder,
             conflictResolutionStrategies
         )
 }
@@ -170,6 +180,7 @@ data class Settings(
     val platforms: Set<ResolutionPlatform>,
     val repositories: List<Repository>,
     val fileCache: FileCache,
+    var spanBuilder: SpanBuilderSource,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
 )
 
@@ -241,3 +252,52 @@ data class Repository(
 }
 
 fun List<String>.toRepositories() = map { Repository(it) }
+
+typealias SpanBuilderSource = (String) -> SpanBuilder
+
+fun Context.spanBuilder(scope: String) = settings.spanBuilder(scope)
+
+class NoopSpanBuilder : SpanBuilder {
+    private constructor()
+
+    private var spanContext: SpanContext? = null
+
+    override fun startSpan(): Span? {
+        if (this.spanContext == null) {
+            this.spanContext = Span.current().getSpanContext()
+        }
+        return Span.wrap(this.spanContext!!)
+    }
+
+    override fun setParent(context: io.opentelemetry.context.Context): NoopSpanBuilder {
+        if (context == null) {
+            ApiUsageLogger.log("context is null")
+            return this
+        } else {
+            this.spanContext = Span.fromContext(context).getSpanContext()
+            return this
+        }
+    }
+
+    override fun setNoParent(): NoopSpanBuilder {
+        this.spanContext = SpanContext.getInvalid()
+        return this
+    }
+
+    override fun addLink(spanContext: SpanContext): NoopSpanBuilder = this
+    override fun addLink(spanContext: SpanContext, attributes: Attributes): NoopSpanBuilder = this
+    override fun setAttribute(key: String, value: String): NoopSpanBuilder = this
+    override fun setAttribute(key: String, value: Long): NoopSpanBuilder = this
+    override fun setAttribute(key: String, value: Double): NoopSpanBuilder  = this
+    override fun setAttribute(key: String, value: Boolean): NoopSpanBuilder = this
+    override fun <T> setAttribute(key: AttributeKey<T?>, value: T?): NoopSpanBuilder = this
+    override fun setAllAttributes(attributes: Attributes): NoopSpanBuilder  = this
+    override fun setSpanKind(spanKind: SpanKind): NoopSpanBuilder  = this
+    override fun setStartTimestamp(startTimestamp: Long, unit: TimeUnit): NoopSpanBuilder = this
+
+    companion object {
+        fun create(): NoopSpanBuilder {
+            return NoopSpanBuilder()
+        }
+    }
+}

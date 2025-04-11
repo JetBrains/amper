@@ -16,7 +16,7 @@ import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.createDirectories

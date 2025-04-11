@@ -12,6 +12,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.MavenDependency
@@ -167,12 +168,14 @@ fun getAmperFileCacheBuilder(userCacheRoot: AmperUserCacheRoot): FileCacheBuilde
  * Creates empty DR Context.
  * It might be used for initializing supplementary node holders in a resolution graph only.
  */
-fun emptyContext(userCacheRoot: AmperUserCacheRoot): Context = emptyContext(getAmperFileCacheBuilder(userCacheRoot))
+fun emptyContext(userCacheRoot: AmperUserCacheRoot, spanBuilder: SpanBuilderSource?): Context =
+    emptyContext(getAmperFileCacheBuilder(userCacheRoot), spanBuilder)
 
 /**
  * Creates empty DR Context.
  * It might be used for initializing supplementary node holders in a resolution graph only.
  */
-fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit): Context = Context {
+fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit,spanBuilder: SpanBuilderSource?): Context = Context {
     cache = fileCacheBuilder
+    spanBuilder?.let { this.spanBuilder = it }
 }

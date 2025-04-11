@@ -28,7 +28,7 @@ import org.jetbrains.amper.maven.toMavenArtifact
 import org.jetbrains.amper.maven.writePomFor
 import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
-import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.slf4j.LoggerFactory
