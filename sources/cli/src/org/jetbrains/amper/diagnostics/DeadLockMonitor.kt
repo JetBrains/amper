@@ -13,6 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
+import org.jetbrains.amper.cli.logging.LastLogMonitoringWriter
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.intellij.ThreadDumper
 import java.io.PrintStream
