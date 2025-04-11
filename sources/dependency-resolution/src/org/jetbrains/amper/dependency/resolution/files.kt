@@ -26,6 +26,7 @@ import org.jetbrains.amper.concurrency.produceResultWithTempFile
 import org.jetbrains.amper.concurrency.readTextWithRetry
 import org.jetbrains.amper.concurrency.withRetry
 import org.jetbrains.amper.concurrency.withRetryOnAccessDenied
+import org.jetbrains.amper.dependency.resolution.diagnostics.CanLowerSeverity
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.ContentLengthMismatch
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.HashesMismatch
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.SuccessfulDownload
@@ -36,7 +37,6 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutio
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToResolveChecksums
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToSaveDownloadedFile
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnexpectedErrorOnDownload
-import org.jetbrains.amper.dependency.resolution.diagnostics.CanLowerSeverity
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.SuppressingMessage
@@ -503,26 +503,33 @@ open class DependencyFile(
         val nestedDownloadReporter = CollectingDiagnosticReporter()
 
         val path = downloadUnderFileLock(repositories, progress, cache, spanBuilderSource, verify, nestedDownloadReporter, fileLockSource)
+        val collectedMessages = nestedDownloadReporter.getMessages()
 
-        val messages = if (path != null) {
-            nestedDownloadReporter.getMessages()
-                .takeIf { messages -> messages.all { it.severity <= Severity.INFO } }
+        val messages = when {
+            path != null -> collectedMessages.takeIf { messages -> messages.all { it.severity <= Severity.INFO } }
                 ?: emptyList()
-        } else if (verify) {
-            if (nestedDownloadReporter.diagnostics.singleOrNull()?.id == UnableToDownloadChecksums.id) {
-                nestedDownloadReporter.diagnostics
-            } else {
-                listOf(
-                    UnableToDownloadFile.asMessage(
-                        fileName,
-                        dependency,
-                        extra = DependencyResolutionBundle.message("extra.repositories", repositories.joinToString()),
-                        overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
-                        childMessages = nestedDownloadReporter.diagnostics,
+
+            verify -> {
+                if (collectedMessages.singleOrNull()?.id == UnableToDownloadChecksums.id) {
+                    collectedMessages
+                } else {
+                    listOf(
+                        UnableToDownloadFile.asMessage(
+                            fileName,
+                            dependency,
+                            extra = DependencyResolutionBundle.message(
+                                "extra.repositories",
+                                repositories.joinToString()
+                            ),
+                            overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
+                            childMessages = collectedMessages,
+                        )
                     )
-                )
+                }
             }
-        } else nestedDownloadReporter.getMessages()
+
+            else -> collectedMessages
+        }
 
         diagnosticsReporter.addMessages(messages)
 
@@ -731,7 +738,7 @@ open class DependencyFile(
                 dependency,
                 extra = DependencyResolutionBundle.message("extra.repositories", repositories.joinToString()),
                 overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
-                childMessages = nestedDownloadReporter.diagnostics,
+                childMessages = nestedDownloadReporter.getMessages(),
             )
         )
 
@@ -1334,7 +1341,7 @@ internal interface DiagnosticReporter {
 }
 
 internal class CollectingDiagnosticReporter : DiagnosticReporter {
-    val diagnostics: MutableList<Message> = CopyOnWriteArrayList()
+    private val diagnostics: MutableList<Message> = CopyOnWriteArrayList()
 
     override fun addMessage(message: Message): Boolean {
         return diagnostics.add(message)
