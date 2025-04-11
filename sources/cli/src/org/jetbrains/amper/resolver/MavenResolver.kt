@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.resolver
@@ -19,6 +19,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.diagnostics.WithThrowable
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
@@ -98,10 +99,17 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 }
 
                 Level.Error -> {
-                    val exception = (buildProblem as? DependencyBuildProblem)?.errorMessage?.exception
-                    span.recordException(exception ?: MavenResolverException(buildProblem.message))
+                    var throwable: Throwable? = null
+                    if (buildProblem is DependencyBuildProblem) {
+                        val errorMessage = buildProblem.errorMessage
+                        if (errorMessage is WithThrowable) {
+                            throwable = errorMessage.throwable
+                        }
+                    }
+
+                    span.recordException(throwable ?: MavenResolverException(buildProblem.message))
                     DoNotLogToTerminalCookie.use {
-                        logger.error(buildProblem.message, exception)
+                        logger.error(buildProblem.message, throwable)
                     }
                 }
 

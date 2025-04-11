@@ -13,12 +13,14 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
+import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
+import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.collections.get
 import kotlin.io.path.exists
 
 /**
@@ -410,8 +412,8 @@ interface DependencyNode {
      * resolved and the children should be skipped.
      *
      * @see ResolutionState
-     * @see Message
-     * @see Severity
+     * @see org.jetbrains.amper.dependency.resolution.diagnostics.Message
+     * @see org.jetbrains.amper.dependency.resolution.diagnostics.Severity
      */
     suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean)
 

@@ -11,6 +11,7 @@ import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.defaultFilterMessages
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyMessages
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyOwnMessages
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path

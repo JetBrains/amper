@@ -15,9 +15,9 @@ import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.Message
-import org.jetbrains.amper.dependency.resolution.Severity
-import org.jetbrains.amper.dependency.resolution.detailedMessage
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
@@ -97,7 +97,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         node: DependencyNode,
         directDependency: DirectFragmentDependencyNodeHolder
     ): Message {
-        if (message.severity < Severity.ERROR) return message
+        if (message.severity < Severity.ERROR || message !is SimpleMessage) return message
 
         // direct node could have version traces only
         if (node == directDependency.dependencyNode && node is MavenDependencyNode) {

@@ -6,6 +6,8 @@ package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.TestInfo
@@ -326,7 +328,7 @@ abstract class BaseDRTest {
                 "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}"
             )
         }
-        internal fun assertTheOnlyNonInfoMessage(root: DependencyNode, diagnostic: DiagnosticDescriptor, severity: Severity = diagnostic.defaultSeverity) {
+        internal fun assertTheOnlyNonInfoMessage(root: DependencyNode, diagnostic: SimpleDiagnosticDescriptor, severity: Severity = diagnostic.defaultSeverity) {
             val messages = root.children.single().messages.defaultFilterMessages()
             assertNotNull(messages.singleOrNull(), "The only error message is expected, but found: ${messages.toSet()}")
             assertEquals(

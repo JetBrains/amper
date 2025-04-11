@@ -33,6 +33,9 @@ import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnexpectedDependencyFormat
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Capability
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Dependency
@@ -219,7 +222,7 @@ class UnresolvedMavenDependencyNode(
     override val context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<*> = Key<UnresolvedMavenDependencyNode>(coordinates)
     override val children: List<DependencyNode> = emptyList()
-    override val messages: List<Message> = reasons.map { Message(it, severity = Severity.ERROR) }
+    override val messages: List<Message> = reasons.map { SimpleMessage(it, severity = Severity.ERROR) }
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
     override fun toString(): String = "$coordinates, unresolved"
@@ -545,7 +548,7 @@ class MavenDependency internal constructor(
                         context.settings.repositories.joinToString()
                     ),
                     overrideSeverity = Severity.WARNING.takeIf { level != ResolutionLevel.NETWORK },
-                    suppressedMessages = pom.diagnosticsReporter.getMessages() + moduleFile.diagnosticsReporter.getMessages()
+                    childMessages = pom.diagnosticsReporter.getMessages() + moduleFile.diagnosticsReporter.getMessages()
                 )
             }
         }
@@ -977,7 +980,7 @@ class MavenDependency internal constructor(
                         kmpMetadataDependencyFile.fileName,
                         this,
                         overrideSeverity = Severity.WARNING.takeIf { level != ResolutionLevel.NETWORK },
-                        suppressedMessages = kmpMetadataDependencyFile.diagnosticsReporter.getMessages(),
+                        childMessages = kmpMetadataDependencyFile.diagnosticsReporter.getMessages(),
                     )
                 )
                 null

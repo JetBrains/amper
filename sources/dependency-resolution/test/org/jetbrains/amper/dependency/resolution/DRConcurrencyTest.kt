@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
@@ -87,7 +87,7 @@ class DRConcurrencyTest : BaseDRTest() {
                             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
                             cacheBuilder = cacheBuilder(cacheRoot),
                             filterMessages = {
-                                filter { "Downloaded " !in it.text && "Hashes don't match for" !in it.text }
+                                filter { "Downloaded " !in it.message && "Hashes don't match for" !in it.message }
                             }
                         )
                         // The File is updated/deleted to make it be downloaded again on the next iteration under the file lock

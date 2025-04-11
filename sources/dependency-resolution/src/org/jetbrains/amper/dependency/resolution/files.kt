@@ -36,6 +36,10 @@ import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnableToResolveChecksums
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnableToSaveDownloadedFile
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnexpectedErrorOnDownload
+import org.jetbrains.amper.dependency.resolution.diagnostics.CanLowerSeverity
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.dependency.resolution.diagnostics.SuppressingMessage
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.jetbrains.amper.filechannels.writeFrom
@@ -513,7 +517,7 @@ open class DependencyFile(
                         dependency,
                         extra = DependencyResolutionBundle.message("extra.repositories", repositories.joinToString()),
                         overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
-                        suppressedMessages = nestedDownloadReporter.diagnostics,
+                        childMessages = nestedDownloadReporter.diagnostics,
                     )
                 )
             }
@@ -726,7 +730,7 @@ open class DependencyFile(
                 dependency,
                 extra = DependencyResolutionBundle.message("extra.repositories", repositories.joinToString()),
                 overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
-                suppressedMessages = nestedDownloadReporter.diagnostics,
+                childMessages = nestedDownloadReporter.diagnostics,
             )
         )
 
@@ -1323,7 +1327,7 @@ internal interface DiagnosticReporter {
     fun addMessage(message: Message): Boolean
     fun addMessages(messages: List<Message>): Boolean
     fun getMessages(): List<Message>
-    fun suppress(message: Message): Boolean
+    fun suppress(message: SuppressingMessage): Boolean
     fun lowerSeverityTo(severity: Severity)
     fun reset()
 }
@@ -1343,16 +1347,19 @@ internal class CollectingDiagnosticReporter : DiagnosticReporter {
 
     override fun getMessages() = diagnostics.toList()
 
-    override fun suppress(message: Message): Boolean {
+    override fun suppress(message: SuppressingMessage): Boolean {
         val suppressedDiagnostics = diagnostics.toList()
         reset()
-        return diagnostics.add(message.copy(suppressedMessages = suppressedDiagnostics))
+        return diagnostics.add(message.withSuppressed(messages = suppressedDiagnostics))
     }
 
     override fun lowerSeverityTo(severity: Severity) {
-        val loweredDiagnostics =
-            diagnostics.map { if (it.severity > severity) it.copy(severity = severity) else it }.toMutableList()
+        val (canLowerDiagnostics, constantDiagnostics) = diagnostics.partition { it is CanLowerSeverity }
+        val loweredDiagnostics = canLowerDiagnostics.filterIsInstance<CanLowerSeverity>().map {
+            if (it.severity > severity) it.lowerSeverity(severity) else it
+        }
         reset()
+        diagnostics.addAll(constantDiagnostics)
         diagnostics.addAll(loweredDiagnostics)
     }
 

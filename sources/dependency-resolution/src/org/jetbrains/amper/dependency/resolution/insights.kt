@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+
 class DependencyNodeWithChildren(val node: DependencyNode): DependencyNode {
     override val children: MutableList<DependencyNode> = mutableListOf()
     override val context: Context = node.context

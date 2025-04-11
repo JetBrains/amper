@@ -7,14 +7,13 @@ package org.jetbrains.amper.frontend.dr.resolver
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.dependency.resolution.detailedMessage
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.Resolver
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.test.Dirs
@@ -28,8 +27,6 @@ import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
-import kotlin.sequences.forEach
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -171,7 +168,7 @@ abstract class BaseModuleDrTest {
 
     companion object {
         fun List<Message>.defaultFilterMessages(): List<Message> =
-            filter { "Downloaded " !in it.text && "Resolved " !in it.text }
+            filter { "Downloaded " !in it.message && "Resolved " !in it.message }
 
         internal fun DependencyNode.verifyOwnMessages(filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }) {
             val messages = this.messages.filterMessages()
