@@ -42,6 +42,3 @@ settings:
   kotlin:
     freeCompilerArgs: [ -Xcontext-receivers ]
     optIns: [ kotlin.io.path.ExperimentalPathApi ]
-
-test-settings:
-  junit: junit-5
