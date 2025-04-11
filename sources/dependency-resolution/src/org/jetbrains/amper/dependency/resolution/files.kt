@@ -211,10 +211,10 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
     override suspend fun getPath(dependency: MavenDependency, name: String, sha1: suspend () -> String): Path =
         guessPath(dependency, name)
 
-    private fun getLocation(dependency: MavenDependency) =
-        repository.resolve(
-            "${dependency.group.split('.').joinToString("/")}/${dependency.module}/${dependency.version.orUnspecified()}"
-        )
+    private fun getLocation(dependency: MavenDependency): Path {
+        val groupPath = dependency.group.split('.').joinToString("/")
+        return repository.resolve("${groupPath}/${dependency.module}/${dependency.version.orUnspecified()}")
+    }
 }
 
 internal fun getDependencyFile(dependency: MavenDependency, file: File) = getDependencyFile(
