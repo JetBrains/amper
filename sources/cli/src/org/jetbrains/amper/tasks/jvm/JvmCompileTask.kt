@@ -9,6 +9,8 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.cli.telemetry.setAmperModule
+import org.jetbrains.amper.cli.telemetry.setFragments
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.CompilationUserSettings
 import org.jetbrains.amper.compilation.ErrorsCollectorKotlinLogger
@@ -23,8 +25,7 @@ import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.diagnostics.setAmperModule
-import org.jetbrains.amper.diagnostics.setFragments
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -50,7 +51,6 @@ import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.resourcesFor
 import org.jetbrains.amper.telemetry.setListAttribute
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.kotlin.buildtools.api.CompilationResult

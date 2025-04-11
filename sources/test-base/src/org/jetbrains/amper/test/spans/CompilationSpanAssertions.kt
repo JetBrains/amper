@@ -6,7 +6,7 @@ package org.jetbrains.amper.test.spans
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
-import org.jetbrains.amper.diagnostics.amperModuleKey
+import org.jetbrains.amper.cli.telemetry.amperModuleKey
 import org.jetbrains.amper.telemetry.getAttribute
 import kotlin.test.assertTrue
 import kotlin.test.fail

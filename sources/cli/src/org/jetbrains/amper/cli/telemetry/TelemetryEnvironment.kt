@@ -2,7 +2,7 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli
+package org.jetbrains.amper.cli.telemetry
 
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.exporter.logging.otlp.internal.traces.OtlpStdoutSpanExporter
@@ -10,6 +10,8 @@ import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
+import org.jetbrains.amper.cli.AmperBuildLogsRoot
+import org.jetbrains.amper.cli.unwrap
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.slf4j.LoggerFactory

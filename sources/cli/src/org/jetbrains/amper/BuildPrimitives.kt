@@ -8,8 +8,8 @@ import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
 import org.jetbrains.amper.core.telemetry.spanBuilder
-import org.jetbrains.amper.diagnostics.setProcessResultAttributes
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener

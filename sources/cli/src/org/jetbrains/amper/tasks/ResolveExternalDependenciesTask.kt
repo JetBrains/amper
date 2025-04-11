@@ -8,14 +8,15 @@ package org.jetbrains.amper.tasks
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.cli.telemetry.setAmperModule
+import org.jetbrains.amper.cli.telemetry.setFragments
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
-import org.jetbrains.amper.diagnostics.setAmperModule
-import org.jetbrains.amper.diagnostics.setFragments
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -35,7 +36,6 @@ import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.telemetry.setListAttribute
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.io.File
