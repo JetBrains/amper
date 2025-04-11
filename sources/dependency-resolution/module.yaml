@@ -12,7 +12,7 @@ apply:
 
 dependencies:
   - ../concurrency
-  - ../telemetry
+  - ../libraries/telemetry
   - $libs.xmlutil.serialization
   - $libs.maven.artifact
   - $libs.kotlinx.coroutines.core

@@ -8,7 +8,7 @@ apply:
 dependencies:
   - ../core
   - ../concurrency
-  - ../telemetry
+  - ../libraries/telemetry
   - $libs.kotlinx.coroutines.core
   - $libs.slf4j.api
 

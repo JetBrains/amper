@@ -7,7 +7,7 @@ apply:
 
 test-dependencies:
   - ../core
-  - ../telemetry
+  - ../libraries/telemetry
   - ../test-base
   - $kotlin.serialization.json
   - $libs.kotlinx.coroutines.test

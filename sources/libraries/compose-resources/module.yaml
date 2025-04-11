@@ -4,7 +4,7 @@ product:
     - jvm
 
 apply:
-  - ../common.module-template.yaml
+  - ../../common.module-template.yaml
 
 dependencies:
   # WARNING: No dependencies on amper-specific modules are permitted here!

@@ -11,9 +11,9 @@ dependencies:
   - ../../frontend/plain/toml-psi
   - ../../frontend/plain/yaml-psi
   - ../../frontend/plain/amper-psi
+  - ../../libraries/telemetry
   - ../../core-intellij
   - ../../android-integration/android-sdk-detector
-  - ../../telemetry
   - $libs.kotlin.reflect
   - $libs.maven.artifact
   - $libs.intellij.platform.core: exported # because we expose Project in public API
