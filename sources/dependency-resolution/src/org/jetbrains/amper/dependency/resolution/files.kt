@@ -26,7 +26,7 @@ import org.jetbrains.amper.concurrency.produceResultWithTempFile
 import org.jetbrains.amper.concurrency.readTextWithRetry
 import org.jetbrains.amper.concurrency.withRetry
 import org.jetbrains.amper.concurrency.withRetryOnAccessDenied
-import org.jetbrains.amper.dependency.resolution.diagnostics.CanLowerSeverity
+import org.jetbrains.amper.dependency.resolution.diagnostics.CollectingDiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.ContentLengthMismatch
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.HashesMismatch
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.SuccessfulDownload
@@ -37,9 +37,8 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutio
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToResolveChecksums
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToSaveDownloadedFile
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnexpectedErrorOnDownload
-import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.diagnostics.DiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
-import org.jetbrains.amper.dependency.resolution.diagnostics.SuppressingMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
@@ -66,7 +65,6 @@ import java.nio.file.attribute.FileTime
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
 import javax.net.ssl.SSLContext
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -1328,48 +1326,5 @@ internal object HttpClientProvider {
         } catch (e: Exception) {
             logger.warn("Failed to close DR context resource", e)
         }
-    }
-}
-
-internal interface DiagnosticReporter {
-    fun addMessage(message: Message): Boolean
-    fun addMessages(messages: List<Message>): Boolean
-    fun getMessages(): List<Message>
-    fun suppress(message: SuppressingMessage): Boolean
-    fun lowerSeverityTo(severity: Severity)
-    fun reset()
-}
-
-internal class CollectingDiagnosticReporter : DiagnosticReporter {
-    private val diagnostics: MutableList<Message> = CopyOnWriteArrayList()
-
-    override fun addMessage(message: Message): Boolean {
-        return diagnostics.add(message)
-    }
-
-    override fun addMessages(messages: List<Message>): Boolean {
-        return diagnostics.addAll(messages)
-    }
-
-    override fun getMessages() = diagnostics.toList()
-
-    override fun suppress(message: SuppressingMessage): Boolean {
-        val suppressedDiagnostics = diagnostics.toList()
-        reset()
-        return diagnostics.add(message.withSuppressed(messages = suppressedDiagnostics))
-    }
-
-    override fun lowerSeverityTo(severity: Severity) {
-        val (canLowerDiagnostics, constantDiagnostics) = diagnostics.partition { it is CanLowerSeverity }
-        val loweredDiagnostics = canLowerDiagnostics.filterIsInstance<CanLowerSeverity>().map {
-            if (it.severity > severity) it.lowerSeverity(severity) else it
-        }
-        reset()
-        diagnostics.addAll(constantDiagnostics)
-        diagnostics.addAll(loweredDiagnostics)
-    }
-
-    override fun reset() {
-        diagnostics.clear()
     }
 }

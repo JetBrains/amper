@@ -34,6 +34,7 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutio
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnexpectedDependencyFormat
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
+import org.jetbrains.amper.dependency.resolution.diagnostics.DiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
