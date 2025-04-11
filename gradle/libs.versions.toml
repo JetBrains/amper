@@ -17,8 +17,8 @@ intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
 intellij-platform = "243.24978.46"
 intellij-xcodemodel = "241.14980"
-junit-jupiter = "5.11.4"
-junit-platform = "1.11.4"
+junit-jupiter = "5.12.1"
+junit-platform = "1.12.1"
 kotlin = "2.1.20" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 kotlinx-collections = "0.3.8" # aligned with IntelliJ platform - UPDATE WITH CARE
 kotlinx-coroutines = "1.8.0" # aligned with IntelliJ platform - UPDATE WITH CARE
@@ -70,6 +70,7 @@ intellij-platform-utilEx = { module = "com.jetbrains.intellij.platform:util-ex",
 intellij-platform-utilJdom = { module = "com.jetbrains.intellij.platform:util-jdom", version.ref = "intellij-platform" }
 junit-engine-jupiter = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
 junit-engine-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-jupiter" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 junit-platform-reporting = { module = "org.junit.platform:junit-platform-reporting", version.ref = "junit-platform" }
 kotlin-buildToolsApi = { module = "org.jetbrains.kotlin:kotlin-build-tools-api", version.ref = "kotlin" }
