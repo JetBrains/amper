@@ -107,7 +107,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             }
         }
         fun assertStderrContains(text: String) {
-            assertTrue("Stdout does not contain the text '$text':\n" + stderr.trim()) {
+            assertTrue("Stderr does not contain the text '$text':\n" + stderr.trim()) {
                text in stderr
             }
         }

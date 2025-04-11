@@ -23,6 +23,7 @@ import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.TelemetryEnvironment
 import org.jetbrains.amper.cli.commands.show.ShowCommand
 import org.jetbrains.amper.cli.commands.tools.ToolCommand
+import org.jetbrains.amper.cli.amperTypoSuggestor
 import org.jetbrains.amper.cli.unwrap
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -68,6 +69,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
                     }
                 }
             }
+            suggestTypoCorrection = amperTypoSuggestor(defaultSuggestor = suggestTypoCorrection)
         }
     }
 
