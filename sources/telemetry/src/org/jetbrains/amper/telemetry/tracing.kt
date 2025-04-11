@@ -28,7 +28,6 @@ import kotlin.use
  * [operation] unless we manually transfer the context using [asContextElement].
  */
 // This is not 'inline' on purpose, to forbid the use of suspend functions inside (it would break OTel parent-child links)
-@Suppress("DEPRECATION")
 /* NOT inline */ fun <T> SpanBuilder.useWithoutCoroutines(operation: (Span) -> T): T =
     startSpan().useWithoutScopeAndRecordCompletion { span ->
         // makeCurrent() modifies a ThreadLocal, but not the current coroutine context
@@ -51,7 +50,6 @@ import kotlin.use
  * not be propagated to the coroutine context automatically. We need to keep using [use] everytime down the line of
  * coroutines calls, unless coroutines won't be used at all inside [operation].
  */
-@Suppress("DEPRECATION")
 suspend inline fun <T> SpanBuilder.use(crossinline operation: suspend CoroutineScope.(Span) -> T): T {
     val span = startSpan()
     return withContext(span.asContextElement()) {
@@ -66,10 +64,6 @@ suspend inline fun <T> SpanBuilder.use(crossinline operation: suspend CoroutineS
  *
  * This function doesn't handle the OTel context/scope - it must be handled separately.
  */
-@Deprecated(
-    message = "This function is only visible for inlining reasons. Use SpanBuilder.use() instead.",
-    level = DeprecationLevel.WARNING,
-)
 @PublishedApi // to be able to mark it at least 'internal' if not private, and use from a public function
 internal inline fun <T> Span.useWithoutScopeAndRecordCompletion(operation: (Span) -> T): T {
     try {
