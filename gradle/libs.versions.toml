@@ -19,6 +19,7 @@ intellij-platform = "243.24978.46"
 intellij-xcodemodel = "241.14980"
 junit-jupiter = "5.12.1"
 junit-platform = "1.12.1"
+kaml = "0.76.0"
 kotlin = "2.1.20" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 kotlinx-collections = "0.3.8" # aligned with IntelliJ platform - UPDATE WITH CARE
 kotlinx-coroutines = "1.8.0" # aligned with IntelliJ platform - UPDATE WITH CARE
@@ -51,6 +52,7 @@ android-tools-sdklib = { module = "com.android.tools:sdklib", version.ref = "and
 apacheCommons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons" }
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+charleskorn-kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-forGradleBased" }
 google-services-gradle-plugin =  { module = "com.google.gms:google-services", version.ref = "google-services" }

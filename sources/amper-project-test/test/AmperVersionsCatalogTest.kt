@@ -35,12 +35,6 @@ class AmperVersionsCatalogTest {
         }
     }
 
-    private fun assertAlphabeticalOrder(lines: List<String>, moniker: String) {
-        val expected = lines.sorted().joinToString("\n")
-        val actual = lines.joinToString("\n")
-        assertEquals(expected, actual, "$moniker are not in alphabetical order. Tip: you can select the lines and use the 'Sort lines' IDEA action.")
-    }
-
     private class GradleCatalog(val versionLines: List<String>, val libraryLines: List<String>)
 
     private fun readCatalog(): GradleCatalog {

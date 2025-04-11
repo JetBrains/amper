@@ -29,8 +29,8 @@ modules:
   - sources/frontend/schema
   - sources/gradle-e2e-test
   - sources/gradle-integration
-  - sources/junit-listeners
   - sources/incremental-cache
+  - sources/junit-listeners
   - sources/telemetry
   - sources/test-base
   - sources/xcode-model-ext

@@ -2,15 +2,32 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.decodeFromStream
+import kotlinx.serialization.Serializable
 import org.jetbrains.amper.test.Dirs
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
+import kotlin.io.path.inputStream
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.visitFileTree
 import kotlin.test.Test
+import kotlin.use
 
 class AmperProjectStructureTest {
+
+    @Serializable
+    data class ProjectFile(val modules: List<String>)
+
+    @Test
+    fun `list of modules is alphabetically sorted`() {
+        val projectYaml = Dirs.amperCheckoutRoot.resolve("project.yaml")
+        val project = projectYaml.inputStream().use { Yaml.default.decodeFromStream<ProjectFile>(it) }
+        val modules = project.modules
+        assertAlphabeticalOrder(modules, "Modules in project.yaml")
+    }
+
     @Test
     fun sameVersionInEveryWrapper() {
         val versionToFiles = Dirs.amperCheckoutRoot.findWrapperFiles()

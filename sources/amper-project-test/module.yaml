@@ -6,7 +6,12 @@ test-dependencies:
   - ../test-base
   - ../cli
   - ../core
+  - $libs.charleskorn.kaml
   - $libs.mordant
 
 apply:
   - ../common.module-template.yaml
+
+settings:
+  kotlin:
+    serialization: enabled
