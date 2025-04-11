@@ -24,6 +24,7 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -329,17 +330,32 @@ abstract class BaseDRTest {
                 "There must be no messages for $this:\n${messages.joinToString("\n") { it.detailedMessage }}"
             )
         }
+
+        internal inline fun <reified MessageT : Message> assertTheOnlyNonInfoMessage(root: DependencyNode, severity: Severity): MessageT {
+            val messages = root.children.single().messages.defaultFilterMessages()
+            val message = messages.singleOrNull()
+            assertNotNull(message, "A single error message is expected, but found: ${messages.toSet()}")
+            assertIs<MessageT>(message, "Unexpected error message")
+            assertEquals(
+                severity,
+                message.severity,
+                "Unexpected severity of the error message"
+            )
+            return message
+        }
+
         internal fun assertTheOnlyNonInfoMessage(root: DependencyNode, diagnostic: SimpleDiagnosticDescriptor, severity: Severity = diagnostic.defaultSeverity) {
             val messages = root.children.single().messages.defaultFilterMessages()
-            assertNotNull(messages.singleOrNull(), "The only error message is expected, but found: ${messages.toSet()}")
+            val message = messages.singleOrNull()
+            assertNotNull(message, "A single error message is expected, but found: ${messages.toSet()}")
             assertEquals(
                 diagnostic.id,
-                messages.singleOrNull()!!.id,
+                message.id,
                 "Unexpected error message"
             )
             assertEquals(
                 severity,
-                messages.singleOrNull()!!.severity,
+                message.severity,
                 "Unexpected severity of the error message"
             )
         }

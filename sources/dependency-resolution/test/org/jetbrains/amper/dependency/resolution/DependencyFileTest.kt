@@ -118,14 +118,14 @@ class DependencyFileTest {
             val messages = dependency.messages.defaultFilterMessages()
             assertEquals(
                 setOf("Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: $REDIRECTOR_MAVEN_CENTRAL, $REDIRECTOR_COMPOSE_DEV)"),
-                messages.map{ it.message }.toSet(),
+                messages.map { it.message }.toSet(),
                 "Unexpected diagnostic messages")
 
             assertEquals(
                 setOf("""
                     Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://cache-redirector.jetbrains.com/repo1.maven.org/maven2, https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev)
-                      Unable to download checksums of file junit-jupiter-api-9999.pom for dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://cache-redirector.jetbrains.com/repo1.maven.org/maven2, https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev)
-                      Unable to download checksums of file junit-jupiter-api-9999.module for dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://cache-redirector.jetbrains.com/repo1.maven.org/maven2, https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev)
+                      Unable to download checksums of file junit-jupiter-api-9999.pom
+                      Unable to download checksums of file junit-jupiter-api-9999.module
                 """.trimIndent()),
                 messages.map{ it.detailedMessage }.toSet(),
                 "Unexpected diagnostic messages")

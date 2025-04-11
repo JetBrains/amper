@@ -31,14 +31,14 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutio
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.HashesMismatch
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.SuccessfulDownload
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.SuccessfulLocalResolution
-import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToDownloadChecksums
-import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToDownloadFile
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToReachURL
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToResolveChecksums
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToSaveDownloadedFile
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnexpectedErrorOnDownload
 import org.jetbrains.amper.dependency.resolution.diagnostics.DiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadChecksums
+import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadFile
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
@@ -508,18 +508,15 @@ open class DependencyFile(
                 ?: emptyList()
 
             verify -> {
-                if (collectedMessages.singleOrNull()?.id == UnableToDownloadChecksums.id) {
+                if (collectedMessages.singleOrNull() is UnableToDownloadChecksums) {
                     collectedMessages
                 } else {
                     listOf(
-                        UnableToDownloadFile.asMessage(
-                            fileName,
-                            dependency,
-                            extra = DependencyResolutionBundle.message(
-                                "extra.repositories",
-                                repositories.joinToString()
-                            ),
-                            overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
+                        UnableToDownloadFile(
+                            fileName = fileName,
+                            dependency = dependency,
+                            repositories = repositories,
+                            isAutoAddedDocumentation = isAutoAddedDocumentation,
                             childMessages = collectedMessages,
                         )
                     )
@@ -731,11 +728,11 @@ open class DependencyFile(
         }
 
         diagnosticsReporter.addMessage(
-            UnableToDownloadChecksums.asMessage(
+            UnableToDownloadChecksums(
                 fileName,
                 dependency,
-                extra = DependencyResolutionBundle.message("extra.repositories", repositories.joinToString()),
-                overrideSeverity = Severity.INFO.takeIf { isAutoAddedDocumentation },
+                repositories,
+                isAutoAddedDocumentation = isAutoAddedDocumentation,
                 childMessages = nestedDownloadReporter.getMessages(),
             )
         )

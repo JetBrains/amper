@@ -8,12 +8,14 @@ import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadChecksums
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.extension
 import kotlin.io.path.name
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -1317,15 +1319,17 @@ class BuildGraphTest : BaseDRTest() {
      */
     @Test
     fun `com_google_android_apps_common_testing_accessibility_framework accessibility-test-framework 4_1_1`(testInfo: TestInfo) {
+        val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE)
         val root = doTestByFile(
             testInfo,
             scope = ResolutionScope.RUNTIME,
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
+            repositories = repositories,
             verifyMessages = false
         )
 
-        assertTheOnlyNonInfoMessage(root, DependencyResolutionDiagnostics.UnableToDownloadChecksums, Severity.WARNING)
-        assertFiles (testInfo, root)
+        val message = assertTheOnlyNonInfoMessage<UnableToDownloadChecksums>(root, Severity.WARNING)
+        assertContentEquals(repositories.toRepositories(), message.repositories)
+        assertFiles(testInfo, root)
     }
 
     /**

@@ -43,8 +43,6 @@ object DependencyResolutionDiagnostics {
     val SuccessfulLocalResolution = SimpleDiagnosticDescriptor("successful.local.resolution", Severity.INFO)
     val UnableToDetermineDependencyVersion = SimpleDiagnosticDescriptor("unable.to.determine.dependency.version", Severity.ERROR)
     val UnableToDetermineDependencyVersionForKotlinLibrary = SimpleDiagnosticDescriptor("unable.to.determine.dependency.version.for.kotlin.library", Severity.ERROR)
-    val UnableToDownloadChecksums = SimpleDiagnosticDescriptor("unable.to.download.checksums", Severity.ERROR)
-    val UnableToDownloadFile = SimpleDiagnosticDescriptor("unable.to.download.file", Severity.ERROR)
     val UnableToParseMetadata = SimpleDiagnosticDescriptor("unable.to.parse.metadata", Severity.ERROR)
     val UnableToParsePom = SimpleDiagnosticDescriptor("unable.to.parse.pom", Severity.ERROR)
     val UnableToReachURL = SimpleDiagnosticDescriptor("unable.to.reach.url", Severity.ERROR)
