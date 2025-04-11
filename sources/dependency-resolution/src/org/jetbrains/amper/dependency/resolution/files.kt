@@ -1336,8 +1336,6 @@ internal interface DiagnosticReporter {
 internal class CollectingDiagnosticReporter : DiagnosticReporter {
     val diagnostics: MutableList<Message> = CopyOnWriteArrayList()
 
-    val current: MutableList<Message> = CopyOnWriteArrayList()
-
     override fun addMessage(message: Message): Boolean {
         return diagnostics.add(message)
     }
