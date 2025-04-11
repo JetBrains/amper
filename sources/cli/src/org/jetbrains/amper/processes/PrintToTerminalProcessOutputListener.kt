@@ -19,14 +19,14 @@ open class PrintToTerminalProcessOutputListener(private val terminal: Terminal) 
     override fun onStdoutLine(line: String, pid: Long) {
         // Using rawPrint instead of println because we don't want to modify the output of the process.
         // Terminal.println would replace \t with a variable number of spaces, and escape ANSI codes.
-        terminal.rawPrint(line)
-        terminal.println() // we still want a line break
+        // Note: we also don't use rawPrint(line) + println() because the 2 calls might interleave with other processes
+        terminal.rawPrint("$line${System.lineSeparator()}")
     }
 
     override fun onStderrLine(line: String, pid: Long) {
         // Using rawPrint instead of println because we don't want to modify the output of the process.
         // Terminal.println would replace \t with a variable number of spaces, and escape ANSI codes.
-        terminal.rawPrint(line, stderr = true)
-        terminal.println(stderr = true) // we still want a line break
+        // Note: we also don't use rawPrint(line) + println() because the 2 calls might interleave with other processes
+        terminal.rawPrint("$line${System.lineSeparator()}", stderr = true)
     }
 }
