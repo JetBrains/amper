@@ -10,39 +10,22 @@ import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.Tracer
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
 import org.jetbrains.amper.concurrency.withReentrantLock
 import org.jetbrains.amper.core.extract.readEntireFileToByteArray
-import org.jetbrains.amper.core.extract.writeFully
 import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs.Change.ChangeType
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
-import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
-import java.nio.file.FileVisitResult
-import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.attribute.PosixFileAttributes
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.pathString
-import kotlin.io.path.readAttributes
-import kotlin.io.path.visitFileTree
 import kotlin.time.measureTimedValue
 
 class ExecuteOnChangedInputs(
@@ -67,9 +50,6 @@ class ExecuteOnChangedInputs(
      */
     private val openTelemetry: OpenTelemetry = OpenTelemetry.noop(),
 ) {
-    // increment this counter if you change the state file format
-    private val stateFileFormatVersion = 3
-
     private val tracer: Tracer
         get() = openTelemetry.getTracer("org.jetbrains.amper.incrementalcache")
 
@@ -110,7 +90,7 @@ class ExecuteOnChangedInputs(
 
             val sanitizedId = id.replace(Regex("[^a-zA-Z0-9]"), "_")
             // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
-            val hash = "$id\nstate format version: $stateFileFormatVersion".sha256String().take(10)
+            val hash = "$id\nstate format version: ${State.formatVersion}".sha256String().take(10)
             val stateFile = stateRoot.resolve("$sanitizedId-$hash")
 
             // Prevent parallel execution of this 'id' from this or other processes,
@@ -143,7 +123,7 @@ class ExecuteOnChangedInputs(
                 ensureStateFileIsConsistent(stateFile, stateFileChannel, configuration, inputs, result)
 
                 val oldState = cachedState?.state?.outputsState ?: mapOf()
-                val newState = getPathListState(result.outputs, failOnMissing = false)
+                val newState = readFileStates(result.outputs, failOnMissing = false)
 
                 val changes = oldState compare newState
 
@@ -163,44 +143,14 @@ class ExecuteOnChangedInputs(
             codeVersion = codeVersion,
             configuration = configuration,
             inputs = inputs.map { it.pathString }.toSet(),
-            inputsState = getPathListState(inputs, failOnMissing = false),
+            inputsState = readFileStates(inputs, failOnMissing = false),
             outputs = result.outputs.map { it.pathString }.toSet(),
-            outputsState = getPathListState(result.outputs, failOnMissing = true),
+            outputsState = readFileStates(result.outputs, failOnMissing = true),
             outputProperties = result.outputProperties,
         )
 
-        stateFileChannel.truncate(0)
-        stateFileChannel.writeFully(ByteBuffer.wrap(jsonSerializer.encodeToString(state).toByteArray()))
+        stateFileChannel.writeState(state)
     }
-
-    object SortedMapSerializer: KSerializer<Map<String, String>> {
-        private val mapSerializer = MapSerializer(String.serializer(), String.serializer())
-
-        override val descriptor: SerialDescriptor = mapSerializer.descriptor
-
-        override fun serialize(encoder: Encoder, value: Map<String, String>) {
-            mapSerializer.serialize(encoder, value.toSortedMap())
-        }
-
-        override fun deserialize(decoder: Decoder): Map<String, String> {
-            return mapSerializer.deserialize(decoder)
-        }
-    }
-
-    @Serializable
-    data class State(
-        val codeVersion: String,
-        @Serializable(with = SortedMapSerializer::class)
-        val configuration: Map<String, String>,
-        val inputs: Set<String>,
-        @Serializable(with = SortedMapSerializer::class)
-        val inputsState: Map<String, String>,
-        val outputs: Set<String>,
-        @Serializable(with = SortedMapSerializer::class)
-        val outputsState: Map<String, String>,
-        @Serializable(with = SortedMapSerializer::class)
-        val outputProperties: Map<String, String>,
-    )
 
     private fun ensureStateFileIsConsistent(
         stateFile: Path,
@@ -243,34 +193,10 @@ class ExecuteOnChangedInputs(
         }
     }
 
-    data class CachedState(val state: State, val outdated: Boolean)
+    private data class CachedState(val state: State, val outdated: Boolean)
 
-    // TODO Probably rewrite to JSON? or a binary format?
     private fun getCachedState(stateFile: Path, stateFileChannel: FileChannel, configuration: Map<String, String>, inputs: List<Path>): CachedState? {
-        if (stateFileChannel.size() <= 0) {
-            logger.debug("[inc] state file is missing or empty at '{}' -> rebuilding", stateFile)
-            return null
-        }
-
-        val stateText = try {
-            stateFileChannel.position(0)
-            stateFileChannel.readEntireFileToByteArray().decodeToString()
-        } catch (t: Throwable) {
-            logger.warn("[inc] Unable to read state file '$stateFile' -> rebuilding", t)
-            return null
-        }
-
-        if (stateText.isBlank()) {
-            logger.warn("[inc] Previous state file '$stateFile' is empty -> rebuilding")
-            return null
-        }
-
-        val state = try {
-            jsonSerializer.decodeFromString<State>(stateText)
-        } catch (t: Throwable) {
-            logger.warn("[inc] Unable to deserialize state file '$stateFile' -> rebuilding", t)
-            return null
-        }
+        val state = stateFileChannel.readState(pathForLogs = stateFile) ?: return null
 
         if (state.codeVersion != codeVersion) {
             logger.debug(
@@ -301,7 +227,7 @@ class ExecuteOnChangedInputs(
             return CachedState(state = state, outdated = true)
         }
 
-        val currentInputsState = getPathListState(inputs, failOnMissing = false)
+        val currentInputsState = readFileStates(inputs, failOnMissing = false)
         if (state.inputsState != currentInputsState) {
             logger.debug(
                 "[inc] state file has a wrong inputs at '$stateFile' -> rebuilding\n" +
@@ -312,7 +238,7 @@ class ExecuteOnChangedInputs(
         }
 
         val outputsList = state.outputs.map { Path(it) }
-        val currentOutputsState = getPathListState(outputsList, failOnMissing = false)
+        val currentOutputsState = readFileStates(outputsList, failOnMissing = false)
         if (state.outputsState != currentOutputsState) {
             logger.debug(
                 "[inc] state file has a wrong outputs at '$stateFile' -> rebuilding\n" +
@@ -323,93 +249,6 @@ class ExecuteOnChangedInputs(
         }
 
         return CachedState(state = state, outdated = false)
-    }
-
-    private fun getPathListState(paths: List<Path>, failOnMissing: Boolean): Map<String, String> {
-        val files = mutableMapOf<String, String>()
-
-        fun addFile(path: Path, attr: BasicFileAttributes?) {
-            if (attr == null) {
-                if (failOnMissing) {
-                    throw NoSuchFileException(file = path.toFile(), reason = "path from outputs is not found")
-                } else {
-                    files[path.pathString] = "MISSING"
-                }
-            } else {
-                val posixPart = if (attr is PosixFileAttributes) {
-                    " mode ${PosixUtil.toUnixMode(attr.permissions())} owner ${attr.owner().name} group ${attr.group().name}"
-                } else ""
-                files[path.pathString] = "size ${attr.size()} mtime ${attr.lastModifiedTime()}$posixPart"
-            }
-        }
-
-        for (path in paths) {
-            check(path.isAbsolute) {
-                "Path must be absolute: $path"
-            }
-
-            val attr: BasicFileAttributes? = getAttributes(path)
-            if (attr?.isDirectory == true) {
-                // TODO this walk could be multi-threaded, it's trivial to implement with coroutines
-
-                fun processDirectory(current: Path) {
-                    var childrenCount = 0
-
-                    // Using Path.visitFileTree to get both file name AND file attributes at the same time.
-                    // This is much faster on OSes where you can get both, e.g., Windows.
-                    current.visitFileTree {
-                        onPreVisitDirectory { subdir, _ ->
-                            if (current == subdir) {
-                                return@onPreVisitDirectory FileVisitResult.CONTINUE
-                            }
-
-                            childrenCount += 1
-                            processDirectory(subdir)
-                            FileVisitResult.SKIP_SUBTREE
-                        }
-
-                        onVisitFile { file, attrs ->
-                            childrenCount += 1
-
-                            addFile(file, attrs)
-
-                            FileVisitResult.CONTINUE
-                        }
-
-                        onPostVisitDirectory { _, exc ->
-                            if (exc != null) {
-                                throw exc
-                            }
-                            FileVisitResult.CONTINUE
-                        }
-                    }
-
-                    if (childrenCount == 0) {
-                        files[current.pathString] = "EMPTY DIR"
-                    }
-                }
-
-                processDirectory(path)
-            } else {
-                addFile(path, attr)
-            }
-        }
-
-        return files
-    }
-
-    private fun getAttributes(path: Path): BasicFileAttributes? {
-        // we assume that missing files is exceptional and usually all paths exist
-        val attr: BasicFileAttributes? = try {
-            if (PosixUtil.isPosixFileSystem) {
-                path.readAttributes<PosixFileAttributes>()
-            } else {
-                path.readAttributes<BasicFileAttributes>()
-            }
-        } catch (e: NoSuchFileException) {
-            null
-        }
-        return attr
     }
 
     open class ExecutionResult(val outputs: List<Path>, val outputProperties: Map<String, String> = emptyMap())
@@ -432,10 +271,6 @@ class ExecuteOnChangedInputs(
 
     companion object {
         private val logger = LoggerFactory.getLogger(ExecuteOnChangedInputs::class.java)
-
-        private val jsonSerializer = Json {
-            prettyPrint = true
-        }
 
         private val executeOnChangedLocks = ConcurrentHashMap<String, Mutex>()
 
