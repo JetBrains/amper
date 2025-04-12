@@ -32,5 +32,5 @@ modules:
   - sources/libraries/async-processes
   - sources/libraries/compose-resources
   - sources/libraries/telemetry
+  - sources/libraries/xcode-model-ext
   - sources/test-base
-  - sources/xcode-model-ext
