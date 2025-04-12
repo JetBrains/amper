@@ -7,6 +7,3 @@ apply:
 
 dependencies:
   - $libs.kotlinx.coroutines.core
-
-test-dependencies:
-  - ../core
