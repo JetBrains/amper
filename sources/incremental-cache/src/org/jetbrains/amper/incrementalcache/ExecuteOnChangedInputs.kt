@@ -6,7 +6,9 @@
 
 package org.jetbrains.amper.incrementalcache
 
+import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.Tracer
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -24,7 +26,6 @@ import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs.Change.ChangeType
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
@@ -61,9 +62,16 @@ class ExecuteOnChangedInputs(
      * Use different [stateRoot]s if you need independent states.
      */
     private val codeVersion: String,
+    /**
+     * The telemetry instance to use for tracing. If not provided, a no-op instance will be used.
+     */
+    private val openTelemetry: OpenTelemetry = OpenTelemetry.noop(),
 ) {
     // increment this counter if you change the state file format
     private val stateFileFormatVersion = 3
+
+    private val tracer: Tracer
+        get() = openTelemetry.getTracer("org.jetbrains.amper.incrementalcache")
 
     /**
      * Executes the given [block] or returns an existing result from the incremental cache.
@@ -93,7 +101,7 @@ class ExecuteOnChangedInputs(
         configuration: Map<String, String>,
         inputs: List<Path>,
         block: suspend () -> ExecutionResult
-    ): IncrementalExecutionResult = spanBuilder("inc $id")
+    ): IncrementalExecutionResult = tracer.spanBuilder("inc $id")
         .setMapAttribute("configuration", configuration)
         .setListAttribute("inputs", inputs.map { it.pathString }.sorted())
         .use { span ->
