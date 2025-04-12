@@ -5,6 +5,7 @@
 package org.jetbrains.amper.concurrency
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.channels.ClosedChannelException
@@ -16,7 +17,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.util.*
-import kotlin.coroutines.cancellation.CancellationException
+import kotlin.coroutines.coroutineContext
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
@@ -303,16 +304,14 @@ suspend fun <T> withRetry(
         try {
             return block()
         } catch (e: Exception) {
-            if (e is CancellationException) {
+            coroutineContext.ensureActive()
+            if (!retryOnException(e)) {
                 throw e
-            } else if (!retryOnException(e)) {
-                throw e
+            }
+            if (firstException == null) {
+                firstException = e
             } else {
-                if (firstException == null) {
-                    firstException = e
-                } else {
-                    firstException.addSuppressed(e)
-                }
+                firstException.addSuppressed(e)
             }
         }
         attempt++
