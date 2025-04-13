@@ -16,7 +16,7 @@ private const val ALL_SET = 0.inv()
  * A mutex that ensures exclusivity only within groups of callers (or "stripes").
  * It contains multiple mutexes, and each locking action requires some hash value to identify which stripe to lock.
  *
- * This is useful when we don't want a global lock, but rather a lock associated to a specific resource that we can
+ * This is useful when we don't want a global lock, but rather a lock associated with a specific resource that we can
  * identify with a hash. Using one mutex per resource would be a waste, so using stripe is a compromise.
  */
 class StripedMutex(stripeCount: Int = 64) {
