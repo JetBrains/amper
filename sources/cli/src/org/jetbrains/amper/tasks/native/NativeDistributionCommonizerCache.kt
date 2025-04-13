@@ -37,7 +37,7 @@ class NativeDistributionCommonizerCache(private val konan: KotlinNativeCompiler)
         // Do not use another file for locking without a reason.
         val lockFile = commonizedDir / ".lock"
         lockFile.createParentDirectories()
-        withDoubleLock(outputTargets.hashCode(), lockFile) {
+        withDoubleLock(lockFile, outputTargets.hashCode()) {
             val todoOutputTargets = todoTargets(outputTargets)
             if (todoOutputTargets.isEmpty()) return@withDoubleLock
 

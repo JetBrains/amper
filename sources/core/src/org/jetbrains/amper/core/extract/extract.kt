@@ -76,7 +76,7 @@ private suspend fun extractFileWithFlag(
     flagFile: Path,
     vararg options: ExtractOptions
 ): Path {
-    withDoubleLock(targetDirectory.hashCode(), flagFile) { fileChannel ->
+    withDoubleLock(flagFile, targetDirectory.hashCode()) { fileChannel ->
         extractFileWithFlag(archiveFile, targetDirectory, fileChannel, flagFile, options)
     }
     return targetDirectory

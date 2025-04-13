@@ -36,7 +36,7 @@ private val filesLock = StripedMutex(stripeCount = 512)
 
 /**
  * Executes the given [block] under a double lock:
- * * a non-reentrant coroutine Mutex for the given [hash], getting exclusive access inside one JVM
+ * * a non-reentrant coroutine Mutex for the given [localMutexKey], getting exclusive access inside the current JVM
  * * a FileChannel lock on the given [file], getting exclusive access across all processes on the system
  *
  * Both locks are unlocked after the method returns.
@@ -48,8 +48,8 @@ private val filesLock = StripedMutex(stripeCount = 512)
  * inside the given [block], that would make the current coroutine hang.
  */
 suspend fun <T> withDoubleLock(
-    hash: Int,
     file: Path,
+    localMutexKey: Int = file.toAbsolutePath().normalize().hashCode(),
     owner: Any? = null,
     options: Array<out OpenOption> = arrayOf(
         StandardOpenOption.READ,
@@ -59,7 +59,7 @@ suspend fun <T> withDoubleLock(
     block: suspend (lockFileChannel: FileChannel) -> T
 ): T {
     // The first lock locks the stuff inside one JVM process
-    return filesLock.withLock(hash, owner) {
+    return filesLock.withLock(localMutexKey, owner) {
         // The second lock locks a flagFile across all processes on the system
         file.withFileChannelLock(*options) {
             block(it)

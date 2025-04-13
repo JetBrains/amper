@@ -67,7 +67,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
     }
 
     suspend fun installPackage(packagePath: String): RepoPackage =
-        withDoubleLock(packagePath.hashCode(), androidSdkPath / "$packagePath.lock") {
+        withDoubleLock(androidSdkPath / "$packagePath.lock") {
             val localFileSystemPackagePath = packagePath
                 .split(";")
                 .fold(androidSdkPath) { path, component -> path.resolve(component) }
@@ -96,7 +96,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
     }
 
     suspend fun installSystemImage(packagePath: String): RepoPackage =
-        withDoubleLock(packagePath.hashCode(), androidSdkPath / "$packagePath.lock") {
+        withDoubleLock(androidSdkPath / "$packagePath.lock") {
             val localFileSystemPackagePath = packagePath
                 .split(";")
                 .fold(androidSdkPath) { path, component -> path.resolve(component) }
