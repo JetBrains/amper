@@ -35,10 +35,13 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutio
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnexpectedDependencyFormat
 import org.jetbrains.amper.dependency.resolution.diagnostics.DiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.diagnostics.MetadataResolvedWithPomErrors
+import org.jetbrains.amper.dependency.resolution.diagnostics.PomResolvedWithMetadataErrors
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
+import org.jetbrains.amper.dependency.resolution.diagnostics.hasErrors
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Capability
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Dependency
@@ -750,7 +753,9 @@ class MavenDependency internal constructor(
         state = level.state
 
         // We have used a module metadata file for resolving dependency, => lower severity of pom-related issues.
-        pom.diagnosticsReporter.lowerSeverityTo(Severity.WARNING)
+        if (pom.diagnosticsReporter.hasErrors()) {
+            pom.diagnosticsReporter.suppress(MetadataResolvedWithPomErrors(coordinates))
+        }
     }
 
     fun getAutoAddedSourcesDependencyFile() =
@@ -1418,7 +1423,9 @@ class MavenDependency internal constructor(
         state = level.state
 
         // We have used a pom file for resolving dependency, => lower severity of module-metadata-related issues.
-        moduleFile.diagnosticsReporter.lowerSeverityTo(Severity.WARNING)
+        if (moduleFile.diagnosticsReporter.hasErrors()) {
+            moduleFile.diagnosticsReporter.suppress(PomResolvedWithMetadataErrors(coordinates))
+        }
     }
 
     private suspend fun resolvePom(

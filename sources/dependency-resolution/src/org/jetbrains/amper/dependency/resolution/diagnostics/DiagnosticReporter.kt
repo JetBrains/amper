@@ -11,7 +11,6 @@ internal interface DiagnosticReporter {
     fun addMessages(messages: List<Message>): Boolean
     fun getMessages(): List<Message>
     fun suppress(message: SuppressingMessage): Boolean
-    fun lowerSeverityTo(severity: Severity)
     fun reset()
 }
 
@@ -34,17 +33,9 @@ internal class CollectingDiagnosticReporter : DiagnosticReporter {
         return diagnostics.add(message.withSuppressed(messages = suppressedDiagnostics))
     }
 
-    override fun lowerSeverityTo(severity: Severity) {
-        val (canLowerDiagnostics, constantDiagnostics) = diagnostics.partition { it is CanLowerSeverity }
-        val loweredDiagnostics = canLowerDiagnostics.filterIsInstance<CanLowerSeverity>().map {
-            if (it.severity > severity) it.lowerSeverity(severity) else it
-        }
-        reset()
-        diagnostics.addAll(constantDiagnostics)
-        diagnostics.addAll(loweredDiagnostics)
-    }
-
     override fun reset() {
         diagnostics.clear()
     }
 }
+
+internal fun DiagnosticReporter.hasErrors(): Boolean = getMessages().any { it.severity == Severity.ERROR }

@@ -7,6 +7,7 @@ package org.jetbrains.amper.dependency.resolution
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
+import org.jetbrains.amper.dependency.resolution.diagnostics.PomResolvedWithMetadataErrors
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadChecksums
 import org.junit.jupiter.api.TestInfo
@@ -17,6 +18,7 @@ import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class BuildGraphTest : BaseDRTest() {
@@ -1312,7 +1314,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
-     * This test checks that the severity of errors occurred on resolving .module file is lowered to WARNING in case
+     * This test checks that the errors occurred on resolving .module file are suppressed if the
      * resolution was successfully finished with the help of pom.xml.
      *
      * Library accessibility-test-framework:4.1.1 has incorrectly published checksums
@@ -1327,8 +1329,18 @@ class BuildGraphTest : BaseDRTest() {
             verifyMessages = false
         )
 
-        val message = assertTheOnlyNonInfoMessage<UnableToDownloadChecksums>(root, Severity.WARNING)
-        assertContentEquals(repositories.toRepositories(), message.repositories)
+        val message = assertTheOnlyNonInfoMessage<PomResolvedWithMetadataErrors>(root, Severity.WARNING)
+        val metadataErrors = message.suppressed
+        assertEquals(1, metadataErrors.size, "There should've been only one metadata error")
+        val metadataError = metadataErrors.single()
+        assertIs<UnableToDownloadChecksums>(
+            metadataError,
+            "Metadata error should be of type UnableToDownloadChecksums, got ${metadataError::class} instead"
+        )
+        assertContentEquals(
+            repositories.toRepositories().sortedBy { it.url },
+            metadataError.repositories.sortedBy { it.url },
+        )
         assertFiles(testInfo, root)
     }
 
@@ -1500,7 +1512,7 @@ class BuildGraphTest : BaseDRTest() {
             listOf(
                 "ui-uikit-uikitMain-1.6.10.klib",
                 "ui-uikit-uikitMain-cinterop-1.6.10.klib"
-                ),
+            ),
             root
         )
     }
@@ -1534,12 +1546,14 @@ class BuildGraphTest : BaseDRTest() {
             """.trimIndent()
         )
 
-        assertFiles(listOf(
-            "kotlin-stdlib-commonMain-1.9.24.klib",
-            "ui-util-commonMain-1.7.3.klib",
-            "ui-util-macosMain-1.7.3.klib",
-            "ui-util-nonJvmMain-1.7.3.klib",
-        ), root)
+        assertFiles(
+            listOf(
+                "kotlin-stdlib-commonMain-1.9.24.klib",
+                "ui-util-commonMain-1.7.3.klib",
+                "ui-util-macosMain-1.7.3.klib",
+                "ui-util-nonJvmMain-1.7.3.klib",
+            ), root
+        )
     }
 
     /**

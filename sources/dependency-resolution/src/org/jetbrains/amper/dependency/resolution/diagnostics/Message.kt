@@ -30,13 +30,6 @@ interface Message {
 }
 
 /**
- * Marks that the [Message]'s initial severity can be lowered in case of some event.
- */
-internal interface CanLowerSeverity : Message {
-    fun lowerSeverity(severity: Severity): CanLowerSeverity
-}
-
-/**
  * Allows having a hierarchy of messages (e.g., causes or suppresses).
  */
 internal interface WithChildMessages : Message {
@@ -104,13 +97,11 @@ internal data class SimpleMessage(
     override val throwable: Throwable? = null,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
-) : WithChildMessages, SuppressingMessage, CanLowerSeverity, WithThrowable {
+) : WithChildMessages, SuppressingMessage, WithThrowable {
 
     override val message: String
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"
 
     override fun withSuppressed(messages: List<Message>): SimpleMessage =
         copy(childMessages = childMessages + messages)
-
-    override fun lowerSeverity(severity: Severity): SimpleMessage = copy(severity = severity)
 }

@@ -15,10 +15,8 @@ data class UnableToDownloadFile(
     val isAutoAddedDocumentation: Boolean = false,
     override val severity: Severity = if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
     override val childMessages: List<Message>,
-) : WithChildMessages, CanLowerSeverity {
+) : WithChildMessages {
     override val id: String = "unable.to.download.file"
     override val message: String = DependencyResolutionBundle.message(id, fileName, dependency)
     override val shortMessage: String = DependencyResolutionBundle.message("unable.to.download.file.short", fileName)
-
-    override fun lowerSeverity(severity: Severity): UnableToDownloadFile = copy(severity = severity)
 }
