@@ -10,6 +10,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
+import org.jetbrains.amper.core.messages.renderMessage
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
@@ -121,7 +122,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         if (errors.isNotEmpty()) {
             userReadableError(
                 "Unable to resolve dependencies for $resolveSourceMoniker:\n\n" +
-                        errors.joinToString("\n") { it.message })
+                        errors.joinToString("\n\n") { renderMessage(it) })
         }
     }
 

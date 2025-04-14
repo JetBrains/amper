@@ -250,6 +250,7 @@ class MavenResolverTest {
                 Unable to resolve dependency org.tinylog:slf4j-tinylog:9999 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
                   Unable to download checksums of file slf4j-tinylog-9999.pom
                   Unable to download checksums of file slf4j-tinylog-9999.module
+
                 Unable to resolve dependency org.tinylog:xxx:9998 (repositories: $MAVEN_CENTRAL_CACHE_REDIRECTOR)
                   Unable to download checksums of file xxx-9998.pom
                   Unable to download checksums of file xxx-9998.module
