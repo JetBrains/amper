@@ -9,8 +9,6 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
@@ -18,11 +16,15 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
 import org.jetbrains.amper.dependency.resolution.orUnspecified
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
-
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
+import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
+import kotlin.io.path.Path
+import kotlin.io.path.div
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class DiagnosticsTest : BaseModuleDrTest() {
 
@@ -117,31 +119,30 @@ class DiagnosticsTest : BaseModuleDrTest() {
 
         assertEquals(7, buildProblems.size)
 
-        // direct dependency on a built-in library,
-        // a version of the library is taken from settings:compose:version in file module.yaml
+        // Direct dependency on a built-in library,
+        // A version of the library is taken from settings:compose:version in file module.yaml
         checkBuiltInDependencyBuildProblem(
             buildProblems, "org.jetbrains.compose.foundation", "foundation",
-            "module.yaml", 16
+            Path("module.yaml"), 16, 5
         )
         checkBuiltInDependencyBuildProblem(
             buildProblems, "org.jetbrains.compose.material3", "material3",
-            "module.yaml", 16
+        Path("module.yaml"), 16, 5
         )
 
-        // transitive dependency of built-in libraries,
-        // a version of the library is taken from settings:compose:version in file module.yaml
+        // Implicit dependency added by `compose: enabled`
+        // A version of the library is taken from settings:compose:version in file module.yaml
         checkBuiltInDependencyBuildProblem(
             buildProblems, "org.jetbrains.compose.runtime", "runtime",
-            "module.yaml", 16
+            Path("module.yaml")
         )
 
-        // transitive dependency on a built-in library,
-        // a version of the library is taken from settings:serialization:version in file template.yaml
+        // Implicit dependency added by `serialization: enabled`
+        // A version of the library is taken from settings:serialization:version in file template.yaml
         checkBuiltInDependencyBuildProblem(
             buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core",
-            "..\\..\\templates\\template.yaml"
-                .let { if (DefaultSystemInfo.detect().family != OsFamily.Windows) it.replace("\\", "/") else it },
-            5
+            Path("..") / ".." / "templates" / "template.yaml",
+            5, 7
         )
     }
 
@@ -279,7 +280,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
 
     private fun checkBuiltInDependencyBuildProblem(
         buildProblems: Collection<BuildProblem>, group: String,
-        module: String, filePath: String, versionLineNumber: Int?
+        module: String, filePath: Path, versionLineNumber: Int? = null, versionColumn: Int? = null
     ) {
         val relevantBuildProblems = buildProblems.filter {
             it is DependencyBuildProblem
@@ -290,13 +291,12 @@ class DiagnosticsTest : BaseModuleDrTest() {
             buildProblem as DependencyBuildProblem
             val mavenDependency = (buildProblem.problematicDependency as MavenDependencyNode).dependency
 
-            assertEquals(
-                setOf(
-                    "Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version.orUnspecified()}" +
-                            (if (versionLineNumber != null) ". The version ${mavenDependency.version} is defined at $filePath:$versionLineNumber" else "")
-                ),
-                setOf((buildProblem.errorMessage as SimpleMessage).text)
-            )
+            assertContains(buildProblem.message, "Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version.orUnspecified()}")
+            if (versionLineNumber != null) {
+                assertContains(buildProblem.message, "The version ${mavenDependency.version} is defined at $filePath:$versionLineNumber:$versionColumn")
+            } else {
+                assertFalse(buildProblem.message.contains("The version ${mavenDependency.version} is defined at"))
+            }
         }
     }
 }
