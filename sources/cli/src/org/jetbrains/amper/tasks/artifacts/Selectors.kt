@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactType
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
@@ -50,15 +51,20 @@ object Selectors {
         type: KClass<T>,
         fragment: Fragment,
         quantifier: Q,
-    ) = fromMatchingFragments<T, Q>(
-        type = type,
-        module = fragment.module,
-        isTest = fragment.isTest,
-        hasPlatforms = fragment.platforms,
-        quantifier = quantifier,
-    ).copy(
-        description = "from fragment `${fragment.module.userReadableName}:${fragment.name}` and its dependencies",
-    )
+    ): ArtifactSelector<T, Q> {
+        val moduleName = fragment.module.userReadableName
+        val dependencies by lazy {
+            fragment.allFragmentDependencies(includeSelf = true).mapTo(hashSetOf()) { it.name }
+        }
+        return ArtifactSelector(
+            type = ArtifactType(type),
+            predicate = {
+                it.moduleName == moduleName && it.fragmentName in dependencies
+            },
+            description = "from fragment `${fragment.module.userReadableName}:${fragment.name}` and its dependencies",
+            quantifier = quantifier,
+        )
+    }
 
     /**
      * From the fragments inside [module] that match [isTest], [hasPlatforms].

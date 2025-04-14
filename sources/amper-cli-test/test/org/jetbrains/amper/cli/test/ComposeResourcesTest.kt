@@ -26,7 +26,12 @@ class ComposeResourcesTest : AmperCliTestBase() {
     fun `compose resources demo build and run (jvm)`() = runSlowTest {
         runCli(
             projectRoot = testProject("compose-resources-demo"),
+            "build", "--platform=jvm",
+        )
+        runCli(
+            projectRoot = testProject("compose-resources-demo"),
             "test", "--platform=jvm",
+            assertEmptyStdErr = false,  // on some platforms/machines, the UI part may issue warnings to stderr
         )
     }
 

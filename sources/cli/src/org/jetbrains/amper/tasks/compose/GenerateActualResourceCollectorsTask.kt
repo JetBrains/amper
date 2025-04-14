@@ -31,7 +31,7 @@ class GenerateActualResourceCollectorsTask(
     private val useActualModifier by extraInput(useActualModifier)
     private val shouldGenerateCode by extraInput(shouldGenerateCode)
 
-    private val accessorsDirs by Selectors.fromFragment(
+    private val accessorsDirs by Selectors.fromFragmentWithDependencies(
         type = ComposeResourcesAccessorsDirArtifact::class,
         fragment = fragment,
         quantifier = Quantifier.AtLeastOne,

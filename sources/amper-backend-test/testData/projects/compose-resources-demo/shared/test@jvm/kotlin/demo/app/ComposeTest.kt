@@ -5,8 +5,11 @@
 package demo.app
 
 import androidx.compose.ui.test.*
+import com.example.gen.*
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import shared.MainView
 import kotlin.test.Test
+import kotlin.test.expect
 
 class ComposeTest {
     @Test
@@ -28,5 +31,21 @@ class ComposeTest {
         onAllNodesWithText("Res.font.", substring = true).assertCountEquals(2)
 
         onNodeWithText("Files").performClick()
+    }
+
+    @Test
+    @OptIn(ExperimentalResourceApi::class)
+    fun `test resource collectors`() {
+        expect(
+            setOf(
+                "compose",
+                "droid_icon",
+                "insta_icon",
+                "land",
+                "sailing",
+            )
+        ) {
+            Res.allDrawableResources.keys
+        }
     }
 }
