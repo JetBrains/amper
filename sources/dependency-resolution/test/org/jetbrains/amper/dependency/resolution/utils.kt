@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import org.jetbrains.amper.concurrency.toHex
 import org.junit.jupiter.api.TestInfo
 import java.security.MessageDigest
 
@@ -12,8 +11,9 @@ fun TestInfo.nameToDependency(): String = testMethod.get().name.replace('_', '.'
 
 fun TestInfo.nameToGoldenFile(): String = testMethod.get().name.replace("_", ".").replace(" ", "_")
 
+@OptIn(ExperimentalStdlibApi::class)
 fun computeHash(algorithm: String, bytes: ByteArray): String =
-    MessageDigest.getInstance(algorithm).digest(bytes).toHex()
+    MessageDigest.getInstance(algorithm).digest(bytes).toHexString()
 
 internal fun String.toMavenNode(context: Context): MavenDependencyNode {
     val (group, module, version) = split(":")

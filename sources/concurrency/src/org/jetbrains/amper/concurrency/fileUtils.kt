@@ -26,21 +26,14 @@ class Hasher(algorithm: String): Hash {
     private val digest = MessageDigest.getInstance(algorithm)
     override val algorithm: String = digest.algorithm
     val writer: Writer = Writer(digest::update)
-    override val hash: String by lazy { digest.digest().toHex() }
+    @OptIn(ExperimentalStdlibApi::class)
+    override val hash: String by lazy { digest.digest().toHexString() }
 }
 
 interface Hash {
     val algorithm: String
     val hash: String
 }
-
-data class SimpleHash(
-    override val hash: String,
-    override val algorithm: String
-) : Hash
-
-@OptIn(ExperimentalStdlibApi::class)
-fun ByteArray.toHex() = toHexString()
 
 suspend fun computeHash(path: Path, algorithm: String): Hasher = computeHash(path) { listOf(Hasher(algorithm)) }.single()
 
