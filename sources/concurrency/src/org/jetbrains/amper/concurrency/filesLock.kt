@@ -36,32 +36,34 @@ private val filesLock = StripedMutex(stripeCount = 512)
 
 /**
  * Executes the given [block] under a double lock:
- * * a non-reentrant coroutine Mutex for the given [localMutexKey], getting exclusive access inside the current JVM
- * * a FileChannel lock on the given [file], getting exclusive access across all processes on the system
+ * * a non-reentrant coroutine Mutex based on the [lockFile]'s path, getting exclusive access inside the current JVM
+ * * a FileChannel lock on the given [lockFile], getting exclusive access across all processes on the system
  *
  * Both locks are unlocked after the method returns.
  *
- * The [block]'s parameter is the [FileChannel] used to lock the given [file], if further inspection of the file is
- * needed while under the lock.
+ * The [block]'s parameter is the [FileChannel] used to lock the given [lockFile], if further inspection of the file is
+ * needed while under the lock. The lock can be read and/or written to depending on the given open [options].
  *
  * Note: Since the first lock is a non-reentrant coroutine Mutex, callers MUST NOT call `withDoubleLock` again from
  * inside the given [block], that would make the current coroutine hang.
+ * If an [owner] object is given, the owner's identity is used to detect such issues and eagerly fail instead of
+ * hanging.
  */
 suspend fun <T> withDoubleLock(
-    file: Path,
-    localMutexKey: Int = file.toAbsolutePath().normalize().hashCode(),
+    lockFile: Path,
     owner: Any? = null,
     options: Array<out OpenOption> = arrayOf(
         StandardOpenOption.READ,
         StandardOpenOption.WRITE,
-        StandardOpenOption.CREATE
+        StandardOpenOption.CREATE,
     ),
     block: suspend (lockFileChannel: FileChannel) -> T
 ): T {
     // The first lock locks the stuff inside one JVM process
+    val localMutexKey = lockFile.toAbsolutePath().normalize().hashCode()
     return filesLock.withLock(localMutexKey, owner) {
         // The second lock locks a flagFile across all processes on the system
-        file.withFileChannelLock(*options) {
+        lockFile.withFileChannelLock(*options) {
             block(it)
         }
     }
