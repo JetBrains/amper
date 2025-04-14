@@ -8,7 +8,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
 
 class SimpleDiagnosticDescriptor(val id: String, val defaultSeverity: Severity)
 
-fun SimpleDiagnosticDescriptor.asMessage(
+internal fun SimpleDiagnosticDescriptor.asMessage(
     vararg messageArgs: Any?,
     extra: String? = null,
     exception: Throwable? = null,

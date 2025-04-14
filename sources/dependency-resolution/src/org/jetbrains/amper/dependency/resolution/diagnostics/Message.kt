@@ -97,7 +97,7 @@ enum class Severity {
  *
  * It's better to have a strongly typed message for the better IDE integration.
  */
-data class SimpleMessage(
+internal data class SimpleMessage(
     val text: String,
     val extra: String = "",
     override val severity: Severity = Severity.INFO,
