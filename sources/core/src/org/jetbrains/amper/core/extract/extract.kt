@@ -69,7 +69,7 @@ suspend fun extractFileToLocation(
     extractFileWithFlag(archiveFile, targetDirectory, flagFile, *options)
 }
 
-suspend fun extractFileWithFlag(
+private suspend fun extractFileWithFlag(
     archiveFile: Path,
     targetDirectory: Path,
     flagFile: Path,
@@ -81,7 +81,7 @@ suspend fun extractFileWithFlag(
     return@withContext targetDirectory
 }
 
-suspend fun extractFileWithFlag(
+private suspend fun extractFileWithFlag(
     archiveFile: Path,
     targetDirectory: Path,
     flagChannel: FileChannel,
@@ -144,8 +144,6 @@ suspend fun extractFileWithFlag(
     }
 }
 
-
-
 fun FileChannel.writeFully(bb: ByteBuffer) {
     while (bb.remaining() > 0) {
         val n = write(bb)
@@ -194,11 +192,11 @@ private val octal_0111 = "111".toInt(8)
 
 private val isWindows = System.getProperty("os.name").lowercase().startsWith("windows")
 
-fun extractTarBz2(archiveFile: Path, target: Path, stripRoot: Boolean) {
+private fun extractTarBz2(archiveFile: Path, target: Path, stripRoot: Boolean) {
     extractTarBasedArchive(archiveFile, target, stripRoot) { BZip2CompressorInputStream(it) }
 }
 
-fun extractTarGz(archiveFile: Path, target: Path, stripRoot: Boolean) {
+private fun extractTarGz(archiveFile: Path, target: Path, stripRoot: Boolean) {
     extractTarBasedArchive(archiveFile, target, stripRoot) { GzipCompressorInputStream(it) }
 }
 
@@ -414,7 +412,7 @@ fun FileChannel.readEntireFileToByteArray(): ByteArray {
     return buf
 }
 
-fun getExtractOptionsShortString(options: Array<out ExtractOptions>): String {
+private fun getExtractOptionsShortString(options: Array<out ExtractOptions>): String {
     if (options.isEmpty()) {
         return ""
     }
