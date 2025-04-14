@@ -882,6 +882,63 @@ settings:
 For more information about how to write your own processor, check out
 [the KSP documentation](https://kotlinlang.org/docs/ksp-quickstart.html#create-a-processor-of-your-own).
 
+#### Configuring all-open compiler plugin
+
+To enable [all-open](https://kotlinlang.org/docs/all-open-plugin.html), add the following configuration:
+
+```yaml
+
+  settings:
+    kotlin:
+      allOpen:
+        enabled: true
+        annotations: 
+          - org.springframework.context.annotation.Configuration
+          - org.springframework.stereotype.Service
+          - org.springframework.stereotype.Component
+          - org.springframework.stereotype.Controller
+          - ...
+
+```
+
+Or you can use one of the preconfigured presets that contain all-open annotations related to specific frameworks:
+
+```yaml
+  settings:
+    kotlin:
+      allOpen:
+        enabled: true
+        presets:
+          - spring
+          - micronaut
+```
+
+
+#### Configuring no-arg compiler plugin
+
+To enable [no-arg](https://kotlinlang.org/docs/no-arg-plugin.html), add the following configuration:
+
+```yaml
+  settings:
+    kotlin:
+      noArg:
+        enabled: true
+        annotations: 
+          - jakarta.persistence.Entity
+          - ...
+```
+
+Or you can use one of the preconfigured presets that contain no-arg annotations related to specific frameworks:
+
+```yaml
+  settings:
+    kotlin:
+      noArg:
+        enabled: true
+        presets: 
+          - jpa
+```
+
 ### Tests
 
 Test code is located in the `test/` folder:
@@ -1329,6 +1386,52 @@ Common `dependencies:` and `settings:` are automatically propagated to the platf
 - Mappings and lists are appended.
 
 Think of the rules like adding merging Java/Kotlin Maps.
+
+## Serverside
+
+For serverside development Amper natively supports Spring Boot and Ktor server.
+
+### Spring boot
+
+To enable Spring boot support, add the following to the `module.yaml` file:
+
+```yaml
+
+settings:
+  springBoot: enabled
+```
+
+Setting `springBoot: enabled` performs the following actions:
+*   Applies Spring Dependencies BOM
+*   Adds `spring-boot-starter` dependency
+*   Adds `spring-boot-starter-test` test dependency
+*   Configures `all-open` and `no-arg` Kotlin compiler plugins
+*   Adds the necessary compiler arguments for `kotlinc` and `javac`
+*   Contributes Spring Boot-related entries to the built-in library catalog
+
+Mixed projects (containing java and kotlin sources simultaneously) are supported.
+
+Examples of Spring Boot projects:
+* [spring-petclinic](../examples-standalone/spring-petclinic)
+* [spring-petclinic-kotlin](../examples-standalone/spring-petclinic-kotlin)
+
+### Ktor
+
+To enable Ktor support, add the following to the `module.yaml` file:
+
+```yaml
+
+settings:
+  ktor: enabled
+```
+
+Setting `ktor: enabled` performs the following actions:
+*   Applies Ktor BOM
+*   Contributes Ktor-related entries to a built-in library catalog
+*   Adds default jvmArgs when running the app
+
+Examples of Ktor projects:
+* [ktor-simplest-sample](../examples-standalone/ktor-simplest-sample)
 
 ## Compose Hot Reload (experimental)
 

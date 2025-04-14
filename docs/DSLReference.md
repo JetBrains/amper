@@ -322,7 +322,7 @@ the [module tests](Documentation.md#tests).
 
 | Attribute                       | Description                                                                                                                                                          | Default           |
 |---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `languageVersion: enum`         | Provide source compatibility with the specified version of Kotlin.                                                                                                   | 2.0               |
+| `languageVersion: enum`         | Provide source compatibility with the specified version of Kotlin.                                                                                                   | 2.1               |
 | `apiVersion: enum`              | Allow using declarations only from the specified version of Kotlin bundled libraries.                                                                                | (languageVersion) |
 | `allWarningsAsErrors: boolean`  | Turn any warnings into a compilation error.                                                                                                                          | `false`           |
 | `suppressWarnings: boolean`     | Suppress the compiler from displaying warnings during compilation.                                                                                                   | `false`           |
@@ -332,6 +332,8 @@ the [module tests](Documentation.md#tests).
 | `freeCompilerArgs: string list` | Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly.                                                           |                   |
 | `debug: boolean`                | (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information.                                               | `true`            |
 | `serialization: object \| enum` | Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization).                                                                                   |                   |
+| `allOpen: object`               | Configure the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html).                                                                   |                   |
+| `noArg: object`                 | Configure the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html).                                                                       |                   |
 
 The `serialization:` attribute is an object with the following properties:
 
@@ -393,14 +395,77 @@ dependencies:
   - $kotlin.serialization.protobuf
 ```
 
+##### All-Open
+
+`settings:kotlin:allOpen` configures the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html), which makes classes annotated with specific annotations open automatically without the explicit `open` keyword.
+
+| Attribute                  | Description                                                                                                       | Default |
+|----------------------------|-------------------------------------------------------------------------------------------------------------------|---------|  
+| `enabled: boolean`         | Enable the Kotlin all-open compiler plugin                                                                        | `false` |  
+| `annotations: string list` | List of annotations that trigger open class/method generation                                                     | (empty) |  
+| `presets: enum list`       | Predefined sets of annotations for common frameworks (available presets: `spring`, `micronaut`, and `quarkus`) | (empty) |  
+
+Examples:
+
+```yaml
+# Enable all-open with custom annotations
+settings:
+  kotlin:
+    allOpen:
+      enabled: true
+      annotations: [ com.example.MyOpen, com.example.MyFramework.Open ]
+```
+
+```yaml
+# Enable all-open with Spring preset
+settings:
+  kotlin:
+    allOpen:
+      enabled: true
+      presets: [ spring ]
+```
+
+##### No-Arg
+
+`settings:kotlin:noArg` configures the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html), which generates no-arg constructors for classes with specific annotations.
+
+| Attribute                     | Description                                                                             | Default |
+|-------------------------------|-----------------------------------------------------------------------------------------|---------|  
+| `enabled: boolean`            | Enable the Kotlin no-arg compiler plugin                                                | `false` |  
+| `annotations: string list`    | List of annotations that trigger no-arg constructor generation                          | (empty) |  
+| `invokeInitializers: boolean` | Whether to call initializers in the synthesized constructor                             | `false` |  
+| `presets: enum list`          | Predefined sets of annotations (currently only `jpa` preset for JPA entity annotations) | (empty) |  
+
+Examples:
+
+```yaml
+# Enable no-arg for JPA entities
+settings:
+  kotlin:
+    noArg:
+      enabled: true
+      presets: [ jpa ]
+```
+
+```yaml
+# Enable no-arg with custom annotations and initializers
+settings:
+  kotlin:
+    noArg:
+      enabled: true
+      annotations: [ com.example.NoArg ]
+      invokeInitializers: true
+```
+
 #### JVM
 
 `settings:jvm:` configures the JVM platform-specific settings.
 
-| Attribute           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                               |
-|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
-| `release: enum`     | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                    |
-| `mainClass: string` | (Only for `jvm/app` [product type](Documentation.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                         | [auto-detected](Documentation.md#jvm) |
+| Attribute                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                               |
+|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
+| `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                    |
+| `mainClass: string`            | (Only for `jvm/app` [product type](Documentation.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                         | [auto-detected](Documentation.md#jvm) |
+| `storeParameterNames: boolean` | Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.                                                                                                                                                                                                                                                                                                                 | false                                 |
 
 ##### JVM Tests
 
@@ -481,6 +546,59 @@ settings:
 | `basename: string`  | The name of the generated framework.                                   | kotlin  |
 | `isStatic: boolean` | Whether to create a dynamically linked or statically linked framework. | false   |
 
+#### Native
+
+`settings:native:` configures settings specific to native applications.
+
+| Attribute            | Description                                                        | Default |
+|----------------------|--------------------------------------------------------------------|---------|
+| `entryPoint: string` | The fully-qualified name of the application's entry point function | `null`  |
+
+Example:
+
+```yaml
+# Configure native settings for the module
+settings:
+  native:
+    entryPoint: com.example.MainKt.main
+```
+
+#### Ktor
+
+`settings:ktor:` configures the Ktor.
+
+| Attribute          | Description  | Default |
+|--------------------|--------------|---------|  
+| `enabled: boolean` | Enable Ktor  | `false` |  
+| `version: string`  | Ktor version | `3.1.1` |  
+
+Example:
+
+```yaml
+settings:
+  ktor:
+    enabled: true
+    version: 2.3.2 # version customization
+```
+
+#### Spring Boot
+
+`settings:springBoot:` configures the Spring Boot framework (JVM platform only).
+
+| Attribute          | Description               | Default |
+|--------------------|---------------------------|---------|  
+| `enabled: boolean` | Enable Spring Boot        | `false` |  
+| `version: string`  | Spring Boot version       | `3.4.3` |  
+
+Example:
+
+```yaml
+settings:
+  springBoot:
+    enabled: true
+    version: 3.1.0 # version customization
+```
+
 #### Compose
 
 `settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
@@ -553,17 +671,17 @@ settings:
 `settings:junit:` configures the JUnit test runner on the JVM and Android platforms. Read more
 about [testing support](Documentation.md#tests).
 
-By default, JUnit 4 is used.
+By default, JUnit 5 is used.
 
-| Value     | Description                                              |
-|-----------|----------------------------------------------------------|
-| `junit-5` | JUnit 5 dependencies and the test runner are configured. |
-| `junit-4` | JUnit 4 dependencies and the test runner are configured. |
-| `none`    | JUnit is not automatically configured.                   |
+| Value     | Description                                                        |
+|-----------|--------------------------------------------------------------------|
+| `junit-5` | JUnit 5 dependencies and the test runner are configured (default). |
+| `junit-4` | JUnit 4 dependencies and the test runner are configured.           |
+| `none`    | JUnit is not automatically configured.                             |
 
 #### Kover
 
-(Gradle-based projects only) `settings:kover:` configures Kover for code coverage. Read more about [Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
+`settings:kover:` configures Kover for code coverage. Read more about [Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
 
 | Attribute          | Description                    | Default |
 |--------------------|--------------------------------|---------|
@@ -573,9 +691,9 @@ By default, JUnit 4 is used.
 
 | Attribute       | Description                                                           | Default     |
 |-----------------|-----------------------------------------------------------------------|-------------|
-| `title: string` | The title for the coverage report                                     | module name |
+| `title: string` | The title for the coverage report                                     | `null`      |
 | `reportDir`     | The directory (relative to project root) to store coverage reports in | `null`      |
-| `onCheck`       | Run html report on check task                                         | `false`     |
+| `onCheck`       | Run html report on check task                                         | `null`      |
 | `charset`       | Charset to pass to kover                                              | `null`      |
 
 `settings:kover:xml` configures XML reports
@@ -583,7 +701,7 @@ By default, JUnit 4 is used.
 | Attribute       | Description                                                      | Default     |
 |-----------------|------------------------------------------------------------------|-------------|
 | `reportFile`    | The file (relative to project root) to store coverage reports in | `null`      |
-| `onCheck`       | Run html report on check task                                    | `false`     |
+| `onCheck`       | Run html report on check task                                    | `null`      |
 
 Examples:
 
