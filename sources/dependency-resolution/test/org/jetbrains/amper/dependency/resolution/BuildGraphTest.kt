@@ -1330,7 +1330,7 @@ class BuildGraphTest : BaseDRTest() {
         )
 
         val message = assertTheOnlyNonInfoMessage<PomResolvedWithMetadataErrors>(root, Severity.WARNING)
-        val metadataErrors = message.suppressed
+        val metadataErrors = message.childMessages
         assertEquals(1, metadataErrors.size, "There should've been only one metadata error")
         val metadataError = metadataErrors.single()
         assertIs<UnableToDownloadChecksums>(

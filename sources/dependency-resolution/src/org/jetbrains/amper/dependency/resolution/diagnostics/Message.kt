@@ -55,13 +55,6 @@ private fun WithChildMessages.nestedMessages(level: Int = 1): String = buildStri
 }
 
 /**
- * Marks that the [Message] can suppress other [Message]s.
- */
-internal interface SuppressingMessage : Message {
-    fun withSuppressed(messages: List<Message>): SuppressingMessage
-}
-
-/**
  * Marks that the [Message] could've been caused by a third-party error or exception.
  */
 interface WithThrowable : Message {
@@ -97,11 +90,8 @@ internal data class SimpleMessage(
     override val throwable: Throwable? = null,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
-) : WithChildMessages, SuppressingMessage, WithThrowable {
+) : WithChildMessages, WithThrowable {
 
     override val message: String
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"
-
-    override fun withSuppressed(messages: List<Message>): SimpleMessage =
-        copy(childMessages = childMessages + messages)
 }

@@ -9,11 +9,9 @@ import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 
 data class MetadataResolvedWithPomErrors(
     val dependency: MavenCoordinates,
-    val suppressed: List<Message> = emptyList(),
-) : SuppressingMessage {
+    override val childMessages: List<Message>,
+) : WithChildMessages {
     override val id: String = "metadata.resolved.with.pom.errors"
     override val severity: Severity = Severity.WARNING
     override val message: String = DependencyResolutionBundle.message(id, dependency)
-
-    override fun withSuppressed(messages: List<Message>): MetadataResolvedWithPomErrors = copy(suppressed = messages)
 }

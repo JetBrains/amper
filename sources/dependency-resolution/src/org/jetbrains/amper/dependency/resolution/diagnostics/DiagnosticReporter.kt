@@ -10,7 +10,7 @@ internal interface DiagnosticReporter {
     fun addMessage(message: Message): Boolean
     fun addMessages(messages: List<Message>): Boolean
     fun getMessages(): List<Message>
-    fun suppress(message: SuppressingMessage): Boolean
+    fun suppress(suppressMessageBuilder: (suppressedMessages: List<Message>) -> Message)
     fun reset()
 }
 
@@ -27,10 +27,10 @@ internal class CollectingDiagnosticReporter : DiagnosticReporter {
 
     override fun getMessages() = diagnostics.toList()
 
-    override fun suppress(message: SuppressingMessage): Boolean {
-        val suppressedDiagnostics = diagnostics.toList()
+    override fun suppress(suppressMessageBuilder: (List<Message>) -> Message) {
+        val suppressedMessages = diagnostics.toList()
         reset()
-        return diagnostics.add(message.withSuppressed(messages = suppressedDiagnostics))
+        diagnostics.add(suppressMessageBuilder(suppressedMessages))
     }
 
     override fun reset() {

@@ -754,7 +754,9 @@ class MavenDependency internal constructor(
 
         // We have used a module metadata file for resolving dependency, => lower severity of pom-related issues.
         if (pom.diagnosticsReporter.hasErrors()) {
-            pom.diagnosticsReporter.suppress(MetadataResolvedWithPomErrors(coordinates))
+            pom.diagnosticsReporter.suppress { suppressedMessages ->
+                MetadataResolvedWithPomErrors(coordinates, suppressedMessages)
+            }
         }
     }
 
@@ -1424,7 +1426,9 @@ class MavenDependency internal constructor(
 
         // We have used a pom file for resolving dependency, => lower severity of module-metadata-related issues.
         if (moduleFile.diagnosticsReporter.hasErrors()) {
-            moduleFile.diagnosticsReporter.suppress(PomResolvedWithMetadataErrors(coordinates))
+            moduleFile.diagnosticsReporter.suppress { suppressedMessages ->
+                PomResolvedWithMetadataErrors(coordinates, suppressedMessages)
+            }
         }
     }
 

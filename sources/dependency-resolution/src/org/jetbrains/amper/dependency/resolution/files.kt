@@ -635,13 +635,13 @@ open class DependencyFile(
 
         onFileDownloaded(target, repository)
 
-        diagnosticsReporter.suppress(
+        diagnosticsReporter.suppress { suppressedMessages ->
             if (repository != null) {
-                SuccessfulDownload.asMessage(target.name, repository)
+                SuccessfulDownload.asMessage(target.name, repository, childMessages = suppressedMessages)
             } else {
-                SuccessfulLocalResolution.asMessage(target.name)
+                SuccessfulLocalResolution.asMessage(target.name, childMessages = suppressedMessages)
             }
-        )
+        }
 
         return target
     }
