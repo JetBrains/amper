@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+# Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 #
 
 # TODO gradlew also tries to set ulimit -n (max files), probably we should too
@@ -19,9 +19,9 @@
 set -e -u
 
 # The version of the Amper distribution to provision and use
-amper_version=0.7.0-dev-2654
+amper_version=0.7.0-dev-2666
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=dc5277e493ac05f71a4b02474d7b4c907f4998a0373728fa692f534da7b54b53
+amper_sha256=93f6810357731d022290090765c7c2f2d18f7300c0ee1ec079eb545d79c99327
 
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
