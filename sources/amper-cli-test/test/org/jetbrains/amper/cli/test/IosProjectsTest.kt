@@ -16,8 +16,12 @@ import org.jetbrains.amper.cli.test.utils.xcodeProjectManagementSpans
 import org.jetbrains.amper.cli.test.utils.xcodebuildSpans
 import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.spans.FilteredSpans
+import java.util.*
+import kotlin.io.path.copyToRecursively
+import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.pathString
 import kotlin.test.Ignore
@@ -175,8 +179,12 @@ class IosProjectsTest : AmperCliTestBase() {
 
     @Test
     fun `compose-multiplatform - build debug with xcodebuild`() = runSlowTest {
+        val tempProjectDir = (tempRoot / UUID.randomUUID().toString() / "non-intel").createDirectories()
+        (Dirs.amperTestProjectsRoot / "ios/non-intel").copyToRecursively(tempProjectDir, followLinks = false)
+        LocalAmperPublication.setupWrappersIn(tempProjectDir)
+
         val result = runXcodebuild(
-            "-project", (Dirs.amperTestProjectsRoot / "ios/non-intel/module.xcodeproj").pathString,
+            "-project", (tempProjectDir / "module.xcodeproj").pathString,
             "-scheme", "app",
             "-configuration", "Debug",
             "-arch", "x86_64",
