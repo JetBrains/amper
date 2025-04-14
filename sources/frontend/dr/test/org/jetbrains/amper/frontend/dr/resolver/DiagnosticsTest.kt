@@ -12,7 +12,6 @@ import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
 import org.jetbrains.amper.dependency.resolution.orUnspecified
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
@@ -274,7 +273,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         if (node.isMavenDependency(group, module)) {
             assertEquals(
                 setOf("Unable to resolve dependency ${node.dependency.group}:${node.dependency.module}:${node.dependency.version.orUnspecified()}"),
-                node.messages.map { if (it is SimpleMessage) it.text else it.message }.toSet()
+                node.messages.map { it.message }.toSet()
             )
             return true
         }

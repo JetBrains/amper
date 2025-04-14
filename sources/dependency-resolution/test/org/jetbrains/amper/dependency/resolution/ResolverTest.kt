@@ -163,7 +163,7 @@ class ResolverTest: BaseDRTest() {
 
         assertEquals(
             node.messages.single().message,
-            "Unable to resolve dependency com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared (repositories: https://cache-redirector.jetbrains.com/repo1.maven.org/maven2)",
+            "Unable to resolve dependency com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared",
             "Unexpected error message"
         )
 

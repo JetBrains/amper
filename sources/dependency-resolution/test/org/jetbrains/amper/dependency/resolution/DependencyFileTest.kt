@@ -117,15 +117,18 @@ class DependencyFileTest {
             }
             val messages = dependency.messages.defaultFilterMessages()
             assertEquals(
-                setOf("Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: $REDIRECTOR_MAVEN_CENTRAL, $REDIRECTOR_COMPOSE_DEV)"),
+                setOf("Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999"),
                 messages.map { it.message }.toSet(),
                 "Unexpected diagnostic messages")
 
             assertEquals(
                 setOf("""
-                    Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://cache-redirector.jetbrains.com/repo1.maven.org/maven2, https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev)
+                    Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
                       Unable to download checksums of file junit-jupiter-api-9999.pom
                       Unable to download checksums of file junit-jupiter-api-9999.module
+                    Repositories used for resolution:
+                      - https://cache-redirector.jetbrains.com/repo1.maven.org/maven2
+                      - https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev
                 """.trimIndent()),
                 messages.map{ it.detailedMessage }.toSet(),
                 "Unexpected diagnostic messages")
@@ -152,7 +155,7 @@ class DependencyFileTest {
             }
             val messages = dependency.messages.defaultFilterMessages().map{ it.message }.toSet()
             assertEquals(
-                setOf("Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: $REDIRECTOR_MAVEN_CENTRAL, $REDIRECTOR_COMPOSE_DEV)"),
+                setOf("Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999"),
                 messages,
                 "Unexpected diagnostic messages")
         }

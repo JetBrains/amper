@@ -47,7 +47,6 @@ object DependencyResolutionDiagnostics {
     val UnableToParsePom = SimpleDiagnosticDescriptor("unable.to.parse.pom", Severity.ERROR)
     val UnableToReachURL = SimpleDiagnosticDescriptor("unable.to.reach.url", Severity.ERROR)
     val UnableToResolveChecksums = SimpleDiagnosticDescriptor("unable.to.resolve.checksums", Severity.ERROR)
-    val UnableToResolveDependency = SimpleDiagnosticDescriptor("unable.to.resolve.dependency", Severity.ERROR)
     val UnableToSaveDownloadedFile = SimpleDiagnosticDescriptor("unable.to.save.downloaded.file", Severity.ERROR)
     val UnexpectedErrorOnDownload = SimpleDiagnosticDescriptor("unexpected.error.on.download", Severity.ERROR)
     val UnexpectedDependencyFormat = SimpleDiagnosticDescriptor("unexpected.dependency.format", Severity.ERROR)

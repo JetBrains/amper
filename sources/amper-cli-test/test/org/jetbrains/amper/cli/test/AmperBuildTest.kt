@@ -110,33 +110,57 @@ class AmperBuildTest : AmperCliTestBase() {
         // could be any of them first
         val expected1 = """
             ERROR: Task ':app:resolveDependenciesJvm' failed: Unable to resolve dependencies for module app:
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev)
+            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
               Unable to download checksums of file junit-jupiter-api-9999.pom
               Unable to download checksums of file junit-jupiter-api-9999.module
+            Repositories used for resolution:
+              - https://repo1.maven.org/maven2
+              - https://maven.google.com
+              - https://maven.pkg.jetbrains.space/public/p/compose/dev
         """.trimIndent()
         val expected2 = """
             ERROR: Task ':app:resolveDependenciesJvmTest' failed: Unable to resolve dependencies for module app:
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev)
+            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
               Unable to download checksums of file junit-jupiter-api-9999.pom
               Unable to download checksums of file junit-jupiter-api-9999.module
+            Repositories used for resolution:
+              - https://repo1.maven.org/maven2
+              - https://maven.google.com
+              - https://maven.pkg.jetbrains.space/public/p/compose/dev
         """.trimIndent()
         val expected3 = """
             ERROR: Task ':shared:resolveDependenciesJvm' failed: Unable to resolve dependencies for module shared:
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev)
+            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
               Unable to download checksums of file junit-jupiter-api-9999.pom
               Unable to download checksums of file junit-jupiter-api-9999.module
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev)
+            Repositories used for resolution:
+              - https://repo1.maven.org/maven2
+              - https://maven.google.com
+              - https://maven.pkg.jetbrains.space/public/p/compose/dev
+            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
               Unable to download checksums of file junit-jupiter-api-9999.pom
               Unable to download checksums of file junit-jupiter-api-9999.module
+            Repositories used for resolution:
+              - https://repo1.maven.org/maven2
+              - https://maven.google.com
+              - https://maven.pkg.jetbrains.space/public/p/compose/dev
         """.trimIndent()
         val expected4 = """
             ERROR: Task ':shared:resolveDependenciesJvmTest' failed: Unable to resolve dependencies for module shared:
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev)
+            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
               Unable to download checksums of file junit-jupiter-api-9999.pom
               Unable to download checksums of file junit-jupiter-api-9999.module
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999 (repositories: https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev)
+            Repositories used for resolution:
+              - https://repo1.maven.org/maven2
+              - https://maven.google.com
+              - https://maven.pkg.jetbrains.space/public/p/compose/dev
+            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
               Unable to download checksums of file junit-jupiter-api-9999.pom
               Unable to download checksums of file junit-jupiter-api-9999.module
+            Repositories used for resolution:
+              - https://repo1.maven.org/maven2
+              - https://maven.google.com
+              - https://maven.pkg.jetbrains.space/public/p/compose/dev
         """.trimIndent()
 
         if (expected1 != actualStderr && expected2 != actualStderr && expected3 != actualStderr && expected4 != actualStderr) {

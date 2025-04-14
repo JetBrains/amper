@@ -13,6 +13,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.concurrency.computeHash
 import org.jetbrains.amper.concurrency.produceFileWithDoubleLockAndHash
+import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
+import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.BomVariantNotFound
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.FailedRepackagingKMPLibrary
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.KotlinMetadataHashNotResolved
@@ -30,14 +32,12 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutio
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToDetermineDependencyVersionForKotlinLibrary
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToParseMetadata
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToParsePom
-import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnexpectedDependencyFormat
-import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
-import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.DiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
+import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Capability
@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.CancellationException
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -544,14 +543,11 @@ class MavenDependency internal constructor(
         } finally {
             // 4. if neither pom nor module file were downloaded
             if (state < level.state) {
-                metadataResolutionFailureMessage = UnableToResolveDependency.asMessage(
-                    this,
-                    extra = DependencyResolutionBundle.message(
-                        "extra.repositories",
-                        context.settings.repositories.joinToString()
-                    ),
-                    overrideSeverity = Severity.WARNING.takeIf { level != ResolutionLevel.NETWORK },
-                    childMessages = pom.diagnosticsReporter.getMessages() + moduleFile.diagnosticsReporter.getMessages()
+                metadataResolutionFailureMessage = UnableToResolveDependency(
+                    dependency = this,
+                    repositories = context.settings.repositories,
+                    resolutionLevel = level,
+                    childMessages = pom.diagnosticsReporter.getMessages() + moduleFile.diagnosticsReporter.getMessages(),
                 )
             }
         }
