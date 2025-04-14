@@ -50,7 +50,7 @@ suspend fun computeHash(path: Path, hashersFn:() -> List<Hasher>): Collection<Ha
 suspend fun Path.readTextWithRetry(): String =
     fileOperationWithRetry(this) { it.readText() }
 
-suspend fun <T> fileChannelReadOperationWithRetry(
+private suspend fun <T> fileChannelReadOperationWithRetry(
     path: Path,
     retryOnException: (e: Exception) -> Boolean = { e -> retryFileOperationOnException(e, path) },
     block:(FileChannel) -> T
@@ -60,7 +60,7 @@ suspend fun <T> fileChannelReadOperationWithRetry(
             .use { block(it) }
     }
 
-suspend fun <T> fileOperationWithRetry(
+private suspend fun <T> fileOperationWithRetry(
     path: Path,
     retryOnException: (e: Exception) -> Boolean = { e -> retryFileOperationOnException(e, path) },
     block:(Path) -> T
@@ -82,11 +82,10 @@ suspend fun <T> withRetryOnAccessDenied(block: suspend () -> T): T = withRetry(
     block = block
 )
 
-fun retryFileOperationOnException(e: Exception, path: Path): Boolean =
+private fun retryFileOperationOnException(e: Exception, path: Path): Boolean =
     when (e) {
         // File doesn't exist - nothing to operate on.
         is NoSuchFileException -> false
-
         is IOException -> {
             // Retry until the file could be opened.
             // It could have been exclusively locked by DR for a very short period of time:
@@ -99,12 +98,10 @@ fun retryFileOperationOnException(e: Exception, path: Path): Boolean =
 
             true
         }
-
         else -> false
     }
 
-
-fun ReadableByteChannel.readTo(writers: Collection<Writer>): Long {
+internal fun ReadableByteChannel.readTo(writers: Collection<Writer>): Long {
     var size = 0L
     val data = ByteBuffer.allocate(1024)
     while (read(data) != -1) {
