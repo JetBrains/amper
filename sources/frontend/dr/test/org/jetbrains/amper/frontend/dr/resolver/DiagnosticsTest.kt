@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.assertContains
@@ -263,12 +264,14 @@ class DiagnosticsTest : BaseModuleDrTest() {
 
     @OptIn(ExperimentalContracts::class)
     internal fun DependencyNode.isMavenDependency(group: String, module: String): Boolean {
+        contract {
+            returns(true) implies (this@isMavenDependency is MavenDependencyNode)
+        }
         return this is MavenDependencyNode && this.group == group && this.module == module
     }
 
     private fun assertDependencyError(node: DependencyNode, group: String, module: String): Boolean {
         if (node.isMavenDependency(group, module)) {
-            node as MavenDependencyNode
             assertEquals(
                 setOf("Unable to resolve dependency ${node.dependency.group}:${node.dependency.module}:${node.dependency.version.orUnspecified()}"),
                 node.messages.map { if (it is SimpleMessage) it.text else it.message }.toSet()
