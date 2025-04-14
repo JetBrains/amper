@@ -113,12 +113,12 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
 }
 
 class DependencyBuildProblem(
-    @UsedInIdePlugin
+    @field:UsedInIdePlugin
     val problematicDependency: DependencyNode,
     val directFragmentDependency: DirectFragmentDependencyNodeHolder,
     val errorMessage: Message,
     level: Level,
-    @UsedInIdePlugin
+    @field:UsedInIdePlugin
     override val element: PsiElement,
     val versionTrace: TraceableVersion?,
 ) : PsiBuildProblem(level) {
