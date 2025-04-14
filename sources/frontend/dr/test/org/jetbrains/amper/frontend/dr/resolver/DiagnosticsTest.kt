@@ -216,6 +216,50 @@ class DiagnosticsTest : BaseModuleDrTest() {
         }
     }
 
+    // AMPER-4270
+    @Test
+    fun `overridden version for BOM version is not displayed for unspecified versions`() {
+        val aom = getTestProjectModel("jvm-bom-support", testDataRoot)
+        val commonDeps = runBlocking {
+            doTest(
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+                ),
+                module = "app",
+                fragment = "common",
+                expected = """
+                    Fragment 'app.common' dependencies
+                    ├─── app:common:com.fasterxml.jackson.core:jackson-annotations:unspecified
+                    │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3
+                    │         ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
+                    │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
+                    ├─── app:common:com.fasterxml.jackson:jackson-bom:2.18.3
+                    │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
+                    ╰─── app:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+                         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
+                              ╰─── org.jetbrains:annotations:13.0
+                """.trimIndent(),
+                verifyMessages = false,
+            )
+        }
+
+
+        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        collectBuildProblems(commonDeps, diagnosticsReporter, Level.Warning)
+        val buildProblems = diagnosticsReporter.getProblems()
+
+        assertEquals(
+            0, buildProblems.size,
+            "No problems should be reported for JVM deps, but got the following ${buildProblems.size} problem(s):\n${
+                buildProblems.joinToString(
+                    "\n"
+                ) { it.message }
+            }"
+        )
+    }
+
     @OptIn(ExperimentalContracts::class)
     internal fun DependencyNode.isMavenDependency(group: String, module: String): Boolean {
         return this is MavenDependencyNode && this.group == group && this.module == module

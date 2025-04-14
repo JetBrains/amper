@@ -12,7 +12,6 @@ import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.orUnspecified
-import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
@@ -30,10 +29,16 @@ class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
         level: Level,
         graphRoot: DependencyNode,
     ) {
-        if (node is DirectFragmentDependencyNodeHolder
-            && node.dependencyNode is MavenDependencyNode
-            && node.dependencyNode.originalVersion() != node.dependencyNode.resolvedVersion()
-        ) {
+        if (node !is DirectFragmentDependencyNodeHolder) return
+        if (node.dependencyNode !is MavenDependencyNode) return
+        val originalVersion = node.dependencyNode.version
+        // TODO: Unspecified version is most likely resolved into BOM version which might later be
+        //  overridden and we would want to report that.
+        //  Currently, there is no such information on the node,
+        //  so avoiding false-positives is better than missing such cases.
+        if (originalVersion == null) return
+
+        if (originalVersion != node.dependencyNode.resolvedVersion()) {
             // for every direct module dependency referencing this dependency node
             val psiElement = node.notation?.trace?.extractPsiElementOrNull()
             if (psiElement != null) {
