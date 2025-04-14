@@ -8,6 +8,7 @@ apply:
 
 dependencies:
   - ../concurrency
+  - ../libraries/nio-filechannels
   - ../libraries/telemetry
   - $libs.kotlinx.coroutines.core
   - $libs.apacheCommons.compress

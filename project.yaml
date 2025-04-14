@@ -31,6 +31,7 @@ modules:
   - sources/junit-listeners
   - sources/libraries/async-processes
   - sources/libraries/compose-resources
+  - sources/libraries/nio-filechannels
   - sources/libraries/telemetry
   - sources/libraries/xcode-model-ext
   - sources/test-base

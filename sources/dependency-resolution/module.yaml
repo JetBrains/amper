@@ -12,6 +12,7 @@ apply:
 
 dependencies:
   - ../concurrency
+  - ../libraries/nio-filechannels
   - ../libraries/telemetry
   - $libs.xmlutil.serialization
   - $libs.maven.artifact

@@ -6,8 +6,8 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
-  - ../core
   - ../concurrency
+  - ../libraries/nio-filechannels
   - ../libraries/telemetry: exported # OpenTelemetry is in the API
   - $libs.kotlinx.coroutines.core
   - $libs.slf4j.api

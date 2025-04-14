@@ -13,13 +13,14 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.hashing.sha256String
+import org.jetbrains.amper.filechannels.readText
+import org.jetbrains.amper.filechannels.writeText
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Path
@@ -74,29 +75,29 @@ private suspend fun extractFileWithFlag(
     targetDirectory: Path,
     flagFile: Path,
     vararg options: ExtractOptions
-): Path = withContext(Dispatchers.IO) {
+): Path {
     withDoubleLock(targetDirectory.hashCode(), flagFile) { fileChannel ->
         extractFileWithFlag(archiveFile, targetDirectory, fileChannel, flagFile, options)
     }
-    return@withContext targetDirectory
+    return targetDirectory
 }
 
-private suspend fun extractFileWithFlag(
+private fun extractFileWithFlag(
     archiveFile: Path,
     targetDirectory: Path,
     flagChannel: FileChannel,
-    flagFile2: Path,
+    flagFile: Path,
     options: Array<out ExtractOptions>,
-) = withContext(Dispatchers.IO) {
+) {
     if (checkFlagFile(archiveFile, flagChannel, targetDirectory, options)) {
-        LOG.debug("Skipping extract to {} since flag file {} is correct", targetDirectory, flagFile2)
+        LOG.debug("Skipping extract to {} since flag file {} is correct", targetDirectory, flagFile)
 
         // Update file modification time to maintain FIFO caches i.e.
         // in persistent cache folder on TeamCity agent
         val now = FileTime.from(Instant.now())
         targetDirectory.setLastModifiedTime(now)
-        flagFile2.setLastModifiedTime(now)
-        return@withContext
+        flagFile.setLastModifiedTime(now)
+        return
     }
 
     if (targetDirectory.exists()) {
@@ -137,19 +138,10 @@ private suspend fun extractFileWithFlag(
 
     flagChannel.truncate(0)
     flagChannel.position(0)
-    flagChannel.writeFully(ByteBuffer.wrap(expectedFlagFileContent))
+    flagChannel.writeText(expectedFlagFileContent)
 
     check(checkFlagFile(archiveFile, flagChannel, targetDirectory, options)) {
-        "'checkFlagFile' must be true right after extracting the archive. flagFile:${flagFile2} archiveFile:${archiveFile} target:${targetDirectory}"
-    }
-}
-
-fun FileChannel.writeFully(bb: ByteBuffer) {
-    while (bb.remaining() > 0) {
-        val n = write(bb)
-        if (n <= 0) {
-            error("no bytes written")
-        }
+        "'checkFlagFile' must be true right after extracting the archive. flagFile:${flagFile} archiveFile:${archiveFile} target:${targetDirectory}"
     }
 }
 
@@ -356,13 +348,13 @@ private fun getExpectedFlagFileContent(
     archiveFile: Path,
     targetDirectory: Path,
     options: Array<out ExtractOptions>
-): ByteArray {
+): String {
     val numberOfTopLevelEntries = targetDirectory.listDirectoryEntries().size
     return """$EXTRACT_CODE_VERSION
 ${archiveFile.toRealPath(LinkOption.NOFOLLOW_LINKS)}
 topLevelEntries:$numberOfTopLevelEntries
 options:${getExtractOptionsShortString(options)}
-""".toByteArray(StandardCharsets.UTF_8)
+"""
 }
 
 fun cleanDirectory(directory: Path) {
@@ -381,35 +373,7 @@ private fun checkFlagFile(
     if (!targetDirectory.isDirectory()) {
         return false
     }
-    val existingContent = flagChannel.readEntireFileToByteArray()
-    return existingContent.contentEquals(
-        getExpectedFlagFileContent(
-            archiveFile,
-            targetDirectory,
-            options
-        )
-    )
-}
-
-fun FileChannel.readEntireFileToByteArray(): ByteArray {
-    position(0)
-
-    val size = Math.toIntExact(size())
-    if (size == 0) {
-        return ByteArray(0)
-    }
-
-    val buf = ByteArray(size)
-    val bb = ByteBuffer.wrap(buf)
-
-    while (bb.remaining() > 0) {
-        val n = read(bb)
-        if (n <= 0) {
-            error("no bytes read from file")
-        }
-    }
-
-    return buf
+    return flagChannel.readText() == getExpectedFlagFileContent(archiveFile, targetDirectory, options)
 }
 
 private fun getExtractOptionsShortString(options: Array<out ExtractOptions>): String {

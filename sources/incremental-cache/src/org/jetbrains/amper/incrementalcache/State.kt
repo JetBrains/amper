@@ -9,14 +9,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.core.extract.readEntireFileToByteArray
-import org.jetbrains.amper.core.extract.writeFully
+import org.jetbrains.amper.filechannels.readText
+import org.jetbrains.amper.filechannels.writeText
 import org.slf4j.LoggerFactory
-import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.Path
 
@@ -49,7 +47,7 @@ internal data class State(
 
 internal fun FileChannel.writeState(state: State) {
     truncate(0)
-    writeFully(ByteBuffer.wrap(jsonSerializer.encodeToString(state).toByteArray()))
+    writeText(jsonSerializer.encodeToString(state))
 }
 
 internal fun FileChannel.readState(pathForLogs: Path): State? {
@@ -60,7 +58,7 @@ internal fun FileChannel.readState(pathForLogs: Path): State? {
 
     val stateText = try {
         position(0)
-        readEntireFileToByteArray().decodeToString()
+        readText()
     } catch (t: Throwable) {
         logger.warn("[inc] Unable to read state file '$pathForLogs' -> cache miss", t)
         return null

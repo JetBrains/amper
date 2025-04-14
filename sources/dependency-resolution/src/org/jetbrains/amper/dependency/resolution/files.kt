@@ -20,7 +20,6 @@ import org.jetbrains.amper.concurrency.Hasher
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.Writer
 import org.jetbrains.amper.concurrency.computeHash
-import org.jetbrains.amper.concurrency.copyFrom
 import org.jetbrains.amper.concurrency.deleteIfExistsWithLogging
 import org.jetbrains.amper.concurrency.produceResultWithDoubleLock
 import org.jetbrains.amper.concurrency.produceResultWithTempFile
@@ -39,6 +38,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionDiagnostics.UnexpectedErrorOnDownload
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
+import org.jetbrains.amper.filechannels.writeFrom
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -463,7 +463,7 @@ open class DependencyFile(
             ?.takeIf { it.hasMatchingChecksum(expectedHash) }
             ?.let { externalRepositoryPath ->
                 // Copy external artifact into an opened temporary file channel
-                resolveSafeOrNull { tempFileChannel.copyFrom(externalRepositoryPath) }
+                resolveSafeOrNull { tempFileChannel.writeFrom(externalRepositoryPath) }
                     ?.let {
                         // Move a file to the target location on successful copying
                         storeToTargetLocation(temp, expectedHash, cache, null, diagnosticsReporter) {

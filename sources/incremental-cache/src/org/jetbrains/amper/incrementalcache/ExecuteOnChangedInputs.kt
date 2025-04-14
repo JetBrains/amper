@@ -11,8 +11,7 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.Tracer
 import kotlinx.coroutines.sync.Mutex
 import org.jetbrains.amper.concurrency.withReentrantLock
-import org.jetbrains.amper.core.extract.readEntireFileToByteArray
-import org.jetbrains.amper.core.hashing.sha256String
+import org.jetbrains.amper.filechannels.readText
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs.Change.ChangeType
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory
 import java.nio.channels.FileChannel
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -90,7 +90,7 @@ class ExecuteOnChangedInputs(
 
             val sanitizedId = id.replace(Regex("[^a-zA-Z0-9]"), "_")
             // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
-            val hash = "$id\nstate format version: ${State.formatVersion}".sha256String().take(10)
+            val hash = shortHash("$id\nstate format version: ${State.formatVersion}")
             val stateFile = stateRoot.resolve("$sanitizedId-$hash")
 
             // Prevent parallel execution of this 'id' from this or other processes,
@@ -133,6 +133,12 @@ class ExecuteOnChangedInputs(
             }
         }
 
+    @OptIn(ExperimentalStdlibApi::class)
+    private fun shortHash(key: String): String = MessageDigest.getInstance("SHA-256")
+        .digest(key.encodeToByteArray())
+        .toHexString()
+        .take(10)
+
     private fun addResultToSpan(span: Span, result: ExecutionResult) {
         span.setListAttribute("outputs", result.outputs.map { it.pathString }.sorted())
         span.setMapAttribute("output-properties", result.outputProperties)
@@ -165,7 +171,7 @@ class ExecuteOnChangedInputs(
                 ?.let { ExecutionResult(it.outputs.map { Path(it) }, it.outputProperties) }
                 ?: run {
                     stateFileChannel.position(0)
-                    val stateText = stateFileChannel.readEntireFileToByteArray().decodeToString()
+                    val stateText = stateFileChannel.readText()
                     error("Not up-to-date after successfully writing a state file: $stateFile\n" +
                          "--- BEGIN $stateFile\n" +
                          stateText.ensureEndsWith("\n") +
