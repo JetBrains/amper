@@ -6,6 +6,7 @@ test-dependencies:
   - ../test-base
   - ../cli
   - ../core
+  - ../frontend/schema
   - $libs.charleskorn.kaml
   - $libs.mordant
 

@@ -4,15 +4,31 @@
 
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.core.get
+import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
+import org.jetbrains.amper.core.messages.ProblemReporter
+import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.LocalModuleDependency
+import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
+import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.test.Dirs
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
+import kotlin.io.path.absolute
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
+import kotlin.io.path.readLines
 import kotlin.io.path.readText
+import kotlin.io.path.relativeTo
 import kotlin.io.path.visitFileTree
+import kotlin.io.path.walk
 import kotlin.test.Test
+import kotlin.test.fail
 import kotlin.use
 
 class AmperProjectStructureTest {
@@ -27,6 +43,67 @@ class AmperProjectStructureTest {
         val modules = project.modules
         assertAlphabeticalOrder(modules, "Modules in project.yaml")
     }
+
+    @Test
+    fun `Amper-agnostic library modules don't use the word Amper`() = runTest {
+        val invalidLines = readAmperProjectModel()
+            .modules
+            .filter { it.isAmperAgnosticLibrary() }
+            .map { it to it.linesWithTheWordAmper() }
+            .filter { it.second.isNotEmpty() }
+        if (invalidLines.isNotEmpty()) {
+            fail("Some Amper-agnostic library modules contain the word 'Amper'.\n\n" +
+                    invalidLines.joinToString("\n\n") { (module, linesWithAmper) ->
+                        "Module '${module.userReadableName}' uses the word 'Amper':\n" +
+                                linesWithAmper.joinToString("\n") { "  - $it" }
+                    } + "\n\nMake sure these modules are Amper-agnostic.")
+        }
+    }
+
+    private fun AmperModule.linesWithTheWordAmper(): List<String> = fragments.flatMap { fragment ->
+        fragment.src.walk().flatMap { it.linesWithTheWordAmper() }
+    }
+
+    /**
+     * We are still in the Amper repo and the libraries are not yet (or maybe ever) separated from Amper, so they still
+     * legitimately use the org.jetbrains.amper package root. Apart from that, there should be no Amper reference.
+     */
+    private val amperExceptInPackageRegex = Regex("""(?<!org\.jetbrains\.)[aA]mper""")
+    private fun Path.linesWithTheWordAmper(): List<String> = readLines()
+        .withIndex()
+        .filter { (_, line) -> line.contains(amperExceptInPackageRegex) }
+        .map { (i, line) -> "${absolutePathString()}:$i: $line" }
+
+    @Test
+    fun `Amper-agnostic library modules don't depend on Amper-aware modules`() = runTest {
+        val invalidDeps = readAmperProjectModel()
+            .modules
+            .filter { it.isAmperAgnosticLibrary() }
+            .map { it to it.nonLibraryDependencies() }
+            .filter { it.second.isNotEmpty() }
+        if (invalidDeps.isNotEmpty()) {
+            fail("Some Amper-agnostic library modules depend on Amper-aware modules.\n\n" +
+                    invalidDeps.joinToString("\n\n") { (module, dependencies) ->
+                        "Module '${module.userReadableName}' depends on Amper-aware module(s):\n" +
+                                dependencies.joinToString("\n") { "  - $it" }
+                    } + "\n\nRemove these dependencies or move the modules out of the 'libraries' directory.")
+        }
+    }
+
+    private fun readAmperProjectModel(): Model = with(SimpleProblemReporterContext(NoOpCollectingProblemReporter())) {
+        val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, project = null)
+            ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
+        SchemaBasedModelImport.getModel(projectContext).get()
+    }
+
+    private fun AmperModule.nonLibraryDependencies(): List<String> = fragments
+        .flatMap { it.externalDependencies }
+        .filterIsInstance<LocalModuleDependency>()
+        .filterNot { it.module.isAmperAgnosticLibrary() }
+        .map { it.module.source.moduleDir?.relativeTo(Dirs.amperCheckoutRoot).toString() }
+
+    private fun AmperModule.isAmperAgnosticLibrary(): Boolean =
+        source.moduleDir?.absolute()?.startsWith(Dirs.amperCheckoutRoot.resolve("sources/libraries")) == true
 
     @Test
     fun sameVersionInEveryWrapper() {
@@ -99,3 +176,5 @@ class AmperProjectStructureTest {
         return amperVersion
     }
 }
+
+private class SimpleProblemReporterContext(override val problemReporter: ProblemReporter) : ProblemReporterContext

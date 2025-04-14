@@ -214,7 +214,7 @@ fun startLongLivedProcess(
     )
         .redirectOutput(ProcessBuilder.Redirect.DISCARD)
         .redirectError(ProcessBuilder.Redirect.DISCARD)
-        // no shutdown hook on purpose - we want to keep the process alive after Amper completes
+        // no shutdown hook on purpose - we want to keep the process alive after the current JVM terminates
         .start()
         .apply {
             outputStream.close()
