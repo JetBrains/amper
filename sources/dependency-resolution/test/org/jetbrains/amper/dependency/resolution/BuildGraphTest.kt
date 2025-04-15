@@ -987,8 +987,8 @@ class BuildGraphTest : BaseDRTest() {
                 ╰─── com.fasterxml.jackson.core:jackson-databind:2.18.2 -> 2.18.3
                      ├─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (*)
                      ├─── com.fasterxml.jackson.core:jackson-core:2.18.3
-                     │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
-                     ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
+                     │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
+                     ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
             """.trimIndent()
         )
         runBlocking {

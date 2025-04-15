@@ -479,7 +479,7 @@ interface DependencyNode {
         // but different nodes referencing the same MavenDependency result in the same dependencies
         // => add no need to distinguish those while pretty printing
         val seen = !visited.add(key to ((thisUnwrapped as? MavenDependencyNode)?.dependency ?: (thisUnwrapped as? MavenDependencyConstraintNode)?.dependencyConstraint))
-        if (seen && children.any { it !is MavenDependencyConstraintNode }) {
+        if (seen && children.any { it.shouldBePrinted(allMavenDepsKeys, forMavenNode) }) {
             builder.append(" (*)")
         } else if (thisUnwrapped is MavenDependencyConstraintNode) {
             builder.append(" (c)")
@@ -499,7 +499,7 @@ interface DependencyNode {
         }
 
         children
-            .filter { it.unwrap().let { it !is MavenDependencyConstraintNode || it.isConstraintAffectingTheGraph(allMavenDepsKeys, forMavenNode) } }
+            .filter { it.shouldBePrinted(allMavenDepsKeys, forMavenNode) }
             .let { filteredNodes ->
                 filteredNodes.forEachIndexed { i, it ->
                     val addAnotherLevel = i < filteredNodes.size - 1
@@ -512,6 +512,16 @@ interface DependencyNode {
                     indent.setLength(indent.length - 5)
                 }
             }
+    }
+
+    fun DependencyNode.shouldBePrinted(
+        allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>,
+        forMavenNode: MavenCoordinates? = null
+    ): Boolean = unwrap().let {
+        it !is MavenDependencyConstraintNode || it.isConstraintAffectingTheGraph(
+            allMavenDepsKeys,
+            forMavenNode
+        )
     }
 
     fun MavenDependencyConstraintNode.isConstraintAffectingTheGraph(

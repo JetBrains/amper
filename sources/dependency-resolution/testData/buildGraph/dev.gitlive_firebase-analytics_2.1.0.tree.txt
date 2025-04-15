@@ -120,7 +120,7 @@ root
           │    │    ├─── com.google.firebase:firebase-common:21.0.0
           │    │    │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4 -> 1.7.1
           │    │    │    │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
-          │    │    │    │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+          │    │    │    │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1 (*)
           │    │    │    │    ├─── com.google.android.gms:play-services-tasks:16.0.1 -> 18.2.0 (*)
           │    │    │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
           │    │    │    ├─── com.google.firebase:firebase-components:18.0.0

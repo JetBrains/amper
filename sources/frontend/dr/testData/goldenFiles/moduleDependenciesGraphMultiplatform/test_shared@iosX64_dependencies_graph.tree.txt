@@ -10,22 +10,22 @@ Fragment 'shared.iosX64' dependencies
 │              │    │    ╰─── androidx.collection:collection-iosx64:1.4.0
 │              │    │         ├─── androidx.annotation:annotation:1.7.0 -> 1.8.0
 │              │    │         │    ╰─── androidx.annotation:annotation-iosx64:1.8.0
-│              │    │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> #kotlinVersion
-│              │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion
+│              │    │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> #kotlinVersion (*)
+│              │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
 │              │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3
 │              │    │    ├─── androidx.annotation:annotation:1.8.0 (*)
-│              │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion
-│              │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion
+│              │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
+│              │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │    ╰─── org.jetbrains.kotlinx:atomicfu:0.23.2
 │              │         ╰─── org.jetbrains.kotlinx:atomicfu-iosx64:0.23.2
-│              │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion
+│              │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 │              ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion
-│              │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
+│              │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 │              ├─── org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 │              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 │                   ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 │                        ├─── org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
-│                        ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion
+│                        ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 ├─── shared:iosX64:org.jetbrains.compose.foundation:foundation:1.7.3
 │    ╰─── org.jetbrains.compose.foundation:foundation:1.7.3
 │         ╰─── org.jetbrains.compose.foundation:foundation-uikitx64:1.7.3
@@ -42,21 +42,21 @@ Fragment 'shared.iosX64' dependencies
 │              │         │         │         │    ├─── androidx.lifecycle:lifecycle-common:2.8.5
 │              │         │         │         │    │    ╰─── androidx.lifecycle:lifecycle-common-iosx64:2.8.5
 │              │         │         │         │    │         ├─── androidx.annotation:annotation:1.8.0 (*)
-│              │         │         │         │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion
+│              │         │         │         │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
 │              │         │         │         │    │         ├─── org.jetbrains.kotlinx:atomicfu:0.17.0 -> 0.23.2 (*)
 │              │         │         │         │    │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 │              │         │         │         │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-│              │         │         │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion
+│              │         │         │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
 │              │         │         │         │    ├─── androidx.lifecycle:lifecycle-runtime:2.8.5
 │              │         │         │         │    │    ╰─── androidx.lifecycle:lifecycle-runtime-iosx64:2.8.5
 │              │         │         │         │    │         ├─── androidx.annotation:annotation:1.8.0 (*)
 │              │         │         │         │    │         ├─── androidx.lifecycle:lifecycle-common:2.8.5 (*)
-│              │         │         │         │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion
+│              │         │         │         │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
 │              │         │         │         │    ├─── org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 │              │         │         │         │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-│              │         │         │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion
+│              │         │         │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 │              │         │         │         │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitx64:2.8.4
@@ -64,15 +64,15 @@ Fragment 'shared.iosX64' dependencies
 │              │         │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 │              │         │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
 │              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
-│              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion
+│              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 │              │         │         │         │    ├─── androidx.lifecycle:lifecycle-viewmodel:2.8.5
 │              │         │         │         │    │    ╰─── androidx.lifecycle:lifecycle-viewmodel-iosx64:2.8.5
 │              │         │         │         │    │         ├─── androidx.annotation:annotation:1.8.0 (*)
-│              │         │         │         │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion
+│              │         │         │         │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
 │              │         │         │         │    │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 │              │         │         │         │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-│              │         │         │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion
+│              │         │         │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 │              │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
 │              │         │         │         ├─── org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
@@ -108,7 +108,7 @@ Fragment 'shared.iosX64' dependencies
 │              │         │         │         │         ╰─── org.jetbrains.skiko:skiko:0.8.18
 │              │         │         │         │              ╰─── org.jetbrains.skiko:skiko-iosx64:0.8.18
 │              │         │         │         │                   ├─── org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
-│              │         │         │         │                   ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion
+│              │         │         │         │                   ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 │              │         │         │         │                   ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 │              │         │         │         ├─── org.jetbrains.compose.ui:ui-text:1.7.3
 │              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-text-uikitx64:1.7.3
@@ -192,5 +192,5 @@ Fragment 'shared.iosX64' dependencies
                          ├─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
                          │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core-iosx64:1.6.2
                          │         ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> #kotlinVersion (*)
-                         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion
-                         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion
+                         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
+                         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)

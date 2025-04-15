@@ -11,7 +11,7 @@ C:COMPILE:JVM
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0 -> 1.9.0
 │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.9.0
 │              ├─── org.jetbrains:annotations:23.0.0
-│              ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
+│              ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0 (*)
 │              ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
 │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20 (*)
 ├─── C:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
