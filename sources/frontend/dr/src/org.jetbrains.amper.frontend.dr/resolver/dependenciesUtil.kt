@@ -25,6 +25,7 @@ import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHave
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveTooFewParts
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveTooManyParts
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DependencyCoordinatesInGradleFormat
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenClassifiersAreNotSupported
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesShouldBuildValidPath
 import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
@@ -125,8 +126,15 @@ private fun parseCoordinates(coordinates: String): ParsedCoordinates {
     val version = if (parts.size > 2) parts[2].trim() else null
     val classifier = if (parts.size > 3) parts[3].trim() else null
 
+    val messages = mutableListOf<Message>()
+
+    if (classifier != null) {
+        messages.add(MavenClassifiersAreNotSupported(coordinates, classifier))
+    }
+
     return ParsedCoordinates.Success(
-        MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier)
+        MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier),
+        messages = messages,
     )
 }
 

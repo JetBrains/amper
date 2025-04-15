@@ -38,7 +38,6 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.MetadataResolvedWithPomErrors
 import org.jetbrains.amper.dependency.resolution.diagnostics.PomResolvedWithMetadataErrors
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
-import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.hasErrors
@@ -218,16 +217,11 @@ class UnresolvedMavenDependencyNode(
     val coordinates: String,
     templateContext: Context,
     parentNodes: List<DependencyNode> = emptyList(),
-    reasons: List<Message>,
 ) : DependencyNode {
-    init {
-        require(reasons.isNotEmpty()) { "Reasons for creating an unresolved node must not be empty." }
-    }
-
     override val context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<*> = Key<UnresolvedMavenDependencyNode>(coordinates)
     override val children: List<DependencyNode> = emptyList()
-    override val messages: List<Message> = reasons
+    override val messages: List<Message> = emptyList()
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
     override fun toString(): String = "$coordinates, unresolved"

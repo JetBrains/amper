@@ -11,8 +11,8 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.orUnspecified
+import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
 import org.junit.jupiter.api.Test
@@ -201,8 +201,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
 
         buildProblems.forEach {
             val buildProblem = it as DependencyBuildProblem
-            val dependency = buildProblem.problematicDependency as UnresolvedMavenDependencyNode
-            val expectedError = when (dependency.coordinates) {
+            val dependency = buildProblem.problematicDependency as DirectFragmentDependencyNodeHolder
+            val expectedError = when (val coordinates = (dependency.notation as MavenDependency).coordinates.value) {
                 "com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared" ->
                     """
                         Maven coordinates should not contain spaces
@@ -232,10 +232,10 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     """.trimIndent()
 
                 "com.fasterxml.jackson.core" ->
-                    "Maven coordinates ${dependency.coordinates} should contain at least three parts separated by :, but got 1"
+                    "Maven coordinates $coordinates should contain at least three parts separated by :, but got 1"
 
                 "com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2" ->
-                    "Maven coordinates ${dependency.coordinates} should contain at most four parts separated by :, but got 6"
+                    "Maven coordinates $coordinates should contain at most four parts separated by :, but got 6"
 
                 "com.fasterxml.jackson.core:jackson-core:\n2.17.2" ->
                     """
@@ -250,7 +250,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                         com.fasterxml.jackson.core:jackson-core.:2.17.2.
                                                    ^^^^^^^^^^^^^ ^^^^^^^
                     """.trimIndent()
-                else -> fail("Unexpected dependency coordinates: ${dependency.coordinates}")
+
+                else -> fail("Unexpected dependency coordinates: $coordinates")
             }
 
             assertEquals(expectedError, buildProblem.errorMessage.detailedMessage)
@@ -299,6 +300,80 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 ) { it.message }
             }"
         )
+    }
+
+    @Test
+    fun `classifiers are reported`() {
+        val aom = getTestProjectModel("classifiers", testDataRoot)
+
+        assertEquals(
+            setOf("common", "commonTest", "jvm", "jvmTest"),
+            aom.modules.single().fragments.map { it.name }.toSet(),
+            ""
+        )
+
+        val commonFragmentDeps = runBlocking {
+            doTest(
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+                ),
+                module = "classifiers",
+                fragment = "common",
+                expected = """
+                    Fragment 'classifiers.common' dependencies
+                    ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2
+                    │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2
+                    │         ╰─── com.fasterxml.jackson:jackson-bom:2.17.2
+                    ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
+                    ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
+                    ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
+                    ╰─── classifiers:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                         ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                              ╰─── org.jetbrains:annotations:13.0
+                """.trimIndent(),
+                verifyMessages = false
+            )
+        }
+
+        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Warning)
+        val buildProblems = diagnosticsReporter.getProblems()
+        assertEquals(4, buildProblems.size)
+
+        buildProblems.forEach {
+            val buildProblem = it as DependencyBuildProblem
+            val dependency = buildProblem.problematicDependency as DirectFragmentDependencyNodeHolder
+            val expectedError = when (val coordinates = (dependency.notation as MavenDependency).coordinates.value) {
+                "com.fasterxml.jackson.core:jackson-core:2.17.2:abc" ->
+                    """
+                        Maven classifiers are currently not supported
+                        Dependency com.fasterxml.jackson.core:jackson-core:2.17.2:abc has classifier 'abc', which will be ignored.
+                    """.trimIndent()
+
+                "com.fasterxml.jackson.core:jackson-core:2.17.2:compile-only" ->
+                    """
+                        Maven classifiers are currently not supported
+                        Dependency com.fasterxml.jackson.core:jackson-core:2.17.2:compile-only has classifier 'compile-only', which will be ignored. Perhaps, you have meant 'compile-only' as a scope? Add a space after the last ':' to fix that.
+                    """.trimIndent()
+
+                "com.fasterxml.jackson.core:jackson-core:2.17.2:exported" ->
+                    """
+                        Maven classifiers are currently not supported
+                        Dependency com.fasterxml.jackson.core:jackson-core:2.17.2:exported has classifier 'exported', which will be ignored. Perhaps, you have meant 'exported' as a scope? Add a space after the last ':' to fix that.
+                    """.trimIndent()
+
+                "com.fasterxml.jackson.core:jackson-core:2.17.2:runtime-only" ->
+                    """
+                        Maven classifiers are currently not supported
+                        Dependency com.fasterxml.jackson.core:jackson-core:2.17.2:runtime-only has classifier 'runtime-only', which will be ignored. Perhaps, you have meant 'runtime-only' as a scope? Add a space after the last ':' to fix that.
+                    """.trimIndent()
+
+                else -> fail("Unexpected dependency coordinates: $coordinates")
+            }
+            assertEquals(expectedError, buildProblem.errorMessage.detailedMessage)
+        }
     }
 
     @OptIn(ExperimentalContracts::class)

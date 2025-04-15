@@ -11,6 +11,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
@@ -103,6 +104,7 @@ class DirectFragmentDependencyNodeHolder(
     templateContext: Context,
     notation: Notation,
     parentNodes: List<DependencyNode> = emptyList(),
+    override val messages: List<Message> = emptyList(),
 ) : DependencyNodeHolderWithNotation(
     name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${", implicit".takeIf { notation.trace == null } ?: ""}",
     listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes

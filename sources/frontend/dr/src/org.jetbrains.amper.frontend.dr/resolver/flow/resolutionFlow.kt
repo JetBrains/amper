@@ -59,8 +59,9 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
 
     protected fun MavenDependencyBase.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
-        val dependencyNode = when (val result = parseCoordinates()) {
-            is ParsedCoordinates.Failure -> UnresolvedMavenDependencyNode(this.coordinates.value, context, reasons = result.messages)
+        val result = parseCoordinates()
+        val dependencyNode = when (result) {
+            is ParsedCoordinates.Failure -> UnresolvedMavenDependencyNode(this.coordinates.value, context)
             is ParsedCoordinates.Success -> context.toMavenDependencyNode(result.coordinates, this is BomDependency)
         }
 
@@ -68,7 +69,8 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             dependencyNode,
             notation = this,
             fragment = fragment,
-            templateContext = context
+            templateContext = context,
+            messages = result.messages,
         )
 
         return node
