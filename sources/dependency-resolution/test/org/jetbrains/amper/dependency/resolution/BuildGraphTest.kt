@@ -1345,6 +1345,19 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test check that kotlin gradle plugin and its dependency are successfully resolved to the single variants.
+     */
+    @Test
+    fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20`(testInfo: TestInfo) {
+        doTest(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
+            verifyMessages = true
+        )
+    }
+
+    /**
      * Resolved dependencies graph is identical to what Gradle resolves.
      * Be careful: changing of the expected result might rather highlight
      * the error introduced to resolution logic than its improvement while DR evolving.

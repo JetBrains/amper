@@ -585,6 +585,19 @@ class MavenDependency internal constructor(
         }
     }
 
+    private fun List<Variant>.filterWellKnowSpecialLibraries(group: String, module: String): List<Variant> {
+        if (withoutDocumentationAndMetadata.size <= 1) return this
+
+        if (group == "org.jetbrains.kotlin"
+            && (module == "kotlin-gradle-plugin" || module == "fus-statistics-gradle-plugin"))
+        {
+            val nonVersionVariants = filter { it.attributes["org.gradle.plugin.api-version"] == null }
+            if (nonVersionVariants.withoutDocumentationAndMetadata.size == 1) return nonVersionVariants
+        }
+
+        return this
+    }
+
     private fun List<Variant>.filterMultipleVariantsByUnusedAttributes(): List<Variant> {
         return when {
             (this.withoutDocumentationAndMetadata.size == 1) -> this
@@ -1324,6 +1337,7 @@ class MavenDependency internal constructor(
             .filterWithFallbackJvmEnvironment(platform)
             .filterWithFallbackScope(settings.scope)
             .filterMultipleVariantsByUnusedAttributes()
+            .filterWellKnowSpecialLibraries(this.group, this.module)
 
         return validVariants
     }
