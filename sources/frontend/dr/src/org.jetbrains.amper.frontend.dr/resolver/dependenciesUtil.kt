@@ -90,10 +90,10 @@ private fun parseCoordinates(coordinates: String): ParsedCoordinates {
         if (part.contains("\n") || part.contains("\r")) {
             return ParsedCoordinates.Failure(FrontendDrBundle.message("dependency.coordinates.contains.multiline.parts", coordinates))
         }
-        if (part.trim().contains(" ")) {
+        if (part.contains(" ")) {
             return ParsedCoordinates.Failure(FrontendDrBundle.message("dependency.coordinates.contains.parts.with.spaces", coordinates))
         }
-        if (part.trim().endsWith(".")) {
+        if (part.endsWith(".")) {
             // Coordinates are used for building paths to the artifacts in the Amper local storage,
             // Windows strips the trailing dots while creating directories,
             // this way path to artifacts of dependencies with coordinates 'A:B:v1' and 'A...:B.:v1..' are not distinguishable.

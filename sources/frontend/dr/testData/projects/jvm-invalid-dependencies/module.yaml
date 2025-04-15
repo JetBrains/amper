@@ -6,6 +6,7 @@ dependencies:
         - ../shared
   # This dependency is invalid since it contains spaces inside one of the parts
   - com.fasterxml.     jackson.core:jackson-core:2.17.2
+  - com.fasterxml.jackson.core:jackson-core:2.17.2 :exported
   # This dependency is invalid since it contains slash inside one of the parts
   - com.fasterx/ml.jackson.core:jackson-core:2.17.2
   # This dependency is invalid since it contains too few parts

@@ -171,6 +171,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
                     ├─── jvm-invalid-dependencies:common:com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
                     │    ╰─── com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
+                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 :exported, unresolved
+                    │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 :exported, unresolved
                     ├─── jvm-invalid-dependencies:common:com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
                     │    ╰─── com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
                     ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core, unresolved
@@ -189,7 +191,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Error)
         val buildProblems = diagnosticsReporter.getProblems()
 
-        assertEquals(5, buildProblems.size)
+        assertEquals(6, buildProblems.size)
 
         buildProblems.forEach {
             val buildProblem = it as DependencyBuildProblem
@@ -198,7 +200,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 "com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared" ->
                     "Maven coordinates should not contain spaces, but got ${dependency.coordinates}"
 
-                "com.fasterxml.     jackson.core:jackson-core:2.17.2" ->
+                "com.fasterxml.     jackson.core:jackson-core:2.17.2",
+                "com.fasterxml.jackson.core:jackson-core:2.17.2 :exported" ->
                     "Maven coordinates should not contain spaces, but got ${dependency.coordinates}"
 
                 "com.fasterx/ml.jackson.core:jackson-core:2.17.2" ->
