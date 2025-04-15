@@ -13,3 +13,9 @@ dependencies:
   - com.fasterxml.jackson.core
   # This dependency is invalid since it contains too many parts
   - com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2
+  # This dependency is invalid since it is multi-line
+  - |- 
+    com.fasterxml.jackson.core:jackson-core:
+    2.17.2
+  # This dependency has parts ending with dots
+  - com.fasterxml.jackson.core:jackson-core.:2.17.2.

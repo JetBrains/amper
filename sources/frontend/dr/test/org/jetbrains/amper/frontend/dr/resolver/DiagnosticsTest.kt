@@ -127,7 +127,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         )
         checkBuiltInDependencyBuildProblem(
             buildProblems, "org.jetbrains.compose.material3", "material3",
-        Path("module.yaml"), 16, 5
+            Path("module.yaml"), 16, 5
         )
 
         // Implicit dependency added by `compose: enabled`
@@ -179,6 +179,12 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     │    ╰─── com.fasterxml.jackson.core, unresolved
                     ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
                     │    ╰─── com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
+                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:
+                    2.17.2, unresolved
+                    │    ╰─── com.fasterxml.jackson.core:jackson-core:
+                    2.17.2, unresolved
+                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
+                    │    ╰─── com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
                     ╰─── jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                          ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
                               ╰─── org.jetbrains:annotations:13.0
@@ -191,32 +197,63 @@ class DiagnosticsTest : BaseModuleDrTest() {
         collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Error)
         val buildProblems = diagnosticsReporter.getProblems()
 
-        assertEquals(6, buildProblems.size)
+        assertEquals(8, buildProblems.size)
 
         buildProblems.forEach {
             val buildProblem = it as DependencyBuildProblem
             val dependency = buildProblem.problematicDependency as UnresolvedMavenDependencyNode
             val expectedError = when (dependency.coordinates) {
                 "com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared" ->
-                    "Maven coordinates should not contain spaces, but got ${dependency.coordinates}"
+                    """
+                        Maven coordinates should not contain spaces
+                        com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared
+                                                                      ^ ^
+                    """.trimIndent()
 
-                "com.fasterxml.     jackson.core:jackson-core:2.17.2",
+                "com.fasterxml.     jackson.core:jackson-core:2.17.2" ->
+                    """
+                        Maven coordinates should not contain spaces
+                        com.fasterxml.     jackson.core:jackson-core:2.17.2
+                                      ^^^^^
+                    """.trimIndent()
+
                 "com.fasterxml.jackson.core:jackson-core:2.17.2 :exported" ->
-                    "Maven coordinates should not contain spaces, but got ${dependency.coordinates}"
+                    """
+                        Maven coordinates should not contain spaces
+                        com.fasterxml.jackson.core:jackson-core:2.17.2 :exported
+                                                                      ^
+                    """.trimIndent()
 
                 "com.fasterx/ml.jackson.core:jackson-core:2.17.2" ->
-                    "Maven coordinates should not contain parts with slashes, but got ${dependency.coordinates}"
+                    """
+                        Maven coordinates should not contain slashes
+                        com.fasterx/ml.jackson.core:jackson-core:2.17.2
+                                   ^
+                    """.trimIndent()
 
                 "com.fasterxml.jackson.core" ->
-                    "Maven coordinates should contain at least 3 parts separated by :, but got ${dependency.coordinates}"
+                    "Maven coordinates ${dependency.coordinates} should contain at least three parts separated by :, but got 1"
 
                 "com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2" ->
-                    "Maven coordinates should contain at most 4 parts separated by :, but got ${dependency.coordinates}"
+                    "Maven coordinates ${dependency.coordinates} should contain at most four parts separated by :, but got 6"
 
+                "com.fasterxml.jackson.core:jackson-core:\n2.17.2" ->
+                    """
+                        Maven coordinates should not contain line breaks
+                        com.fasterxml.jackson.core:jackson-core:\n2.17.2
+                                                                ^^
+                    """.trimIndent()
+
+                "com.fasterxml.jackson.core:jackson-core.:2.17.2." ->
+                    """
+                        Maven coordinates should not contain parts ending with dots
+                        com.fasterxml.jackson.core:jackson-core.:2.17.2.
+                                                   ^^^^^^^^^^^^^ ^^^^^^^
+                    """.trimIndent()
                 else -> fail("Unexpected dependency coordinates: ${dependency.coordinates}")
             }
 
-            assertEquals(expectedError, buildProblem.errorMessage.message)
+            assertEquals(expectedError, buildProblem.errorMessage.detailedMessage)
         }
     }
 
@@ -296,9 +333,15 @@ class DiagnosticsTest : BaseModuleDrTest() {
             buildProblem as DependencyBuildProblem
             val mavenDependency = (buildProblem.problematicDependency as MavenDependencyNode).dependency
 
-            assertContains(buildProblem.message, "Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version.orUnspecified()}")
+            assertContains(
+                buildProblem.message,
+                "Unable to resolve dependency ${mavenDependency.group}:${mavenDependency.module}:${mavenDependency.version.orUnspecified()}"
+            )
             if (versionLineNumber != null) {
-                assertContains(buildProblem.message, "The version ${mavenDependency.version} is defined at $filePath:$versionLineNumber:$versionColumn")
+                assertContains(
+                    buildProblem.message,
+                    "The version ${mavenDependency.version} is defined at $filePath:$versionLineNumber:$versionColumn"
+                )
             } else {
                 assertFalse(buildProblem.message.contains("The version ${mavenDependency.version} is defined at"))
             }

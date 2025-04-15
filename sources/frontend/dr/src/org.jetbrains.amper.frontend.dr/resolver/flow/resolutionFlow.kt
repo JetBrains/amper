@@ -60,7 +60,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
 
     protected fun MavenDependencyBase.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
         val dependencyNode = when (val result = parseCoordinates()) {
-            is ParsedCoordinates.Failure -> UnresolvedMavenDependencyNode(this.coordinates.value, context, reasons = result.errors)
+            is ParsedCoordinates.Failure -> UnresolvedMavenDependencyNode(this.coordinates.value, context, reasons = result.messages)
             is ParsedCoordinates.Success -> context.toMavenDependencyNode(result.coordinates, this is BomDependency)
         }
 

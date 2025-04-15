@@ -13,10 +13,19 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.MavenDependencyBase
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveLineBreak
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHavePartEndingWithDot
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveSlash
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveSpace
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveTooFewParts
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveTooManyParts
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DependencyCoordinatesInGradleFormat
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesShouldBuildValidPath
 import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
 
@@ -47,15 +56,17 @@ private fun <T : DependencyNode> DependencyNode.findParentsImpl(
     }
 }
 
-sealed interface ParsedCoordinates {
-    class Success(val coordinates: MavenCoordinates) : ParsedCoordinates
-    class Failure(val errors: List<String>): ParsedCoordinates {
-        constructor(error: String) : this(listOf(error))
+sealed class ParsedCoordinates(val messages: List<Message>) {
+    class Success(val coordinates: MavenCoordinates, messages: List<Message> = emptyList()) :
+        ParsedCoordinates(messages)
+
+    class Failure(messages: List<Message>) : ParsedCoordinates(messages) {
+        constructor(error: Message) : this(listOf(error))
     }
 }
 
 fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates {
-    val mavenCoordinates = when(this) {
+    val mavenCoordinates = when (this) {
         is MavenDependency -> coordinates.value.trim()
         // todo (AB) : Remove this after BomDependency coordinates started to be parsed without prefix "bom:"
         is BomDependency -> coordinates.value.trim().removePrefix("bom:")
@@ -65,48 +76,48 @@ fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates {
 }
 
 private fun parseCoordinates(coordinates: String): ParsedCoordinates {
+    val spaceIndex = coordinates.indexOf(' ')
+    if (spaceIndex != -1) {
+        return ParsedCoordinates.Failure(MavenCoordinatesHaveSpace(coordinates, spaceIndex))
+    }
+
+    if ('\n' in coordinates || '\r' in coordinates) {
+        return ParsedCoordinates.Failure(MavenCoordinatesHaveLineBreak(coordinates))
+    }
+
+    if ('/' in coordinates || '\\' in coordinates) {
+        return ParsedCoordinates.Failure(MavenCoordinatesHaveSlash(coordinates))
+    }
+
     val parts = coordinates.trim().split(":")
 
     if (parts.size < 2) {
         val errors = buildList {
-            add(FrontendDrBundle.message("dependency.coordinates.have.too.few.parts", coordinates))
+            add(MavenCoordinatesHaveTooFewParts(coordinates, parts.size))
             reportIfCoordinatesAreGradleLike(coordinates, this)
         }
         return ParsedCoordinates.Failure(errors)
     }
+
+    if (parts.size > 4) {
+        return ParsedCoordinates.Failure(MavenCoordinatesHaveTooManyParts(coordinates, parts.size))
+    }
+
     parts.forEach { part ->
-        // It throws InvalidPathException in case coordinates contain some restricted symbols.
-        // We use coordinates parts as folders to store the artifacts; thus, all the paths should be valid folder names.
         try {
+            // It throws InvalidPathException in case coordinates contain some restricted symbols.
             Path(part)
         } catch (e: InvalidPathException) {
             val errors = buildList {
-                add(FrontendDrBundle.message("dependency.coordinates.contains.parts.with.forbidden.characters", coordinates, part, e.message))
+                add(MavenCoordinatesShouldBuildValidPath(coordinates, part, e))
                 reportIfCoordinatesAreGradleLike(coordinates, this)
             }
             return ParsedCoordinates.Failure(errors)
         }
 
-        if (part.contains("\n") || part.contains("\r")) {
-            return ParsedCoordinates.Failure(FrontendDrBundle.message("dependency.coordinates.contains.multiline.parts", coordinates))
-        }
-        if (part.contains(" ")) {
-            return ParsedCoordinates.Failure(FrontendDrBundle.message("dependency.coordinates.contains.parts.with.spaces", coordinates))
-        }
         if (part.endsWith(".")) {
-            // Coordinates are used for building paths to the artifacts in the Amper local storage,
-            // Windows strips the trailing dots while creating directories,
-            // this way path to artifacts of dependencies with coordinates 'A:B:v1' and 'A...:B.:v1..' are not distinguishable.
-            // See https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file?redirectedfrom=MSDN
-            return ParsedCoordinates.Failure(FrontendDrBundle.message("dependency.coordinates.contains.parts.ending.with.dots", coordinates))
+            return ParsedCoordinates.Failure(MavenCoordinatesHavePartEndingWithDot(coordinates))
         }
-        if (part.contains("/") || part.contains("\\")) {
-            // Coordinates are used for building paths to the artifacts in the Amper local storage, slashes will affect the path
-            return ParsedCoordinates.Failure(FrontendDrBundle.message("dependency.coordinates.contains.parts.ending.with.slashes", coordinates))
-        }
-    }
-    if (parts.size > 4) {
-        return ParsedCoordinates.Failure(FrontendDrBundle.message("dependency.coordinates.have.too.many.parts", coordinates))
     }
 
     val groupId = parts[0].trim()
@@ -115,12 +126,21 @@ private fun parseCoordinates(coordinates: String): ParsedCoordinates {
     val classifier = if (parts.size > 3) parts[3].trim() else null
 
     return ParsedCoordinates.Success(
-        MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier))
+        MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier)
+    )
 }
 
-private fun reportIfCoordinatesAreGradleLike(coordinates: String, messages: MutableList<String>) {
-    if (GradleScope.parseGradleScope(coordinates) != null) {
-        messages += FrontendDrBundle.message("dependency.coordinates.in.gradle.format", coordinates)
+private fun reportIfCoordinatesAreGradleLike(coordinates: String, messages: MutableList<Message>) {
+    val probableGradleScope = GradleScope.parseGradleScope(coordinates)
+    if (probableGradleScope != null) {
+        val (gradleScope, trimmedCoordinates) = probableGradleScope
+        messages.add(
+            DependencyCoordinatesInGradleFormat(
+                coordinates = coordinates,
+                gradleScope = gradleScope,
+                trimmedCoordinates = trimmedCoordinates
+            )
+        )
     }
 }
 
@@ -175,7 +195,7 @@ fun emptyContext(userCacheRoot: AmperUserCacheRoot, spanBuilder: SpanBuilderSour
  * Creates empty DR Context.
  * It might be used for initializing supplementary node holders in a resolution graph only.
  */
-fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit,spanBuilder: SpanBuilderSource?): Context = Context {
+fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource?): Context = Context {
     cache = fileCacheBuilder
     spanBuilder?.let { this.spanBuilder = it }
 }

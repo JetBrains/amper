@@ -163,7 +163,7 @@ private fun MavenDependencyBase.readMavenCoordinates(): MavenCoordinates {
     val parsedCoordinates = parseCoordinates()
     return when(parsedCoordinates) {
         is ParsedCoordinates.Success -> parsedCoordinates.coordinates
-        is ParsedCoordinates.Failure ->  error(parsedCoordinates.errors.joinToString("\n"))
+        is ParsedCoordinates.Failure ->  error(parsedCoordinates.messages.joinToString("\n") { it.message })
     }
 }
 
