@@ -538,7 +538,7 @@ open class DependencyFile(
             else
                 buildList {
                     add(repository)
-                    addAll(this - repository)
+                    addAll(this@ensureFirst - repository)
                 }
         } ?: this
 
