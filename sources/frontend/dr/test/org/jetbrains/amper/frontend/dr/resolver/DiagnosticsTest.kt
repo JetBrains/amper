@@ -232,10 +232,10 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     """.trimIndent()
 
                 "com.fasterxml.jackson.core" ->
-                    "Maven coordinates $coordinates should contain at least three parts separated by :, but got 1"
+                    "Maven coordinates $coordinates should contain at least three parts separated by ':', but got 1"
 
                 "com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2" ->
-                    "Maven coordinates $coordinates should contain at most four parts separated by :, but got 6"
+                    "Maven coordinates $coordinates should contain at most four parts separated by ':', but got 6"
 
                 "com.fasterxml.jackson.core:jackson-core:\n2.17.2" ->
                     """
