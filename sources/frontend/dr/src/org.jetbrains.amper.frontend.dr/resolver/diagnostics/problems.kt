@@ -4,7 +4,6 @@
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
@@ -34,13 +33,13 @@ interface DrDiagnosticsReporter {
  * Traverse the entire dependencies graph collecting build problems for every node with the help of predefined
  * list of diagnostics reporters
  */
-fun collectBuildProblems(graph: DependencyNode, problemReporter: NoOpCollectingProblemReporter, level: Level) =
+fun collectBuildProblems(graph: DependencyNode, problemReporter: ProblemReporter, level: Level) =
     collectBuildProblems(graph, problemReporter, level, reporters)
 
 /**
  * Traverse the entire dependencies graph collecting build problems for every node.
  */
-fun collectBuildProblems(graph: DependencyNode, problemReporter: NoOpCollectingProblemReporter, level: Level, diagnosticReporters: List<DrDiagnosticsReporter>){
+fun collectBuildProblems(graph: DependencyNode, problemReporter: ProblemReporter, level: Level, diagnosticReporters: List<DrDiagnosticsReporter>){
     for (node in graph.distinctBfsSequence()) {
         //if (node is MavenDependencyNode) {
         //  node.dependency
