@@ -125,12 +125,14 @@ class DependencyBuildProblem(
     override val buildProblemId: BuildProblemId = ID
     override val message: String
         get() = buildString {
-            if (problematicDependency.parents.contains(directFragmentDependency)) {
+            if (!isTransitive) {
                 append(errorMessage.detailedMessage)
             } else {
                 append(
                     FrontendDrBundle.message(
                         messageKey = "dependency.problem.transitive",
+                        directFragmentDependency.dependencyNode,
+                        problematicDependency,
                         errorMessage.detailedMessage,
                     )
                 )
@@ -142,6 +144,8 @@ class DependencyBuildProblem(
                 append(versionDefinition)
             }
         }
+    val isTransitive: Boolean
+        get() = problematicDependency != directFragmentDependency && directFragmentDependency !in problematicDependency.parents
 
     companion object {
         const val ID = "dependency.problem"
