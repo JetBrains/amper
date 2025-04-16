@@ -1,9 +1,10 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.core.messages
 
+import org.jetbrains.annotations.Nls
 import java.nio.file.Path
 
 typealias BuildProblemId = String
@@ -79,7 +80,7 @@ interface FileWithRangesBuildProblemSource : FileBuildProblemSource {
 interface BuildProblem {
     val buildProblemId: BuildProblemId
     val source: BuildProblemSource
-    val message: String
+    val message: @Nls String
     val level: Level
 }
 

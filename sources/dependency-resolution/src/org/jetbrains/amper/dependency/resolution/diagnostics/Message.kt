@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.dependency.resolution.diagnostics
 
+import org.jetbrains.annotations.Nls
+
 /**
  * Designates a type of errors reported during the dependency resolution.
  *
@@ -16,17 +18,17 @@ interface Message {
     /**
      * A general one-line message.
      */
-    val message: String
+    val message: @Nls String
 
     /**
      * Will be used if the message is reported as a child.
      */
-    val shortMessage: String get() = message
+    val shortMessage: @Nls String get() = message
 
     /**
      * A detailed message that can extend [message], e.g., by adding all the child messages.
      */
-    val detailedMessage: String get() = message
+    val detailedMessage: @Nls String get() = message
 }
 
 /**
@@ -35,10 +37,10 @@ interface Message {
 internal interface WithChildMessages : Message {
     val childMessages: List<Message>
 
-    override val detailedMessage: String get() = nestedMessages()
+    override val detailedMessage: @Nls String get() = nestedMessages()
 }
 
-private fun WithChildMessages.nestedMessages(level: Int = 1): String = buildString {
+private fun WithChildMessages.nestedMessages(level: Int = 1): @Nls String = buildString {
     if (level == 1) append(message) else append(shortMessage)
 
     for (childMessage in childMessages) {
@@ -84,14 +86,14 @@ enum class Severity {
  * It's better to have a strongly typed message for the better IDE integration.
  */
 internal data class SimpleMessage(
-    val text: String,
-    val extra: String = "",
+    val text: @Nls String,
+    val extra: @Nls String = "",
     override val severity: Severity = Severity.INFO,
     override val throwable: Throwable? = null,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
 ) : WithChildMessages, WithThrowable {
 
-    override val message: String
+    override val message: @Nls String
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"
 }

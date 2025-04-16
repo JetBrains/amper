@@ -1,10 +1,11 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.core.messages
 
 import org.jetbrains.amper.core.forEachEndAware
+import org.jetbrains.annotations.Nls
 
 interface ProblemReporter {
     /**
@@ -43,7 +44,7 @@ class NoOpCollectingProblemReporter : CollectingProblemReporter() {
 }
 
 @OptIn(NonIdealDiagnostic::class)
-fun renderMessage(problem: BuildProblem): String = buildString {
+fun renderMessage(problem: BuildProblem): @Nls String = buildString {
     fun appendSource(source: BuildProblemSource) {
         when (source) {
             is FileBuildProblemSource -> {
