@@ -5,6 +5,7 @@
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo

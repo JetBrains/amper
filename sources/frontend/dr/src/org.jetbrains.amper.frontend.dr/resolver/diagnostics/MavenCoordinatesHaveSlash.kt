@@ -16,12 +16,9 @@ class MavenCoordinatesHaveSlash(val coordinates: String) : Message {
     override val severity: Severity = Severity.ERROR
     override val message: String = FrontendDrBundle.message(id)
 
-    override val detailedMessage: String
-        get() = "$message\n$details"
-
     val slashIndices = coordinates.indices.filter { coordinates[it] == '\\' || coordinates[it] == '/' }
 
-    val details = buildString {
+    override val details = buildString {
         appendLine(coordinates)
         var lastIndex = 0
         for (index in slashIndices) {

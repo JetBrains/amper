@@ -12,6 +12,7 @@ import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.defaultFil
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyMessages
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyOwnMessages
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
@@ -192,8 +193,8 @@ class DependencyFileTest {
                     val messages = it.messages.defaultFilterMessages()
                     assertEquals(1, messages.size,
                         "There must be the only error messages instead of ${messages.size}: $messages")
-                    assertEquals(messages.single().detailedMessage,
-                        "No variant for the platform macosArm64 is provided by the library org.jetbrains.skiko:skiko-awt:0.8.22",
+                    assertEquals("No variant for the platform macosArm64 is provided by the library org.jetbrains.skiko:skiko-awt:0.8.22",
+                        messages.single().detailedMessage,
                         "Unexpected error message")
                 } else {
                     it.verifyOwnMessages()

@@ -8,6 +8,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
 import org.jetbrains.amper.dependency.resolution.MavenDependency
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
+import org.jetbrains.annotations.Nls
 
 class UnableToResolveDependency(
     val dependency: MavenDependency,
@@ -22,9 +23,9 @@ class UnableToResolveDependency(
     override val severity: Severity =
         if (resolutionLevel == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING
 
-    override val detailedMessage: String
+    override val details: @Nls String?
         get() = buildString {
-            appendLine(super.detailedMessage)
+            appendLine(super.details)
             appendLine(DependencyResolutionBundle.message("unable.to.resolve.dependency.repositories.header"))
             append(repositories.joinToString(separator = "\n") { "  - ${it.url}" })
         }

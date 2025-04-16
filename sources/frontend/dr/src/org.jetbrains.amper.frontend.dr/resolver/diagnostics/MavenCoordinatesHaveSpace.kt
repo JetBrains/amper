@@ -16,12 +16,9 @@ class MavenCoordinatesHaveSpace(
     override val severity: Severity = Severity.ERROR
     override val message: String = FrontendDrBundle.message(id, coordinates, spaceIndex)
 
-    override val detailedMessage: String
-        get() = "$message\n$details"
-
     val spaceIndices = coordinates.indices.filter { coordinates[it] == ' ' }
 
-    val details = buildString {
+    override val details = buildString {
         appendLine(coordinates)
         var lastIndex = 0
         for (index in spaceIndices) {

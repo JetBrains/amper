@@ -26,10 +26,13 @@ interface Message {
     val shortMessage: @Nls String get() = message
 
     /**
-     * A detailed message that can extend [message], e.g., by adding all the child messages.
+     * Additional details that will be shown in the IDE tooltip or appended after the [message].
      */
-    val detailedMessage: @Nls String get() = message
+    val details: @Nls String? get() = null
 }
+
+val Message.detailedMessage: @Nls String
+    get() = if (details == null) message else "$message\n$details"
 
 /**
  * Allows having a hierarchy of messages (e.g., causes or suppresses).
@@ -37,20 +40,18 @@ interface Message {
 internal interface WithChildMessages : Message {
     val childMessages: List<Message>
 
-    override val detailedMessage: @Nls String get() = nestedMessages()
+    override val details: @Nls String? get() = if (childMessages.isEmpty()) null else nestedMessages()
 }
 
 private fun WithChildMessages.nestedMessages(level: Int = 1): @Nls String = buildString {
-    if (level == 1) append(message) else append(shortMessage)
-
+    var first = true
     for (childMessage in childMessages) {
         if (childMessage.severity >= severity) {
-            appendLine()
+            if (!first) appendLine() else first = false
             append("  ".repeat(level))
+            append(childMessage.shortMessage)
             if (childMessage is WithChildMessages) {
                 append(childMessage.nestedMessages(level + 1))
-            } else {
-                append(childMessage.shortMessage)
             }
         }
     }

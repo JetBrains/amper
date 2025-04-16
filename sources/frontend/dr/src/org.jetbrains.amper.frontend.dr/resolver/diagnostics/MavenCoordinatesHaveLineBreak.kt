@@ -13,12 +13,9 @@ class MavenCoordinatesHaveLineBreak(val coordinates: String) : Message {
     override val severity: Severity = Severity.ERROR
     override val message: String = FrontendDrBundle.message(id)
 
-    override val detailedMessage: String
-        get() = "$message\n$details"
-
     val lineBreakIndices = coordinates.indices.filter { coordinates[it] == '\n' || coordinates[it] == '\r' }
 
-    val details = buildString {
+    override val details = buildString {
         val sanitizedCoordinates = coordinates
             .replace("\n", "\\n")
             .replace("\r", "\\r")

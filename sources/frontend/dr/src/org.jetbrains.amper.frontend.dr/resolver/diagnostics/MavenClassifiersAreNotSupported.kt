@@ -27,10 +27,7 @@ class MavenClassifiersAreNotSupported(
         else -> false
     }
 
-    override val detailedMessage: String
-        get() = "$message\n$details"
-
-    val details = buildString {
+    override val details = buildString {
         append(FrontendDrBundle.message("maven.classifiers.are.not.supported.details", coordinates, classifier))
         if (classifierCanBeShorthand) {
             append(" ")

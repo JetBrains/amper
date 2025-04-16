@@ -22,10 +22,7 @@ class MavenCoordinatesHavePartEndingWithDot(val coordinates: String) : Message {
 
     val partsEndingWithDot = coordinates.split(':').filter { it.endsWith('.') }
 
-    override val detailedMessage: String
-        get() = "$message\n$details"
-
-    val details = buildString {
+    override val details = buildString {
         appendLine(coordinates)
         var current = 0
         for (part in partsEndingWithDot) {
