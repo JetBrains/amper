@@ -1348,10 +1348,25 @@ class BuildGraphTest : BaseDRTest() {
      * This test check that kotlin gradle plugin and its dependency are successfully resolved to the single variants.
      */
     @Test
-    fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20 RUNTIME`(testInfo: TestInfo) {
         doTest(
             testInfo,
+            dependency = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20",
             scope = ResolutionScope.RUNTIME,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
+            verifyMessages = true
+        )
+    }
+
+    /**
+     * This test check that kotlin gradle plugin and its dependency are successfully resolved to the single variants.
+     */
+    @Test
+    fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20 COMPILE`(testInfo: TestInfo) {
+        doTest(
+            testInfo,
+            dependency = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20",
+            scope = ResolutionScope.COMPILE,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             verifyMessages = true
         )
