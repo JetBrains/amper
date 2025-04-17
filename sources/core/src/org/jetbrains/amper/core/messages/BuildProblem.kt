@@ -92,7 +92,7 @@ interface BuildProblem {
 data class BuildProblemImpl(
     override val buildProblemId: BuildProblemId,
     override val source: BuildProblemSource,
-    override val message: String,
+    override val message: @Nls String,
     override val level: Level,
 ) : BuildProblem
 

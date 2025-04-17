@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
+import org.jetbrains.annotations.Nls
 
 object UselessSettingValue : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId
@@ -53,7 +54,7 @@ private class UselessSetting(
     override val buildProblemId: BuildProblemId =
         UselessSettingValue.diagnosticId
 
-    override val message: String
+    override val message: @Nls String
         get() = when {
             precedingValue?.trace == null -> SchemaBundle.message(
                 messageKey = "setting.value.is.same.as.default",

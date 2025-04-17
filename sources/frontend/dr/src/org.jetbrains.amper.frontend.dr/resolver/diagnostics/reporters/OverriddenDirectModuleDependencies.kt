@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporte
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
+import org.jetbrains.annotations.Nls
 
 class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
     override val level = Level.Warning
@@ -77,7 +78,7 @@ class ModuleDependencyWithOverriddenVersion(
         get() = dependencyNode.key.name
 
     override val buildProblemId: BuildProblemId = ID
-    override val message: String
+    override val message: @Nls String
         get() = FrontendDrBundle.message(
             messageKey = ID,
             originalVersion, effectiveCoordinates, effectiveVersion

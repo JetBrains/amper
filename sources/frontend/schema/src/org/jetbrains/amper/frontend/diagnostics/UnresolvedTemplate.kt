@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.annotations.Nls
 import kotlin.io.path.exists
 
 object UnresolvedTemplate : IsmDiagnosticFactory {
@@ -28,7 +29,7 @@ object UnresolvedTemplate : IsmDiagnosticFactory {
                             object : PsiBuildProblem(Level.Error) {
                                 override val element: PsiElement = it
                                 override val buildProblemId = "unresolved.template"
-                                override val message = SchemaBundle.message("unresolved.template", path.value.toString())
+                                override val message: @Nls String = SchemaBundle.message("unresolved.template", path.value.toString())
                             }
                         )
                     }

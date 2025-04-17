@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.KeystoreProperty
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.storeFile
+import org.jetbrains.annotations.Nls
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
@@ -155,7 +156,7 @@ class SigningEnabledWithoutPropertiesFile(
 ) : PsiBuildProblem(Level.Warning) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = SigningEnabledWithoutPropertiesFileFactory.diagnosticId
-    override val message: String
+    override val message: @Nls String
         get() = SchemaBundle.message(
             messageKey = buildProblemId, propertiesFilePath
         )
@@ -168,7 +169,7 @@ class KeystorePropertiesDoesNotContainKey(
 ) : PsiBuildProblem(Level.Warning) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = KeystorePropertiesDoesNotContainKeyFactory.diagnosticId
-    override val message: String
+    override val message: @Nls String
         get() = SchemaBundle.message(
             messageKey = buildProblemId, propertiesFilePath, key
         )
@@ -179,7 +180,7 @@ class MandatoryFieldInPropertiesFileMustBePresent(
 ) : PsiBuildProblem(Level.Warning) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = MandatoryFieldInPropertiesFileMustBePresentFactory.diagnosticId
-    override val message: String
+    override val message: @Nls String
         get() = SchemaBundle.message(
             messageKey = buildProblemId, propertiesFilePath, key
         )
@@ -190,7 +191,7 @@ class KeystoreFileDoesNotExist(
 ) : PsiBuildProblem(Level.Warning) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = KeystoreMustExistFactory.diagnosticId
-    override val message: String
+    override val message: @Nls String
         get() = SchemaBundle.message(
             messageKey = buildProblemId, keystorePath
         )

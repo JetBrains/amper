@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.annotations.Nls
 import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.pathString
@@ -30,7 +31,7 @@ object TemplateNameWithoutPostfix : IsmDiagnosticFactory {
                             object : PsiBuildProblem(Level.Warning) {
                                 override val element: PsiElement = it
                                 override val buildProblemId = "template.name.without.postfix"
-                                override val message = SchemaBundle.message("template.name.without.postfix")
+                                override val message: @Nls String = SchemaBundle.message("template.name.without.postfix")
                             }
                         )
                     }

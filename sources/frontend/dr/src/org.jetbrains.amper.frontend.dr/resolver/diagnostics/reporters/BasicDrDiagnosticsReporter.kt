@@ -30,6 +30,7 @@ import org.jetbrains.amper.frontend.dr.resolver.fragmentDependencies
 import org.jetbrains.amper.frontend.getLineAndColumnRangeInPsiFile
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
+import org.jetbrains.annotations.Nls
 
 object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
     override val level = Level.Error
@@ -124,7 +125,7 @@ class DependencyBuildProblem(
     val versionTrace: TraceableVersion?,
 ) : PsiBuildProblem(level) {
     override val buildProblemId: BuildProblemId = ID
-    override val message: String
+    override val message: @Nls String
         get() = buildString {
             if (!isTransitive) {
                 append(errorMessage.detailedMessage)
@@ -153,7 +154,7 @@ class DependencyBuildProblem(
     }
 }
 
-private fun DependencyBuildProblem.getVersionDefinition(): String? {
+private fun DependencyBuildProblem.getVersionDefinition(): @Nls String? {
     if (versionTrace == null) return null
     if (versionTrace.trace !is PsiTrace) return null
     if (versionTrace.trace == directFragmentDependency.notation?.trace) return null
