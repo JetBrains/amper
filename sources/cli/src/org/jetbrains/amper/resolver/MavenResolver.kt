@@ -118,7 +118,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             }
         }
 
-        val errors = buildProblems.filter { it.level == Level.Error }
+        val errors = buildProblems.filter { it.level.atLeastAsSevereAs(Level.Error) }
         if (errors.isNotEmpty()) {
             userReadableError(
                 "Unable to resolve dependencies for $resolveSourceMoniker:\n\n" +

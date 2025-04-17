@@ -53,9 +53,9 @@ fun collectBuildProblems(graph: DependencyNode, problemReporter: ProblemReporter
         //      }
         //    }
         //}
-        diagnosticReporters.forEach {
-            if (level >= it.level) { // WARN > ERROR (by enum order)
-                it.reportBuildProblemsForNode(node, problemReporter, level, graph)
+        diagnosticReporters.forEach { reporter ->
+            if (reporter.level.atLeastAsSevereAs(level)) {
+                reporter.reportBuildProblemsForNode(node, problemReporter, level, graph)
             }
         }
     }

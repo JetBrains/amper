@@ -11,25 +11,25 @@ typealias BuildProblemId = String
 
 enum class Level {
     /**
-     * Cannot process build or import further.
-     */
-    Fatal,
-
-    /**
-     * Can partially finish import or build. Overall build cannot be finished.
-     */
-    Error,
-
-    /**
-     * Can finish import and build.
-     */
-    Warning,
-
-    /**
      * Can finish import and build.
      * Marks as a redundant declaration ("dead code" in the IDE, INFO level message in console)
      */
     Redundancy,
+    /**
+     * Can finish import and build.
+     */
+    Warning,
+    /**
+     * Can partially finish import or build. Overall build cannot be finished.
+     */
+    Error,
+    /**
+     * Cannot process the build or import further.
+     */
+    Fatal,
+    ;
+
+    fun atLeastAsSevereAs(other: Level): Boolean = this >= other
 }
 
 /**
