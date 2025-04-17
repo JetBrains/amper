@@ -168,7 +168,7 @@ private fun DependencyBuildProblem.getVersionDefinition(): @Nls String? {
     val range = getLineAndColumnRangeInPsiFile(psiElement)
 
     val dependencyPsiFilePath =
-        dependencyNotation.coordinates.trace?.extractPsiElementOrNull()?.containingFile?.virtualFile?.toNioPathOrNull()
+        dependencyNotation.trace?.extractPsiElementOrNull()?.containingFile?.virtualFile?.toNioPathOrNull()
     val versionFilePath = psiElement.containingFile.virtualFile.toNioPathOrNull()
 
     val relativeVersionFilePath =
