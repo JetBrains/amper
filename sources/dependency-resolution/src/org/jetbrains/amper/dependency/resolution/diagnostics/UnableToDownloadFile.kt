@@ -7,6 +7,7 @@ package org.jetbrains.amper.dependency.resolution.diagnostics
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
 import org.jetbrains.amper.dependency.resolution.MavenDependency
 import org.jetbrains.amper.dependency.resolution.Repository
+import org.jetbrains.annotations.Nls
 
 data class UnableToDownloadFile(
     val fileName: String,
@@ -17,6 +18,6 @@ data class UnableToDownloadFile(
     override val childMessages: List<Message>,
 ) : WithChildMessages {
     override val id: String = "unable.to.download.file"
-    override val message: String = DependencyResolutionBundle.message(id, fileName, dependency)
-    override val shortMessage: String = DependencyResolutionBundle.message("unable.to.download.file.short", fileName)
+    override val message: @Nls String = DependencyResolutionBundle.message(id, fileName, dependency)
+    override val shortMessage: @Nls String = DependencyResolutionBundle.message("unable.to.download.file.short", fileName)
 }

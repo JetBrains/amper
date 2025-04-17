@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
+import org.jetbrains.annotations.Nls
 
 /**
  * We use coordinates parts as folders to store the artifacts; thus, all the paths should be valid folder names.
@@ -18,5 +19,5 @@ class MavenCoordinatesShouldBuildValidPath(
 ) : Message {
     override val id: String = "maven.coordinates.should.build.valid.path"
     override val severity: Severity = Severity.ERROR
-    override val message: String = FrontendDrBundle.message(id, coordinates, badPart, exception.message)
+    override val message: @Nls String = FrontendDrBundle.message(id, coordinates, badPart, exception.message)
 }

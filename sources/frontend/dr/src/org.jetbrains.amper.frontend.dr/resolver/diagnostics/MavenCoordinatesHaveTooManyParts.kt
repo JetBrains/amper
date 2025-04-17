@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
+import org.jetbrains.annotations.Nls
 
 class MavenCoordinatesHaveTooManyParts(
     val coordinates: String,
@@ -14,5 +15,5 @@ class MavenCoordinatesHaveTooManyParts(
 ) : Message {
     override val id: String = "maven.coordinates.have.too.many.parts"
     override val severity: Severity = Severity.ERROR
-    override val message: String = FrontendDrBundle.message(id, coordinates, partsSize)
+    override val message: @Nls String = FrontendDrBundle.message(id, coordinates, partsSize)
 }

@@ -18,7 +18,7 @@ class UnableToResolveDependency(
 ) : WithChildMessages {
     override val id: String = "unable.to.resolve.dependency"
 
-    override val message: String = DependencyResolutionBundle.message(id, dependency)
+    override val message: @Nls String = DependencyResolutionBundle.message(id, dependency)
 
     override val severity: Severity =
         if (resolutionLevel == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING

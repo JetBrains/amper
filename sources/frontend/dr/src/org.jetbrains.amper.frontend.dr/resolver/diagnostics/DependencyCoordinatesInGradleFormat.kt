@@ -9,6 +9,7 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.GradleScope
+import org.jetbrains.annotations.Nls
 
 class DependencyCoordinatesInGradleFormat(
     val coordinates: String,
@@ -19,5 +20,5 @@ class DependencyCoordinatesInGradleFormat(
 ) : Message {
     override val id: String = "dependency.coordinates.in.gradle.format"
     override val severity: Severity = Severity.ERROR
-    override val message: String = FrontendDrBundle.message(id, coordinates)
+    override val message: @Nls String = FrontendDrBundle.message(id, coordinates)
 }

@@ -6,6 +6,7 @@ package org.jetbrains.amper.dependency.resolution.diagnostics
 
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
+import org.jetbrains.annotations.Nls
 
 data class MetadataResolvedWithPomErrors(
     val dependency: MavenCoordinates,
@@ -13,5 +14,5 @@ data class MetadataResolvedWithPomErrors(
 ) : WithChildMessages {
     override val id: String = "metadata.resolved.with.pom.errors"
     override val severity: Severity = Severity.WARNING
-    override val message: String = DependencyResolutionBundle.message(id, dependency)
+    override val message: @Nls String = DependencyResolutionBundle.message(id, dependency)
 }

@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
+import org.jetbrains.annotations.Nls
 
 /**
  * Coordinates are used for building paths to the artifacts in the Amper local storage.
@@ -18,11 +19,11 @@ import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 class MavenCoordinatesHavePartEndingWithDot(val coordinates: String) : Message {
     override val id: String = "maven.coordinates.have.part.ending.with.dot"
     override val severity: Severity = Severity.ERROR
-    override val message: String = FrontendDrBundle.message(id)
+    override val message: @Nls String = FrontendDrBundle.message(id)
 
     val partsEndingWithDot = coordinates.split(':').filter { it.endsWith('.') }
 
-    override val details = buildString {
+    override val details: @Nls String = buildString {
         appendLine(coordinates)
         var current = 0
         for (part in partsEndingWithDot) {

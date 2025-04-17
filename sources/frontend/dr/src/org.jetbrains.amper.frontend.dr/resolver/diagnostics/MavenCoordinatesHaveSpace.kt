@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
+import org.jetbrains.annotations.Nls
 
 class MavenCoordinatesHaveSpace(
     val coordinates: String,
@@ -14,11 +15,11 @@ class MavenCoordinatesHaveSpace(
 ) : Message {
     override val id: String = "maven.coordinates.have.space"
     override val severity: Severity = Severity.ERROR
-    override val message: String = FrontendDrBundle.message(id, coordinates, spaceIndex)
+    override val message: @Nls String = FrontendDrBundle.message(id, coordinates, spaceIndex)
 
     val spaceIndices = coordinates.indices.filter { coordinates[it] == ' ' }
 
-    override val details = buildString {
+    override val details: @Nls String = buildString {
         appendLine(coordinates)
         var lastIndex = 0
         for (index in spaceIndices) {
