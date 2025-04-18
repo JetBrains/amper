@@ -39,22 +39,23 @@ val amperInternalJbrVersion = "21.0.6-b895.97"
  * See the [compatiblity table](https://developer.android.com/build/kotlin-support).
  */
 val kotlinVersion = "2.1.20"
-val kotlinxSerializationVersion = "1.8.0"
-val kspVersion = "2.1.20-1.0.31" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
+
 val composeVersion = "1.7.3"
 val composeVersionForGradleBasedAmper = "1.6.10"
 val hotReloadVersion = "1.0.0-alpha02"
+val kotlinxSerializationVersion = "1.8.0"
+val kspVersion = "2.1.20-1.0.31" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
+val ktorVersion = "3.1.1"
+val logbackVersion = "1.5.18"
+val slf4jVersion = "2.0.17"
+val springAiTimeFoldVersion = "1.20.1"
+val springAiVersion = "1.0.0-M6"
 val springBootVersion = "3.4.3"
-val springCloudVersion = "2024.0.1"
 val springCloudAzureVersion = "5.21.0"
 val springCloudGcpVersion = "6.1.1"
 val springCloudServicesVersion = "4.2.0"
+val springCloudVersion = "2024.0.1"
 val springShellVersion = "3.4.0"
-val springAiVersion = "1.0.0-M6"
-val springAiTimeFoldVersion = "1.20.1"
-val slf4jVersion = "2.0.17"
-val ktorVersion = "3.1.1"
-val logbackVersion = "1.5.18"
 
 /**
  * This is the Gradle version used in Gradle-based Amper projects, not Amper itself.
