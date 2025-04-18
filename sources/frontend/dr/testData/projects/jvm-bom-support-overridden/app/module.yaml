@@ -1,0 +1,8 @@
+product: jvm/app
+
+# Direct dependencies on other modules.
+# Corresponding test case checks that transitive dependencies are collected correctly
+dependencies:
+  - io.ktor:ktor-client-cio-jvm
+  - bom:io.ktor:ktor-bom:3.0.2
+

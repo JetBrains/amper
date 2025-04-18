@@ -12,6 +12,7 @@ import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.orUnspecified
+import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
@@ -32,11 +33,8 @@ class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
     ) {
         if (node !is DirectFragmentDependencyNodeHolder) return
         if (node.dependencyNode !is MavenDependencyNode) return
-        val originalVersion = node.dependencyNode.version
-        // TODO: Unspecified version is most likely resolved into BOM version which might later be
-        //  overridden and we would want to report that.
-        //  Currently, there is no such information on the node,
-        //  so avoiding false-positives is better than missing such cases.
+        val originalVersion = node.dependencyNode.originalVersion()
+
         if (originalVersion == null) return
 
         if (originalVersion != node.dependencyNode.resolvedVersion()) {
@@ -71,7 +69,7 @@ class ModuleDependencyWithOverriddenVersion(
     val dependencyNode: MavenDependencyNode
         get() = originalNode.dependencyNode as MavenDependencyNode
     val originalVersion: String
-        get() = dependencyNode.version.orUnspecified()
+        get() = dependencyNode.originalVersion().orUnspecified()
     val effectiveVersion: String
         get() = dependencyNode.dependency.version.orUnspecified()
     val effectiveCoordinates: String
@@ -79,12 +77,20 @@ class ModuleDependencyWithOverriddenVersion(
 
     override val buildProblemId: BuildProblemId = ID
     override val message: @Nls String
-        get() = FrontendDrBundle.message(
-            messageKey = ID,
-            originalVersion, effectiveCoordinates, effectiveVersion
-        )
+        get() = when {
+            dependencyNode.version != null -> FrontendDrBundle.message(
+                messageKey = ID,
+                dependencyNode.version, effectiveCoordinates, effectiveVersion
+            )
+            dependencyNode.versionFromBom != null -> FrontendDrBundle.message(
+                messageKey = VERSION_FROM_BOM_IS_OVERRIDDEN_MESSAGE_ID,
+                dependencyNode.versionFromBom, effectiveCoordinates, effectiveVersion
+            )
+            else -> error ("Version is not specified, should never happen at this stage")
+        }
 
     companion object {
         const val ID = "dependency.version.is.overridden"
+        const val VERSION_FROM_BOM_IS_OVERRIDDEN_MESSAGE_ID = "dependency.version.from.bom.is.overridden"
     }
 }

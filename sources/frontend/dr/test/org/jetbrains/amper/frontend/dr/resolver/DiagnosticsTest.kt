@@ -16,7 +16,9 @@ import org.jetbrains.amper.dependency.resolution.orUnspecified
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.ModuleDependencyWithOverriddenVersion
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.fail
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
@@ -26,8 +28,13 @@ import kotlin.io.path.div
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class DiagnosticsTest : BaseModuleDrTest() {
+
+    override val testGoldenFilesRoot: Path
+        get() = super.testGoldenFilesRoot.resolve("diagnostics")
 
     @Test
     fun `test sync diagnostics`() {
@@ -300,6 +307,54 @@ class DiagnosticsTest : BaseModuleDrTest() {
                     "\n"
                 ) { it.message }
             }"
+        )
+    }
+
+    /**
+     * This test checks that WARNING is reported in case a direct dependency version was unspecified and
+     * taken from BOM, but later was overridden due to conflict resolution.
+     */
+    @Test
+    fun `overridden version for unspecified version resolved from BOM is detected`(testInfo: TestInfo) {
+        val aom = getTestProjectModel("jvm-bom-support-overridden", testDataRoot)
+        val commonDeps = runBlocking {
+            doTestByFile(
+                testInfo = testInfo,
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+                ),
+                module = "app",
+                fragment = "common",
+                verifyMessages = false,
+            )
+        }
+
+        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        collectBuildProblems(commonDeps, diagnosticsReporter, Level.Warning)
+
+        val buildProblem = diagnosticsReporter.getProblems().singleOrNull()
+
+        assertNotNull (
+            buildProblem,
+            "One build problem should be reported for dependency 'io.ktor:ktor-client-cio-jvm', " +
+                    "but got the following ${diagnosticsReporter.getProblems().size} problem(s):\n${
+                        diagnosticsReporter.getProblems().joinToString("\n") { it.message }
+                    }"
+        )
+
+        buildProblem as ModuleDependencyWithOverriddenVersion
+
+        assertEquals(buildProblem.dependencyNode.key.name, "io.ktor:ktor-client-cio-jvm",
+            "Build problem is reported for unexpected dependency")
+        assertEquals(buildProblem.level, Level.Warning, "Unexpected build problem level")
+
+        assertNull(buildProblem.dependencyNode.version, "Original version should be left unspecified")
+        assertEquals(buildProblem.dependencyNode.versionFromBom, "3.0.2", "Incorrect version resolved from BOM")
+        assertEquals(buildProblem.message,
+            "Version 3.0.2 of dependency io.ktor:ktor-client-cio-jvm taken from BOM is overridden, the actual version is 3.1.2.",
+            "Unexpected diagnostic message"
         )
     }
 

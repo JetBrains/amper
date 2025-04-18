@@ -13,6 +13,7 @@ import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
 import org.jetbrains.amper.dependency.resolution.filterGraph
+import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
@@ -92,7 +93,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 class DirectMavenDependencyUnspecifiedVersionResolver(): UnspecifiedVersionResolver<MavenDependencyNode> {
 
     override fun isApplicable(node: MavenDependencyNode): Boolean {
-        return node.resolvedVersion() == null
+        return node.originalVersion() == null
                 && node.parents.any { it is DirectFragmentDependencyNodeHolder }
     }
 
@@ -125,7 +126,7 @@ class DirectMavenDependencyUnspecifiedVersionResolver(): UnspecifiedVersionResol
             val resolvedVersion = bom.children
                 .filterIsInstance<MavenDependencyConstraintNode>()
                 .firstOrNull { it.key == node.key }
-                ?.resolvedVersion()
+                ?.originalVersion()
 
             if (resolvedVersion != null) {
                 return resolvedVersion

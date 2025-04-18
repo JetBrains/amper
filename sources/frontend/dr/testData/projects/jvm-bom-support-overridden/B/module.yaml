@@ -3,6 +3,8 @@ product:
   platforms: [ jvm ]
 
 dependencies:
+  - io.ktor:ktor-client-cio-jvm:3.1.2
+
   - org.projectlombok:lombok:1.18.32: exported
   - net.freeutils:jcharset:2.1
 

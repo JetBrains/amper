@@ -116,6 +116,16 @@ class MavenDependencyNode internal constructor(
     val version: String? = dependency.version
     val isBom: Boolean = dependency.isBom
 
+    /**
+     * This version taken from imported BOM is set to this field by dependency resolution (on the build graph stage)
+     * for those nodes having an original version unspecified.
+     *
+     * Resolved node version is taken from [dependency] anyway, since it could be overridden during conflict resolution.
+     * This field is used as additional information representing the intermediate version taken from BOM.
+     */
+    var versionFromBom: String? = null
+        internal set
+
     var overriddenBy: List<DependencyNode> = emptyList()
         internal set
 

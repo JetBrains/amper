@@ -376,6 +376,7 @@ private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProv
 
             resolvedNodes.forEach { (node, resolvedVersion) ->
                 node.dependency = node.context.createOrReuseDependency(node.group, node.module, resolvedVersion)
+                node.versionFromBom = resolvedVersion
                 nodes.remove(node)
             }
 
