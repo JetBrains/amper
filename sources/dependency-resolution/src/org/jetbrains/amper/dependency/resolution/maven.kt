@@ -639,7 +639,7 @@ class MavenDependency internal constructor(
         level: ResolutionLevel,
         diagnosticsReporter: DiagnosticReporter
     ) {
-        val moduleMetadata = parseModuleMetadata(context, level, diagnosticsReporter)
+        val moduleMetadata = parseModuleMetadata(context, level, diagnosticsReporter, true)
         this.moduleMetadata = moduleMetadata
 
         if (moduleMetadata == null) return
@@ -940,9 +940,10 @@ class MavenDependency internal constructor(
     private suspend fun parseModuleMetadata(
         context: Context,
         level: ResolutionLevel,
-        diagnosticReporter: DiagnosticReporter
+        diagnosticReporter: DiagnosticReporter,
+        skipIsDownloadedCheck: Boolean = false
     ): Module? {
-        if (moduleFile.isDownloadedOrDownload(level, context, diagnosticReporter)) {
+        if (skipIsDownloadedCheck || moduleFile.isDownloadedOrDownload(level, context, diagnosticReporter)) {
             try {
                 return moduleFile.readText().parseMetadata()
             } catch (e: CancellationException) {
@@ -974,16 +975,12 @@ class MavenDependency internal constructor(
     private suspend fun detectKotlinMetadataLibrary(
         context: Context,
         platform: ResolutionPlatform,
-        moduleMetadata: Module?,
+        moduleMetadata: Module,
         level: ResolutionLevel,
         diagnosticsReporter: DiagnosticReporter
     ): Pair<Variant, DependencyFile>? {
-        val resolvedModuleMetadata = moduleMetadata
-            ?: parseModuleMetadata(context, level, diagnosticsReporter)
-            ?: return null
-
         val kotlinMetadataVariant =
-            getKotlinMetadataVariant(resolvedModuleMetadata.variants, platform, diagnosticsReporter)
+            getKotlinMetadataVariant(moduleMetadata.variants, platform, diagnosticsReporter)
                 ?: return null  // the children list is empty in case kmp common variant is not resolved
         val kotlinMetadataFile = getKotlinMetadataFile(kotlinMetadataVariant, diagnosticsReporter)
             ?: return null  // the children list is empty if kmp common variant file is not resolved
@@ -1321,9 +1318,11 @@ class MavenDependency internal constructor(
                     .`available-at`
                     ?.asDependency()
                     ?.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
-                    ?.let {
-                        val depModuleMetadata = it.parseModuleMetadata(context, level, diagnosticsReporter)
-                        it.detectKotlinMetadataLibrary(context, platform, depModuleMetadata, level, diagnosticsReporter)
+                    ?.let { dependency ->
+                        val depModuleMetadata = dependency.parseModuleMetadata(context, level, diagnosticsReporter)
+                        depModuleMetadata?.let {
+                            dependency.detectKotlinMetadataLibrary(context, platform, depModuleMetadata, level, diagnosticsReporter)
+                        }
                     }?.let {
                         it.second.getPath()?.takeIf { hasJarEntry(it, sourceSetName) == true }
                     }
