@@ -11,6 +11,7 @@ import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
@@ -60,9 +61,10 @@ class AmperProjectStructureTest {
         }
     }
 
-    private fun AmperModule.linesWithTheWordAmper(): List<String> = fragments.flatMap { fragment ->
-        fragment.src.walk().flatMap { it.linesWithTheWordAmper() }
-    }
+    private fun AmperModule.linesWithTheWordAmper(): List<String> = fragments.flatMap { it.linesWithTheWordAmper() }
+
+    private fun Fragment.linesWithTheWordAmper(): Sequence<String> =
+        (src.walk() + resourcesPath.walk()).flatMap { it.linesWithTheWordAmper() }
 
     /**
      * We are still in the Amper repo and the libraries are not yet (or maybe ever) separated from Amper, so they still
@@ -82,7 +84,8 @@ class AmperProjectStructureTest {
             .map { it to it.nonLibraryDependencies() }
             .filter { it.second.isNotEmpty() }
         if (invalidDeps.isNotEmpty()) {
-            fail("Some Amper-agnostic library modules depend on Amper-aware modules.\n\n" +
+            fail(
+                "Some Amper-agnostic library modules depend on Amper-aware modules.\n\n" +
                     invalidDeps.joinToString("\n\n") { (module, dependencies) ->
                         "Module '${module.userReadableName}' depends on Amper-aware module(s):\n" +
                                 dependencies.joinToString("\n") { "  - $it" }
