@@ -60,10 +60,8 @@ class TaskExecutor(
                 val results = mutableMapOf<TaskName, Deferred<Result<TaskResult>>>()
                 val executionContext = DefaultTaskGraphExecutionContext()
                 try {
-                    coroutineScope {
-                        runTask(rootTaskName, emptyList(), results, rootTaskDependencies = tasksToRun, executionContext)
-                        results.mapValues { it.value.await() }
-                    }
+                    runTask(rootTaskName, emptyList(), results, rootTaskDependencies = tasksToRun, executionContext)
+                    results.mapValues { it.value.await() }
                 } catch (e: CancellationException) {
                     results.mapValues { if (it.value.isCancelled) Result.failure(e) else it.value.await() }
                 } finally {
