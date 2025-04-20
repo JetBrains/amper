@@ -6,7 +6,6 @@ package org.jetbrains.amper.engine
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.jetbrains.amper.cli.TaskGraphBuilder
@@ -17,77 +16,149 @@ import kotlin.math.max
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.seconds
 
 class TaskExecutorTest {
+
     @Test
-    fun diamondTaskDependencies() {
+    fun simpleTaskDependencies() = runTest {
         val builder = TaskGraphBuilder()
+        builder.registerTask(TestTask("A"), listOf(TaskName("B")))
+        builder.registerTask(TestTask("B"), listOf(TaskName("C")))
+        builder.registerTask(TestTask("C"), listOf(TaskName("D")))
         builder.registerTask(TestTask("D"))
+        val graph = builder.build()
+
+        val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
+
+        executed.clear()
+        executor.run(setOf(TaskName("A")))
+        assertEquals(listOf("D", "C", "B", "A"), executed)
+
+        executed.clear()
+        executor.run(setOf(TaskName("B")))
+        assertEquals(listOf("D", "C", "B"), executed)
+
+        executed.clear()
+        executor.run(setOf(TaskName("C")))
+        assertEquals(listOf("D", "C"), executed)
+    }
+
+    @Test
+    fun diamondTaskDependencies() = runTest {
+        val builder = TaskGraphBuilder()
+        builder.registerTask(TestTask("A"), listOf(TaskName("B"), TaskName("C")))
         builder.registerTask(TestTask("B"), listOf(TaskName("D")))
         builder.registerTask(TestTask("C"), listOf(TaskName("D")))
-        builder.registerTask(TestTask("A"), listOf(TaskName("B"), TaskName("C")))
+        builder.registerTask(TestTask("D"))
         val graph = builder.build()
+
         val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
-        runBlocking {
-            executor.run(setOf(TaskName("A")))
-        }
+        executor.run(setOf(TaskName("A")))
+
         if (executed != listOf("D", "B", "C", "A") && executed != listOf("D", "C", "B", "A")) {
             fail("Wrong execution order: $executed")
         }
     }
 
     @Test
-    fun executionExecutesAllPossibleTasksOnTaskFailureInGreedyMode() {
-        // Given the task graph dependencies:
-        // D -> C
-        // D -> B
-        // B -> A
-        // if A fails, C should be still executed
+    fun complexTaskDependencies() = runTest {
+        executed.clear()
 
         val builder = TaskGraphBuilder()
-        builder.registerTask(TestTask("A") { error("throw") })
-        builder.registerTask(TestTask("B"), listOf(TaskName("A")))
-        builder.registerTask(TestTask("C") { delay(500) }) // add enough time for A to cancel execution of itself
-        builder.registerTask(TestTask("D"), listOf(TaskName("B"), TaskName("C")))
+        builder.registerTask(TestTask("A"), dependsOn = listOf(TaskName("B")))
+        builder.registerTask(TestTask("B"), dependsOn = listOf(TaskName("C"), TaskName("E")))
+        builder.registerTask(TestTask("C"), dependsOn = listOf(TaskName("D"), TaskName("E")))
+        builder.registerTask(TestTask("D"), dependsOn = listOf(TaskName("F")))
+        builder.registerTask(TestTask("E"), dependsOn = listOf(TaskName("F")))
+        builder.registerTask(TestTask("F"))
         val graph = builder.build()
-        val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
-        val result = runBlocking {
-            executor.run(setOf(TaskName("D")))
+
+        val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
+        executor.run(setOf(TaskName("A")))
+
+        if (executed != listOf("F", "E", "D", "C", "B", "A") && executed != listOf("F", "D", "E", "C", "B", "A")) {
+            fail("Wrong execution order: $executed")
         }
-        assertEquals("C", (result.getValue(TaskName("C")).getOrThrow() as TestTaskResult).taskName.name)
-        assertTrue(result.getValue(TaskName("A")).exceptionOrNull() is IllegalStateException)
-        assertTrue(result.getValue(TaskName("B")).exceptionOrNull() is CancellationException)
-        assertTrue(result.getValue(TaskName("D")).exceptionOrNull() is CancellationException)
     }
 
     @Test
-    fun executionTerminatesOnTaskFailureInFailFastMode() {
+    fun failedTaskCancelsDependentChain() = runTest {
+        val builder = TaskGraphBuilder()
+        builder.registerTask(TestTask("A"), listOf(TaskName("B")))
+        builder.registerTask(TestTask("B"), listOf(TaskName("C")))
+        builder.registerTask(TestTask("C") { error("test failure") }, listOf(TaskName("D")))
+        builder.registerTask(TestTask("D"))
+        val graph = builder.build()
+
+        val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
+
+        val result = executor.run(setOf(TaskName("A")))
+
+        assertTrue(result.getValue(TaskName("D")).getOrNull() is TaskResult)
+        assertTrue(result.getValue(TaskName("C")).exceptionOrNull() is IllegalStateException)
+
+        val failureB = result.getValue(TaskName("B")).exceptionOrNull()
+        assertIs<CancellationException>(failureB)
+        assertIs<IllegalStateException>(failureB.cause)
+
+        val failureA = result.getValue(TaskName("A")).exceptionOrNull()
+        assertIs<CancellationException>(failureA)
+        assertIs<CancellationException>(failureA.cause)
+        assertIs<IllegalStateException>(failureA.cause?.cause)
+        assertEquals(failureB, failureA.cause)
+    }
+
+    @Test
+    fun executesAllPossibleTasksOnTaskFailureInGreedyMode() = runTest {
         // Given the task graph dependencies:
-        // D -> C
-        // D -> B
-        // B -> A
-        // if A fails, C should not be still executed because of FAIL_FAST mode
+        // A -> B
+        // A -> C
+        // C -> D
+        // if D fails, B should be still executed
 
         val builder = TaskGraphBuilder()
-        builder.registerTask(TestTask("A") { error("throw") })
-        builder.registerTask(TestTask("B"), listOf(TaskName("A")))
-        builder.registerTask(TestTask("C") { delay(500) }) // add enough time for A to cancel execution of itself
-        builder.registerTask(TestTask("D"), listOf(TaskName("B"), TaskName("C")))
+        builder.registerTask(TestTask("A"), listOf(TaskName("B"), TaskName("C")))
+        builder.registerTask(TestTask("B") { delay(500) }) // add enough time for D to cancel execution of itself
+        builder.registerTask(TestTask("C"), listOf(TaskName("D")))
+        builder.registerTask(TestTask("D") { error("throw") })
+        val graph = builder.build()
+
+        val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
+        val result = executor.run(setOf(TaskName("A")))
+
+        assertEquals("B", (result.getValue(TaskName("B")).getOrThrow() as TestTaskResult).taskName.name)
+        assertTrue(result.getValue(TaskName("D")).exceptionOrNull() is IllegalStateException)
+        assertTrue(result.getValue(TaskName("C")).exceptionOrNull() is CancellationException)
+        assertTrue(result.getValue(TaskName("A")).exceptionOrNull() is CancellationException)
+    }
+
+    @Test
+    fun stopsOnFirstTaskFailureInFailFastMode() = runTest {
+        // Given the task graph dependencies:
+        // A -> B
+        // A -> C
+        // C -> D
+        // if D fails, B should not be still executed because of FAIL_FAST mode
+
+        val builder = TaskGraphBuilder()
+        builder.registerTask(TestTask("A"), listOf(TaskName("B"), TaskName("C")))
+        builder.registerTask(TestTask("B") { delay(500) }) // add enough time for D to cancel execution of itself
+        builder.registerTask(TestTask("C"), listOf(TaskName("D")))
+        builder.registerTask(TestTask("D") { error("throw") })
         val graph = builder.build()
         val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
         val result = assertFailsWith(TaskExecutor.TaskExecutionFailed::class) {
-            runBlocking {
-                executor.run(setOf(TaskName("D")))
-            }
+            executor.run(setOf(TaskName("A")))
         }
-        assertEquals("Task 'A' failed: java.lang.IllegalStateException: throw", result.message)
+        assertEquals("Task 'D' failed: java.lang.IllegalStateException: throw", result.message)
     }
 
     @Test
-    fun executionCycle() {
+    fun failsOnTaskDependencyCycle() = runTest {
         // Given the task graph dependencies:
         // D -> C
         // C -> B
@@ -101,11 +172,10 @@ class TaskExecutorTest {
         builder.registerTask(TestTask("B"), listOf(TaskName("A")))
         builder.registerTask(TestTask("A"), listOf(TaskName("D")))
         val graph = builder.build()
+
         val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
         val result = assertFailsWith(IllegalStateException::class) {
-            runBlocking {
-                executor.run(setOf(TaskName("D")))
-            }
+            executor.run(setOf(TaskName("D")))
         }
         assertEquals("Found a cycle in task execution graph:\n" +
                 "D -> C -> B -> A -> D", result.message)
@@ -131,8 +201,9 @@ class TaskExecutorTest {
     }
 
     private val executed = mutableListOf<String>()
-    private val tasksCount = AtomicInteger(0)
+    private val runningTasksCount = AtomicInteger(0)
     private val maxParallelTasksCount = AtomicInteger(0)
+
     private inner class TestTask(
         val name: String,
         val body: suspend () -> Unit = {},
@@ -140,8 +211,11 @@ class TaskExecutorTest {
         override val taskName: TaskName
             get() = TaskName(name)
 
-        override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
-            val currentTasksCount = tasksCount.incrementAndGet()
+        override suspend fun run(
+            dependenciesResult: List<TaskResult>,
+            executionContext: TaskGraphExecutionContext,
+        ): TaskResult {
+            val currentTasksCount = runningTasksCount.incrementAndGet()
             maxParallelTasksCount.updateAndGet { max -> max(max, currentTasksCount) }
             try {
                 synchronized(executed) {
@@ -150,7 +224,7 @@ class TaskExecutorTest {
                 body()
                 return TestTaskResult(taskName)
             } finally {
-                tasksCount.decrementAndGet()
+                runningTasksCount.decrementAndGet()
             }
         }
     }
