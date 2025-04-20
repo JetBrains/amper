@@ -8,6 +8,7 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
@@ -44,6 +45,6 @@ class JvmReloadClassesTask(override val taskName: TaskName) : Task {
             client.sendMessage(ReloadClassesRequest(changedClassFiles))
         }
 
-        return object : TaskResult {}
+        return EmptyTaskResult
     }
 }

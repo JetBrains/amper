@@ -19,6 +19,7 @@ import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
@@ -72,7 +73,7 @@ class NativeTestTask(
                     userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' with exit code ${result.exitCode} (see errors above)")
                 }
 
-                object : TaskResult {}
+                EmptyTaskResult
             }
     }
 

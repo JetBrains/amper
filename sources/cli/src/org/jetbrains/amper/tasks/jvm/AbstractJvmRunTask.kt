@@ -23,6 +23,7 @@ import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
@@ -68,7 +69,7 @@ abstract class AbstractJvmRunTask(
             logger.info(message)
         }
 
-        return object : TaskResult {}
+        return EmptyTaskResult
     }
 
     protected open suspend fun getJdk(): Jdk = JdkDownloader.getJdk(userCacheRoot)
