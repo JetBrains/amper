@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.toInt
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.slf4j.LoggerFactory
@@ -48,6 +47,8 @@ suspend fun pickBestDevice(): Device? {
                 100 * ("Max" in it.deviceTypeId).toInt()
     }
 }
+
+private fun Boolean.toInt() = if (this) 1 else 0
 
 suspend fun bootAndWaitSimulator(
     deviceId: String,
