@@ -5,9 +5,10 @@ package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.engine.ExecutionResult
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.TestCollector
@@ -130,7 +131,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         // 1. Check compile classpath
         val result = AmperBackend(projectContext)
             .runTask(TaskName(":app:resolveDependenciesJvm"))
-            ?.getOrNull() as? ResolveExternalDependenciesTask.Result
+            ?.taskResultOrNull<ResolveExternalDependenciesTask.Result>()
 
         assertNotNull(result, "unexpected result absence for :app:resolveDependenciesJvm")
 
@@ -162,7 +163,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         // 2. Check runtime classpath composed after compilation tasks are finished
         val runtimeClasspathResult = AmperBackend(projectContext)
                 .runTask(TaskName(":app:runtimeClasspathJvm"))
-                ?.getOrNull() as? JvmRuntimeClasspathTask.Result
+                ?.taskResultOrNull<JvmRuntimeClasspathTask.Result>()
 
         assertNotNull(runtimeClasspathResult, "unexpected result absence for :app:runtimeClasspathJvm")
 
@@ -213,7 +214,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
         val runtimeClasspathViaTask = AmperBackend(projectContext)
             .runTask(TaskName(":app:runtimeClasspathJvm"))
-            ?.getOrNull() as? JvmRuntimeClasspathTask.Result
+            ?.taskResultOrNull<JvmRuntimeClasspathTask.Result>()
 
         assertNotNull(runtimeClasspathViaTask, "unexpected result absence for :app:runtimeClasspathJvm")
 
@@ -233,7 +234,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
         val result = AmperBackend(projectContext)
             .runTask(TaskName(":B2:resolveDependenciesJvm"))
-            ?.getOrNull() as? ResolveExternalDependenciesTask.Result
+            ?.taskResultOrNull<ResolveExternalDependenciesTask.Result>()
             ?: error("unexpected result absence for :B2:resolveDependenciesJvm")
 
         // should be only one version of commons-io, the highest version
@@ -274,3 +275,8 @@ private fun Path.existsCaseSensitive(): Boolean =
 // tested with their real-life usage. For instance, source jars will be tested as part of publication.
 private fun CliContext.taskOutputPath(taskName: TaskName): Path =
     buildOutputRoot.path / "tasks" / taskName.name.replace(":", "_")
+
+private inline fun <reified T : TaskResult> ExecutionResult.taskResultOrNull(): T? = when (this) {
+    is ExecutionResult.Success -> result as? T
+    is ExecutionResult.Unsuccessful -> null
+}

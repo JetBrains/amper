@@ -24,9 +24,9 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask
-import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.engine.ExecutionResult
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
@@ -197,7 +197,8 @@ class AmperBackend(val context: CliContext) {
         taskExecutor.runTasksAndReportOnFailure(taskNames)
     }
 
-    suspend fun runTask(taskName: TaskName): kotlin.Result<TaskResult>? = taskExecutor.runTasksAndReportOnFailure(setOf(taskName))[taskName]
+    suspend fun runTask(taskName: TaskName): ExecutionResult? =
+        taskExecutor.runTasksAndReportOnFailure(setOf(taskName))[taskName]
 
     @TestOnly
     fun tasks() = taskGraph.tasks.toList()

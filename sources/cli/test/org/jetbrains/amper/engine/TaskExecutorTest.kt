@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.engine
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
@@ -17,7 +16,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.seconds
 
@@ -95,21 +93,23 @@ class TaskExecutorTest {
         val graph = builder.build()
 
         val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
-
         val result = executor.run(setOf(TaskName("A")))
 
-        assertTrue(result.getValue(TaskName("D")).getOrNull() is TaskResult)
-        assertTrue(result.getValue(TaskName("C")).exceptionOrNull() is IllegalStateException)
+        assertIs<ExecutionResult.Success>(result.getValue(TaskName("D")))
 
-        val failureB = result.getValue(TaskName("B")).exceptionOrNull()
-        assertIs<CancellationException>(failureB)
-        assertIs<IllegalStateException>(failureB.cause)
+        val resultC = result.getValue(TaskName("C"))
+        assertIs<ExecutionResult.Failure>(resultC)
+        assertIs<IllegalStateException>(resultC.exception)
 
-        val failureA = result.getValue(TaskName("A")).exceptionOrNull()
-        assertIs<CancellationException>(failureA)
-        assertIs<CancellationException>(failureA.cause)
-        assertIs<IllegalStateException>(failureA.cause?.cause)
-        assertEquals(failureB, failureA.cause)
+        val resultB = result.getValue(TaskName("B"))
+        assertIs<ExecutionResult.DependencyFailed>(resultB)
+        assertEquals(setOf(resultC), resultB.unsuccessfulDependencies)
+        assertEquals(setOf(resultC), resultB.transitiveFailures)
+
+        val resultA = result.getValue(TaskName("A"))
+        assertIs<ExecutionResult.DependencyFailed>(resultA)
+        assertEquals(setOf(resultB), resultA.unsuccessfulDependencies)
+        assertEquals(setOf(resultC), resultA.transitiveFailures)
     }
 
     @Test
@@ -130,10 +130,21 @@ class TaskExecutorTest {
         val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
         val result = executor.run(setOf(TaskName("A")))
 
-        assertEquals("B", (result.getValue(TaskName("B")).getOrThrow() as TestTaskResult).taskName.name)
-        assertTrue(result.getValue(TaskName("D")).exceptionOrNull() is IllegalStateException)
-        assertTrue(result.getValue(TaskName("C")).exceptionOrNull() is CancellationException)
-        assertTrue(result.getValue(TaskName("A")).exceptionOrNull() is CancellationException)
+        val resultD = result.getValue(TaskName("D"))
+        assertIs<ExecutionResult.Failure>(resultD)
+
+        val resultC = result.getValue(TaskName("C"))
+        assertIs<ExecutionResult.DependencyFailed>(resultC)
+        assertEquals(setOf(resultD), resultC.unsuccessfulDependencies)
+        assertEquals(setOf(resultD), resultC.transitiveFailures)
+
+        val resultB = result.getValue(TaskName("B"))
+        assertIs<ExecutionResult.Success>(resultB)
+
+        val resultA = result.getValue(TaskName("A"))
+        assertIs<ExecutionResult.DependencyFailed>(resultA)
+        assertEquals(setOf(resultC), resultA.unsuccessfulDependencies)
+        assertEquals(setOf(resultD), resultA.transitiveFailures)
     }
 
     @Test
@@ -177,8 +188,15 @@ class TaskExecutorTest {
         val result = assertFailsWith(IllegalStateException::class) {
             executor.run(setOf(TaskName("D")))
         }
-        assertEquals("Found a cycle in task execution graph:\n" +
-                "D -> C -> B -> A -> D", result.message)
+        val expectedError =  """
+            Found a cycle in task execution graph:
+            D
+             -> C
+             -> B
+             -> A
+             -> D
+        """.trimIndent()
+        assertEquals(expectedError, result.message)
     }
 
     @Test
