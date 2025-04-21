@@ -5,8 +5,27 @@
 package org.jetbrains.amper.engine
 
 import org.jetbrains.amper.frontend.TaskName
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
 
-class TaskGraph(val nameToTask: Map<TaskName, Task>,
-                val dependencies: Map<TaskName, Set<TaskName>>) {
+class TaskGraph(
+    val nameToTask: Map<TaskName, Task>,
+    val dependencies: Map<TaskName, Set<TaskName>>,
+) {
     val tasks = nameToTask.values
+
+    init {
+        // verify all dependencies are resolved
+        for ((name, dependsOn) in dependencies) {
+            if (!nameToTask.containsKey(name)) {
+                error("Task '$name' does not exist, yet it depends on ${dependsOn.map { it.name }.sorted().joinToString()}")
+            }
+            for (dependency in dependsOn) {
+                if (!nameToTask.containsKey(dependency)) {
+                    error("Task '$name' depends on task '$dependency' which does not exist")
+                }
+            }
+        }
+    }
 }

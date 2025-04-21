@@ -27,18 +27,6 @@ class TaskExecutor(
     private val progressListener: TaskProgressListener = TaskProgressListener.Noop,
 ) {
     init {
-        // verify all dependencies are resolved
-        for ((taskName, dependsOn) in graph.dependencies) {
-            if (!graph.nameToTask.containsKey(taskName)) {
-                error("Task '$taskName' does not exist, yet it depends on ${dependsOn.map { it.name }.sorted().joinToString()}")
-            }
-            for (dependency in dependsOn) {
-                if (!graph.nameToTask.containsKey(dependency)) {
-                    error("Task '$taskName' depends on task '$dependency' which does not exist")
-                }
-            }
-        }
-
         check(!graph.nameToTask.containsKey(rootTaskName)) {
             "task graph should not contain internal root task name '${rootTaskName.name}'"
         }
