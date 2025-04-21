@@ -8,10 +8,13 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.templates.AmperProjectTemplate
+import org.jetbrains.amper.templates.TemplateFile
 import org.jetbrains.amper.util.substituteTemplatePlaceholders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
@@ -34,14 +37,35 @@ internal class ProjectGenerator(private val terminal: Terminal) {
         terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
     }
 
-    data class AmperWrapper(
+    private fun AmperProjectTemplate.extractTo(outputDir: Path) {
+        val files = listFiles()
+        checkTemplateFilesConflicts(files, outputDir)
+        outputDir.createDirectories()
+        files.forEach {
+            it.extractTo(outputDir)
+        }
+    }
+
+    private fun checkTemplateFilesConflicts(templateFiles: List<TemplateFile>, outputDir: Path) {
+        val filesToCheck = templateFiles.map { it.relativePath }
+        val alreadyExistingFiles = filesToCheck.filter { outputDir.resolve(it).exists() }
+        if (alreadyExistingFiles.isNotEmpty()) {
+            userReadableError(
+                "The following files already exist in the output directory and would be overwritten by the generation:\n" +
+                        alreadyExistingFiles.sorted().joinToString("\n").prependIndent("  ") + "\n\n" +
+                        "Please move, rename, or delete them before running the command again."
+            )
+        }
+    }
+
+    private data class AmperWrapper(
         val fileName: String,
         val resourceName: String,
         val executable: Boolean,
         val windowsLineEndings: Boolean,
     )
 
-    val wrappers = listOf(
+    private val wrappers = listOf(
         AmperWrapper(fileName = "amper", resourceName = "wrappers/amper.template.sh", executable = true, windowsLineEndings = false),
         AmperWrapper(fileName = "amper.bat", resourceName = "wrappers/amper.template.bat", executable = false, windowsLineEndings = true),
     )

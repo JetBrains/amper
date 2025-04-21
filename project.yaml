@@ -2,6 +2,7 @@ modules:
   - sources/amper-backend-test
   - sources/amper-cli-test
   - sources/amper-mobile-test
+  - sources/amper-project-templates
   - sources/amper-project-test
   - sources/amper-wrapper-test
   - sources/android-integration/android-integration-core
