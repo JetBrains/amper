@@ -8,12 +8,12 @@ a small file that downloads and runs the actual Amper CLI distribution.
 Depending on your operating system, use one of the following commands to download the script:
 Linux/macOS:
 ```
-curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2687/cli-0.7.0-dev-2687-wrapper?download=true" && chmod +x amper
+curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2689/cli-0.7.0-dev-2689-wrapper?download=true" && chmod +x amper
 ```
 
 Windows powershell:
 ```
-Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2687/cli-0.7.0-dev-2687-wrapper.bat?download=true -OutFile amper.bat
+Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2689/cli-0.7.0-dev-2689-wrapper.bat?download=true -OutFile amper.bat
 ```
 
 Alternatively, you can use any other method to download the script from the Maven repository, as long as you
@@ -113,7 +113,7 @@ pluginManagement {
 // ...
 plugins {
     // update the Amper plugin version here:
-    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2687")
+    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2689")
 }
 // ...
 ```
