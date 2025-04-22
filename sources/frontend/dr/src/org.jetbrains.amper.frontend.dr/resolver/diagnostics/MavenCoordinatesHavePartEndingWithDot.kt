@@ -17,7 +17,11 @@ import org.jetbrains.annotations.Nls
  * See [Windows documentation](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file)
  */
 class MavenCoordinatesHavePartEndingWithDot(val coordinates: String) : Message {
-    override val id: String = "maven.coordinates.have.part.ending.with.dot"
+    companion object {
+        const val ID = "maven.coordinates.have.part.ending.with.dot"
+    }
+
+    override val id: String = ID
     override val severity: Severity = Severity.ERROR
     override val message: @Nls String = FrontendDrBundle.message(id)
 

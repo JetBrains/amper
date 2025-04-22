@@ -17,7 +17,11 @@ class MavenCoordinatesShouldBuildValidPath(
     badPart: String,
     exception: Throwable,
 ) : Message {
-    override val id: String = "maven.coordinates.should.build.valid.path"
+    companion object {
+        const val ID = "maven.coordinates.should.build.valid.path"
+    }
+
+    override val id: String = ID
     override val severity: Severity = Severity.ERROR
     override val message: @Nls String = FrontendDrBundle.message(id, coordinates, badPart, exception.message)
 }

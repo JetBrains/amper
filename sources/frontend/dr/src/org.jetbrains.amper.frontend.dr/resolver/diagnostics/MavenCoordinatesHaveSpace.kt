@@ -13,7 +13,11 @@ class MavenCoordinatesHaveSpace(
     val coordinates: String,
     spaceIndex: Int,
 ) : Message {
-    override val id: String = "maven.coordinates.have.space"
+    companion object {
+        const val ID = "maven.coordinates.have.space"
+    }
+
+    override val id: String = ID
     override val severity: Severity = Severity.ERROR
     override val message: @Nls String = FrontendDrBundle.message(id, coordinates, spaceIndex)
 

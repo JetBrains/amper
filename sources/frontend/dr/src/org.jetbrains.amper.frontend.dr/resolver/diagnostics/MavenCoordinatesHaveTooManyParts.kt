@@ -13,7 +13,11 @@ class MavenCoordinatesHaveTooManyParts(
     val coordinates: String,
     partsSize: Int,
 ) : Message {
-    override val id: String = "maven.coordinates.have.too.many.parts"
+    companion object {
+        const val ID = "maven.coordinates.have.too.many.parts"
+    }
+
+    override val id: String = ID
     override val severity: Severity = Severity.ERROR
     override val message: @Nls String = FrontendDrBundle.message(id, coordinates, partsSize)
 }

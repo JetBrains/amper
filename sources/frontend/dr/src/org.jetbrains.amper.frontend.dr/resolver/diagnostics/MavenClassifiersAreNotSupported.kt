@@ -14,7 +14,11 @@ class MavenClassifiersAreNotSupported(
     val coordinates: String,
     val classifier: String,
 ) : Message {
-    override val id: String = "maven.classifiers.are.not.supported"
+    companion object {
+        const val ID = "maven.classifiers.are.not.supported"
+    }
+    
+    override val id: String = ID
     override val severity: Severity = Severity.WARNING
     override val message: @Nls String = FrontendDrBundle.message(id, coordinates, classifier)
 

@@ -13,7 +13,11 @@ import org.jetbrains.annotations.Nls
  * Coordinates are used for building paths to the artifacts in the Amper local storage, slashes will affect the path.
  */
 class MavenCoordinatesHaveSlash(val coordinates: String) : Message {
-    override val id: String = "maven.coordinates.have.slash"
+    companion object {
+        const val ID = "maven.coordinates.have.slash"
+    }
+
+    override val id: String = ID
     override val severity: Severity = Severity.ERROR
     override val message: @Nls String = FrontendDrBundle.message(id)
 

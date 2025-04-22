@@ -18,7 +18,11 @@ class DependencyCoordinatesInGradleFormat(
     @field:UsedInIdePlugin
     val trimmedCoordinates: String,
 ) : Message {
-    override val id: String = "dependency.coordinates.in.gradle.format"
+    companion object {
+        const val ID = "dependency.coordinates.in.gradle.format"
+    }
+
+    override val id: String = ID
     override val severity: Severity = Severity.ERROR
     override val message: @Nls String = FrontendDrBundle.message(id, coordinates)
 }

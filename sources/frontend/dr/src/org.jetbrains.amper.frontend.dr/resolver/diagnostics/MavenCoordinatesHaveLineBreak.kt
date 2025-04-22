@@ -10,7 +10,11 @@ import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.annotations.Nls
 
 class MavenCoordinatesHaveLineBreak(val coordinates: String) : Message {
-    override val id: String = "maven.coordinates.have.line.break"
+    companion object {
+        const val ID = "maven.coordinates.have.line.break"
+    }
+    
+    override val id: String = ID
     override val severity: Severity = Severity.ERROR
     override val message: @Nls String = FrontendDrBundle.message(id)
 
