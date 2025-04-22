@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.concurrency
@@ -72,7 +72,7 @@ private suspend fun <T> fileOperationWithRetry(
     }
 }
 
-suspend fun <T> withRetryOnAccessDenied(block: suspend () -> T): T = withRetry(
+suspend fun <T> withRetryOnAccessDenied(block: suspend (attempt: Int) -> T): T = withRetry(
     retryOnException = { e ->
         when(e) {
             is java.nio.file.AccessDeniedException -> true

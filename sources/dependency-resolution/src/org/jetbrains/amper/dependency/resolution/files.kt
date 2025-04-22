@@ -851,80 +851,87 @@ open class DependencyFile(
                 retryOnException = { e ->
                     e is IOException
                 }
-            ) {
-                spanBuilderSource("downloadAttempt").use {
-                    val request = HttpRequest.newBuilder()
-                        .uri(URI.create(url))
-                        // Without a user agent header, we don't get snapshot versions in maven-metadata.xml.
-                        // I hope this blows your mind.
-                        .header(HttpHeaders.UserAgent, "JetBrains Amper")
-                        .withBasicAuth(repository)
-                        .timeout(Duration.ofMinutes(2))
-                        .GET()
-                        .build()
+            ) { attempt ->
+                spanBuilderSource("downloadAttempt")
+                    .setAttribute("dependency", dependency.toString())
+                    .setAttribute("attempt", attempt.toLong())
+                    .setAttribute("repository", repository.url)
+                    .setAttribute("fileName", fileName)
+                    .setAttribute("url", url)
+                    .use {
+                        val request = HttpRequest.newBuilder()
+                            .uri(URI.create(url))
+                            // Without a user agent header, we don't get snapshot versions in maven-metadata.xml.
+                            // I hope this blows your mind.
+                            .header(HttpHeaders.UserAgent, "JetBrains Amper")
+                            .withBasicAuth(repository)
+                            .timeout(Duration.ofMinutes(2))
+                            .GET()
+                            .build()
 
-                    downloadSemaphore.withPermit {
-                        val future = client.sendAsync(request, BodyHandlers.ofInputStream())
-                        val response = future.await()
+                        downloadSemaphore.withPermit {
+                            val future = client.sendAsync(request, BodyHandlers.ofInputStream())
+                            val response = future.await()
 
-                        response.body().use { responseBody ->
-                            when (val status = response.statusCode()) {
-                                200 -> {
-                                    val expectedSize = fileFromVariant(dependency, name)?.size
-                                        ?: getContentLengthHeaderValue(response)
-                                    val size = responseBody.toByteReadChannel().readTo(writers)
+                            response.body().use { responseBody ->
+                                when (val status = response.statusCode()) {
+                                    200 -> {
+                                        val expectedSize = fileFromVariant(dependency, name)?.size
+                                            ?: getContentLengthHeaderValue(response)
+                                        val size = responseBody.toByteReadChannel().readTo(writers)
 //                                val size = responseBody.readTo(writers)
 
-                                    val isSuccessfullyDownloaded = if (expectedSize != null && size != expectedSize) {
-                                        val sizeFromResponse = getContentLengthHeaderValue(response)
-                                        // If Content-Length is presented and differs from the actual content length, then it is an error
-                                        // Otherwise, it might be an incorrect record in Gradle metadata.
-                                        // That happens, we just report an INFO message and proceed with checksum verification in that case.
-                                        val overrideSeverity =
-                                            Severity.INFO.takeIf { sizeFromResponse == null || size == sizeFromResponse }
-                                        diagnosticsReporter.addMessage(
-                                            ContentLengthMismatch.asMessage(
-                                                url,
-                                                sizeFromResponse,
-                                                size,
-                                                overrideSeverity = overrideSeverity,
-                                            )
-                                        )
+                                        val isSuccessfullyDownloaded =
+                                            if (expectedSize != null && size != expectedSize) {
+                                                val sizeFromResponse = getContentLengthHeaderValue(response)
+                                                // If Content-Length is presented and differs from the actual content length, then it is an error
+                                                // Otherwise, it might be an incorrect record in Gradle metadata.
+                                                // That happens, we just report an INFO message and proceed with checksum verification in that case.
+                                                val overrideSeverity =
+                                                    Severity.INFO.takeIf { sizeFromResponse == null || size == sizeFromResponse }
+                                                diagnosticsReporter.addMessage(
+                                                    ContentLengthMismatch.asMessage(
+                                                        url,
+                                                        sizeFromResponse,
+                                                        size,
+                                                        overrideSeverity = overrideSeverity,
+                                                    )
+                                                )
 
-                                        overrideSeverity != null
-                                    } else {
-                                        if (logger.isDebugEnabled) {
-                                            logger.debug(
-                                                "Downloaded {} for the dependency {}:{}:{}",
-                                                url,
-                                                dependency.group,
-                                                dependency.module,
-                                                dependency.version
-                                            )
-                                        } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
-                                            // Reports downloaded dependency to INFO (visible to user by default)
-                                            logger.info("Downloaded $url")
-                                        }
+                                                overrideSeverity != null
+                                            } else {
+                                                if (logger.isDebugEnabled) {
+                                                    logger.debug(
+                                                        "Downloaded {} for the dependency {}:{}:{}",
+                                                        url,
+                                                        dependency.group,
+                                                        dependency.module,
+                                                        dependency.version
+                                                    )
+                                                } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
+                                                    // Reports downloaded dependency to INFO (visible to user by default)
+                                                    logger.info("Downloaded $url")
+                                                }
 
-                                        true
+                                                true
+                                            }
+
+                                        isSuccessfullyDownloaded
                                     }
 
-                                    isSuccessfullyDownloaded
-                                }
+                                    404 -> {
+                                        logger.debug("Not found URL: $url")
+                                        false
+                                    }
 
-                                404 -> {
-                                    logger.debug("Not found URL: $url")
-                                    false
+                                    else -> throw IOException(
+                                        "Unexpected response code for $url. " +
+                                                "Expected: ${HttpStatusCode.OK.value}, actual: $status"
+                                    )
                                 }
-
-                                else -> throw IOException(
-                                    "Unexpected response code for $url. " +
-                                            "Expected: ${HttpStatusCode.OK.value}, actual: $status"
-                                )
                             }
                         }
                     }
-                }
             }
         } catch (e: CancellationException) {
             throw e

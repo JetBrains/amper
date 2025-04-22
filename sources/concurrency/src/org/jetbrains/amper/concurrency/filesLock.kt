@@ -297,14 +297,14 @@ suspend fun <T> withRetry(
     retryCount: Int = 50,
     retryInterval: Duration = 200.milliseconds,
     retryOnException: (e: Exception) -> Boolean = { true },
-    block: suspend () -> T,
+    block: suspend (attempt: Int) -> T,
 ): T {
     var attempt = 0
     var firstException: Exception? = null
     do {
         if (attempt > 0) delay(retryInterval)
         try {
-            return block()
+            return block(attempt)
         } catch (e: Exception) {
             coroutineContext.ensureActive()
             if (!retryOnException(e)) {
@@ -323,4 +323,3 @@ suspend fun <T> withRetry(
 }
 
 private fun tempLockFile(tmpDir: Path, targetFileName: String) = tmpDir.resolve("~${targetFileName}.amper.lock")
-    
