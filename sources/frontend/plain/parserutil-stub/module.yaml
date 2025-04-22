@@ -12,4 +12,5 @@ repositories:
 dependencies:
   - $libs.intellij.platform.coreImpl: exported
   - $libs.intellij.platform.core: exported
+  - $libs.intellij.platform.util: exported
   - $libs.intellij.platform.utilEx: exported

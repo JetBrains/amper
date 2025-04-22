@@ -13,6 +13,7 @@ dependencies:
   - ../core
   - $libs.kotlin.reflect
   - $libs.intellij.platform.core
+  - $libs.intellij.platform.util
 
 test-dependencies:
   - ../core-intellij

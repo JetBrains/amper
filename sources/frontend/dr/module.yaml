@@ -14,3 +14,5 @@ dependencies:
   - ../../dependency-resolution: exported
   - ../../libraries/telemetry
   - $libs.slf4j.api
+  - $libs.intellij.platform.util
+
