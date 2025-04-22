@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import org.jetbrains.annotations.Nls
 import java.text.MessageFormat
 import java.util.ResourceBundle
 
@@ -12,6 +13,6 @@ object DependencyResolutionBundle {
         "DependencyResolutionBundle was not found in the resources"
     }
 
-    fun message(messageKey: String, vararg arguments: Any?): String =
+    fun message(messageKey: String, vararg arguments: Any?): @Nls String =
         MessageFormat(resourceBundle.getString(messageKey)).format(arguments)
 }
