@@ -17,7 +17,11 @@ data class UnableToDownloadChecksums(
     override val severity: Severity = if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
     override val childMessages: List<Message>,
 ) : WithChildMessages {
-    override val id: String = "unable.to.download.checksums"
+    companion object {
+        const val ID = "unable.to.download.checksums"
+    }
+
+    override val id: String = ID
     override val message: @Nls String = DependencyResolutionBundle.message(id, fileName, dependency)
     override val shortMessage: @Nls String = DependencyResolutionBundle.message("unable.to.download.checksums.short", fileName)
 }

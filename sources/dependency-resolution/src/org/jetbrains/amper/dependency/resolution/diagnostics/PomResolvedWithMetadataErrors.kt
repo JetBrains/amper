@@ -12,7 +12,11 @@ data class PomResolvedWithMetadataErrors(
     val dependency: MavenCoordinates,
     override val childMessages: List<Message>,
 ) : WithChildMessages {
-    override val id: String = "pom.resolved.with.metadata.errors"
+    companion object {
+        const val ID = "pom.resolved.with.metadata.errors"
+    }
+
+    override val id: String = ID
     override val severity: Severity = Severity.WARNING
     override val message: @Nls String = DependencyResolutionBundle.message(id, dependency)
 }

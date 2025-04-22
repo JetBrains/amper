@@ -16,7 +16,11 @@ class UnableToResolveDependency(
     resolutionLevel: ResolutionLevel,
     override val childMessages: List<Message>,
 ) : WithChildMessages {
-    override val id: String = "unable.to.resolve.dependency"
+    companion object {
+        const val ID = "unable.to.resolve.dependency"
+    }
+
+    override val id: String = ID
 
     override val message: @Nls String = DependencyResolutionBundle.message(id, dependency)
 
