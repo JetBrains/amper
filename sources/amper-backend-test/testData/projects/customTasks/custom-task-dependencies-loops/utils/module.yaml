@@ -1,0 +1,15 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+repositories:
+  - id: mavenLocal
+    url: mavenLocal
+    publish: true
+
+tasks:
+  testJvm:
+    dependsOn: [:main-lib:publishJvmToMavenLocal]
+  compileJvm:
+    dependsOn: [:main-lib:testJvm]

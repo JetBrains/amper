@@ -8,8 +8,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.jetbrains.amper.engine.TaskGraphBuilder
+import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
+import org.junit.jupiter.api.assertThrows
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.max
 import kotlin.test.Test
@@ -182,21 +184,19 @@ class TaskExecutorTest {
         builder.registerTask(TestTask("C"), listOf(TaskName("B")))
         builder.registerTask(TestTask("B"), listOf(TaskName("A")))
         builder.registerTask(TestTask("A"), listOf(TaskName("D")))
-        val graph = builder.build()
-
-        val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
-        val result = assertFailsWith(IllegalStateException::class) {
-            executor.run(setOf(TaskName("D")))
+        val error = assertThrows<UserReadableError> {
+            builder.build()
         }
+
         val expectedError =  """
-            Found a cycle in task execution graph:
-            D
-             -> C
-             -> B
-             -> A
-             -> D
+            Task dependency loop is detected:
+            B
+            ╰> A
+               ╰> D
+                  ╰> C
+                     ╰> B
         """.trimIndent()
-        assertEquals(expectedError, result.message)
+        assertEquals(expectedError, error.message)
     }
 
     @Test

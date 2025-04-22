@@ -6,6 +6,8 @@ package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.OS
 import java.util.zip.ZipFile
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
@@ -82,5 +84,35 @@ class CustomTasksTest : AmperCliTestBase() {
     fun `custom task dependencies`() = runSlowTest {
         val result = runCli(projectRoot = testProject("customTasks/custom-task-dependencies"), "show", "tasks")
         result.assertStdoutContains("task :main-lib:publishJvmToMavenLocal -> :main-lib:jarJvm, :main-lib:resolveDependenciesJvm, :main-lib:sourcesJarJvm, :utils:testJvm, :main-lib:testJvm")
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX, OS.MAC)  // Windows may have problems with Unicode symbols.
+    fun `custom task dependencies with loops`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("customTasks/custom-task-dependencies-loops"), "show", "tasks",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+        result.assertStderrContains("""
+            ERROR: Task dependency loops are detected:
+            :main-lib:publishJvmToMavenLocal
+            ╰> :utils:testJvm
+               ╰> :main-lib:publishJvmToMavenLocal
+            
+            :main-lib:testJvm
+            ╰> :main-lib:publishJvmToMavenLocal
+               ╰> :main-lib:testJvm
+            
+            :main-lib:testJvm
+            ╰> :main-lib:testJvm
+            
+            :utils:compileJvm
+            ╰> :main-lib:testJvm
+               ╰> :main-lib:runtimeClasspathJvmTest
+                  ╰> :utils:jarJvm
+                     ╰> :utils:compileJvm
+            """.trimIndent().trim()
+        )
     }
 }
