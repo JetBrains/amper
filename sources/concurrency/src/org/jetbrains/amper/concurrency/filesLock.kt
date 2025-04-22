@@ -69,6 +69,15 @@ suspend fun <T> withDoubleLock(
     }
 }
 
+/**
+ * Executes the given [block] under a system-wide file lock on this [Path].
+ *
+ * The [block]'s parameter is the [FileChannel] used to lock this file, if further inspection of the file is needed
+ * while under the lock. The lock can be read and/or written to depending on the given open [options].
+ *
+ * If the [FileChannel] cannot be opened because of access errors, the open operation is retried several times.
+ * This is to remediate the fact that sometimes the path stays inaccessible for a short time after being removed.
+ */
 private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOption, block: (FileChannel) -> T): T {
     // Files can sometimes be inaccessible for a short time right after a removal.
     val lockFileChannel = withRetryOnAccessDenied {
