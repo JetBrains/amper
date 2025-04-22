@@ -143,10 +143,14 @@ class JvmTestTask(
                 add("-Dorg.jetbrains.amper.junit.listener.teamcity.enabled=true")
             }
             addAll(commonRunSettings.userJvmArgs)
+            val jvmTestSettings = module.leafFragments.single {
+                it.platform == platform && it.isTest
+            }.settings.jvm.test
+            addAll(jvmTestSettings.systemProperties.map { (k, v) -> "-D${k.value}=${v.value}" })
+            addAll(jvmTestSettings.freeJvmArgs)
         }
 
         try {
-            // TODO also support JVM system properties from module files (AMPER-3253), and maybe other options?
             val jvmCommand = listOf(
                 javaExecutable.pathString,
                 "-ea",

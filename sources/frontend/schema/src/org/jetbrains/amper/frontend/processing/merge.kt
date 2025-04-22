@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JvmSettings
+import org.jetbrains.amper.frontend.schema.JvmTestSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
@@ -96,6 +97,14 @@ private fun JvmSettings.mergeJvmSettings(overwrite: JvmSettings) =
     mergeNode(overwrite, ::JvmSettings) {
         mergeScalarProperty(JvmSettings::release)
         mergeScalarProperty(JvmSettings::mainClass)
+        mergeProperty(JvmSettings::test, JvmTestSettings::mergeJvmTestSettings)
+    }
+
+context(MergeCtxWithProp<*, *>)
+private fun JvmTestSettings.mergeJvmTestSettings(overwrite: JvmTestSettings) =
+    mergeNode(overwrite, ::JvmTestSettings) {
+        mergeProperty(JvmTestSettings::systemProperties) { mergeMap(it) { this } }
+        mergeCollectionProperty(JvmTestSettings::freeJvmArgs)
     }
 
 context(MergeCtxWithProp<*, *>)

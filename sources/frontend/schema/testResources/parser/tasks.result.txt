@@ -49,6 +49,12 @@ Fragments:
         mainClass: <default> null
         parameters: <default> false
         release: <default> VERSION_17
+        test: <default> {
+          freeJvmArgs: <default> [
+          ]
+          systemProperties: <default> {
+          }
+        }
       }
       kotlin: <default> {
         allOpen: <default> {
@@ -151,6 +157,12 @@ Fragments:
         mainClass: <default> null
         parameters: <default> false
         release: <default> VERSION_17
+        test: <default> {
+          freeJvmArgs: <default> [
+          ]
+          systemProperties: <default> {
+          }
+        }
       }
       kotlin: <default> {
         allOpen: <default> {
@@ -252,6 +264,12 @@ Fragments:
         mainClass: <default> null
         parameters: <default> false
         release: <default> VERSION_17
+        test: <default> {
+          freeJvmArgs: <default> [
+          ]
+          systemProperties: <default> {
+          }
+        }
       }
       kotlin: <default> {
         allOpen: <default> {
@@ -355,6 +373,12 @@ Fragments:
         mainClass: <default> null
         parameters: <default> false
         release: <default> VERSION_17
+        test: <default> {
+          freeJvmArgs: <default> [
+          ]
+          systemProperties: <default> {
+          }
+        }
       }
       kotlin: <default> {
         allOpen: <default> {

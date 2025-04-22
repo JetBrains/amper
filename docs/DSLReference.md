@@ -399,6 +399,16 @@ dependencies:
 | `release: enum`     | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                    |
 | `mainClass: string` | (Only for `jvm/app` [product type](Documentation.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                         | [auto-detected](Documentation.md#jvm) |
 
+##### JVM Tests
+
+`settings:jvm:test:` configures the test settings on the JVM and Android platforms.
+Read more about [testing support](Documentation.md#tests).
+
+| Value                      | Description                                                                                                   |
+|----------------------------|---------------------------------------------------------------------------------------------------------------|
+| `systemProperties: map`    | JVM system properties for the test process.                                                                   |
+| `jvmFreeArgs: string list` | Free JVM arguments for the test process.                                                                      |
+
 #### Android
 
 `settings:android:` configures the Android toolchain and platform.

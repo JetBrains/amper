@@ -2,3 +2,11 @@ product:
   type: lib
   platforms:
     - jvm
+
+settings:
+  jvm:
+    test:
+      freeJvmArgs:
+        - "-Xmx1G"
+      systemProperties:
+        my.declared.system.prop: foo

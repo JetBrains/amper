@@ -9,9 +9,9 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.ContextAgnostic
 import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.KnownStringValues
-import org.jetbrains.amper.frontend.api.ContextAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -31,7 +31,7 @@ enum class JUnitVersion(override val schemaValue: String, override val outdated:
 class Settings : SchemaNode() {
 
     @SchemaDoc("JVM platform-specific settings")
-    @PlatformSpecific(Platform.JVM)
+    @PlatformSpecific(Platform.JVM, Platform.ANDROID)
     var jvm by value(::JvmSettings)
 
     @SchemaDoc("Kotlin language and the compiler settings")

@@ -28,8 +28,8 @@ fun updateGoldFiles() {
 fun runSchemaTests() {
     println("Running schema tests to generate .tmp result files...")
     val isWindows = System.getProperty("os.name").startsWith("Win", ignoreCase = true)
-    val amperScript = if (isWindows) "amper.bat" else "amper"
-    val exitCode = ProcessBuilder(amperScript, "test", "-m", "schema")
+    val amperScript = amperRootDir.resolve(if (isWindows) "amper.bat" else "amper")
+    val exitCode = ProcessBuilder(amperScript.pathString, "test", "-m", "schema")
         .inheritIO()
         .start()
         .waitFor()

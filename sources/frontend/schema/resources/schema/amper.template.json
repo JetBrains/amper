@@ -343,7 +343,7 @@
         "jvm": {
           "x-intellij-html-description": "JVM platform-specific settings",
           "title": "JVM platform-specific settings",
-          "x-intellij-metadata": {"platforms": ["jvm"]},
+          "x-intellij-metadata": {"platforms": ["jvm", "android"]},
           "$ref": "#/$defs/JvmSettings"
         },
         "kotlin": {
@@ -647,6 +647,38 @@
           "x-intellij-metadata": {"aliases": ["jdk"]},
           "enum": ["25","24","23","22","21","17","11","8"],
           "x-intellij-enum-order-sensitive": true
+        },
+        "test": {
+          "x-intellij-html-description": "JVM test-specific settings",
+          "title": "JVM test-specific settings",
+          "$ref": "#/$defs/JvmTestSettings"
+        }
+      },
+      "additionalProperties": false
+    },
+    "JvmTestSettings": {
+      "type": "object",
+      "properties": {
+        "freeJvmArgs": {
+          "x-intellij-html-description": "Pass any JVM command line arguments to the test process.",
+          "title": "Pass any JVM command line arguments to the test process",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "systemProperties": {
+          "x-intellij-html-description": "Pass JVM system properties to set for the test process.",
+          "title": "Pass JVM system properties to set for the test process",
+          "type": "object",
+          "items": {
+            "patternProperties": {
+              "^[^@+:]+$": {
+                "type": "string"
+              }
+            }
+          }
         }
       },
       "additionalProperties": false
