@@ -72,16 +72,6 @@ private suspend fun <T> fileOperationWithRetry(
     }
 }
 
-suspend fun <T> withRetryOnAccessDenied(block: suspend (attempt: Int) -> T): T = withRetry(
-    retryOnException = { e ->
-        when(e) {
-            is java.nio.file.AccessDeniedException -> true
-            else -> false
-        }
-    },
-    block = block
-)
-
 private fun retryFileOperationOnException(e: Exception, path: Path): Boolean =
     when (e) {
         // File doesn't exist - nothing to operate on.

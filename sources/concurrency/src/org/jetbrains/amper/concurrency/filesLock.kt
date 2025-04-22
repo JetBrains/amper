@@ -11,6 +11,7 @@ import java.io.IOException
 import java.nio.channels.ClosedChannelException
 import java.nio.channels.FileChannel
 import java.nio.channels.FileLock
+import java.nio.file.AccessDeniedException
 import java.nio.file.NoSuchFileException
 import java.nio.file.OpenOption
 import java.nio.file.Path
@@ -80,7 +81,7 @@ suspend fun <T> withDoubleLock(
  */
 private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOption, block: (FileChannel) -> T): T {
     // Files can sometimes be inaccessible for a short time right after a removal.
-    val lockFileChannel = withRetryOnAccessDenied {
+    val lockFileChannel = withRetry(retryOnException = { it is AccessDeniedException }) {
         FileChannel.open(this, *options)
     }
     return lockFileChannel.use { fileChannel ->
