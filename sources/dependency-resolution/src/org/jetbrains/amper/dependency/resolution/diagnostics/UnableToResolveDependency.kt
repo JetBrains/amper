@@ -23,7 +23,7 @@ class UnableToResolveDependency(
     override val severity: Severity =
         if (resolutionLevel == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING
 
-    override val details: @Nls String?
+    override val details: @Nls String
         get() = buildString {
             appendLine(super.details)
             appendLine(DependencyResolutionBundle.message("unable.to.resolve.dependency.repositories.header"))
