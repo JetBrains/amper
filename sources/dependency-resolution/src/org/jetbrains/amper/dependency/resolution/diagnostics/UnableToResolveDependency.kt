@@ -29,7 +29,7 @@ class UnableToResolveDependency(
 
     override val details: @Nls String
         get() = buildString {
-            appendLine(super.details)
+            super.details?.let(::appendLine)
             appendLine(DependencyResolutionBundle.message("unable.to.resolve.dependency.repositories.header"))
             append(repositories.joinToString(separator = "\n") { "  - ${it.url}" })
         }
