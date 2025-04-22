@@ -4,8 +4,13 @@
 
 package org.jetbrains.amper.processes
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
@@ -115,7 +120,7 @@ private suspend inline fun InputStream.consumeLinesBlockingCancellable(onEachLin
 @OptIn(ExperimentalContracts::class)
 internal suspend inline fun <T> Process.withGuaranteedTermination(
     gracePeriod: Duration = 1.seconds,
-    cancellableBlock: (Process) -> T,
+    crossinline cancellableBlock: suspend CoroutineScope.(Process) -> T,
 ): T {
     contract {
         callsInPlace(cancellableBlock, kind = InvocationKind.EXACTLY_ONCE)
@@ -125,8 +130,10 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
             // jump straight to the catch block if the coroutine is already cancelled
             currentCoroutineContext().ensureActive()
 
-            return cancellableBlock(this).also {
-                onExit().await()
+            return coroutineScope {  // Required to catch exceptions from any child coroutines
+                cancellableBlock(this@withGuaranteedTermination).also {
+                    onExit().await()
+                }
             }
         } catch (e: Throwable) { // Intentionally catches both errors AND cancellations
             // Intentionally non-cancellable to avoid leaking a live process while seemingly cancelling this call.

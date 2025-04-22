@@ -8,6 +8,7 @@ package org.jetbrains.amper.processes
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
@@ -136,9 +137,11 @@ suspend fun runProcess(
             .redirectInput(input.stdinRedirection)
             .start()
             .withGuaranteedTermination { process ->
-                input.writeTo(process.outputStream)
-                process.outputStream.close()
                 onStart(process.pid())
+                launch {
+                    // input writing is asynchronous
+                    input.writeTo(process.outputStream)
+                }
                 process.awaitListening(outputListener)
             }
     }
@@ -239,7 +242,9 @@ private fun process(
 private val ProcessInput.stdinRedirection: ProcessBuilder.Redirect
     get() = when (this) {
         ProcessInput.Inherit -> ProcessBuilder.Redirect.INHERIT
-        ProcessInput.Empty -> ProcessBuilder.Redirect.PIPE
-        is ProcessInput.Text -> ProcessBuilder.Redirect.PIPE
+        ProcessInput.Empty,
+        is ProcessInput.Text,
+        is ProcessInput.Pipe,
+            -> ProcessBuilder.Redirect.PIPE
     }
 

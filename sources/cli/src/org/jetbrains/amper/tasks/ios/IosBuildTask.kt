@@ -5,6 +5,8 @@
 package org.jetbrains.amper.tasks.ios
 
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
@@ -12,6 +14,11 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.tools.XCodeIntegrationCommand
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.downloader.Downloader
+import org.jetbrains.amper.core.extract.extractFileToCacheLocation
+import org.jetbrains.amper.core.system.Arch
+import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -21,6 +28,9 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
+import org.jetbrains.amper.processes.ProcessInput
+import org.jetbrains.amper.processes.ProcessOutputListener
+import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -28,12 +38,17 @@ import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.nio.file.attribute.PosixFilePermission
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
+import kotlin.io.path.getPosixFilePermissions
+import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
+import kotlin.io.path.setPosixFilePermissions
 
 
 class IosBuildTask(
@@ -44,6 +59,7 @@ class IosBuildTask(
     private val taskOutputPath: TaskOutputRoot,
     override val taskName: TaskName,
     override val isTest: Boolean,
+    private val userCacheRoot: AmperUserCacheRoot,
 ) : BuildTask {
     init {
         require(platform.isDescendantOf(Platform.IOS)) { "Invalid iOS platform: $platform" }
@@ -81,25 +97,48 @@ class IosBuildTask(
             }
             this += "build"
         }
-        spanBuilder("xcodebuild")
-            .setAmperModule(module)
-            .setListAttribute("args", xcodebuildArgs)
-            .use { span ->
-                // TODO Maybe we dont need output here?
-                val result = BuildPrimitives.runProcessAndGetOutput(
+
+        coroutineScope {
+            val executable = prepareLogParsingUtility()
+
+            val pipe = ProcessInput.Pipe()
+            // Need to launch log parser in parallel, otherwise
+            val parserProcessJob = launch {
+                runProcess(
                     workingDir = workingDir,
-                    command = xcodebuildArgs,
-                    span = span,
-                    environment = mapOf(
-                        XCodeIntegrationCommand.AMPER_BUILD_OUTPUT_DIR_ENV to buildOutputRoot.path.pathString,
-                        XCodeIntegrationCommand.AMPER_MODULE_NAME_ENV to module.userReadableName,
-                    ),
+                    command = listOf(executable.pathString),
                     outputListener = LoggingProcessOutputListener(logger),
+                    input = pipe,
                 )
-                if (result.exitCode != 0) {
-                    userReadableError("xcodebuild invocation failed: \n${result.stderr}")
-                }
             }
+
+            val fullXcodebuildLog = taskOutputPath.path / "xcodebuild.log"
+            val outputListener = pipe.pipeInListener + FileLoggingProcessOutputListener(fullXcodebuildLog)
+            spanBuilder("xcodebuild")
+                .setAmperModule(module)
+                .setListAttribute("args", xcodebuildArgs)
+                .use { span ->
+                    val result = BuildPrimitives.runProcessAndGetOutput(
+                        workingDir = workingDir,
+                        command = xcodebuildArgs,
+                        span = span,
+                        environment = mapOf(
+                            XCodeIntegrationCommand.AMPER_BUILD_OUTPUT_DIR_ENV to buildOutputRoot.path.pathString,
+                            XCodeIntegrationCommand.AMPER_MODULE_NAME_ENV to module.userReadableName,
+                        ),
+                        redirectErrorStream = true,
+                        outputListener = outputListener,
+                    )
+
+                    // Ensure the parser is done to avoid putting the final log entries into the middle of the log
+                    parserProcessJob.join()
+
+                    logger.info("Full xcodebuild log can be found at file://${fullXcodebuildLog.absolutePathString()}")
+                    if (result.exitCode != 0) {
+                        userReadableError("xcodebuild invocation failed, check the log above.")
+                    }
+                }
+        }
 
         val iosConventions = IosConventions(
             buildRootPath = buildOutputRoot.path,
@@ -113,6 +152,34 @@ class IosBuildTask(
             bundleId = outputDescription.productBundleId,
             appPath = Path(outputDescription.appPath),
         )
+    }
+
+    private suspend fun prepareLogParsingUtility(): Path {
+        val archString = when(DefaultSystemInfo.detect().arch) {
+            Arch.X64 -> "x86_64"
+            Arch.Arm64 -> "arm64"
+        }
+        val version = "2.28.0"
+        val archive = Downloader.downloadFileToCacheLocation(
+            url = "https://github.com/cpisciotta/xcbeautify/releases/download/$version/xcbeautify-$version-$archString-apple-macosx.zip",
+            userCacheRoot = userCacheRoot,
+        )
+        val executable = extractFileToCacheLocation(archiveFile = archive, amperUserCacheRoot = userCacheRoot)
+            .resolve("xcbeautify")
+        if (!executable.isExecutable()) {
+            val permissions = executable.getPosixFilePermissions()
+            executable.setPosixFilePermissions(permissions + PosixFilePermission.OWNER_EXECUTE)
+        }
+        return executable
+    }
+
+    private class FileLoggingProcessOutputListener(
+        logFile: Path,
+    ) : ProcessOutputListener {
+        private val stream = logFile.bufferedWriter()
+        override fun onStdoutLine(line: String, pid: Long) = stream.write("out: $line\n")
+        override fun onStderrLine(line: String, pid: Long) = stream.write("err: $line\n")
+        override fun onProcessTerminated(exitCode: Int, pid: Long) = stream.close()
     }
 
     class Result(

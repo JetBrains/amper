@@ -91,6 +91,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     module = module,
                     buildType = BuildType.Debug,
                     buildOutputRoot = context.buildOutputRoot,
+                    userCacheRoot = context.userCacheRoot,
                     taskOutputPath = context.getTaskOutputPath(buildTaskName),
                     taskName = buildTaskName,
                     isTest = false,

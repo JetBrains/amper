@@ -53,6 +53,7 @@ object BuildPrimitives {
         span: Span? = null,
         environment: Map<String, String> = emptyMap(),
         outputListener: ProcessOutputListener,
+        redirectErrorStream: Boolean = false,
         input: ProcessInput = ProcessInput.Empty,
     ): ProcessResult {
         logger.debug("[cmd] ${ShellQuoting.quoteArgumentsPosixShellWay(command.toList())}")
@@ -67,6 +68,7 @@ object BuildPrimitives {
                 workingDir = workingDir,
                 command = CommandLineUtils.quoteCommandLineForCurrentPlatform(command),
                 environment = environment,
+                redirectErrorStream = redirectErrorStream,
                 input = input,
                 outputListener = outputListener,
             )
