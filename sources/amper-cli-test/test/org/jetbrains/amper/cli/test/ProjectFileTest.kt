@@ -41,6 +41,13 @@ class ProjectFileTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `empty project file and no module file`() = runSlowTest {
+        val projectRoot = testProject("project-root-no-modules")
+        val result = runCli(projectRoot, "build")
+        result.assertStdoutContains("${projectRoot.resolve("project.yaml")}: Project has no modules: no root module file and no modules listed in the project file")
+    }
+
+    @Test
     fun `project including a deep module`() = runSlowTest {
         val result = runCli(testProject("project-root-deep-inclusion"), "show", "modules")
         assertModulesList(result, listOf("deep-module"))

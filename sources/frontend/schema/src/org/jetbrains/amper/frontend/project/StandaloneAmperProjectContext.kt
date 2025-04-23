@@ -140,11 +140,20 @@ class StandaloneAmperProjectContext(
                 return null
             }
             val explicitProjectModuleFiles = amperProject?.modulePaths(rootDir) ?: emptyList()
+            val amperModuleFiles = listOfNotNull(rootModuleFile) + explicitProjectModuleFiles
+            if (amperModuleFiles.isEmpty()) {
+                SchemaBundle.reportBundleError(
+                    value = amperProject,
+                    messageKey = "project.has.no.modules",
+                    rootDir.presentableUrl,
+                    level = Level.Warning,
+                )
+            }
 
             return StandaloneAmperProjectContext(
                 frontendPathResolver = frontendPathResolver,
                 projectRootDir = rootDir,
-                amperModuleFiles = listOfNotNull(rootModuleFile) + explicitProjectModuleFiles,
+                amperModuleFiles = amperModuleFiles,
             )
         }
     }

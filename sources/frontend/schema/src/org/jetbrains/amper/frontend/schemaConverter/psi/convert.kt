@@ -13,6 +13,7 @@ import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.reportEmptyModule
+import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.valueBase
@@ -40,10 +41,15 @@ class ConverterImpl(
     override val pathResolver: FrontendPathResolver,
     override val problemReporter: ProblemReporter
 ) : Converter {
-    internal fun convertProject(file: VirtualFile): Project? =
-        pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convert<Project>()
+    internal fun convertProject(file: VirtualFile): Project? {
+        val projectPsiFile = pathResolver.toPsiFile(file) ?: return null
+        return projectPsiFile.doConvertTopLevelValue { topLevelValue ->
+            // An empty file has a null topLevelValue, but we still have a file, so we want a default Project instance
+            topLevelValue?.convert<Project>() ?: Project()
+        }?.also {
+            it.trace = PsiTrace(projectPsiFile)
         }
+    }
 
     internal fun convertModule(file: VirtualFile): Module? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
