@@ -44,6 +44,8 @@
         <option value="sources/examples-standalone/compose-multiplatform" />
         <option value="sources/examples-standalone/jvm" />
         <option value="sources/examples-standalone/new-project-template" />
+        <option value="sources/frontend/schema/testResources/diagnostics/module-dependency/needed-platforms" />
+        <option value="sources/frontend/schema/testResources/diagnostics/module-dependency/needed-platforms/sub-module" />
         <option value="sources/gradle-e2e-test/testData/projects/adding-repositories" />
         <option value="sources/gradle-e2e-test/testData/projects/android-common-resources-propagation" />
         <option value="sources/gradle-e2e-test/testData/projects/android-language-version-1-9" />

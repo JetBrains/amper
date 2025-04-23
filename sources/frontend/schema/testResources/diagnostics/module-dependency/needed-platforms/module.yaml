@@ -1,0 +1,15 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+    - android
+    - js
+
+dependencies:
+  - <![Error] Module sub-module does not support compiling to platforms [jvm, android]!>./sub-module<!>
+
+dependencies@jvm:
+  - <![Error] Module sub-module does not support compiling to platforms [jvm]!>./sub-module<!>
+
+dependencies@js:
+  - ./sub-module

@@ -15,6 +15,7 @@ val AomSingleModuleDiagnosticFactories: List<AomSingleModuleDiagnosticFactory> =
     KeystoreMustExistFactory,
     KeystorePropertiesDoesNotContainKeyFactory,
     MandatoryFieldInPropertiesFileMustBePresentFactory,
+    ModuleDependencyDoesntHaveNeededPlatformsFactory,
     SerializationVersionWithDisabledSerialization,
     SigningEnabledWithoutPropertiesFileFactory,
     UselessSettingValue,
