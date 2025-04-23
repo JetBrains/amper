@@ -30,10 +30,10 @@ class IosRunTask(
         taskOutputPath.path.createDirectories()
         val builtApp = dependenciesResult.requireSingleDependency<IosBuildTask.Result>()
         if (platform.isIosSimulator) {
-            val deviceId = commonRunSettings.deviceId ?: pickBestDevice()?.deviceId ?: error("No available device")
-            bootAndWaitSimulator(deviceId, forceShowWindow = true)
-            installAppOnDevice(deviceId, builtApp.appPath)
-            launchAppOnDevice(deviceId, builtApp.bundleId)
+            val simulatorDevice = selectSimulatorDevice()
+            bootAndWaitSimulator(simulatorDevice, forceShowWindow = true)
+            installAppOnDevice(simulatorDevice.deviceId, builtApp.appPath)
+            launchAppOnDevice(simulatorDevice.deviceId, builtApp.bundleId)
         } else {
             // Physical device
             val deviceId = commonRunSettings.deviceId
@@ -43,5 +43,15 @@ class IosRunTask(
             launchAppOnPhysicalDevice(deviceId, builtApp.bundleId)
         }
         return EmptyTaskResult
+    }
+
+    private suspend fun selectSimulatorDevice(): Device {
+        return if (commonRunSettings.deviceId != null) {
+            queryDevice(commonRunSettings.deviceId) ?: userReadableError(
+                "Unable to find the iOS simulator with the specified id: `${commonRunSettings.deviceId}`"
+            )
+        } else {
+            pickBestDevice() ?: userReadableError("Unable to detect any usable iOS simulator, check your environment")
+        }
     }
 }

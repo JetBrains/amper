@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.pathString
+import kotlin.time.Duration.Companion.milliseconds
 
 data class Device(
     val deviceId: String,
@@ -24,8 +25,6 @@ data class Device(
     val name: String,
 )
 
-private const val AWAIT_ATTEMPTS = 10
-private const val AWAIT_TIME: Long = 1000
 const val XCRUN_EXECUTABLE = "/usr/bin/xcrun"
 
 suspend fun installAppOnDevice(deviceId: String, appPath: Path) =
@@ -48,42 +47,45 @@ suspend fun pickBestDevice(): Device? {
     }
 }
 
+suspend fun queryDevice(deviceId: String): Device? {
+    return SimCtl.queryDevice(deviceId)
+}
+
 private fun Boolean.toInt() = if (this) 1 else 0
 
 suspend fun bootAndWaitSimulator(
-    deviceId: String,
+    device: Device,
     forceShowWindow: Boolean = false,
 ) {
-    var bootCommandIssued = false
-    suspend fun ensureBootCommandIssued() {
-        if (bootCommandIssued) return
-        BuildPrimitives.runProcessAndGetOutput(
-            workingDir = Path("."),
-            command = if (forceShowWindow)
-                listOf("open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", deviceId)
-            else
-                listOf("xcrun", "simctl", "boot", deviceId),
-            outputListener = LoggingProcessOutputListener(logger),
-        )
-        bootCommandIssued = true
-    }
-
     if (forceShowWindow) {
         // The `open` command works without any errors/warnings regardless of the simulator boot status.
         // It boots the simulator on demand and brings its window forward.
-        ensureBootCommandIssued()
+        BuildPrimitives.runProcessAndGetOutput(
+            workingDir = Path("."),
+            command = listOf("open", "-a", "Simulator"),
+            outputListener = LoggingProcessOutputListener(logger),
+        )
     }
 
-    // Wait for booting.
-    for (i in 0..AWAIT_ATTEMPTS) {
-        val device = SimCtl.queryDevice(deviceId) ?: error("Device is not available: $deviceId")
-        if (device.isBooted) break
-
-        ensureBootCommandIssued()
-
-        if (i >= AWAIT_ATTEMPTS) error("Max boot await attempts exceeded for device: $deviceId")
-        else delay(AWAIT_TIME)
+    if (device.isBooted) {
+        return
     }
+
+    BuildPrimitives.runProcessAndGetOutput(
+        workingDir = Path("."),
+        command = listOf("xcrun", "simctl", "boot", device.deviceId),
+        outputListener = LoggingProcessOutputListener(logger),
+    )
+    repeat(20) {
+        val device = SimCtl.queryDevice(device.deviceId) ?: userReadableError(
+            "Simulator device `${device.deviceId}` disappeared unexpectedly while waiting to be booted."
+        )
+        if (device.isBooted) {
+            return  // Success
+        }
+        delay(500.milliseconds)
+    }
+    userReadableError("Simulator boot timeout for `${device.deviceId}`.")
 }
 
 private suspend fun xcrun(

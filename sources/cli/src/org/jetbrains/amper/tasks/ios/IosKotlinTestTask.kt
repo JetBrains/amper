@@ -43,7 +43,7 @@ class IosKotlinTestTask(
             return spanBuilder("ios-kotlin-test")
                 .setAttribute("executable", executable.pathString)
                 .use { span ->
-                    bootAndWaitSimulator(chosenDevice.deviceId)
+                    bootAndWaitSimulator(chosenDevice)
 
                     val spawnTestsCommand = listOf(
                         XCRUN_EXECUTABLE,
