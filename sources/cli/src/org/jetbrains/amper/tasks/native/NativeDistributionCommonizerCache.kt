@@ -7,6 +7,7 @@
 package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.compilation.KotlinNativeCompiler
+import org.jetbrains.amper.concurrency.DefaultFilesMutex
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -37,7 +38,7 @@ class NativeDistributionCommonizerCache(private val konan: KotlinNativeCompiler)
         // Do not use another file for locking without a reason.
         val lockFile = commonizedDir / ".lock"
         lockFile.createParentDirectories()
-        withDoubleLock(lockFile) {
+        DefaultFilesMutex.withDoubleLock(lockFile) {
             val todoOutputTargets = todoTargets(outputTargets)
             if (todoOutputTargets.isEmpty()) return@withDoubleLock
 

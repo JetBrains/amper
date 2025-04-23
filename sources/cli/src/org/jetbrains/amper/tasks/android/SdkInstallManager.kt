@@ -19,6 +19,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.jvm.javaio.*
+import org.jetbrains.amper.concurrency.DefaultFilesMutex
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
@@ -67,7 +68,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
     }
 
     suspend fun installPackage(packagePath: String): RepoPackage =
-        withDoubleLock(androidSdkPath / "$packagePath.lock") {
+        DefaultFilesMutex.withDoubleLock(androidSdkPath / "$packagePath.lock") {
             val localFileSystemPackagePath = packagePath
                 .split(";")
                 .fold(androidSdkPath) { path, component -> path.resolve(component) }
@@ -96,7 +97,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
     }
 
     suspend fun installSystemImage(packagePath: String): RepoPackage =
-        withDoubleLock(androidSdkPath / "$packagePath.lock") {
+        DefaultFilesMutex.withDoubleLock(androidSdkPath / "$packagePath.lock") {
             val localFileSystemPackagePath = packagePath
                 .split(";")
                 .fold(androidSdkPath) { path, component -> path.resolve(component) }

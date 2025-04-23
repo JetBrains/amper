@@ -10,6 +10,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.jetbrains.amper.concurrency.DefaultFilesMutex
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.hashing.sha256String
@@ -76,7 +77,7 @@ private suspend fun extractFileWithFlag(
     flagFile: Path,
     vararg options: ExtractOptions
 ): Path {
-    withDoubleLock(flagFile) { fileChannel ->
+    DefaultFilesMutex.withDoubleLock(flagFile) { fileChannel ->
         extractFileWithFlag(archiveFile, targetDirectory, fileChannel, flagFile, options)
     }
     return targetDirectory
