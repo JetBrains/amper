@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
@@ -14,8 +15,10 @@ import org.jetbrains.annotations.Nls
  */
 class MavenCoordinatesShouldBuildValidPath(
     val coordinates: String,
-    badPart: String,
-    exception: Throwable,
+    @field:UsedInIdePlugin
+    val badPart: String,
+    @field:UsedInIdePlugin
+    val exception: Throwable,
 ) : Message {
     companion object {
         const val ID = "maven.coordinates.should.build.valid.path"

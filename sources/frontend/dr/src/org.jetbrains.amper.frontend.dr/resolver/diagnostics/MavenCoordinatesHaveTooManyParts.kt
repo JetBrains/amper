@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
@@ -11,7 +12,8 @@ import org.jetbrains.annotations.Nls
 
 class MavenCoordinatesHaveTooManyParts(
     val coordinates: String,
-    partsSize: Int,
+    @field:UsedInIdePlugin
+    val partsSize: Int,
 ) : Message {
     companion object {
         const val ID = "maven.coordinates.have.too.many.parts"
