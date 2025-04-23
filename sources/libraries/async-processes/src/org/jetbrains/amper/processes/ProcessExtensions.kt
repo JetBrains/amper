@@ -22,6 +22,15 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 /**
+ * The default grace period to use in functions that provide this option.
+ *
+ * The grace period is the time to wait between a regular process destruction request and forcible destruction.
+ * If a process doesn't terminate within the grace period after its destruction is requested, it is forcibly destroyed.
+ */
+@PublishedApi
+internal val DefaultGracePeriod = 3.seconds
+
+/**
  * Awaits the termination of this [Process] in a suspending and cancellable way.
  *
  * The given [outputListener] is used to handle lines of output from stdout/stderr while the process is running (for
@@ -107,7 +116,7 @@ private suspend inline fun InputStream.consumeLinesBlockingCancellable(onEachLin
  *   This is true whether the current coroutine is already canceled when calling this function, canceled during the
  *   execution of [cancellableBlock], or canceled after the successful completion of [cancellableBlock] (while waiting
  *   for the process to terminate).
- * * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **destrous the process** and waits for its
+ * * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **destroys the process** and waits for its
  *   termination.
  *
  * In cases where the process is destroyed, a normal destruction is requested first, and if this process doesn't
@@ -122,7 +131,7 @@ private suspend inline fun InputStream.consumeLinesBlockingCancellable(onEachLin
  */
 @OptIn(ExperimentalContracts::class)
 internal suspend inline fun <T> Process.withGuaranteedTermination(
-    gracePeriod: Duration = 1.seconds,
+    gracePeriod: Duration = DefaultGracePeriod,
     crossinline cancellableBlock: suspend CoroutineScope.(Process) -> T,
 ): T {
     contract {
@@ -167,7 +176,10 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
  */
 @OptIn(ExperimentalContracts::class)
 @PublishedApi
-internal inline fun <T> Process.withDestructionHook(gracePeriod: Duration = 1.seconds, block: (Process) -> T): T {
+internal inline fun <T> Process.withDestructionHook(
+    gracePeriod: Duration = DefaultGracePeriod,
+    block: (Process) -> T,
+): T {
     contract {
         callsInPlace(block, kind = InvocationKind.EXACTLY_ONCE)
     }
@@ -217,7 +229,7 @@ internal inline fun <T> withShutdownHook(crossinline onJvmShutdown: () -> Unit, 
  */
 // TODO maybe turn this into non-blocking AND keep it non-cancellable with withContext(NonCancellable) on the call site
 @PublishedApi
-internal fun Process.killAndAwaitTermination(gracePeriod: Duration = 1.seconds): Int {
+internal fun Process.killAndAwaitTermination(gracePeriod: Duration = DefaultGracePeriod): Int {
     destroyHierarchy()
     // the destroy operation is asynchronous, we need to give this process a chance to complete gracefully
     val completed = waitFor(gracePeriod.inWholeMilliseconds, TimeUnit.MILLISECONDS)
