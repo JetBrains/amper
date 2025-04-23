@@ -77,9 +77,8 @@ fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates {
 }
 
 private fun parseCoordinates(coordinates: String): ParsedCoordinates {
-    val spaceIndex = coordinates.indexOf(' ')
-    if (spaceIndex != -1) {
-        return ParsedCoordinates.Failure(MavenCoordinatesHaveSpace(coordinates, spaceIndex))
+    if (' ' in coordinates) {
+        return ParsedCoordinates.Failure(MavenCoordinatesHaveSpace(coordinates))
     }
 
     if ('\n' in coordinates || '\r' in coordinates) {
