@@ -19,6 +19,7 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
+import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -28,6 +29,7 @@ import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.identificationPhrase
+import org.jetbrains.amper.tasks.ios.ManageXCodeProjectTask
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -106,11 +108,21 @@ class NativeLinkTask(
         }
         val entryPoint = entryPoints.singleOrNull()
 
+        val binaryOptions = if (compilationType == KotlinCompilationType.IOS_FRAMEWORK) {
+            val appBundleId = dependenciesResult.requireSingleDependency<ManageXCodeProjectTask.Result>()
+                .debugResolvedXcodeSettings.bundleId
+            // Format framework's bundleId based on app's bundleId
+            val frameworkBundleId = "$appBundleId.kotlin.framework"
+            logger.debug("Using framework bundleId: `$frameworkBundleId`")
+            mapOf("bundleId" to frameworkBundleId)
+        } else emptyMap()
+
         val configuration: Map<String, String> = mapOf(
             "kotlin.version" to kotlinVersion,
             "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
             "entry.point" to (entryPoint ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,
+            "binary.options" to Json.encodeToString(binaryOptions),
         )
 
         val inputs = listOf(includeArtifact) + compileKLibs
@@ -133,6 +145,7 @@ class NativeLinkTask(
                 additionalSourceRoots = emptyList(),
                 outputPath = artifactPath,
                 compilationType = compilationType,
+                binaryOptions = binaryOptions,
                 include = includeArtifact,
             )
 

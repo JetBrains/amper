@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import com.android.utils.associateNotNull
 import com.jetbrains.cidr.xcode.XcodeProjectId
 import com.jetbrains.cidr.xcode.frameworks.ApplePlatform
 import com.jetbrains.cidr.xcode.frameworks.AppleProductType
@@ -127,15 +126,24 @@ class ManageXCodeProjectTask(
             span.setAttribute(UpdatedAttribute, false)
         }
 
-        val xcodeSettings = target.buildConfigurations.associateNotNull { configuration ->
-            val buildType = BuildType.entries.find { it.name == configuration.name } ?: return@associateNotNull null
+        fun resolveRequiredSettings(buildType: BuildType): ResolvedXcodeSettings {
+            val configuration = target.buildConfigurations.find { it.name == buildType.name } ?: run {
+                // TODO: Assist user in creating this configuration back?
+                userReadableError("Missing ${buildType.name} configuration in Xcode project.")
+            }
 
             val settingsResolver = ConfigurationSettingsResolver(
                 buildConfiguration = configuration,
                 target = target,
             )
 
-            buildType to ResolvedXcodeSettings(
+            val bundleId = settingsResolver.getBuildSetting(BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER).string ?:
+            userReadableError("Unable to resolve bundleId. " +
+                    "Please make sure the `${BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER}` configuration option " +
+                    "is properly set")
+
+            return ResolvedXcodeSettings(
+                bundleId = bundleId,
                 hasTeamId = settingsResolver.getBuildSetting("DEVELOPMENT_TEAM").string != null,
                 isSigningDisabled = settingsResolver.getBuildSetting("CODE_SIGNING_ALLOWED").string == "NO",
             )
@@ -143,8 +151,9 @@ class ManageXCodeProjectTask(
 
         return Result(
             targetName = target.name,
-            resolvedXcodeSettings = xcodeSettings,
             projectDir = projectDir,
+            debugResolvedXcodeSettings = resolveRequiredSettings(BuildType.Debug),
+            releaseResolvedXcodeSettings = resolveRequiredSettings(BuildType.Release),
         )
     }
 
@@ -190,10 +199,11 @@ class ManageXCodeProjectTask(
         }
 
         val defaultProductName = module.userReadableName
+        val defaultAppBundleId = inferDefaultAppBundleId()
         val baseSettings = buildMap {
             // Defaults:
             this[BuildSettingNames.INFOPLIST_FILE] = infoPlistFile.relativeTo(baseDir).pathString
-            this[BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER] = inferDefaultAppBundleId()
+            this[BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER] = defaultAppBundleId
             this[BuildSettingNames.SDKROOT] = iosPlatform.type.platformName  // iphoneos
             this[BuildSettingNames.PRODUCT_NAME] = defaultProductName
             this[BuildSettingNames.PRODUCT_MODULE_NAME] = PRODUCT_MODULE_NAME
@@ -270,13 +280,14 @@ class ManageXCodeProjectTask(
 
         pbxProjectFile.save()
 
+        val defaultSettings = ResolvedXcodeSettings(
+            bundleId = defaultAppBundleId,
+        )
         return Result(
             targetName = DEFAULT_TARGET_NAME,
             projectDir = projectDir,
-            resolvedXcodeSettings = mapOf(
-                BuildType.Debug to ResolvedXcodeSettings(),
-                BuildType.Release to ResolvedXcodeSettings(),
-            ),
+            debugResolvedXcodeSettings = defaultSettings,
+            releaseResolvedXcodeSettings = defaultSettings,
         )
     }
 
@@ -329,6 +340,7 @@ class ManageXCodeProjectTask(
     }
 
     class ResolvedXcodeSettings(
+        val bundleId: String,
         val hasTeamId: Boolean = false,
         val isSigningDisabled: Boolean = false,
     )
@@ -336,8 +348,14 @@ class ManageXCodeProjectTask(
     class Result(
         val targetName: String,
         val projectDir: Path,
-        val resolvedXcodeSettings: Map<BuildType, ResolvedXcodeSettings>,
-    ) : TaskResult
+        val debugResolvedXcodeSettings: ResolvedXcodeSettings,
+        val releaseResolvedXcodeSettings: ResolvedXcodeSettings,
+    ) : TaskResult {
+        fun getResolvedXcodeSettings(buildType: BuildType) = when(buildType) {
+            BuildType.Debug -> debugResolvedXcodeSettings
+            BuildType.Release -> releaseResolvedXcodeSettings
+        }
+    }
 
     private val logger = LoggerFactory.getLogger(javaClass)
 

@@ -147,6 +147,7 @@ class NativeCompileKlibTask(
                     additionalSourceRoots = additionalSources,
                     outputPath = artifact,
                     compilationType = KotlinCompilationType.LIBRARY,
+                    binaryOptions = emptyMap(),
                     include = null,
                 )
 

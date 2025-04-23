@@ -15,6 +15,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.getModuleDependencies
 import org.jetbrains.amper.tasks.ios.IosTaskType
+import org.jetbrains.amper.tasks.ios.ManageXCodeProjectTask
 import org.jetbrains.amper.util.BuildType
 
 private fun isIosApp(platform: Platform, module: AmperModule) =
@@ -87,6 +88,10 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                         add(CommonTaskType.Dependencies.getTaskName(module, platform, false))
                         if (isTest) {
                             add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
+                        }
+                        if (compilationType == KotlinCompilationType.IOS_FRAMEWORK) {
+                            // Needed for bundleId inference
+                            add(ManageXCodeProjectTask.taskName(module))
                         }
                     }
                 )

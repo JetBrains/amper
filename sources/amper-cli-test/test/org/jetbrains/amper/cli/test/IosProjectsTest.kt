@@ -106,6 +106,7 @@ class IosProjectsTest : AmperCliTestBase() {
             projectRoot = testProject("ios/compose"),
             "task", ":compose:frameworkIosSimulatorArm64",
             assertEmptyStdErr = false,
+            copyToTempDir = true,
         )
         result.readTelemetrySpans().konancSpans.assertZeroExitCode(times = 2)
     }
@@ -116,6 +117,7 @@ class IosProjectsTest : AmperCliTestBase() {
             projectRoot = testProject("ios/compose"),
             "task", ":compose:frameworkIosArm64",
             assertEmptyStdErr = false,
+            copyToTempDir = true,
         )
         result.readTelemetrySpans().konancSpans.assertZeroExitCode(times = 2)
     }

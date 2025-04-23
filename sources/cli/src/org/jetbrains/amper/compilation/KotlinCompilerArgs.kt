@@ -167,6 +167,7 @@ internal fun kotlinNativeCompilerArgs(
     fragments: List<Fragment>,
     sourceFiles: List<Path>,
     additionalSourceRoots: List<SourceRoot>,
+    binaryOptions: Map<String, String>,
     outputPath: Path,
     compilationType: KotlinCompilationType,
     include: Path?,
@@ -196,6 +197,9 @@ internal fun kotlinNativeCompilerArgs(
                 add(entryPoint)
             }
         }
+    }
+    binaryOptions.forEach { (key, value) ->
+        add("-Xbinary=$key=$value")
     }
 
     libraryPaths.forEach {

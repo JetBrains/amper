@@ -67,10 +67,7 @@ class IosBuildTask(
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val projectInitialInfo = dependenciesResult.requireSingleDependency<ManageXCodeProjectTask.Result>()
-        val xcodeSettings = projectInitialInfo.resolvedXcodeSettings[buildType] ?: run {
-            // TODO: Assist user in creating this configuration back?
-            userReadableError("Missing ${buildType.name} configuration in Xcode project.")
-        }
+        val xcodeSettings = projectInitialInfo.getResolvedXcodeSettings(buildType)
 
         val workingDir = taskOutputPath.path.createDirectories()
         val derivedDataPath = workingDir / "derivedData"
