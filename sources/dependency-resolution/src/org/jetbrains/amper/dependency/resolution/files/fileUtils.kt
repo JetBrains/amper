@@ -2,10 +2,11 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.concurrency
+package org.jetbrains.amper.dependency.resolution.files
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.concurrency.withRetry
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -19,10 +20,11 @@ import kotlin.io.path.readText
 
 private val logger = LoggerFactory.getLogger("fileUtils.kt")
 
-fun interface Writer {
+internal fun interface Writer {
     fun write(data: ByteBuffer)
 }
-class Hasher(algorithm: String): Hash {
+
+internal class Hasher(algorithm: String): Hash {
     private val digest = MessageDigest.getInstance(algorithm)
     override val algorithm: String = digest.algorithm
     val writer: Writer = Writer(digest::update)
@@ -35,9 +37,10 @@ interface Hash {
     val hash: String
 }
 
-suspend fun computeHash(path: Path, algorithm: String): Hasher = computeHash(path) { listOf(Hasher(algorithm)) }.single()
+internal suspend fun computeHash(path: Path, algorithm: String): Hasher =
+    computeHash(path) { listOf(Hasher(algorithm)) }.single()
 
-suspend fun computeHash(path: Path, hashersFn:() -> List<Hasher>): Collection<Hasher> =
+internal suspend fun computeHash(path: Path, hashersFn:() -> List<Hasher>): Collection<Hasher> =
     fileChannelReadOperationWithRetry(
         path,
         { e -> retryFileOperationOnException(e, path) }

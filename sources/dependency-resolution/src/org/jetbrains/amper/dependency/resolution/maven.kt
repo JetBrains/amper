@@ -11,8 +11,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
-import org.jetbrains.amper.concurrency.computeHash
-import org.jetbrains.amper.concurrency.produceFileWithDoubleLockAndHash
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.BomVariantNotFound
@@ -41,6 +39,8 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.hasErrors
+import org.jetbrains.amper.dependency.resolution.files.computeHash
+import org.jetbrains.amper.dependency.resolution.files.produceFileWithDoubleLockAndHash
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Capability
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Dependency

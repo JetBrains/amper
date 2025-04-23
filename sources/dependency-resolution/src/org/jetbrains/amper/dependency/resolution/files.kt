@@ -15,15 +15,10 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.concurrency.Hash
-import org.jetbrains.amper.concurrency.Hasher
 import org.jetbrains.amper.concurrency.StripedMutex
-import org.jetbrains.amper.concurrency.Writer
-import org.jetbrains.amper.concurrency.computeHash
 import org.jetbrains.amper.concurrency.deleteIfExistsWithLogging
 import org.jetbrains.amper.concurrency.produceResultWithDoubleLock
 import org.jetbrains.amper.concurrency.produceResultWithTempFile
-import org.jetbrains.amper.concurrency.readTextWithRetry
 import org.jetbrains.amper.concurrency.withRetry
 import org.jetbrains.amper.dependency.resolution.diagnostics.CollectingDiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.ContentLengthMismatch
@@ -39,6 +34,11 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadChecksums
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadFile
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
+import org.jetbrains.amper.dependency.resolution.files.Hash
+import org.jetbrains.amper.dependency.resolution.files.Hasher
+import org.jetbrains.amper.dependency.resolution.files.Writer
+import org.jetbrains.amper.dependency.resolution.files.computeHash
+import org.jetbrains.amper.dependency.resolution.files.readTextWithRetry
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.jetbrains.amper.filechannels.writeFrom
@@ -649,7 +649,7 @@ open class DependencyFile(
     protected open suspend fun shouldOverwrite(
         cache: Cache,
         expectedHash: Hash,
-        actualHash: Hasher,
+        actualHash: Hash,
     ): Boolean = checkHash(actualHash, expectedHash) > VerificationResult.PASSED
 
     /**
@@ -740,7 +740,7 @@ open class DependencyFile(
         return null
     }
 
-    private fun Hasher.isWellKnownBrokenHashIn(repository: String): Boolean {
+    private fun Hash.isWellKnownBrokenHashIn(repository: String): Boolean {
         if (repository == "https://plugins.gradle.org/m2/") {
             return algorithm == "sha512" || algorithm == "sha256"
         }
@@ -1191,8 +1191,7 @@ class SnapshotDependencyFile(
             .download(listOf(repository), progress, cache, spanBuilderSource, verify = false, diagnosticsReporter, mavenMetadataFilesLock)
     }
 
-
-    override suspend fun shouldOverwrite(cache: Cache, expectedHash: Hash, actualHash: Hasher): Boolean =
+    override suspend fun shouldOverwrite(cache: Cache, expectedHash: Hash, actualHash: Hash): Boolean =
         nameWithoutExtension == "maven-metadata"
                 || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
                 || super.shouldOverwrite(cache, expectedHash, actualHash)
@@ -1222,7 +1221,7 @@ internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.mo
 private fun fileFromVariant(dependency: MavenDependency, name: String) =
     dependency.variants.flatMap { it.files }.singleOrNull { it.name == name }
 
-internal suspend fun Path.computeHash(): Collection<Hasher> = computeHash(this) { createHashers() }
+internal suspend fun Path.computeHash(): Collection<Hash> = computeHash(this) { createHashers() }
 
 private val hashAlgorithms = listOf("sha512", "sha256", "sha1", "md5")
 
