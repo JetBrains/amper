@@ -9,9 +9,13 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.nio.channels.AsynchronousCloseException
 import java.nio.channels.ClosedChannelException
 import java.nio.channels.FileChannel
 import java.nio.channels.FileLock
+import java.nio.channels.FileLockInterruptionException
+import java.nio.channels.NonWritableChannelException
+import java.nio.channels.OverlappingFileLockException
 import java.nio.file.AccessDeniedException
 import java.nio.file.NoSuchFileException
 import java.nio.file.OpenOption
@@ -75,13 +79,30 @@ suspend fun <T> StripedMutex.withDoubleLock(
 }
 
 /**
- * Executes the given [block] under a system-wide file lock on this [Path].
+ * Executes the given [block] under a system-wide exclusive lock on the file at this [Path].
  *
  * The [block]'s parameter is the [FileChannel] used to lock this file, if further inspection of the file is needed
  * while under the lock. The lock can be read and/or written to depending on the given open [options].
  *
- * If the [FileChannel] cannot be opened because of access errors, the open operation is retried several times.
+ * If a [FileChannel] cannot be opened because of access errors, the open operation is retried several times.
  * This is to remediate the fact that sometimes the path stays inaccessible for a short time after being removed.
+ *
+ * This function blocks until the file can be locked or the invoking thread is interrupted, whichever comes first.
+ * If a "resource deadlock avoided" exception is thrown, this function suspends and retries several times.
+ *
+ * If the invoking thread is interrupted while waiting to acquire the lock then its interrupt status will be set and a
+ * [FileLockInterruptionException] will be thrown. If the invoker's interrupt status is set when this function is
+ * invoked then that exception will be thrown immediately; the thread's interrupt status will not be changed.
+ *
+ * File locks are held on behalf of the entire Java virtual machine. They are not suitable for controlling access to a
+ * file by multiple threads within the same virtual machine.
+ *
+ * @throws FileLockInterruptionException If the invoking thread is interrupted while blocked in this function
+ * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this Java
+ *         virtual machine, or if another thread is already blocked in this function and is attempting to lock an
+ *         overlapping region of the same file
+ * @throws NonWritableChannelException If this file was not opened for writing
+ * @throws IOException If some other I/O error occurs
  */
 private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOption, block: (FileChannel) -> T): T {
     // Files can sometimes be inaccessible for a short time right after a removal.
@@ -297,6 +318,29 @@ fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, originalThrowable: 
     }
 }
 
+/**
+ * Acquires an exclusive lock on this channel's file, retrying in case of "Resource deadlock avoided" exception.
+ *
+ * This function blocks until the file can be locked, this channel is closed, or the invoking thread is interrupted,
+ * whichever comes first. If a "resource deadlock avoided" exception is thrown, this function suspends and retries.
+ *
+ * If the invoking thread is interrupted while waiting to acquire the lock then its interrupt status will be set and a
+ * [FileLockInterruptionException] will be thrown. If the invoker's interrupt status is set when this function is
+ * invoked then that exception will be thrown immediately; the thread's interrupt status will not be changed.
+ *
+ * File locks are held on behalf of the entire Java virtual machine. They are not suitable for controlling access to a
+ * file by multiple threads within the same virtual machine.
+ *
+ * @throws ClosedChannelException If this channel is closed
+ * @throws AsynchronousCloseException If another thread closes this channel while the invoking thread is blocked in
+ *         this function
+ * @throws FileLockInterruptionException If the invoking thread is interrupted while blocked in this function
+ * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this Java
+ *         virtual machine, or if another thread is already blocked in this function and is attempting to lock an
+ *         overlapping region of the same file
+ * @throws NonWritableChannelException If this channel was not opened for writing
+ * @throws IOException If some other I/O error occurs
+ */
 private suspend fun FileChannel.lockWithRetry(): FileLock? =
     withRetry(
         retryOnException = { e ->
