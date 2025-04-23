@@ -103,15 +103,18 @@ private suspend inline fun InputStream.consumeLinesBlockingCancellable(onEachLin
  * * If [cancellableBlock] completes successfully, this function simply waits for the termination of this process
  *   **without destroying it**.
  * * If [cancellableBlock] throws an exception, this function **destroys the process** and awaits its termination.
- * * If the current coroutine is cancelled, this function **destroys the process** and awaits its termination.
- *   This is true whether the current coroutine is already cancelled when calling this function, or cancelled during the
- *   execution of [cancellableBlock], or cancelled after the successful completion of [cancellableBlock] (while waiting
+ * * If the current coroutine is canceled, this function **destroys the process** and awaits its termination.
+ *   This is true whether the current coroutine is already canceled when calling this function, canceled during the
+ *   execution of [cancellableBlock], or canceled after the successful completion of [cancellableBlock] (while waiting
  *   for the process to terminate).
- * * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **requests the process destruction** but
- *   doesn't wait for its completion (we mustn't block the JVM shutdown).
+ * * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **destrous the process** and waits for its
+ *   termination.
  *
- * The process destruction is done as described in [killAndAwaitTermination]: first, a normal destruction is requested,
- * and if this process doesn't terminate within the given [gracePeriod], it is then forcibly killed.
+ * In cases where the process is destroyed, a normal destruction is requested first, and if this process doesn't
+ * terminate within the given [gracePeriod], it is then _forcibly destroyed_.
+ *
+ * > Forcible process destruction is defined as the immediate termination of a process, whereas normal termination
+ * > allows the process to shut down cleanly.
  *
  * This function always waits for the process to actually terminate before re-throwing an exception (such as
  * [CancellationException]) to make sure this process doesn't leak. If this process is not killable and hangs, this
@@ -125,7 +128,7 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
     contract {
         callsInPlace(cancellableBlock, kind = InvocationKind.EXACTLY_ONCE)
     }
-    withDestructionHook {
+    withDestructionHook(gracePeriod) {
         try {
             // jump straight to the catch block if the coroutine is already cancelled
             currentCoroutineContext().ensureActive()
@@ -149,18 +152,29 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
  * during the execution.
  *
  * A shutdown hook is registered before running [block], and unregistered when the given [block] completes (normally or
- * exceptionally).
+ * exceptionally). The shutdown hook destroys this [Process] and waits for its termination. If this process doesn't
+ * terminate within the given [gracePeriod], it is _forcibly destroyed_, but still awaited.
+ *
+ * > Forcible process destruction is defined as the immediate termination of a process, whereas normal termination
+ * > allows the process to shut down cleanly.
+ *
+ * Awaiting the process termination is necessary to show all the output from the process. Some processes like HTTP
+ * servers print some output in their own shutdown hooks, and this way the caller can see it.
+ *
+ * If this process is not killable and hangs, this function will also hang instead of returning, so the caller is aware
+ * of the zombie process. While this contradicts the shutdown hook rule of completing fast, it just transitively exposes
+ * bad-behaved processes.
  */
 @OptIn(ExperimentalContracts::class)
 @PublishedApi
-internal inline fun <T> Process.withDestructionHook(block: (Process) -> T): T {
+internal inline fun <T> Process.withDestructionHook(gracePeriod: Duration = 1.seconds, block: (Process) -> T): T {
     contract {
         callsInPlace(block, kind = InvocationKind.EXACTLY_ONCE)
     }
     // If the JVM is shut down (e.g. via Ctrl+C) while this child process is running, we don't want to leak the process.
-    // That said, we only call destroyHierarchy(), which is asynchronous, because we can't afford to wait for the
-    // process to actually terminate when the JVM is shutting down (we need to promptly terminate).
-    return withShutdownHook(onJvmShutdown = { destroyHierarchy() }) {
+    // We also want to wait for the process termination (even if slow) to ensure all output is printed, and also to
+    // show to the caller if the process actually hangs.
+    return withShutdownHook(onJvmShutdown = { killAndAwaitTermination(gracePeriod) }) {
         block(this)
     }
 }
