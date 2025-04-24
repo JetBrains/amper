@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.groups.default
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
@@ -97,14 +98,14 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
 
         val version = desiredVersion.resolve()
 
-        commonOptions.terminal.println("Downloading Amper scripts...")
+        terminal.println("Downloading Amper scripts...")
         val newBashPath = downloadWrapper(version = version, extension = "").apply { setReadExecPermissions() }
         val newBatPath = downloadWrapper(version = version, extension = ".bat").apply { setReadExecPermissions() }
-        commonOptions.terminal.println("Download complete.")
+        terminal.println("Download complete.")
 
         if (amperBashPath.exists() && newBashPath.readText() == amperBashPath.readText() &&
             amperBatPath.exists() && newBatPath.readText() == amperBatPath.readText()) {
-            commonOptions.terminal.println("Amper is already in version $version, nothing to update")
+            terminal.println("Amper is already in version $version, nothing to update")
             return
         }
 
@@ -143,7 +144,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         }
 
         val successStyle = Theme.Default.success
-        commonOptions.terminal.println(successStyle("Update successful"))
+        terminal.println(successStyle("Update successful"))
     }
 
     private fun checkNotDirectories(vararg amperScriptPaths: Path) {
@@ -166,7 +167,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         } else {
             "An Amper script is missing: ${missingScripts.first().normalize().absolutePathString()}.\nUpdating will create it. Would you like to continue? (Y/n)"
         }
-        val answer = commonOptions.terminal.prompt(
+        val answer = terminal.prompt(
             prompt = prompt,
             default = "y",
             showChoices = false,
@@ -174,7 +175,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
             choices = listOf("y", "Y", "n", "N"),
         )
         if (answer?.lowercase() != "y") {
-            commonOptions.terminal.println("Update aborted.")
+            terminal.println("Update aborted.")
             exitProcess(0)
         }
     }
@@ -186,7 +187,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
 
     private suspend fun getLatestVersion(includeDevVersions: Boolean): String =
         spanBuilder("Fetch latest Amper version").use {
-            commonOptions.terminal.println("Fetching latest Amper version info...")
+            terminal.println("Fetching latest Amper version info...")
             val metadataXml = fetchMavenMetadataXml()
             xmlVersionElementRegex.findAll(metadataXml)
                 .mapNotNull { parseAmperVersion(it.groupValues[1]) }
@@ -196,7 +197,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
                 ?.also {
                     val versionMoniker = if (includeDevVersions) "dev version of Amper" else "Amper version"
                     val infoStyle = Theme.Default.info
-                    commonOptions.terminal.println("Latest $versionMoniker is ${infoStyle(it)}")
+                    terminal.println("Latest $versionMoniker is ${infoStyle(it)}")
                 }
                 ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$metadataXml")
         }

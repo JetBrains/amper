@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.completion.SuspendingCompletionCommand
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.obj
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.output.MordantHelpFormatter
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
@@ -29,6 +30,7 @@ import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
+import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.tinylog.Level
 import java.nio.file.Path
 
@@ -59,6 +61,9 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
             UpdateCommand(),
         )
         context {
+            terminal = spanBuilder("Initialize Mordant terminal").useWithoutCoroutines {
+                Terminal()
+            }
             helpFormatter = { context ->
                 object : MordantHelpFormatter(context, showDefaultValues = true) {
                     override fun renderRepeatedMetavar(metavar: String): String {
@@ -111,10 +116,6 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         // Ensure we're writing traces to the configured user cache (we start with the default in early telemetry).
         // For commands that have a project context, the traces will eventually be moved to the project build logs dir.
         TelemetryEnvironment.setUserCacheRoot(sharedCachesRoot)
-
-        val terminal = spanBuilder("Initialize Mordant Terminal").use {
-            Terminal()
-        }
 
         currentContext.obj = CommonOptions(
             explicitRoot = root,

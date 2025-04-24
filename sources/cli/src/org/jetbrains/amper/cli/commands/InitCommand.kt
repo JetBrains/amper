@@ -28,7 +28,7 @@ internal class InitCommand : AmperSubcommand(name = "init") {
 
     override suspend fun run() {
         val directory = commonOptions.explicitRoot ?: Path(System.getProperty("user.dir"))
-        ProjectGenerator(terminal = commonOptions.terminal).initProject(
+        ProjectGenerator(terminal = terminal).initProject(
             template = template ?: promptForTemplate(),
             directory = directory,
         )
@@ -39,7 +39,7 @@ internal class InitCommand : AmperSubcommand(name = "init") {
             title = "Select a project template:",
             entries = AmperProjectTemplates.availableTemplates.map {
                 SelectList.Entry(
-                    title = commonOptions.terminal.theme.info.invoke(it.name),
+                    title = terminal.theme.info.invoke(it.name),
                     description = it.description.prependIndent("  "),
                 )
             },

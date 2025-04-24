@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands.tools
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.default
@@ -52,8 +53,6 @@ internal class JaegerToolCommand: AmperSubcommand(name = "jaeger") {
     override fun help(context: Context): String = "Download and run Jaeger server https://www.jaegertracing.io"
 
     override fun helpEpilog(context: Context): String = "Use -- to separate Jaeger's arguments from Amper options"
-
-    private val terminal get() = commonOptions.terminal
 
     override suspend fun run() {
         val userCacheRoot = commonOptions.sharedCachesRoot
