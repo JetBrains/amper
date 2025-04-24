@@ -725,7 +725,7 @@
         "release": {
           "x-intellij-html-description": "The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used.",
           "title": "The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used",
-          "x-intellij-metadata": {"aliases": ["jdk"]},
+          "x-intellij-metadata": {"aliases": ["jdk", "source", "target", "apiVersion"]},
           "enum": ["25","24","23","22","21","17","11","8"],
           "x-intellij-enum-order-sensitive": true
         },

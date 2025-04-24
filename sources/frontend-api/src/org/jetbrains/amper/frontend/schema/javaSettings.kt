@@ -64,7 +64,7 @@ enum class JavaVersion(
 
 class JvmSettings : SchemaNode() {
 
-    @Aliases("jdk")
+    @Aliases("jdk", "source", "target", "apiVersion")
     @SchemaDoc("The minimum JVM release version that the code should be compatible with. " +
             "This enforces compatibility on 3 levels. " +
             "First, it is used as the target version for the bytecode generated from Kotlin and Java sources. " +
