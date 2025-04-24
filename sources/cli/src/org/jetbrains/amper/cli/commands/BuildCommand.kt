@@ -16,7 +16,7 @@ import org.jetbrains.amper.util.BuildType
 internal class BuildCommand : AmperSubcommand(name = "build") {
 
     private val modules by option("-m", "--module",
-        help = "The specific module to build (run the 'modules' command to get the modules list). " +
+        help = "The specific module to build (run the 'show modules' command to get the modules list). " +
                 "This option can be repeated to build several modules."
     ).multiple().unique()
 
