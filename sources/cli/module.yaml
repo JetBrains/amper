@@ -52,6 +52,7 @@ dependencies:
   - $libs.android.tools.sdkCommon
   - $libs.android.tools.ddmlib
   - $libs.clikt
+  - $libs.clikt.markdown
   - $libs.xmlutil.serialization
   - $libs.stacktrace.decoroutinator
   - $libs.intellij.deps.asyncProfiler

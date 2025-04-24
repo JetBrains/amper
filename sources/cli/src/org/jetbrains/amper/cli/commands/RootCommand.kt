@@ -10,7 +10,7 @@ import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.obj
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.core.terminal
-import com.github.ajalt.clikt.output.MordantHelpFormatter
+import com.github.ajalt.clikt.output.MordantMarkdownHelpFormatter
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -18,19 +18,18 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
-import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.AmperVersion
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.amperTypoSuggestor
 import org.jetbrains.amper.cli.commands.show.ShowCommand
 import org.jetbrains.amper.cli.commands.tools.ToolCommand
+import org.jetbrains.amper.cli.createMordantTerminal
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.cli.unwrap
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
-import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.tinylog.Level
 import java.nio.file.Path
 
@@ -61,11 +60,11 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
             UpdateCommand(),
         )
         context {
-            terminal = spanBuilder("Initialize Mordant terminal").useWithoutCoroutines {
-                Terminal()
-            }
+            // one would be created by default, but we manually set it to customize the theme
+            terminal = createMordantTerminal()
+
             helpFormatter = { context ->
-                object : MordantHelpFormatter(context, showDefaultValues = true) {
+                object : MordantMarkdownHelpFormatter(context, showDefaultValues = true) {
                     override fun renderRepeatedMetavar(metavar: String): String {
                         // make it clear that arguments should be separated by '--'
                         if (metavar in setOf("[<app_arguments>]", "[<tool_arguments>]", "[<jaeger_arguments>]")) {

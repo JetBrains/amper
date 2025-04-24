@@ -54,6 +54,7 @@ bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref 
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 charleskorn-kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
+clikt-markdown = { module = "com.github.ajalt.clikt:clikt-markdown", version.ref = "clikt" }
 compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-forGradleBased" }
 google-services-gradle-plugin =  { module = "com.google.gms:google-services", version.ref = "google-services" }
 gradle-api-forGradleBased = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api-forGradleBased" }
