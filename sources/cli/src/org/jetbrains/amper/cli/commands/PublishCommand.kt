@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
@@ -20,7 +21,7 @@ internal class PublishCommand : AmperSubcommand(name = "publish") {
     override fun help(context: Context): String = "Publish modules to a repository"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName) { backend ->
+        withBackend(commonOptions, commandName, terminal) { backend ->
             backend.publish(
                 modules = module?.toSet(),
                 repositoryId = repositoryId,

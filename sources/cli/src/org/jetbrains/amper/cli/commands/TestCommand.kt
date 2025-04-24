@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.multiple
@@ -110,6 +111,7 @@ internal class TestCommand : AmperSubcommand(name = "test") {
         withBackend(
             commonOptions = commonOptions,
             currentCommand = commandName,
+            terminal = terminal,
             taskExecutionMode = TaskExecutor.Mode.GREEDY, // try to execute as many tests as possible
             commonRunSettings = CommonRunSettings(
                 userJvmArgs = jvmArgs,

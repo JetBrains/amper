@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands.show
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.withBackend
 
@@ -13,7 +14,7 @@ internal class TasksCommand : AmperSubcommand(name = "tasks") {
     override fun help(context: Context): String = "List all tasks in the project and their dependencies"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName) { backend ->
+        withBackend(commonOptions, commandName, terminal) { backend ->
             backend.showTasks()
         }
     }

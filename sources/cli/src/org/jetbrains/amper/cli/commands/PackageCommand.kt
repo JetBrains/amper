@@ -6,6 +6,7 @@ package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
@@ -51,7 +52,7 @@ internal class PackageCommand : AmperSubcommand(name = "package") {
 
     override fun help(context: Context): String = "Package the project artifacts for distribution"
 
-    override suspend fun run() = withBackend(commonOptions, commandName) { backend ->
+    override suspend fun run() = withBackend(commonOptions, commandName, terminal) { backend ->
         backend.`package`(
             platforms = platforms.takeIf { it.isNotEmpty() },
             modules = modules.takeIf { it.isNotEmpty() },

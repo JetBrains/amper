@@ -123,7 +123,6 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
             asyncProfiler = asyncProfiler,
             sharedCachesRoot = sharedCachesRoot,
             buildOutputRoot = buildOutputRoot,
-            terminal = terminal,
         )
 
         spanBuilder("Setup console logging").use {
@@ -143,6 +142,5 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         val asyncProfiler: Boolean,
         val sharedCachesRoot: AmperUserCacheRoot,
         val buildOutputRoot: Path?,
-        val terminal: Terminal,
     )
 }

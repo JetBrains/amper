@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli
 
+import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ private val backendInitialized = AtomicReference<Throwable>(null)
 internal suspend fun <T> withBackend(
     commonOptions: RootCommand.CommonOptions,
     currentCommand: String,
+    terminal: Terminal,
     commonRunSettings: CommonRunSettings = CommonRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
     setupEnvironment: Boolean = true,
@@ -63,7 +65,7 @@ internal suspend fun <T> withBackend(
                 commonRunSettings = commonRunSettings,
                 taskExecutionMode = taskExecutionMode,
                 backgroundScope = backgroundScope,
-                terminal = commonOptions.terminal,
+                terminal = terminal,
             )
         }
 

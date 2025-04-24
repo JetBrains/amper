@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import org.jetbrains.amper.cli.withBackend
 import kotlin.io.path.deleteRecursively
 
@@ -13,7 +14,7 @@ internal class CleanSharedCachesCommand : AmperSubcommand(name = "clean-shared-c
     override fun help(context: Context): String = "Remove the Amper caches that are shared between projects"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName) { backend ->
+        withBackend(commonOptions, commandName, terminal) { backend ->
             val root = backend.context.userCacheRoot
             logger.info("Deleting shared caches at ${root.path}...")
             root.path.deleteRecursively()

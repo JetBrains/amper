@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.TaskName
@@ -16,7 +17,7 @@ internal class TaskCommand : AmperSubcommand(name = "task") {
     override fun help(context: Context): String = "Execute any task from the task graph"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName) { backend ->
+        withBackend(commonOptions, commandName, terminal) { backend ->
             backend.runTask(TaskName(name))
         }
     }

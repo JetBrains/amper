@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands.tools
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
@@ -38,7 +39,7 @@ internal class KeystoreToolCommand : AmperSubcommand(name = "generate-keystore")
     override fun help(context: Context): String = "Generate keystore"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName, setupEnvironment = true) {
+        withBackend(commonOptions, commandName, terminal, setupEnvironment = true) {
             try {
                 propertiesFile?.let {
                     KeystoreGenerator.createNewKeystore(it, dn)

@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands.show
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.mordant.rendering.TextAlign
 import com.github.ajalt.mordant.rendering.Whitespace
 import com.github.ajalt.mordant.terminal.info
@@ -22,7 +23,7 @@ internal class SettingsCommand: AmperSubcommand(name = "settings") {
     override fun help(context: Context): String = "Print the effective Amper settings of each module"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName) { backend ->
+        withBackend(commonOptions, commandName, terminal) { backend ->
             val terminal = backend.context.terminal
 
             val model = with(CliProblemReporterContext) {

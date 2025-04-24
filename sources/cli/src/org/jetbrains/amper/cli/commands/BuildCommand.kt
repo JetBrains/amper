@@ -6,6 +6,7 @@ package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
@@ -38,7 +39,7 @@ internal class BuildCommand : AmperSubcommand(name = "build") {
 
     override fun help(context: Context): String = "Compile and link all code in the project"
 
-    override suspend fun run() = withBackend(commonOptions, commandName) { backend ->
+    override suspend fun run() = withBackend(commonOptions, commandName, terminal) { backend ->
         backend.build(
             platforms = platforms.takeIf { it.isNotEmpty() },
             modules = modules.takeIf { it.isNotEmpty() },

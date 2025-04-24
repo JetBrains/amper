@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
@@ -92,7 +93,7 @@ internal class ServerCommand : AmperSubcommand(name = "server") {
         "Start a server that accepts tasks from Amper and runs them. The server runs on port $defaultPort by default."
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName) { backend ->
+        withBackend(commonOptions, commandName, terminal) { backend ->
             embeddedServer(Netty, port = port) {
                 install(ContentNegotiation) { json() }
                 install(SSE)

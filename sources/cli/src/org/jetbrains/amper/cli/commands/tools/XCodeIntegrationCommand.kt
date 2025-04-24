@@ -10,6 +10,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
+import com.github.ajalt.clikt.core.terminal
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.tasks.ios.IosConventions
@@ -50,7 +51,7 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
 
         val (buildDir: Path, moduleName: String) = if (superAmperBuildRoot == null) {
             // Running from xcode only - need to run iOS prebuild task ourselves
-            withBackend(commonOptions, commandName) { backend ->
+            withBackend(commonOptions, commandName, terminal) { backend ->
                 val moduleName = backend.prebuildForXcode(
                     moduleDir = Path(requireXcodeVar("PROJECT_DIR")),
                     buildType = buildType,
