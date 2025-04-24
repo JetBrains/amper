@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schemaConverter.psi
@@ -42,33 +42,33 @@ class ConverterImpl(
     override val problemReporter: ProblemReporter
 ) : Converter {
     internal fun convertProject(file: VirtualFile): Project? {
-        val projectPsiFile = pathResolver.toPsiFile(file) ?: return null
-        return projectPsiFile.doConvertTopLevelValue { topLevelValue ->
+        return convertPsiFile(file) {
             // An empty file has a null topLevelValue, but we still have a file, so we want a default Project instance
-            topLevelValue?.convert<Project>() ?: Project()
-        }?.also {
-            it.trace = PsiTrace(projectPsiFile)
+            it?.convert<Project>() ?: Project()
         }
     }
 
-    internal fun convertModule(file: VirtualFile): Module? =
-        pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            val module = it?.convert<Module>()
-            if (module == null) {
-                reportEmptyModule(file)
-            }
-            module
-        }
+    internal fun convertModule(file: VirtualFile): Module? {
+        val module = convertPsiFile<Module>(file)
+        if (module == null) reportEmptyModule(file)
+        return module
+    }
 
-    internal fun convertCustomTask(file: VirtualFile): CustomTaskNode? =
-        pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convert<CustomTaskNode>()
-        }
+    internal fun convertCustomTask(file: VirtualFile): CustomTaskNode? = convertPsiFile(file)
 
-    internal fun convertTemplate(file: VirtualFile): Template? =
-        pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convert<Template>()
+    internal fun convertTemplate(file: VirtualFile): Template? = convertPsiFile(file)
+
+    private inline fun <reified T : SchemaNode> convertPsiFile(
+        file: VirtualFile,
+        crossinline convert: (PsiElement?) -> T? = { it?.convert<T>() }
+    ): T? {
+        val psiFile = pathResolver.toPsiFile(file) ?: return null
+        return psiFile.doConvertTopLevelValue {
+            convert(it)
+        }?.also {
+            it.trace = PsiTrace(psiFile)
         }
+    }
 
     private fun <T: SchemaNode> PsiFile?.doConvertTopLevelValue(conversion: (PsiElement?) -> T?): T? {
         return ApplicationManager.getApplication().runReadAction(Computable {
