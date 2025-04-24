@@ -19,6 +19,11 @@ test-dependencies:
 settings:
   kotlin:
     serialization: enabled
+  jvm:
+    test:
+      systemProperties:
+        junit.jupiter.execution.parallel.config.strategy: fixed
+        junit.jupiter.execution.parallel.config.fixed.parallelism: 4
 
 tasks:
   testJvm:
