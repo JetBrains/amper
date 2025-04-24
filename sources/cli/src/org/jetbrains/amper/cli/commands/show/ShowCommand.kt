@@ -18,7 +18,7 @@ internal class ShowCommand : AmperSubcommand(name = "show") {
         )
     }
 
-    override fun help(context: Context): String = "Shows information about some aspect the project (modules, tasks, effective settings...). See help for details."
+    override fun help(context: Context): String = "Show information about some aspect the project (modules, tasks, effective settings...). See help for details."
 
     override suspend fun run() = Unit
 }
