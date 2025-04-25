@@ -43,12 +43,14 @@ class TeamCityMessagesTestExecutionListener(
 ) : TestExecutionListener {
 
     private val enabled = System.getProperty("$configPropertyGroup.enabled", "false").toBooleanStrict()
+    private val alsoPrintNormalOutput = System.getProperty("$configPropertyGroup.alsoPrintNormalOutput", "false").toBooleanStrict()
 
     private val currentTest = InheritableThreadLocal<TestIdentifier?>()
 
     private val watchedStdout = watchedStream(
         original = System.out,
         serviceMessagesStream = serviceMessagesStream,
+        forwardToOriginalStream = alsoPrintNormalOutput,
         currentTest = currentTest,
     ) { testId, output ->
         emit(TestStdOut(testId.teamCityName, output).withFlowId(testId))
@@ -57,6 +59,7 @@ class TeamCityMessagesTestExecutionListener(
     private val watchedStderr = watchedStream(
         original = System.err,
         serviceMessagesStream = serviceMessagesStream,
+        forwardToOriginalStream = alsoPrintNormalOutput,
         currentTest = currentTest,
     ) { testId, output ->
         emit(TestStdErr(testId.teamCityName, output).withFlowId(testId))
@@ -216,17 +219,19 @@ class TeamCityMessagesTestExecutionListener(
 private fun watchedStream(
     original: PrintStream,
     serviceMessagesStream: PrintStream,
+    forwardToOriginalStream: Boolean,
     currentTest: ThreadLocal<TestIdentifier?>,
     onLinePrinted: (TestIdentifier, String) -> Unit,
 ): ThreadAwareEavesdroppingPrintStream<TestIdentifier?> = ThreadAwareEavesdroppingPrintStream(
     original = original,
+    forwardToOriginalStream = forwardToOriginalStream,
     // When the service messages stream is the same as the original stream, we can't print a service message after
     // a partial line of output, because the ##teamcity mark must be at the start of a line.
     // A `print("something")` must not result in `something##teamcity[stdOut ... "something"]`.
     // This is why, in this case, we only flush when we have a complete line because it means the original stream
     // also has a complete line, thus ensuring proper interlacing of output lines and service messages.
     // Nevertheless, we use forceFlush() at the end of a test to report a potential trailing partial line.
-    allowPartialLineFlush = serviceMessagesStream != original,
+    allowPartialLineFlush = !forwardToOriginalStream || serviceMessagesStream != original,
     threadLocalKey = currentTest,
 ) { testId, output ->
     if (testId != null) {

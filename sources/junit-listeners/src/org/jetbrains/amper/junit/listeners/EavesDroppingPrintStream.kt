@@ -17,7 +17,7 @@ internal class ThreadAwareEavesdroppingPrintStream<K> private constructor(
 ) : PrintStream(outputStream, true) {
 
     /**
-     * Creates a [PrintStream] that transparently watches the given [original] print stream, remembers the output
+     * Creates a [PrintStream] that transparently watches the given [original] print stream, buffers the output
      * independently for each value of the given [threadLocalKey], and reports full lines to [onLinePrinted],
      * attributed to each key.
      *
@@ -32,9 +32,16 @@ internal class ThreadAwareEavesdroppingPrintStream<K> private constructor(
     constructor(
         original: PrintStream,
         threadLocalKey: ThreadLocal<K>,
+        forwardToOriginalStream: Boolean,
         allowPartialLineFlush: Boolean = false,
         onLinePrinted: (key: K, line: String) -> Unit,
-    ) : this(ThreadAwareEavesdroppingOutputStream(original, threadLocalKey, allowPartialLineFlush, onLinePrinted))
+    ) : this(ThreadAwareEavesdroppingOutputStream(
+        original = original,
+        threadLocalKey = threadLocalKey,
+        forwardToOriginalStream = forwardToOriginalStream,
+        allowPartialLineFlush = allowPartialLineFlush,
+        onLinePrinted = onLinePrinted,
+    ))
 
     /**
      * Flushes even partial lines (for instance at the end of a test), disregarding the `allowPartialLineFlush` config.
@@ -51,6 +58,7 @@ internal class ThreadAwareEavesdroppingPrintStream<K> private constructor(
 internal class ThreadAwareEavesdroppingOutputStream<K>(
     private val original: OutputStream,
     private val threadLocalKey: ThreadLocal<K>,
+    private val forwardToOriginalStream: Boolean,
     private val allowPartialLineFlush: Boolean,
     private val onLinePrinted: (key: K, line: String) -> Unit,
 ) : FilterOutputStream(original) {
@@ -63,17 +71,23 @@ internal class ThreadAwareEavesdroppingOutputStream<K>(
     }
 
     override fun write(buf: ByteArray, off: Int, len: Int) {
-        original.write(buf, off, len)
+        if (forwardToOriginalStream) {
+            original.write(buf, off, len)
+        }
         getThreadBuffer()?.append(String(buf, off, len))
     }
 
     override fun write(b: Int) {
-        original.write(b)
+        if (forwardToOriginalStream) {
+            original.write(b)
+        }
         getThreadBuffer()?.append(b.toChar().toString())
     }
 
     override fun flush() {
-        original.flush()
+        if (forwardToOriginalStream) {
+            original.flush()
+        }
         val buffer = getThreadBuffer() ?: return
         if (allowPartialLineFlush || buffer.endsWith("\n")) {
             sendAndClearBuffer()
@@ -84,7 +98,9 @@ internal class ThreadAwareEavesdroppingOutputStream<K>(
      * Flushes even partial lines (for instance at the end of a test), disregarding the `allowPartialLineFlush` config.
      */
     fun forceFlush() {
-        original.flush()
+        if (forwardToOriginalStream) {
+            original.flush()
+        }
         sendAndClearBuffer()
     }
 

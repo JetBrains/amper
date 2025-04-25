@@ -36,40 +36,60 @@ class AmperTestFormatTest : AmperCliTestBase() {
                     suiteWithFlow("com.example.jvmcli.OrderedTestSuite") {
                         suiteWithFlow("com.example.jvmcli.JvmIntegrationTest") {
                             testWithFlow("com.example.jvmcli.JvmIntegrationTest.integrationTest()") {
-                                testStdOut("output line 1 in JvmIntegrationTest.integrationTest$NL")
+                                testStdOut("output line 1 in JvmIntegrationTest.integrationTest")
+                                testStdOut(NL)
                                 testStdErr("error line 1 in JvmIntegrationTest.integrationTest")
                                 testStdErr(NL)
-                                testStdOut("output line 2 in JvmIntegrationTest.integrationTest$NL")
+                                testStdOut("output line 2 in JvmIntegrationTest.integrationTest")
+                                testStdOut(NL)
                                 testStdErr("error line 2 in JvmIntegrationTest.integrationTest")
                                 testStdErr(NL)
                             }
                         }
                         suiteWithFlow("com.example.jvmcli.MyClass1Test") {
                             testWithFlow("com.example.jvmcli.MyClass1Test.test1()") {
-                                testStdOut("running MyClass1Test.test1$NL")
+                                testStdOut("running MyClass1Test.test1")
+                                testStdOut(NL)
                             }
                             testWithFlow("com.example.jvmcli.MyClass1Test.test2()") {
-                                testStdOut("running MyClass1Test.test2$NL")
+                                testStdOut("running MyClass1Test.test2")
+                                testStdOut(NL)
                             }
                             testWithFlow("com.example.jvmcli.MyClass1Test.test3()") {
-                                testStdOut("running MyClass1Test.test3$NL")
+                                testStdOut("running MyClass1Test.test3")
+                                testStdOut(NL)
                             }
                         }
                         suiteWithFlow("com.example.jvmcli.MyClass2Test") {
                             testWithFlow("com.example.jvmcli.MyClass2Test.test1()") {
-                                testStdOut("running MyClass2Test.test1$NL")
+                                testStdOut("running MyClass2Test.test1")
+                                testStdOut(NL)
                             }
                             testWithFlow("com.example.jvmcli.MyClass2Test.test2()") {
-                                testStdOut("running MyClass2Test.test2$NL")
+                                testStdOut("running MyClass2Test.test2")
+                                testStdOut(NL)
                             }
                             testWithFlow("com.example.jvmcli.MyClass2Test.test3()") {
-                                testStdOut("running MyClass2Test.test3$NL")
+                                testStdOut("running MyClass2Test.test3")
+                                testStdOut(NL)
                             }
                         }
                     }
                 }
             }
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
+        }
+    }
+
+    @Test
+    fun `output should be printed only once in TC format`() {
+        runSlowTest {
+            val r = runCli(
+                projectRoot = testProject("multiplatform-tests"),
+                "test", "-m", "jvm-cli", "--format=teamcity", "--include-classes=com.example.jvmcli.MyClass1Test",
+                assertEmptyStdErr = false,
+            )
+            r.assertStdoutContains("running MyClass1Test.test1", expectedOccurrences = 1)
         }
     }
 
@@ -88,13 +108,16 @@ class AmperTestFormatTest : AmperCliTestBase() {
                 suiteWithFlow("JUnit Jupiter") {
                     suiteWithFlow("com.example.testswithparams.OverloadsTest") {
                         testWithFlow("com.example.testswithparams.OverloadsTest.test()") {
-                            testStdOut("running OverloadsTest.test()$NL")
+                            testStdOut("running OverloadsTest.test()")
+                            testStdOut(NL)
                         }
                         testWithFlow("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)") {
-                            testStdOut("running OverloadsTest.test(TestInfo)$NL")
+                            testStdOut("running OverloadsTest.test(TestInfo)")
+                            testStdOut(NL)
                         }
                         testWithFlow("com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)") {
-                            testStdOut("running OverloadsTest.test(TestInfo, TestReporter)$NL")
+                            testStdOut("running OverloadsTest.test(TestInfo, TestReporter)")
+                            testStdOut(NL)
                         }
                     }
                 }

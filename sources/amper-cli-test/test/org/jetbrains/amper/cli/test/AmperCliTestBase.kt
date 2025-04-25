@@ -27,6 +27,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.readLines
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -100,6 +101,10 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             assertTrue("Stdout does not contain the text '$text':\n" + stdout.trim()) {
                text in stdout
             }
+        }
+        fun assertStdoutContains(text: String, expectedOccurrences: Int) {
+            val actualOccurrences = Regex.fromLiteral(text).findAll(stdout).count()
+            assertEquals(expectedOccurrences, actualOccurrences, "Stdout should contain the text '$text' $expectedOccurrences time(s), but got $actualOccurrences:\n" + stdout.trim())
         }
         fun assertStdoutDoesNotContain(text: String) {
             assertFalse("Stdout should not contain the text '$text':\n" + stdout.trim()) {
