@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli
 
 import org.jetbrains.amper.cli.commands.UserJvmArgsOption
+import org.jetbrains.amper.cli.widgets.TaskProgressRenderer
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.engine.BuildTask
