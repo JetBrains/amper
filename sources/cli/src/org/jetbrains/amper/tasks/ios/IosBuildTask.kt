@@ -97,13 +97,18 @@ class IosBuildTask(
 
         coroutineScope {
             val executable = prepareLogParsingUtility()
-
             val pipe = ProcessInput.Pipe()
-            // Need to launch log parser in parallel, otherwise
+
+            logger.info("Using xcbeautify ($XCBEAUTIFY_VERSION) to parse xcodebuild output.")
+
+            // Need to launch log parser in parallel
             val parserProcessJob = launch {
                 runProcess(
                     workingDir = workingDir,
-                    command = listOf(executable.pathString),
+                    command = listOf(
+                        executable.pathString,
+                        "--disable-logging", // disable big version banner - we do it ourselves
+                    ),
                     outputListener = LoggingProcessOutputListener(logger),
                     input = pipe,
                 )
@@ -156,7 +161,7 @@ class IosBuildTask(
             Arch.X64 -> "x86_64"
             Arch.Arm64 -> "arm64"
         }
-        val version = "2.28.0"
+        val version = XCBEAUTIFY_VERSION
         val archive = Downloader.downloadFileToCacheLocation(
             url = "https://github.com/cpisciotta/xcbeautify/releases/download/$version/xcbeautify-$version-$archString-apple-macosx.zip",
             userCacheRoot = userCacheRoot,
@@ -186,3 +191,5 @@ class IosBuildTask(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }
+
+const val XCBEAUTIFY_VERSION = "2.28.0"
