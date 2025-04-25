@@ -2,10 +2,8 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli
+package org.jetbrains.amper.engine
 
-import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.artifacts.api.Artifact
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector

@@ -1,11 +1,11 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.cli.TaskGraphBuilder
+import org.jetbrains.amper.engine.TaskGraphBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.frontend.AmperModule

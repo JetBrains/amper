@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.engine
@@ -7,7 +7,7 @@ package org.jetbrains.amper.engine
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
-import org.jetbrains.amper.cli.TaskGraphBuilder
+import org.jetbrains.amper.engine.TaskGraphBuilder
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
 import java.util.concurrent.atomic.AtomicInteger
