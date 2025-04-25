@@ -1,0 +1,4 @@
+package apkg
+
+class SomeUserClass {
+}

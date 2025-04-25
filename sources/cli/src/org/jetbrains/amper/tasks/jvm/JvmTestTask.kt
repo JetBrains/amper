@@ -22,7 +22,6 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jvm.JdkDownloader
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
-import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -89,8 +88,7 @@ class JvmTestTask(
         val jvmRuntimeClasspathTask = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>().singleOrNull()
             ?: error("${JvmRuntimeClasspathTask::class.simpleName} result is not found in dependencies")
 
-        val testClasspath = jvmRuntimeClasspathTask.jvmRuntimeClasspath
-        val testModuleClasspath = compileTask.classesOutputRoot
+        val userTestRuntimeClasspath = jvmRuntimeClasspathTask.jvmRuntimeClasspath
 
         val junitConsole = Downloader.downloadFileToCacheLocation(junitConsoleUrl, userCacheRoot)
 
@@ -111,14 +109,13 @@ class JvmTestTask(
             // TODO I certainly want to have it here by default (too many real life errors when tests are skipped for a some reason)
             //  but probably there should be an option to disable it
             add("--fail-if-no-tests")
-            add("--class-path=${(testClasspath + amperJUnitListenersJars).joinToString(File.pathSeparator)}")
             add("--reports-dir=${reportsDir}")
 
             val filterArguments = commonRunSettings.testFilters.map { it.toJUnitArgument() }
             addAll(filterArguments)
             if (filterArguments.isEmpty() ||
                 filterArguments.any { it.startsWith("--include") || it.startsWith("--exclude") }) {
-                add("--scan-class-path=$testModuleClasspath")
+                add("--scan-class-path=${compileTask.classesOutputRoot}")
             }
             add("--details=summary") // disable default console tree output, just print the summary
         }
@@ -151,12 +148,21 @@ class JvmTestTask(
         }
 
         try {
+            // We pass both the user classpath and the "infra" classpath (JUnit itself and our listeners) together
+            // instead of using the separate --class-path option of the JUnit Console Launcher itself.
+            // This is intentional, to work around this JUnit issue: https://github.com/junit-team/junit5/issues/4469.
+            // In short, the separate --class-path option of the launcher was mostly meant as a convenience, but in
+            // some cases it is harmful. It is loaded in a separate class loader that is closed at the end of the tests,
+            // but before the test JVM shuts down. If the user code uses shutdown hooks (e.g., in testcontainers), they
+            // would not be able to load user classes anymore because of this.
+            val testJvmClasspath = listOf(junitConsole) + amperJUnitListenersJars + userTestRuntimeClasspath
             val jvmCommand = listOf(
                 javaExecutable.pathString,
                 "-ea",
                 *jvmArgs.toTypedArray(),
-                "-jar",
-                junitConsole.pathString,
+                "-cp",
+                testJvmClasspath.joinToString(File.pathSeparator),
+                "org.junit.platform.console.ConsoleLauncher",
                 "execute",
                 "@$junitArgsFile",
             )
@@ -169,7 +175,7 @@ class JvmTestTask(
             return spanBuilder("junit-platform-console-standalone")
                 .setAttribute("junit-platform-console-standalone", junitConsole.pathString)
                 .setAttribute("working-dir", workingDirectory.pathString)
-                .setListAttribute("tests-classpath", testClasspath.map { it.pathString })
+                .setListAttribute("tests-classpath", userTestRuntimeClasspath.map { it.pathString })
                 .setListAttribute("jvm-args", jvmArgs)
                 .setListAttribute("junit-args", junitArgs)
                 .use { span ->

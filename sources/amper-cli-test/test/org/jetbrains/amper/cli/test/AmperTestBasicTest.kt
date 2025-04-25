@@ -72,6 +72,17 @@ class AmperTestBasicTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `successfully run shutdown hooks`() = runSlowTest {
+        val projectContext = testProject("jvm-test-shutdown-hook")
+        val result = runCli(projectRoot = projectContext, "test")
+
+        // asserts that ATest.smoke is run, but SrcTest.smoke isn't
+        result.assertStdoutContains("[         1 tests successful      ]")
+        result.assertStdoutContains("[         0 tests failed          ]")
+        result.assertStdoutContains("Hello from shutdown hook")
+    }
+
+    @Test
     fun `test fragment dependencies`() = runSlowTest {
         val result = runCli(projectRoot = testProject("jvm-test-fragment-dependencies"), "test")
         result.assertStdoutContains("FromExternalDependencies:OneTwo FromProject:MyUtil")
