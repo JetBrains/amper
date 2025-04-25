@@ -1,45 +1,18 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli
+package org.jetbrains.amper.cli.logging
 
 import com.github.ajalt.mordant.terminal.Terminal
-import dev.reformator.stacktracedecoroutinator.jvm.DecoroutinatorJvmApi
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.debug.DebugProbes
-import org.jetbrains.amper.cli.logging.DynamicFileWriter
-import org.jetbrains.amper.cli.logging.DynamicLevelConsoleWriter
-import org.jetbrains.amper.core.telemetry.spanBuilder
-import org.jetbrains.amper.diagnostics.DeadLockMonitor
-import org.jetbrains.amper.telemetry.useWithoutCoroutines
+import org.jetbrains.amper.cli.AmperBuildLogsRoot
+import org.jetbrains.amper.cli.AmperVersion
 import org.tinylog.Level
 import org.tinylog.core.TinylogLoggingProvider
 import org.tinylog.provider.ProviderRegistry
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.io.path.writeText
 
-object CliEnvironmentInitializer {
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun setupCoroutinesInstrumentation() {
-        // TODO investigate the performance impact of the decoroutinator
-        spanBuilder("Install stacktrace-decoroutinator").useWithoutCoroutines {
-            // see https://github.com/Anamorphosee/stacktrace-decoroutinator#motivation
-            DecoroutinatorJvmApi.install()
-        }
-
-        spanBuilder("Install coroutines debug probes").useWithoutCoroutines {
-            // coroutines debug probes, required to dump coroutines
-            DebugProbes.enableCreationStackTraces = false
-            DebugProbes.install()
-        }
-    }
-
-    fun setupDeadLockMonitor(logsRoot: AmperBuildLogsRoot) {
-        DeadLockMonitor.install(logsRoot)
-    }
+object LoggingInitializer {
 
     fun setupConsoleLogging(consoleLogLevel: Level, terminal: Terminal) {
         val loggingProvider = ProviderRegistry.getLoggingProvider() as TinylogLoggingProvider
@@ -67,7 +40,4 @@ object CliEnvironmentInitializer {
         infoLogFile.writeText(logFileBanner)
         infoWriter.setFile(infoLogFile)
     }
-
-    fun currentTimestamp(): String = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
-
 }

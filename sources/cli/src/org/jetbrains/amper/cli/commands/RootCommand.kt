@@ -19,11 +19,11 @@ import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.cli.AmperVersion
-import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.amperTypoSuggestor
 import org.jetbrains.amper.cli.commands.show.ShowCommand
 import org.jetbrains.amper.cli.commands.tools.ToolCommand
 import org.jetbrains.amper.cli.createMordantTerminal
+import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.cli.unwrap
 import org.jetbrains.amper.core.AmperBuild
@@ -125,9 +125,9 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         )
 
         spanBuilder("Setup console logging").use {
-            CliEnvironmentInitializer.setupConsoleLogging(
+            LoggingInitializer.setupConsoleLogging(
                 consoleLogLevel = consoleLogLevel,
-                terminal = terminal,
+                terminal = terminal
             )
         }
     }

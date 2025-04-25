@@ -1,19 +1,19 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
-import org.jetbrains.amper.cli.CliEnvironmentInitializer
+import org.jetbrains.amper.diagnostics.CoroutinesDebug
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class CoroutineStacktraceTest {
     init {
-        CliEnvironmentInitializer.setupCoroutinesInstrumentation()
+        CoroutinesDebug.setupCoroutinesInstrumentation()
     }
 
     @Test

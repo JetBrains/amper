@@ -9,7 +9,7 @@ package org.jetbrains.amper.backend.test
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.cli.CliEnvironmentInitializer
+import org.jetbrains.amper.diagnostics.CoroutinesDebug
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.test.TempDirExtension
@@ -52,7 +52,7 @@ abstract class AmperIntegrationTestBase {
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
 
     init {
-        CliEnvironmentInitializer.setupCoroutinesInstrumentation()
+        CoroutinesDebug.setupCoroutinesInstrumentation()
     }
 
     protected suspend fun TestCollector.setupTestProject(

@@ -14,9 +14,12 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.commands.RootCommand
+import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.AsyncProfilerMode
+import org.jetbrains.amper.diagnostics.CoroutinesDebug
+import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.telemetry.use
@@ -48,7 +51,7 @@ internal suspend fun <T> withBackend(
         // it's ok to parallelize this as long as we wait for it before doing coroutines-heavy work
         val coroutinesDebugInstallJob = launch {
             spanBuilder("Setup coroutines instrumentation").use {
-                CliEnvironmentInitializer.setupCoroutinesInstrumentation()
+                CoroutinesDebug.setupCoroutinesInstrumentation()
             }
         }
 
@@ -78,8 +81,8 @@ internal suspend fun <T> withBackend(
 
         if (setupEnvironment) {
             spanBuilder("Setup file logging and monitoring").use {
-                CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot)
-                CliEnvironmentInitializer.setupFileLogging(cliContext.buildLogsRoot)
+                DeadLockMonitor.install(cliContext.buildLogsRoot)
+                LoggingInitializer.setupFileLogging(cliContext.buildLogsRoot)
 
                 // TODO output version, os and some env to log file only
                 val printableLogsPath = cliContext.buildLogsRoot.path.toString().replaceWhitespaces()
