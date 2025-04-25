@@ -1,14 +1,16 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli
+package org.jetbrains.amper.diagnostics
 
 import one.profiler.AsyncProfiler
+import org.jetbrains.amper.cli.AmperBuildLogsRoot
+import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.core.hashing.sha256String
 import org.slf4j.LoggerFactory
 import kotlin.io.path.createDirectories
 import kotlin.io.path.fileSize
@@ -19,7 +21,7 @@ import kotlin.io.path.writeBytes
 object AsyncProfilerMode {
     fun attachAsyncProfiler(logsDir: AmperBuildLogsRoot, buildOutputRoot: AmperBuildOutputRoot) {
         val platformId = getPlatformId()
-        val ext = when (OsFamily.current) {
+        val ext = when (OsFamily.Companion.current) {
             OsFamily.Windows -> ".dll"
             OsFamily.Linux, OsFamily.FreeBSD, OsFamily.Solaris -> ".so"
             OsFamily.MacOs -> ".dylib"
@@ -53,8 +55,8 @@ object AsyncProfilerMode {
     }
 
     private fun getPlatformId(): String {
-        val arch = Arch.current
-        return when (OsFamily.current) {
+        val arch = Arch.Companion.current
+        return when (OsFamily.Companion.current) {
             OsFamily.MacOs -> "macos"
 
             OsFamily.Windows -> when (arch) {
