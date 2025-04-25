@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands.tools
@@ -52,7 +52,7 @@ internal class JaegerToolCommand: AmperSubcommand(name = "jaeger") {
 
     override fun help(context: Context): String = "Download and run Jaeger server https://www.jaegertracing.io"
 
-    override fun helpEpilog(context: Context): String = "Use -- to separate Jaeger's arguments from Amper options"
+    override fun helpEpilog(context: Context): String = "Use `--` to separate Jaeger's arguments from Amper options"
 
     override suspend fun run() {
         val userCacheRoot = commonOptions.sharedCachesRoot

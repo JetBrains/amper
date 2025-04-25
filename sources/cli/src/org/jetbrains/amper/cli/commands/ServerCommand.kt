@@ -85,7 +85,7 @@ internal class ServerCommand : AmperSubcommand(name = "server") {
 
     override val hiddenFromHelp: Boolean = true
 
-    private val port by option("-p", "--port", help = "port to listen on")
+    private val port by option("-p", "--port", help = "The port to listen on")
         .int(acceptsValueWithoutName = true)
         .default(defaultPort)
 

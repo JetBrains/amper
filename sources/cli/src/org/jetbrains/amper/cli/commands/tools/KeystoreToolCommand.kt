@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands.tools
@@ -21,7 +21,7 @@ internal class KeystoreToolCommand : AmperSubcommand(name = "generate-keystore")
 
     private val propertiesFile by option(
         "--properties-file",
-        help = "Path to properties file which is used to populate storeFile, storePassword, keyAlias, keyPassword during the generation"
+        help = "Path to properties file which is used to populate `storeFile`, `storePassword`, `keyAlias`, `keyPassword` during the generation"
     ).path(canBeDir = false, mustExist = true, mustBeReadable = true)
 
     private val storeFile by option("--keystore-file", help = "Where to store keystore")

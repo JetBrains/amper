@@ -20,7 +20,7 @@ import kotlin.io.path.Path
 
 internal class InitCommand : AmperSubcommand(name = "init") {
 
-    private val template by argument(help = "the name of a project template (leave blank to select interactively from a list)")
+    private val template by argument(help = "The name of a project template (leave blank to select interactively from a list)")
         .choice(AmperProjectTemplates.availableTemplates.associateBy { it.name })
         .optional()
 

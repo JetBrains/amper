@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands
@@ -20,67 +20,74 @@ import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
 import kotlin.collections.isNotEmpty
 
-/**
- * The Unicode Next Line character, to add new lines in help texts while still respecting the terminal width.
- *
- * See https://ajalt.github.io/clikt/documenting/#manual-line-breaks
- */
-private const val NEL = '\u0085'
-
 internal class TestCommand : AmperSubcommand(name = "test") {
 
-    private val platforms by leafPlatformOption(help = "only run tests for the specified platform. The option can be repeated to test several platforms.")
-        .multiple()
+    private val platforms by leafPlatformOption(
+        help = "Only run tests for the specified platform. The option can be repeated to test several platforms."
+    ).multiple()
 
     // Note: we can't use patterns for test methods because JUnit Console Launcher only supports literals for this
     private val includeTestFilters by option("--include-test",
         metavar = "TEST_FQN",
-        help = "Only run the given test. The option can be repeated to run multiple specific tests.$NEL" +
-                "The value should be the fully qualified name of a test method, including its package, containing " +
-                "class (or top-level test suite function), and optionally a list of parameter types. If the test is " +
-                "in a nested class, use '/' to separate the containing class from the nested class name.$NEL" +
-                "$NEL" +
-                "Example: 'com.example.MyTest/MyNestedClass.myTestMethod(com.example.Param1Type,com.example.Param2Type)'.$NEL" +
-                "$NEL" +
-                "If some --include-classes options are provided, the given specific test is run in addition to the " +
-                "tests matched via the patterns.",
+        help = """
+            Only run the given test. The option can be repeated to run multiple specific tests.
+            
+            The value should be the fully qualified name of a test method, including its package, containing class (or 
+            top-level test suite function), and optionally a list of parameter types.
+            If the test is in a nested class, use `/` to separate the containing class from the nested class name.
+            Example: `com.example.MyTest/MyNestedClass.myTestMethod(com.example.Param1Type,com.example.Param2Type)`
+            
+            If some `--include-classes` options are provided, the given specific test is run in addition to the tests 
+            matched via the patterns.
+        """.trimIndent(),
     )
         .convert { TestFilter.includeTest(it) }
         .multiple()
 
     private val includeClassFilters by option("--include-classes",
         metavar = "PATTERN",
-        help = "Only run tests classes or suites matching the given pattern. " +
-                "The option can be repeated to include test classes matching any pattern (OR semantics). " +
-                "The pattern should be the fully qualified name of a test class or top-level test suite function, " +
-                "optionally containing '*' or '?' wildcards to match multiple or a single character, respectively. " +
-                "Nested classes should be specified using the '/' separator. " +
-                "Wildcards match any parts of the name, even across '.' and '/' separators. " +
-                "If the --exclude-classes option is also provided, tests are run if their containing class/suite " +
-                "matches any of the include patterns AND doesn't match any of the exclude patterns.",
+        help = """
+            Only run tests classes or suites matching the given pattern.
+            The option can be repeated to include test classes matching any pattern (OR semantics).
+            
+            The pattern should be the fully qualified name of a test class or top-level test suite function,
+            optionally containing `*` or `?` wildcards to match multiple or a single character, respectively.
+            Nested classes should be specified using the `/` separator.
+            Wildcards match any parts of the name, even across `.` and `/` separators.
+            
+            If the `--exclude-classes` option is also provided, tests are run if their containing class/suite 
+            matches any of the include patterns AND doesn't match any of the exclude patterns.
+        """.trimIndent(),
     )
         .convert { TestFilter.includeOrExcludeSuite(pattern = it, mode = FilterMode.Include) }
         .multiple()
 
     private val excludeClassFilters by option("--exclude-classes",
         metavar = "PATTERN",
-        help = "Do not run test classes or suites matching the given pattern. " +
-                "The option can be repeated to exclude test classes matching any pattern. " +
-                "The pattern should be the fully qualified name of a test class or top-level test suite function, " +
-                "optionally containing '*' or '?' wildcards to match multiple or a single character, respectively. " +
-                "Nested classes should be specified using the '/' separator. " +
-                "Wildcards match any parts of the name, even across '.' and '/' separators. " +
-                "If the --include-classes option is also provided, tests are run if their containing class/suite " +
-                "matches any of the include patterns AND doesn't match any of the exclude patterns.",
+        help = """
+            Do not run test classes or suites matching the given pattern.
+            The option can be repeated to exclude test classes matching any pattern.
+            
+            The pattern should be the fully qualified name of a test class or top-level test suite function, 
+            optionally containing `*` or `?` wildcards to match multiple or a single character, respectively. 
+            Nested classes should be specified using the `/` separator. 
+            Wildcards match any parts of the name, even across `.` and `/` separators.
+            
+            If the `--include-classes` option is also provided, tests are run if their containing class/suite 
+            matches any of the include patterns AND doesn't match any of the exclude patterns.
+        """.trimIndent(),
     )
         .convert { TestFilter.includeOrExcludeSuite(pattern = it, mode = FilterMode.Exclude) }
         .multiple()
 
     private val jvmArgs by userJvmArgsOption(
-        help = "The JVM arguments to pass to the JVM running the tests, separated by spaces. " +
-                "These arguments only affect JVM and Android tests; they don't affect non-JVM tests (such as iOS tests). " +
-                "If the $UserJvmArgsOption option is repeated, the arguments contained in all occurrences are passed " +
-                "to the JVM in the order they were specified. The JVM decides how it handles duplicate arguments."
+        help = """
+            The JVM arguments to pass to the JVM running the tests, separated by spaces.
+            These arguments only affect JVM and Android tests; they don't affect non-JVM tests (such as iOS tests).
+            
+            If the `$UserJvmArgsOption` option is repeated, the arguments contained in all occurrences are passed
+            to the JVM in the order they were specified. The JVM decides how it handles duplicate arguments.
+        """.trimIndent()
     )
 
     private val includeModules by option("-m", "--include-module",
@@ -91,17 +98,22 @@ internal class TestCommand : AmperSubcommand(name = "test") {
     private val excludeModules by option(
         "--exclude-module",
         metavar = "MODULE",
-        help = "Do not run tests from the given module. The option can be repeated to exclude several modules. " +
-                "If the --include-module option is also provided, tests are run if their module is included AND is " +
-                "not excluded."
+        help = """
+            Do not run tests from the given module. The option can be repeated to exclude several modules.
+            
+            If the `--include-module` option is also provided, tests are run if their module is included AND is not 
+            excluded.
+        """.trimIndent(),
     ).multiple()
 
     private val format by option(
         "--format",
         metavar = "FORMAT",
-        help = "The format to use for test results. " +
-                "'pretty' is a human-readable format for local CLI runs. " +
-                "'events' is for machine readable events that can be interpreted by some CI systems and IDEs."
+        help = """
+            The format to use for test results:
+            - `pretty` is a human-readable format for local CLI runs
+            - `events` is for machine readable events that can be interpreted by some CI systems and IDEs.
+        """.trimIndent(),
     ).enum<TestResultsFormat> { it.cliValue }.default(TestResultsFormat.Pretty)
 
     override fun help(context: Context): String = "Run tests in the project"

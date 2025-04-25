@@ -20,20 +20,19 @@ internal class PackageCommand : AmperSubcommand(name = "package") {
 
     private val modules by option(
         "-m", "--module",
-        help = "The specific module to package (run the 'show modules' command to get the modules list). " +
+        help = "The specific module to package (run the `show modules` command to get the modules list). " +
                 "This option can be repeated to package several modules."
     ).multiple().unique()
 
     private val platforms by leafPlatformOption(
-        help = "Only package for the specified platform. " +
-                "This option can be repeated to package for several platforms."
+        help = "The target platform to package for. This option can be repeated to package for several platforms.",
     )
         .multiple().unique()
 
     private val buildTypes by option(
         "-v",
         "--variant",
-        help = "Package the specified variant (${BuildType.buildTypeStrings.sorted().joinToString(", ")}). " +
+        help = "The variant to package (${BuildType.buildTypeStrings.sorted().joinToString(", ")}). " +
                 "This option can be repeated to package several variants.",
         completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings),
     )
@@ -43,7 +42,7 @@ internal class PackageCommand : AmperSubcommand(name = "package") {
     private val formats by option(
         "-f",
         "--format",
-        help = "Specify the output format (${PackageTask.Format.formatStrings.sorted().joinToString(", ")}).",
+        help = "The output package format (${PackageTask.Format.formatStrings.sorted().joinToString(", ")}).",
     )
         .convert {
             PackageTask.Format.byValue(it) ?: fail("'$it'.\n\nPossible values: ${PackageTask.Format.formatStrings}")

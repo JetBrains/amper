@@ -108,7 +108,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
 
     private val buildOutputRoot by option(
         "--build-output",
-        help = "Root directory for build outputs. By default, this is the 'build' directory under the project root."
+        help = "Root directory for build outputs. By default, this is the `build` directory under the project root."
     ).path(mustExist = false, canBeFile = false, canBeDir = true)
 
     override suspend fun run() {
