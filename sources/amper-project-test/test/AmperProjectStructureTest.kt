@@ -46,6 +46,15 @@ class AmperProjectStructureTest {
     }
 
     @Test
+    fun `UsedVersions is alphabetically sorted`() {
+        val usedVersionsKt = Dirs.amperSourcesRoot.resolve("core/src/org/jetbrains/amper/core/UsedVersions.kt")
+        val versionLines = usedVersionsKt.readLines()
+            .map { it.trim() }
+            .filter { it.startsWith("/*magic_replacement*/ val ") }
+        assertAlphabeticalOrder(versionLines, "Used versions")
+    }
+
+    @Test
     fun `Amper-agnostic library modules don't use the word Amper`() = runTest {
         val invalidLines = readAmperProjectModel()
             .modules
