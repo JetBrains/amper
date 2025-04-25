@@ -296,4 +296,4 @@ jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
 time "$java_exe" \
   "-Damper.wrapper.path=$wrapper_path" \
   $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt \
-  "--build-output=$script_dir/build-from-sources" "$@"
+  "--build-output=build-from-sources" "$@"
