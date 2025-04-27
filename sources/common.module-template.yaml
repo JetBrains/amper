@@ -40,5 +40,9 @@ settings:
     version: 1.0-SNAPSHOT
 
   kotlin:
-    freeCompilerArgs: [ -Xcontext-receivers ]
+    freeCompilerArgs:
+      - -Xrender-internal-diagnostic-names
+      - -Xcontext-receivers
+      # we are aware and will change context receivers to context parameters after the frontend refactoring
+      - -Xsuppress-warning=CONTEXT_RECEIVERS_DEPRECATED
     optIns: [ kotlin.io.path.ExperimentalPathApi ]
