@@ -75,7 +75,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
 
             if (!isTest) {
                 if (isComposeEnabledFor(module) && isHotReloadEnabledFor(module)) {
-                    val runtimeClasspathClassesTaskName = CommonTaskType.RuntimeClasspathClasses.getTaskName(module, platform, isTest)
+                    val runtimeClasspathClassesTaskName = CommonTaskType.RuntimeClasspathClasses.getTaskName(module, platform, isTest = false)
                     tasks.registerTask(
                         task = JvmRuntimeClasspathTask(
                             module = module,
@@ -119,7 +119,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         dependsOn = buildList {
                             add(CommonTaskType.Compile.getTaskName(module, platform, isTest = false))
 
-                            module.getModuleDependencies(isTest, platform, ResolutionScope.RUNTIME, context.userCacheRoot)
+                            module.getModuleDependencies(isTest = false, platform, ResolutionScope.RUNTIME, context.userCacheRoot)
                                 .forEach {
                                     add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
                                 }

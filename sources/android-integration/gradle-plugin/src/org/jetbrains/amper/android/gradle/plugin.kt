@@ -88,7 +88,7 @@ var Gradle.knownModel: Model?
 
 val AmperModule.buildFile get() = (source as AmperModuleFileSource).buildFile
 
-val AmperModule.buildDir get() = buildFile.parent
+val AmperModule.buildDir: Path get() = buildFile.parent
 
 private const val SIGNING_CONFIG_NAME = "sign"
 

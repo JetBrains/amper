@@ -146,7 +146,7 @@ private fun DependencyNode.fillExternalDependencies(
         if (it is MavenDependencyNode) {
             dependenciesList.add(it.mavenCoordinates())
         } else if (!directOnly) {
-            it.fillExternalDependencies(dependenciesList, directOnly)
+            it.fillExternalDependencies(dependenciesList, directOnly = false)
         }
     }
 }
