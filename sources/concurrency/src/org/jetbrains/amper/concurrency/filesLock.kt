@@ -238,6 +238,7 @@ fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, originalThrowable: 
 
 /**
  * Acquires an exclusive lock on this channel's file, retrying in case of "Resource deadlock avoided" exception.
+ * See the "Why retry?" section below for more details.
  *
  * This function blocks until the file can be locked, this channel is closed, or the invoking thread is interrupted,
  * whichever comes first. If a "resource deadlock avoided" exception is thrown, this function suspends and retries.
@@ -248,6 +249,20 @@ fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, originalThrowable: 
  *
  * File locks are held on behalf of the entire Java virtual machine. They are not suitable for controlling access to a
  * file by multiple threads within the same virtual machine.
+ *
+ * ### Why retry?
+ *
+ * The "Resource deadlock avoided" exception is an error coming from the OS itself when it thinks it detects deadlocks.
+ * The problem is that this check is at the level of processes and doesn't know about threads. So, if 2 processes both
+ * lock the same 2 files at the same time, but each in different threads, the system will think there is a deadlock even
+ * when there isn't:
+ * * Process 1, thread A, gets lock on file A.
+ * * Process 2, thread B, gets lock on file B.
+ * * Process 1, thread B, tries to lock file B and blocks.
+ * * Process 2, thread A, tries to lock file A and fails with "Resource deadlock avoided" exception.
+ *
+ * Since we can't really prevent this, our best bet is just to retry a few times to see if the locks are eventually
+ * released. If not, we can finally rethrow the exception.
  *
  * @throws ClosedChannelException If this channel is closed
  * @throws AsynchronousCloseException If another thread closes this channel while the invoking thread is blocked in
@@ -260,11 +275,7 @@ fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, originalThrowable: 
  * @throws IOException If some other I/O error occurs
  */
 private suspend fun FileChannel.lockWithRetry(): FileLock? =
-    withRetry(
-        retryOnException = { e ->
-            e is IOException && e.message?.contains("Resource deadlock avoided") == true
-        }
-    ) {
+    withRetry(retryOnException = { it is IOException && it.message?.contains("Resource deadlock avoided") == true }) {
         lock()
     }
 
