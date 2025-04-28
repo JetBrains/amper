@@ -10,13 +10,12 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.intellij.amper.lang.AmperElementTypes.*;
 import com.intellij.amper.lang.*;
 
-public class AmperReferenceExpressionImpl extends AmperValueImpl implements AmperReferenceExpression {
+public class AmperReferenceExpressionImpl extends AmperReferenceExpressionMixin implements AmperReferenceExpression {
 
   public AmperReferenceExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  @Override
   public void accept(@NotNull AmperElementVisitor visitor) {
     visitor.visitReferenceExpression(this);
   }

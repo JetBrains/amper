@@ -1,7 +1,3 @@
-/*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
-
 package com.intellij.amper.lang.impl
 
 import com.intellij.amper.lang.*
@@ -56,6 +52,7 @@ private fun List<AmperObjectElement>.collectionItems(): List<AmperValue> {
   return this.flatMap {
     when (it) {
       is AmperProperty -> listOfNotNull(it.takeIf { it.value == null }?.nameElement)
+      is AmperInvocationElement -> listOfNotNull(it.invocationExpression)
       is AmperContextualStatement -> listOfNotNull(it.objectElement).collectionItems()
       is AmperContextBlock -> it.objectElementList.collectionItems()
       else -> emptyList()

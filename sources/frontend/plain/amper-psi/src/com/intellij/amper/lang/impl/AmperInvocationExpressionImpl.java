@@ -10,13 +10,12 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.intellij.amper.lang.AmperElementTypes.*;
 import com.intellij.amper.lang.*;
 
-public class AmperInvocationExpressionImpl extends AmperValueImpl implements AmperInvocationExpression {
+public class AmperInvocationExpressionImpl extends AmperInvocationExpressionMixin implements AmperInvocationExpression {
 
   public AmperInvocationExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  @Override
   public void accept(@NotNull AmperElementVisitor visitor) {
     visitor.visitInvocationExpression(this);
   }
@@ -25,12 +24,6 @@ public class AmperInvocationExpressionImpl extends AmperValueImpl implements Amp
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof AmperElementVisitor) accept((AmperElementVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @NotNull
-  public List<AmperValue> getValueList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, AmperValue.class);
   }
 
 }

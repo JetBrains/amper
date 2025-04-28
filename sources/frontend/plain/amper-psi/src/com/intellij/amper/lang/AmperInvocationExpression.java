@@ -7,7 +7,6 @@ import com.intellij.psi.PsiElement;
 
 public interface AmperInvocationExpression extends AmperValue {
 
-  @NotNull
-  List<AmperValue> getValueList();
+  @NotNull List<@NotNull AmperValue> getArguments();
 
 }
