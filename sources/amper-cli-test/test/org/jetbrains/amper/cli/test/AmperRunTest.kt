@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.assertLogStartsWith
+import org.jetbrains.amper.cli.test.utils.assertStderrContains
+import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.processes.ProcessInput
@@ -16,7 +19,6 @@ import org.junit.jupiter.api.parallel.ExecutionMode
 import org.slf4j.event.Level
 import kotlin.test.Test
 import kotlin.test.assertContains
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.

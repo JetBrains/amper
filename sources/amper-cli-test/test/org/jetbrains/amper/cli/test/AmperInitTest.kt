@@ -6,6 +6,7 @@ package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.cli.test.utils.assertContainsRelativeFiles
 import org.jetbrains.amper.cli.test.utils.assertFileContentEquals
+import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.test.LocalAmperPublication

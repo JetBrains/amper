@@ -1,9 +1,12 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.assertStdoutContains
+import org.jetbrains.amper.cli.test.utils.assertStdoutContainsLine
+import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution

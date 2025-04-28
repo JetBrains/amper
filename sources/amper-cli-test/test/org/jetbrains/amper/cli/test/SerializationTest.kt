@@ -5,6 +5,8 @@
 package org.jetbrains.amper.cli.test
 
 import io.opentelemetry.api.common.AttributeKey
+import org.jetbrains.amper.cli.test.utils.assertLogStartsWith
+import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.core.UsedVersions

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -13,7 +13,6 @@ import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.junit.jupiter.api.TestInfo
-import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries

@@ -5,8 +5,8 @@
 package org.jetbrains.amper.cli.test
 
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.cli.test.utils.readLogs
 import org.jetbrains.amper.cli.test.utils.otlp.serialization.decodeOtlpTraces
+import org.jetbrains.amper.cli.test.utils.readLogs
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
@@ -17,7 +17,6 @@ import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.junit.jupiter.api.extension.RegisterExtension
-import org.slf4j.event.Level
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.copyToRecursively
@@ -27,8 +26,6 @@ import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.readLines
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -92,49 +89,6 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             Json.decodeOtlpTraces(tracesFile.readLines())
         }
 
-        fun assertSomeStdoutLineContains(text: String) {
-            assertTrue("No line in stdout contains the text '$text':\n" + stdout.trim()) {
-                stdout.lineSequence().any { text in it }
-            }
-        }
-        fun assertStdoutContains(text: String) {
-            assertTrue("Stdout does not contain the text '$text':\n" + stdout.trim()) {
-               text in stdout
-            }
-        }
-        fun assertStdoutContains(text: String, expectedOccurrences: Int) {
-            val actualOccurrences = Regex.fromLiteral(text).findAll(stdout).count()
-            assertEquals(expectedOccurrences, actualOccurrences, "Stdout should contain the text '$text' $expectedOccurrences time(s), but got $actualOccurrences:\n" + stdout.trim())
-        }
-        fun assertStdoutDoesNotContain(text: String) {
-            assertFalse("Stdout should not contain the text '$text':\n" + stdout.trim()) {
-               text in stdout
-            }
-        }
-        fun assertStderrContains(text: String) {
-            assertTrue("Stderr does not contain the text '$text':\n" + stderr.trim()) {
-               text in stderr
-            }
-        }
-        fun assertStdoutContainsLine(expectedLine: String, nOccurrences: Int = 1) {
-            val suffix = if (nOccurrences > 1) " $nOccurrences times" else " once"
-            val count = stdout.lines().count { it == expectedLine }
-            assertTrue("stdout should contain line '$expectedLine'$suffix (got $count occurrences)") {
-                count == nOccurrences
-            }
-        }
-        fun assertLogStartsWith(msgPrefix: String, level: Level) {
-            assertTrue("Log message with level=$level and starting with '$msgPrefix' was not found") {
-                val logs = if (level >= Level.INFO) infoLogs else debugLogs
-                logs.any { it.level == level && it.message.startsWith(msgPrefix) }
-            }
-        }
-        fun assertLogContains(text: String, level: Level) {
-            assertTrue("Log message with level=$level and containing '$text' was not found") {
-                val logs = if (level >= Level.INFO) infoLogs else debugLogs
-                logs.any { it.level == level && text in it.message }
-            }
-        }
     }
 
     protected suspend fun runCli(

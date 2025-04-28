@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.assertLogStartsWith
+import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.Test
 import org.slf4j.event.Level
