@@ -783,22 +783,22 @@ open class DependencyFile(
         for (repository in repositories) {
             // We need to iterate repositories one by one, because some invalid repo could return some invalid response
             // that will be validated and sanitized, in this case we should try other repositories
-            val expectedHashPath = produceResultWithTempFile(
-                tempDir = getTempDir(),
-                targetFileName = hashFile.fileName,
-                { hashFile.takeIf { it.isDownloadedValidHash() }?.getPath() },
-            ) { tempFilePath, fileChannel ->
-                hashFile.downloadAndVerifyHash(
-                    fileChannel,
-                    tempFilePath,
-                    listOf(repository),
-                    progress,
-                    cache,
-                    spanBuilderSource,
-                    null,
-                    diagnosticsReporter,
-                )
-            }
+            val expectedHashPath = hashFile.takeIf { it.isDownloadedValidHash() }?.getPath()
+                ?: produceResultWithTempFile(
+                    tempDir = getTempDir(),
+                    targetFileName = hashFile.fileName,
+                ) { tempFilePath, fileChannel ->
+                    hashFile.downloadAndVerifyHash(
+                        fileChannel,
+                        tempFilePath,
+                        listOf(repository),
+                        progress,
+                        cache,
+                        spanBuilderSource,
+                        null,
+                        diagnosticsReporter,
+                    )
+                }
 
             val hashFromRepository = expectedHashPath?.readTextWithRetry()?.sanitize()
             if (hashFromRepository != null) {

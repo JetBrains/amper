@@ -195,12 +195,17 @@ private suspend fun <T> produceResultWithFileLock(
 
     // Open a temporary lock file channel
     return tempLockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) {
+        val result = getAlreadyProducedResult()
         logger.trace(
             "### ${System.currentTimeMillis()} {} {} : locked, getAlreadyProducedResult()={}",
-            tempLockFile.hashCode(), tempLockFile.name, getAlreadyProducedResult()
+            tempLockFile.hashCode(), tempLockFile.name, result
         )
+        if (result != null) {
+            return result
+        }
+
         try {
-            produceResultWithTempFile(tempDir, targetFileName, getAlreadyProducedResult, block)
+            produceResultWithTempFile(tempDir, targetFileName, block)
         } finally {
             tempLockFile.deleteIfExistsWithLogging("Temp lock file was deleted under the lock")
         }
@@ -210,30 +215,27 @@ private suspend fun <T> produceResultWithFileLock(
             tempLockFile.hashCode(),
             tempLockFile.name
         )
+
     }
 }
 
 suspend fun <T> produceResultWithTempFile(
     tempDir: Path,
     targetFileName: String,
-    getAlreadyProducedResult: suspend () -> T?,
     block: suspend (Path, FileChannel) -> T,
 ): T {
     val tempFileNameSuffix = UUID.randomUUID().toString().let { it.substring(0, min(8, it.length)) }
     val tempFile = tempDir.resolve("~${targetFileName}.$tempFileNameSuffix")
 
     return try {
-        getAlreadyProducedResult()
-            ?: run {
-                FileChannel.open(
-                    tempFile,
-                    StandardOpenOption.READ,
-                    StandardOpenOption.WRITE,
-                    StandardOpenOption.CREATE_NEW,
-                ).use { fileChannel ->
-                    block(tempFile, fileChannel)
-                }
-            } // temp file was moved inside the block to target file location - there is no need to delete it.
+        FileChannel.open(
+            tempFile,
+            StandardOpenOption.READ,
+            StandardOpenOption.WRITE,
+            StandardOpenOption.CREATE_NEW,
+        ).use { fileChannel ->
+            block(tempFile, fileChannel)
+        } // temp file was moved inside the block to target file location - there is no need to delete it.
     } catch (t: Throwable) {
         tempFile.deleteIfExistsWithLogging("Exception occurred, temp file was deleted", t)
         throw t
