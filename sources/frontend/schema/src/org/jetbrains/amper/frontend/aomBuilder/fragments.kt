@@ -43,11 +43,7 @@ open class DefaultFragment(
     relevantSettings: Settings?,
     moduleFile: VirtualFile,
 ) : Fragment {
-
-    /**
-     * Modifier that is used to reference this fragment in the module file or within source directory.
-     */
-    private val modifier = seed.modifier
+    final override val modifier = seed.modifier
 
     final override val fragmentDependencies = mutableListOf<FragmentLink>()
 

@@ -22,6 +22,11 @@ interface Fragment {
     val name: String
 
     /**
+     * The modifier that can be used in the build file or in the source directories names to refer to this fragment.
+     */
+    val modifier: String
+
+    /**
      * The module this fragment belongs to.
      */
     val module: AmperModule
