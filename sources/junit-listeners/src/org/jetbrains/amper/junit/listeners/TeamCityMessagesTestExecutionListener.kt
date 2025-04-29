@@ -5,6 +5,7 @@
 package org.jetbrains.amper.junit.listeners
 
 import jetbrains.buildServer.messages.serviceMessages.MessageWithAttributes
+import jetbrains.buildServer.messages.serviceMessages.PublishArtifacts
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessageTypes
 import jetbrains.buildServer.messages.serviceMessages.TestFailed
@@ -18,6 +19,7 @@ import jetbrains.buildServer.messages.serviceMessages.TestSuiteStarted
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
+import org.junit.platform.engine.reporting.FileEntry
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.MethodSource
@@ -29,6 +31,7 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.pathString
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
@@ -194,6 +197,11 @@ class TeamCityMessagesTestExecutionListener(
             }
             emit(message.withFlowId(testIdentifier).withTimestamp(entry.timestamp))
         }
+    }
+
+    override fun fileEntryPublished(testIdentifier: TestIdentifier, file: FileEntry) {
+        if (!enabled) return
+        emit(PublishArtifacts(file.path.pathString).withFlowId(testIdentifier).withTimestamp(file.timestamp))
     }
 
     private fun emit(serviceMessage: ServiceMessage) {
