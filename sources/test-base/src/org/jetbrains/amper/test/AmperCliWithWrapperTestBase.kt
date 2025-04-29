@@ -155,18 +155,26 @@ abstract class AmperCliWithWrapperTestBase {
             )
         }
 
-        val stdout = result.stdout.prependIndentWithEmptyMark("[amper out] ")
-        val stderr = result.stderr.prependIndentWithEmptyMark("[amper err] ")
-        val relevantAmperOutput = if (expectedExitCode == 0) stderr else "$stdout\n$stderr"
         assertEquals(
             expected = expectedExitCode,
             actual = result.exitCode,
-            message = "Exit code must be $expectedExitCode, but got ${result.exitCode} for Amper call (PID ${result.pid}):\n$amperScript ${args.joinToString(" ")}\nOutput:\n$relevantAmperOutput"
+            message = """
+                Exit code must be $expectedExitCode, but got ${result.exitCode} for Amper call (PID ${result.pid}):
+                $amperScript ${args.joinToString(" ")}
+                Output:
+                ${result.relevantOutput(expectedExitCode).prependIndent("                ")}
+            """.trimMargin(),
         )
         if (assertEmptyStdErr) {
             assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call:\n$amperScript ${args.joinToString(" ")}\nAmper STDERR:\n${result.stderr}")
         }
         return result
+    }
+
+    private fun ProcessResult.relevantOutput(expectedExitCode: Int): String {
+        val stdout = stdout.prependIndentWithEmptyMark("[amper out] ")
+        val stderr = stderr.prependIndentWithEmptyMark("[amper err] ")
+        return if (expectedExitCode == 0) stderr else "$stdout\n$stderr"
     }
 }
 
