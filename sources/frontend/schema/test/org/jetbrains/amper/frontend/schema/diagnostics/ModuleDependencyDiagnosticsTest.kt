@@ -18,4 +18,37 @@ class ModuleDependencyDiagnosticsTest : TestBase(Path("testResources") / "diagno
             additionalFiles = listOf("needed-platforms/sub-module/module.yaml"),
         )
     }
+
+    @Test
+    fun `module dependency loops - lib-b`() {
+        diagnosticsTest(
+            "loops/lib-b/module",
+            additionalFiles = listOf(
+                "loops/lib-a/module.yaml",
+                "loops/lib-c/module.yaml",
+            ),
+        )
+    }
+
+    @Test
+    fun `module dependency loops - lib-a`() {
+        diagnosticsTest(
+            "loops/lib-a/module",
+            additionalFiles = listOf(
+                "loops/lib-b/module.yaml",
+                "loops/lib-c/module.yaml",
+            ),
+        )
+    }
+
+    @Test
+    fun `module dependency loops - lib-c`() {
+        diagnosticsTest(
+            "loops/lib-c/module",
+            additionalFiles = listOf(
+                "loops/lib-b/module.yaml",
+                "loops/lib-a/module.yaml",
+            ),
+        )
+    }
 }

@@ -5,6 +5,7 @@
 package org.jetbrains.amper.engine
 
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.depthFirstDetectLoops
 import org.jetbrains.amper.frontend.TaskName
 
 class TaskGraph(
@@ -54,57 +55,4 @@ class TaskGraph(
             }
         }
     }
-}
-
-/**
- * @param roots graph nodes from which all the graph is reachable.
- * @param adjacent the function that defines the nodes that are adjacent to the given node (linked by edges)
- */
-private fun <T : Any> depthFirstDetectLoops(
-    roots: Iterable<T>,
-    adjacent: (T) -> Iterable<T>,
-): List<List<T>> {
-    val loops = mutableListOf<List<T>>()
-
-    val markedGray = hashSetOf<T>()
-    val markedBlack = hashSetOf<T>()
-    val stack = arrayListOf<MutableList<T>>()
-
-    // dynamic, because it's a sequence
-    val currentPath = stack.asSequence().map { it.last() }
-
-    stack += roots.toMutableList()
-
-    while (stack.isNotEmpty()) {
-        // Substack is introduced to preserve node hierarchy
-        val subStack = stack.last()
-        if (subStack.isEmpty()) {
-            stack.removeLast()
-            continue
-        }
-
-        when (val node = subStack.last()) {
-            in markedBlack -> {
-                subStack.removeLast()
-            }
-
-            in markedGray -> {
-                subStack.removeLast()
-                markedBlack += node
-                markedGray -= node
-            }
-
-            else -> {
-                markedGray += node
-                stack += adjacent(node).mapNotNullTo(arrayListOf()) { child ->
-                    if (child in markedGray) {
-                        // Loop: report and skip
-                        loops += currentPath.dropWhile { it != child }.toList()
-                        null
-                    } else child
-                }
-            }
-        }
-    }
-    return loops
 }

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.core.messages
 
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.annotations.Nls
 import java.nio.file.Path
 
@@ -45,13 +46,21 @@ data object GlobalBuildProblemSource : BuildProblemSource
 
 /**
  * Can be used to express the problem with multiple locations (e.g., conflicting declarations).
+ *
+ * @param sources individual file-related problem sources
+ * @param groupingMessage a message to be displayed before listing the list of sources,
+ *   e.g. `"See here:"` or `"Encountered in:"`
  */
-class MultipleLocationsBuildProblemSource(val sources: List<BuildProblemSource>) : BuildProblemSource {
-    constructor(vararg sources: BuildProblemSource): this(sources.toList())
+class MultipleLocationsBuildProblemSource(
+    val sources: List<FileBuildProblemSource>,
+    val groupingMessage: String,
+) : BuildProblemSource {
+    @UsedInIdePlugin
 
-    init {
-        require(sources.none { it is MultipleLocationsBuildProblemSource }) { "Only non-nested sources are allowed in a MultipleLocationsBuildProblemSource" }
-    }
+    constructor(
+        vararg sources: FileBuildProblemSource,
+        groupingMessage: String,
+    ): this(sources.toList(), groupingMessage)
 }
 
 interface FileBuildProblemSource : BuildProblemSource {

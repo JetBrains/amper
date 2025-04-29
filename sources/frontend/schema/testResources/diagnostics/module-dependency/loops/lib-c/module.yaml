@@ -1,0 +1,7 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+dependencies:
+  - <![Error] Module dependencies loop detected: `lib-c -> lib-a -> lib-b -> lib-c`!>../lib-a<!>

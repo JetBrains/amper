@@ -88,8 +88,6 @@ private fun StringBuilder.appendFileTextDecoratedWithDiagnostics(
 
     val diagnosticPoints: List<DiagnosticPoint> = sortedDiagnostics.flatMap { (source, diagnostic) ->
         source as FileWithRangesBuildProblemSource
-        println(source.file)
-        println(origin)
         if (source.file == origin) {
             val startOffset = source.offsetRange.first
             val endOffset = source.offsetRange.last

@@ -5,7 +5,6 @@
 package org.jetbrains.amper.core.messages
 
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.assertThrows
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.test.Test
@@ -68,24 +67,22 @@ class ProblemReporterRenderingTest {
         )
         val problem = BuildProblemImpl(
             buildProblemId = "test.message",
-            source = MultipleLocationsBuildProblemSource(location1, location2, location3),
+            source = MultipleLocationsBuildProblemSource(
+                location1, location2, location3,
+                groupingMessage = "Encountered in:",
+            ),
             message = "Test message",
             level = Level.Error
         )
         assertEquals(
             """
-            test.txt:10:15: Test message
-            test2.txt:9:15: Test message
-            test2.txt:10:15: Test message
+            Test message
+            ╰─ Encountered in:
+               ╰─ test.txt:10:15
+               ╰─ test2.txt:9:15
+               ╰─ test2.txt:10:15
             """.trimIndent(), renderMessage(problem)
         )
-    }
-
-    @Test
-    fun `nested structures for build problem sources are forbidden`() {
-        assertThrows<IllegalArgumentException> {
-            MultipleLocationsBuildProblemSource(MultipleLocationsBuildProblemSource(GlobalBuildProblemSource, GlobalBuildProblemSource), GlobalBuildProblemSource)
-        }
     }
 
     private data class TestFileProblemSource(override val file: Path) : FileBuildProblemSource

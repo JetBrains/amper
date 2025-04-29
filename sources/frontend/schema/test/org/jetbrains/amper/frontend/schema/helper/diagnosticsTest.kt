@@ -47,7 +47,8 @@ class DiagnosticsTestRun(
         val additionalFiles = additionalPaths.map { readCtx.loadVirtualFile((base / it).absolute()) }
 
         with(ctx) {
-            val projectContext = TestProjectContext(buildDirFile, listOf(inputFile) + additionalFiles, readCtx)
+            val moduleFiles = listOf(inputFile).plus(additionalFiles).sortedBy { it.path }
+            val projectContext = TestProjectContext(buildDirFile, moduleFiles, readCtx)
             val resultModules = doBuild(projectContext, systemInfo) ?: return@with
             val model = DefaultModel(projectContext.projectRootDir.toNioPath(), resultModules)
             AomModelDiagnosticFactories.forEach { diagnostic ->

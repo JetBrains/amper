@@ -45,20 +45,28 @@ class NoOpCollectingProblemReporter : CollectingProblemReporter() {
 
 @OptIn(NonIdealDiagnostic::class)
 fun renderMessage(problem: BuildProblem): @Nls String = buildString {
+    fun appendSource(source: FileBuildProblemSource, appendMessage: Boolean = true) {
+        append(source.file.normalize())
+        if (source is FileWithRangesBuildProblemSource) {
+            val start = source.range.start
+            append(':').append(start.line).append(':').append(start.column)
+        }
+        if (appendMessage) {
+            append(": ").append(problem.message)
+        }
+    }
+
     fun appendSource(source: BuildProblemSource) {
         when (source) {
-            is FileBuildProblemSource -> {
-                append(source.file.normalize())
-                if (source is FileWithRangesBuildProblemSource) {
-                    val start = source.range.start
-                    append(":${start.line}:${start.column}")
+            is FileBuildProblemSource -> appendSource(source)
+            is MultipleLocationsBuildProblemSource -> {
+                appendLine(problem.message)
+                appendLine("╰─ ${source.groupingMessage}")
+                source.sources.forEachEndAware { isLast, it ->
+                    append("   ╰─ ")
+                    appendSource(it, appendMessage = false)
+                    if (!isLast) appendLine()
                 }
-                append(": ")
-                append(problem.message)
-            }
-            is MultipleLocationsBuildProblemSource -> source.sources.forEachEndAware { isLast, it ->
-                appendSource(it)
-                if (!isLast) appendLine()
             }
             GlobalBuildProblemSource -> append(problem.message)
         }

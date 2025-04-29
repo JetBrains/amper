@@ -4,10 +4,9 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Model
 
 /**
  * Factory to provide diagnostics on the whole AOM [Model].
@@ -19,7 +18,6 @@ import org.jetbrains.amper.frontend.AmperModule
  * Register instances of factory in [AomModelDiagnosticFactories].
  */
 interface AomModelDiagnosticFactory {
-    val diagnosticId: BuildProblemId
 
     context(ProblemReporterContext)
     fun Model.analyze()
