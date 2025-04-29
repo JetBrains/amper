@@ -7,13 +7,15 @@ package org.jetbrains.amper.frontend.schema.helper
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.BuildProblemSource
+import org.jetbrains.amper.core.messages.FileBuildProblemSource
 import org.jetbrains.amper.core.messages.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.core.messages.MultipleLocationsBuildProblemSource
+import java.nio.file.Path
 
 private const val DIAGNOSTIC_ANNOTATION_LB = "<!"
 private const val DIAGNOSTIC_ANNOTATION_RB = "!>"
 private const val DIAGNOSTIC_END = "<!>"
-private val DIAGNOSTIC_REGEX = """($DIAGNOSTIC_ANNOTATION_LB[^<!>]*$DIAGNOSTIC_ANNOTATION_RB)+(.*?)($DIAGNOSTIC_END)+""".toRegex()
+private val DIAGNOSTIC_REGEX = """($DIAGNOSTIC_ANNOTATION_LB.*?$DIAGNOSTIC_ANNOTATION_RB)+(.*?)($DIAGNOSTIC_END)+""".toRegex()
 
 fun PsiFile.removeDiagnosticAnnotations(): PsiFile {
     val newFile = copy() as PsiFile
@@ -24,6 +26,7 @@ fun PsiFile.removeDiagnosticAnnotations(): PsiFile {
 }
 
 fun annotateTextWithDiagnostics(
+    origin: Path,
     intoText: String,
     diagnostics: List<BuildProblem>,
     sanitizeDiagnostic: (String) -> String
@@ -43,8 +46,10 @@ fun annotateTextWithDiagnostics(
     }
 
     return buildString {
-        appendFileDiagnostics(diagnosticsWithoutOffsets.map { it.second }, sanitizeDiagnostic)
-        appendTextDecoratedWithDiagnostics(intoText, diagnosticsWithOffsets, sanitizeDiagnostic)
+        appendFileDiagnostics(diagnosticsWithoutOffsets.filter { (source, _) ->
+            source is FileBuildProblemSource && source.file == origin
+        }.map { it.second }, sanitizeDiagnostic)
+        appendFileTextDecoratedWithDiagnostics(origin, intoText, diagnosticsWithOffsets, sanitizeDiagnostic)
     }
 }
 
@@ -70,7 +75,8 @@ private fun BuildProblem.renderWithSanitization(sanitizeDiagnostic: (String) -> 
 
 private data class DiagnosticPoint(val offset: Int, val isStart: Boolean, val problem: BuildProblem)
 
-private fun StringBuilder.appendTextDecoratedWithDiagnostics(
+private fun StringBuilder.appendFileTextDecoratedWithDiagnostics(
+    origin: Path,
     clearedText: String,
     diagnostics: List<Pair<BuildProblemSource, BuildProblem>>,
     sanitizeDiagnostic: (String) -> String,
@@ -82,9 +88,13 @@ private fun StringBuilder.appendTextDecoratedWithDiagnostics(
 
     val diagnosticPoints: List<DiagnosticPoint> = sortedDiagnostics.flatMap { (source, diagnostic) ->
         source as FileWithRangesBuildProblemSource
-        val startOffset = source.offsetRange.first
-        val endOffset = source.offsetRange.last
-        listOf(DiagnosticPoint(startOffset, true, diagnostic), DiagnosticPoint(endOffset, false, diagnostic))
+        println(source.file)
+        println(origin)
+        if (source.file == origin) {
+            val startOffset = source.offsetRange.first
+            val endOffset = source.offsetRange.last
+            listOf(DiagnosticPoint(startOffset, true, diagnostic), DiagnosticPoint(endOffset, false, diagnostic))
+        } else emptyList()
     }.sortedBy { it.offset }
 
     var lastOffset = 0

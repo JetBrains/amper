@@ -9,7 +9,9 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.aomBuilder.DefaultModel
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
+import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.io.File
 import java.nio.file.Path
@@ -45,11 +47,16 @@ class DiagnosticsTestRun(
         val additionalFiles = additionalPaths.map { readCtx.loadVirtualFile((base / it).absolute()) }
 
         with(ctx) {
-            doBuild(TestProjectContext(buildDirFile, listOf(inputFile) + additionalFiles, readCtx), systemInfo)
+            val projectContext = TestProjectContext(buildDirFile, listOf(inputFile) + additionalFiles, readCtx)
+            val resultModules = doBuild(projectContext, systemInfo) ?: return@with
+            val model = DefaultModel(projectContext.projectRootDir.toNioPath(), resultModules)
+            AomModelDiagnosticFactories.forEach { diagnostic ->
+                with(diagnostic) { model.analyze() }
+            }
         }
         // Collect errors.
         val errors = with(ctx) { problemReporter.getDiagnostics(*levels) }
-        val annotated = annotateTextWithDiagnostics(cleared, errors) {
+        val annotated = annotateTextWithDiagnostics(inputPath.absolute(), cleared, errors) {
             it.replace(buildDir.absolutePathString() + File.separator, "")
         }
         return annotated.trimTrailingWhitespacesAndEmptyLines()
