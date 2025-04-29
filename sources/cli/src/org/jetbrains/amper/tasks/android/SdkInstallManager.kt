@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.android
@@ -19,7 +19,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.jvm.javaio.*
-import org.jetbrains.amper.concurrency.DefaultFilesMutex
+import org.jetbrains.amper.concurrency.FileMutexGroup
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
@@ -68,7 +68,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
     }
 
     suspend fun installPackage(packagePath: String): RepoPackage =
-        DefaultFilesMutex.withDoubleLock(androidSdkPath / "$packagePath.lock") {
+        FileMutexGroup.Default.withDoubleLock(androidSdkPath / "$packagePath.lock") {
             val localFileSystemPackagePath = packagePath
                 .split(";")
                 .fold(androidSdkPath) { path, component -> path.resolve(component) }
@@ -97,7 +97,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
     }
 
     suspend fun installSystemImage(packagePath: String): RepoPackage =
-        DefaultFilesMutex.withDoubleLock(androidSdkPath / "$packagePath.lock") {
+        FileMutexGroup.Default.withDoubleLock(androidSdkPath / "$packagePath.lock") {
             val localFileSystemPackagePath = packagePath
                 .split(";")
                 .fold(androidSdkPath) { path, component -> path.resolve(component) }

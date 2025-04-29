@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.core.extract
@@ -10,7 +10,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
-import org.jetbrains.amper.concurrency.DefaultFilesMutex
+import org.jetbrains.amper.concurrency.FileMutexGroup
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.hashing.sha256String
@@ -77,7 +77,7 @@ private suspend fun extractFileWithFlag(
     flagFile: Path,
     vararg options: ExtractOptions
 ): Path {
-    DefaultFilesMutex.withDoubleLock(flagFile) { fileChannel ->
+    FileMutexGroup.Default.withDoubleLock(flagFile) { fileChannel ->
         extractFileWithFlag(archiveFile, targetDirectory, fileChannel, flagFile, options)
     }
     return targetDirectory

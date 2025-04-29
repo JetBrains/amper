@@ -14,7 +14,6 @@ import java.nio.channels.AsynchronousCloseException
 import java.nio.channels.ClosedChannelException
 import java.nio.channels.FileChannel
 import java.nio.channels.FileLock
-import java.nio.channels.FileLockInterruptionException
 import java.nio.channels.NonWritableChannelException
 import java.nio.channels.OverlappingFileLockException
 import java.nio.file.AccessDeniedException
@@ -37,11 +36,6 @@ import kotlin.time.Duration.Companion.milliseconds
 private val logger = LoggerFactory.getLogger("fileLock.kt")
 
 /**
- * A default [StripedMutex] to use for file-based double-locking.
- */
-val DefaultFilesMutex = StripedMutex(stripeCount = 512)
-
-/**
  * Executes the given [block] under a double lock:
  * * a non-reentrant coroutine [Mutex] based on the [lockFile]'s path, getting exclusive access inside the current JVM
  * * a FileChannel lock on the given [lockFile], getting exclusive access across all processes on the system
@@ -56,7 +50,7 @@ val DefaultFilesMutex = StripedMutex(stripeCount = 512)
  * If an [owner] object is given, the owner's identity is used to detect such issues and eagerly fail instead of
  * hanging.
  */
-suspend fun <T> StripedMutex.withDoubleLock(
+suspend fun <T> FileMutexGroup.withDoubleLock(
     lockFile: Path,
     owner: Any? = null,
     options: Array<out OpenOption> = arrayOf(
@@ -70,8 +64,7 @@ suspend fun <T> StripedMutex.withDoubleLock(
         callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
     // The first lock locks the stuff inside one JVM process
-    val localMutexKey = lockFile.toAbsolutePath().normalize().hashCode()
-    return withLock(localMutexKey, owner) {
+    return withLock(lockFile, owner) {
         // The second lock locks a flagFile across all processes on the system
         lockFile.withFileChannelLock(*options) {
             block(it)
@@ -143,7 +136,7 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
 suspend fun <T> produceResultWithDoubleLock(
     tempDir: Path,
     targetFileName: String,
-    fileLockSource: StripedMutex? = null,
+    fileLockSource: FileMutexGroup? = null,
     getAlreadyProducedResult: suspend () -> T?,
     block: suspend (Path, FileChannel) -> T,
 ): T {
@@ -154,7 +147,7 @@ suspend fun <T> produceResultWithDoubleLock(
     val tempLockFile = tempLockFile(tempDir, targetFileName)
 
     // The first lock locks the stuff inside one JVM process
-    return (fileLockSource ?: DefaultFilesMutex).withLock(tempLockFile.hashCode()) {
+    return (fileLockSource ?: FileMutexGroup.Default).withLock(tempLockFile) {
         // The second lock locks a flagFile across all processes on the system
         produceResultWithFileLock(tempDir, targetFileName, block, getAlreadyProducedResult)
     }

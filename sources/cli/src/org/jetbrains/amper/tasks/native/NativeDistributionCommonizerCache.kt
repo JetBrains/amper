@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("SameParameterValue")
@@ -7,7 +7,7 @@
 package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.compilation.KotlinNativeCompiler
-import org.jetbrains.amper.concurrency.DefaultFilesMutex
+import org.jetbrains.amper.concurrency.FileMutexGroup
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -38,7 +38,7 @@ class NativeDistributionCommonizerCache(private val konan: KotlinNativeCompiler)
         // Do not use another file for locking without a reason.
         val lockFile = commonizedDir / ".lock"
         lockFile.createParentDirectories()
-        DefaultFilesMutex.withDoubleLock(lockFile) {
+        FileMutexGroup.Default.withDoubleLock(lockFile) {
             val todoOutputTargets = todoTargets(outputTargets)
             if (todoOutputTargets.isEmpty()) return@withDoubleLock
 

@@ -15,7 +15,7 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.concurrency.StripedMutex
+import org.jetbrains.amper.concurrency.FileMutexGroup
 import org.jetbrains.amper.concurrency.deleteIfExistsWithLogging
 import org.jetbrains.amper.concurrency.produceResultWithDoubleLock
 import org.jetbrains.amper.concurrency.produceResultWithTempFile
@@ -338,7 +338,7 @@ open class DependencyFile(
         spanBuilderSource: SpanBuilderSource,
         verify: Boolean,
         diagnosticsReporter: DiagnosticReporter,
-        fileLockSource: StripedMutex? = null,
+        fileLockSource: FileMutexGroup? = null,
     ): Path? {
         val expectedHashBeforeLocking = if (verify) {
             getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
@@ -496,7 +496,7 @@ open class DependencyFile(
         spanBuilderSource: SpanBuilderSource,
         verify: Boolean,
         diagnosticsReporter: DiagnosticReporter,
-        fileLockSource: StripedMutex? = null,
+        fileLockSource: FileMutexGroup? = null,
     ): Boolean {
         val nestedDownloadReporter = CollectingDiagnosticReporter()
 
@@ -1212,7 +1212,7 @@ class SnapshotDependencyFile(
          * It protects from concurrent attempts to download maven-metadata
          * while downloading pom/module/different artifacts in parallel
          */
-        private val mavenMetadataFilesLock = StripedMutex(stripeCount = 512)
+        private val mavenMetadataFilesLock = FileMutexGroup.striped(stripeCount = 512)
     }
 }
 
