@@ -188,10 +188,6 @@ private suspend fun <T> produceResultWithFileLock(
             // Another process deleted the temp file before we were able to get the lock on it => Try again.
             logger.debug("NoSuchFileException from withFileChannelLock on {}", e.file, e)
             continue
-        } catch (e: ClosedChannelException) {
-            // Another process deleted the temp file before we were able to get the lock on it => Try again.
-            logger.debug("ClosedChannelException from withFileChannelLock on {}", targetFileName, e)
-            continue
         }
     }
 }
