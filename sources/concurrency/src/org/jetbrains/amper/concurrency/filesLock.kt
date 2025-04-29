@@ -17,8 +17,6 @@ import java.nio.channels.FileChannel
 import java.nio.channels.FileLock
 import java.nio.channels.NonWritableChannelException
 import java.nio.channels.OverlappingFileLockException
-import java.nio.file.AccessDeniedException
-import java.nio.file.NoSuchFileException
 import java.nio.file.OpenOption
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -27,7 +25,7 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.coroutines.coroutineContext
 import kotlin.io.path.Path
-import kotlin.io.path.createDirectories
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.name
 import kotlin.math.min
@@ -69,6 +67,60 @@ suspend fun <T> FileMutexGroup.withDoubleLock(
         // The second lock locks a flagFile across all processes on the system
         lockFile.withFileChannelLock(*options) {
             block(it)
+        }
+    }
+}
+
+@RequiresOptIn("This API has concurrency implications that may not be obvious. " +
+        "Please make sure you fully understand the documentation before using it.")
+annotation class DelicateConcurrentApi
+
+/**
+ * Gets a cached value (if not null) or computes it with the given [computeUnderLock] function under a double lock:
+ * * a non-reentrant coroutine [Mutex] based on the [lockFile]'s path, getting exclusive access inside the current JVM
+ * * a FileChannel lock on the given [lockFile], getting exclusive access across all processes on the system
+ *
+ * This is similar to [withDoubleLock], but can reduce lock contention in cases where the function is called many times,
+ * if we can check safely whether the computed value is already available without locking.
+ *
+ * The [getCached] function is called at every step to return early in case the value is already available: before
+ * both locks, after taking the first lock, and after taking the second lock. If [getCached] still returns null at that
+ * last point, [computeUnderLock] is called to actually compute the value.
+ *
+ * **Important: this means that [getCached] is not protected by the locks, and must not access the lock file in any
+ * way, nor the protected resource.** Accessing the lock file could yield [AccessDeniedException].
+ *
+ * The parameter passed to [computeUnderLock] is the [FileChannel] used to lock the given [lockFile].
+ * It can be used to write to the lock file if needed, but note that the lock file cannot be accessed from [getCached].
+ *
+ * **Important: the [computeUnderLock] function must create the result atomically with respect to how [getCached] views
+ * it.** For instance, if multiple files are created by [computeUnderLock] and [getCached] checks for their existence
+ * one by one, it might cause consistency issues because [getCached] is not run under the lock.
+ *
+ * Note: Since the first lock is a non-reentrant coroutine Mutex, callers MUST NOT call [getOrComputeWithDoubleLock]
+ * (or similar locking functions) again from inside the given [computeUnderLock] function - that would make the current
+ * coroutine hang.
+ */
+@DelicateConcurrentApi
+suspend fun <T> FileMutexGroup.getOrComputeWithDoubleLock(
+    lockFile: Path,
+    getCached: suspend () -> T?,
+    computeUnderLock: suspend (lockFileChannel: FileChannel) -> T,
+): T {
+    contract {
+        callsInPlace(computeUnderLock, InvocationKind.AT_MOST_ONCE)
+    }
+    getCached()?.let { return it }
+
+    // The first lock prevents concurrent access inside one JVM process
+    return withLock(lockFile) {
+        getCached()?.let { return it }
+
+        // The second lock locks the file across all processes on the system
+        lockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) { lockFileChannel ->
+            getCached()?.let { return it }
+
+            computeUnderLock(lockFileChannel)
         }
     }
 }
@@ -162,6 +214,7 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
  *  callers MUST not call locking methods defined in this utility file again from inside the lambda
  *  ([block]) — that would lead to the hanging coroutine.
  */
+@OptIn(DelicateConcurrentApi::class)
 suspend fun <T> produceResultWithDoubleLock(
     tempDir: Path,
     targetFileName: String,
@@ -169,53 +222,27 @@ suspend fun <T> produceResultWithDoubleLock(
     getAlreadyProducedResult: suspend () -> T?,
     block: suspend (Path, FileChannel) -> T,
 ): T {
-    // returns the already produced file without locking if allowed, otherwise proceed with file production
-    getAlreadyProducedResult()?.let { return it }
-
     // todo (AB) : Maybe store it in <storage.root>/lock and never remove? (in order to resolve deletion failures attempts)
-    val tempLockFile = tempLockFile(tempDir, targetFileName)
-
-    // The first lock locks the stuff inside one JVM process
-    return (fileLockSource ?: FileMutexGroup.Default).withLock(tempLockFile) {
-        // The second lock locks a flagFile across all processes on the system
-        produceResultWithFileLock(tempDir, targetFileName, block, getAlreadyProducedResult)
-    }
-}
-
-private suspend fun <T> produceResultWithFileLock(
-    tempDir: Path,
-    targetFileName: String,
-    block: suspend (Path, FileChannel) -> T,
-    getAlreadyProducedResult: suspend () -> T?
-): T {
-    getAlreadyProducedResult()?.let { return it }
-
-    val tempLockFile = tempLockFile(tempDir, targetFileName)
-    tempLockFile.parent.createDirectories()
-
-    // Open a temporary lock file channel
-    return tempLockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) {
-        val result = getAlreadyProducedResult()
-        logger.trace(
-            "### ${System.currentTimeMillis()} {} {} : locked, getAlreadyProducedResult()={}",
-            tempLockFile.hashCode(), tempLockFile.name, result
-        )
-        if (result != null) {
-            return result
+    val lockFile = tempLockFile(tempDir, targetFileName).createParentDirectories()
+    return (fileLockSource ?: FileMutexGroup.Default).getOrComputeWithDoubleLock(
+        lockFile = lockFile,
+        getCached = getAlreadyProducedResult,
+    ) {
+        if (logger.isTraceEnabled) {
+            logger.trace(
+                "### ${System.currentTimeMillis()} {} {} : locked, getCached()={}",
+                lockFile.hashCode(),
+                lockFile.name,
+                getAlreadyProducedResult()
+            )
         }
-
         try {
             produceResultWithTempFile(tempDir, targetFileName, block)
         } finally {
-            tempLockFile.deleteIfExistsWithLogging("Temp lock file was deleted under the lock")
+            lockFile.deleteIfExistsWithLogging("Temp lock file was deleted under the lock")
         }
     }.also {
-        logger.trace(
-            "### ${System.currentTimeMillis()} {} {}: unlocked",
-            tempLockFile.hashCode(),
-            tempLockFile.name
-        )
-
+        logger.trace("### ${System.currentTimeMillis()} {} {}: unlocked", lockFile.hashCode(), lockFile.name)
     }
 }
 
