@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.concurrency
@@ -7,6 +7,8 @@ package org.jetbrains.amper.concurrency
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
@@ -16,6 +18,9 @@ import kotlin.coroutines.coroutineContext
 // from community/platform/diagnostic/telemetry.exporters/src/ReentrantMutex.kt
 
 suspend fun <T> Mutex.withReentrantLock(block: suspend () -> T): T {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
     val key = ReentrantMutexContextKey(this)
     // call block directly when this mutex is already locked in the context
     if (coroutineContext[key] != null) {

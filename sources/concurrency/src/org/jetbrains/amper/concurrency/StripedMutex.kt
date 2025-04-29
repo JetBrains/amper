@@ -1,11 +1,13 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.concurrency
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 // initially from intellij:community/platform/build-scripts/downloader/src/striped.kt
 
@@ -53,5 +55,9 @@ class StripedMutex(stripeCount: Int = 64) {
  * When [owner] is specified (non-null value) and this mutex is already locked with the same owner (same identity),
  * this function throws IllegalStateException (useful for debugging unexpected re-entries).
  */
-suspend inline fun <T> StripedMutex.withLock(hash: Int, owner: Any? = null, action: () -> T) =
-    getMutex(hash).withLock(owner, action)
+suspend inline fun <T> StripedMutex.withLock(hash: Int, owner: Any? = null, action: () -> T): T {
+    contract {
+        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+    }
+    return getMutex(hash).withLock(owner, action)
+}

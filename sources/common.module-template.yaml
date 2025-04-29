@@ -46,4 +46,6 @@ settings:
       - -Xcontext-receivers
       # we are aware and will change context receivers to context parameters after the frontend refactoring
       - -Xsuppress-warning=CONTEXT_RECEIVERS_DEPRECATED
-    optIns: [ kotlin.io.path.ExperimentalPathApi ]
+    optIns:
+      - kotlin.io.path.ExperimentalPathApi
+      - kotlin.contracts.ExperimentalContracts

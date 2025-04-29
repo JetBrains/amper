@@ -22,6 +22,8 @@ import java.nio.file.OpenOption
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.*
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.coroutines.coroutineContext
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -63,6 +65,9 @@ suspend fun <T> StripedMutex.withDoubleLock(
     ),
     block: suspend (lockFileChannel: FileChannel) -> T,
 ): T {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
     // The first lock locks the stuff inside one JVM process
     val localMutexKey = lockFile.toAbsolutePath().normalize().hashCode()
     return withLock(localMutexKey, owner) {
@@ -100,6 +105,9 @@ suspend fun <T> StripedMutex.withDoubleLock(
  * @throws IOException If some other I/O error occurs
  */
 private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOption, block: (FileChannel) -> T): T {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
     // Files can sometimes be inaccessible for a short time right after a removal.
     val lockFileChannel = withRetry(retryOnException = { it is AccessDeniedException }) {
         FileChannel.open(this, *options)
@@ -286,6 +294,9 @@ suspend fun <T> withRetry(
     retryOnException: (e: Exception) -> Boolean = { true },
     block: suspend (attempt: Int) -> T,
 ): T {
+    contract {
+        callsInPlace(block, InvocationKind.AT_LEAST_ONCE)
+    }
     var attempt = 0
     var firstException: Exception? = null
     do {
