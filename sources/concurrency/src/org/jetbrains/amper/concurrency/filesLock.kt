@@ -8,6 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.yield
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.channels.AsynchronousCloseException
@@ -84,6 +85,10 @@ suspend fun <T> FileMutexGroup.withDoubleLock(
  * This function blocks until the file can be locked or the current coroutine is canceled, whichever comes first.
  * If a "resource deadlock avoided" exception is thrown, this function suspends and retries several times.
  *
+ * If the given [options] contain [StandardOpenOption.CREATE] or [StandardOpenOption.CREATE_NEW], this function
+ * guarantees that the file is present when locked. It is safe to delete the file concurrently in this case: this
+ * function will recreate the file if it was deleted before the lock could be acquired.
+ *
  * File locks are held on behalf of the entire Java virtual machine. They are not suitable for controlling access to a
  * file by multiple threads within the same virtual machine.
  *
@@ -97,13 +102,37 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
     contract {
         callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
-    // Files can sometimes be inaccessible for a short time right after a removal.
-    val lockFileChannel = withRetry(retryOnException = { it is AccessDeniedException }) {
-        FileChannel.open(this, *options)
-    }
-    return lockFileChannel.use { fileChannel ->
-        fileChannel.lockWithRetry().use {
-            block(fileChannel)
+    while (true) {
+        // Paths are sometimes still reserved for a short period after a file was deleted, which gives an
+        // AccessDeniedException when trying to create a new file at this path. This is why we retry.
+        // If it's a real permission issue, we'll rethrow the exception after a few attempts so the caller can handle it.
+        val lockFileChannel = withRetry(retryOnException = { it is AccessDeniedException }) {
+            FileChannel.open(this, *options)
+        }
+        lockFileChannel.use { fileChannel ->
+            val fileLock = try {
+                fileChannel.lockWithRetry()
+            } catch (e: NoSuchFileException) {
+                val fileCreatedByOpen = options.any {
+                    it == StandardOpenOption.CREATE || it == StandardOpenOption.CREATE_NEW
+                }
+                if (fileCreatedByOpen) {
+                    // With the current open options, the file should be created by FileChannel.open().
+                    // In this case, NoSuchFileException means the file was deleted between the channel opening and the
+                    // locking attempt. We should re-open the channel (to re-create the file) and try locking again.
+                    // This is consistent with the behavior we would get if the deletion happened just before open() or
+                    // just after lockWithRetry() (instead of between them).
+                    yield() // cooperate with other coroutines before retrying
+                    return@use // TODO use 'continue' when moving to Kotlin 2.2
+                } else {
+                    // With the current open options, the file isn't automatically created by the FileChannel.open().
+                    // In this case, NoSuchFileException means the caller made a mistake and we should let it bubble up.
+                    throw e
+                }
+            }
+            return fileLock.use {
+                block(fileChannel)
+            }
         }
     }
 }
@@ -164,31 +193,23 @@ private suspend fun <T> produceResultWithFileLock(
     val tempLockFile = tempLockFile(tempDir, targetFileName)
     tempLockFile.parent.createDirectories()
 
-    while (true) {
-        return try {
-            // Open a temporary lock file channel
-            tempLockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) {
-                logger.trace(
-                    "### ${System.currentTimeMillis()} {} {} : locked, getAlreadyProducedResult()={}",
-                    tempLockFile.hashCode(), tempLockFile.name, getAlreadyProducedResult()
-                )
-                try {
-                    produceResultWithTempFile(tempDir, targetFileName, getAlreadyProducedResult, block)
-                } finally {
-                    tempLockFile.deleteIfExistsWithLogging("Temp lock file was deleted under the lock")
-                }
-            }.also {
-                logger.trace(
-                    "### ${System.currentTimeMillis()} {} {}: unlocked",
-                    tempLockFile.hashCode(),
-                    tempLockFile.name
-                )
-            }
-        } catch (e: NoSuchFileException) {
-            // Another process deleted the temp file before we were able to get the lock on it => Try again.
-            logger.debug("NoSuchFileException from withFileChannelLock on {}", e.file, e)
-            continue
+    // Open a temporary lock file channel
+    return tempLockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) {
+        logger.trace(
+            "### ${System.currentTimeMillis()} {} {} : locked, getAlreadyProducedResult()={}",
+            tempLockFile.hashCode(), tempLockFile.name, getAlreadyProducedResult()
+        )
+        try {
+            produceResultWithTempFile(tempDir, targetFileName, getAlreadyProducedResult, block)
+        } finally {
+            tempLockFile.deleteIfExistsWithLogging("Temp lock file was deleted under the lock")
         }
+    }.also {
+        logger.trace(
+            "### ${System.currentTimeMillis()} {} {}: unlocked",
+            tempLockFile.hashCode(),
+            tempLockFile.name
+        )
     }
 }
 
