@@ -88,12 +88,8 @@ suspend fun <T> StripedMutex.withDoubleLock(
  * If a [FileChannel] cannot be opened because of access errors, the open operation is retried several times.
  * This is to remediate the fact that sometimes the path stays inaccessible for a short time after being removed.
  *
- * This function blocks until the file can be locked or the invoking thread is interrupted, whichever comes first.
+ * This function blocks until the file can be locked or the current coroutine is canceled, whichever comes first.
  * If a "resource deadlock avoided" exception is thrown, this function suspends and retries several times.
- *
- * If the invoking thread is interrupted while waiting to acquire the lock then its interrupt status will be set and a
- * [FileLockInterruptionException] will be thrown. If the invoker's interrupt status is set when this function is
- * invoked then that exception will be thrown immediately; the thread's interrupt status will not be changed.
  *
  * File locks are held on behalf of the entire Java virtual machine. They are not suitable for controlling access to a
  * file by multiple threads within the same virtual machine.
@@ -248,12 +244,8 @@ fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, originalThrowable: 
  * Acquires an exclusive lock on this channel's file, retrying in case of "Resource deadlock avoided" exception.
  * See the "Why retry?" section below for more details.
  *
- * This function blocks until the file can be locked, this channel is closed, or the invoking thread is interrupted,
- * whichever comes first. If a "resource deadlock avoided" exception is thrown, this function suspends and retries.
- *
- * If the invoking thread is interrupted while waiting to acquire the lock then its interrupt status will be set and a
- * [FileLockInterruptionException] will be thrown. If the invoker's interrupt status is set when this function is
- * invoked then that exception will be thrown immediately; the thread's interrupt status will not be changed.
+ * This function blocks until the file can be locked or the current coroutine is canceled, whichever comes first.
+ * If a "resource deadlock avoided" exception is thrown, this function suspends and retries several times.
  *
  * File locks are held on behalf of the entire Java virtual machine. They are not suitable for controlling access to a
  * file by multiple threads within the same virtual machine.
