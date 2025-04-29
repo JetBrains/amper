@@ -6,6 +6,7 @@ package org.jetbrains.amper.concurrency
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.sync.Mutex
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -97,7 +98,6 @@ suspend fun <T> StripedMutex.withDoubleLock(
  * File locks are held on behalf of the entire Java virtual machine. They are not suitable for controlling access to a
  * file by multiple threads within the same virtual machine.
  *
- * @throws FileLockInterruptionException If the invoking thread is interrupted while blocked in this function
  * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this Java
  *         virtual machine, or if another thread is already blocked in this function and is attempting to lock an
  *         overlapping region of the same file
@@ -275,7 +275,6 @@ fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, originalThrowable: 
  * @throws ClosedChannelException If this channel is closed
  * @throws AsynchronousCloseException If another thread closes this channel while the invoking thread is blocked in
  *         this function
- * @throws FileLockInterruptionException If the invoking thread is interrupted while blocked in this function
  * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this Java
  *         virtual machine, or if another thread is already blocked in this function and is attempting to lock an
  *         overlapping region of the same file
@@ -284,7 +283,9 @@ fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, originalThrowable: 
  */
 private suspend fun FileChannel.lockWithRetry(): FileLock? =
     withRetry(retryOnException = { it is IOException && it.message?.contains("Resource deadlock avoided") == true }) {
-        lock()
+        runInterruptible {
+            lock()
+        }
     }
 
 // todo (AB): 10 seconds is not enough
