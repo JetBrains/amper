@@ -8,10 +8,13 @@ import com.intellij.execution.CommandLineUtil
 import com.intellij.execution.Platform
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.serialization.json.Json
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
+import org.jetbrains.amper.test.logs.readLogs
+import org.jetbrains.amper.test.otlp.serialization.decodeOtlpTraces
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.jetbrains.amper.test.server.HttpServerExtension
 import org.jetbrains.amper.test.server.WwwResult
@@ -19,14 +22,19 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.management.ManagementFactory
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isExecutable
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
+import kotlin.io.path.readLines
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 abstract class AmperCliWithWrapperTestBase {
 
@@ -103,7 +111,7 @@ abstract class AmperCliWithWrapperTestBase {
         amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.Inherit,
         customAmperScriptPath: Path? = null,
         stdin: ProcessInput = ProcessInput.Empty,
-    ): ProcessResult {
+    ): AmperCliResult {
         check(workingDir.exists()) { "Cannot run Amper: the specified working directory $workingDir does not exist." }
         check(workingDir.isDirectory()) { "Cannot run Amper: the specified working directory $workingDir is not a directory." }
 
@@ -155,6 +163,19 @@ abstract class AmperCliWithWrapperTestBase {
             )
         }
 
+        val buildOutputRoot = workingDir / findBuildDirRelativePath(args)
+        val amperResult = AmperCliResult(
+            projectRoot = workingDir,
+            buildOutputRoot = buildOutputRoot,
+            // Logs dirs contain the date, so max() gives the latest.
+            // This should be correct because we don't run the CLI concurrently in a single test.
+            logsDir = (buildOutputRoot / "logs").takeIf { it.exists() }?.listDirectoryEntries()?.maxOrNull(),
+            pid = result.pid,
+            exitCode = result.exitCode,
+            stdout = result.stdout,
+            stderr = result.stderr,
+        )
+
         assertEquals(
             expected = expectedExitCode,
             actual = result.exitCode,
@@ -168,7 +189,19 @@ abstract class AmperCliWithWrapperTestBase {
         if (assertEmptyStdErr) {
             assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call:\n$amperScript ${args.joinToString(" ")}\nAmper STDERR:\n${result.stderr}")
         }
-        return result
+        return amperResult
+    }
+
+    private fun findBuildDirRelativePath(args: List<String>): Path {
+        val buildOutputArgIndex = args.indexOf("--build-output")
+        if (buildOutputArgIndex in 0..<args.lastIndex) {
+            return Path(args[buildOutputArgIndex + 1])
+        }
+        val buildOutputArg = args.find { it.startsWith("--build-output=") }
+        if (buildOutputArg != null) {
+            return Path(buildOutputArg.substringAfter("="))
+        }
+        return Path("build")
     }
 
     private fun ProcessResult.relevantOutput(expectedExitCode: Int): String {
@@ -197,6 +230,34 @@ sealed class AmperJavaHomeMode {
      * Use the given [jreHomePath] as JRE home for the test Amper process.
      */
     data class Custom(val jreHomePath: Path) : AmperJavaHomeMode()
+}
+
+data class AmperCliResult(
+    val projectRoot: Path,
+    val buildOutputRoot: Path,
+    val logsDir: Path?, // null if it doesn't exist (e.g. the command didn't write logs)
+    val pid: Long,
+    val exitCode: Int,
+    val stdout: String,
+    val stderr: String,
+) {
+    val infoLogsPath = logsDir?.resolve("info.log")
+    val debugLogsPath = logsDir?.resolve("debug.log")
+    val tracesPath = logsDir?.resolve("opentelemetry_traces.jsonl")
+
+    val infoLogs by lazy {
+        infoLogsPath?.readLogs() ?: fail("The logs dir doesn't exist, cannot get info logs")
+    }
+
+    val debugLogs by lazy {
+        debugLogsPath?.readLogs() ?: fail("The logs dir doesn't exist, cannot get debug logs")
+    }
+
+    val telemetrySpans by lazy {
+        val tracesFile = tracesPath ?: fail("The logs dir doesn't exist, cannot get OpenTelemetry traces")
+        assertTrue(tracesFile.exists(), "OpenTelemetry traces file not found at $tracesFile")
+        Json.decodeOtlpTraces(tracesFile.readLines())
+    }
 }
 
 private fun String.prependIndentWithEmptyMark(indent: String): String =

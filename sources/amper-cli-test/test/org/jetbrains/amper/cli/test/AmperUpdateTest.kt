@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.processes.ProcessInput
+import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode

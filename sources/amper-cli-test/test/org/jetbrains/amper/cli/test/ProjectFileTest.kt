@@ -6,6 +6,7 @@ package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.test.AmperCliResult
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.io.path.div

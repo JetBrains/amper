@@ -4,12 +4,10 @@
 
 package org.jetbrains.amper.cli.test
 
-import kotlinx.serialization.json.Json
-import org.jetbrains.amper.cli.test.utils.otlp.serialization.decodeOtlpTraces
-import org.jetbrains.amper.cli.test.utils.readLogs
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
+import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.LocalAmperPublication
@@ -64,33 +62,6 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
      */
     protected fun newEmptyProjectDir(): Path = tempRoot.resolve("new").also { it.createDirectories() }
 
-    data class AmperCliResult(
-        val projectRoot: Path,
-        val buildOutputRoot: Path,
-        val logsDir: Path?, // null if it doesn't exist (e.g. the command didn't write logs)
-        val exitCode: Int,
-        val stdout: String,
-        val stderr: String,
-    ) {
-        val infoLogs by lazy {
-            logsDir?.resolve("info.log")?.readLogs()
-                ?: fail("The logs dir doesn't exist, cannot get info logs")
-        }
-
-        val debugLogs by lazy {
-            logsDir?.resolve("debug.log")?.readLogs()
-                ?: fail("The logs dir doesn't exist, cannot get debug logs")
-        }
-
-        val telemetrySpans by lazy {
-            val tracesFile = logsDir?.resolve("opentelemetry_traces.jsonl")
-                ?: fail("The logs dir doesn't exist, cannot get OpenTelemetry traces")
-            assertTrue(tracesFile.exists(), "OpenTelemetry traces file not found at $tracesFile")
-            Json.decodeOtlpTraces(tracesFile.readLines())
-        }
-
-    }
-
     protected suspend fun runCli(
         projectRoot: Path,
         vararg args: String,
@@ -144,16 +115,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         testReporter.publishEntry("Amper[${result.pid}] working dir", effectiveProjectRoot.pathString)
         testReporter.publishEntry("Amper[${result.pid}] exit code", result.exitCode.toString())
 
-        return AmperCliResult(
-            projectRoot = effectiveProjectRoot,
-            buildOutputRoot = buildOutputRoot,
-            // Logs dirs contain the date, so max() gives the latest.
-            // This should be correct because we don't run the CLI concurrently in a single test.
-            logsDir = (buildOutputRoot / "logs").takeIf { it.exists() }?.listDirectoryEntries()?.maxOrNull(),
-            stdout = result.stdout,
-            stderr = result.stderr,
-            exitCode = result.exitCode,
-        )
+        return result
     }
 
     protected suspend fun runXcodebuild(

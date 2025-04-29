@@ -7,6 +7,7 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
 import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
@@ -120,7 +121,7 @@ private val jvmBaseTasks = listOf("compileJvm", "resolveDependenciesJvm")
 private val jvmTestTasks = listOf("compileJvmTest", "resolveDependenciesJvmTest")
 private val jvmAppTasks = jvmBaseTasks + listOf("runJvm")
 
-private fun AmperCliTestBase.AmperCliResult.assertHasTasks(expectedTasks: Iterable<String>, module: String? = null) {
+private fun AmperCliResult.assertHasTasks(expectedTasks: Iterable<String>, module: String? = null) {
     val taskNames = stdout.lines()
         .filter { it.trim().startsWith("task :") }
         .map { it.trim().removePrefix("task ").substringBefore(" -> ") }

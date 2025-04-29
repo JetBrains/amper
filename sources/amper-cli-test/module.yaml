@@ -9,7 +9,6 @@ test-dependencies:
   - ../core
   - ../libraries/telemetry
   - ../test-base
-  - $kotlin.serialization.json
   - $libs.kotlinx.coroutines.test
   - $libs.teamcity.serviceMessages # to parse service messages in tests
   - com.android.tools.apkparser:apkanalyzer:31.2.0
@@ -17,8 +16,6 @@ test-dependencies:
   - org.smali:dexlib2:2.5.2 # todo: use apkanalyzer API to get rid of this dependency
 
 settings:
-  kotlin:
-    serialization: enabled
   jvm:
     test:
       systemProperties:

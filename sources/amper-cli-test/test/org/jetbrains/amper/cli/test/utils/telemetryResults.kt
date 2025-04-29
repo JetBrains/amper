@@ -7,18 +7,19 @@ package org.jetbrains.amper.cli.test.utils
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
 import org.jetbrains.amper.cli.test.AmperCliTestBase
+import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.spans.FilteredSpans
 import org.jetbrains.amper.test.spans.SpansTestCollector
 import org.jetbrains.amper.test.spans.spansNamed
 
-internal fun AmperCliTestBase.AmperCliResult.readTelemetrySpans(): SpansTestCollector {
+internal fun AmperCliResult.readTelemetrySpans(): SpansTestCollector {
     return object : SpansTestCollector {
         override val spans: List<SpanData> = telemetrySpans
         override fun clearSpans() = throw UnsupportedOperationException("Cannot modify deserialized spans")
     }
 }
 
-internal fun AmperCliTestBase.AmperCliResult.withTelemetrySpans(block: SpansTestCollector.() -> Unit) {
+internal fun AmperCliResult.withTelemetrySpans(block: SpansTestCollector.() -> Unit) {
     readTelemetrySpans().apply(block)
 }
 
