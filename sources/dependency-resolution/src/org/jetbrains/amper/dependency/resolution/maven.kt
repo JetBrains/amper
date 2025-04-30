@@ -1090,9 +1090,15 @@ class MavenDependency internal constructor(
 
         val kotlinProjectStructureMetadata = kmpMetadata.parseKmpLibraryMetadata()
 
-        val allPlatformsVariants = context.settings.platforms.flatMap {
+        val resolvedVariants = context.settings.platforms.associateWith {
             resolveVariants(moduleMetadata, context.settings, it).withoutDocumentationAndMetadata
-        }.associateBy { it.name }
+        }
+        val platformsWithoutVariants = resolvedVariants.filter { it.value.isEmpty() }
+        if (platformsWithoutVariants.isNotEmpty()) {
+            reportVariantMismatchForLibrary(diagnosticsReporter, moduleMetadata, platformsWithoutVariants.keys)
+        }
+
+        val allPlatformsVariants = resolvedVariants.values.flatten().associateBy { it.name }
 
         val allSourceSetNames = kotlinProjectStructureMetadata.projectStructure.sourceSets.map { it.name }
 

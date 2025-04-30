@@ -11,6 +11,7 @@ import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.defaultFilterMessages
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyMessages
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyOwnMessages
+import org.jetbrains.amper.dependency.resolution.diagnostics.PlatformsAreNotSupported
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.junit.jupiter.api.Test
@@ -30,6 +31,7 @@ import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -193,9 +195,9 @@ class DependencyFileTest {
                     val messages = it.messages.defaultFilterMessages()
                     assertEquals(1, messages.size,
                         "There must be the only error messages instead of ${messages.size}: $messages")
-                    assertEquals("No variant for the platform macosArm64 is provided by the library org.jetbrains.skiko:skiko-awt:0.8.22",
-                        messages.single().detailedMessage,
-                        "Unexpected error message")
+                    val message = assertIs<PlatformsAreNotSupported>(messages.single(),"Unexpected error message")
+                    assertEquals(setOf(ResolutionPlatform.MACOS_ARM64), message.unsupportedPlatforms)
+                    assertEquals(setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID), message.supportedPlatforms)
                 } else {
                     it.verifyOwnMessages()
                 }

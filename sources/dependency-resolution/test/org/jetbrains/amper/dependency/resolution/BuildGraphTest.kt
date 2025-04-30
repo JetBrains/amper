@@ -1938,6 +1938,53 @@ class BuildGraphTest : BaseDRTest() {
         )
     }
 
+    @Test
+    fun `resolving multiplatform library for unsupported set of platforms`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "org.jetbrains.skiko:skiko:0.9.4",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(
+                ResolutionPlatform.ANDROID,
+                ResolutionPlatform.IOS_ARM64,
+                ResolutionPlatform.ANDROID_NATIVE_ARM64,
+                ResolutionPlatform.WATCHOS_ARM64,
+            ),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
+            expected = """
+                root
+                ╰─── org.jetbrains.skiko:skiko:0.9.4
+            """.trimIndent(),
+            verifyMessages = false,
+        )
+        val message = assertTheOnlyNonInfoMessage<PlatformsAreNotSupported>(root, Severity.ERROR)
+        assertEquals(
+            setOf(
+                ResolutionPlatform.ANDROID_NATIVE_ARM64,
+                ResolutionPlatform.WATCHOS_ARM64,
+            ),
+            message.unsupportedPlatforms
+        )
+        assertEquals(
+            setOf(
+                ResolutionPlatform.JVM,
+                ResolutionPlatform.ANDROID,
+                ResolutionPlatform.IOS_ARM64,
+                ResolutionPlatform.IOS_SIMULATOR_ARM64,
+                ResolutionPlatform.IOS_X64,
+                ResolutionPlatform.JS,
+                ResolutionPlatform.LINUX_X64,
+                ResolutionPlatform.MACOS_ARM64,
+                ResolutionPlatform.MACOS_X64,
+                ResolutionPlatform.TVOS_ARM64,
+                ResolutionPlatform.TVOS_SIMULATOR_ARM64,
+                ResolutionPlatform.TVOS_X64,
+                ResolutionPlatform.WASM,
+            ),
+            message.supportedPlatforms,
+        )
+    }
+
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
         assertEquals(expected, root.prettyPrint().trimEnd())
 }
