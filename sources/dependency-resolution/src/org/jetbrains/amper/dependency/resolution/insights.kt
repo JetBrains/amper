@@ -164,8 +164,10 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
  * parents if a dependency version was not overridden
  * or a set of nodes that caused the version of dependency to be overridden
  */
-private fun DependencyNode.isThereAPathToTopBypassingEffectiveParents(group: String, module: String): Boolean {
+private fun DependencyNode.isThereAPathToTopBypassingEffectiveParents(group: String, module: String, visited: MutableSet<DependencyNode> = mutableSetOf()): Boolean {
     if (parents.isEmpty()) return true // we reach the root
+
+    visited.add(this)
 
     val filteredEffectiveParents = when(this) {
         is MavenDependencyNode -> if (this.resolvedVersion() != this.originalVersion()) overriddenBy else parents
@@ -173,9 +175,12 @@ private fun DependencyNode.isThereAPathToTopBypassingEffectiveParents(group: Str
         else -> parents
     }.filterNot { it.correspondsToResolvedVersionOf(group, module) }
 
+
     if (filteredEffectiveParents.isEmpty()) return false // node has effective parents, but all of them are among those we should bypass along the way to root
 
-    return filteredEffectiveParents.any { it.isThereAPathToTopBypassingEffectiveParents(group, module) }
+    return filteredEffectiveParents
+        .filterNot { it in visited }
+        .any { it.isThereAPathToTopBypassingEffectiveParents(group, module, visited) }
 }
 
 /**
