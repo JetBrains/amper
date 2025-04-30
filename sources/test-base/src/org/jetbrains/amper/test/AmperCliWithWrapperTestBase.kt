@@ -176,18 +176,36 @@ abstract class AmperCliWithWrapperTestBase {
             stderr = result.stderr,
         )
 
-        assertEquals(
-            expected = expectedExitCode,
-            actual = result.exitCode,
-            message = """
-                Exit code must be $expectedExitCode, but got ${result.exitCode} for Amper call (PID ${result.pid}):
-                $amperScript ${args.joinToString(" ")}
-                Output:
-                ${result.relevantOutput(expectedExitCode).prependIndent("                ")}
-            """.trimMargin(),
-        )
-        if (assertEmptyStdErr) {
-            assertTrue(result.stderr.isBlank(), "Process stderr must be empty for Amper call:\n$amperScript ${args.joinToString(" ")}\nAmper STDERR:\n${result.stderr}")
+        try {
+            assertEquals(
+                expected = expectedExitCode,
+                actual = result.exitCode,
+                message = """
+                    Exit code must be $expectedExitCode, but got ${result.exitCode} for Amper call (PID ${result.pid}):
+                    $amperScript ${args.joinToString(" ")}
+                    Output:
+                    ${result.relevantOutput(expectedExitCode).prependIndent("                    ")}
+                """.trimMargin(),
+            )
+            if (assertEmptyStdErr) {
+                assertTrue(
+                    actual = result.stderr.isBlank(),
+                    message = """
+                        Process stderr must be empty for Amper call (PID ${result.pid}):
+                        $amperScript ${args.joinToString(" ")}
+                        Amper STDERR:
+                        ${result.stderr.prependIndent("                    ")}
+                    """.trimMargin(),
+                )
+            }
+        } catch (e: Throwable) {
+            try {
+                publishLogs(amperResult)
+            } catch (e2: Throwable) {
+                e2.addSuppressed(e)
+                throw e2
+            }
+            throw e
         }
         return amperResult
     }
@@ -202,6 +220,11 @@ abstract class AmperCliWithWrapperTestBase {
             return Path(buildOutputArg.substringAfter("="))
         }
         return Path("build")
+    }
+
+    private fun publishLogs(amperResult: AmperCliResult) {
+        val logsDir = amperResult.logsDir ?: return
+        testReporter.publishDirectory(logsDir)
     }
 
     private fun ProcessResult.relevantOutput(expectedExitCode: Int): String {
