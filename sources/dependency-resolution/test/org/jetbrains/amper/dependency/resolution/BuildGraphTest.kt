@@ -1985,6 +1985,26 @@ class BuildGraphTest : BaseDRTest() {
         )
     }
 
+    @Test
+    fun `resolving Java-only library for native platform`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "com.google.code.gson:gson:2.13.1",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(ResolutionPlatform.IOS_ARM64),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
+            expected = """
+                root
+                ╰─── com.google.code.gson:gson:2.13.1
+                     ╰─── com.google.errorprone:error_prone_annotations:2.38.0
+            """.trimIndent(),
+            verifyMessages = false,
+        )
+        val message = assertTheOnlyNonInfoMessage<PlatformsAreNotSupported>(root, Severity.ERROR)
+        assertEquals(setOf(ResolutionPlatform.IOS_ARM64), message.unsupportedPlatforms)
+        assertEquals(setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID), message.supportedPlatforms)
+    }
+
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
         assertEquals(expected, root.prettyPrint().trimEnd())
 }

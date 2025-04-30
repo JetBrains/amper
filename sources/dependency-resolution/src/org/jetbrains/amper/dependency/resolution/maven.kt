@@ -859,6 +859,7 @@ class MavenDependency internal constructor(
      * (library dependencies are registered to graph); no further processing by a usual way is needed.
      *
      * @return true, in case a Kmp library that needs special treatment was detected and processed, false - otherwise
+     * @see isSpecialKmpLibrary
      */
     private suspend fun processSpecialKmpLibraries(
         context: Context,
@@ -866,9 +867,7 @@ class MavenDependency internal constructor(
         level: ResolutionLevel,
         diagnosticsReporter: DiagnosticReporter
     ): Boolean {
-        if (isKotlinTestAnnotationsCommon()
-            || isKotlinStdlibCommon()
-        ) {
+        if (isSpecialKmpLibrary()) {
             moduleMetadata
                 .variants
                 .let {
@@ -1508,6 +1507,14 @@ class MavenDependency internal constructor(
 
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
 
+    /**
+     * These libraries are applicable in the KMP context but don't have metadata with the set of supported platforms
+     * as they're expected to always support everything.
+     *
+     * Thus, they can be erroneously treated as JVM-only, which isn't the case.
+     */
+    private fun isSpecialKmpLibrary(): Boolean = isKotlinTestAnnotationsCommon() || isKotlinStdlibCommon()
+
     private suspend fun resolveUsingPom(
         text: String,
         context: Context,
@@ -1532,6 +1539,20 @@ class MavenDependency internal constructor(
 
         packaging = project.packaging ?: "jar"
         state = level.state
+
+        if (packaging == "jar" && !isSpecialKmpLibrary()) {
+            val nonJvmPlatforms =
+                context.settings.platforms.filter { it != ResolutionPlatform.JVM && it != ResolutionPlatform.ANDROID }
+            // JAR packed dependencies without metadata shouldn't be used for non-JVM platforms
+            if (nonJvmPlatforms.isNotEmpty()) {
+                diagnosticsReporter.addMessage(
+                    PlatformsAreNotSupported(
+                        this,
+                        setOf(ResolutionPlatform.ANDROID, ResolutionPlatform.JVM)
+                    )
+                )
+            }
+        }
 
         // We have used a pom file for resolving dependency, => lower severity of module-metadata-related issues.
         if (moduleFile.diagnosticsReporter.hasErrors()) {

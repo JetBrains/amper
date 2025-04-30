@@ -191,7 +191,7 @@ class DependencyFileTest {
                 resolver.downloadDependencies(root)
             }
             root.distinctBfsSequence().forEach {
-                if (it is MavenDependencyNode && it.module == "skiko-awt") {
+                if (it is MavenDependencyNode && it.module.startsWith("skiko-awt")) {
                     val messages = it.messages.defaultFilterMessages()
                     assertEquals(1, messages.size,
                         "There must be the only error messages instead of ${messages.size}: $messages")
