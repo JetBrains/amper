@@ -16,9 +16,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.concurrency.FileMutexGroup
-import org.jetbrains.amper.concurrency.deleteIfExistsWithLogging
-import org.jetbrains.amper.concurrency.produceResultWithDoubleLock
-import org.jetbrains.amper.concurrency.produceResultWithTempFile
 import org.jetbrains.amper.concurrency.withRetry
 import org.jetbrains.amper.dependency.resolution.diagnostics.CollectingDiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.ContentLengthMismatch
@@ -38,6 +35,9 @@ import org.jetbrains.amper.dependency.resolution.files.Hash
 import org.jetbrains.amper.dependency.resolution.files.Hasher
 import org.jetbrains.amper.dependency.resolution.files.Writer
 import org.jetbrains.amper.dependency.resolution.files.computeHash
+import org.jetbrains.amper.dependency.resolution.files.deleteIfExistsWithLogging
+import org.jetbrains.amper.dependency.resolution.files.produceResultWithDoubleLock
+import org.jetbrains.amper.dependency.resolution.files.produceResultWithTempFile
 import org.jetbrains.amper.dependency.resolution.files.readTextWithRetry
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
