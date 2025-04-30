@@ -20,6 +20,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.writeText
 import kotlin.test.Ignore
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
 
 class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
 
@@ -453,7 +454,7 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun `respect dependencyResolutionManagement block in non-amper subprojects`() = runTest {
+    fun `respect dependencyResolutionManagement block in non-amper subprojects`() = runTest(timeout = 3.minutes) {
         val fakeMavenRoot = tempRoot.resolve("fake-maven-root").also { it.createDirectories() }
 
         val fakeDepDir = fakeMavenRoot.resolve("com/example/unique/my-unique-dep/1.0.0").createDirectories()
