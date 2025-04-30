@@ -12,6 +12,7 @@ object UsedVersions {
 
     /*magic_replacement*/ val composeVersion = "1.7.3"
     /*magic_replacement*/ val hotReloadVersion = "1.0.0-alpha02"
+    /*magic_replacement*/ val junitPlatform = "1.12.1"
     /*magic_replacement*/ val kotlinVersion = "2.1.20"
     /*magic_replacement*/ val kotlinxSerializationVersion = "1.8.0"
     /*magic_replacement*/ val kspVersion = "2.1.20-1.0.31"

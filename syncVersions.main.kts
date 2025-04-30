@@ -43,6 +43,7 @@ val kotlinVersion = "2.1.20"
 val composeVersion = "1.7.3"
 val composeVersionForGradleBasedAmper = "1.6.10"
 val hotReloadVersion = "1.0.0-alpha02"
+val junitPlatformVersion = "1.12.1"
 val kotlinxSerializationVersion = "1.8.0"
 val kspVersion = "2.1.20-1.0.31" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
 val ktorVersion = "3.1.1"
@@ -104,6 +105,7 @@ fun updateVersionsCatalog() {
             .replaceCatalogVersionVariable(variableName = "compose-forGradleBased", newValue = composeVersionForGradleBasedAmper)
             .replaceCatalogVersionVariable(variableName = "gradle-api-forGradleBased", newValue = gradleVersion)
             .replaceCatalogVersionVariable(variableName = "hot-reload-version", newValue = hotReloadVersion)
+            .replaceCatalogVersionVariable(variableName = "junit-platform", newValue = junitPlatformVersion)
     }
 }
 
@@ -118,6 +120,7 @@ fun updateUsedVersionsKt() {
             .replaceBundledVersionVariable(variableName = "kotlinVersion", newValue = kotlinVersion)
             .replaceBundledVersionVariable(variableName = "kotlinxSerializationVersion", newValue = kotlinxSerializationVersion)
             .replaceBundledVersionVariable(variableName = "composeVersion", newValue = composeVersion)
+            .replaceBundledVersionVariable(variableName = "junitPlatform", newValue = junitPlatformVersion)
             .replaceBundledVersionVariable(variableName = "kspVersion", newValue = kspVersion)
             .replaceBundledVersionVariable(variableName = "hotReloadVersion", newValue = hotReloadVersion)
             .replaceBundledVersionVariable(variableName = "springBootVersion", newValue = springBootVersion)

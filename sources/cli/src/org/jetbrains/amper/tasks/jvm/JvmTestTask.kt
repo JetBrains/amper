@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
@@ -73,7 +74,7 @@ class JvmTestTask(
             groupId = "org.junit.platform",
             artifactId = "junit-platform-console-standalone",
             packaging = "jar",
-            version = "1.11.4",
+            version = UsedVersions.junitPlatform,
         ).toString()
 
         // test task depends on compile test task
