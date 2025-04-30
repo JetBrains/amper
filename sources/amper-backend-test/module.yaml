@@ -3,10 +3,10 @@ product:
   platforms: [ jvm ]
 
 dependencies:
-  - ../concurrency
   - ../core
   - ../cli
   - ../core-intellij
+  - ../libraries/concurrency
   - ../libraries/telemetry
 
 test-dependencies:

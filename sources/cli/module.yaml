@@ -9,7 +9,6 @@ repositories:
 
 dependencies:
   - ../amper-project-templates
-  - ../concurrency
   - ../core
   - ../core-intellij
   - ../frontend-api: exported
@@ -18,6 +17,7 @@ dependencies:
   - ../incremental-cache
   - ../libraries/async-processes
   - ../libraries/compose-resources
+  - ../libraries/concurrency
   - ../libraries/telemetry
   - ../libraries/xcode-model-ext
   - ../android-integration/android-sdk-detector

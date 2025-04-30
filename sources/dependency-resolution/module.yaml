@@ -11,7 +11,7 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
-  - ../concurrency
+  - ../libraries/concurrency
   - ../libraries/nio-filechannels
   - ../libraries/telemetry
   - $libs.xmlutil.serialization

@@ -15,7 +15,6 @@ modules:
   - sources/build-related/generate-build-properties
   - sources/build-related/task-helpers
   - sources/cli
-  - sources/concurrency
   - sources/core
   - sources/core-intellij
   - sources/dependency-resolution
@@ -32,6 +31,7 @@ modules:
   - sources/junit-listeners
   - sources/libraries/async-processes
   - sources/libraries/compose-resources
+  - sources/libraries/concurrency
   - sources/libraries/nio-filechannels
   - sources/libraries/telemetry
   - sources/libraries/xcode-model-ext
