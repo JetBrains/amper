@@ -30,7 +30,6 @@ class AmperInitTest : AmperCliTestBase() {
         runCli(newRoot, "init", "multiplatform-cli")
 
         newRoot.assertContainsRelativeFiles(
-            ".editorconfig",
             "amper",
             "amper.bat",
             "jvm-cli/module.yaml",
