@@ -68,7 +68,6 @@ private fun getResFileSpec(
                     @return The content of the file as a byte array.
                 """.trimIndent()
                     )
-                    .addAnnotation(experimentalAnnotation)
                     .addParameter("path", String::class)
                     .addModifiers(KModifier.SUSPEND)
                     .returns(ByteArray::class)
@@ -90,7 +89,6 @@ private fun getResFileSpec(
                     @return The URI string of the file.
                 """.trimIndent()
                     )
-                    .addAnnotation(experimentalAnnotation)
                     .addParameter("path", String::class)
                     .returns(String::class)
                     .addStatement("""return %M(%S + path)""", getResourceUri, moduleDir)
