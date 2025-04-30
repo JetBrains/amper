@@ -5,6 +5,7 @@
 package org.jetbrains.amper.templates
 
 import io.github.classgraph.ClassGraph
+import java.net.URL
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.outputStream
@@ -41,8 +42,11 @@ data class AmperProjectTemplate(val name: String, val description: String) {
     fun listFiles(): List<TemplateFile> = ClassGraph()
         .acceptPaths("templates/$name")
         .scan()
-        .use { it.allResources.paths }
-        .map { TemplateFile(it, it.removePrefix("templates/$name/")) }
+        .use { scanResult ->
+            scanResult.allResources.map { resource ->
+                TemplateFile(resource.url, resource.path.removePrefix("templates/$name/"))
+            }
+        }
         .also {
             // something is very wrong (and out of the user's control) if there are no files
             check(it.isNotEmpty()) { "No files were found for template '$name'" }
@@ -54,9 +58,9 @@ data class AmperProjectTemplate(val name: String, val description: String) {
  */
 data class TemplateFile(
     /**
-     * The path to this file in the resources.
+     * The URL to the resource for this file.
      */
-    private val resourcePath: String,
+    val resourceUrl: URL, // will be used in IDE wizard
     /**
      * The path to this file relative to the project root.
      */
@@ -70,7 +74,7 @@ data class TemplateFile(
     fun extractTo(projectRoot: Path) {
         val path = projectRoot.resolve(relativePath)
         path.parent.createDirectories()
-        javaClass.classLoader.getResourceAsStream(resourcePath)!!.use { stream ->
+        resourceUrl.openStream().use { stream ->
             path.outputStream().use { out ->
                 stream.copyTo(out)
             }
