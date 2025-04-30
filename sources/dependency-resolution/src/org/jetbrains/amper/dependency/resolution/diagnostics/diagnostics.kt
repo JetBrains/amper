@@ -25,7 +25,6 @@ internal fun SimpleDiagnosticDescriptor.asMessage(
 )
 
 object DependencyResolutionDiagnostics {
-    val BomVariantNotFound = SimpleDiagnosticDescriptor("bom.variant.not.found", Severity.ERROR)
     val ContentLengthMismatch = SimpleDiagnosticDescriptor("content.length.mismatch", Severity.ERROR)
     val DependencyIsNotMultiplatform = SimpleDiagnosticDescriptor("dependency.is.not.multiplatform", Severity.ERROR)
     val FailedRepackagingKMPLibrary = SimpleDiagnosticDescriptor("failed.repackaging.kmp.library", Severity.ERROR)

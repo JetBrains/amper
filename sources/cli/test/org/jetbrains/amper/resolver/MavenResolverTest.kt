@@ -197,7 +197,8 @@ class MavenResolverTest {
             """
                Unable to resolve dependencies for test:
 
-               No variant for the platform macosArm64 is provided by the library org.jetbrains.kotlinx:kotlinx-datetime:0.2.1
+               Platform macosArm64 is not supported by the library org.jetbrains.kotlinx:kotlinx-datetime:0.2.1
+               Supported platforms: [android, iosArm64, iosX64, js, jvm, linuxX64, macosX64, mingwX64, tvosArm64, tvosX64, watchosArm32, watchosArm64]
                """.trimIndent(),
             t.message
         )

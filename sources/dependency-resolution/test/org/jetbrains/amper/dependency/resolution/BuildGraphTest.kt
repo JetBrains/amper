@@ -6,8 +6,11 @@ package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
+import org.jetbrains.amper.dependency.resolution.diagnostics.BomDeclaredAsRegularDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
+import org.jetbrains.amper.dependency.resolution.diagnostics.PlatformsAreNotSupported
 import org.jetbrains.amper.dependency.resolution.diagnostics.PomResolvedWithMetadataErrors
+import org.jetbrains.amper.dependency.resolution.diagnostics.RegularDependencyDeclaredAsBom
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadChecksums
 import org.junit.jupiter.api.TestInfo
@@ -931,7 +934,7 @@ class BuildGraphTest : BaseDRTest() {
             verifyMessages = false
         )
 
-        assertTheOnlyNonInfoMessage(root, DependencyResolutionDiagnostics.NoVariantForPlatform)
+        assertTheOnlyNonInfoMessage<BomDeclaredAsRegularDependency>(root, Severity.ERROR)
 
         val constraintsNumber = root
             .distinctBfsSequence()
@@ -942,6 +945,26 @@ class BuildGraphTest : BaseDRTest() {
             0, constraintsNumber,
             "Unexpected list of constraints, it should contain 0 items, but contains $constraintsNumber"
         )
+    }
+
+    /**
+     * If the regular dependency is declared as BOM we can notice it and suggest removing BOM prefix.
+     */
+    @Test
+    fun `declaring regular dependency published with Gradle metadata as BOM`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "bom:com.fasterxml.jackson.core:jackson-annotations:2.18.3",
+            scope = ResolutionScope.RUNTIME,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
+            expected = """
+                root
+                ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3
+            """.trimIndent(),
+            verifyMessages = false
+        )
+
+        assertTheOnlyNonInfoMessage<RegularDependencyDeclaredAsBom>(root, Severity.ERROR)
     }
 
     /**
@@ -1877,6 +1900,42 @@ class BuildGraphTest : BaseDRTest() {
                     it.joinToString("\n")
                 )
             }
+    }
+
+    @Test
+    fun `resolving multiplatform library for unsupported leaf platform`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "org.jetbrains.skiko:skiko:0.9.4",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(ResolutionPlatform.WATCHOS_ARM64),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
+            expected = """
+                root
+                ╰─── org.jetbrains.skiko:skiko:0.9.4
+            """.trimIndent(),
+            verifyMessages = false,
+        )
+        val message = assertTheOnlyNonInfoMessage<PlatformsAreNotSupported>(root, Severity.ERROR)
+        assertEquals(setOf(ResolutionPlatform.WATCHOS_ARM64), message.unsupportedPlatforms)
+        assertEquals(
+            setOf(
+                ResolutionPlatform.JVM,
+                ResolutionPlatform.ANDROID,
+                ResolutionPlatform.IOS_ARM64,
+                ResolutionPlatform.IOS_SIMULATOR_ARM64,
+                ResolutionPlatform.IOS_X64,
+                ResolutionPlatform.JS,
+                ResolutionPlatform.LINUX_X64,
+                ResolutionPlatform.MACOS_ARM64,
+                ResolutionPlatform.MACOS_X64,
+                ResolutionPlatform.TVOS_ARM64,
+                ResolutionPlatform.TVOS_SIMULATOR_ARM64,
+                ResolutionPlatform.TVOS_X64,
+                ResolutionPlatform.WASM,
+            ),
+            message.supportedPlatforms,
+        )
     }
 
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =

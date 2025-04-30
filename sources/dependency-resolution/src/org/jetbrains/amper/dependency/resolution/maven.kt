@@ -15,6 +15,7 @@ import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPat
 import org.jetbrains.amper.dependency.resolution.attributes.Category
 import org.jetbrains.amper.dependency.resolution.attributes.JvmEnvironment
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinNativeTarget
+import org.jetbrains.amper.dependency.resolution.attributes.KotlinPlatformType
 import org.jetbrains.amper.dependency.resolution.attributes.PluginApiVersion
 import org.jetbrains.amper.dependency.resolution.attributes.Usage
 import org.jetbrains.amper.dependency.resolution.attributes.getAttributeValue
@@ -22,8 +23,8 @@ import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinNativeTarge
 import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinPlatformType
 import org.jetbrains.amper.dependency.resolution.attributes.hasNoAttribute
 import org.jetbrains.amper.dependency.resolution.attributes.isDocumentation
+import org.jetbrains.amper.dependency.resolution.diagnostics.BomDeclaredAsRegularDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
-import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.BomVariantNotFound
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.DependencyIsNotMultiplatform
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.FailedRepackagingKMPLibrary
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.KotlinMetadataHashNotResolved
@@ -44,7 +45,9 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutio
 import org.jetbrains.amper.dependency.resolution.diagnostics.DiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.MetadataResolvedWithPomErrors
+import org.jetbrains.amper.dependency.resolution.diagnostics.PlatformsAreNotSupported
 import org.jetbrains.amper.dependency.resolution.diagnostics.PomResolvedWithMetadataErrors
+import org.jetbrains.amper.dependency.resolution.diagnostics.RegularDependencyDeclaredAsBom
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
@@ -673,7 +676,7 @@ class MavenDependency internal constructor(
         } else if (isBom) {
             val validVariants = resolveBomVariants(moduleMetadata, context.settings)
             if (validVariants.isEmpty()) {
-                diagnosticsReporter.addMessage(BomVariantNotFound.asMessage(this))
+                diagnosticsReporter.addMessage(RegularDependencyDeclaredAsBom(this))
             } else {
                 validVariants.also {
                     variants = it
@@ -706,11 +709,7 @@ class MavenDependency internal constructor(
                 val validVariants = resolveVariants(moduleMetadata, context.settings, platform)
 
                 if (validVariants.isEmpty()) {
-                    diagnosticsReporter.addMessage(
-                        // todo (AB) : Describe what variants we have and why they doesn't match, see example of the explanation in
-                        // todo (AB) : https://youtrack.jetbrains.com/issue/AMPER-3842/#focus=Comments-27-11433793.0-0
-                        NoVariantForPlatform.asMessage(platform.pretty, this)
-                    )
+                    reportVariantMismatchForLibrary(diagnosticsReporter, moduleMetadata, setOf(platform))
                 } else {
                     validVariants.also {
                         variants = it
@@ -790,6 +789,56 @@ class MavenDependency internal constructor(
         if (pom.diagnosticsReporter.hasErrors()) {
             pom.diagnosticsReporter.suppress { suppressedMessages ->
                 MetadataResolvedWithPomErrors(coordinates, suppressedMessages)
+            }
+        }
+    }
+
+    private fun reportVariantMismatchForLibrary(
+        diagnosticsReporter: DiagnosticReporter,
+        module: Module,
+        missingPlatforms: Set<ResolutionPlatform>,
+    ) {
+        val groupedByCategory = module.variants.groupBy { it.getAttributeValue(Category) }
+        val libraryVariants = buildList {
+            groupedByCategory[Category.Library]?.let { addAll(it) }
+            // Old versions of Kotlin libraries might not have the proper category attribute set.
+            groupedByCategory[null]?.let { addAll(it) }
+        }
+        if (libraryVariants.isEmpty() && groupedByCategory[Category.Platform] != null) {
+            diagnosticsReporter.addMessage(BomDeclaredAsRegularDependency(this))
+            return
+        }
+
+        val supportedPlatforms = libraryVariants
+            .mapNotNullTo(mutableSetOf()) { variant -> getLeafPlatformFromVariant(variant) }
+        // This check might be more sophisticated,
+        // but for the time being we suppose that all JVM libraries can be used on Android
+        if (ResolutionPlatform.JVM in supportedPlatforms) {
+            supportedPlatforms += ResolutionPlatform.ANDROID
+        }
+        if (supportedPlatforms.isNotEmpty()) {
+            diagnosticsReporter.addMessage(PlatformsAreNotSupported(this, supportedPlatforms))
+            return
+        }
+
+        // It's a fallback that actually shouldn't ever occur. It is possible that it can be safely deleted.
+        missingPlatforms.forEach {
+            diagnosticsReporter.addMessage(NoVariantForPlatform.asMessage(it.pretty, this))
+        }
+    }
+
+    private fun getLeafPlatformFromVariant(variant: Variant): ResolutionPlatform? {
+        val kotlinPlatform = variant.getAttributeValue(KotlinPlatformType) as? KotlinPlatformType.Known ?: return null
+        return when (kotlinPlatform.platformType) {
+            PlatformType.COMMON -> null
+            PlatformType.JVM -> ResolutionPlatform.JVM
+            PlatformType.ANDROID_JVM -> ResolutionPlatform.ANDROID
+            PlatformType.JS -> ResolutionPlatform.JS
+            PlatformType.WASM -> ResolutionPlatform.WASM
+            PlatformType.NATIVE -> {
+                val nativeTarget =
+                    variant.getAttributeValue(KotlinNativeTarget) as? KotlinNativeTarget.Known ?: return null
+                nativeTarget.platform
             }
         }
     }

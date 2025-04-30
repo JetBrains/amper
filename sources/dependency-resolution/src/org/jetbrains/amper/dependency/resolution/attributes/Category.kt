@@ -11,12 +11,14 @@ sealed class Category(override val value: String) : AttributeValue {
         override val name: String = "org.gradle.category"
 
         override fun fromString(value: String): Category = when (value) {
+            Library.value -> Library
             Documentation.value -> Documentation
             Platform.value -> Platform
             else -> Other(value)
         }
     }
 
+    object Library : Category("library")
     object Documentation : Category("documentation")
     object Platform : Category("platform")
     class Other(value: String) : Category(value)
