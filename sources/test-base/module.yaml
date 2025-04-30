@@ -23,8 +23,8 @@ dependencies:
   - ../cli # TODO split cli into submodules (currently used for JdkDownloader)
   - ../core
   - ../dependency-resolution
-  - ../incremental-cache
   - ../libraries/async-processes: exported # for ProcessResult in the API
+  - ../libraries/incremental-cache
   - ../libraries/telemetry
 
 apply:

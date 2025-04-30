@@ -14,10 +14,10 @@ dependencies:
   - ../frontend-api: exported
   - ../frontend/schema
   - ../frontend/dr
-  - ../incremental-cache
   - ../libraries/async-processes
   - ../libraries/compose-resources
   - ../libraries/concurrency
+  - ../libraries/incremental-cache
   - ../libraries/telemetry
   - ../libraries/xcode-model-ext
   - ../android-integration/android-sdk-detector

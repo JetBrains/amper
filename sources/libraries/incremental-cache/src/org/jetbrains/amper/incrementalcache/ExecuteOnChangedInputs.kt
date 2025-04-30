@@ -63,7 +63,7 @@ class ExecuteOnChangedInputs(
      *  * the given set of [input][inputs] paths has not changed
      *  * the files located at the given [input][inputs] paths have not changed
      *  * the output files from the latest execution have not changed
-     *  * the version of Amper that produced the cached result is the same as the current Amper version
+     *  * the version of the code that produced the cached result is the same as the current version
      *
      * Note: output _properties_ from previous executions don't affect caching because their values only exist in the
      * state file itself, so we have nothing to compare that to.
@@ -72,7 +72,7 @@ class ExecuteOnChangedInputs(
      * ### Concurrency
      *
      * The given [block] is always executed under double-locking based on the given [id], which means that 2 calls with
-     * the same [id] cannot be executed at the same time by multiple threads or multiple Amper processes.
+     * the same [id] cannot be executed at the same time by multiple threads or multiple processes.
      * If one call needs to re-run [block] because the cache is invalid, subsequent calls with the same ID will suspend
      * until the first call completes and then resume and use the cache immediately (if possible).
      */
@@ -308,12 +308,12 @@ class ExecuteOnChangedInputs(
  *  * the given set of [input][inputs] paths has not changed
  *  * the files located at the given [input][inputs] paths have not changed
  *  * the output files from the latest execution have not changed
- *  * the version of Amper that produced the cached result is the same as the current Amper version
+ *  * the version of the code that produced the cached result is the same as the current version
  *
  * ### Concurrency
  *
  * The given [block] is always executed under double-locking based on the given [id], which means that 2 calls with
- * the same [id] cannot be executed at the same time by multiple threads or multiple Amper processes.
+ * the same [id] cannot be executed at the same time by multiple threads or multiple processes.
  * If one call needs to re-run [block] because the cache is invalid, subsequent calls with the same ID will suspend
  * until the first call completes and then resume and use the cache immediately (if possible).
  */

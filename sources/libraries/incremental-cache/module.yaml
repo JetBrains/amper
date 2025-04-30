@@ -3,12 +3,12 @@ product:
   platforms: [ jvm ]
 
 apply:
-  - ../common.module-template.yaml
+  - ../../common.module-template.yaml
 
 dependencies:
-  - ../libraries/concurrency
-  - ../libraries/nio-filechannels
-  - ../libraries/telemetry: exported # OpenTelemetry is in the API
+  - ../concurrency
+  - ../nio-filechannels
+  - ../telemetry: exported # OpenTelemetry is in the API
   - $libs.kotlinx.coroutines.core
   - $libs.slf4j.api
 

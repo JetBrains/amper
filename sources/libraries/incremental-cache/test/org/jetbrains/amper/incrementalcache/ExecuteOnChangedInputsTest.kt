@@ -57,7 +57,7 @@ class ExecuteOnChangedInputsTest {
     }
 
     @Test
-    fun changeAmperBuildNumber() {
+    fun changeCodeVersionNumber() {
         val file = tempDir.resolve("file.txt").also { it.writeText("a") }
 
         fun call(codeVersion: String) = runBlocking {

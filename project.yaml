@@ -27,11 +27,11 @@ modules:
   - sources/frontend/schema
   - sources/gradle-e2e-test
   - sources/gradle-integration
-  - sources/incremental-cache
   - sources/junit-listeners
   - sources/libraries/async-processes
   - sources/libraries/compose-resources
   - sources/libraries/concurrency
+  - sources/libraries/incremental-cache
   - sources/libraries/nio-filechannels
   - sources/libraries/telemetry
   - sources/libraries/xcode-model-ext
