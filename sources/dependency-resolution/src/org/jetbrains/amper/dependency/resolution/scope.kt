@@ -1,11 +1,15 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
 
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependency
+import org.jetbrains.amper.dependency.resolution.attributes.Usage
+import org.jetbrains.amper.dependency.resolution.attributes.getAttributeValue
+import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinPlatformType
+import org.jetbrains.amper.dependency.resolution.attributes.isDocumentation
 
 /**
  * Represent an Amper dependency resolution scope.
@@ -18,20 +22,20 @@ enum class ResolutionScope(
 ) {
 
     COMPILE(
-        { it.attributes["org.gradle.usage"]?.endsWith("-api") == true || it.isScopeAgnostic() },
-        { it.scope in setOf(null, "compile") },
+        variantMatcher = { it.getAttributeValue(Usage)?.isApi() == true || it.isScopeAgnostic() },
+        dependencyMatcher = { it.scope in setOf(null, "compile") },
         // this fallback is naturally expected in Gradle architecture
         // (but might, perhaps, have some questionable implications for Maven dependencies resolved from pom)
-        { RUNTIME }
+        fallback = { RUNTIME }
     ),
     RUNTIME(
-        { it.attributes["org.gradle.usage"]?.endsWith("-runtime") == true || it.isScopeAgnostic() },
-        { it.scope in setOf(null, "compile", "runtime") },
+        variantMatcher = { it.getAttributeValue(Usage)?.isRuntime() == true || it.isScopeAgnostic() },
+        dependencyMatcher = { it.scope in setOf(null, "compile", "runtime") },
         // 'org.gradle.usage' equal to 'kotlin-runtime' is somewhat artificial for Gradle module metadata,
         // 'kotlin-runtime' value is never resolved in the wild for anything but sources, thus fallback to COMPILE is
         // in fact what is expected
         // (again it might, perhaps, have some questionable implications for Maven dependencies resolved from pom)
-        { COMPILE }
+        fallback = { COMPILE }
     );
 
     internal fun matches(variant: Variant) = variantMatcher(variant)
@@ -39,13 +43,9 @@ enum class ResolutionScope(
 }
 
 internal fun Variant.isKotlinMetadata(platform: ResolutionPlatform = ResolutionPlatform.COMMON) =
-    attributes["org.jetbrains.kotlin.platform.type"] == platform.type.value
-            && attributes["org.gradle.usage"] == "kotlin-metadata"
+    hasKotlinPlatformType(platform.type) && getAttributeValue(Usage) == Usage.KotlinMetadata
 
 internal fun Variant.isKotlinMetadataSources(platform: ResolutionPlatform = ResolutionPlatform.COMMON) =
-    attributes["org.jetbrains.kotlin.platform.type"] == platform.type.value
-            && attributes["org.gradle.category"] == "documentation"
-
-private fun Variant.isDocumentation() = attributes["org.gradle.category"] == "documentation"
+    hasKotlinPlatformType(platform.type) && isDocumentation()
 
 private fun Variant.isScopeAgnostic() = isKotlinMetadata() || isDocumentation()

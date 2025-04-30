@@ -1,10 +1,15 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
 
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
+import org.jetbrains.amper.dependency.resolution.attributes.JvmEnvironment
+import org.jetbrains.amper.dependency.resolution.attributes.KotlinPlatformType
+import org.jetbrains.amper.dependency.resolution.attributes.getAttributeValue
+import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinPlatformType
+import org.jetbrains.amper.dependency.resolution.attributes.hasNoAttribute
 
 /**
  * This enum contains leaf platforms, dependencies resolution could be requested for.
@@ -85,17 +90,18 @@ enum class PlatformType(
     NATIVE ("native"),
     WASM("wasm");
 
-    internal fun matches(variant: Variant) = variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this.value } ?: true
+    internal fun matches(variant: Variant): Boolean {
+        // Missing kotlin.platform.type is interpreted as matching
+        if (variant.hasNoAttribute(KotlinPlatformType)) return true
+
+        return variant.hasKotlinPlatformType(this)
+    }
 
     internal fun matchesJvmEnvironment(variant: Variant): Boolean {
-        val jvmEnvironment = variant.attributes["org.gradle.jvm.environment"]
-        return (jvmEnvironment == null) || when (this) {
-            JVM -> {
-                jvmEnvironment == "standard-jvm"
-            }
-            ANDROID_JVM ->  {
-                jvmEnvironment == "android"
-            }
+        val jvmEnvironment = variant.getAttributeValue(JvmEnvironment) ?: return true
+        return when (this) {
+            JVM -> jvmEnvironment == JvmEnvironment.StandardJvm
+            ANDROID_JVM -> jvmEnvironment == JvmEnvironment.Android
             else -> true
         }
     }

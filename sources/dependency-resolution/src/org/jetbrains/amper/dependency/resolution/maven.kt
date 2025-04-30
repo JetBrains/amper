@@ -58,6 +58,16 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.localRepository
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseSettings
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
+import org.jetbrains.amper.dependency.resolution.attributes.Category
+import org.jetbrains.amper.dependency.resolution.attributes.JvmEnvironment
+import org.jetbrains.amper.dependency.resolution.attributes.KotlinNativeTarget
+import org.jetbrains.amper.dependency.resolution.attributes.PluginApiVersion
+import org.jetbrains.amper.dependency.resolution.attributes.Usage
+import org.jetbrains.amper.dependency.resolution.attributes.getAttributeValue
+import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinPlatformType
+import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinNativeTarget
+import org.jetbrains.amper.dependency.resolution.attributes.hasNoAttribute
+import org.jetbrains.amper.dependency.resolution.attributes.isDocumentation
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -601,7 +611,7 @@ class MavenDependency internal constructor(
         if (group == "org.jetbrains.kotlin"
             && (module == "kotlin-gradle-plugin" || module == "fus-statistics-gradle-plugin"))
         {
-            val nonVersionVariants = filter { it.attributes["org.gradle.plugin.api-version"] == null }
+            val nonVersionVariants = filter { it.hasNoAttribute(PluginApiVersion) }
             if (nonVersionVariants.withoutDocumentationAndMetadata.size == 1) return nonVersionVariants
         }
 
@@ -1383,9 +1393,9 @@ class MavenDependency internal constructor(
         isGuava()
                 && capabilities.contains(Capability("com.google.collections", "google-collections", version.orUnspecified()))
                 && capabilities.contains(toCapability())
-                && attributes["org.gradle.jvm.environment"] == when (version?.substringAfterLast('-')) {
-            "android" -> "android"
-            "jre" -> "standard-jvm"
+                && getAttributeValue(JvmEnvironment) == when (version?.substringAfterLast('-')) {
+            "android" -> JvmEnvironment.Android
+            "jre" -> JvmEnvironment.StandardJvm
             else -> null
         }
 
@@ -1394,9 +1404,9 @@ class MavenDependency internal constructor(
     private fun MavenDependency.toCapability() = Capability(group, module, version.orUnspecified())
 
     private fun nativeTargetMatches(variant: Variant, platform: ResolutionPlatform) =
-        variant.attributes["org.jetbrains.kotlin.platform.type"] != PlatformType.NATIVE.value
-                || variant.attributes["org.jetbrains.kotlin.native.target"] == null
-                || variant.attributes["org.jetbrains.kotlin.native.target"] == platform.nativeTarget
+        !variant.hasKotlinPlatformType(PlatformType.NATIVE)
+                || variant.hasNoAttribute(KotlinNativeTarget)
+                || variant.hasKotlinNativeTarget(platform)
 
     private fun categoryMatches(variant: Variant) = variant.isBom() == isBom
 
@@ -1646,17 +1656,12 @@ class MavenDependency internal constructor(
 
     private val Variant.isDocumentationOrMetadata: Boolean
         get() =
-            isDocumentation
-                    ||
-                    attributes["org.gradle.usage"] == "kotlin-api"
-                    && attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value
+            isDocumentation() ||
+                    getAttributeValue(Usage) == Usage.KotlinApi
+                    && hasKotlinPlatformType(PlatformType.COMMON)
 
     private val Collection<Variant>.documentationOnly: List<Variant>
-        get() = filter { it.isDocumentation }
-
-    private val Variant.isDocumentation: Boolean
-        get() = attributes["org.gradle.category"] == "documentation"
-
+        get() = filter { it.isDocumentation() }
 
     suspend fun downloadDependencies(context: Context, downloadSources: Boolean = false) {
         val withSources = downloadSources || alwaysDownloadSources()
@@ -1757,8 +1762,8 @@ data class MavenCoordinates(
 
 internal fun AvailableAt.toCoordinates() = MavenCoordinates(group, module, version)
 
-private fun Dependency.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
-private fun Variant.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
+private fun Dependency.isBom(): Boolean = getAttributeValue(Category) == Category.Platform
+private fun Variant.isBom(): Boolean = getAttributeValue(Category) == Category.Platform
 
 private val allApplePlatforms = ResolutionPlatform.entries.filter {
     it.name.startsWith("IOS_")
