@@ -102,13 +102,28 @@ class AmperProjectStructureTest {
         }
     }
 
+    @Test
+    fun `DR module doesn't depend on Amper-aware modules in its production dependencies`() = runTest {
+        val drModuleName = "dependency-resolution"
+        val drModule = readAmperProjectModel().modules.find { it.userReadableName == drModuleName }
+            ?: error("Module '$drModuleName' not found, please update this test if it was renamed")
+        val invalidDeps = drModule.nonLibraryDependencies(includeTestDeps = false)
+        if (invalidDeps.isNotEmpty()) {
+            fail(
+                "The '$drModuleName' module depends on the following Amper-aware modules:\n\n" +
+                    invalidDeps.joinToString("\n") { "  - $it" } +
+                        "\n\nPlease remove these dependencies, as we want DR to be independent of Amper.")
+        }
+    }
+
     private fun readAmperProjectModel(): Model = with(SimpleProblemReporterContext(NoOpCollectingProblemReporter())) {
         val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, project = null)
             ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
         SchemaBasedModelImport.getModel(projectContext).get()
     }
 
-    private fun AmperModule.nonLibraryDependencies(): List<String> = fragments
+    private fun AmperModule.nonLibraryDependencies(includeTestDeps: Boolean = true): List<String> = fragments
+        .let { if (includeTestDeps) it else it.filterNot(Fragment::isTest) }
         .flatMap { it.externalDependencies }
         .filterIsInstance<LocalModuleDependency>()
         .filterNot { it.module.isAmperAgnosticLibrary() }
