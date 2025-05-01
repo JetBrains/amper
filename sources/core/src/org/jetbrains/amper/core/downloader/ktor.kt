@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.core.downloader
@@ -15,10 +15,6 @@ val httpClient: HttpClient by lazy {
     HttpClient {
         expectSuccess = true
 
-        install(HttpTimeout) {
-            requestTimeoutMillis = 2.hours.inWholeMilliseconds
-        }
-
         install(ContentEncoding) {
             deflate(1.0F)
             gzip(0.9F)
@@ -29,8 +25,14 @@ val httpClient: HttpClient by lazy {
         }
 
         install(HttpRequestRetry) {
-            retryOnExceptionOrServerErrors(maxRetries = 3)
+            retryOnServerErrors(maxRetries = 3)
+            retryOnException(maxRetries = 3, retryOnTimeout = true)
             exponentialDelay()
+        }
+
+        // has to be after HttpRequestRetry because we use retryOnTimeout
+        install(HttpTimeout) {
+            requestTimeoutMillis = 2.hours.inWholeMilliseconds
         }
 
         install(UserAgent) {
