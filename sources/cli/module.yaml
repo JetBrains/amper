@@ -9,6 +9,7 @@ repositories:
 
 dependencies:
   - ../amper-project-templates
+  - ../amper-wrapper
   - ../core
   - ../core-intellij
   - ../frontend-api: exported

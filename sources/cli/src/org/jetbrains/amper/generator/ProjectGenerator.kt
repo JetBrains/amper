@@ -8,7 +8,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.templates.AmperProjectTemplate
 import org.jetbrains.amper.templates.TemplateFile
-import org.jetbrains.amper.util.substituteTemplatePlaceholders
+import org.jetbrains.amper.wrapper.AmperWrappers
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -26,7 +26,13 @@ internal object ProjectGenerator {
         }
 
         template.extractTo(outputDir = targetRootDir)
-        writeWrappers(targetRootDir)
+
+        val sha256 = System.getProperty("amper.wrapper.dist.sha256")
+        if (sha256.isNullOrEmpty()) {
+            logger.warn("Amper was not run from amper wrapper, skipping generating wrappers for $targetRootDir")
+            return
+        }
+        AmperWrappers.generate(targetRootDir, AmperBuild.mavenVersion, sha256)
     }
 
     private fun AmperProjectTemplate.extractTo(outputDir: Path) {
@@ -47,48 +53,6 @@ internal object ProjectGenerator {
                         alreadyExistingFiles.sorted().joinToString("\n").prependIndent("  ") + "\n\n" +
                         "Please move, rename, or delete them before running the command again."
             )
-        }
-    }
-
-    private data class AmperWrapper(
-        val fileName: String,
-        val resourceName: String,
-        val executable: Boolean,
-        val windowsLineEndings: Boolean,
-    )
-
-    private val wrappers = listOf(
-        AmperWrapper(fileName = "amper", resourceName = "wrappers/amper.template.sh", executable = true, windowsLineEndings = false),
-        AmperWrapper(fileName = "amper.bat", resourceName = "wrappers/amper.template.bat", executable = false, windowsLineEndings = true),
-    )
-
-    private fun writeWrappers(root: Path) {
-        val sha256: String? = System.getProperty("amper.wrapper.dist.sha256")
-        if (sha256.isNullOrEmpty()) {
-            logger.warn("Amper was not run from amper wrapper, skipping generating wrappers for $root")
-            return
-        }
-
-        for (w in wrappers) {
-            val path = root.resolve(w.fileName)
-
-            substituteTemplatePlaceholders(
-                input = javaClass.classLoader.getResourceAsStream(w.resourceName)!!.use { it.readAllBytes() }.decodeToString(),
-                outputFile = path,
-                placeholder = "@",
-                values = listOf(
-                    "AMPER_VERSION" to AmperBuild.mavenVersion,
-                    "AMPER_DIST_TGZ_SHA256" to sha256,
-                ),
-                outputWindowsLineEndings = w.windowsLineEndings,
-            )
-
-            if (w.executable) {
-                val rc = path.toFile().setExecutable(true)
-                check(rc) {
-                    "Unable to make file executable: $rc"
-                }
-            }
         }
     }
 }

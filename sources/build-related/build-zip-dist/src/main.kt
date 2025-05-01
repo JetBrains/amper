@@ -10,13 +10,16 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.wrapper.AmperWrappers
 import java.nio.file.Path
 import java.util.zip.GZIPOutputStream
-import kotlin.io.path.Path
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
 import kotlin.io.path.outputStream
+import kotlin.io.path.readBytes
 
 suspend fun main(args: Array<String>) = BuildTgzDistCommand().main(args)
 
@@ -26,20 +29,16 @@ class BuildTgzDistCommand : CacheableTaskCommand() {
     private val extraClasspaths by option("--extra-dir").namedClasspath().multiple()
 
     override suspend fun ExecuteOnChangedInputs.runCached() {
-        val unixWrapperTemplate = Path("resources/wrappers/amper.template.sh").toAbsolutePath()
-        val windowsWrapperTemplate = Path("resources/wrappers/amper.template.bat").toAbsolutePath()
-
         execute("build-tgz-dist", emptyMap(), cliRuntimeClasspath) {
             val cliTgz = taskOutputDirectory.resolve("cli.tgz")
 
             println("Writing CLI distribution to $cliTgz")
             cliTgz.writeDistTarGz(cliRuntimeClasspath, extraClasspaths)
 
-            val wrappers = AmperWrappers.generateWrappers(
+            val wrappers = AmperWrappers.generate(
                 targetDir = taskOutputDirectory,
-                cliDistTgz = cliTgz,
-                unixTemplate = unixWrapperTemplate,
-                windowsTemplate = windowsWrapperTemplate,
+                amperVersion = AmperBuild.mavenVersion,
+                amperDistTgzSha256 = cliTgz.readBytes().sha256String(),
             )
 
             ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(cliTgz) + wrappers)

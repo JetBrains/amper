@@ -4,6 +4,7 @@ modules:
   - sources/amper-mobile-test
   - sources/amper-project-templates
   - sources/amper-project-test
+  - sources/amper-wrapper
   - sources/amper-wrapper-test
   - sources/android-integration/android-integration-core
   - sources/android-integration/android-sdk-detector
