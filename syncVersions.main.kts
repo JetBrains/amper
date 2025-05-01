@@ -81,7 +81,7 @@ val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 val amperRootDir: Path = __FILE__.toPath().absolute().parent // __FILE__ is this script
 val examplesGradleDir = amperRootDir / "examples-gradle"
 val migratedProjectsDir = amperRootDir / "migrated-projects"
-val cliDir = amperRootDir / "sources/cli"
+val amperWrapperModuleDir = amperRootDir / "sources/amper-wrapper"
 val docsDir = amperRootDir / "docs"
 val versionsCatalogToml = amperRootDir / "gradle/libs.versions.toml"
 val usedVersionsKt = amperRootDir / "sources/core/src/org/jetbrains/amper/core/UsedVersions.kt"
@@ -205,7 +205,7 @@ fun updateWrapperTemplates() {
     val jbrs = getJbrChecksums(jvmVersion, jbrBuild)
 
     sequenceOf(
-        cliDir / "resources/wrappers/amper.template.sh",
+        amperWrapperModuleDir / "resources/wrappers/amper.template.sh",
         amperRootDir / "amper-from-sources",
     ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
@@ -217,7 +217,7 @@ fun updateWrapperTemplates() {
     }
 
     sequenceOf(
-        cliDir / "resources/wrappers/amper.template.bat",
+        amperWrapperModuleDir / "resources/wrappers/amper.template.bat",
         amperRootDir / "amper-from-sources.bat",
     ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
