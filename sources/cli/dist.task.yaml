@@ -1,6 +1,6 @@
 type: jvm/external-task
 
-module: ../../build-sources/build-zip-dist
+module: ../../build-sources/build-dist
 
 programArguments:
   - --output-dir=${outputDirectory}

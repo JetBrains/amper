@@ -21,15 +21,15 @@ import kotlin.io.path.name
 import kotlin.io.path.outputStream
 import kotlin.io.path.readBytes
 
-suspend fun main(args: Array<String>) = BuildTgzDistCommand().main(args)
+suspend fun main(args: Array<String>) = BuildDistCommand().main(args)
 
-class BuildTgzDistCommand : CacheableTaskCommand() {
+class BuildDistCommand : CacheableTaskCommand() {
 
     private val cliRuntimeClasspath by option("--classpath").classpath().required()
     private val extraClasspaths by option("--extra-dir").namedClasspath().multiple()
 
     override suspend fun ExecuteOnChangedInputs.runCached() {
-        execute("build-tgz-dist", emptyMap(), cliRuntimeClasspath) {
+        execute("build-dist", emptyMap(), cliRuntimeClasspath) {
             val cliTgz = taskOutputDirectory.resolve("cli.tgz")
 
             println("Writing CLI distribution to $cliTgz")
