@@ -12,6 +12,7 @@ import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.mordant.input.interactiveSelectList
 import com.github.ajalt.mordant.widgets.SelectList
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.generator.ProjectGenerator
 import org.jetbrains.amper.templates.AmperProjectTemplate
 import org.jetbrains.amper.templates.AmperProjectTemplates
@@ -27,11 +28,16 @@ internal class InitCommand : AmperSubcommand(name = "init") {
     override fun help(context: Context): String = "Initialize a new Amper project based on a template"
 
     override suspend fun run() {
-        val directory = commonOptions.explicitRoot ?: Path(System.getProperty("user.dir"))
-        ProjectGenerator(terminal = terminal).initProject(
-            template = template ?: promptForTemplate(),
-            directory = directory,
-        )
+        val targetRootDir = commonOptions.explicitRoot ?: Path(System.getProperty("user.dir"))
+        val selectedTemplate = template ?: promptForTemplate()
+        terminal.println("Extracting template '${selectedTemplate.name}' to $targetRootDir")
+
+        ProjectGenerator.initProject(template = selectedTemplate, targetRootDir = targetRootDir)
+
+        terminal.println("Project template successfully instantiated to $targetRootDir")
+        terminal.println()
+        val exe = if (OsFamily.current.isWindows) "amper.bat build" else "./amper build"
+        terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
     }
 
     private fun promptForTemplate(): AmperProjectTemplate {

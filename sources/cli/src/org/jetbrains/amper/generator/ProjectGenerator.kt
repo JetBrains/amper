@@ -1,13 +1,11 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.generator
 
-import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperBuild
-import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.templates.AmperProjectTemplate
 import org.jetbrains.amper.templates.TemplateFile
 import org.jetbrains.amper.util.substituteTemplatePlaceholders
@@ -18,23 +16,17 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
-internal class ProjectGenerator(private val terminal: Terminal) {
+internal object ProjectGenerator {
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    fun initProject(template: AmperProjectTemplate, directory: Path) {
-        if (directory.exists() && !directory.isDirectory()) {
-            userReadableError("Project root is not a directory: $directory")
+    fun initProject(template: AmperProjectTemplate, targetRootDir: Path) {
+        if (targetRootDir.exists() && !targetRootDir.isDirectory()) {
+            error("Project root is not a directory: $targetRootDir") // already checked by CLI
         }
 
-        terminal.println("Extracting template '${template.name}' to $directory")
-        template.extractTo(outputDir = directory)
-        writeWrappers(directory)
-
-        terminal.println("Project template successfully instantiated to $directory")
-        terminal.println()
-        val exe = if (OsFamily.current.isWindows) "amper.bat build" else "./amper build"
-        terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
+        template.extractTo(outputDir = targetRootDir)
+        writeWrappers(targetRootDir)
     }
 
     private fun AmperProjectTemplate.extractTo(outputDir: Path) {
