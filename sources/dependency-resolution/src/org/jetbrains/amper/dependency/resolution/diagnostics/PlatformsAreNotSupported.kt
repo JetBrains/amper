@@ -43,4 +43,6 @@ class PlatformsAreNotSupported(
 
     val unsupportedPlatforms: Set<ResolutionPlatform>
         get() = requestedPlatforms - supportedPlatforms
+
+    override val reportTransitive: Boolean = false
 }

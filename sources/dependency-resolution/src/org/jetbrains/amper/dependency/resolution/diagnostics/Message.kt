@@ -29,6 +29,11 @@ interface Message {
      * Additional details that will be shown in the IDE tooltip or appended after the [message].
      */
     val details: @Nls String? get() = null
+
+    /**
+     * Whether the message should be reported for transitive dependencies.
+     */
+    val reportTransitive: Boolean get() = true
 }
 
 val Message.detailedMessage: @Nls String

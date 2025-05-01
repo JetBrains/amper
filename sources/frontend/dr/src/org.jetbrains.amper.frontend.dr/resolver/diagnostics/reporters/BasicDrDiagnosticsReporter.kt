@@ -79,9 +79,12 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
             if (psiElement != null) {
                 for (message in importantMessages) {
                     val msgLevel = message.mapSeverityToLevel()
-                    // todo (AB) : improve showing errors/warnings
-                    // todo (AB) : - don't show error related to transitive dependency if it is among direct ones (show only there)
-                    // todo (AB) : - improve error message about transitive dependencies
+                    if (node.isTransitiveFor(directDependency)) {
+                        if (!message.reportTransitive) continue
+                        // If the message is already reported on the direct dependency node,
+                        // skip reporting it on the transitive node.
+                        if (directDependency.dependencyNode.messages.any { it.id == message.id }) continue
+                    }
 
                     val buildProblem = DependencyBuildProblem(
                         problematicDependency = node,
@@ -147,12 +150,15 @@ class DependencyBuildProblem(
             }
         }
     val isTransitive: Boolean
-        get() = problematicDependency != directFragmentDependency && directFragmentDependency !in problematicDependency.parents
+        get() = problematicDependency.isTransitiveFor(directFragmentDependency)
 
     companion object {
         const val ID = "dependency.problem"
     }
 }
+
+internal fun DependencyNode.isTransitiveFor(fragmentDependency: DirectFragmentDependencyNodeHolder): Boolean =
+    this != fragmentDependency && fragmentDependency !in parents
 
 private fun DependencyBuildProblem.getVersionDefinition(): @Nls String? {
     if (versionTrace == null) return null
