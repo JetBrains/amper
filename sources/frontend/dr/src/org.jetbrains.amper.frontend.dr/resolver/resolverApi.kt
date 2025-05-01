@@ -85,7 +85,7 @@ open class DependencyNodeHolderWithNotation(
     name: String,
     children: List<DependencyNode>,
     templateContext: Context,
-    val notation: Notation? = null,
+    open val notation: Notation? = null,
     parentNodes: List<DependencyNode> = emptyList(),
 ) : DependencyNodeHolder(name, children, templateContext, parentNodes)
 
@@ -94,7 +94,7 @@ class ModuleDependencyNodeWithModule(
     name: String,
     children: List<DependencyNode>,
     templateContext: Context,
-    notation: DefaultScopedNotation? = null,
+    override val notation: DefaultScopedNotation? = null,
     parentNodes: List<DependencyNode> = emptyList(),
 ) : DependencyNodeHolderWithNotation(name, children, templateContext, notation, parentNodes = parentNodes)
 
@@ -102,7 +102,7 @@ class DirectFragmentDependencyNodeHolder(
     val dependencyNode: DependencyNode,
     val fragment: Fragment,
     templateContext: Context,
-    notation: Notation,
+    override val notation: Notation,
     parentNodes: List<DependencyNode> = emptyList(),
     override val messages: List<Message> = emptyList(),
 ) : DependencyNodeHolderWithNotation(
