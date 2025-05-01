@@ -5,7 +5,7 @@ module: ../../build-sources/build-unpacked-dist
 programArguments:
   - --output-dir=${outputDirectory}
   - --target-dir=${outputDirectory}/gen-resources/junit-listeners
-  - --classpath=${module(../junit-listeners).runtimeClasspathJvm}
+  - --classpath=${module(../amper-junit-listeners).runtimeClasspathJvm}
   - --jar-list-file=classpath.txt
 
 addTaskOutputToSourceSet:

@@ -5,6 +5,7 @@ modules:
   - build-sources/task-helpers
   - sources/amper-backend-test
   - sources/amper-cli-test
+  - sources/amper-junit-listeners
   - sources/amper-mobile-test
   - sources/amper-project-templates
   - sources/amper-project-test
@@ -28,7 +29,6 @@ modules:
   - sources/frontend/schema
   - sources/gradle-e2e-test
   - sources/gradle-integration
-  - sources/junit-listeners
   - sources/libraries/async-processes
   - sources/libraries/compose-resources
   - sources/libraries/concurrency
