@@ -1,6 +1,6 @@
 type: jvm/external-task
 
-module: ../build-related/generate-build-properties
+module: ../../build-sources/generate-build-properties
 programArguments:
   - ${outputDirectory}
 

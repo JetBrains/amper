@@ -1,4 +1,8 @@
 modules:
+  - build-sources/build-unpacked-dist
+  - build-sources/build-zip-dist
+  - build-sources/generate-build-properties
+  - build-sources/task-helpers
   - sources/amper-backend-test
   - sources/amper-cli-test
   - sources/amper-mobile-test
@@ -11,10 +15,6 @@ modules:
   - sources/android-integration/dependency-resolution-android-extension
   - sources/android-integration/gradle-plugin
   - sources/android-integration/runner
-  - sources/build-related/build-unpacked-dist
-  - sources/build-related/build-zip-dist
-  - sources/build-related/generate-build-properties
-  - sources/build-related/task-helpers
   - sources/cli
   - sources/core
   - sources/core-intellij

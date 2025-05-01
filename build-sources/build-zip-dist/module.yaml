@@ -1,0 +1,11 @@
+product: jvm/app
+
+apply:
+  - ../../sources/common.module-template.yaml
+
+dependencies:
+  - ../task-helpers
+  - ../../sources/amper-wrapper
+  - ../../sources/core
+  - ../../sources/cli # for substituteTemplatePlaceholders
+  - $libs.apacheCommons.compress

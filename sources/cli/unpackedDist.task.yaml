@@ -1,6 +1,6 @@
 type: jvm/external-task
 
-module: ../build-related/build-unpacked-dist
+module: ../../build-sources/build-unpacked-dist
 
 programArguments:
   - --output-dir=${outputDirectory}
