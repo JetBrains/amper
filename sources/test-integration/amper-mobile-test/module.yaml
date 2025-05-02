@@ -3,11 +3,11 @@ product:
   platforms: [ jvm ]
 
 test-dependencies:
-  - ../test-base
+  - ../../test-base
   - $libs.kotlinx.coroutines.test
 
 apply:
-  - ../common.module-template.yaml
+  - ../../common.module-template.yaml
 
 tasks:
   testJvm:

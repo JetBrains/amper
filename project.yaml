@@ -6,7 +6,6 @@ modules:
   - repository-restrictions
   - sources/amper-backend-test
   - sources/amper-junit-listeners
-  - sources/amper-mobile-test
   - sources/amper-project-templates
   - sources/amper-wrapper
   - sources/android-integration/android-integration-core
@@ -36,4 +35,5 @@ modules:
   - sources/libraries/xcode-model-ext
   - sources/test-base
   - sources/test-integration/amper-cli-test
+  - sources/test-integration/amper-mobile-test
   - sources/test-integration/amper-wrapper-test
