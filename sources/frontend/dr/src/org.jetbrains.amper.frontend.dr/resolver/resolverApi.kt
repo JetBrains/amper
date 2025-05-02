@@ -53,6 +53,12 @@ interface ModuleDependenciesResolver {
         spanBuilder: SpanBuilderSource? = null,
     ): ModuleDependencyNodeWithModule
 
+    fun List<AmperModule>.resolveDependenciesGraph(
+        dependenciesFlowType: DependenciesFlowType,
+        fileCacheBuilder: FileCacheBuilder.() -> Unit,
+        spanBuilder: SpanBuilderSource? = null,
+    ): DependencyNodeHolder
+
     suspend fun DependencyNodeHolder.resolveDependencies(
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,

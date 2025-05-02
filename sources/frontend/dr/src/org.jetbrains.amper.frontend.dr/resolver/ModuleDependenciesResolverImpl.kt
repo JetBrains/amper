@@ -14,7 +14,6 @@ import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
 import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.dependency.resolution.originalVersion
-import org.jetbrains.amper.dependency.resolution.resolvedVersion
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
@@ -60,7 +59,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         }
     }
 
-    private fun List<AmperModule>.resolveDependenciesGraph(
+    override fun List<AmperModule>.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         spanBuilder: SpanBuilderSource?,
