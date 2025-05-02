@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
-import org.jetbrains.amper.concurrency.StripedMutex
+import org.jetbrains.amper.concurrency.FileMutexGroup
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.hashing.sha256String
@@ -47,19 +47,20 @@ import kotlin.io.path.setLastModifiedTime
 
 object Downloader {
 
+    private val fileLocks = FileMutexGroup.striped(stripeCount = 256)
+
     suspend fun downloadFileToCacheLocation(
         url: String,
         userCacheRoot: AmperUserCacheRoot,
         infoLog: Boolean = true,
     ): Path {
         val target = getTargetFile(userCacheRoot, url)
-        val targetPath = target.toString()
-        fileLocks.withLock(targetPath.hashCode()) {
+        fileLocks.withLock(target) {
             if (target.exists()) {
                 Span.current().addEvent(
                     "use asset from cache", Attributes.of(
                         AttributeKey.stringKey("url"), url,
-                        AttributeKey.stringKey("target"), targetPath,
+                        AttributeKey.stringKey("target"), target.pathString,
                     )
                 )
 
@@ -77,7 +78,7 @@ object Downloader {
                 logger.info("Downloading $url to ${target.pathString}")
             }
 
-            return spanBuilder("download").setAttribute("url", url).setAttribute("target", targetPath).use {
+            return spanBuilder("download").setAttribute("url", url).setAttribute("target", target.pathString).use {
                 // TODO check if this is redundant with Ktor's retry mechanism.
                 //  It might be necessary due to expectSuccess=false.
                 suspendingRetryWithExponentialBackOff {
@@ -182,8 +183,6 @@ object Downloader {
         val hashString = "${uriString}V${DOWNLOAD_CODE_VERSION}".sha256String().take(10)
         return cacheRoot.downloadCache.resolve("${hashString}-${lastNameFromUri}")
     }
-
-    private val fileLocks = StripedMutex(stripeCount = 256)
 
     class HttpStatusException(message: String, val statusCode: Int, val url: String) :
         IllegalStateException(message) {
