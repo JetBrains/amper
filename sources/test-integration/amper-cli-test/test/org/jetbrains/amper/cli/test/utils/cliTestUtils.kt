@@ -7,7 +7,6 @@ package org.jetbrains.amper.cli.test.utils
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.jetbrains.amper.cli.test.AmperCliTestBase
 import org.jetbrains.amper.test.AmperCliResult
 import java.nio.file.Path
 import kotlin.io.path.div

@@ -14,7 +14,6 @@ import jetbrains.buildServer.messages.serviceMessages.TestStdOut
 import jetbrains.buildServer.messages.serviceMessages.TestSuiteFinished
 import jetbrains.buildServer.messages.serviceMessages.TestSuiteStarted
 import java.util.*
-import kotlin.collections.ArrayDeque
 
 fun buildServiceMessages(block: ServiceMessagesBuilder.() -> Unit): List<ServiceMessage> =
     ServiceMessagesBuilder().apply(block).build()

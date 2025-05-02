@@ -13,12 +13,7 @@ import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
-import org.jetbrains.amper.test.WindowsOnly
-import org.jetbrains.amper.test.spans.assertEachKotlinJvmCompilationSpan
-import org.jetbrains.amper.test.spans.assertEachKotlinNativeCompilationSpan
-import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
 import org.junit.jupiter.api.Disabled
-import org.tinylog.Level
 import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.util.jar.JarFile
@@ -27,7 +22,6 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.io.path.walk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

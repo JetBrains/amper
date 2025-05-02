@@ -20,12 +20,7 @@ import java.util.*
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
-import kotlin.io.path.exists
-import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
-import kotlin.io.path.readLines
-import kotlin.test.assertTrue
-import kotlin.test.fail
 
 abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     @RegisterExtension

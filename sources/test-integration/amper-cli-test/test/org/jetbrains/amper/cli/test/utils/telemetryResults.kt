@@ -6,7 +6,6 @@ package org.jetbrains.amper.cli.test.utils
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
-import org.jetbrains.amper.cli.test.AmperCliTestBase
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.spans.FilteredSpans
 import org.jetbrains.amper.test.spans.SpansTestCollector
