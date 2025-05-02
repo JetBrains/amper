@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.test
@@ -33,7 +33,7 @@ object Dirs {
     /**
      * The directory containing all test projects for Amper standalone.
      */
-    val amperTestProjectsRoot = amperSourcesRoot / "amper-backend-test/testData/projects"
+    val amperTestProjectsRoot = amperSourcesRoot / "test-integration/test-projects"
 
     /**
      * The location of the local maven repository.
