@@ -12,6 +12,16 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
+import org.jetbrains.amper.dependency.resolution.attributes.Category
+import org.jetbrains.amper.dependency.resolution.attributes.JvmEnvironment
+import org.jetbrains.amper.dependency.resolution.attributes.KotlinNativeTarget
+import org.jetbrains.amper.dependency.resolution.attributes.PluginApiVersion
+import org.jetbrains.amper.dependency.resolution.attributes.Usage
+import org.jetbrains.amper.dependency.resolution.attributes.getAttributeValue
+import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinNativeTarget
+import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinPlatformType
+import org.jetbrains.amper.dependency.resolution.attributes.hasNoAttribute
+import org.jetbrains.amper.dependency.resolution.attributes.isDocumentation
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.BomVariantNotFound
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.FailedRepackagingKMPLibrary
@@ -58,16 +68,6 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.localRepository
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseSettings
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
-import org.jetbrains.amper.dependency.resolution.attributes.Category
-import org.jetbrains.amper.dependency.resolution.attributes.JvmEnvironment
-import org.jetbrains.amper.dependency.resolution.attributes.KotlinNativeTarget
-import org.jetbrains.amper.dependency.resolution.attributes.PluginApiVersion
-import org.jetbrains.amper.dependency.resolution.attributes.Usage
-import org.jetbrains.amper.dependency.resolution.attributes.getAttributeValue
-import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinPlatformType
-import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinNativeTarget
-import org.jetbrains.amper.dependency.resolution.attributes.hasNoAttribute
-import org.jetbrains.amper.dependency.resolution.attributes.isDocumentation
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -182,7 +182,10 @@ class MavenDependencyNode internal constructor(
         "$group:$module:${version.orUnspecified()} -> ${dependency.version}"
     }
 
-    private fun DependencyNode.isDescendantOf(parent: DependencyNode, visited: MutableSet<DependencyNode> = mutableSetOf()): Boolean {
+    private fun DependencyNode.isDescendantOf(
+        parent: DependencyNode,
+        visited: MutableSet<DependencyNode> = mutableSetOf()
+    ): Boolean {
         return (parents - visited)
             .let {
                 visited.addAll(it)
@@ -335,9 +338,10 @@ fun Context.createOrReuseDependency(
     module: String,
     version: String?,
     isBom: Boolean = false
-): MavenDependency = this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:${version.orUnspecified()}:$isBom")) {
-    MavenDependency(this.settings, group, module, version, isBom)
-}
+): MavenDependency =
+    this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:${version.orUnspecified()}:$isBom")) {
+        MavenDependency(this.settings, group, module, version, isBom)
+    }
 
 internal fun Context.createOrReuseDependencyConstraint(
     group: String,
@@ -408,7 +412,7 @@ class MavenDependency internal constructor(
 
     internal val messages: List<Message>
         get() = if (version == null) {
-            listOf(DependencyResolutionDiagnostics.UnspecifiedDependencyVersion.asMessage())
+            listOf(DependencyResolutionDiagnostics.UnspecifiedDependencyVersion.asMessage("$group:$module"))
         } else {
             metadataResolutionFailureMessage
                 ?.let { listOf(it) }
@@ -609,8 +613,8 @@ class MavenDependency internal constructor(
         if (withoutDocumentationAndMetadata.size <= 1) return this
 
         if (group == "org.jetbrains.kotlin"
-            && (module == "kotlin-gradle-plugin" || module == "fus-statistics-gradle-plugin"))
-        {
+            && (module == "kotlin-gradle-plugin" || module == "fus-statistics-gradle-plugin")
+        ) {
             val nonVersionVariants = filter { it.hasNoAttribute(PluginApiVersion) }
             if (nonVersionVariants.withoutDocumentationAndMetadata.size == 1) return nonVersionVariants
         }
@@ -1047,7 +1051,7 @@ class MavenDependency internal constructor(
             .let {
                 if (it.isEmpty()) emptySet() else it.reduce { l1, l2 -> l1.intersect(l2) }
             }
-            .filter { it in allSourceSetNames}.toSet()
+            .filter { it in allSourceSetNames }.toSet()
 
         val allMatchingSourceSetNames = sourceSetsIntersection.toMutableSet()
         resolveCinteropSourceSet(sourceSetsIntersection, kotlinProjectStructureMetadata)?.let {
@@ -1331,7 +1335,13 @@ class MavenDependency internal constructor(
                     ?.let { dependency ->
                         val depModuleMetadata = dependency.parseModuleMetadata(context, level, diagnosticsReporter)
                         depModuleMetadata?.let {
-                            dependency.detectKotlinMetadataLibrary(context, platform, depModuleMetadata, level, diagnosticsReporter)
+                            dependency.detectKotlinMetadataLibrary(
+                                context,
+                                platform,
+                                depModuleMetadata,
+                                level,
+                                diagnosticsReporter
+                            )
                         }
                     }?.let {
                         it.second.getPath()?.takeIf { hasJarEntry(it, sourceSetName) == true }
@@ -1391,7 +1401,13 @@ class MavenDependency internal constructor(
 
     private fun Variant.isGuavaException() =
         isGuava()
-                && capabilities.contains(Capability("com.google.collections", "google-collections", version.orUnspecified()))
+                && capabilities.contains(
+            Capability(
+                "com.google.collections",
+                "google-collections",
+                version.orUnspecified()
+            )
+        )
                 && capabilities.contains(toCapability())
                 && getAttributeValue(JvmEnvironment) == when (version?.substringAfterLast('-')) {
             "android" -> JvmEnvironment.Android
@@ -1712,7 +1728,7 @@ class MavenDependency internal constructor(
                     coroutineScope {
                         sourceSetsFiles
                             .map { sourceSetsFile ->
-                                async (Dispatchers.IO) {
+                                async(Dispatchers.IO) {
                                     context.spanBuilder("toDependencyFile")
                                         .use {
                                             val sourceSetName = sourceSetsFile.kmpSourceSet ?: return@use null
@@ -1735,8 +1751,8 @@ class MavenDependency internal constructor(
                     }.awaitAll()
                         .mapNotNull { it }
                 }
-                // replace all-in-one sources file with per-sourceSet files
-                sourceSetsFiles = sourceSetsFiles - this + sourceSetsSources
+            // replace all-in-one sources file with per-sourceSet files
+            sourceSetsFiles = sourceSetsFiles - this + sourceSetsSources
         }
     }
 
@@ -1835,4 +1851,4 @@ object LocalM2RepositoryFinder {
     }
 }
 
-fun String?.orUnspecified() : String = this ?: "unspecified"
+fun String?.orUnspecified(): String = this ?: "unspecified"
