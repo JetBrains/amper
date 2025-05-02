@@ -3,15 +3,15 @@ product:
   platforms: [ jvm ]
 
 test-dependencies:
-  - ../test-base
-  - ../cli
-  - ../core
-  - ../frontend/schema
+  - ../sources/test-base
+  - ../sources/cli
+  - ../sources/core
+  - ../sources/frontend/schema
   - $libs.charleskorn.kaml
   - $libs.mordant
 
 apply:
-  - ../common.module-template.yaml
+  - ../sources/common.module-template.yaml
 
 settings:
   kotlin:
