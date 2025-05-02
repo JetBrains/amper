@@ -1,0 +1,7 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+repositories:
+  - url: mavenLocal
+    resolve: false # there should be no warning here

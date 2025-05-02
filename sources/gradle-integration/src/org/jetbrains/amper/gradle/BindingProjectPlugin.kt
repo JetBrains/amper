@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle
@@ -122,7 +122,7 @@ class BindingProjectPlugin : Plugin<Project> {
     private fun RepositoryHandler.configure(part: RepositoriesModulePart?, all: Boolean = true) {
         val repositories = part?.mavenRepositories?.filter { (all && it.resolve) || it.publish } ?: return
         repositories.forEach { declared ->
-            if (declared.id == "mavenLocal" && declared.url == "mavenLocal") {
+            if (declared.isMavenLocal) {
                 mavenLocal()
             } else {
                 maven {

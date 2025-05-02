@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks
@@ -73,7 +73,7 @@ class PublishTask(
          * > option has been removed. Details can be found in MINSTALL-143.
          */
         spanBuilder("Maven publish").use {
-            if (targetRepository.url == "mavenLocal") {
+            if (targetRepository.isMavenLocal) {
                 logger.info("Installing artifacts of module '${module.userReadableName}' to local maven repository at $localRepositoryPath")
 
                 try {

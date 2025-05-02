@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
@@ -15,7 +15,8 @@ import java.nio.file.Path
 private const val DIAGNOSTIC_ANNOTATION_LB = "<!"
 private const val DIAGNOSTIC_ANNOTATION_RB = "!>"
 private const val DIAGNOSTIC_END = "<!>"
-private val DIAGNOSTIC_REGEX = """($DIAGNOSTIC_ANNOTATION_LB.*?$DIAGNOSTIC_ANNOTATION_RB)+(.*?)($DIAGNOSTIC_END)+""".toRegex()
+private val DIAGNOSTIC_REGEX = """($DIAGNOSTIC_ANNOTATION_LB.*?$DIAGNOSTIC_ANNOTATION_RB)+(.*?)($DIAGNOSTIC_END)+"""
+    .toRegex(RegexOption.DOT_MATCHES_ALL)
 
 fun PsiFile.removeDiagnosticAnnotations(): PsiFile {
     val newFile = copy() as PsiFile

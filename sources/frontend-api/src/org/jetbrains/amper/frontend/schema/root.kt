@@ -97,6 +97,10 @@ class Repository : SchemaNode() {
         @SchemaDoc("A key in the file that holds the password")
         var passwordKey by value<String>()
     }
+
+    companion object {
+        const val SpecialMavenLocalUrl = "mavenLocal"
+    }
 }
 
 class TaskSettings: SchemaNode() {

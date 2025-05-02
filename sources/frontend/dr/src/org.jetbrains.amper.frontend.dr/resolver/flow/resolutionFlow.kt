@@ -121,7 +121,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             .filterIsInstance<RepositoriesModulePart>()
             .firstOrNull()
             ?.mavenRepositories
-            ?.filter { it.resolve }
+            ?.filter { it.resolve && !it.isMavenLocal }
             ?.map { Repository(it.url, it.userName, it.password) }
             ?: defaultRepositories.map { Repository(it)}
 
