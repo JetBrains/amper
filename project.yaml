@@ -5,7 +5,6 @@ modules:
   - build-sources/task-helpers
   - repository-restrictions
   - sources/amper-backend-test
-  - sources/amper-cli-test
   - sources/amper-junit-listeners
   - sources/amper-mobile-test
   - sources/amper-project-templates
@@ -36,4 +35,5 @@ modules:
   - sources/libraries/telemetry
   - sources/libraries/xcode-model-ext
   - sources/test-base
+  - sources/test-integration/amper-cli-test
   - sources/test-integration/amper-wrapper-test

@@ -3,12 +3,12 @@ product:
   platforms: [ jvm ]
 
 apply:
-  - ../common.module-template.yaml
+  - ../../common.module-template.yaml
 
 test-dependencies:
-  - ../core
-  - ../libraries/telemetry
-  - ../test-base
+  - ../../core
+  - ../../libraries/telemetry
+  - ../../test-base
   - $libs.kotlinx.coroutines.test
   - $libs.teamcity.serviceMessages # to parse service messages in tests
   - com.android.tools.apkparser:apkanalyzer:31.2.0
