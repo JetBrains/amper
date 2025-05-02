@@ -74,7 +74,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
     ) {
         for (directDependency in node.fragmentDependencies) {
             // for every direct module dependency referencing this dependency node
-            val psiElement = directDependency.notation?.trace?.extractPsiElementOrNull()
+            val psiElement = directDependency.notation.trace?.extractPsiElementOrNull()
 
             if (psiElement != null) {
                 for (message in importantMessages) {
@@ -157,7 +157,7 @@ class DependencyBuildProblem(
 private fun DependencyBuildProblem.getVersionDefinition(): @Nls String? {
     if (versionTrace == null) return null
     if (versionTrace.trace !is PsiTrace) return null
-    if (versionTrace.trace == directFragmentDependency.notation?.trace) return null
+    if (versionTrace.trace == directFragmentDependency.notation.trace) return null
 
     val node = problematicDependency as? MavenDependencyNode ?: return null
     if (versionTrace.value != node.dependency.version) return null

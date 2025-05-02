@@ -39,7 +39,7 @@ class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
 
         if (originalVersion != node.dependencyNode.resolvedVersion()) {
             // for every direct module dependency referencing this dependency node
-            val psiElement = node.notation?.trace?.extractPsiElementOrNull()
+            val psiElement = node.notation.trace?.extractPsiElementOrNull()
             if (psiElement != null) {
                 problemReporter.reportMessage(
                     ModuleDependencyWithOverriddenVersion(
