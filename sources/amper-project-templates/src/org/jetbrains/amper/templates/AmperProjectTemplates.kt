@@ -40,6 +40,7 @@ data class AmperProjectTemplate(val name: String, val description: String) {
      * Finds all files for this template in resources.
      */
     fun listFiles(): List<TemplateFile> = ClassGraph()
+        .acceptJars("amper-project-templates-*.jar") // for perf, avoid scanning everything
         .acceptPaths("templates/$name")
         .scan()
         .use { scanResult ->
