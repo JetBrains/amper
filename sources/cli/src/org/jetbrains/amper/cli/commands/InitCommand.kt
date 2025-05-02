@@ -22,7 +22,7 @@ import kotlin.io.path.Path
 internal class InitCommand : AmperSubcommand(name = "init") {
 
     private val template by argument(help = "The name of a project template (leave blank to select interactively from a list)")
-        .choice(AmperProjectTemplates.availableTemplates.associateBy { it.name })
+        .choice(AmperProjectTemplates.availableTemplates.associateBy { it.id })
         .optional()
 
     override fun help(context: Context): String = "Initialize a new Amper project based on a template"
@@ -30,7 +30,7 @@ internal class InitCommand : AmperSubcommand(name = "init") {
     override suspend fun run() {
         val targetRootDir = commonOptions.explicitRoot ?: Path(System.getProperty("user.dir"))
         val selectedTemplate = template ?: promptForTemplate()
-        terminal.println("Extracting template '${selectedTemplate.name}' to $targetRootDir")
+        terminal.println("Extracting template '${selectedTemplate.id}' to $targetRootDir")
 
         ProjectGenerator.initProject(template = selectedTemplate, targetRootDir = targetRootDir)
 

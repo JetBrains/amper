@@ -5,8 +5,11 @@
 package org.jetbrains.amper.templates
 
 import io.github.classgraph.ClassGraph
+import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.NonNls
 import java.net.URL
 import java.nio.file.Path
+import java.util.ResourceBundle
 import kotlin.io.path.createDirectories
 import kotlin.io.path.outputStream
 
@@ -14,6 +17,8 @@ import kotlin.io.path.outputStream
  * Accessor for Amper project templates.
  */
 object AmperProjectTemplates {
+
+    private val bundle = ResourceBundle.getBundle("messages.ProjectTemplatesBundle")
 
     /**
      * All available Amper project templates.
@@ -23,34 +28,41 @@ object AmperProjectTemplates {
             ?.readText()
             ?.trim()
             ?.lines()
-            ?.map { line ->
-                val (name, description) = line.split(":").map { it.trim() }
-                AmperProjectTemplate(name, description)
+            ?.map { id ->
+                val name = bundle.getString("template.$id.name")
+                val description = bundle.getString("template.$id.description")
+                AmperProjectTemplate(id = id, name = name, description = description)
             }
             ?: error("Template list not found")
     }
 }
 
 /**
- * A predefined Amper project template, identified by [name].
+ * A predefined Amper project template, identified by [id].
  */
-data class AmperProjectTemplate(val name: String, val description: String) {
-
+data class AmperProjectTemplate(
+    @get:NonNls
+    val id: String,
+    @get:Nls
+    val name: String,
+    @get:Nls
+    val description: String,
+) {
     /**
      * Finds all files for this template in resources.
      */
     fun listFiles(): List<TemplateFile> = ClassGraph()
         .acceptJars("amper-project-templates-*.jar") // for perf, avoid scanning everything
-        .acceptPaths("templates/$name")
+        .acceptPaths("templates/$id")
         .scan()
         .use { scanResult ->
             scanResult.allResources.map { resource ->
-                TemplateFile(resource.url, resource.path.removePrefix("templates/$name/"))
+                TemplateFile(resource.url, resource.path.removePrefix("templates/$id/"))
             }
         }
         .also {
             // something is very wrong (and out of the user's control) if there are no files
-            check(it.isNotEmpty()) { "No files were found for template '$name'" }
+            check(it.isNotEmpty()) { "No files were found for template '$id'" }
         }
 }
 

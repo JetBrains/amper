@@ -13,8 +13,8 @@ import kotlin.test.assertEquals
 class ProjectTemplatesTest {
 
     @Test
-    fun `all templates are listed`() {
+    fun `all templates are listed and can be instantiated`() {
         val templatesDirChildren = Path("resources/templates").listDirectoryEntries().map { it.name }.toSet()
-        assertEquals(templatesDirChildren - "list.txt", AmperProjectTemplates.availableTemplates.map { it.name }.toSet())
+        assertEquals(templatesDirChildren - "list.txt", AmperProjectTemplates.availableTemplates.map { it.id }.toSet())
     }
 }
