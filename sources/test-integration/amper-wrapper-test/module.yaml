@@ -3,12 +3,12 @@ product:
   platforms: [ jvm ]
 
 apply:
-  - ../common.module-template.yaml
+  - ../../common.module-template.yaml
 
 test-dependencies:
-  - ../cli
-  - ../core
-  - ../test-base
+  - ../../cli
+  - ../../core
+  - ../../test-base
 
 tasks:
   testJvm:
