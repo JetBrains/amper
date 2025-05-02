@@ -4,7 +4,6 @@ modules:
   - build-sources/generate-build-properties
   - build-sources/task-helpers
   - repository-restrictions
-  - sources/amper-backend-test
   - sources/amper-junit-listeners
   - sources/amper-project-templates
   - sources/amper-wrapper
@@ -34,6 +33,7 @@ modules:
   - sources/libraries/telemetry
   - sources/libraries/xcode-model-ext
   - sources/test-base
+  - sources/test-integration/amper-backend-test
   - sources/test-integration/amper-cli-test
   - sources/test-integration/amper-mobile-test
   - sources/test-integration/amper-wrapper-test

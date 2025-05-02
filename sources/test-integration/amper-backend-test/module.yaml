@@ -3,19 +3,19 @@ product:
   platforms: [ jvm ]
 
 dependencies:
-  - ../core
-  - ../cli
-  - ../core-intellij
-  - ../libraries/concurrency
-  - ../libraries/telemetry
+  - ../../core
+  - ../../cli
+  - ../../core-intellij
+  - ../../libraries/concurrency
+  - ../../libraries/telemetry
 
 test-dependencies:
-  - ../test-base
+  - ../../test-base
   - $libs.gradle.toolingApi: compile-only
   - $libs.android.tools.ddmlib: compile-only
 
 apply:
-  - ../common.module-template.yaml
+  - ../../common.module-template.yaml
 
 tasks:
   testJvm:
