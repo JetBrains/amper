@@ -16,11 +16,8 @@ import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -49,7 +46,7 @@ import kotlin.io.path.setLastModifiedTime
 // initially from intellij:community/platform/build-scripts/downloader/src/ktor.kt
 
 object Downloader {
-    @OptIn(DelicateCoroutinesApi::class)
+
     suspend fun downloadFileToCacheLocation(
         url: String,
         userCacheRoot: AmperUserCacheRoot,
@@ -67,12 +64,10 @@ object Downloader {
                 )
 
                 // update file modification time to maintain FIFO caches, i.e., in persistent cache folder on TeamCity agent
-                GlobalScope.launch(Dispatchers.IO) {
-                    try {
-                        target.setLastModifiedTime(FileTime.from(Instant.now()))
-                    } catch (t: Throwable) {
-                        LoggerFactory.getLogger(javaClass).warn("Unable to update mtime: $target", t)
-                    }
+                try {
+                    target.setLastModifiedTime(FileTime.from(Instant.now()))
+                } catch (t: Throwable) {
+                    logger.warn("Unable to update mtime: $target", t)
                 }
 
                 return target
