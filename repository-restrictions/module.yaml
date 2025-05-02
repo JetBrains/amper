@@ -4,11 +4,9 @@ product:
 
 test-dependencies:
   - ../sources/test-base
-  - ../sources/cli
   - ../sources/core
   - ../sources/frontend/schema
   - $libs.charleskorn.kaml
-  - $libs.mordant
 
 apply:
   - ../sources/common.module-template.yaml
