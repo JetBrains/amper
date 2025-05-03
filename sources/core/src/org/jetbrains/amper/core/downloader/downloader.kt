@@ -47,6 +47,13 @@ import kotlin.io.path.setLastModifiedTime
 
 object Downloader {
 
+    // increment on semantic changes in download code to invalidate all current caches
+    // e.g. when some issues in downloading code were fixed to that extent, that
+    // existing files must not be reused
+    private const val DOWNLOAD_CODE_VERSION = 1
+
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     private val fileLocks = FileMutexGroup.striped(stripeCount = 256)
 
     suspend fun downloadFileToCacheLocation(
@@ -116,31 +123,10 @@ object Downloader {
 
                         val statusCode = response.status.value
                         if (statusCode != 200) {
-                            val builder = StringBuilder("Cannot download\n")
-                            val headers = response.headers
-                            for ((headerKey, headerValues) in headers.entries()) {
-                                for (value in headerValues) {
-                                    builder.append("Header: $headerKey: $value\n")
-                                }
-                            }
-                            builder.append('\n')
-                            if (tempFile.exists()) {
-                                tempFile.inputStream().use { inputStream ->
-                                    // yes, not trying to guess encoding
-                                    // string constructor should be exception-free, so at worse, we'll get some random characters
-                                    builder.append(inputStream.readNBytes(1024).toString(StandardCharsets.UTF_8))
-                                }
-                            }
-                            throw HttpStatusException(builder.toString(), statusCode, url)
+                            failWithResponseData(response, tempFile, statusCode, url)
                         }
 
-                        val contentLength = response.headers[HttpHeaders.ContentLength]?.toLongOrNull() ?: -1
-                        check(contentLength > 0) { "Header '${HttpHeaders.ContentLength}' is missing or zero for $url" }
-                        val fileSize = tempFile.fileSize()
-                        check(fileSize == contentLength) {
-                            "Wrong file length after downloading uri '$url' to '$tempFile': expected length $contentLength " +
-                                    "from ${HttpHeaders.ContentLength} header, but got $fileSize on disk"
-                        }
+                        checkContentLength(response, url, tempFile)
                         tempFile.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                     } catch (httpException: HttpStatusException) {
                         if (httpException.statusCode == 404) {
@@ -159,6 +145,42 @@ object Downloader {
         }
     }
 
+    private fun getTargetFile(cacheRoot: AmperUserCacheRoot, uriString: String): Path {
+        val lastNameFromUri = uriString.substringAfterLast('/')
+        val hashString = "${uriString}V${DOWNLOAD_CODE_VERSION}".sha256String().take(10)
+        return cacheRoot.downloadCache.resolve("${hashString}-${lastNameFromUri}")
+    }
+
+    private fun failWithResponseData(
+        response: HttpResponse,
+        tempFile: Path,
+        statusCode: Int,
+        url: String
+    ): Nothing {
+        val message = buildString {
+            appendLine("Cannot download")
+            appendLine(response.headers.entries().joinToString("\n") { (name, values) -> "Header: $name: $values" })
+            appendLine()
+            if (tempFile.exists()) {
+                val firstBytes = tempFile.inputStream().use { it.readNBytes(1024) }
+                // No need to try and guess the encoding here: the String conversion should never fail, so at worst
+                // we'll get some random characters. This is fine because it's just an error message.
+                appendLine(firstBytes.toString(StandardCharsets.UTF_8))
+            }
+        }
+        throw HttpStatusException(message, statusCode, url)
+    }
+
+    private fun checkContentLength(response: HttpResponse, url: String, tempFile: Path) {
+        val contentLength = response.headers[HttpHeaders.ContentLength]?.toLongOrNull() ?: -1
+        check(contentLength > 0) { "Header '${HttpHeaders.ContentLength}' is missing or zero for $url" }
+        val fileSize = tempFile.fileSize()
+        check(fileSize == contentLength) {
+            "Wrong file length after downloading uri '$url' to '$tempFile': expected length $contentLength " +
+                    "from ${HttpHeaders.ContentLength} header, but got $fileSize on disk"
+        }
+    }
+
     fun getUriForMavenArtifact(
         mavenRepository: String,
         groupId: String,
@@ -173,24 +195,11 @@ object Downloader {
         return URI.create("${base}/${groupStr}/${artifactId}/${version}/${artifactId}-${version}${classifierStr}.${packaging}")
     }
 
-    // increment on semantic changes in download code to invalidate all current caches
-    // e.g. when some issues in downloading code were fixed to that extent, that
-    // existing files must not be reused
-    private const val DOWNLOAD_CODE_VERSION = 1
-
-    private fun getTargetFile(cacheRoot: AmperUserCacheRoot, uriString: String): Path {
-        val lastNameFromUri = uriString.substring(uriString.lastIndexOf('/') + 1)
-        val hashString = "${uriString}V${DOWNLOAD_CODE_VERSION}".sha256String().take(10)
-        return cacheRoot.downloadCache.resolve("${hashString}-${lastNameFromUri}")
-    }
-
     class HttpStatusException(message: String, val statusCode: Int, val url: String) :
         IllegalStateException(message) {
         override fun toString(): String =
             "HttpStatusException(status=${statusCode}, url=${url}, message=${message})"
     }
-
-    private val logger = LoggerFactory.getLogger(javaClass)
 }
 
 private val WRITE_NEW_OPERATION: EnumSet<StandardOpenOption> = EnumSet.of(
