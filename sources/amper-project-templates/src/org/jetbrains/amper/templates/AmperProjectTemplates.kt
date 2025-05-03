@@ -48,11 +48,19 @@ data class AmperProjectTemplate(
     @get:Nls
     val description: String,
 ) {
+    companion object {
+        private val currentJarName = try {
+            AmperProjectTemplate::class.java.protectionDomain.codeSource?.location?.path?.substringAfterLast('/')
+        } catch (_: SecurityException) {
+            null
+        }
+    }
+
     /**
      * Finds all files for this template in resources.
      */
     fun listFiles(): List<TemplateFile> = ClassGraph()
-        .acceptJars("amper-project-templates-*.jar") // for perf, avoid scanning everything
+        .acceptJars(currentJarName) // for perf, avoid scanning everything
         .acceptPaths("templates/$id")
         .scan()
         .use { scanResult ->
