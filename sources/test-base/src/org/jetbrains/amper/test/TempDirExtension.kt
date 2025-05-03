@@ -55,22 +55,21 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
                             "This is very suspicious and should not generally happen. Probably a bug in visitFileTree-based deletion?" +
                             "path.exists=${path.exists()}"
                 )
-            } else {
-                // Selectively unlock specific files (classes.dex) only as an exceptional case
-                // It's important to prioritize detecting these issues rather than silently ignoring them
-                // Any ignoring should be an explicit decision
-                val finalExceptions = if (DefaultSystemInfo.detect().family.isWindows) {
-                    exceptions.filterIsInstance<FileSystemException>().filter { it.file.endsWith("classes.dex") }
-                        .forEach {
-                            WindowsProcessHelper.unlockFile(it.file)
-                        }
-                    removeCollectingExceptions(path)
-                } else exceptions
-
-                if (finalExceptions.isNotEmpty()) {
-                    throw IllegalStateException("Got ${finalExceptions.size} delete exceptions for $path").also { ex ->
-                        finalExceptions.forEach { ex.addSuppressed(it) }
+            }
+            // Selectively unlock specific files (classes.dex) only as an exceptional case
+            // It's important to prioritize detecting these issues rather than silently ignoring them
+            // Any ignoring should be an explicit decision
+            val finalExceptions = if (DefaultSystemInfo.detect().family.isWindows) {
+                exceptions.filterIsInstance<FileSystemException>().filter { it.file.endsWith("classes.dex") }
+                    .forEach {
+                        WindowsProcessHelper.unlockFile(it.file)
                     }
+                removeCollectingExceptions(path)
+            } else exceptions
+
+            if (finalExceptions.isNotEmpty()) {
+                throw IllegalStateException("Got ${finalExceptions.size} delete exceptions for $path").also { ex ->
+                    finalExceptions.forEach { ex.addSuppressed(it) }
                 }
             }
         }
