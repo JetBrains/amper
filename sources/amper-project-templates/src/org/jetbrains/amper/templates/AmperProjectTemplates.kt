@@ -41,11 +41,10 @@ object AmperProjectTemplates {
  * A predefined Amper project template, identified by [id].
  */
 data class AmperProjectTemplate(
-    @get:NonNls
     val id: String,
-    @get:Nls
+    @Nls
     val name: String,
-    @get:Nls
+    @Nls
     val description: String,
 ) {
     companion object {
