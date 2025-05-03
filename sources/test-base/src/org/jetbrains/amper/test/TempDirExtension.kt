@@ -9,15 +9,13 @@ import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
 import org.junit.jupiter.api.extension.ExtensionContext
-import java.nio.file.FileSystemException
-import java.nio.file.FileVisitResult
+import java.io.IOException
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.createTempDirectory
-import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
-import kotlin.io.path.exists
-import kotlin.io.path.visitFileTree
+import kotlin.io.path.pathString
+import kotlin.io.path.walk
 
 class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
     private val pathRef = AtomicReference<Path>(null)
@@ -35,86 +33,55 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
     }
 
     companion object {
-        fun deleteWithDiagnostics(path: Path) {
-            // On Windows, directory locks might not be released instantly, so we allow some extra time
-            repeat(100) {
-                try {
-                    path.deleteRecursively()
+        private fun deleteWithDiagnostics(path: Path) {
+            try {
+                // On Windows, directory locks might not be released instantly, so we allow some extra time
+                path.deleteRecursivelyWithRetries()
+            } catch (e: IOException) {
+                // Selectively unlock specific files (from Android build) only as an exceptional case
+                // It's important to prioritize detecting these issues rather than silently ignoring them
+                // Any ignoring should be an explicit decision
+                if (DefaultSystemInfo.detect().family.isWindows) {
+                    // There is little we can do about the Gradle daemon still holding some files after delegated
+                    // Android builds (we already use internal APIs to try to close it). Since the daemon doesn't want
+                    // to stop, we find the remaining files from the delegated Gradle build and unlock them by hand.
+                    // This is an exceptional case. In other cases, we want to know about leaked processes and fix
+                    // those. Unlocking all files would hide some real issues.
+                    killProcessesLockingAndroidBuildFiles(path)
+                    path.deleteRecursivelyWithRetries()
                     return
-                } catch (_: Throwable) {
-                    // ignore exceptions
                 }
-                Thread.sleep(100)
-            }
-
-            val exceptions = removeCollectingExceptions(path)
-
-            if (exceptions.isEmpty()) {
-                error(
-                    "After a full second of retries, the second method of deleting (visitFileTree) succeeded without exceptions. " +
-                            "This is very suspicious and should not generally happen. Probably a bug in visitFileTree-based deletion?" +
-                            "path.exists=${path.exists()}"
-                )
-            }
-            // Selectively unlock specific files (classes.dex) only as an exceptional case
-            // It's important to prioritize detecting these issues rather than silently ignoring them
-            // Any ignoring should be an explicit decision
-            val finalExceptions = if (DefaultSystemInfo.detect().family.isWindows) {
-                exceptions.filterIsInstance<FileSystemException>().filter { it.file.endsWith("classes.dex") }
-                    .forEach {
-                        WindowsProcessHelper.unlockFile(it.file)
-                    }
-                removeCollectingExceptions(path)
-            } else exceptions
-
-            if (finalExceptions.isNotEmpty()) {
-                throw IllegalStateException("Got ${finalExceptions.size} delete exceptions for $path").also { ex ->
-                    finalExceptions.forEach { ex.addSuppressed(it) }
-                }
+                throw e
             }
         }
 
-        private fun removeCollectingExceptions(path: Path): MutableList<Throwable> {
-            val exceptions = mutableListOf<Throwable>()
-
-            @Suppress("ReplacePrintlnWithLogging") // we're in a test context
-            fun log(s: String) = println("TempDirExtension.deleteWithRetries: $s")
-
-            path.visitFileTree {
-                onVisitFile { file, _ ->
-                    try {
-                        log("Removing file $file")
-                        file.deleteIfExists()
-                    } catch (t: Throwable) {
-                        log("Removing file $file failed: ${t.stackTraceToString()}")
-                        exceptions.add(t)
-                    }
-                    FileVisitResult.CONTINUE
+        /**
+         * Attempts to delete this directory, and retries multiple times in case of [IOException].
+         * This is useful on Windows because files may stay inaccessible for a little bit after releasing a lock.
+         *
+         * If the error persists, it is rethrown. Partial deletion may have happened in this case.
+         * All deletion errors can be found as suppressed exceptions of the thrown [IOException].
+         */
+        private fun Path.deleteRecursivelyWithRetries() {
+            var lastException: IOException? = null
+            repeat(100) {
+                try {
+                    deleteRecursively()
+                    return
+                } catch (e: IOException) {
+                    lastException = e
                 }
-
-                onVisitFileFailed { _, exc ->
-                    exc.printStackTrace()
-                    exceptions.add(exc)
-                    FileVisitResult.CONTINUE
-                }
-
-                onPostVisitDirectory { dir, exc ->
-                    if (exc != null) {
-                        exc.printStackTrace()
-                        exceptions.add(exc)
-                    } else {
-                        try {
-                            log("Removing directory $dir")
-                            dir.deleteIfExists()
-                        } catch (t: Throwable) {
-                            log("Removing directory $dir failed: ${t.stackTraceToString()}")
-                            exceptions.add(t)
-                        }
-                    }
-                    FileVisitResult.CONTINUE
-                }
+                Thread.sleep(100)
             }
-            return exceptions
+            throw lastException ?: error("The retry loop has ended but we have no exception")
+        }
+
+        private val androidGradleBuildPathRegex = Regex(""".*\\build\\tasks\\[^\\]+\\gradle-project\\build\\.*""")
+
+        private fun killProcessesLockingAndroidBuildFiles(path: Path) {
+            path.walk()
+                .filter { androidGradleBuildPathRegex.matches(it.pathString) }
+                .forEach { WindowsProcessHelper.unlockFile(it) }
         }
     }
 }

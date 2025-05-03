@@ -15,7 +15,9 @@ import com.sun.jna.ptr.IntByReference
 import com.sun.jna.win32.StdCallLibrary
 import com.sun.jna.win32.W32APIOptions
 import org.slf4j.LoggerFactory
-import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
 
 /**
  * A utility class for finding and killing processes that hold locks on files in Windows.
@@ -110,13 +112,12 @@ object WindowsProcessHelper {
     private val kernel32 = Native.load("kernel32", Kernel32::class.java)
     private val rstrtmgr = Native.load("rstrtmgr", RmLibrary::class.java, W32APIOptions.DEFAULT_OPTIONS)
 
-    fun findLockingProcessIds(filePath: String): List<Int> {
-        val file = File(filePath)
-        if (!file.exists()) {
+    fun findLockingProcessIds(filePath: Path): List<Int> {
+        if (!filePath.exists()) {
             return emptyList()
         }
 
-        val absolutePath = file.absolutePath
+        val absolutePath = filePath.absolutePathString()
 
         // Generate a unique session key
         val sessionKey = CharArray(CCH_RM_SESSION_KEY + 1)
@@ -203,7 +204,7 @@ object WindowsProcessHelper {
         }
     }
 
-    fun killLockingProcesses(filePath: String): Int {
+    fun killLockingProcesses(filePath: Path): Int {
         val processIds = try {
             findLockingProcessIds(filePath)
         } catch (e: Exception) {
@@ -242,7 +243,7 @@ object WindowsProcessHelper {
         return killedCount
     }
 
-    fun unlockFile(filePath: String, timeout: Long = 5000): Boolean {
+    fun unlockFile(filePath: Path, timeout: Long = 5000): Boolean {
         logger.info("Unlocking file $filePath")
         val start = System.currentTimeMillis()
 
