@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.android
@@ -10,34 +10,18 @@ import org.jetbrains.amper.core.system.OsFamily
 import java.nio.file.Path
 import kotlin.io.path.Path
 
-class AndroidSdkDetector(
-    private val suggesters: List<Suggester> = buildList {
-        add(EnvironmentVariableSuggester("ANDROID_HOME"))
-        add(EnvironmentVariableSuggester("ANDROID_SDK_ROOT")) // old variable but may still be used
-        add(DefaultSuggester())
-    }
-) {
-    fun detectSdkPath(): Path? = suggesters.firstNotNullOfOrNull { it.suggestSdkPath() }
+object AndroidSdkDetector {
 
-    interface Suggester {
-        fun suggestSdkPath(): Path?
-    }
+    @UsedInIdePlugin
+    fun detectSdkPath(): Path = getPathFromEnv("ANDROID_HOME")
+        ?: getPathFromEnv("ANDROID_SDK_ROOT") // old variable but may still be used
+        ?: defaultSdkPath()
 
-    class EnvironmentVariableSuggester(private val environmentVariableName: String) : Suggester {
-        override fun suggestSdkPath(): Path? = System.getenv(environmentVariableName)?.let { Path(it) }
-    }
+    private fun getPathFromEnv(envVarName: String): Path? = System.getenv(envVarName)?.let { Path(it) }
 
-    class DefaultSuggester : Suggester {
-        override fun suggestSdkPath(): Path = when (DefaultSystemInfo.detect().family) {
-            OsFamily.Windows -> Path(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
-            OsFamily.MacOs -> Path(System.getProperty("user.home")).resolve("Library/Android/sdk")
-            else -> Path(System.getProperty("user.home")).resolve("Android/Sdk")
-        }
-    }
-
-    companion object {
-
-        @UsedInIdePlugin
-        fun detectSdkPath() = AndroidSdkDetector().detectSdkPath()
+    private fun defaultSdkPath(): Path = when (DefaultSystemInfo.detect().family) {
+        OsFamily.Windows -> Path(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
+        OsFamily.MacOs -> Path(System.getProperty("user.home")).resolve("Library/Android/sdk")
+        else -> Path(System.getProperty("user.home")).resolve("Android/Sdk")
     }
 }

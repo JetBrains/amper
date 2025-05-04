@@ -81,11 +81,6 @@ class CliContext private constructor(
                 .resolve("amper_${currentTimestamp}_$currentTopLevelCommand")
                 .also { it.createDirectories() }
 
-            val androidHomeRootNotNull = androidHomeRoot ?: AndroidHomeRoot(
-                (AndroidSdkDetector.detectSdkPath() ?: error("Android SDK detector not found"))
-                    .also { it.createDirectories() }
-            )
-
             return CliContext(
                 projectContext = amperProjectContext,
                 buildOutputRoot = buildOutputRootNotNull,
@@ -96,7 +91,9 @@ class CliContext private constructor(
                 taskExecutionMode = taskExecutionMode,
                 terminal = terminal,
                 backgroundScope = backgroundScope,
-                androidHomeRoot = androidHomeRootNotNull,
+                androidHomeRoot = androidHomeRoot ?: AndroidHomeRoot(
+                    AndroidSdkDetector.detectSdkPath().createDirectories()
+                ),
             )
         }
 
