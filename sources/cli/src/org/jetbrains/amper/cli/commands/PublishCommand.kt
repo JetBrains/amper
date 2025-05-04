@@ -27,5 +27,6 @@ internal class PublishCommand : AmperSubcommand(name = "publish") {
                 repositoryId = repositoryId,
             )
         }
+        printSuccessfulCommandConclusion("Publication successful")
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands
@@ -17,14 +17,14 @@ internal class CleanCommand : AmperSubcommand(name = "clean") {
     override suspend fun run() {
         withBackend(commonOptions, commandName, terminal, setupEnvironment = false) { backend ->
             val rootsToClean = listOf(backend.context.buildOutputRoot.path, backend.context.projectTempRoot.path)
+            terminal.println("Deleting project build output and caches…")
             for (path in rootsToClean) {
                 if (path.exists()) {
-                    @Suppress("ReplacePrintlnWithLogging")
-                    println("Deleting $path")
-
+                    terminal.println("Deleting $path")
                     path.deleteRecursively()
                 }
             }
         }
+        printSuccessfulCommandConclusion("Clean successful")
     }
 }

@@ -35,11 +35,14 @@ internal class BuildCommand : AmperSubcommand(name = "build") {
 
     override fun help(context: Context): String = "Compile and link all code in the project"
 
-    override suspend fun run() = withBackend(commonOptions, commandName, terminal) { backend ->
-        backend.build(
-            platforms = platforms.takeIf { it.isNotEmpty() },
-            modules = modules.takeIf { it.isNotEmpty() },
-            buildTypes = buildTypes.takeIf { it.isNotEmpty() },
-        )
+    override suspend fun run() {
+        withBackend(commonOptions, commandName, terminal) { backend ->
+            backend.build(
+                platforms = platforms.takeIf { it.isNotEmpty() },
+                modules = modules.takeIf { it.isNotEmpty() },
+                buildTypes = buildTypes.takeIf { it.isNotEmpty() },
+            )
+        }
+        printSuccessfulCommandConclusion("Build successful")
     }
 }

@@ -13,11 +13,11 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.mordant.rendering.Theme
 import com.github.ajalt.mordant.terminal.prompt
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import org.apache.maven.artifact.versioning.ComparableVersion
+import org.jetbrains.amper.cli.printSuccess
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.httpClient
@@ -142,9 +142,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
                 copyAndReplaceSafely(source = newBatPath, target = amperBatPath)
             }
         }
-
-        val successStyle = Theme.Default.success
-        terminal.println(successStyle("Update successful"))
+        terminal.printSuccess("Update successful")
     }
 
     private fun checkNotDirectories(vararg amperScriptPaths: Path) {
@@ -196,8 +194,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
                 ?.fullMavenVersion
                 ?.also {
                     val versionMoniker = if (includeDevVersions) "dev version of Amper" else "Amper version"
-                    val infoStyle = Theme.Default.info
-                    terminal.println("Latest $versionMoniker is ${infoStyle(it)}")
+                    terminal.println("Latest $versionMoniker is ${terminal.theme.info(it)}")
                 }
                 ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$metadataXml")
         }

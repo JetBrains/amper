@@ -47,12 +47,15 @@ internal class PackageCommand : AmperSubcommand(name = "package") {
 
     override fun help(context: Context): String = "Package the project artifacts for distribution"
 
-    override suspend fun run() = withBackend(commonOptions, commandName, terminal) { backend ->
-        backend.`package`(
-            platforms = platforms.takeIf { it.isNotEmpty() },
-            modules = modules.takeIf { it.isNotEmpty() },
-            buildTypes = buildTypes.toSet().takeIf { it.isNotEmpty() },
-            formats = formats.toSet().takeIf { it.isNotEmpty() },
-        )
+    override suspend fun run() {
+        withBackend(commonOptions, commandName, terminal) { backend ->
+            backend.`package`(
+                platforms = platforms.takeIf { it.isNotEmpty() },
+                modules = modules.takeIf { it.isNotEmpty() },
+                buildTypes = buildTypes.toSet().takeIf { it.isNotEmpty() },
+                formats = formats.toSet().takeIf { it.isNotEmpty() },
+            )
+        }
+        printSuccessfulCommandConclusion("Build successful")
     }
 }
