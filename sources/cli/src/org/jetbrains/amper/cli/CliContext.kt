@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
@@ -76,9 +76,10 @@ class CliContext private constructor(
             val tempDir = buildOutputRootNotNull.path.resolve("temp").also { it.createDirectories() }
 
             val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
+            val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
             val logsDir = buildOutputRootNotNull.path
                 .resolve("logs")
-                .resolve("amper_${currentTimestamp}_$currentTopLevelCommand")
+                .resolve("amper_${currentTimestamp}_${pid}_$currentTopLevelCommand")
                 .also { it.createDirectories() }
 
             return CliContext(
