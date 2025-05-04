@@ -30,12 +30,7 @@ interface PackageTask : Task {
         Jar("jar"),
         ExecutableJar("executable-jar"),
         Aab("aab"),
-        DistZip("dist-zip");
-
-        companion object {
-            val formatStrings: Set<String> = Format.entries.map { it.value }.toSet()
-            fun byValue(value: String): Format? = Format.entries.associateBy { it.value }[value]
-        }
+        DistZip("dist-zip"),
     }
 
     val platform: Platform

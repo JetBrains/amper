@@ -4,14 +4,12 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
-import com.github.ajalt.clikt.parameters.options.convert
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.util.BuildType
@@ -36,11 +34,9 @@ internal class RunCommand : AmperSubcommand(name = "run") {
     private val variant by option(
         "-v",
         "--variant",
-        help = "Run the specified variant of the app (${BuildType.buildTypeStrings.sorted().joinToString(", ")})",
-        completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings),
+        help = "Run the specified variant of the app",
     )
-        .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
-        .default(BuildType.Debug)
+        .enum<BuildType> { it.value }
 
     private val jvmArgs by userJvmArgsOption(
         help = """

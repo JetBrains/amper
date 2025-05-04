@@ -1,16 +1,15 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.terminal
-import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
+import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.util.BuildType
 
@@ -28,14 +27,11 @@ internal class BuildCommand : AmperSubcommand(name = "build") {
     private val buildTypes by option(
         "-v",
         "--variant",
-        help = "Build the specified variant (${BuildType.buildTypeStrings.sorted().joinToString(", ")}). " +
-                "This option can be repeated to build several variants.",
-        completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings),
+        help = "Build the specified variant. This option can be repeated to build several variants.",
     )
-        .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
-        .multiple(
-            default = listOf(BuildType.Debug)
-        )
+        .enum<BuildType> { it.value }
+        .multiple()
+        .unique()
 
     override fun help(context: Context): String = "Compile and link all code in the project"
 
@@ -43,7 +39,7 @@ internal class BuildCommand : AmperSubcommand(name = "build") {
         backend.build(
             platforms = platforms.takeIf { it.isNotEmpty() },
             modules = modules.takeIf { it.isNotEmpty() },
-            buildTypes = buildTypes.toSet(),
+            buildTypes = buildTypes.takeIf { it.isNotEmpty() },
         )
     }
 }

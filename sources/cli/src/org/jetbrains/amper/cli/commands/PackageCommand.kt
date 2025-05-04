@@ -4,14 +4,12 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.terminal
-import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
-import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.PackageTask
 import org.jetbrains.amper.util.BuildType
@@ -32,22 +30,20 @@ internal class PackageCommand : AmperSubcommand(name = "package") {
     private val buildTypes by option(
         "-v",
         "--variant",
-        help = "The variant to package (${BuildType.buildTypeStrings.sorted().joinToString(", ")}). " +
-                "This option can be repeated to package several variants.",
-        completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings),
+        help = "The variant to package. This option can be repeated to package several variants.",
     )
-        .convert { BuildType.byValue(it) ?: fail("'$it'.\n\nPossible values: ${BuildType.buildTypeStrings}") }
+        .enum<BuildType> { it.value }
         .multiple()
+        .unique()
 
     private val formats by option(
         "-f",
         "--format",
-        help = "The output package format (${PackageTask.Format.formatStrings.sorted().joinToString(", ")}).",
+        help = "The output package format.",
     )
-        .convert {
-            PackageTask.Format.byValue(it) ?: fail("'$it'.\n\nPossible values: ${PackageTask.Format.formatStrings}")
-        }
+        .enum<PackageTask.Format> { it.value }
         .multiple()
+        .unique()
 
     override fun help(context: Context): String = "Package the project artifacts for distribution"
 

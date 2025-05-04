@@ -119,7 +119,7 @@ class AmperBackend(val context: CliContext) {
 
         val platformsToCompile = platforms ?: possibleCompilationPlatforms
         val modulesToCompile = (modules?.map { resolveModule(it) } ?: resolvedModel.modules).toSet()
-        val buildTypesToCompile = buildTypes ?: BuildType.entries.toSet()
+        val buildTypesToCompile = buildTypes ?: setOf(BuildType.Debug)
 
         val taskNames = taskGraph
             .tasks
@@ -315,7 +315,7 @@ class AmperBackend(val context: CliContext) {
         taskExecutor.runTasksAndReportOnFailure(testTasks)
     }
 
-    suspend fun runApplication(moduleName: String? = null, platform: Platform? = null, buildType: BuildType? = BuildType.Debug) {
+    suspend fun runApplication(moduleName: String?, platform: Platform?, buildType: BuildType?) {
         val moduleToRun = if (moduleName != null) {
             resolveModule(moduleName)
         } else {
@@ -334,7 +334,7 @@ class AmperBackend(val context: CliContext) {
 
         val moduleRunTasks = taskGraph.tasks.filterIsInstance<RunTask>()
             .filter { it.module == moduleToRun }
-            .filter { it.buildType == buildType }
+            .filter { it.buildType == (buildType ?: BuildType.Debug) }
         if (moduleRunTasks.isEmpty()) {
             userReadableError("No run tasks are available for module '${moduleToRun.userReadableName}'")
         }
