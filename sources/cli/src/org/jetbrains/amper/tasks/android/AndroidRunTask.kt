@@ -171,17 +171,21 @@ class AndroidRunTask(
                 ?: run {
                     // create a new one
                     avdManager.createAvd(
-                        avdPath.resolve("amper-$androidTarget.avd"),
-                        "amper-$androidTarget",
-                        systemImage,
-                        null,
-                        null,
-                        null,
-                        mutableMapOf(),
-                        mutableMapOf(),
-                        true,
-                        true,
-                        true,
+                        /* avdFolder = */ avdPath.resolve("amper-$androidTarget.avd"),
+                        /* avdName = */ "amper-$androidTarget",
+                        /* systemImage = */ systemImage,
+                        /* skin = */ null,
+                        /* sdcard = */ null,
+                        /* hardwareConfig = */ mutableMapOf(
+                            "hw.lcd.width" to "1080",
+                            "hw.lcd.height" to "1920",
+                            "hw.lcd.density" to "420",
+                        ),
+                        /* userSettings = */ mutableMapOf(),
+                        /* bootProps = */ mutableMapOf(),
+                        /* deviceHasPlayStore = */ true,
+                        /* removePrevious = */ true,
+                        /* editExisting = */ true,
                     )
                 }
             runEmulator(emulatorExecutable, avd.name)
