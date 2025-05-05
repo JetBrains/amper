@@ -4,12 +4,13 @@
 
 package org.jetbrains.amper.cli.commands.tools
 
+import com.github.ajalt.clikt.core.terminal
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.commands.AmperSubcommand
+import org.jetbrains.amper.cli.commands.tools.XCodeIntegrationCommand.Companion.AMPER_BUILD_OUTPUT_DIR_ENV
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
-import com.github.ajalt.clikt.core.terminal
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.tasks.ios.IosConventions
@@ -97,6 +98,7 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
                 }
             }.absolutePathString(),
             productBundleId = requireXcodeVar("PRODUCT_BUNDLE_IDENTIFIER"),
+            isSigningEnabled = "EXPANDED_CODE_SIGN_IDENTITY" in env,
         )
         iosConventions.getBuildOutputDescriptionFilePath().writeText(Json.encodeToString(outputDescription))
     }

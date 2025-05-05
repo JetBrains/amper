@@ -153,6 +153,7 @@ class IosBuildTask(
         return Result(
             bundleId = outputDescription.productBundleId,
             appPath = Path(outputDescription.appPath),
+            isSigningEnabled = outputDescription.isSigningEnabled,
         )
     }
 
@@ -187,6 +188,7 @@ class IosBuildTask(
     class Result(
         val bundleId: String,
         val appPath: Path,
+        val isSigningEnabled: Boolean,
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

@@ -41,6 +41,11 @@ class IosConventions(
          * Built product bundleID.
          */
         val productBundleId: String,
+
+        /**
+         * Whether the app is signed.
+         */
+        val isSigningEnabled: Boolean,
     )
 
     /**

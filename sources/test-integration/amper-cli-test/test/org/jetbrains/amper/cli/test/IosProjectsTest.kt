@@ -163,6 +163,18 @@ class IosProjectsTest : AmperCliTestBase() {
             xcodeProjectGenSpans.assertSingle()
             xcodebuildSpans.assertTimes(3)
         }
+
+        val runResult = runCli(
+            projectRoot = result.projectRoot,
+            "run", "-p", "iosArm64",
+            assertEmptyStdErr = false,
+            expectedExitCode = 1,
+        )
+        assertContains(
+            runResult.stderr, "Running an unsigned app on a physical device (iosArm64) is not possible. " +
+                    "Please select a development team in the Xcode project editor (Signing & Capabilities) " +
+                    "or use a simulator platform instead."
+        )
     }
 
     @Test

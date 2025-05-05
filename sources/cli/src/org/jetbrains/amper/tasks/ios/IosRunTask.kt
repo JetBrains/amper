@@ -36,6 +36,11 @@ class IosRunTask(
             launchAppOnDevice(simulatorDevice.deviceId, builtApp.bundleId)
         } else {
             // Physical device
+            if (!builtApp.isSigningEnabled) {
+                userReadableError("Running an unsigned app on a physical device (${platform.pretty}) is not possible. " +
+                        "Please select a development team in the Xcode project editor (Signing & Capabilities) " +
+                        "or use a simulator platform instead.")
+            }
             val deviceId = commonRunSettings.deviceId
                 ?: userReadableError("To run on a physical iOS device, the -d/--device-id argument must be specified.\n" +
                         "Use `xcrun devicectl list devices` command to see what devices are available.")
