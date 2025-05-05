@@ -1,0 +1,41 @@
+root
+╰─── org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0
+     ├─── org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.0
+     │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.23
+     │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+     │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.23
+     │    ╰─── org.jetbrains.compose.annotation-internal:annotation:1.6.10
+     │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.23
+     ├─── org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.0
+     │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+     │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.23
+     │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
+     ├─── org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.0
+     │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+     │    ├─── org.jetbrains.androidx.core:core-bundle:1.0.0
+     │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.23
+     │    ├─── org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.0 (*)
+     │    ├─── org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.0 (*)
+     │    ├─── org.jetbrains.androidx.savedstate:savedstate:1.2.0
+     │    │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.23
+     │    │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+     │    │    ├─── org.jetbrains.androidx.core:core-bundle:1.0.0 (*)
+     │    │    ├─── org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.0 (*)
+     │    │    ╰─── androidx.arch.core:core-common:2.2.0
+     │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.23
+     ├─── org.jetbrains.androidx.savedstate:savedstate:1.2.0 (*)
+     ├─── org.jetbrains.compose.runtime:runtime:1.6.10
+     │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
+     ├─── org.jetbrains.compose.runtime:runtime-saveable:1.6.10
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+     ╰─── org.jetbrains.compose.ui:ui:1.6.10
+          ├─── org.jetbrains.compose.runtime:runtime-saveable:1.6.10 (*)
+          ├─── org.jetbrains.compose.ui:ui-geometry:1.6.10
+          ├─── org.jetbrains.compose.ui:ui-graphics:1.6.10
+          │    ╰─── org.jetbrains.compose.ui:ui-unit:1.6.10
+          │         ╰─── org.jetbrains.compose.ui:ui-geometry:1.6.10
+          ├─── org.jetbrains.compose.ui:ui-text:1.6.10
+          │    ├─── org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
+          │    ╰─── org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+          ├─── org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+          ╰─── org.jetbrains.compose.ui:ui-util:1.6.10

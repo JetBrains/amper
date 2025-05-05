@@ -68,6 +68,31 @@ class BuildGraphTest : BaseDRTest() {
         }
     }
 
+
+    /**
+     * This test checks that a non-KMP library declared in JVM+Android module won't fail dependency resolution
+     * and produce a warning instead. Such  dependency could be used in single-platform fragments
+     * later
+     */
+    @Test
+    fun `org_jetbrains_androidx_lifecycle lifecycle-viewmodel-compose 2_8_0`(testInfo: TestInfo) {
+        val root = doTestByFile(
+            testInfo,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID),
+            platform = setOf(ResolutionPlatform.ANDROID, ResolutionPlatform.JVM),
+            verifyMessages = false
+        )
+
+        assertTheOnlyNonInfoMessage(
+            root,
+            DependencyResolutionDiagnostics.MoreThanOneVariantWithoutMetadataJvmPlusAndroid,
+            Severity.WARNING,
+            transitively = true
+        )
+
+        assertFiles(testInfo, root, checkExistence = true)
+    }
+
     /**
      * This test checks that cyclic dependencies are resolved successfully.
      * The library 'org.apache.solr:solr-solrj-zookeeper:9.8.1' depends on 'org.apache.solr:solr-solrj:9.8.1'
