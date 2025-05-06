@@ -33,6 +33,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     projectRoot = context.projectRoot,
                     terminal = context.terminal,
                     platform = platform,
+                    buildType = BuildType.Debug,
                 ),
                 dependsOn = NativeTaskType.Link.getTaskName(module, platform, isTest = true)
             )

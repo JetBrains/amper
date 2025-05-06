@@ -34,6 +34,7 @@ import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
 import org.jetbrains.amper.test.wildcardsToRegex
+import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -54,6 +55,7 @@ class JvmTestTask(
     override val module: AmperModule,
     override val taskName: TaskName,
     override val platform: Platform = Platform.JVM,
+    override val buildType: BuildType? = null,
 ): TestTask {
 
     init {

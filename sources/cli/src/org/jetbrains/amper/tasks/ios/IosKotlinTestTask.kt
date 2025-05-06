@@ -23,6 +23,7 @@ import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.telemetry.use
+import org.jetbrains.amper.util.BuildType
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 
@@ -32,6 +33,7 @@ class IosKotlinTestTask(
     private val projectRoot: AmperProjectRoot,
     private val terminal: Terminal,
     override val platform: Platform,
+    override val buildType: BuildType,
 ) : TestTask {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val compileTaskResult = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>()

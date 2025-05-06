@@ -18,7 +18,7 @@ import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
-import kotlin.collections.isNotEmpty
+import org.jetbrains.amper.util.BuildType
 
 internal class TestCommand : AmperSubcommand(name = "test") {
 
@@ -116,6 +116,13 @@ internal class TestCommand : AmperSubcommand(name = "test") {
         """.trimIndent(),
     ).enum<TestResultsFormat> { it.cliValue }.default(TestResultsFormat.Pretty)
 
+    private val variant by option(
+        "-v",
+        "--variant",
+        help = "Test the specified variant of the app",
+    )
+        .enum<BuildType> { it.value }
+
     override fun help(context: Context): String = "Run tests in the project"
 
     override suspend fun run() {
@@ -142,6 +149,7 @@ internal class TestCommand : AmperSubcommand(name = "test") {
                 requestedPlatforms = platforms.ifEmpty { null }?.toSet(),
                 includeModules = if (includeModules.isNotEmpty()) includeModules.toSet() else null,
                 excludeModules = excludeModules.toSet(),
+                buildType = variant,
             )
         }
     }

@@ -10,11 +10,11 @@ import com.android.sdklib.devices.Abi
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.engine.TaskGraphBuilder
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.engine.TaskGraphBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
@@ -311,6 +311,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     commonRunSettings = context.commonRunSettings,
                     executeOnChangedInputs = executeOnChangedInputs,
                     platform = Platform.ANDROID,
+                    buildType = buildType,
                 ),
                 listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true, buildType),

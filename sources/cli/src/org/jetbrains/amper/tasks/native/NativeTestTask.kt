@@ -8,6 +8,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.TestTask
@@ -16,13 +17,13 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestResultsFormat
-import org.jetbrains.amper.core.telemetry.spanBuilder
-import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
+import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import kotlin.io.path.pathString
 
@@ -34,6 +35,7 @@ class NativeTestTask(
     override val platform: Platform,
     private val terminal: Terminal,
 ) : TestTask {
+    override val buildType: BuildType? get() = null
 
     private val logger = LoggerFactory.getLogger(javaClass)
 

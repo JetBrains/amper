@@ -41,6 +41,10 @@ interface PackageTask : Task {
 
 interface TestTask : Task {
     val platform: Platform
+    /**
+     * If `null` then build type dimension is not applicable to the task.
+     */
+    val buildType: BuildType?
     val module: AmperModule
 }
 

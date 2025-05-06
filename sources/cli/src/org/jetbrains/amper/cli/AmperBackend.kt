@@ -252,9 +252,10 @@ class AmperBackend(val context: CliContext) {
     }
 
     suspend fun test(
-        includeModules: Set<String>? = null,
-        requestedPlatforms: Set<Platform>? = null,
-        excludeModules: Set<String> = emptySet(),
+        includeModules: Set<String>?,
+        requestedPlatforms: Set<Platform>?,
+        excludeModules: Set<String>,
+        buildType: BuildType?,
     ) {
         require(requestedPlatforms == null || requestedPlatforms.isNotEmpty())
 
@@ -283,6 +284,7 @@ class AmperBackend(val context: CliContext) {
 
         val platformTestTasks = allTestTasks
             .filter { it.platform in (requestedPlatforms ?: PlatformUtil.platformsMayRunOnCurrentSystem) }
+            .filter { it.buildType == null || it.buildType == (buildType ?: BuildType.Debug) }
         requestedPlatforms?.filter { requestedPlatform ->
             platformTestTasks.none { it.platform == requestedPlatform }
         }?.takeIf { it.isNotEmpty() }?.let { platformsWithMissingTests ->
