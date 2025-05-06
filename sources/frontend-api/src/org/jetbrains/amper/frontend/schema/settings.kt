@@ -146,6 +146,7 @@ class IosSettings : SchemaNode() {
             " or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`)")
     var teamId by nullableValue<String>()
 
+    @GradleSpecific
     @SchemaDoc("(Only for the library [product type](#product-types) " +
             "Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)")
     @ProductTypeSpecific(ProductType.LIB)

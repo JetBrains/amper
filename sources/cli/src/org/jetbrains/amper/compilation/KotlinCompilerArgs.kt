@@ -198,6 +198,12 @@ internal fun kotlinNativeCompilerArgs(
             }
         }
     }
+
+    if (compilationType == KotlinCompilationType.IOS_FRAMEWORK) {
+        // We always link the framework statically
+        add("-Xstatic-framework")
+    }
+
     binaryOptions.forEach { (key, value) ->
         add("-Xbinary=$key=$value")
     }

@@ -28,6 +28,8 @@ class IosConventions(
         const val KOTLIN_FRAMEWORK_NAME = "KotlinModules.framework"
 
         const val COMPOSE_RESOURCES_CONTENT_DIR_NAME = "compose-resources"
+
+        const val FRAMEWORKS_DIR_NAME = "AmperFrameworks"
     }
 
     @Serializable

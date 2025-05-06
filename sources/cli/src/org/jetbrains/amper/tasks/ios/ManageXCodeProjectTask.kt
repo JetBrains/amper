@@ -215,7 +215,7 @@ class ManageXCodeProjectTask(
             this["ENABLE_USER_SCRIPT_SANDBOXING"] = "NO"
             // Validate at XCodeIntegrationCommand
             this[BuildSettingNames.FRAMEWORK_SEARCH_PATHS] =
-                "$(inherited) $(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)"
+                "$(inherited) $(TARGET_BUILD_DIR)/${IosConventions.FRAMEWORKS_DIR_NAME}"
             // TODO: Move to the XConfig. For now generated a single time and is not managed anymore.
             this[AMPER_WRAPPER_PATH_CONF] = CliContext.wrapperScriptPath.relativeTo(baseDir).pathString
 

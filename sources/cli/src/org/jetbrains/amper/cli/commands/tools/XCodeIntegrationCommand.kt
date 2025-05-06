@@ -72,7 +72,8 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
 
         val xcodeTargetBuildDir = Path(requireXcodeVar("TARGET_BUILD_DIR"))
 
-        embedAndSignFramework(iosConventions, xcodeTargetBuildDir)
+        // Symlink the built framework, so the xcodebuild finds it during linking.
+        linkFrameworkToConventionSearchLocation(iosConventions, xcodeTargetBuildDir)
 
         embedComposeResources(iosConventions, xcodeTargetBuildDir)
 
@@ -101,6 +102,17 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
         iosConventions.getBuildOutputDescriptionFilePath().writeText(Json.encodeToString(outputDescription))
     }
 
+    private fun linkFrameworkToConventionSearchLocation(
+        iosConventions: IosConventions,
+        xcodeTargetBuildDir: Path,
+    ) {
+        val targetPath = xcodeTargetBuildDir / IosConventions.FRAMEWORKS_DIR_NAME /
+                iosConventions.getAppFrameworkPath().fileName
+        targetPath.createParentDirectories()
+        targetPath.deleteIfExists()
+        targetPath.createSymbolicLinkPointingTo(iosConventions.getAppFrameworkPath())
+    }
+
     private suspend fun embedComposeResources(
         iosConventions: IosConventions,
         xcodeTargetBuildDir: Path,
@@ -116,29 +128,6 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
                 from = iosConventions.getComposeResourcesDirectory(),
                 to = embeddedComposeResourcesDir,
                 followLinks = true,
-            )
-        }
-    }
-
-    private suspend fun embedAndSignFramework(
-        iosConventions: IosConventions,
-        xcodeTargetBuildDir: Path,
-    ) {
-        val embeddedFrameworkPath =
-            xcodeTargetBuildDir / requireXcodeVar("FRAMEWORKS_FOLDER_PATH") / IosConventions.KOTLIN_FRAMEWORK_NAME
-        embeddedFrameworkPath.createParentDirectories()
-        BuildPrimitives.copy(
-            from = iosConventions.getAppFrameworkPath(),
-            to = embeddedFrameworkPath,
-            followLinks = true,
-            overwrite = true,
-        )
-
-        env["EXPANDED_CODE_SIGN_IDENTITY"]?.let { envSign ->
-            val binary = embeddedFrameworkPath / embeddedFrameworkPath.nameWithoutExtension
-            runProcessWithInheritedIO(
-                workingDir = embeddedFrameworkPath,
-                command = listOf("codesign", "--force", "--sign", envSign, "--", binary.pathString),
             )
         }
     }

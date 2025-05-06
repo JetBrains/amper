@@ -598,7 +598,7 @@
         "framework": {
           "x-intellij-html-description": "(Only for the library [product type](#product-types) Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)",
           "title": "Configure the generated framework to share the common code with an Xcode project",
-          "x-intellij-metadata": {"productTypes": ["lib"]},
+          "x-intellij-metadata": {"productTypes": ["lib"],"gradleSpecific": true},
           "$ref": "#/$defs/IosFrameworkSettings"
         },
         "teamId": {
