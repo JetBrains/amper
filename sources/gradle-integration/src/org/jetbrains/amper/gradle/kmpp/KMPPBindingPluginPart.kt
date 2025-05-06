@@ -9,7 +9,6 @@ import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
 import org.jetbrains.amper.frontend.DefaultScopedNotation
@@ -82,7 +81,6 @@ private fun LanguageSettingsBuilder.configureFromAmperSettings(settings: KotlinS
 /**
  * Plugin logic, bind to specific module, when multiple targets are available.
  */
-context(ProblemReporterContext)
 class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
 ) : BindingPluginPart by ctx, KMPEAware, AmperNamingConventions {

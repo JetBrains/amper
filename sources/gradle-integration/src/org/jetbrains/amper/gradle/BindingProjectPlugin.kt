@@ -33,7 +33,7 @@ class BindingProjectPlugin : Plugin<Project> {
 
     lateinit var appliedParts: List<BindingPluginPart>
 
-    override fun apply(project: Project) = with(SLF4JProblemReporterContext()) {
+    override fun apply(project: Project) {
         // Some things in the KMP plugin are not possible in Gradle 8.6 or below
         if (GradleVersion.current() < GradleVersion.version("8.7")) {
             throw GradleException("Gradle ${GradleVersion.current()} is no longer supported, please use 8.7 or above")
@@ -74,10 +74,6 @@ class BindingProjectPlugin : Plugin<Project> {
         applyRepositoryAttributes(linkedModule, project)
         applyPublicationAttributes(linkedModule, project)
         applyTest(linkedModule, project)
-
-        if (problemReporter.getErrors().isNotEmpty()) {
-            throw GradleException(problemReporter.getGradleError())
-        }
     }
 
     private fun applyRepositoryAttributes(
