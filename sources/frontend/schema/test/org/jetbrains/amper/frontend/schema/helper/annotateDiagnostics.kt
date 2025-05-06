@@ -12,15 +12,23 @@ import org.jetbrains.amper.core.messages.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.core.messages.MultipleLocationsBuildProblemSource
 import java.nio.file.Path
 
-private const val DIAGNOSTIC_ANNOTATION_LB = "<!"
-private const val DIAGNOSTIC_ANNOTATION_RB = "!>"
+private const val DIAGNOSTIC_START_LB = "<!"
+private const val DIAGNOSTIC_START_RB = "!>"
 private const val DIAGNOSTIC_END = "<!>"
-private val DIAGNOSTIC_REGEX = """($DIAGNOSTIC_ANNOTATION_LB.*?$DIAGNOSTIC_ANNOTATION_RB)+(.*?)($DIAGNOSTIC_END)+"""
+
+// escaped constants to include them literally in the regex
+private val R_DIAG_START_LB = Regex.escape(DIAGNOSTIC_START_LB)
+private val R_DIAG_START_RB = Regex.escape(DIAGNOSTIC_START_RB)
+private val R_DIAG_END = Regex.escape(DIAGNOSTIC_END)
+
+private val DIAGNOSTIC_REGEX = """($R_DIAG_START_LB((?!$R_DIAG_START_RB).)*$R_DIAG_START_RB)+(?<code>((?!$R_DIAG_END).)*)($R_DIAG_END)+"""
     .toRegex(RegexOption.DOT_MATCHES_ALL)
 
 fun PsiFile.removeDiagnosticAnnotations(): PsiFile {
     val newFile = copy() as PsiFile
-    val newText = newFile.text.replace(DIAGNOSTIC_REGEX) { result -> result.groupValues[2] }
+    val newText = newFile.text.replace(DIAGNOSTIC_REGEX) { result ->
+        result.groups["code"]?.value ?: error("Diagnostic regex matched but the 'code' capturing group is missing")
+    }
     val document = newFile.viewProvider.document
     document.setText(newText)
     return newFile
@@ -64,9 +72,9 @@ private fun StringBuilder.appendFileDiagnostics(
     )
 
     for (diagnostic in sortedDiagnostics) {
-        append(DIAGNOSTIC_ANNOTATION_LB)
+        append(DIAGNOSTIC_START_LB)
         append(diagnostic.renderWithSanitization(sanitizeDiagnostic))
-        append(DIAGNOSTIC_ANNOTATION_RB)
+        append(DIAGNOSTIC_START_RB)
         appendLine(DIAGNOSTIC_END)
     }
 }
@@ -101,9 +109,9 @@ private fun StringBuilder.appendFileTextDecoratedWithDiagnostics(
         append(clearedText, lastOffset, offset)
         lastOffset = offset
         if (isStart) {
-            append(DIAGNOSTIC_ANNOTATION_LB)
+            append(DIAGNOSTIC_START_LB)
             append(problem.renderWithSanitization(sanitizeDiagnostic))
-            append(DIAGNOSTIC_ANNOTATION_RB)
+            append(DIAGNOSTIC_START_RB)
         } else {
             append(DIAGNOSTIC_END)
         }
