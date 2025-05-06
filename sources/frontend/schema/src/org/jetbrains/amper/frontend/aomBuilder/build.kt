@@ -460,6 +460,7 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGrad
                 source = AmperModuleFileSource(mPath.toNioPath()),
                 origin = holder.module,
                 usedCatalog = holder.chosenCatalog,
+                parts = holder.module.convertModuleParts()
             )
         )
     }

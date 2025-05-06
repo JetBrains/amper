@@ -5,13 +5,13 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
 import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.Artifact
+import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.CompositeString
 import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.Fragment
@@ -34,18 +34,17 @@ data class DefaultModel(
     override val modules: List<AmperModule>,
 ) : Model
 
-context(ProblemReporterContext)
 internal open class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
     override val source: AmperModuleSource,
     final override val origin: Module,
     override val usedCatalog: VersionCatalog?,
+    override var parts: ClassBasedSet<ModulePart<*>>,
 ) : AmperModule {
     override var fragments = emptyList<Fragment>()
     override var artifacts = emptyList<Artifact>()
     override var customTasks = emptyList<CustomTaskDescription>()
-    override var parts = origin.convertModuleParts()
 }
 
 class DefaultPublishArtifactFromCustomTask(
@@ -81,7 +80,6 @@ class DefaultCustomTaskDescription(
  * Special kind of module that appears only on
  * internal module resolve failure.
  */
-context(ProblemReporterContext)
 internal class NotResolvedModule(
     userReadableName: String,
     invalidPath: Path,
@@ -91,6 +89,7 @@ internal class NotResolvedModule(
     source = AmperModuleInvalidPathSource(invalidPath),
     origin = Module(),
     usedCatalog = null,
+    parts = classBasedSet(),
 )
 
 class DefaultArtifact(
