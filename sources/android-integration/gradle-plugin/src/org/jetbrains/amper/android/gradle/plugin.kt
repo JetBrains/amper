@@ -94,7 +94,7 @@ private const val SIGNING_CONFIG_NAME = "sign"
 
 @Suppress("UnstableApiUsage")
 class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val problems: Problems) : Plugin<Project> {
-    override fun apply(project: Project): Unit = with(SLF4JProblemReporterContext()) {
+    override fun apply(project: Project) {
         val log = project.logger
         val rootProjectBuildDir = project.rootProject.layout.buildDirectory.asFile.get().toPath()
         val buildDir = rootProjectBuildDir / project.path.replace(":", "_")
