@@ -94,7 +94,6 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     userCacheRoot = context.userCacheRoot,
                     taskOutputPath = context.getTaskOutputPath(buildTaskName),
                     taskName = buildTaskName,
-                    isTest = false,
                 ),
                 dependsOn = listOf(
                     preBuildTaskName,

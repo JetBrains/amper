@@ -5,25 +5,25 @@
 package org.jetbrains.amper.cli.commands.tools
 
 import com.github.ajalt.clikt.core.terminal
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.commands.AmperSubcommand
-import org.jetbrains.amper.cli.commands.tools.XCodeIntegrationCommand.Companion.AMPER_BUILD_OUTPUT_DIR_ENV
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.processes.runProcessWithInheritedIO
+import org.jetbrains.amper.tasks.ios.IosBuildTask
 import org.jetbrains.amper.tasks.ios.IosConventions
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.createSymbolicLinkPointingTo
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
-import kotlin.io.path.nameWithoutExtension
-import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 
 internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integration") {
@@ -36,7 +36,10 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
     override suspend fun run() {
         validateGeneralXcodeEnvironment()
 
-        val superAmperBuildRoot = env[AMPER_BUILD_OUTPUT_DIR_ENV]
+        // Info passed down from the super Amper process if it's the case
+        val superAmperInfo: IosBuildTask.PreBuildInfo? = env[IosBuildTask.PreBuildInfo.ENV_JSON_NAME]
+            ?.let { envJson -> Json.decodeFromString(envJson) }
+
         val buildType = inferBuildTypeFromEnv().let { inferred ->
             if (inferred != BuildType.Debug) {
                 // TODO: Support Release configuration in Amper
@@ -49,25 +52,20 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
         }
         val platform = inferPlatformFromEnv()
 
-        val (buildDir: Path, moduleName: String) = if (superAmperBuildRoot == null) {
+        val amperInfo: IosBuildTask.PreBuildInfo = superAmperInfo ?: run {
             // Running from xcode only - need to run iOS prebuild task ourselves
             withBackend(commonOptions, commandName, terminal) { backend ->
-                val moduleName = backend.prebuildForXcode(
+                backend.prebuildForXcode(
                     moduleDir = Path(requireXcodeVar("PROJECT_DIR")),
                     buildType = buildType,
                     platform = platform,
                 )
-                backend.context.buildOutputRoot.path to moduleName
             }
-        } else {
-            // Running from the super Amper call - everything is already built.
-            // NOTE: We do not make `withBackend` call here as it may interfere with the super call.
-            Path(superAmperBuildRoot) to checkNotNull(env[AMPER_MODULE_NAME_ENV])
         }
 
         val iosConventions = IosConventions(
-            buildRootPath = buildDir,
-            moduleName = moduleName,
+            buildRootPath = amperInfo.buildOutputRoot,
+            moduleName = amperInfo.moduleName,
             buildType = buildType,
             platform = platform,
         )
@@ -174,21 +172,7 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
             "Invalid environment: missing xcode variable `$name`"
         )
     }
-
-    companion object {
-        /**
-         * If set, signals the integration command that there is a super Amper call and all the necessary tasks have
-         * been run.
-         */
-        const val AMPER_BUILD_OUTPUT_DIR_ENV = "AMPER_XCI_BUILD_OUTPUT_DIR"
-
-        /**
-         * iOS module name that super Amper call currently builds.
-         * Has the same semantics as [AMPER_BUILD_OUTPUT_DIR_ENV].
-         */
-        const val AMPER_MODULE_NAME_ENV = "AMPER_XCI_MODULE_NAME"
-
-        private const val SIMULATOR_SDK_NAME = "iphonesimulator"
-        private const val IPHONE_SDK_NAME = "iphoneos"
-    }
 }
+
+private const val SIMULATOR_SDK_NAME = "iphonesimulator"
+private const val IPHONE_SDK_NAME = "iphoneos"
