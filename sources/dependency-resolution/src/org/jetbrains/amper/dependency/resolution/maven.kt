@@ -24,6 +24,7 @@ import org.jetbrains.amper.dependency.resolution.attributes.hasNoAttribute
 import org.jetbrains.amper.dependency.resolution.attributes.isDocumentation
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.BomVariantNotFound
+import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.DependencyIsNotMultiplatform
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.FailedRepackagingKMPLibrary
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.KotlinMetadataHashNotResolved
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.KotlinMetadataMissing
@@ -31,8 +32,6 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutio
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.KotlinProjectStructureMetadataMissing
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.ModuleFileNotDownloaded
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.MoreThanOneVariant
-import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.MoreThanOneVariantWithoutMetadata
-import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.MoreThanOneVariantWithoutMetadataJvmPlusAndroid
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.NoVariantForPlatform
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.PomWasFoundButMetadataIsMissing
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.PomWasNotFound
@@ -1163,14 +1162,14 @@ class MavenDependency internal constructor(
         if (this.isKotlinTestAnnotationsCommon()) return null
         val metadataVariants = validVariants.filter { it.isKotlinMetadata(platform) }
         return metadataVariants.firstOrNull() ?: run {
-            if (context.settings.platforms == setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)) {
-                // jvm + android
-                diagnosticReporter.addMessage(MoreThanOneVariantWithoutMetadataJvmPlusAndroid.asMessage(this))
-            } else {
-                // common case
-                diagnosticReporter.addMessage(MoreThanOneVariantWithoutMetadata.asMessage(this))
-            }
-
+            val resolvingForJvm =
+                context.settings.platforms == setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
+            diagnosticReporter.addMessage(
+                DependencyIsNotMultiplatform.asMessage(
+                    this,
+                    overrideSeverity = Severity.WARNING.takeIf { resolvingForJvm }
+                )
+            )
             null
         }
     }

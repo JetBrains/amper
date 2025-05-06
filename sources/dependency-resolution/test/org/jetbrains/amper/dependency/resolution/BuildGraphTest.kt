@@ -71,8 +71,8 @@ class BuildGraphTest : BaseDRTest() {
 
     /**
      * This test checks that a non-KMP library declared in JVM+Android module won't fail dependency resolution
-     * and produce a warning instead. Such  dependency could be used in single-platform fragments
-     * later
+     * and produce a warning instead.
+     * Such a dependency could be used in single-platform fragments later.
      */
     @Test
     fun `org_jetbrains_androidx_lifecycle lifecycle-viewmodel-compose 2_8_0`(testInfo: TestInfo) {
@@ -85,12 +85,30 @@ class BuildGraphTest : BaseDRTest() {
 
         assertTheOnlyNonInfoMessage(
             root,
-            DependencyResolutionDiagnostics.MoreThanOneVariantWithoutMetadataJvmPlusAndroid,
+            DependencyResolutionDiagnostics.DependencyIsNotMultiplatform,
             Severity.WARNING,
             transitively = true
         )
 
         assertFiles(testInfo, root, checkExistence = true)
+    }
+
+    @Test
+    fun `Gradle published JVM-only library used for non-JVM platforms`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "com.fasterxml.jackson.core:jackson-core:2.18.0",
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID),
+            platform = setOf(ResolutionPlatform.ANDROID, ResolutionPlatform.JVM, ResolutionPlatform.IOS_ARM64),
+            verifyMessages = false
+        )
+
+        assertTheOnlyNonInfoMessage(
+            root,
+            DependencyResolutionDiagnostics.DependencyIsNotMultiplatform,
+            Severity.ERROR,
+            transitively = true
+        )
     }
 
     /**

@@ -27,6 +27,7 @@ internal fun SimpleDiagnosticDescriptor.asMessage(
 object DependencyResolutionDiagnostics {
     val BomVariantNotFound = SimpleDiagnosticDescriptor("bom.variant.not.found", Severity.ERROR)
     val ContentLengthMismatch = SimpleDiagnosticDescriptor("content.length.mismatch", Severity.ERROR)
+    val DependencyIsNotMultiplatform = SimpleDiagnosticDescriptor("dependency.is.not.multiplatform", Severity.ERROR)
     val FailedRepackagingKMPLibrary = SimpleDiagnosticDescriptor("failed.repackaging.kmp.library", Severity.ERROR)
     val HashesMismatch = SimpleDiagnosticDescriptor("hashes.mismatch", Severity.ERROR)
     val KotlinMetadataHashNotResolved = SimpleDiagnosticDescriptor("kotlin.metadata.hash.not.resolved", Severity.ERROR)
@@ -35,8 +36,6 @@ object DependencyResolutionDiagnostics {
     val KotlinProjectStructureMetadataMissing = SimpleDiagnosticDescriptor("kotlin.project.structure.metadata.missing", Severity.ERROR)
     val ModuleFileNotDownloaded = SimpleDiagnosticDescriptor("module.file.not.downloaded", Severity.ERROR)
     val MoreThanOneVariant = SimpleDiagnosticDescriptor("more.than.one.variant", Severity.WARNING)
-    val MoreThanOneVariantWithoutMetadata = SimpleDiagnosticDescriptor("more.than.one.variant.without.metadata", Severity.ERROR)
-    val MoreThanOneVariantWithoutMetadataJvmPlusAndroid = SimpleDiagnosticDescriptor("more.than.one.variant.without.metadata.jvm.plus.android", Severity.WARNING)
     val NoVariantForPlatform = SimpleDiagnosticDescriptor("no.variant.for.platform", Severity.ERROR)
     val PomWasFoundButMetadataIsMissing = SimpleDiagnosticDescriptor("pom.was.found.but.metadata.is.missing", Severity.WARNING)
     val PomWasNotFound = SimpleDiagnosticDescriptor("pom.was.not.found", Severity.WARNING)
