@@ -10,28 +10,40 @@ class RuniOSExternalProjectsStandalone : IOSBaseTest() {
 
     @Test
     fun kotlinConfAppTest() = testRunnerStandalone(
-        projectName = "kotlinconf",
+        projectSource = amperExternalProject("kotlinconf"),
         bundleIdentifier = "ios-app",
         iosAppModuleName = "ios-app",
     )
 
     @Test
     fun toDoListApp() = testRunnerStandalone(
-        projectName = "todolistlite",
+        projectSource = amperExternalProject("todolistlite"),
         bundleIdentifier = "ios-app",
         iosAppModuleName = "ios-app",
     )
 
     @Test
     fun recipeApp() = testRunnerStandalone(
-        projectName = "recipeapp",
+        projectSource = amperExternalProject("recipeapp"),
         bundleIdentifier = "ios-app",
         iosAppModuleName = "ios-app",
     )
 
     @Test
     fun swiftAppWithoutShared() = testRunnerStandalone(
-        projectName = "swiftonlytodo",
+        projectSource = amperExternalProject("swiftonlytodo"),
         bundleIdentifier = "swiftonlytodo",
     )
+
+    @Test
+    fun kotlinConf2025() = testRunnerStandalone(
+        projectSource = ProjectSource.RemoteRepository(
+            cloneUrl = "https://github.com/Jeffset/kotlinconf-app.git",
+            cloneIntoDirName = "kotlinconf-app",
+            refLikeToCheckout = "amper",
+        ),
+        bundleIdentifier = "com.kotlinconf.iosapp",
+        iosAppModuleName = "iosApp",
+    )
+
 }

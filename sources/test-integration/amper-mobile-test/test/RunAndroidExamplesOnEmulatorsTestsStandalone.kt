@@ -10,16 +10,16 @@ class RunAndroidExamplesOnEmulatorsTestsStandalone : AndroidBaseTest() {
 
     @Test
     fun simple() = testRunnerStandalone(
-        projectName = "simple",
+        projectSource = ProjectSource.Local("simple"),
     )
 
     @Test
     fun appcompat() = testRunnerStandalone(
-        projectName = "appcompat",
+        projectSource = ProjectSource.Local("appcompat"),
     )
 
     @Test
     fun parcelize() = testRunnerStandalone(
-        projectName = "parcelize",
+        projectSource = ProjectSource.Local("parcelize"),
     )
 }

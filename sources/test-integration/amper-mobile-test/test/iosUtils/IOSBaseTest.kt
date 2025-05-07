@@ -24,17 +24,19 @@ import kotlin.io.path.name
 open class IOSBaseTest : TestBase() {
 
     /**
-     * Copies the project with the given [projectName] from the given [projectsDir] to a temporary folder, runs the iOS
-     * application built with [buildIosApp] on an iOS simulator.
+     * Copies the project with the given [projectSource] to a temporary folder,
+     * runs the iOS application built with [buildIosApp] on an iOS simulator.
+     *
+     * @param projectsDir in-source projects directory for [ProjectSource.Local] projects.
      */
     @OptIn(ProcessLeak::class)
     protected fun prepareExecution(
-        projectName: String,
+        projectSource: ProjectSource,
         projectsDir: Path,
         bundleIdentifier: String,
         buildIosApp: suspend (projectDir: Path) -> Path,
     ) = runBlocking {
-        val copiedProjectDir = copyProjectToTempDir(projectName, projectsDir)
+        val copiedProjectDir = copyProjectToTempDir(projectSource, projectsDir)
         val appDir = buildIosApp(copiedProjectDir)
         SimulatorManager.launchSimulator()
         val appFile = appDir.findAppFile()
@@ -43,48 +45,52 @@ open class IOSBaseTest : TestBase() {
     }
 
     /**
-     * Prepares and runs the iOS test for the Gradle-based project named [projectName] using the given
+     * Prepares and runs the iOS test for the Gradle-based project from [projectSource] using the given
      * [bundleIdentifier].
      *
      * If [iosAppSubprojectName] is specified, the corresponding subproject is used as the iOS app to test,
      * otherwise the root project is expected to be the iOS app.
      */
-    internal fun testRunnerGradle(projectName: String, bundleIdentifier: String, iosAppSubprojectName: String? = null) {
+    internal fun testRunnerGradle(projectSource: ProjectSource, bundleIdentifier: String, iosAppSubprojectName: String? = null) {
         val examplesGradleProjectsDir = Dirs.amperCheckoutRoot.resolve("examples-gradle")
-        prepareExecution(projectName, examplesGradleProjectsDir, bundleIdentifier) { projectDir ->
-            buildIosAppWithGradle(projectRootDir = projectDir, projectName, iosAppSubprojectName)
+        prepareExecution(
+            projectSource = projectSource,
+            projectsDir = examplesGradleProjectsDir,
+            bundleIdentifier = bundleIdentifier,
+        ) { projectDir ->
+            buildIosAppWithGradle(projectRootDir = projectDir, iosAppSubprojectName)
         }
     }
 
     /**
-     * Prepares and runs the iOS test for the Standalone-based project named [projectName] using the given
+     * Prepares and runs the iOS test for the Standalone-based project from [projectSource] using the given
      * [bundleIdentifier].
      *
      * If [iosAppModuleName] is specified, the corresponding module is used as the iOS app to test,
      * otherwise the root module is expected to be the iOS app.
      */
-    internal fun testRunnerStandalone(projectName: String, bundleIdentifier: String, iosAppModuleName: String? = null) {
+    internal fun testRunnerStandalone(projectSource: ProjectSource, bundleIdentifier: String, iosAppModuleName: String? = null) {
         val examplesStandaloneProjectsDir = Dirs.amperCheckoutRoot.resolve("examples-standalone")
         prepareExecution(
-            projectName = projectName,
+            projectSource = projectSource,
             projectsDir = examplesStandaloneProjectsDir,
             bundleIdentifier = bundleIdentifier,
         ) { projectDir ->
-            buildIosAppWithStandaloneAmper(projectRootDir = projectDir, projectName, iosAppModuleName)
+            buildIosAppWithStandaloneAmper(projectRootDir = projectDir, iosAppModuleName)
         }
     }
 
     /**
-     * Builds the iOS app for the project named [rootProjectName] located at [projectRootDir] using Gradle.
+     * Builds the iOS app for the project located at [projectRootDir] using Gradle.
      *
      * If [iosAppSubprojectName] is specified, the corresponding subproject is used as the iOS app to test,
      * otherwise the root project is expected to be the iOS app.
      */
     private suspend fun buildIosAppWithGradle(
         projectRootDir: Path,
-        rootProjectName: String,
         iosAppSubprojectName: String?,
     ): Path {
+        val rootProjectName = projectRootDir.name
         if (!projectRootDir.isDirectory()) {
             error("Project directory '${projectRootDir.absolutePathString()}' does not exist or is not a directory.")
         }
@@ -99,16 +105,16 @@ open class IOSBaseTest : TestBase() {
     }
 
     /**
-     * Builds the iOS app for the project named [rootProjectName] located at [projectRootDir] using standalone Amper.
+     * Builds the iOS app for the project located at [projectRootDir] using standalone Amper.
      *
      * If [iosAppModuleName] is specified, the corresponding module is used as the iOS app to test,
      * otherwise the root module is expected to be the iOS app.
      */
     private suspend fun buildIosAppWithStandaloneAmper(
         projectRootDir: Path,
-        rootProjectName: String,
         iosAppModuleName: String?,
     ): Path {
+        val rootProjectName = projectRootDir.name
         val moduleName = iosAppModuleName ?: rootProjectName
         val taskPath = ":$moduleName:buildIosAppIosSimulatorArm64" // TODO should we use 'build -m $module' instead?
 

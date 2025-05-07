@@ -10,28 +10,39 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
 
     @Test
     fun kmptexterAppTest() = testRunnerStandalone(
-        projectName = "kmptxter",
+        projectSource = amperExternalProject("kmptxter"),
         applicationId = "com.river.kmptxter",
     )
 
     @Test
     fun kotlinConfAppTest() = testRunnerStandalone(
-        projectName = "kotlinconf",
+        projectSource = amperExternalProject("kotlinconf"),
         applicationId = "com.jetbrains.kotlinconf.android",
         androidAppModuleName = "android-app",
     )
 
     @Test
     fun toDoListApp() = testRunnerStandalone(
-        projectName = "todolistlite",
+        projectSource = amperExternalProject("todolistlite"),
         applicationId = "org.jetbrains.todo",
         androidAppModuleName = "android-app",
     )
 
     @Test
     fun recipeApp() = testRunnerStandalone(
-        projectName = "recipeapp",
+        projectSource = amperExternalProject("recipeapp"),
         applicationId = "com.recipeapp",
         androidAppModuleName = "android-app",
+    )
+
+    @Test
+    fun kotlinConfAppTest2025() = testRunnerStandalone(
+        projectSource = ProjectSource.RemoteRepository(
+            cloneUrl = "https://github.com/Jeffset/kotlinconf-app.git",
+            cloneIntoDirName = "kotlinconf-app",
+            refLikeToCheckout = "amper",
+        ),
+        applicationId = "com.jetbrains.kotlinconf",
+        androidAppModuleName = "androidApp",
     )
 }

@@ -10,13 +10,13 @@ class RuniOSExamplesOnEmulatorsTestsGradle : IOSBaseTest() {
 
     @Test
     fun composeiOSAppGradle() = testRunnerGradle(
-        projectName = "compose-ios",
+        projectSource = ProjectSource.Local("compose-ios"),
         bundleIdentifier = "iosApp.iosApp",
     )
 
     @Test
     fun composeAndroidMultiplatformAppGradle() = testRunnerGradle(
-        projectName = "compose-multiplatform",
+        projectSource = ProjectSource.Local("compose-multiplatform"),
         bundleIdentifier = "compose-multiplatform.iosApp.iosApp",
         iosAppSubprojectName = "ios-app",
     )

@@ -15,6 +15,7 @@ import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.jetbrains.amper.test.processes.checkExitCodeIsZero
 import java.nio.file.Path
 import kotlin.io.path.div
+import kotlin.io.path.name
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
@@ -29,17 +30,19 @@ open class AndroidBaseTest : TestBase() {
     private val gradleE2eTestProjectsPath = Dirs.amperSourcesRoot / "gradle-e2e-test/testData/projects"
 
     /**
-     * Sets up and executes a test environment for [projectName] located in [projectsDir],
+     * Sets up and executes a test environment for the project located in [projectSource],
      * including assembling the app, optionally using [applicationId] for custom APK setup.
      * The [buildApk] function is used to build the APK via the build tool used for the test.
+     *
+     * @param projectsDir in-source projects directory for [ProjectSource.Local] projects.
      */
     private fun prepareExecution(
-        projectName: String,
+        projectSource: ProjectSource,
         projectsDir: Path,
         applicationId: String? = null,
         buildApk: suspend (projectDir: Path) -> Path,
     ) = runTest(timeout = 15.minutes) {
-        val copiedProjectDir = copyProjectToTempDir(projectName, projectsDir)
+        val copiedProjectDir = copyProjectToTempDir(projectSource, projectsDir)
         val targetApkPath = buildApk(copiedProjectDir)
         val testAppApkPath = InstrumentedTestApp.assemble(applicationId, testReporter)
 
@@ -90,19 +93,21 @@ open class AndroidBaseTest : TestBase() {
     }
 
     /**
-     * Executes standalone tests for an Android project specified by [projectName],
-     * optionally using [applicationId] for custom APK setups,
-     * and indicating if the project is multiplatform with [multiplatform].
+     * Executes standalone tests for an Android project specified by [projectSource],
+     * optionally using [applicationId] for custom APK setups.
+     *
+     * @param androidAppModuleName android app module name inside the project;
+     *   if `null` then the root module is assumed to be the android module.
      */
     internal fun testRunnerStandalone(
-        projectName: String,
+        projectSource: ProjectSource,
         applicationId: String? = null,
         androidAppModuleName: String? = null,
     ) {
         val androidTestProjectsPath = Dirs.amperTestProjectsRoot / "android"
 
-        prepareExecution(projectName, androidTestProjectsPath, applicationId) { projectDir ->
-            buildApkWithAmper(projectDir, moduleName = androidAppModuleName ?: projectName)
+        prepareExecution(projectSource, androidTestProjectsPath, applicationId) { projectDir ->
+            buildApkWithAmper(projectDir, moduleName = androidAppModuleName ?: projectDir.name)
         }
     }
 
@@ -124,15 +129,18 @@ open class AndroidBaseTest : TestBase() {
     }
 
     /**
-     * Runs Gradle-based tests for the Android project specified by [projectName] using Amper.
+     * Runs Gradle-based tests for the Android project specified by [projectSource] using Amper.
      *
      * If [androidAppSubprojectName] is specified, the corresponding subproject is used as the Android app to test.
      * Otherwise, the root project is expected to be the Android app.
      */
-    internal fun testRunnerGradle(projectName: String, androidAppSubprojectName: String? = null) {
-        prepareExecution(projectName, gradleE2eTestProjectsPath) { projectDir ->
+    internal fun testRunnerGradle(
+        projectSource: ProjectSource,
+        androidAppSubprojectName: String? = null,
+    ) {
+        prepareExecution(projectSource, gradleE2eTestProjectsPath) { projectDir ->
             putAmperToGradleFile(projectDir, runWithPluginClasspath = true)
-            buildApkWithGradle(projectDir, projectName, androidAppSubprojectName)
+            buildApkWithGradle(projectDir, androidAppSubprojectName)
         }
     }
 
@@ -146,11 +154,11 @@ open class AndroidBaseTest : TestBase() {
      */
     private suspend fun buildApkWithGradle(
         projectRootDir: Path,
-        rootProjectName: String,
         androidAppSubprojectName: String?
     ): Path {
         assembleTargetApp(projectRootDir)
 
+        val rootProjectName = projectRootDir.name
         return if (androidAppSubprojectName != null) {
             projectRootDir / "$androidAppSubprojectName/build/outputs/apk/debug/$androidAppSubprojectName-debug.apk"
         } else {

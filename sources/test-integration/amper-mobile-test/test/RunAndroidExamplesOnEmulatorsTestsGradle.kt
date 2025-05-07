@@ -10,12 +10,12 @@ class RunAndroidExamplesOnEmulatorsTestsGradle : AndroidBaseTest() {
 
     @Test
     fun composeAndroidAppGradle() = testRunnerGradle(
-        projectName = "compose-android",
+        projectSource = ProjectSource.Local("compose-android"),
     )
 
     @Test
     fun composeAndroidMultiplatformAppGradle() = testRunnerGradle(
-        projectName = "multiplatform",
+        projectSource = ProjectSource.Local("multiplatform"),
         androidAppSubprojectName = "android-app",
     )
 }
