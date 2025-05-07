@@ -52,8 +52,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -179,8 +179,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -303,8 +303,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -429,8 +429,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -553,8 +553,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -679,8 +679,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -803,8 +803,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -927,8 +927,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -1053,8 +1053,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -1179,8 +1179,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -1305,8 +1305,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -1429,8 +1429,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -1555,8 +1555,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -1680,8 +1680,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -1804,8 +1804,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -1930,8 +1930,8 @@ Fragments:
       junit: NONE
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]

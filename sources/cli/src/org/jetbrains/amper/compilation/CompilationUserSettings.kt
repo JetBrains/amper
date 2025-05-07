@@ -46,6 +46,7 @@ internal data class KotlinUserSettings(
     val progressiveMode: Boolean,
     val languageFeatures: List<String>,
     val optIns: List<String>,
+    val storeJavaParameterNames: Boolean,
     val freeCompilerArgs: List<String>,
     val serializationEnabled: Boolean,
     val parcelizeEnabled: Boolean,
@@ -77,6 +78,7 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
     progressiveMode = unanimousKotlinSetting("progressiveMode") { it.progressiveMode },
     languageFeatures = unanimousOptionalKotlinSetting("languageFeatures") { it.languageFeatures?.map { it.value } }.orEmpty(),
     optIns = unanimousKotlinSetting("optIns") { it.optIns.orEmpty().map { it.value } },
+    storeJavaParameterNames = unanimousSetting("jvm.storeParameterNames") { it.jvm.storeParameterNames },
     freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs?.map { it.value } }.orEmpty(),
     serializationEnabled = unanimousKotlinSetting("serialization.enabled") { it.serialization.enabled },
     // we disable Parcelize on any code that doesn't compile to Android, because it fails on missing Parcelable
@@ -101,7 +103,7 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
 )
 
 internal fun List<Fragment>.mergedJavaSettings(): JavaUserSettings = JavaUserSettings(
-    parameters = unanimousSetting("jvm.parameters") { it.jvm.parameters },
+    parameters = unanimousSetting("jvm.storeParameterNames") { it.jvm.storeParameterNames },
 )
 
 private fun Fragment.hasAndroidTarget(): Boolean = platforms.contains(Platform.ANDROID)

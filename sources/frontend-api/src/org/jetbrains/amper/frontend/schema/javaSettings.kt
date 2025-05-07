@@ -77,9 +77,9 @@ class JvmSettings : SchemaNode() {
     @ProductTypeSpecific(ProductType.JVM_APP)
     var mainClass by nullableValue<String>()
 
-    @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). Add -parameters flag when calling [javac](https://docs.oracle.com/en/java/javase/17/docs/specs/man/javac.html).")
-    @ProductTypeSpecific(ProductType.JVM_APP)
-    var parameters by value(false)
+    @SchemaDoc("Enables storing formal parameter names of constructors and methods in the generated class files. " +
+            "These can later be accessed using reflection.")
+    var storeParameterNames by value(false)
 
     @SchemaDoc("JVM test-specific settings")
     var test by value(default = JvmTestSettings())

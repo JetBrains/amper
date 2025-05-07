@@ -28,7 +28,7 @@ fun Module.configureSpringBootKotlinCompilerPlugins() = apply {
                 fragmentSettings.kotlin.freeCompilerArgs = listOf(TraceableString("-Xjsr305=strict"))
             }
 
-            fragmentSettings.jvm.parameters = true
+            fragmentSettings.jvm.storeParameterNames = true
         }
     }
 }

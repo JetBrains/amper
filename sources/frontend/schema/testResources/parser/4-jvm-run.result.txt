@@ -47,8 +47,8 @@ Fragments:
       junit: <default> JUNIT5
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -155,8 +155,8 @@ Fragments:
       junit: <default> JUNIT5
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -262,8 +262,8 @@ Fragments:
       junit: <default> JUNIT5
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -371,8 +371,8 @@ Fragments:
       junit: <default> JUNIT5
       jvm: {
         mainClass: MainKt
-        parameters: <default> false
         release: <default> VERSION_17
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]

@@ -67,6 +67,9 @@ private fun kotlinCommonCompilerArgs(
     if (kotlinUserSettings.progressiveMode) {
         add("-progressive")
     }
+    if (kotlinUserSettings.storeJavaParameterNames) {
+        add("-java-parameters")
+    }
     kotlinUserSettings.optIns.forEach {
         add("-opt-in")
         add(it)
