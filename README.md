@@ -4,17 +4,20 @@
 
 # Amper
 
-Amper is a project configuration and build tool.
+Amper is an experimental project configuration and build tool.
 Its goal is to provide a great and smooth user experience and IDE support. 
 We believe that this can be achieved by:
 
 - providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but
-  also improve maintainability and let an IDE assist with automatic configuration reliably;
-- bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the need to find compatible plugins;
-- carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent and to avoid unexpected third-party code execution.
+  also improve maintainability and let IDEs assist with automatic configuration reliably;
+- bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the
+  need to find compatible plugins;
+- carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent
+  and to avoid unexpected third-party code execution.
 
 In essence, we aim to achieve a similar well-thought-out and well-tested experience as with [JetBrains IDEs](https://www.jetbrains.com/ides/).
 
+We are still in the experimental phase.
 We’re currently looking at various aspects, including the configuration of projects for building, packaging, publishing,
 and more. At the current stage, however, the focus is primarily on configuring projects for building. While the current
 use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform).
