@@ -481,7 +481,7 @@
         "kover": {
           "x-intellij-html-description": "Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)",
           "title": "Kover settings for code coverage. Read more about Kover",
-          "x-intellij-metadata": {"aliases": ["coverage"]},
+          "x-intellij-metadata": {"gradleSpecific": true,"aliases": ["coverage"]},
           "$ref": "#/$defs/KoverSettings"
         },
         "ktor": {

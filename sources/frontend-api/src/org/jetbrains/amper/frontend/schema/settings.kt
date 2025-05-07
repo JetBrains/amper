@@ -59,6 +59,7 @@ class Settings : SchemaNode() {
     @SchemaDoc("Publishing settings")
     var publishing by nullableValue<PublishingSettings>()
 
+    @GradleSpecific
     @Aliases("coverage")
     @SchemaDoc("Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)")
     var kover by nullableValue<KoverSettings>()
