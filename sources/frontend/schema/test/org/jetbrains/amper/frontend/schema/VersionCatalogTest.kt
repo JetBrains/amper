@@ -15,7 +15,7 @@ internal class VersionCatalogTest : TestBase(Path("testResources") / "catalogs")
 
     @Test
     fun `check build in compose catalog versions`() {
-        aomTest("build-in-compose-catalogue")
+        aomTest("built-in-catalogue")
     }
 
     @Test
