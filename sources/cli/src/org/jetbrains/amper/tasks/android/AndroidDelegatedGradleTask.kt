@@ -15,7 +15,8 @@ import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.api.UnstableSchemaApi
+import org.jetbrains.amper.frontend.api.toStringRepresentation
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -32,9 +33,6 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
-
-private val AndroidSettings.repr: String
-    get() = "AndroidSettings(minSdk=$minSdk, maxSdk=$maxSdk, targetSdk=$targetSdk, compileSdk=$compileSdk, namespace='$namespace', applicationId='$applicationId')"
 
 abstract class AndroidDelegatedGradleTask(
     private val module: AmperModule,
@@ -68,7 +66,10 @@ abstract class AndroidDelegatedGradleTask(
             targets = setOf(moduleGradlePath),
         )
 
-        val androidConfig = fragments.joinToString { it.settings.android.repr }
+        val androidConfig = fragments.joinToString {
+            @OptIn(UnstableSchemaApi::class)
+            it.settings.android.toStringRepresentation()
+        }
         val configuration = mapOf("androidConfig" to androidConfig)
 
         val googleServicesFileName = "google-services.json"
