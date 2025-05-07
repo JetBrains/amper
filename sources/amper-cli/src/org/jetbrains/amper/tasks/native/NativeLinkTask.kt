@@ -22,6 +22,7 @@ import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -75,11 +76,19 @@ internal class NativeLinkTask(
             .filterKLibs()
             .toList()
 
-        val includeArtifact = dependenciesResult
+        val includeArtifactDependency = dependenciesResult
             .filterIsInstance<NativeCompileKlibTask.Result>()
             .firstOrNull { it.taskName == compileKLibTaskName }
-            ?.compiledKlib
             ?: error("The result of the klib compilation task (${compileKLibTaskName.name}) was not found")
+        val includeArtifact = includeArtifactDependency.compiledKlib
+        if (includeArtifact == null && isTest) {
+            // We may skip linking for test specifically if there's no compiled code in the fragments.
+            // Libraries are of no interest here because they can't contain any tests
+            logger.info("No test code was found compiled for ${fragments.identificationPhrase()}, skipping linking")
+            return Result(
+                linkedBinary = null,
+            )
+        }
 
         val compileKLibDependencies = dependenciesResult
             .filterIsInstance<NativeCompileKlibTask.Result>()
@@ -89,8 +98,8 @@ internal class NativeLinkTask(
             .filter { it.taskName in exportedKLibTaskNames }
         check(exportedKLibDependencies.size == exportedKLibTaskNames.size)
 
-        val compileKLibs = compileKLibDependencies.map { it.compiledKlib }
-        val exportedKLibs = exportedKLibDependencies.map { it.compiledKlib }
+        val compileKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
+        val exportedKLibs = exportedKLibDependencies.mapNotNull { it.compiledKlib }
 
         // TODO kotlin version settings
         val kotlinVersion = UsedVersions.kotlinVersion
@@ -124,9 +133,26 @@ internal class NativeLinkTask(
             "binary.options" to Json.encodeToString(binaryOptions),
         )
 
-        val inputs = listOf(includeArtifact) + compileKLibs
+        val inputs = listOfNotNull(includeArtifact) + compileKLibs
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
+
+            if (isTest) {
+                logger.debug("Linking native test executable for module '${module.userReadableName}' on platform '${platform.pretty}'...")
+            } else {
+                val binaryKind = when(compilationType) {
+                    KotlinCompilationType.IOS_FRAMEWORK -> "framework"
+                    else -> "executable"
+                }
+                if (inputs.isEmpty()) {
+                    val fragmentsString = module.fragmentsTargeting(platform, includeTestFragments = false)
+                        .identificationPhrase()
+                    userReadableError("Unable to link: " +
+                            "there are no inputs (libraries or compiled source code). " +
+                            "Ensure that there are sources and/or dependencies for $fragmentsString")
+                }
+                logger.info("Linking native '${platform.pretty}' $binaryKind for module '${module.userReadableName}'...")
+            }
 
             val artifactPath = taskOutputRoot.path.resolve(compilationType.outputFilename(module, platform, isTest))
 
@@ -150,11 +176,6 @@ internal class NativeLinkTask(
                 include = includeArtifact,
             )
 
-            if (isTest) {
-                logger.debug("Linking native test executable for module '${module.userReadableName}' on platform '${platform.pretty}'...")
-            } else {
-                logger.info("Linking native '${platform.pretty}' executable for module '${module.userReadableName}'...")
-            }
             nativeCompiler.compile(args, tempRoot, module)
 
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifactPath))
@@ -166,7 +187,7 @@ internal class NativeLinkTask(
     }
 
     class Result(
-        val linkedBinary: Path,
+        val linkedBinary: Path?,
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

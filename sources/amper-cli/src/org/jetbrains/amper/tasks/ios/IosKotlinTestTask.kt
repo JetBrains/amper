@@ -24,6 +24,7 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
+import org.slf4j.LoggerFactory
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 
@@ -39,6 +40,10 @@ class IosKotlinTestTask(
         val compileTaskResult = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>()
         val workingDir = module.source.moduleDir ?: projectRoot.path
         val executable = compileTaskResult.linkedBinary
+        if (executable == null) {
+            logger.info("No test binary was found for ${platform.pretty}, skipping test run")
+            return EmptyTaskResult
+        }
         val chosenDevice = pickBestDevice() ?: error("No available device")
 
         DeviceLock.withLock(hash = chosenDevice.deviceId.hashCode()) {
@@ -81,4 +86,6 @@ class IosKotlinTestTask(
         // when a parallel task shuts the simulator down while we still use it.
         val DeviceLock = StripedMutex()
     }
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 }

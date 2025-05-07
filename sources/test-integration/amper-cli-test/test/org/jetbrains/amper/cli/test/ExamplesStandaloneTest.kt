@@ -76,8 +76,8 @@ class ExamplesStandaloneTest: AmperCliTestBase() {
             // main for Jvm (no test sources).
             kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
 
-            // (main/test klib + framework for Ios) * 3 ios targets
-            kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(4 * 3)
+            // (main klib + framework for Ios) * 3 ios targets (no test sources)
+            kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(2 * 3)
         }
     }
 

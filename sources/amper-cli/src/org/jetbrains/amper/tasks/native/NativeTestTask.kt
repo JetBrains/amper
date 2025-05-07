@@ -46,6 +46,10 @@ class NativeTestTask(
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
         val executable = compileTaskResult.linkedBinary
+        if (executable == null) {
+            logger.info("No test binary was found for ${platform.pretty}, skipping test run")
+            return EmptyTaskResult
+        }
 
         return spanBuilder("native-test")
             .setAttribute("executable", executable.pathString)

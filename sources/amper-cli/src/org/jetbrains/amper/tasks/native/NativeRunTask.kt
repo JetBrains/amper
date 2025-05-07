@@ -8,6 +8,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -18,10 +19,9 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
-import org.jetbrains.amper.core.telemetry.spanBuilder
-import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
@@ -49,7 +49,7 @@ class NativeRunTask(
         val compileTaskResult = dependenciesResult.filterIsInstance<NativeLinkTask.Result>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
-        val executable = compileTaskResult.linkedBinary
+        val executable = checkNotNull(compileTaskResult.linkedBinary) { "Executable must always be linked" }
         val programArgs = commonRunSettings.programArgs
 
         return spanBuilder("native-run")

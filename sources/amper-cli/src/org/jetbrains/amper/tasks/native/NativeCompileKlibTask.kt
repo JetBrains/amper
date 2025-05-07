@@ -30,11 +30,11 @@ import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
+import org.jetbrains.amper.tasks.identificationPhrase
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.createTempFile
-import kotlin.io.path.deleteExisting
-import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 
 internal class NativeCompileKlibTask(
@@ -86,7 +86,7 @@ internal class NativeCompileKlibTask(
 
         val compiledModuleDependencies = dependenciesResult
             .filterIsInstance<Result>()
-            .map { it.compiledKlib }
+            .mapNotNull { it.compiledKlib }
             .toList()
 
         // todo native resources are what exactly?
@@ -118,50 +118,38 @@ internal class NativeCompileKlibTask(
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val artifact = taskOutputRoot.path.resolve(KotlinCompilationType.LIBRARY.outputFilename(module, platform, isTest))
+            val existingSourceRoots = sources.filter { it.isDirectory() && it.listDirectoryEntries().isNotEmpty() }
+            if (existingSourceRoots.isEmpty()) {
+                logger.info("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
+                return@execute ExecuteOnChangedInputs.ExecutionResult(emptyList())
+            }
 
-            val tempFilesToDelete = mutableListOf<Path>()
+            val artifact = taskOutputRoot.path.resolve(KotlinCompilationType.LIBRARY.outputFilename(module, platform, isTest))
 
             val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
             val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
                 plugins = kotlinUserSettings.compilerPlugins,
             )
-            try {
-                val existingSourceRoots = sources.filter { it.exists() }
-                val rootsToCompile = existingSourceRoots.ifEmpty {
-                    // konanc does not want to compile an application with zero sources files,
-                    // but it's a perfectly valid situation where all code is in shared libraries
-                    val emptyKotlinFile = createTempFile(tempRoot.path, "empty", ".kt")
-                        .also { tempFilesToDelete.add(it) }
-                    listOf(emptyKotlinFile)
-                }
+            val args = kotlinNativeCompilerArgs(
+                kotlinUserSettings = kotlinUserSettings,
+                compilerPlugins = compilerPlugins,
+                entryPoint = null,
+                libraryPaths = libraryPaths,
+                exportedLibraryPaths = emptyList(),
+                fragments = fragments,
+                sourceFiles = existingSourceRoots,
+                additionalSourceRoots = additionalSources,
+                outputPath = artifact,
+                compilationType = KotlinCompilationType.LIBRARY,
+                binaryOptions = emptyMap(),
+                include = null,
+            )
 
-                val args = kotlinNativeCompilerArgs(
-                    kotlinUserSettings = kotlinUserSettings,
-                    compilerPlugins = compilerPlugins,
-                    entryPoint = null,
-                    libraryPaths = libraryPaths,
-                    exportedLibraryPaths = emptyList(),
-                    // can't pass fragments if we have no sources, because empty.kt wouldn't be part of them (konan fails)
-                    fragments = if (existingSourceRoots.isEmpty()) emptyList() else fragments,
-                    sourceFiles = rootsToCompile,
-                    additionalSourceRoots = additionalSources,
-                    outputPath = artifact,
-                    compilationType = KotlinCompilationType.LIBRARY,
-                    binaryOptions = emptyMap(),
-                    include = null,
-                )
-
-                logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
-                nativeCompiler.compile(args, tempRoot, module)
-            } finally {
-                for (tempPath in tempFilesToDelete) {
-                    tempPath.deleteExisting()
-                }
-            }
+            logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
+            nativeCompiler.compile(args, tempRoot, module)
 
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifact))
-        }.outputs.single()
+        }.outputs.singleOrNull()
 
         return Result(
             compiledKlib = artifact,
@@ -171,7 +159,7 @@ internal class NativeCompileKlibTask(
     }
 
     class Result(
-        val compiledKlib: Path,
+        val compiledKlib: Path?,
         val dependencyKlibs: List<Path>,
         val taskName: TaskName,
     ) : TaskResult

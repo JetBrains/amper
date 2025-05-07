@@ -28,7 +28,9 @@ class IosPreBuildTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
-        val frameworkPath = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>().linkedBinary
+        val frameworkPath = checkNotNull(
+            dependenciesResult.requireSingleDependency<NativeLinkTask.Result>().linkedBinary
+        ) { "Framework must always be linked" }
 
         val targetPath = IosConventions(
             buildRootPath = outputRoot.path,
