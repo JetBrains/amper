@@ -1,0 +1,16 @@
+product {
+  type = "lib"
+  platforms {
+    "jvm"
+    "android"
+    "iosX64"
+  }
+}
+
+dependencies {
+  bom("com.fasterxml.jackson:jackson-bom:2.18.3")
+  "io.ktor:ktor-client-core" = "exported"
+  bom("io.ktor:ktor-bom:2.3.9")
+  "com.fasterxml.jackson.core:jackson-core"
+}
+

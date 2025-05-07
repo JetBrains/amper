@@ -66,15 +66,7 @@ sealed class ParsedCoordinates(val messages: List<Message>) {
     }
 }
 
-fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates {
-    val mavenCoordinates = when (this) {
-        is MavenDependency -> coordinates.value.trim()
-        // todo (AB) : Remove this after BomDependency coordinates started to be parsed without prefix "bom:"
-        is BomDependency -> coordinates.value.trim().removePrefix("bom:")
-    }
-
-    return parseCoordinates(mavenCoordinates)
-}
+fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates = parseCoordinates(coordinates.value.trim())
 
 private fun parseCoordinates(coordinates: String): ParsedCoordinates {
     if (' ' in coordinates) {

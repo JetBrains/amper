@@ -28,4 +28,9 @@ internal class DependenciesTest : TestBase(Path("testResources") / "dependencies
     fun `dependencies for non-complete ios fragment`() {
         aomTest("non-complete-ios-fragment")
     }
+
+    @Test
+    fun `bom dependency`() {
+        aomTest("bom-dependency")
+    }
 }

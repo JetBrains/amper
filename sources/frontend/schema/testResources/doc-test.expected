@@ -20,6 +20,14 @@ ModuleProduct: Defines what should be produced out of the module. [Read more](#p
 	platforms: List<Platform> - What platforms to generate the product for
 	type: ProductType - What type of product to generate
 
+CatalogBomDependency
+--------------------
+	catalogKey: String - BOM dependency from [a dependency catalog](#dependencyversion-catalogs)
+
+ExternalMavenBomDependency
+--------------------------
+	coordinates: String - Dependency on [a BOM](#external-maven-dependencies) in a Maven repository
+
 CatalogDependency
 -----------------
 	catalogKey: String - Dependency from [a dependency catalog](#dependencyversion-catalogs)

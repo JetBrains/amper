@@ -4,5 +4,5 @@ product: jvm/app
 # Corresponding test case checks that transitive dependencies are collected correctly
 dependencies:
   - com.fasterxml.jackson.core:jackson-annotations
-  - bom:com.fasterxml.jackson:jackson-bom:2.18.3
+  - bom: com.fasterxml.jackson:jackson-bom:2.18.3
 

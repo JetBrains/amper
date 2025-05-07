@@ -66,7 +66,9 @@ open class AmperPsiAdapterVisitor {
                     val parentObject = o.parent as? AmperObject
                     val props = parentObject?.allObjectElements.orEmpty()
                     positionStack.push(props.indexOf(o).toString())
+                    positionStack.push(o.getInvocationExpression().firstChild.text)
                     super.visitInvocationElement(o)
+                    positionStack.pop()
                     positionStack.pop()
                 }
 
@@ -125,6 +127,7 @@ open class AmperPsiAdapterVisitor {
                 override fun visitReferenceExpression(o: AmperReferenceExpression) {
                     val parent = o.parent
                     if (parent is AmperConstructorReference) {
+                        // todo (AB) : It should be inside invookation handler
                         visitConstructorRef(Reference(o))
                     }
                     if (parent is AmperProperty && parent.value == o) {

@@ -18,6 +18,12 @@
           "items": {
             "anyOf": [
               {
+                "$ref": "#/$defs/CatalogBomDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenBomDependency"
+              },
+              {
                 "$ref": "#/$defs/CatalogDependency"
               },
               {
@@ -37,6 +43,12 @@
           "uniqueItems": true,
           "items": {
             "anyOf": [
+              {
+                "$ref": "#/$defs/CatalogBomDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenBomDependency"
+              },
               {
                 "$ref": "#/$defs/CatalogDependency"
               },
@@ -61,6 +73,12 @@
           "uniqueItems": true,
           "items": {
             "anyOf": [
+              {
+                "$ref": "#/$defs/CatalogBomDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenBomDependency"
+              },
               {
                 "$ref": "#/$defs/CatalogDependency"
               },
@@ -107,6 +125,12 @@
           "items": {
             "anyOf": [
               {
+                "$ref": "#/$defs/CatalogBomDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenBomDependency"
+              },
+              {
                 "$ref": "#/$defs/CatalogDependency"
               },
               {
@@ -122,6 +146,28 @@
           "x-intellij-html-description": "Configures the toolchains used in the build process of the module's tests. [Read more](#settings)",
           "title": "Configures the toolchains used in the build process of the module's tests",
           "$ref": "#/$defs/Settings"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CatalogBomDependency": {
+      "type": "object",
+      "properties": {
+        "catalogKey": {
+          "x-intellij-html-description": "BOM dependency from [a dependency catalog](#dependencyversion-catalogs)",
+          "title": "BOM dependency from a dependency catalog",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExternalMavenBomDependency": {
+      "type": "object",
+      "properties": {
+        "coordinates": {
+          "x-intellij-html-description": "Dependency on [a BOM](#external-maven-dependencies) in a Maven repository",
+          "title": "Dependency on a BOM in a Maven repository",
+          "type": "string"
         }
       },
       "additionalProperties": false

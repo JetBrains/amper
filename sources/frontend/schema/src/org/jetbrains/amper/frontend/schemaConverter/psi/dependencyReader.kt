@@ -9,14 +9,17 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.schema.BomDependency
+import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.DependencyScope
+import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.ModuleKspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.ScopedDependency
 import org.jetbrains.yaml.YAMLLanguage
 
 context(Converter)
@@ -56,22 +59,29 @@ internal fun instantiateDependency(
             val specialValue = (table[key] as? Scalar)?.textValue
             val segmentName = key.key.segmentName
             if (specialValue != null && segmentName != null) {
-                instantiateDependency(segmentName, sourceElement).also { dep ->
-                    if (specialValue == "exported") {
-                        dep.exported = true
-                        dep::exported.valueBase?.doApplyPsiTrace(sourceElement)
-                        return dep
-                    } else {
-                        DependencyScope[specialValue]?.let {
-                            dep.scope = it
-                            dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
+                if (segmentName == "bom") {
+                    return instantiateBomDependency(specialValue, sourceElement)
+                } else {
+                    instantiateDependency(segmentName, sourceElement).also { dep ->
+                        if (specialValue == "exported") {
+                            dep.exported = true
+                            dep::exported.valueBase?.doApplyPsiTrace(sourceElement)
                             return dep
+                        } else {
+                            DependencyScope[specialValue]?.let {
+                                dep.scope = it
+                                dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
+                                return dep
+                            }
                         }
                     }
                 }
             }
         }
         else {
+            // todo (AB) : This else-branch could never happen for YAML and it is not clear
+            // todo (AB) : how it could happen for Amper lang as well.
+            // todo (AB) : Consider removing it (replacing with throwing unexpected error())
             val pointer = if (path.segmentName?.toIntOrNull() != null) {
                 matchingKeys.map {
                     it.key.nextAfter(path)
@@ -89,7 +99,7 @@ internal fun instantiateDependency(
 }
 
 context(Converter)
-internal fun instantiateDependency(text: String, sourceElement: PsiElement?): Dependency {
+internal fun instantiateDependency(text: String, sourceElement: PsiElement?): ScopedDependency {
     return when {
         text.startsWith(".") -> InternalDependency().also {
             it.path = text.asAbsolutePath()
@@ -100,6 +110,20 @@ internal fun instantiateDependency(text: String, sourceElement: PsiElement?): De
             it::catalogKey.valueBase?.doApplyPsiTrace(sourceElement)
         }
         else -> ExternalMavenDependency().also {
+            it.coordinates = text
+            it::coordinates.valueBase?.doApplyPsiTrace(sourceElement)
+        }
+    }.also { it.doApplyPsiTrace(sourceElement) }
+}
+
+context(Converter)
+internal fun instantiateBomDependency(text: String, sourceElement: PsiElement?): BomDependency {
+    return when {
+        text.startsWith("$") -> CatalogBomDependency().also {
+            it.catalogKey = text.substring(1)
+            it::catalogKey.valueBase?.doApplyPsiTrace(sourceElement)
+        }
+        else -> ExternalMavenBomDependency().also {
             it.coordinates = text
             it::coordinates.valueBase?.doApplyPsiTrace(sourceElement)
         }

@@ -40,7 +40,7 @@ dependencies:
       exported: true
       scope: compile-only
   # dependency on a BOM is declared in the dependencyManagement section of the resulting pom.xml
-  - bom:org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+  - bom: org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
 
 settings:
   publishing:

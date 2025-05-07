@@ -64,11 +64,11 @@ private fun composeResourcesDependency(composeVersion: TraceableString) = MavenD
 ).withTraceFrom(composeVersion)
 
 private fun ktorBomDependency(ktorVersion: TraceableString): BomDependency = BomDependency(
-    coordinates = library("bom:io.ktor:ktor-bom", ktorVersion),
+    coordinates = library("io.ktor:ktor-bom", ktorVersion),
 ).withTraceFrom(ktorVersion)
 
 private fun springBootBomDependency(springBootVersion: TraceableString): BomDependency = BomDependency(
-    coordinates = library("bom:org.springframework.boot:spring-boot-dependencies", springBootVersion),
+    coordinates = library("org.springframework.boot:spring-boot-dependencies", springBootVersion),
 ).withTraceFrom(springBootVersion)
 
 private fun springBootStarterDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(

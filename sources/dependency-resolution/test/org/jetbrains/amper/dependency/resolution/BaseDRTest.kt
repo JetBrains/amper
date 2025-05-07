@@ -202,7 +202,7 @@ abstract class BaseDRTest {
 
     private fun String.toMavenNode(context: Context): MavenDependencyNode {
         val isBom = startsWith("bom:")
-        val parts = removePrefix("bom:").split(":")
+        val parts = removePrefix("bom:").trim().split(":")
         val group = parts[0]
         val module = parts[1]
         val version = if (parts.size > 2) parts[2] else null

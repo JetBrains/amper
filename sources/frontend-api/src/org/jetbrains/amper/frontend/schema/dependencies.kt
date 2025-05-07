@@ -27,7 +27,9 @@ enum class DependencyScope(
     companion object : EnumMap<DependencyScope, String>(DependencyScope::values, DependencyScope::schemaValue)
 }
 
-sealed class Dependency : SchemaNode() {
+sealed class Dependency : SchemaNode()
+
+sealed class ScopedDependency : Dependency() {
 
     // TODO Replace exported flag by new scope (rethink scopes).
     @SchemaDoc("Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)")
@@ -39,23 +41,38 @@ sealed class Dependency : SchemaNode() {
     var scope by value(DependencyScope.ALL)
 }
 
-class ExternalMavenDependency : Dependency() {
+class ExternalMavenDependency : ScopedDependency() {
 
     @SchemaDoc("Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
     @DependencyKey
     var coordinates by value<String>()
 }
 
-class InternalDependency : Dependency() {
+class InternalDependency : ScopedDependency() {
 
     @SchemaDoc("Dependency [on another module](#module-dependencies) in the codebase")
     @DependencyKey
     var path by nullableValue<Path>()
 }
 
-class CatalogDependency : Dependency() {
+class CatalogDependency : ScopedDependency() {
 
     @SchemaDoc("Dependency from [a dependency catalog](#dependencyversion-catalogs)")
     @DependencyKey
     var catalogKey by value<String>()
 }
+
+sealed class BomDependency : Dependency()
+
+class ExternalMavenBomDependency : BomDependency() {
+
+    @SchemaDoc("Dependency on [a BOM](#external-maven-dependencies) in a Maven repository")
+    var coordinates by value<String>()
+}
+
+class CatalogBomDependency : BomDependency() {
+
+    @SchemaDoc("BOM dependency from [a dependency catalog](#dependencyversion-catalogs)")
+    var catalogKey by value<String>()
+}
+

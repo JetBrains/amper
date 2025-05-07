@@ -11,18 +11,24 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
+import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withComputedValueTrace
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.schema.Base
+import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Modifiers
+import org.jetbrains.amper.frontend.schema.ScopedDependency
+import kotlin.reflect.KProperty0
 
 /**
  * Replace all [CatalogDependency] with ones, that are from actual catalog.
@@ -47,7 +53,11 @@ private fun Map<Modifiers, List<Dependency>>.replaceCatalogDeps(catalog: Version
 
 context(ProblemReporterContext)
 private fun List<Dependency>.convertCatalogDeps(catalog: VersionCatalog) = mapNotNull {
-    if (it is CatalogDependency) it.convertCatalogDep(catalog) else it
+    when (it) {
+        is CatalogDependency -> it.convertCatalogDep(catalog)
+        is CatalogBomDependency -> it.convertCatalogDep(catalog)
+        else -> it
+    }
 }
 
 context(ProblemReporterContext)
@@ -62,7 +72,29 @@ private fun CatalogDependency.convertCatalogDep(catalog: VersionCatalog): Depend
     }.withTraceFrom(catalogDep)
 }
 
-internal fun Dependency.copyFrom(other: Dependency) {
+context(ProblemReporterContext)
+private fun CatalogBomDependency.convertCatalogDep(catalog: VersionCatalog): Dependency? {
+    val catalogDep = this
+    val catalogueKeyWithTrace = TraceableString(catalogDep.catalogKey).withTraceFrom(catalogDep::catalogKey.valueBase)
+    val catalogValue = catalog.findInCatalogWithReport(catalogueKeyWithTrace) ?: return null
+    return ExternalMavenBomDependency().apply {
+        coordinates = catalogValue.value
+        this::coordinates.valueBase?.withTraceFrom(catalogDep::catalogKey.valueBase)?.withComputedValueTrace(catalogValue)
+    }.withTraceFrom(catalogDep)
+}
+
+context(ProblemReporterContext)
+private fun convertCatalogDep(catalog: VersionCatalog, catalogKey: String, valueField: ValueBase<String>, node: Dependency): Dependency? {
+    val catalogDep = node
+    val catalogueKeyWithTrace = TraceableString(valueField.value).withTraceFrom(valueField/*catalogDep::catalogKey.valueBase*/)
+    val catalogValue = catalog.findInCatalogWithReport(catalogueKeyWithTrace) ?: return null
+    return ExternalMavenBomDependency().apply {
+        coordinates = catalogValue.value
+        this::coordinates.valueBase?.withTraceFrom(valueField/*catalogDep::catalogKey.valueBase*/)?.withComputedValueTrace(catalogValue)
+    }.withTraceFrom(node)
+}
+
+internal fun ScopedDependency.copyFrom(other: ScopedDependency) {
     exported = other.exported
     this::exported.valueBase?.withTraceFrom(other::exported.valueBase)
     scope = other.scope
@@ -177,7 +209,7 @@ class BuiltInCatalog(
     if (ktorVersion != null) {
 
         // bom
-        put("ktor.bom", library("bom:io.ktor:ktor-bom", ktorVersion))
+        put("ktor.bom", library("io.ktor:ktor-bom", ktorVersion))
 
         // server
         put("ktor.server.auth", library("io.ktor:ktor-server-auth"))
@@ -308,14 +340,14 @@ class BuiltInCatalog(
     // Spring Boot dependencies
     if (springBootVersion != null) {
         // boms
-        put("spring.boot.bom", library("bom:org.springframework.boot:spring-boot-dependencies", springBootVersion))
-        put("spring.shell.bom", library("bom:org.springframework.shell:spring-shell-dependencies", UsedVersions.springShellVersion))
-        put("spring.cloud.bom", library("bom:org.springframework.cloud:spring-cloud-dependencies", UsedVersions.springCloudVersion))
-        put("spring.cloud.bom.azure", library("bom:com.azure.spring:spring-cloud-azure-dependencies", UsedVersions.springCloudAzureVersion))
-        put("spring.cloud.bom.gcp", library("bom:com.google.cloud:spring-cloud-gcp-dependencies", UsedVersions.springCloudGcpVersion))
-        put("spring.cloud.bom.services", library("bom:io.pivotal.spring.cloud:spring-cloud-services-dependencies", UsedVersions.springCloudServicesVersion))
-        put("spring.ai.bom", library("bom:org.springframework.ai:spring-ai-bom", UsedVersions.springAiVersion))
-        put("spring.ai.bom.timefold", library("bom:ai.timefold.solver:timefold-solver-bom", UsedVersions.springAiTimeFoldVersion))
+        put("spring.boot.bom", library("org.springframework.boot:spring-boot-dependencies", springBootVersion))
+        put("spring.shell.bom", library("org.springframework.shell:spring-shell-dependencies", UsedVersions.springShellVersion))
+        put("spring.cloud.bom", library("org.springframework.cloud:spring-cloud-dependencies", UsedVersions.springCloudVersion))
+        put("spring.cloud.bom.azure", library("com.azure.spring:spring-cloud-azure-dependencies", UsedVersions.springCloudAzureVersion))
+        put("spring.cloud.bom.gcp", library("com.google.cloud:spring-cloud-gcp-dependencies", UsedVersions.springCloudGcpVersion))
+        put("spring.cloud.bom.services", library("io.pivotal.spring.cloud:spring-cloud-services-dependencies", UsedVersions.springCloudServicesVersion))
+        put("spring.ai.bom", library("org.springframework.ai:spring-ai-bom", UsedVersions.springAiVersion))
+        put("spring.ai.bom.timefold", library("ai.timefold.solver:timefold-solver-bom", UsedVersions.springAiTimeFoldVersion))
 
         // Generic starters
         put("spring.boot.starter", library("org.springframework.boot:spring-boot-starter"))

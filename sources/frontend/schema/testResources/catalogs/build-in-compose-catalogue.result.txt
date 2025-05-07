@@ -96,8 +96,8 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ktor: <default> {
-        enabled: <default> false
+      ktor: {
+        enabled: true
         version: <default> 3.1.1
       }
       native: <default> null
@@ -207,8 +207,8 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ktor: <default> {
-        enabled: <default> false
+      ktor: {
+        enabled: true
         version: <default> 3.1.1
       }
       native: <default> null
@@ -221,6 +221,7 @@ Fragments:
 
   common
     External dependencies:
+      BomDependency(coordinates=io.ktor:ktor-bom:3.1.1)
       MavenDependency(coordinates=org.jetbrains.compose.animation:animation-graphics:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.animation:animation:1.7.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.components:components-animatedimage:1.7.3, compile=true, runtime=true, exported=false)
@@ -338,8 +339,8 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ktor: <default> {
-        enabled: <default> false
+      ktor: {
+        enabled: true
         version: <default> 3.1.1
       }
       native: <default> null
@@ -448,8 +449,8 @@ Fragments:
         verbose: <default> false
       }
       kover: <default> null
-      ktor: <default> {
-        enabled: <default> false
+      ktor: {
+        enabled: true
         version: <default> 3.1.1
       }
       native: <default> null

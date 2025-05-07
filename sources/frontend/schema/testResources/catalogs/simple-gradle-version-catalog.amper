@@ -8,4 +8,5 @@ dependencies {
   "$libs.my.lib.all"
   "$libs.my.lib.with.underscores"
   "$libs.my.lib.without.version"
+  bom("$libs.my.bom")
 }

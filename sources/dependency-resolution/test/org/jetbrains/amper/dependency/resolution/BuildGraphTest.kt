@@ -894,7 +894,7 @@ class BuildGraphTest : BaseDRTest() {
     fun `io_ktor ktor-bom 2_3_9`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            dependency = "bom:io.ktor:ktor-bom:2.3.9",
+            dependency = "bom: io.ktor:ktor-bom:2.3.9",
             scope = ResolutionScope.RUNTIME,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
             expected = """
@@ -951,7 +951,7 @@ class BuildGraphTest : BaseDRTest() {
     fun `com_fasterxml_jackson jackson-bom 2_18_3`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            dependency = "bom:com.fasterxml.jackson:jackson-bom:2.18.3",
+            dependency = "bom: com.fasterxml.jackson:jackson-bom:2.18.3",
             scope = ResolutionScope.RUNTIME,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL),
             expected = """

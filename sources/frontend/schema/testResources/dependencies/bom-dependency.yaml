@@ -1,0 +1,9 @@
+product:
+  type: lib
+  platforms: [iosX64, android, jvm]
+
+dependencies:
+  - bom: io.ktor:ktor-bom:2.3.9
+  - io.ktor:ktor-client-core: exported
+  - bom: com.fasterxml.jackson:jackson-bom:2.18.3
+  - com.fasterxml.jackson.core:jackson-core

@@ -18,6 +18,12 @@
           "items": {
             "anyOf": [
               {
+                "$ref": "#/$defs/CatalogBomDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenBomDependency"
+              },
+              {
                 "$ref": "#/$defs/CatalogDependency"
               },
               {
@@ -37,6 +43,12 @@
           "uniqueItems": true,
           "items": {
             "anyOf": [
+              {
+                "$ref": "#/$defs/CatalogBomDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenBomDependency"
+              },
               {
                 "$ref": "#/$defs/CatalogDependency"
               },
@@ -99,6 +111,12 @@
           "items": {
             "anyOf": [
               {
+                "$ref": "#/$defs/CatalogBomDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenBomDependency"
+              },
+              {
                 "$ref": "#/$defs/CatalogDependency"
               },
               {
@@ -143,6 +161,12 @@
           "uniqueItems": true,
           "items": {
             "anyOf": [
+              {
+                "$ref": "#/$defs/CatalogBomDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenBomDependency"
+              },
               {
                 "$ref": "#/$defs/CatalogDependency"
               },
@@ -206,6 +230,28 @@
           "x-intellij-enum-metadata": {"lib": "(A reusable library which could be used as dependency by other modules in the codebase)","jvm/app": "(A JVM console or desktop application)","android/app": "(An Android VM application)","ios/app": "(An iOS application)","macos/app": "(A native macOS application)","linux/app": "(A native linux application)","windows/app": "(A native Windows application)"}
         }
       ]
+    },
+    "CatalogBomDependency": {
+      "type": "object",
+      "properties": {
+        "catalogKey": {
+          "x-intellij-html-description": "BOM dependency from [a dependency catalog](#dependencyversion-catalogs)",
+          "title": "BOM dependency from a dependency catalog",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExternalMavenBomDependency": {
+      "type": "object",
+      "properties": {
+        "coordinates": {
+          "x-intellij-html-description": "Dependency on [a BOM](#external-maven-dependencies) in a Maven repository",
+          "title": "Dependency on a BOM in a Maven repository",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
     },
     "CatalogDependency": {
       "anyOf": [

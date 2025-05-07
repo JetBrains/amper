@@ -58,8 +58,10 @@ import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.customTaskName
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Base
+import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
@@ -533,17 +535,7 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Amp
     when (this) {
         is ExternalMavenDependency -> {
             val coordinatesWithTrace = TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!)
-
-            if (coordinates.trimStart().startsWith("bom:")) {
-                BomDependency(coordinatesWithTrace)
-            } else {
-                MavenDependency(
-                    coordinatesWithTrace,
-                    scope.compile,
-                    scope.runtime,
-                    exported,
-                )
-            }
+            MavenDependency(coordinatesWithTrace, scope.compile, scope.runtime, exported)
         }
 
         is InternalDependency -> path?.let { path ->
@@ -561,4 +553,11 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Amp
         }
 
         is CatalogDependency -> error("Catalog dependency must be processed earlier!")
+
+        is ExternalMavenBomDependency -> {
+            val coordinatesWithTrace = TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!)
+            BomDependency(coordinatesWithTrace)
+        }
+
+        is CatalogBomDependency -> error("Catalog BOM dependency must be processed earlier!")
     }?.withTraceFrom(this)

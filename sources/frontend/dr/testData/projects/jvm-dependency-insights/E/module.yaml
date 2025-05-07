@@ -3,4 +3,4 @@ product: jvm/app
 dependencies:
   - org.junit.jupiter:junit-jupiter-api:5.10.2
   - org.junit.platform:junit-platform-engine:1.11.4
-  - bom:org.junit:junit-bom:5.11.4
+  - bom: org.junit:junit-bom:5.11.4

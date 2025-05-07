@@ -155,8 +155,13 @@ val KProperty<*>.unwrapValueTypeArg: KType?
 // TODO For now we will use sealed subclasses, but later
 // maybe some registry need to be introduced.
 val KType.possibleTypes
-    get() = unwrapKClass.sealedSubclasses.takeIf { it.isNotEmpty() }
-        ?: listOf(unwrapKClass)
+    get() = unwrapKClass.possibleTypes
+
+private val KClass<*>.possibleTypes: List<KClass<*>>
+    get() = sealedSubclasses
+        .flatMap { if (it.isSealed) it.possibleTypes else listOf(it) }
+        .takeIf { it.isNotEmpty() }
+        ?: listOf(this)
 
 inline val KType.unwrapKClassOrNull get() = classifier as? KClass<*>
 inline val KType.unwrapKClass get() = classifier as KClass<*>

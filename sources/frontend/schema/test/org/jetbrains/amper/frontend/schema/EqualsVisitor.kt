@@ -159,15 +159,51 @@ class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
               "path of $index dependency (internal) with key $dependencyKey differs"
             )
           }
+
+          is ExternalMavenBomDependency -> {
+            assertNotNull(
+              otherDependency,
+              "External dependency ${dependency::coordinates.withoutDefault} with key $dependencyKey is missing"
+            )
+            assertEquals(
+              dependency::class.simpleName,
+              otherDependency::class.simpleName,
+              "Type ${dependency::class.simpleName} of $index dependency with key $dependencyKey differs"
+            )
+            assertValueEquals(
+              dependency::coordinates,
+              (otherDependency as ExternalMavenDependency)::coordinates,
+              "coordinates of $index dependency (external) with key $dependencyKey differs"
+            )
+          }
+
+          is CatalogBomDependency -> {
+            assertNotNull(
+              otherDependency,
+              "Catalog dependency ${dependency::catalogKey.withoutDefault} with key $dependencyKey is missing"
+            )
+            assertEquals(
+              dependency::class.simpleName,
+              otherDependency::class.simpleName,
+              "Type ${dependency::class.simpleName} of $index dependency with key $dependencyKey differs"
+            )
+            assertValueEquals(
+              dependency::catalogKey, (otherDependency as CatalogDependency)::catalogKey,
+              "path of $index dependency (internal) with key $dependencyKey differs"
+            )
+          }
         }
-        assertValueEquals(
-          dependency::exported, otherDependency::exported,
-          "exported flag of $index dependency with key $dependencyKey differs"
-        )
-        assertValueEquals(
-          dependency::scope, otherDependency::scope,
-          "scope of $index dependency with key $dependencyKey differs"
-        )
+
+        if (dependency is ScopedDependency) {
+          assertValueEquals(
+            dependency::exported, otherDependency::exported,
+            "exported flag of $index dependency with key $dependencyKey differs"
+          )
+          assertValueEquals(
+            dependency::scope, otherDependency::scope,
+            "scope of $index dependency with key $dependencyKey differs"
+          )
+        }
       }
     }
   }
