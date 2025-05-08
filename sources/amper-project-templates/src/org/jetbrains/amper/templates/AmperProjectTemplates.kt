@@ -59,7 +59,8 @@ data class AmperProjectTemplate(
      * Finds all files for this template in resources.
      */
     fun listFiles(): List<TemplateFile> = ClassGraph()
-        .acceptJars(currentJarName) // for perf, avoid scanning everything
+        // for perf, avoid scanning everything (IDEA renames jars, so we cannot be too precise)
+        .acceptJars(currentJarName ?: "*amper*")
         .acceptPaths("templates/$id")
         .scan()
         .use { scanResult ->
