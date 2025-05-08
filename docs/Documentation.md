@@ -311,6 +311,18 @@ dependencies:
       exported: true
 ```
 
+#### External Maven BOM dependencies
+
+For importing BOM (Bill of materials), specify its coordinates prefixed by `bom: `
+```yaml
+dependencies:
+  - bom: io.ktor:ktor-bom:2.2.0
+  - io.ktor:ktor-client-core 
+```
+After BOM is imported, versions of dependencies declared in the module could be omitted,
+unspecified versions are resolved from the BOM.
+Dependency versions declared in the BOM participate in version conflict resolution.
+
 ### Managing Maven repositories
 
 By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options: 

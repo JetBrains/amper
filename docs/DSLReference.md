@@ -203,8 +203,10 @@ Supported dependency types:
 | `- ./<relative path>`<br/>`- ../<relative path>` | Dependency on [another module](Documentation.md#module-dependencies) in the codebase.                         |
 | `- <group ID>:<artifact ID>:<version>`           | Dependency on [a Kotlin or Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
 | `- $<catalog.key>`                               | Dependency from [a dependency catalog](Documentation.md#dependencyversion-catalogs).                          |
+| `- bom: <group ID>:<artifact ID>:<version>`      | Dependency on [a BOM](Documentation.md#external-maven-bom-dependencies).                                      |
+| `- bom: $<catalog.key>`                          | Dependency on [a BOM from a dependency catalog](Documentation.md#dependencyversion-catalogs).                 |
 
-Each dependency has the following attributes:
+Each dependency (except BOM) has the following attributes:
 
 | Attribute           | Description                                                                                                          | Default |
 |---------------------|----------------------------------------------------------------------------------------------------------------------|---------|
@@ -228,6 +230,8 @@ dependencies:
   - org.postgresql:postgresql:42.3.3: runtime-only
   - ../common-types: exported                        # Dependency on another module in the codebase 
   - $compose.foundation                              # Dependency from the 'compose' catalog
+  - bom: io.ktor:ktor-bom:2.2.0                      # Importing BOM 
+  - io.ktor:ktor-serialization-kotlinx-json          # Kotlin or Java dependency with a version resolved from BOM
 ```
 
 ```yaml
