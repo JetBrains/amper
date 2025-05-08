@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.test.utils.UpdatedAttribute
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.cli.test.utils.xcodeProjectManagementSpans
+import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
@@ -44,8 +45,8 @@ class ProjectTemplatesTest : AmperCliTestBase() {
         }
 
         for (entry in entries) {
-            assertContains(methods, entry.name, "Template '${entry.pathString}' is not covered by test '${javaClass.name}'. " +
-                    "Please add a test method named '${entry.name}'")
+            assertContains(methods, entry.name, "Template '${entry.pathString}' is not covered by any test in " +
+                    "${javaClass.simpleName}. Please add a test method named '${entry.name}'")
         }
     }
 
@@ -74,11 +75,12 @@ class ProjectTemplatesTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `compose-multiplatform`(testInfo: TestInfo) = runSlowTest {
         runInitForTemplateFromTestName(testInfo)
         val result = runCli(tempRoot, "build", assertEmptyStdErr = false)
-        result.readTelemetrySpans().assertXcodeProjectIsValid()
+        if (DefaultSystemInfo.detect().family.isMac) {
+            result.readTelemetrySpans().assertXcodeProjectIsValid()
+        }
     }
 
     @Test
@@ -138,13 +140,14 @@ class ProjectTemplatesTest : AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
     fun `compose-ios`(testInfo: TestInfo) = runSlowTest {
         runInitForTemplateFromTestName(testInfo)
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
         val result = runCli(tempRoot, "build", assertEmptyStdErr = false)
-        result.readTelemetrySpans().assertXcodeProjectIsValid()
+        if (DefaultSystemInfo.detect().family.isMac) {
+            result.readTelemetrySpans().assertXcodeProjectIsValid()
+        }
     }
 
     @Test
