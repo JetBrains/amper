@@ -9,6 +9,7 @@ import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.cli.test.utils.xcodeProjectManagementSpans
 import org.jetbrains.amper.telemetry.getAttribute
+import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.spans.SpansTestCollector
@@ -83,9 +84,8 @@ class ProjectTemplatesTest : AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-multiplatform - build debug with xcodebuild`(testInfo: TestInfo) = runSlowTest {
-        runInitForTemplateFromTestName(testInfo)
-
-        val buildDir = tempRoot / "build" / "xcode"
+        val initResult = runInitForTemplateFromTestName(testInfo)
+        val buildDir = initResult.buildOutputRoot / "xcode"
         val result = runXcodebuild(
             "-project", "ios-app/module.xcodeproj",
             "-scheme", "app",
@@ -104,9 +104,8 @@ class ProjectTemplatesTest : AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-multiplatform - build release with xcodebuild`(testInfo: TestInfo) = runSlowTest {
-        runInitForTemplateFromTestName(testInfo)
-
-        val buildDir = tempRoot / "build" / "xcode"
+        val initResult = runInitForTemplateFromTestName(testInfo)
+        val buildDir = initResult.buildOutputRoot / "xcode"
         val result = runXcodebuild(
             "-project", "ios-app/module.xcodeproj",
             "-scheme", "app",
@@ -151,8 +150,8 @@ class ProjectTemplatesTest : AmperCliTestBase() {
     @Test
     @MacOnly
     fun `compose-ios - build debug with xcodebuild`(testInfo: TestInfo) = runSlowTest {
-        runInitForTemplateFromTestName(testInfo)
-        val buildDir = tempRoot / "build" / "xcode"
+        val initResult = runInitForTemplateFromTestName(testInfo)
+        val buildDir = initResult.buildOutputRoot / "xcode"
         val result = runXcodebuild(
             "-project", "module.xcodeproj",
             "-scheme", "app",
@@ -168,9 +167,8 @@ class ProjectTemplatesTest : AmperCliTestBase() {
         }
     }
 
-    private suspend fun runInitForTemplateFromTestName(testInfo: TestInfo) {
+    private suspend fun runInitForTemplateFromTestName(testInfo: TestInfo): AmperCliResult =
         runCli(tempRoot, "init", templateNameFromTestName(testInfo.testMethod.get().name))
-    }
 
     private fun SpansTestCollector.assertXcodeProjectIsValid() {
         // Xcode project should be generated correctly by `init` and thus not updated by the build.
