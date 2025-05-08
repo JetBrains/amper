@@ -6,4 +6,3 @@ apply:
 dependencies:
   - ../task-helpers
   - ../../sources/core
-  - $libs.slf4j.simple # incremental cache uses SLF4J logging and needs a binding
