@@ -232,26 +232,40 @@
       ]
     },
     "CatalogBomDependency": {
+  "anyOf": [
+    {
+      "type": "string"
+    },
+    {
       "type": "object",
-      "properties": {
-        "catalogKey": {
-          "x-intellij-html-description": "BOM dependency from [a dependency catalog](#dependencyversion-catalogs)",
-          "title": "BOM dependency from a dependency catalog",
-          "type": "string"
+      "patternProperties": {
+        "^.*$": {
+              "type": "object",
+              "properties": {
+              },
+              "additionalProperties": false
         }
-      },
-      "additionalProperties": false
+      }
+    }
+  ]
     },
     "ExternalMavenBomDependency": {
+  "anyOf": [
+    {
+      "type": "string"
+    },
+    {
       "type": "object",
-      "properties": {
-        "coordinates": {
-          "x-intellij-html-description": "Dependency on [a BOM](#external-maven-dependencies) in a Maven repository",
-          "title": "Dependency on a BOM in a Maven repository",
-          "type": "string"
+      "patternProperties": {
+        "^.*$": {
+              "type": "object",
+              "properties": {
+              },
+              "additionalProperties": false
         }
-      },
-      "additionalProperties": false
+      }
+    }
+  ]
     },
     "CatalogDependency": {
       "anyOf": [

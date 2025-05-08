@@ -67,12 +67,14 @@ sealed class BomDependency : Dependency()
 class ExternalMavenBomDependency : BomDependency() {
 
     @SchemaDoc("Dependency on [a BOM](#external-maven-dependencies) in a Maven repository")
+    @DependencyKey
     var coordinates by value<String>()
 }
 
 class CatalogBomDependency : BomDependency() {
 
     @SchemaDoc("BOM dependency from [a dependency catalog](#dependencyversion-catalogs)")
+    @DependencyKey
     var catalogKey by value<String>()
 }
 
