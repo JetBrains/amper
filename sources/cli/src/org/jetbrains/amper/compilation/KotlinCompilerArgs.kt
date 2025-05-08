@@ -28,7 +28,7 @@ private fun kotlinCommonCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
     fragments: List<Fragment>,
     additionalSourceRoots: List<SourceRoot>,
-    compilerPlugins: List<CompilerPlugin>,
+    compilerPlugins: List<ResolvedCompilerPlugin>,
 ): List<String> = buildList {
     if (isMultiplatform) {
         add("-Xmulti-platform")
@@ -80,7 +80,15 @@ private fun kotlinCommonCompilerArgs(
     // Switch to -Xcompiler-plugin option when it's ready (currently a prototype, and K2-only)
     // https://jetbrains.slack.com/archives/C942U8L4R/p1708709995859629
     compilerPlugins.forEach { plugin ->
-        add("-Xplugin=${plugin.jarPath}")
+        // Note: this is technically wrong, because we resolve each compiler plugin classpath independently, but the
+        // kotlin compiler loads all plugin classpaths together in a single classloader (so we don't have cross-plugin
+        // conflict resolution). At the moment, all compiler plugins have a single jar, so this is not a problem.
+        // The proper way would be to resolve all plugins in a single resolution scope to resolve conflicts.
+        // However, the new -Xcompiler-plugin argument will actually work with one classpath per plugin, loaded in
+        // independent classloaders, so we would have to change it back when doing the switch, so let's wait instead.
+        plugin.classpath.forEach { path ->
+            add("-Xplugin=${path.absolutePathString()}")
+        }
         plugin.options.forEach { opt ->
             add("-P")
             add("plugin:${plugin.id}:${opt.name}=${opt.value}")
@@ -95,7 +103,7 @@ internal fun kotlinJvmCompilerArgs(
     isMultiplatform: Boolean,
     userSettings: CompilationUserSettings,
     classpath: List<Path>,
-    compilerPlugins: List<CompilerPlugin>,
+    compilerPlugins: List<ResolvedCompilerPlugin>,
     jdkHome: Path,
     outputPath: Path,
     friendPaths: List<Path>,
@@ -163,7 +171,7 @@ internal fun AmperModule.kotlinModuleName(isTest: Boolean) =
 context(BuildTask)
 internal fun kotlinNativeCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
-    compilerPlugins: List<CompilerPlugin>,
+    compilerPlugins: List<ResolvedCompilerPlugin>,
     entryPoint: String?,
     libraryPaths: List<Path>,
     exportedLibraryPaths: List<Path>,
@@ -247,7 +255,7 @@ internal fun kotlinMetadataCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
     moduleName: String,
     classpath: List<Path>,
-    compilerPlugins: List<CompilerPlugin>,
+    compilerPlugins: List<ResolvedCompilerPlugin>,
     outputPath: Path,
     friendPaths: List<Path>,
     refinesPaths: List<Path>,

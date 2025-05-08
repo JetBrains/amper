@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.native
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 
-class NativeLinkTask(
+internal class NativeLinkTask(
     override val module: AmperModule,
     override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
@@ -132,7 +131,9 @@ class NativeLinkTask(
             val artifactPath = taskOutputRoot.path.resolve(compilationType.outputFilename(module, platform, isTest))
 
             val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
-            val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
+            val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
+                plugins = kotlinUserSettings.compilerPlugins,
+            )
             val args = kotlinNativeCompilerArgs(
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,

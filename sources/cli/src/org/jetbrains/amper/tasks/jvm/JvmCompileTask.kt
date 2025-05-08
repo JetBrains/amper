@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.jvm
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
@@ -67,7 +66,7 @@ import kotlin.io.path.pathString
 import kotlin.io.path.walk
 
 @OptIn(ExperimentalBuildToolsApi::class)
-class JvmCompileTask(
+internal class JvmCompileTask(
     override val module: AmperModule,
     override val isTest: Boolean,
     private val fragments: List<Fragment>,
@@ -275,7 +274,7 @@ class JvmCompileTask(
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
             .useLogger(logger.asKotlinLogger() + errorsCollector)
 
-        val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(compilerVersion, userSettings.kotlin)
+        val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(userSettings.kotlin.compilerPlugins)
 
         val compilerArgs = kotlinJvmCompilerArgs(
             isMultiplatform = isMultiplatform,

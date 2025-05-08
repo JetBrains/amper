@@ -36,7 +36,7 @@ internal fun AmperProjectRoot.toKotlinProjectId(): ProjectId {
  * requested concurrently.
  */
 @OptIn(ExperimentalBuildToolsApi::class)
-suspend fun CompilationService.Companion.loadMaybeCachedImpl(
+internal suspend fun CompilationService.Companion.loadMaybeCachedImpl(
     kotlinVersion: String,
     downloader: KotlinArtifactsDownloader,
 ): CompilationService {

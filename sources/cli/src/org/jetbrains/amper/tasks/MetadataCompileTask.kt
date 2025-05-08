@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
@@ -47,7 +46,7 @@ import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
 
-class MetadataCompileTask(
+internal class MetadataCompileTask(
     override val taskName: TaskName,
     override val module: AmperModule,
     private val fragment: Fragment,
@@ -159,8 +158,7 @@ class MetadataCompileTask(
 
         val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(version = kotlinVersion)
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
-            kotlinVersion = kotlinVersion,
-            kotlinUserSettings = kotlinUserSettings,
+            plugins = kotlinUserSettings.compilerPlugins,
         )
         val compilerArgs = kotlinMetadataCompilerArgs(
             kotlinUserSettings = kotlinUserSettings,

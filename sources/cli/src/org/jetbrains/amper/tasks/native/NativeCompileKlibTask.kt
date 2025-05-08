@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.native
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
@@ -38,7 +37,7 @@ import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 
-class NativeCompileKlibTask(
+internal class NativeCompileKlibTask(
     override val module: AmperModule,
     override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
@@ -124,7 +123,9 @@ class NativeCompileKlibTask(
             val tempFilesToDelete = mutableListOf<Path>()
 
             val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
-            val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
+            val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
+                plugins = kotlinUserSettings.compilerPlugins,
+            )
             try {
                 val existingSourceRoots = sources.filter { it.exists() }
                 val rootsToCompile = existingSourceRoots.ifEmpty {
