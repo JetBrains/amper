@@ -7,5 +7,4 @@ apply:
 
 dependencies:
   - ../../core
-  - ../../dependency-resolution
   - $libs.kotlinx.coroutines.core
