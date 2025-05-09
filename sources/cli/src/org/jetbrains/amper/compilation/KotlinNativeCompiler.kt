@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.compilation
@@ -12,8 +12,8 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.downloadAndExtractKotlinNative
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.jvm.Jdk
-import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.Jdk
+import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.telemetry.setListAttribute

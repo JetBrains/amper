@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.processes
@@ -7,7 +7,7 @@ package org.jetbrains.amper.processes
 import com.intellij.execution.CommandLineWrapperUtil
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.jvm.Jdk
+import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
 import org.jetbrains.amper.core.telemetry.spanBuilder

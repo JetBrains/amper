@@ -6,7 +6,7 @@ apply:
   - ../../common.module-template.yaml
 
 test-dependencies:
-  - ../../cli
+  - ../../amper-jdk-provisioning
   - ../../core
   - ../../test-base
 

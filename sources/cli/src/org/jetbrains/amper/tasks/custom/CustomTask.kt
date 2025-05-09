@@ -20,7 +20,7 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava

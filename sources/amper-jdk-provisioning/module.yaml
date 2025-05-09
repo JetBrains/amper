@@ -1,0 +1,14 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../core
+
+test-dependencies:
+  - ../test-base
+  - $libs.kotlinx.coroutines.core
+  - $libs.kotlinx.coroutines.test

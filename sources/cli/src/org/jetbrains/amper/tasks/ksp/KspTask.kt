@@ -23,7 +23,7 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.incrementalcache.executeForFiles
-import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.ksp.Ksp
 import org.jetbrains.amper.ksp.KspCommonConfig
 import org.jetbrains.amper.ksp.KspCompilationType

@@ -3,7 +3,6 @@ product:
   platforms: [ jvm ]
 
 dependencies:
-  - ../cli
   - ../test-base
   - ../frontend-api
   - ../frontend/schema

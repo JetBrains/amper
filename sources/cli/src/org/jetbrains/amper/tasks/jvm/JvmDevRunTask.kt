@@ -11,8 +11,8 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.jvm.Jdk
-import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.Jdk
+import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.run.ToolingArtifactsDownloader
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskResult

@@ -8,6 +8,7 @@ repositories:
     url: https://repo.gradle.org/gradle/libs-releases
 
 dependencies:
+  - ../amper-jdk-provisioning
   - ../amper-project-templates
   - ../amper-wrapper
   - ../core

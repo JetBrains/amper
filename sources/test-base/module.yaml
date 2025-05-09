@@ -21,7 +21,7 @@ dependencies:
   - $kotlin.test.junit5
   - net.java.dev.jna:jna:5.16.0
   - net.java.dev.jna:jna-platform:5.16.0
-  - ../cli # TODO split cli into submodules (currently used for JdkDownloader)
+  - ../amper-jdk-provisioning
   - ../core
   - ../dependency-resolution
   - ../libraries/async-processes: exported # for ProcessResult in the API

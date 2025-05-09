@@ -32,8 +32,8 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.jvm.Jdk
-import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.Jdk
+import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.withJavaArgFile
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider

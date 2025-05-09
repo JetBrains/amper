@@ -4,6 +4,7 @@ modules:
   - build-sources/generate-build-properties
   - build-sources/task-helpers
   - repository-restrictions
+  - sources/amper-jdk-provisioning
   - sources/amper-junit-listeners
   - sources/amper-project-templates
   - sources/amper-wrapper

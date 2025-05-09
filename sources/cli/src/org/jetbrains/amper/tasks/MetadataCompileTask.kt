@@ -27,8 +27,8 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.friends
 import org.jetbrains.amper.frontend.refinedFragments
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.jvm.Jdk
-import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.Jdk
+import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase

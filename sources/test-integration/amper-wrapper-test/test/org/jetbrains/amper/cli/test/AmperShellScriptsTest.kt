@@ -10,7 +10,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.AmperJavaHomeMode
 import org.jetbrains.amper.test.Dirs
