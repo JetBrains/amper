@@ -11,7 +11,6 @@ import org.jetbrains.amper.core.extract.extractFileToCacheLocation
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
 import java.net.URL
-import java.nio.file.Path
 import kotlin.io.path.isDirectory
 
 // TODO so far, no version selection, need to design it a little
@@ -27,34 +26,37 @@ object JdkDownloader {
     suspend fun getJdk(userCacheRoot: AmperUserCacheRoot): Jdk = getJdk(userCacheRoot, OsFamily.current, Arch.current)
 
     internal suspend fun getJdk(userCacheRoot: AmperUserCacheRoot, os: OsFamily, arch: Arch): Jdk {
-        val downloadUri = jdkDownloadUrlFor(os, arch)
-        val jdkArchive = Downloader.downloadFileToCacheLocation(downloadUri.toString(), userCacheRoot)
-        val jdkExtracted = extractFileToCacheLocation(jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
-
-        // Corretto archives for macOS contain the JDK under amazon-corretto-X.jdk/Contents/Home
-        val contentsHome = jdkExtracted.resolve("Contents/Home")
-        val jdkHome: Path = if (contentsHome.isDirectory()) contentsHome else jdkExtracted
-
-        return Jdk(homeDir = jdkHome, downloadUrl = downloadUri, version = hardcodedVersionFor(os, arch))
+        val version = hardcodedVersionFor(os, arch)
+        return downloadJdk(
+            downloadUri = jdkDownloadUrlFor(os, arch, version),
+            userCacheRoot = userCacheRoot,
+            version = version,
+        )
     }
-    
+
     suspend fun getJbr(userCacheRoot: AmperUserCacheRoot): Jdk = getJbr(userCacheRoot, OsFamily.current, Arch.current)
-    
-    internal suspend fun getJbr(userCacheRoot: AmperUserCacheRoot, os: OsFamily, arch: Arch): Jdk {
-        val downloadUri = jbrJdkUrl(os, arch, jbrJdkVersion, jbrBuild)
+
+    internal suspend fun getJbr(userCacheRoot: AmperUserCacheRoot, os: OsFamily, arch: Arch): Jdk = downloadJdk(
+        downloadUri = jbrJdkUrl(os, arch, jbrJdkVersion, jbrBuild),
+        userCacheRoot = userCacheRoot,
+        version = jbrJdkVersion,
+    )
+
+    private suspend fun downloadJdk(downloadUri: URL, userCacheRoot: AmperUserCacheRoot, version: String): Jdk {
         val jdkArchive = Downloader.downloadFileToCacheLocation(downloadUri.toString(), userCacheRoot)
-        val jdkExtracted = extractFileToCacheLocation(jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
-        val contentsHome = jdkExtracted.resolve("Contents/Home")
-        val jdkHome: Path = if (contentsHome.isDirectory()) contentsHome else jdkExtracted
-        return Jdk(homeDir = jdkHome, downloadUrl = downloadUri, version = jbrJdkVersion)
+        val extractedJdkRoot = extractFileToCacheLocation(jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
+        // Some archives for macOS contain the JDK under amazon-corretto-X.jdk/Contents/Home
+        val contentsHome = extractedJdkRoot.resolve("Contents/Home")
+        val jdkHome = if (contentsHome.isDirectory()) contentsHome else extractedJdkRoot
+        return Jdk(homeDir = jdkHome, downloadUrl = downloadUri, version = version)
     }
 
-    private fun jdkDownloadUrlFor(os: OsFamily, arch: Arch): URL =
+    private fun jdkDownloadUrlFor(os: OsFamily, arch: Arch, version: String): URL =
         // No Corretto build for Windows Arm64, so use Microsoft's JDK
         if (os == OsFamily.Windows && arch == Arch.Arm64) {
-            microsoftJdkUrlWindowsArm64(hardcodedVersionFor(os, arch))
+            microsoftJdkUrlWindowsArm64(version)
         } else {
-            correttoJdkUrl(os, arch, hardcodedVersionFor(os, arch))
+            correttoJdkUrl(os, arch, version)
         }
 
     private fun hardcodedVersionFor(os: OsFamily, arch: Arch) = if (os == OsFamily.Windows && arch == Arch.Arm64) {
