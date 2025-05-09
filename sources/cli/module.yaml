@@ -31,7 +31,6 @@ dependencies:
   - $libs.intellij.platform.core
   - $libs.intellij.platform.coreImpl
   - $libs.intellij.platform.util
-  - ../android-integration/dependency-resolution-android-extension
   # the API itself is our Kotlin version, but we dynamically download the impl in the user-defined Kotlin version
   - $libs.kotlin.buildToolsApi
   - $libs.slf4j.api

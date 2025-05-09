@@ -10,7 +10,6 @@ modules:
   - sources/amper-wrapper
   - sources/android-integration/android-integration-core
   - sources/android-integration/android-sdk-detector
-  - sources/android-integration/dependency-resolution-android-extension
   - sources/android-integration/gradle-plugin
   - sources/android-integration/runner
   - sources/cli
