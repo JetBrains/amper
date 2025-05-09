@@ -55,16 +55,11 @@ environment is configured correctly:
 > Despite what the KDoctor checks imply, you do not need to install Android Studio to work with Amper.
 > There is no Amper plugin for Android Studio at the moment. As mentioned above, we recommend using IntelliJ IDEA.
 
-## Check that everything works
-
-Try downloading and opening [one of the example projects](../examples-standalone/README.md) in IntelliJ IDEA. 
-You should get completion in the module.yaml files:
-
-![](images/amper-in-ij.png)
-
 ## What's next
 
-See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Read how to use Amper in [IntelliJ IDEA](Usage.md#using-amper-in-intellij-idea). Try opening the example projects:
-  - [JVM "Hello, World!"](../examples-gradle/jvm)
-  - [Compose Desktop](../examples-gradle/compose-desktop)
-  - [Compose Multiplatform](../examples-gradle/compose-multiplatform)
+Take your pick:
+
+* Discover the ins and outs of Amper in our comprehensive [documentation](Documentation.md).
+* Create a project from scratch by following the [tutorial](Tutorial.md).
+* Read how to use Amper in [IntelliJ IDEA](Usage.md#using-amper-in-intellij-idea).
+  Try downloading and opening [one of the example projects](../examples-standalone/README.md) to see Amper in action.
