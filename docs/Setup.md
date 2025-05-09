@@ -41,15 +41,15 @@ environment is configured correctly:
    Conclusion:
      ✓ Your system is ready for Kotlin Multiplatform Mobile development!
    ```
-   
+
+   Otherwise, KDoctor will highlight which parts of your setup still need to be configured and will suggest a way to fix
+   them.
+
 > [!WARNING]
 > KDoctor has a [known issue](https://youtrack.jetbrains.com/issue/KMT-1077) that triggers an incorrect warning:
 > `Kotlin Multiplatform Mobile Plugin: not installed`. This should be disregarded.
 > The proper plugin to install for multiplatform development is the
 > [Kotlin Multiplatform plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform).
-
-Otherwise, KDoctor will highlight which parts of your setup still need to be configured and will suggest a way to fix
-them.
 
 ## Check that everything works
 
