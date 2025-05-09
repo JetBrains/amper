@@ -51,6 +51,10 @@ environment is configured correctly:
 > The proper plugin to install for multiplatform development is the
 > [Kotlin Multiplatform plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform).
 
+> [!IMPORTANT]  
+> Despite what the KDoctor checks imply, you do not need to install Android Studio to work with Amper.
+> There is no Amper plugin for Android Studio at the moment. As mentioned above, we recommend using IntelliJ IDEA.
+
 ## Check that everything works
 
 Try downloading and opening [one of the example projects](../examples-standalone/README.md) in IntelliJ IDEA. 
