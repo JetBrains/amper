@@ -18,6 +18,7 @@ object UsedVersions {
     /*magic_replacement*/ val kspVersion = "2.1.21-2.0.1"
     /*magic_replacement*/ val ktorVersion = "3.1.1"
     /*magic_replacement*/ val logbackVersion = "1.5.18"
+    /*magic_replacement*/ val lombokVersion = "1.18.38"
     /*magic_replacement*/ val slf4jVersion = "2.0.17"
     /*magic_replacement*/ val springAiTimeFoldVersion = "1.20.1"
     /*magic_replacement*/ val springAiVersion = "1.0.0-M6"

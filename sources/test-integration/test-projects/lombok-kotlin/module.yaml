@@ -1,0 +1,6 @@
+product: jvm/app
+
+settings:
+  jvm:
+    mainClass: MainKt
+  lombok: enabled

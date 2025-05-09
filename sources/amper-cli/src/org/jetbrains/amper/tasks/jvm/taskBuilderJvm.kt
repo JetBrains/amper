@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.frontend.schema.enabled
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -45,13 +46,17 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         add(CommonTaskType.Compile.getTaskName(module, platform, isTest = false))
                     }
 
+                    if (fragments.any { it.settings.java.annotationProcessing.enabled }) {
+                        add(JvmSpecificTaskType.JavaAnnotationProcessorClasspath.getTaskName(module, platform, isTest))
+                    }
+
                     module.getModuleDependencies(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot)
                         .forEach {
                             add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
                         }
                 }
             )
-            
+
             val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest)
             tasks.registerTask(
                 task = JvmRuntimeClasspathTask(
@@ -111,7 +116,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     ),
                     CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
                 )
-                
+
                 if (isComposeEnabledFor(module)) {
                     val reloadTaskName = HotReloadTaskType.Reload.getTaskName(module, platform, isTest = false)
                     tasks.registerTask(
@@ -212,7 +217,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         add(CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest = false))
                     }
                 )
-                
+
                 // Register a task to run the executable jar
                 val executableJarRunTaskName = JvmSpecificTaskType.RunExecutableJar.getTaskName(module, platform)
                 tasks.registerTask(
@@ -315,4 +320,6 @@ internal enum class HotReloadTaskType(override val prefix: String) : PlatformTas
 internal enum class JvmSpecificTaskType(override val prefix: String) : PlatformTaskType {
     ExecutableJar("executableJar"),
     RunExecutableJar("runExecutableJar"),
+    JavaAnnotationProcessorDependencies("resolveJavaAnnotationProcessorDependencies"),
+    JavaAnnotationProcessorClasspath("javaAnnotationProcessorClasspath"),
 }

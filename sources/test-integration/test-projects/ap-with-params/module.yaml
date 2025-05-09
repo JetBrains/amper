@@ -1,0 +1,15 @@
+product: jvm/app
+
+
+dependencies:
+  - $libs.auto.service.annotations
+
+settings:
+  jvm:
+    mainClass: Main
+  java:
+    annotationProcessing:
+      processors:
+        - $libs.auto.service
+      processorOptions:
+        debug: true

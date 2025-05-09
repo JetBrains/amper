@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import java.nio.file.Path
+import org.jetbrains.amper.frontend.schema.JavaSettings
 
 
 @SchemaDoc("JUnit version that is used for the module tests")
@@ -33,6 +34,10 @@ class Settings : SchemaNode() {
     @SchemaDoc("JVM platform-specific settings")
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
     var jvm by value(::JvmSettings)
+
+    @SchemaDoc("Java language and the compiler settings")
+    @PlatformSpecific(Platform.JVM, Platform.ANDROID)
+    var java by value(::JavaSettings)
 
     @SchemaDoc("Kotlin language and the compiler settings")
     var kotlin by value(::KotlinSettings)
@@ -74,6 +79,10 @@ class Settings : SchemaNode() {
     @PlatformSpecific(Platform.JVM)
     @SchemaDoc("Spring Boot settings")
     var springBoot by value(::SpringBootSettings)
+
+    @PlatformSpecific(Platform.JVM, Platform.ANDROID)
+    @SchemaDoc("Lombok settings")
+    var lombok by value(::LombokSettings)
 }
 
 class ComposeSettings : SchemaNode() {
@@ -232,4 +241,9 @@ class SpringBootSettings: SchemaNode() {
 
     @SchemaDoc("Spring Boot version")
     var version by value(default = UsedVersions.springBootVersion)
+}
+
+class LombokSettings: SchemaNode() {
+    @SchemaDoc("Enable Lombok")
+    var enabled by value(default = false)
 }

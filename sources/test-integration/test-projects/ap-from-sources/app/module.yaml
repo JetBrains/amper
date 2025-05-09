@@ -1,0 +1,12 @@
+product: jvm/app
+
+dependencies:
+  - ../ap
+
+settings:
+  jvm:
+    mainClass: com.example.app.Main
+  java:
+    annotationProcessing:
+      processors:
+        - ../ap

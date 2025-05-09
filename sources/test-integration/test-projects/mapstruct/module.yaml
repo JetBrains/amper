@@ -1,0 +1,13 @@
+product: jvm/app
+
+settings:
+  jvm:
+    mainClass: Main
+
+  java:
+    annotationProcessing:
+      processors:
+        - org.mapstruct:mapstruct-processor:1.6.3
+
+dependencies:
+  - org.mapstruct:mapstruct:1.6.3

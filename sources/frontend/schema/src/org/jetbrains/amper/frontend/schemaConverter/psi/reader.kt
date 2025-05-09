@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schemaConverter.psi
@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.applyPsiTrace
+import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.builders.collectionType
 import org.jetbrains.amper.frontend.builders.isBoolean
@@ -32,8 +33,12 @@ import org.jetbrains.amper.frontend.builders.isTraceableString
 import org.jetbrains.amper.frontend.builders.mapValueType
 import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
+import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.ModuleJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 import kotlin.reflect.KMutableProperty1
@@ -202,6 +207,10 @@ internal fun readTypedValue(
     // ksp processor initialization depends on string prefixes and thus no autowiring
     if (type.unwrapKClass == KspProcessorDeclaration::class) {
         return instantiateKspProcessor(scalarValue)
+    }
+
+    if (type.unwrapKClass == JavaAnnotationProcessorDeclaration::class) {
+        return instantiateJavaAnnotationProcessor(scalarValue)
     }
 
     // dependencies are too complicated to wire them automatically (different shorthands and a full form)
@@ -448,3 +457,15 @@ internal val AmperContextualElement.contexts get() =
 
 internal val List<AmperContextName>.contextNames get()
     = mapNotNull { c -> c.identifier?.let { TraceableString(it.text).applyPsiTrace(c) } }.toSet()
+
+context(Converter)
+internal fun instantiateJavaAnnotationProcessor(
+    scalarValue: Scalar?
+): Any? {
+    val text = scalarValue?.textValue ?: return null
+    return when {
+        text.startsWith("$") -> CatalogJavaAnnotationProcessorDeclaration(TraceableString(text.substring(1)).applyPsiTrace(scalarValue.sourceElement))
+        text.startsWith(".") -> ModuleJavaAnnotationProcessorDeclaration(text.asAbsolutePath().asTraceable().applyPsiTrace(scalarValue.sourceElement))
+        else -> MavenJavaAnnotationProcessorDeclaration(TraceableString(text).applyPsiTrace(scalarValue.sourceElement))
+    }
+}

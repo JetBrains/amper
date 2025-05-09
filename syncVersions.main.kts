@@ -57,6 +57,7 @@ val springCloudGcpVersion = "6.1.1"
 val springCloudServicesVersion = "4.2.0"
 val springCloudVersion = "2024.0.1"
 val springShellVersion = "3.4.0"
+val lombokVersion = "1.18.38"
 
 /**
  * This is the Gradle version used in Gradle-based Amper projects, not Amper itself.
@@ -134,6 +135,7 @@ fun updateUsedVersionsKt() {
             .replaceBundledVersionVariable(variableName = "slf4jVersion", newValue = slf4jVersion)
             .replaceBundledVersionVariable(variableName = "ktorVersion", newValue = ktorVersion)
             .replaceBundledVersionVariable(variableName = "logbackVersion", newValue = logbackVersion)
+            .replaceBundledVersionVariable(variableName = "lombokVersion", newValue = lombokVersion)
     }
 }
 

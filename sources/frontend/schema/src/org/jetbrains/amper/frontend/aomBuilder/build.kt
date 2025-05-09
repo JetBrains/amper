@@ -50,6 +50,7 @@ import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
 import org.jetbrains.amper.frontend.processing.configureSpringBootKotlinCompilerPlugins
+import org.jetbrains.amper.frontend.processing.configureLombokKotlinCompilerPlugins
 import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
@@ -112,9 +113,10 @@ internal fun doBuild(
             // Process the module file.
             val processedModule = with(systemInfo) {
                 nonProcessed
+                    .configureSpringBootKotlinCompilerPlugins()
+                    .configureLombokKotlinCompilerPlugins()
                     .replaceCatalogDependencies(chosenCatalog)
                     .replaceComposeOsSpecific()
-                    .configureSpringBootKotlinCompilerPlugins()
             }
 
             IsmDiagnosticFactories.forEach {

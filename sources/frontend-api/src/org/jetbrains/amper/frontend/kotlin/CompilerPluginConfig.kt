@@ -130,6 +130,16 @@ data class ComposeCompilerPluginConfig(val kotlinVersion: String) : CompilerPlug
     }
 }
 
+data class LombokCompilerPluginConfig(val kotlinVersion: String) : CompilerPluginConfig {
+    override val id = "org.jetbrains.kotlin.lombok"
+    override val options = emptyList<Option>()
+    override val mavenCoordinates = CompilerPluginConfig.MavenCoordinates(
+        groupId = "org.jetbrains.kotlin",
+        artifactId = "kotlin-lombok-compiler-plugin-embeddable",
+        version = kotlinVersion,
+    )
+}
+
 /**
  * Returns the legacy Compose (multiplatform) compiler plugin version matching the given [kotlinVersion], or null if
  * the new Compose compiler artifact with the same version as Kotlin should be used (i.e. Kotlin >= 2.0.0-RC2).

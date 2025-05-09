@@ -1,0 +1,6 @@
+[versions]
+auto = "1.1.1"
+
+[libraries]
+auto-service = { module = "com.google.auto.service:auto-service", version.ref = "auto" }
+auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "auto" }

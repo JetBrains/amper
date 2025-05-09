@@ -55,6 +55,14 @@ Fragments:
         }
         teamId: <default> null
       }
+      java: <default> {
+        annotationProcessing: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+        }
+      }
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
@@ -108,6 +116,9 @@ Fragments:
       ktor: {
         enabled: true
         version: <default> 3.1.1
+      }
+      lombok: <default> {
+        enabled: <default> false
       }
       native: <default> null
       publishing: <default> null
@@ -175,6 +186,14 @@ Fragments:
         }
         teamId: <default> null
       }
+      java: <default> {
+        annotationProcessing: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+        }
+      }
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
@@ -228,6 +247,9 @@ Fragments:
       ktor: {
         enabled: true
         version: <default> 3.1.1
+      }
+      lombok: <default> {
+        enabled: <default> false
       }
       native: <default> null
       publishing: <default> null
@@ -317,6 +339,14 @@ Fragments:
         }
         teamId: <default> null
       }
+      java: <default> {
+        annotationProcessing: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+        }
+      }
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
@@ -370,6 +400,9 @@ Fragments:
       ktor: {
         enabled: true
         version: <default> 3.1.1
+      }
+      lombok: <default> {
+        enabled: <default> false
       }
       native: <default> null
       publishing: <default> null
@@ -436,6 +469,14 @@ Fragments:
         }
         teamId: <default> null
       }
+      java: <default> {
+        annotationProcessing: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+        }
+      }
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
@@ -489,6 +530,9 @@ Fragments:
       ktor: {
         enabled: true
         version: <default> 3.1.1
+      }
+      lombok: <default> {
+        enabled: <default> false
       }
       native: <default> null
       publishing: <default> null

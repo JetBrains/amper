@@ -55,6 +55,10 @@ fun Settings.compilerPluginsConfigurations(): List<CompilerPluginConfig> = build
             )
         )
     }
+
+    if (lombok.enabled) {
+        add(LombokCompilerPluginConfig(kotlinVersion = kotlinVersion))
+    }
 }
 
 // for now the schema and compiler value are aligned

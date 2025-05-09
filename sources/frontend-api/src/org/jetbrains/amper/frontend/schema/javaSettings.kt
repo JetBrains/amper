@@ -7,11 +7,14 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceablePath
+import org.jetbrains.amper.frontend.api.TraceableString
 
 @EnumOrderSensitive(reverse = true)
 @EnumValueFilter("outdated", isNegated = true)
@@ -60,6 +63,45 @@ enum class JavaVersion(
     val releaseNumber: Int = schemaValue.toInt()
 
     companion object Index : EnumMap<JavaVersion, String>(JavaVersion::values, JavaVersion::schemaValue)
+}
+
+class JavaAnnotationProcessingSettings : SchemaNode() {
+
+    @SchemaDoc("The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates")
+    var processors by value<List<JavaAnnotationProcessorDeclaration>>(default = emptyList())
+
+    @Aliases("processorSettings")
+    @SchemaDoc("Options to pass to annotation processors")
+    var processorOptions by value<Map<TraceableString, TraceableString>>(default = emptyMap())
+}
+
+sealed interface JavaAnnotationProcessorDeclaration
+
+data class MavenJavaAnnotationProcessorDeclaration(
+    @DependencyKey
+    val coordinates: TraceableString
+) : JavaAnnotationProcessorDeclaration
+
+data class ModuleJavaAnnotationProcessorDeclaration(
+    @DependencyKey
+    val path: TraceablePath
+) : JavaAnnotationProcessorDeclaration
+
+data class CatalogJavaAnnotationProcessorDeclaration(
+    @DependencyKey
+    val catalogKey: TraceableString
+) : JavaAnnotationProcessorDeclaration
+
+/**
+ * Whether Java annotation processing should be run.
+ */
+val JavaAnnotationProcessingSettings.enabled: Boolean
+    get() = processors.isNotEmpty()
+
+class JavaSettings : SchemaNode() {
+
+    @SchemaDoc("Java annotation processing settings")
+    var annotationProcessing by value(default = ::JavaAnnotationProcessingSettings)
 }
 
 class JvmSettings : SchemaNode() {

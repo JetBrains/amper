@@ -83,6 +83,8 @@ open class DefaultFragment(
             add(generateSrcRoot / KspPathConventions.JavaSources)
             add(generateSrcRoot / KspPathConventions.KotlinSources)
 
+            add(generateSrcRoot / JavaAnnotationProcessingPathConventions.JavaSources)
+
             add(generateSrcRoot / ComposeResourcesPathConventions.Accessors)
             add(generateSrcRoot / ComposeResourcesPathConventions.Collectors)
             add(generateSrcRoot / ComposeResourcesPathConventions.CommonResClass)
@@ -116,6 +118,13 @@ private object KspPathConventions {
     const val KotlinSources = "ksp/kotlin"
     const val Resources = "ksp"
     const val Classes = "ksp"
+}
+
+/**
+ * Contains the conventional paths to different Java annotation processing output file types relative to the corresponding generated root.
+ */
+private object JavaAnnotationProcessingPathConventions {
+    const val JavaSources = "apt/java"
 }
 
 private object ComposeResourcesPathConventions {
@@ -156,6 +165,9 @@ fun Fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot: Path): Pat
 
 fun Fragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot: Path): Path =
     findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, ComposeResourcesPathConventions.CommonResClass)
+
+fun Fragment.javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot: Path): Path =
+    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, JavaAnnotationProcessingPathConventions.JavaSources)
 
 private fun findConventionalPath(buildOutputRoot: Path, genDirs: List<Path>, pathSuffix: String) =
     genDirs.map { buildOutputRoot / it }.find { it.endsWith(pathSuffix) }

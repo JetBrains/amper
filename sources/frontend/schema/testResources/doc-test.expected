@@ -65,11 +65,13 @@ Settings
 	android: AndroidSettings - Android toolchain and platform settings
 	compose: ComposeSettings - [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework.Read more about [Compose configuration](#configuring-compose-multiplatform)
 	ios: IosSettings - iOS toolchain and platform settings
+	java: JavaSettings - Java language and the compiler settings
 	junit: JUnitVersion, default: junit-5 - JUnit test runner on the JVM and Android platforms. Read more about [testing support](#tests)
 	jvm: JvmSettings - JVM platform-specific settings
 	kotlin: KotlinSettings - Kotlin language and the compiler settings
 	kover: KoverSettings - Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
 	ktor: KtorSettings - Ktor server settings
+	lombok: LombokSettings - Lombok settings
 	native: NativeSettings - Native applications settings
 	publishing: PublishingSettings - Publishing settings
 	springBoot: SpringBootSettings - Spring Boot settings
@@ -133,6 +135,15 @@ IosFrameworkSettings
 --------------------
 	basename: String, default: kotlin - The name of the generated framework
 	isStatic: Boolean, default: false - Whether to create a dynamically linked or statically linked framework
+
+JavaSettings
+------------
+	annotationProcessing: JavaAnnotationProcessingSettings - Java annotation processing settings
+
+JavaAnnotationProcessingSettings
+--------------------------------
+	processorOptions: Map<String, String>, default: {} - Options to pass to annotation processors
+	processors: List<JavaAnnotationProcessorDeclaration>, default: [] - The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates
 
 JvmSettings
 -----------
@@ -212,6 +223,10 @@ KtorSettings
 ------------
 	enabled: Boolean, default: false - Enable Ktor server
 	version: String, default: 3.1.1 - Ktor version
+
+LombokSettings
+--------------
+	enabled: Boolean, default: false - Enable Lombok
 
 NativeSettings
 --------------

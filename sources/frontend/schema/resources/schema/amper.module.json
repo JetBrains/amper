@@ -475,6 +475,12 @@
           "x-intellij-metadata": {"platforms": ["ios"]},
           "$ref": "#/$defs/IosSettings"
         },
+        "java": {
+          "x-intellij-html-description": "Java language and the compiler settings",
+          "title": "Java language and the compiler settings",
+          "x-intellij-metadata": {"platforms": ["jvm", "android"]},
+          "$ref": "#/$defs/JavaSettings"
+        },
         "junit": {
           "x-intellij-html-description": "JUnit test runner on the JVM and Android platforms. Read more about [testing support](#tests)",
           "title": "JUnit test runner on the JVM and Android platforms",
@@ -502,6 +508,12 @@
           "x-intellij-html-description": "Ktor server settings",
           "title": "Ktor server settings",
           "$ref": "#/$defs/KtorSettings"
+        },
+        "lombok": {
+          "x-intellij-html-description": "Lombok settings",
+          "title": "Lombok settings",
+          "x-intellij-metadata": {"platforms": ["jvm", "android"]},
+          "$ref": "#/$defs/LombokSettings"
         },
         "native": {
           "x-intellij-html-description": "Native applications settings",
@@ -804,6 +816,45 @@
           "title": "Whether to create a dynamically linked or statically linked framework",
           "x-intellij-metadata": {"gradleSpecific": true},
           "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "JavaSettings": {
+      "type": "object",
+      "properties": {
+        "annotationProcessing": {
+          "x-intellij-html-description": "Java annotation processing settings",
+          "title": "Java annotation processing settings",
+          "$ref": "#/$defs/JavaAnnotationProcessingSettings"
+        }
+      },
+      "additionalProperties": false
+    },
+    "JavaAnnotationProcessingSettings": {
+      "type": "object",
+      "properties": {
+        "processorOptions": {
+          "x-intellij-html-description": "Options to pass to annotation processors",
+          "title": "Options to pass to annotation processors",
+          "x-intellij-metadata": {"aliases": ["processorSettings"]},
+          "type": "object",
+          "items": {
+            "patternProperties": {
+              "^[^@+:]+$": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "processors": {
+          "x-intellij-html-description": "The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates",
+          "title": "The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false
@@ -1205,6 +1256,26 @@
               "x-intellij-html-description": "Ktor version",
               "title": "Ktor version",
               "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
+    },
+    "LombokSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "x-intellij-html-description": "Enable Lombok",
+              "title": "Enable Lombok",
+              "type": "boolean"
             }
           },
           "additionalProperties": false

@@ -31,6 +31,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.aomBuilder.javaAnnotationProcessingGeneratedSourcesPath
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
@@ -49,6 +50,7 @@ import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.resourcesFor
+import org.jetbrains.amper.java.JavaAnnotationProcessorClasspathTask
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
@@ -170,6 +172,7 @@ internal class JvmCompileTask(
                     classpath = classpath,
                     friendPaths = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
                     tempRoot = tempRoot,
+                    dependenciesResult = dependenciesResult,
                 )
             } else {
                 logger.info("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
@@ -206,6 +209,7 @@ internal class JvmCompileTask(
         classpath: List<Path>,
         friendPaths: List<Path>,
         tempRoot: AmperProjectTempRoot,
+        dependenciesResult: List<TaskResult>,
     ) {
         for (friendPath in friendPaths) {
             require(classpath.contains(friendPath)) {
@@ -242,6 +246,7 @@ internal class JvmCompileTask(
                 classpath = classpath + kotlinClassesPath,
                 javaSourceFiles = javaFilesToCompile,
                 tempRoot = tempRoot,
+                dependenciesResult = dependenciesResult,
             )
             if (!javacSuccess) {
                 userReadableError("Java compilation failed (see errors above)")
@@ -325,6 +330,7 @@ internal class JvmCompileTask(
         classpath: List<Path>,
         javaSourceFiles: List<Path>,
         tempRoot: AmperProjectTempRoot,
+        dependenciesResult: List<TaskResult>,
     ): Boolean {
         val javacArgs = buildList {
             if (userSettings.jvmRelease != null) {
@@ -345,6 +351,25 @@ internal class JvmCompileTask(
 
             // TODO Should we move settings.kotlin.debug to settings.jvm.debug and use it here?
             add("-g")
+
+            val processorClasspathResult = dependenciesResult.filterIsInstance<JavaAnnotationProcessorClasspathTask.Result>().singleOrNull()
+            if (processorClasspathResult?.processorClasspath?.isNotEmpty() == true) {
+                val generatedSourcesDir = fragments.firstOrNull()?.javaAnnotationProcessingGeneratedSourcesPath(taskOutputRoot.path)
+                    ?: taskOutputRoot.path.resolve("generated-sources")
+
+                add("-processorpath")
+                add(processorClasspathResult.processorClasspath.joinToString(File.pathSeparator))
+
+                // Add generated sources directory
+                add("-s")
+                add(generatedSourcesDir.pathString)
+
+                val processorOptions = fragments.flatMap { it.settings.java.annotationProcessing.processorOptions.entries }
+                    .associate { it.key.value to it.value.value }
+                processorOptions.forEach { (key, value) ->
+                    add("-A$key=$value")
+                }
+            }
 
             // https://blog.ltgt.net/most-build-tools-misuse-javac/
             // we compile module by module, so we don't need javac lookup into other modules

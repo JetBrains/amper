@@ -15,6 +15,8 @@ import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
 import org.jetbrains.amper.frontend.schema.IosSettings
+import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessingSettings
+import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.JvmTestSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
@@ -23,6 +25,7 @@ import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.KspSettings
 import org.jetbrains.amper.frontend.schema.KtorSettings
+import org.jetbrains.amper.frontend.schema.LombokSettings
 import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.NoArgSettings
 import org.jetbrains.amper.frontend.schema.ParcelizeSettings
@@ -80,6 +83,7 @@ private fun TaskSettings.mergeTaskSettings(overwrite: TaskSettings): TaskSetting
 fun Settings.mergeSettings(overwrite: Settings) =
     mergeNode(overwrite, ::Settings) {
         mergeProperty(Settings::jvm, JvmSettings::mergeJvmSettings)
+        mergeProperty(Settings::java, JavaSettings::mergeJavaSettings)
         mergeProperty(Settings::android, AndroidSettings::mergeAndroidSettings)
         mergeProperty(Settings::kotlin, KotlinSettings::mergeKotlinSettings)
         mergeProperty(Settings::compose, ComposeSettings::mergeComposeSettings)
@@ -89,6 +93,7 @@ fun Settings.mergeSettings(overwrite: Settings) =
         mergeProperty(Settings::native, NativeSettings::mergeNativeSettings)
         mergeProperty(Settings::ktor, KtorSettings::mergeKtorServerSettings)
         mergeProperty(Settings::springBoot, SpringBootSettings::mergeSpringBootSettings)
+        mergeProperty(Settings::lombok, LombokSettings::mergeLombokSettings)
 
         mergeScalarProperty(Settings::junit)
     }
@@ -274,4 +279,23 @@ private fun SpringBootSettings.mergeSpringBootSettings(overwrite: SpringBootSett
     mergeNode(overwrite, ::SpringBootSettings) {
         mergeScalarProperty(SpringBootSettings::enabled)
         mergeScalarProperty(SpringBootSettings::version)
+    }
+
+context(MergeCtxWithProp<*, *>)
+private fun LombokSettings.mergeLombokSettings(overwrite: LombokSettings) =
+    mergeNode(overwrite, ::LombokSettings) {
+        mergeScalarProperty(LombokSettings::enabled)
+    }
+
+context(MergeCtxWithProp<*, *>)
+private fun JavaSettings.mergeJavaSettings(overwrite: JavaSettings) =
+    mergeNode(overwrite, ::JavaSettings) {
+        mergeProperty(JavaSettings::annotationProcessing, JavaAnnotationProcessingSettings::mergeJavaAnnotationProcessingSettings)
+    }
+
+context(MergeCtxWithProp<*, *>)
+private fun JavaAnnotationProcessingSettings.mergeJavaAnnotationProcessingSettings(overwrite: JavaAnnotationProcessingSettings) =
+    mergeNode(overwrite, ::JavaAnnotationProcessingSettings) {
+        mergeCollectionProperty(JavaAnnotationProcessingSettings::processors)
+        mergeProperty(JavaAnnotationProcessingSettings::processorOptions) { mergeMap(it) { this } }
     }

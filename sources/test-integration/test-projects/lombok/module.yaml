@@ -1,0 +1,13 @@
+product: jvm/app
+
+settings:
+  jvm:
+    mainClass: Main
+
+  java:
+    annotationProcessing:
+      processors:
+        - org.projectlombok:lombok:1.18.38
+
+dependencies:
+  - org.projectlombok:lombok:1.18.38

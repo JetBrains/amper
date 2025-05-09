@@ -21,11 +21,14 @@ import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
+import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.ScopedDependency
@@ -44,6 +47,9 @@ fun <T: Base> T.replaceCatalogDependencies(
     settings.values.forEach { fragmentSettings ->
         val kspSettings = fragmentSettings.kotlin.ksp
         kspSettings.processors = kspSettings.processors.convertCatalogProcessors(catalog)
+
+        val apSettings = fragmentSettings.java.annotationProcessing
+        apSettings.processors = apSettings.processors.convertCatalogJavaProcessors(catalog)
     }
 }
 
@@ -114,6 +120,19 @@ context(ProblemReporterContext)
 private fun CatalogKspProcessorDeclaration.convertCatalogProcessor(catalog: VersionCatalog): MavenKspProcessorDeclaration? {
     val catalogValue = catalog.findInCatalogWithReport(catalogKey) ?: return null
     return MavenKspProcessorDeclaration(catalogValue)
+}
+
+context(ProblemReporterContext)
+private fun List<JavaAnnotationProcessorDeclaration>.convertCatalogJavaProcessors(
+    catalog: VersionCatalog,
+): List<JavaAnnotationProcessorDeclaration> = mapNotNull {
+    if (it is CatalogJavaAnnotationProcessorDeclaration) it.convertCatalogJavaProcessor(catalog) else it
+}
+
+context(ProblemReporterContext)
+private fun CatalogJavaAnnotationProcessorDeclaration.convertCatalogJavaProcessor(catalog: VersionCatalog): MavenJavaAnnotationProcessorDeclaration? {
+    val catalogValue = catalog.findInCatalogWithReport(catalogKey) ?: return null
+    return MavenJavaAnnotationProcessorDeclaration(catalogValue)
 }
 
 open class PredefinedCatalog(
@@ -277,7 +296,7 @@ class BuiltInCatalog(
         put("ktor.velocity", library("io.ktor:ktor-velocity"))
         put("ktor.webjars", library("io.ktor:ktor-webjars"))
         put("ktor.websockets", library("io.ktor:ktor-websockets"))
-        
+
         // client
         put("ktor.client", library("io.ktor:ktor-client"))
         put("ktor.client.apache", library("io.ktor:ktor-client-apache"))
@@ -305,7 +324,7 @@ class BuiltInCatalog(
         put("ktor.client.websocket", library("io.ktor:ktor-client-websocket"))
         put("ktor.client.websockets", library("io.ktor:ktor-client-websockets"))
         put("ktor.client.winhttp", library("io.ktor:ktor-client-winhttp"))
-        
+
         // other
         put("ktor.callId", library("io.ktor:ktor-call-id"))
         put("ktor.events", library("io.ktor:ktor-events"))
@@ -545,4 +564,3 @@ private fun materialIconsVersion(composeVersion: TraceableString) =
         ComparableVersion(composeVersion.value) >= ComparableVersion("1.8.0") -> TraceableString("1.7.3")
         else -> composeVersion
     }
-

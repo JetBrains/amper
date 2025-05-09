@@ -38,6 +38,10 @@ private val kotlinReflect = kotlinDependencyOf("kotlin-reflect")
 
 private val kotlinParcelizeRuntime = kotlinDependencyOf("kotlin-parcelize-runtime")
 
+private val lombokDependency = MavenDependency(
+    coordinates = TraceableString("org.projectlombok:lombok:${UsedVersions.lombokVersion}")
+)
+
 private val hotReloadDependency = MavenDependency(
     coordinates = TraceableString("org.jetbrains.compose.hot-reload:runtime-api:${UsedVersions.hotReloadVersion}")
 )
@@ -162,6 +166,9 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     }
     if (settings.android.parcelize.enabled) {
         add(kotlinParcelizeRuntime)
+    }
+    if (settings.lombok.enabled) {
+        add(lombokDependency)
     }
     if (settings.compose.enabled) {
         val composeVersion = TraceableVersion(
