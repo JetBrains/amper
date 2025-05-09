@@ -3,4 +3,4 @@ product:
   platforms: [ jvm, linuxArm64, linuxX64, macosArm64, mingwX64 ]
 
 test-dependencies@jvm:
-  - $kotlin-test-junit5
+  - $kotlin.test.junit5

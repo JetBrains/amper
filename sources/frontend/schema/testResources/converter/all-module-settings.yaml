@@ -84,7 +84,7 @@ test-dependencies:
   - androidx.activity:activity-compose:1.6.1: exported
   - androidx.activity:activity-compose:1.6.2: compile-only
   - androidx.activity:activity-compose:1.6.3: runtime-only
-  - $kotlin-test
+  - $kotlin.test
 
 repositories:
   - id: scratch

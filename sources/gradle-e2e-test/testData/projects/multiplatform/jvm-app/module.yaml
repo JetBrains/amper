@@ -5,7 +5,7 @@ dependencies:
   - $compose.desktop.currentOs
 
 test-dependencies:
-  - $kotlin-test
+  - $kotlin.test
 
 settings:
   compose:

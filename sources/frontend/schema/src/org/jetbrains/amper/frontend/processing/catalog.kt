@@ -154,10 +154,6 @@ class BuiltInCatalog(
 ) : PredefinedCatalog({
     // Add Kotlin dependencies that should be aligned with our single Kotlin version
     val kotlinVersion = UsedVersions.kotlinVersion
-    put("kotlin-test-junit5", library("org.jetbrains.kotlin:kotlin-test-junit5", kotlinVersion))
-    put("kotlin-test-junit", library("org.jetbrains.kotlin:kotlin-test-junit", kotlinVersion))
-    put("kotlin-test", library("org.jetbrains.kotlin:kotlin-test", kotlinVersion))
-
     put("kotlin.test", library("org.jetbrains.kotlin:kotlin-test", kotlinVersion))
     put("kotlin.test.junit", library("org.jetbrains.kotlin:kotlin-test-junit", kotlinVersion))
     put("kotlin.test.junit5", library("org.jetbrains.kotlin:kotlin-test-junit5", kotlinVersion))

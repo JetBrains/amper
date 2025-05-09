@@ -6,4 +6,4 @@ dependencies@debug:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
 
 test-dependencies:
-  - $kotlin-test
+  - $kotlin.test
