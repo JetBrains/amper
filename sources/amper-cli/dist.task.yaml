@@ -8,6 +8,19 @@ programArguments:
 
 publishArtifact:
   - path: cli.tgz
+    artifactId: amper-cli
+    classifier: dist
+    extension: tgz
+  - path: amper
+    artifactId: amper-cli
+    classifier: wrapper
+    extension: ""
+  - path: amper.bat
+    artifactId: amper-cli
+    classifier: wrapper
+    extension: bat
+  # We keep the 'cli' artifacts for backwards compatibility with things that download Amper
+  - path: cli.tgz
     artifactId: cli
     classifier: dist
     extension: tgz

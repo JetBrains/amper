@@ -4,6 +4,7 @@ modules:
   - build-sources/generate-build-properties
   - build-sources/task-helpers
   - repository-restrictions
+  - sources/amper-cli
   - sources/amper-jdk-provisioning
   - sources/amper-junit-listeners
   - sources/amper-project-templates
@@ -12,7 +13,6 @@ modules:
   - sources/android-integration/android-sdk-detector
   - sources/android-integration/gradle-plugin
   - sources/android-integration/runner
-  - sources/cli
   - sources/core
   - sources/core-intellij
   - sources/dependency-resolution

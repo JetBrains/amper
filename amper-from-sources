@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+# Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 #
 
 ### Runs amper cli from sources
@@ -270,7 +270,7 @@ up_to_date_file="$script_dir/build/up-to-date-from-sources-wrapper.txt"
 current="$(current_state)"
 if [ ! -f "$up_to_date_file" ] || [ "$(cat "$up_to_date_file")" != "$current" ]; then
   # Amper needs a published Amper Android Gradle plugin support for the delegated Gradle builds
-  (cd "$script_dir" && ./amper --log-level=warn task :cli:unpackedDist && ./amper --log-level=warn publish -m gradle-plugin mavenLocal)
+  (cd "$script_dir" && ./amper --log-level=warn task :amper-cli:unpackedDist && ./amper --log-level=warn publish -m gradle-plugin mavenLocal)
   current_state >"$up_to_date_file"
 
   if [ -n "$TERM" ] && tput clear >/dev/null 2>&1; then

@@ -4,7 +4,7 @@ product:
 
 dependencies:
   - ../../core
-  - ../../cli
+  - ../../amper-cli
   - ../../core-intellij
   - ../../libraries/concurrency
   - ../../libraries/telemetry

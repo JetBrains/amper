@@ -134,7 +134,7 @@ pushd "%~dp0"
 if errorlevel 1 goto fail
 
 echo Building Amper distribution from sources...
-call amper.bat --log-level=warn task :cli:unpackedDist
+call amper.bat --log-level=warn task :amper-cli:unpackedDist
 if errorlevel 1 goto fail
 
 echo Publishing Amper Android support plugin for delegated Gradle builds...

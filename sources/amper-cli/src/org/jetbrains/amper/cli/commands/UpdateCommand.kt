@@ -208,6 +208,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     private suspend fun downloadWrapper(version: String, extension: String): Path = try {
         spanBuilder("Download wrapper script (amper$extension)").use {
             Downloader.downloadFileToCacheLocation(
+                // TODO update URL after transition
                 url = "$repository/org/jetbrains/amper/cli/$version/cli-$version-wrapper$extension",
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 infoLog = false,

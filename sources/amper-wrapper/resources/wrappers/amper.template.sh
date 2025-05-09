@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+# Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 #
 
 # TODO gradlew also tries to set ulimit -n (max files), probably we should too
@@ -195,7 +195,7 @@ amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 
 # ********** Provision Amper distribution **********
 
-amper_url="$AMPER_DOWNLOAD_ROOT/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.tgz"
+amper_url="$AMPER_DOWNLOAD_ROOT/org/jetbrains/amper/amper-cli/$amper_version/amper-cli-$amper_version-dist.tgz"
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
 download_and_extract "Amper distribution v$amper_version" "$amper_url" "$amper_sha256" 256 "$amper_cache_dir" "$amper_target_dir"
 

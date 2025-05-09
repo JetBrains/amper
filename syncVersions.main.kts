@@ -146,7 +146,9 @@ fun updateDocs() {
     docsDir.walk().filter { it.name.endsWith(".md") }.replaceEachFileText { fileText ->
         fileText
             // For wrapper dist download URLs in Usage.md
-            .replace(Regex("""/cli/([^/]+)/cli-\1-wrapper"""),"/cli/$bootstrapAmperVersion/cli-$bootstrapAmperVersion-wrapper")
+            .replace(Regex("""/amper-cli/([^/]+)/amper-cli-\1-wrapper"""),"/amper-cli/$bootstrapAmperVersion/amper-cli-$bootstrapAmperVersion-wrapper")
+            // TODO remove after the transition
+            .replace(Regex("""/cli/([^/]+)/cli-\1-wrapper"""),"/amper-cli/$bootstrapAmperVersion/amper-cli-$bootstrapAmperVersion-wrapper")
             // For Gradle-based Amper setup instructions
             .replaceAmperGradlePluginVersion()
             // For Documentation.md and GradleMigration.md files.
@@ -165,6 +167,7 @@ fun String.replaceInMarkdownTable(pluginId: String, version: String): String =
     replaceRegexGroup1(Regex("""`${Regex.escape(pluginId)}`\s*\|\s*([^|\s]+)\s*\|"""), version)
 
 fun updateAmperWrappers() {
+    // TODO update to amper-cli after the transition
     val shellWrapperText = fetchContent("$amperMavenRepoUrl/org/jetbrains/amper/cli/$bootstrapAmperVersion/cli-$bootstrapAmperVersion-wrapper")
     val batchWrapperText = fetchContent("$amperMavenRepoUrl/org/jetbrains/amper/cli/$bootstrapAmperVersion/cli-$bootstrapAmperVersion-wrapper.bat")
 
