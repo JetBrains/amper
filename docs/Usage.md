@@ -10,12 +10,12 @@ Use one of the following commands to download the script:
 
 Linux/macOS:
 ```
-curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2800/cli-0.7.0-dev-2800-wrapper?download=true" && chmod +x amper
+curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2807/cli-0.7.0-dev-2807-wrapper?download=true" && chmod +x amper
 ```
 
 Windows PowerShell:
 ```
-Invoke-WebRequest -OutFile amper.bat -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2800/cli-0.7.0-dev-2800-wrapper.bat?download=true
+Invoke-WebRequest -OutFile amper.bat -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2807/cli-0.7.0-dev-2807-wrapper.bat?download=true
 ```
 
 Complete and check your installation by running:
@@ -127,7 +127,7 @@ pluginManagement {
 // ...
 plugins {
     // update the Amper plugin version here:
-    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2800")
+    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2807")
 }
 // ...
 ```
