@@ -196,7 +196,8 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
             allModules,
             this,
             resourceResolver,
-            ConsoleProgressIndicator()
+            ConsoleProgressIndicator(),
+            true,
         )
     }
 
