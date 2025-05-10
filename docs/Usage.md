@@ -6,20 +6,17 @@ To use the Amper CLI, you need to download the Amper executable script to your p
 The script is small file that downloads and runs the actual Amper CLI distribution, and serves as entry point for
 all Amper commands.
 
-Depending on your operating system, use one of the following commands to download the script:
+Use one of the following commands to download the script:
 
 Linux/macOS:
 ```
 curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2800/cli-0.7.0-dev-2800-wrapper?download=true" && chmod +x amper
 ```
 
-Windows powershell:
+Windows PowerShell:
 ```
-Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2800/cli-0.7.0-dev-2800-wrapper.bat?download=true -OutFile amper.bat
+Invoke-WebRequest -OutFile amper.bat -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2800/cli-0.7.0-dev-2800-wrapper.bat?download=true
 ```
-
-Alternatively, you can use any other method to download the script from the Maven repository, as long as you
-save it with the correct name and extension.
 
 Complete and check your installation by running:
 
