@@ -1,11 +1,13 @@
-### Using Amper from the command line
+## Using Amper from the command line
 
-> Amper has a self-containing executable that can be downloaded using the standard OS tools.
+### Installation
 
-To use the Amper CLI, you need to download the Amper executable script to your project's root folder. The script is
-a small file that downloads and runs the actual Amper CLI distribution.
+To use the Amper CLI, you need to download the Amper executable script to your project's root folder.
+The script is small file that downloads and runs the actual Amper CLI distribution, and serves as entry point for
+all Amper commands.
 
 Depending on your operating system, use one of the following commands to download the script:
+
 Linux/macOS:
 ```
 curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.7.0-dev-2800/cli-0.7.0-dev-2800-wrapper?download=true" && chmod +x amper
@@ -19,14 +21,23 @@ Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/j
 Alternatively, you can use any other method to download the script from the Maven repository, as long as you
 save it with the correct name and extension.
 
-After that, run the Amper script to explore what is possible using Amper CLI:
+Complete and check your installation by running:
+
+```
+./amper -v
+```
+
+> [!NOTE]
+> The first time you run the Amper script, it will take some time to download the Amper CLI distribution.
+> Subsequent runs will be faster, as the downloaded files will be cached locally.
+
+### Exploring Amper commands
+
+The root `./amper` command and all subcommands support the `-h` (or `--help`) option to explore what is possible:
 
 ```
 ./amper --help
 ```
-
-> The first time you run the Amper script, it will take some time to download the JDK and Amper CLI distribution.
-> Subsequent runs will be faster, as the downloaded files will be cached locally.
 
 Useful commands:
 - `amper init` to create a new Amper project
@@ -35,13 +46,13 @@ Useful commands:
 - `amper run` to run your application 
 - `amper clean` to remove the project's build output and caches
 
-E.g. to build and run the [JVM "Hello, World"](../examples-standalone/jvm):
+For example, to build and run the [JVM "Hello, World"](../examples-standalone/jvm):
 ```
 cd jvm
 ./amper run 
 ```
 
-#### Amper CLI tab-completion
+### Amper CLI tab-completion
 
 If you’re using `bash`, `zsh`, or `fish`, you can generate a completion script to source as part of your shell’s
 configuration, to get tab completion for Amper commands.
@@ -61,18 +72,20 @@ source ~/amper-completion.sh
 
 You should now have tab completion available for Amper subcommands, options, and option values.
 
-#### Updating Amper to a newer version
+### Updating Amper to a newer version
 
 Run `./amper update` to update the Amper scripts and distribution to the latest released version.
 Use the `--dev` option if you want to try the bleeding edge dev build of Amper (no guarantees are made on these builds).
 
 See `./amper update -h` for more information about the available options.
 
-> Note: if you had generated a completion script before, you need to re-generate it with the new Amper version (see
-> previous section).
+> [!NOTE]  
+> If you had generated a completion script before, you need to re-generate it with the new Amper version (see previous
+> section).
 
-### Using the Gradle-based Amper version from the command line
+## Using the Gradle-based Amper version from the command line
 
+> [!IMPORTANT]
 > To use the Gradle-based version of Amper: 
 > * JDK 17+ is required. 
 > * Gradle 8.7+ is required. 
@@ -93,7 +106,7 @@ See the [Gradle tutorial](https://docs.gradle.org/current/samples/sample_buildin
 > To use Amper with Kotlin Multiplatform (e.g. running on devices and simulators), [Fleet](#using-amper-in-fleet) is
 > recommended.
 
-#### Updating Gradle-based Amper to a newer version
+### Updating Gradle-based Amper to a newer version
 
 To find the latest Amper version, check the [releases section](https://github.com/JetBrains/amper/releases) in GitHub.
 
@@ -118,7 +131,7 @@ plugins {
 // ...
 ```
 
-### Using Amper in IntelliJ IDEA
+## Using Amper in IntelliJ IDEA
 
 > The latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) can be used to work with 
 > JVM and Android projects.
