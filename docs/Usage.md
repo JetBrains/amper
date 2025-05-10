@@ -28,6 +28,10 @@ Complete and check your installation by running:
 > The first time you run the Amper script, it will take some time to download the Amper CLI distribution.
 > Subsequent runs will be faster, as the downloaded files will be cached locally.
 
+> [!TIP]
+> You can automatically get the other script using `./amper update`, and then check both into your VCS so your team can
+> build and run your project without any installation, no matter their OS.
+
 ### Exploring Amper commands
 
 The root `./amper` command and all subcommands support the `-h` (or `--help`) option to explore what is possible:

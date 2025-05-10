@@ -1,17 +1,19 @@
+# Tutorial
+
 This tutorial gives a short introduction to Amper and how to create a new project.
 
-If you are looking for more detailed info, check [the documentation](Documentation.md).
+If you are looking for more detailed information, check [the documentation](Documentation.md).
 
-### Before you start
+## Before you start
 
 Check the [setup instructions](Setup.md).
 
-### Step 1. Hello, World
+## Step 1. Hello, World
 
-The first thing you’d want to try when getting familiar with a new tool is just a simple "Hello, World" application. Here
-is what we do:
+The first thing you’d want to try when getting familiar with a new tool is just a simple "Hello, World" application.
+Here is what we do:
 
-Create a `module.yaml` file:
+Create a `module.yaml` file at the root of your project:
 
 ```YAML
 product: jvm/app
@@ -32,12 +34,11 @@ fun main() {
 }
 ```
 
-You also need to add a couple of shell scripts to your project folder.
-Copy the following files from a [template project](../examples-standalone/new-project-template):
+You also need to add the Amper shell scripts to your root project folder.
+* If you're in IntelliJ IDEA, you can simply use the quick fix in `module.yaml` to "Configure standalone Amper".
+* If not, follow the [CLI installation instructions](./Usage.md#installation) to download them.
 
-- [amper](../examples-standalone/new-project-template/amper)
-- [amper.bat](../examples-standalone/new-project-template/amper.bat)
-
+Your project should now look like this:
 ```
 |-src/
 |  |-main.kt
@@ -78,14 +79,16 @@ no need to create separate Maven-like `java/` and `kotlin/` folders:
 
 Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle-based](../examples-gradle/jvm))
 
-Documentation:
+You can now build your application using `./amper build`, or run it using `./amper run`.
 
-- [Using standalone Amper](Usage.md#using-amper-from-the-command-line)
-- [Using Gradle-based Amper](Usage.md#using-the-gradle-based-amper-version-from-the-command-line)
-- [Project layout](Documentation.md#project-layout)
-- [module file anatomy](Documentation.md#module-file-anatomy)
+> To go further, you can check these sections of the documentation:
+> 
+> - [Project layout](Documentation.md#project-layout)
+> - [Module file anatomy](Documentation.md#module-file-anatomy)
+> - [Using Amper from the command line](Usage.md#using-amper-from-the-command-line)
+> - [Using Gradle-based Amper](Usage.md#using-the-gradle-based-amper-version-from-the-command-line)
 
-### Step 2. Add dependencies
+## Step 2. Add dependencies
 
 Let's add a dependency on a Kotlin library from the Maven repository:
 
@@ -93,7 +96,7 @@ Let's add a dependency on a Kotlin library from the Maven repository:
 product: jvm/app
 
 dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.6.2
 ```
 
 We can now use this library in the `main.kt` file:
@@ -107,10 +110,9 @@ fun main() {
 }
 ```
 
-Documentation:
-- [Dependencies](Documentation.md#dependencies)
+> See the full documentation about [Dependencies](Documentation.md#dependencies).
 
-### Step 3. Add tests
+## Step 3. Add tests
 
 Now let’s add some tests. Amper configures the testing framework automatically,
 we only need to add some test code into the `test/` folder:
@@ -124,6 +126,8 @@ we only need to add some test code into the `test/` folder:
 ```
 
 ```kotlin
+import kotlin.test.*
+
 class MyTest {
     @Test
     fun doTest() {
@@ -133,14 +137,14 @@ class MyTest {
 ```
 
 To add test-specific dependencies, use the dedicated `test-dependencies:` section.
-This should be very familiar to the Cargo, Flutter and Poetry users.
-As an example, let's add a MockK library to the project:
+This should be very familiar to Cargo, Flutter and Poetry users.
+As an example, let's add the MockK library to the project:
 
 ```YAML
 product: jvm/app
 
 dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.6.2
 
 test-dependencies:
   - io.mockk:mockk:1.13.10
@@ -148,10 +152,9 @@ test-dependencies:
 
 Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle-based](../examples-gradle/jvm))
 
-Documentation:
-- [Tests](Documentation.md#tests)
+> See the full documentation about [Tests](Documentation.md#tests).
 
-### Step 4. Configure Java and Kotlin
+## Step 4. Configure Java and Kotlin
 
 Another typical task is configuring compiler settings, such as language level etc. Here is how we do it in Amper:
 
@@ -159,7 +162,7 @@ Another typical task is configuring compiler settings, such as language level et
 product: jvm/app
 
 dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.6.2
 
 test-dependencies:
   - io.mockk:mockk:1.13.10
@@ -171,13 +174,12 @@ settings:
     release: 17  # Set the minimum JVM version that the Kotlin and Java code should be compatible with.
 ```
 
-Documentation:
-- [Settings](Documentation.md#settings)
+> See the full documentation about [Settings](Documentation.md#settings).
 
-### Step 5. Add Compose Multiplatform
+## Step 5. Add a UI with Compose
 
 Now, let's turn the example into a GUI application.
-To do that we'll the [Compose Multiplatform framework](https://github.com/JetBrains/compose-multiplatform):
+To do that we'll add the [Compose Multiplatform framework](https://github.com/JetBrains/compose-multiplatform):
 
 ```YAML
 product: jvm/app
@@ -198,7 +200,7 @@ settings:
     enabled: true
 ```
 
-and add the following code in the `main.kt` file:
+and replace the contents of `main.kt` with the following code:
 
 ```kotlin
 import androidx.compose.foundation.text.BasicText
@@ -224,12 +226,12 @@ Examples:
 - Compose
   Multiplatform ([standalone](../examples-standalone/compose-multiplatform), [Gradle-based](../examples-gradle/compose-multiplatform))
 
-Documentation:
-- [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
+> See the full documentation about [Compose](Documentation.md#configuring-compose-multiplatform).
 
-### Step 6. Modularize
+## Step 6. Modularize
 
-Let's split our project into a JVM application and a library module with a shared code, which we are going to reuse.
+Let's split our project into a JVM application and a library module, with shared code that we are going to reuse.
+
 It will have the following structure:
 
 ```
@@ -363,7 +365,7 @@ Documentation:
 - [Module dependencies](Documentation.md#module-dependencies)
 - [Dependency visibility and scope](Documentation.md#scopes-and-visibility)
 
-### Step 7. Make project multiplatform
+## Step 7. Make project multiplatform
 
 So far we've been working with a JVM platform to create a desktop application.
 Let's add an Android and an iOS application.
@@ -547,7 +549,7 @@ Documentation:
 - [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
 
 
-### Step 8. Deduplicate common configuration
+## Step 8. Deduplicate common configuration
 
 You might have noticed that there are some settings present in  the `module.yaml` files. To redce duplication we can extract them into a template.
 
@@ -640,7 +642,7 @@ for various typical configurations in the project.
 Documentation:
 - [Templates](Documentation.md#templates)
 
-### Further steps
+## Further steps
 
 Check the [documentation](Documentation.md) and explore examples [for the standalone Amper projects](../examples-standalone) and
 [for the Gradle-based Amper projects](../examples-gradle).
