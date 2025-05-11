@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:OptIn(ExperimentalPathApi::class)
@@ -9,6 +9,7 @@ import java.nio.file.Path
 import kotlin.io.path.*
 
 private val amperRootDir: Path = __FILE__.toPath().absolute().parent
+private val drModuleDir = amperRootDir / "sources/frontend/dr"
 private val schemaModuleDir = amperRootDir / "sources/frontend/schema"
 private val testResourcesDir = schemaModuleDir / "testResources"
 private val testResourcePathRegex = Regex("(${Regex.escape(testResourcesDir.absolutePathString())})[^),\"'\n\r]*")
@@ -17,7 +18,7 @@ fun updateGoldFiles() {
     // regenerate .tmp files from broken tests
     runSchemaTests()
 
-    schemaModuleDir.walk()
+    (drModuleDir.walk() + schemaModuleDir.walk())
         .filter { it.name.endsWith(".tmp") }
         .forEach { tmpResultFile ->
             updateGoldFileFor(tmpResultFile)
@@ -26,10 +27,10 @@ fun updateGoldFiles() {
 
 @Suppress("PROCESS_BUILDER_START_LEAK")
 fun runSchemaTests() {
-    println("Running schema tests to generate .tmp result files...")
+    println("Running schema and dr tests to generate .tmp result files...")
     val isWindows = System.getProperty("os.name").startsWith("Win", ignoreCase = true)
     val amperScript = amperRootDir.resolve(if (isWindows) "amper.bat" else "amper")
-    val exitCode = ProcessBuilder(amperScript.pathString, "test", "-m", "schema")
+    val exitCode = ProcessBuilder(amperScript.pathString, "test", "-m", "schema", "-m", "dr")
         .inheritIO()
         .start()
         .waitFor()
@@ -37,7 +38,7 @@ fun runSchemaTests() {
     if (exitCode == 0) {
         println("Tests succeeded, which means no new .tmp files were generated.")
     } else {
-        println("Tests failed, but it's ok if it's because of the failed schema tests.")
+        println("Tests failed, but it's ok if it's because of the failed schema or dr tests.")
     }
     println()
 }
