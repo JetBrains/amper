@@ -40,7 +40,7 @@ val amperInternalJbrVersion = "21.0.6-b895.97"
  */
 val kotlinVersion = "2.1.20"
 
-val composeVersion = "1.7.3"
+val composeVersion = "1.8.0"
 val composeVersionForGradleBasedAmper = "1.6.10"
 val hotReloadVersion = "1.0.0-alpha02"
 val junitPlatformVersion = "1.12.1"

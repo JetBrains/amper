@@ -292,9 +292,9 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
         sharedModuleDeps.assertMapping(
             mapOf(
                 "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}" to "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}",
-                "org.jetbrains.compose.runtime:runtime:1.7.3" to "org.jetbrains.compose.runtime:runtime-desktop:1.7.3",
-                "org.jetbrains.compose.foundation:foundation:1.7.3" to "org.jetbrains.compose.foundation:foundation-desktop:1.7.3",
-                "org.jetbrains.compose.material3:material3:1.7.3" to "org.jetbrains.compose.material3:material3-desktop:1.7.3",
+                "org.jetbrains.compose.runtime:runtime:${UsedVersions.composeVersion}" to "org.jetbrains.compose.runtime:runtime-desktop:${UsedVersions.composeVersion}",
+                "org.jetbrains.compose.foundation:foundation:${UsedVersions.composeVersion}" to "org.jetbrains.compose.foundation:foundation-desktop:${UsedVersions.composeVersion}",
+                "org.jetbrains.compose.material3:material3:${UsedVersions.composeVersion}" to "org.jetbrains.compose.material3:material3-desktop:${UsedVersions.composeVersion}",
             )
         )
     }

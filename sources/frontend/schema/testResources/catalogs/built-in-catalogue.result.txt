@@ -38,7 +38,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.7.3
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -149,7 +149,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.7.3
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -222,29 +222,29 @@ Fragments:
   common
     External dependencies:
       BomDependency(coordinates=io.ktor:ktor-bom:3.1.1)
-      MavenDependency(coordinates=org.jetbrains.compose.animation:animation-graphics:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.animation:animation:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.components:components-animatedimage:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.components:components-resources:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.components:components-splitpane:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-linux-arm64:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.html:html-core:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.html:html-svg:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.html:html-test-utils:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.material:material-icons-extended:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.material:material:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime-saveable:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.ui:ui-test-junit4:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.ui:ui-tooling-preview:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.ui:ui-tooling:1.7.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.ui:ui:1.7.3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.animation:animation-graphics:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.animation:animation:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.components:components-animatedimage:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.components:components-resources:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.components:components-splitpane:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-linux-arm64:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.html:html-core:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.html:html-svg:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.html:html-test-utils:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material:material-icons-extended:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material:material:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime-saveable:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.ui:ui-test-junit4:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.ui:ui-tooling-preview:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.ui:ui-tooling:1.8.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.ui:ui:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
@@ -281,7 +281,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.7.3
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -391,7 +391,7 @@ Fragments:
           exposedAccessors: <default> false
           packageName: <default> 
         }
-        version: <default> 1.7.3
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {

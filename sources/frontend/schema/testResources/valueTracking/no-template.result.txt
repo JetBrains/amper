@@ -9,7 +9,7 @@
          exposedAccessors: false [default]
          packageName:  [default]
 
-      version: 1.7.3 [default]
+      version: 1.8.0 [default]
 
    kotlin:
       allOpen:

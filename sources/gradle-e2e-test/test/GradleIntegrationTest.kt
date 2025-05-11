@@ -3,6 +3,7 @@
  */
 
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.server.withFileServer
@@ -556,9 +557,9 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     fun `compose default version should fail`() = test(
         projectName = "compose-default-version",
         "assemble",
-        expectOutputToHave = "Gradle-based Amper does not support Compose version 1.7.3 (which is the new default). " +
-                "The only supported version is 1.6.10. Please set the Compose version to 1.6.10 explicitly in your " +
-                "module.yaml settings, or try the standalone version of Amper.",
+        expectOutputToHave = "Gradle-based Amper does not support Compose version ${UsedVersions.composeVersion} " +
+                "(which is the new default). The only supported version is 1.6.10. Please set the Compose version to " +
+                "1.6.10 explicitly in your module.yaml settings, or try the standalone version of Amper.",
         shouldSucceed = false,
     )
 
