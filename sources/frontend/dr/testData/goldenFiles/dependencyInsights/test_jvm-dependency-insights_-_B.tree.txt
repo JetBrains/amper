@@ -9,7 +9,7 @@ B:COMPILE:JVM
 │              │                   ├─── org.jetbrains:annotations:23.0.0
 │              │                   ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
 │              │                   │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (c)
-│              │                   ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20
+│              │                   ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> #kotlinVersion
 │              │                        ╰─── org.jetbrains:annotations:13.0 -> 23.0.0
 │              ├─── org.jetbrains.compose.ui:ui:1.6.0
 │              │    ╰─── org.jetbrains.compose.ui:ui-desktop:1.6.0
@@ -41,11 +41,11 @@ B:COMPILE:JVM
 │              ╰─── org.jetbrains.compose.ui:ui-tooling-preview:1.6.0
 │                   ╰─── org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.6.0
 │                        ╰─── org.jetbrains.compose.runtime:runtime:1.6.0 (*)
-├─── B:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+├─── B:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 ├─── B:common:org.jetbrains.compose.runtime:runtime:1.5.0
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.5.0 -> 1.6.0 (*)
-├─── B:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+├─── B:jvm:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 ╰─── B:jvm:org.jetbrains.compose.runtime:runtime:1.5.0
      ╰─── org.jetbrains.compose.runtime:runtime:1.5.0 -> 1.6.0 (*)

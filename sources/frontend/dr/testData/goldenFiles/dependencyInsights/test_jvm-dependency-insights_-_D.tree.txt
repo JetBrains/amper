@@ -8,7 +8,7 @@ D:COMPILE:JVM
 │              │         ├─── org.jetbrains:annotations:23.0.0
 │              │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
 │              │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0 (c)
-│              │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20
+│              │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> #kotlinVersion
 │              │              ╰─── org.jetbrains:annotations:13.0 -> 23.0.0
 │              ├─── io.ktor:ktor-client-core:3.0.3
 │              │    ╰─── io.ktor:ktor-client-core-jvm:3.0.3
@@ -30,23 +30,23 @@ D:COMPILE:JVM
 │              │         │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-io-core-jvm:0.5.4
 │              │         │         │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-io-bytestring:0.5.4
 │              │         │         │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-io-bytestring-jvm:0.5.4
-│              │         │         │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20 (*)
-│              │         │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20 (*)
-│              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
+│              │         │         │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> #kotlinVersion (*)
+│              │         │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> #kotlinVersion (*)
+│              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
 │              │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3
 │              │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.7.3
 │              │         │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-serialization-bom:1.7.3
-│              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.20 -> 2.1.20 (*)
-│              │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
+│              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.20 -> #kotlinVersion (*)
+│              │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
 │              │         │         ├─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3 (*)
-│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
+│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
 │              │         ├─── io.ktor:ktor-events:3.0.3
 │              │         │    ╰─── io.ktor:ktor-events-jvm:3.0.3
 │              │         │         ├─── org.slf4j:slf4j-api:2.0.16
 │              │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
 │              │         │         ├─── io.ktor:ktor-http:3.0.3 (*)
 │              │         │         ├─── io.ktor:ktor-utils:3.0.3 (*)
-│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
+│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
 │              │         ├─── io.ktor:ktor-websocket-serialization:3.0.3
 │              │         │    ╰─── io.ktor:ktor-websocket-serialization-jvm:3.0.3
 │              │         │         ├─── org.slf4j:slf4j-api:2.0.16
@@ -62,25 +62,25 @@ D:COMPILE:JVM
 │              │         │         │         │         ├─── org.slf4j:slf4j-api:2.0.16
 │              │         │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
 │              │         │         │         │         ├─── io.ktor:ktor-http:3.0.3 (*)
-│              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
-│              │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
-│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
+│              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
+│              │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
+│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
 │              │         ├─── io.ktor:ktor-sse:3.0.3
 │              │         │    ╰─── io.ktor:ktor-sse-jvm:3.0.3
 │              │         │         ├─── org.slf4j:slf4j-api:2.0.16
 │              │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
 │              │         │         ├─── io.ktor:ktor-http:3.0.3 (*)
-│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
-│              │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
-│              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> 2.1.20 (*)
+│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
+│              │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
+│              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.21 -> #kotlinVersion (*)
 ├─── D:common:org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0 -> 1.9.0
 │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.9.0
 │              ├─── org.jetbrains:annotations:23.0.0
 │              ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0 (*)
 │              ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
-│              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20 (*)
-├─── D:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
-╰─── D:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+│              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> #kotlinVersion (*)
+├─── D:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+╰─── D:jvm:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)

@@ -7,17 +7,17 @@ Fragment 'ios-app.iosX64Test' dependencies
 ├─── ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion
 │         ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
-├─── ios-app:iosX64Test:org.jetbrains.compose.runtime:runtime:1.7.3
-│    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3
-│         ╰─── org.jetbrains.compose.runtime:runtime-uikitx64:1.7.3
-│              ├─── org.jetbrains.compose.collection-internal:collection:1.7.3
+├─── ios-app:iosX64Test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│         ╰─── org.jetbrains.compose.runtime:runtime-uikitx64:#composeDefaultVersion
+│              ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion
 │              │    ├─── androidx.collection:collection:1.4.0
 │              │    │    ╰─── androidx.collection:collection-iosx64:1.4.0
 │              │    │         ├─── androidx.annotation:annotation:1.7.0 -> 1.8.0
 │              │    │         │    ╰─── androidx.annotation:annotation-iosx64:1.8.0
 │              │    │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> #kotlinVersion (*)
 │              │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
-│              │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3
+│              │    ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion
 │              │    │    ├─── androidx.annotation:annotation:1.8.0 (*)
 │              │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
@@ -31,18 +31,18 @@ Fragment 'ios-app.iosX64Test' dependencies
 │                   ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
 │                        ├─── org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
 │                        ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
-├─── ios-app:iosX64Test:org.jetbrains.compose.foundation:foundation:1.7.3
-│    ╰─── org.jetbrains.compose.foundation:foundation:1.7.3
-│         ╰─── org.jetbrains.compose.foundation:foundation-uikitx64:1.7.3
-│              ├─── org.jetbrains.compose.animation:animation:1.7.3
-│              │    ╰─── org.jetbrains.compose.animation:animation-uikitx64:1.7.3
-│              │         ├─── org.jetbrains.compose.animation:animation-core:1.7.3
-│              │         │    ╰─── org.jetbrains.compose.animation:animation-core-uikitx64:1.7.3
-│              │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
-│              │         │         ├─── org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-│              │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         ├─── org.jetbrains.compose.ui:ui:1.7.3
-│              │         │         │    ╰─── org.jetbrains.compose.ui:ui-uikitx64:1.7.3
+├─── ios-app:iosX64Test:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+│         ╰─── org.jetbrains.compose.foundation:foundation-uikitx64:#composeDefaultVersion
+│              ├─── org.jetbrains.compose.animation:animation:#composeDefaultVersion
+│              │    ╰─── org.jetbrains.compose.animation:animation-uikitx64:#composeDefaultVersion
+│              │         ├─── org.jetbrains.compose.animation:animation-core:#composeDefaultVersion
+│              │         │    ╰─── org.jetbrains.compose.animation:animation-core-uikitx64:#composeDefaultVersion
+│              │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
+│              │         │         ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
+│              │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion
+│              │         │         │    ╰─── org.jetbrains.compose.ui:ui-uikitx64:#composeDefaultVersion
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
 │              │         │         │         │    ├─── androidx.lifecycle:lifecycle-common:2.8.5
 │              │         │         │         │    │    ╰─── androidx.lifecycle:lifecycle-common-iosx64:2.8.5
@@ -50,7 +50,7 @@ Fragment 'ios-app.iosX64Test' dependencies
 │              │         │         │         │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
 │              │         │         │         │    │         ├─── org.jetbrains.kotlinx:atomicfu:0.17.0 -> 0.23.2 (*)
 │              │         │         │         │    │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
-│              │         │         │         │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
+│              │         │         │         │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> #composeDefaultVersion (*)
 │              │         │         │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
@@ -60,15 +60,15 @@ Fragment 'ios-app.iosX64Test' dependencies
 │              │         │         │         │    │         ├─── androidx.lifecycle:lifecycle-common:2.8.5 (*)
 │              │         │         │         │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
 │              │         │         │         │    ├─── org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
-│              │         │         │         │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
+│              │         │         │         │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> #composeDefaultVersion (*)
 │              │         │         │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.4
 │              │         │         │         │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitx64:2.8.4
 │              │         │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4 (*)
 │              │         │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.6.11 -> 1.7.3 (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> #composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.6.11 -> #composeDefaultVersion (*)
 │              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 │              │         │         │         │    ├─── androidx.lifecycle:lifecycle-viewmodel:2.8.5
@@ -76,120 +76,120 @@ Fragment 'ios-app.iosX64Test' dependencies
 │              │         │         │         │    │         ├─── androidx.annotation:annotation:1.8.0 (*)
 │              │         │         │         │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
 │              │         │         │         │    │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
-│              │         │         │         │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> 1.7.3 (*)
+│              │         │         │         │    ├─── org.jetbrains.compose.annotation-internal:annotation:1.6.11 -> #composeDefaultVersion (*)
 │              │         │         │         │    ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
-│              │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
-│              │         │         │         ├─── org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-│              │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         ├─── org.jetbrains.compose.runtime:runtime-saveable:1.7.3
-│              │         │         │         │    ╰─── org.jetbrains.compose.runtime:runtime-saveable-uikitx64:1.7.3
-│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
+│              │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.compose.runtime:runtime-saveable:#composeDefaultVersion
+│              │         │         │         │    ╰─── org.jetbrains.compose.runtime:runtime-saveable-uikitx64:#composeDefaultVersion
+│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
 │              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:1.7.3
-│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-geometry-uikitx64:1.7.3
-│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-util:1.7.3
-│              │         │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-util-uikitx64:1.7.3
-│              │         │         │         │         │         ├─── org.jetbrains.compose.ui:ui-uikit:1.7.3
-│              │         │         │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-uikit-uikitx64:1.7.3
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion
+│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-geometry-uikitx64:#composeDefaultVersion
+│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion
+│              │         │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-util-uikitx64:#composeDefaultVersion
+│              │         │         │         │         │         ├─── org.jetbrains.compose.ui:ui-uikit:#composeDefaultVersion
+│              │         │         │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-uikit-uikitx64:#composeDefaultVersion
 │              │         │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-graphics:1.7.3
-│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-graphics-uikitx64:1.7.3
-│              │         │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.7.3
-│              │         │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-unit-uikitx64:1.7.3
-│              │         │         │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
-│              │         │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-│              │         │         │         │         │         ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion
+│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-graphics-uikitx64:#composeDefaultVersion
+│              │         │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion
+│              │         │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-unit-uikitx64:#composeDefaultVersion
+│              │         │         │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
+│              │         │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion (*)
+│              │         │         │         │         │         ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
 │              │         │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
 │              │         │         │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         │         ╰─── org.jetbrains.skiko:skiko:0.8.18
 │              │         │         │         │              ╰─── org.jetbrains.skiko:skiko-iosx64:0.8.18
 │              │         │         │         │                   ├─── org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 │              │         │         │         │                   ├─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 │              │         │         │         │                   ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-text:1.7.3
-│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-text-uikitx64:1.7.3
-│              │         │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime-saveable:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-text:#composeDefaultVersion
+│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-text-uikitx64:#composeDefaultVersion
+│              │         │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime-saveable:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
 │              │         │         │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         │         ├─── org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 │              │         │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 │              │         │         │         │         ╰─── org.jetbrains.skiko:skiko:0.8.18 (*)
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-uikit:1.7.3 (*)
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-uikit:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
 │              │         │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
 │              │         │         │         ├─── org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 │              │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 │              │         │         │         ╰─── org.jetbrains.skiko:skiko:0.8.18 (*)
-│              │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-│              │         │         ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+│              │         │         ├─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion (*)
+│              │         │         ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
 │              │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
 │              │         │         ├─── org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 │              │         │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
-│              │         ├─── org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-│              │         ├─── org.jetbrains.compose.foundation:foundation-layout:1.7.3
-│              │         │    ╰─── org.jetbrains.compose.foundation:foundation-layout-uikitx64:1.7.3
-│              │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
-│              │         │         ├─── org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-│              │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         ├─── org.jetbrains.compose.ui:ui:1.7.3 (*)
-│              │         │         ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+│              │         ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
+│              │         ├─── org.jetbrains.compose.foundation:foundation-layout:#composeDefaultVersion
+│              │         │    ╰─── org.jetbrains.compose.foundation:foundation-layout-uikitx64:#composeDefaultVersion
+│              │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
+│              │         │         ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
+│              │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion (*)
+│              │         │         ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
 │              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
-│              │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         ├─── org.jetbrains.compose.ui:ui:1.7.3 (*)
-│              │         ├─── org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-│              │         ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+│              │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion (*)
+│              │         ├─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion (*)
+│              │         ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
 │              │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
-│              ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
-│              ├─── org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-│              ├─── org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
-│              ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              ├─── org.jetbrains.compose.ui:ui:1.7.3 (*)
-│              ├─── org.jetbrains.compose.ui:ui-text:1.7.3 (*)
-│              ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+│              ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.foundation:foundation-layout:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.ui:ui-text:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
 │              ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
 │              ├─── org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
 │              ╰─── org.jetbrains.skiko:skiko:0.8.18 (*)
-╰─── ios-app:iosX64Test:org.jetbrains.compose.material3:material3:1.7.3
-     ╰─── org.jetbrains.compose.material3:material3:1.7.3
-          ╰─── org.jetbrains.compose.material3:material3-uikitx64:1.7.3
-               ├─── org.jetbrains.compose.animation:animation-core:1.7.3 (*)
-               ├─── org.jetbrains.compose.annotation-internal:annotation:1.7.3 (*)
-               ├─── org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-               ├─── org.jetbrains.compose.foundation:foundation:1.7.3 (*)
-               ├─── org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
-               ├─── org.jetbrains.compose.material:material-icons-core:1.7.3
-               │    ╰─── org.jetbrains.compose.material:material-icons-core-uikitx64:1.7.3
-               │         ├─── org.jetbrains.compose.ui:ui:1.7.3 (*)
-               │         ├─── org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
-               │         ├─── org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
+╰─── ios-app:iosX64Test:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+     ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion
+          ╰─── org.jetbrains.compose.material3:material3-uikitx64:#composeDefaultVersion
+               ├─── org.jetbrains.compose.animation:animation-core:#composeDefaultVersion (*)
+               ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
+               ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
+               ├─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion (*)
+               ├─── org.jetbrains.compose.foundation:foundation-layout:#composeDefaultVersion (*)
+               ├─── org.jetbrains.compose.material:material-icons-core:#composeDefaultVersion
+               │    ╰─── org.jetbrains.compose.material:material-icons-core-uikitx64:#composeDefaultVersion
+               │         ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion (*)
+               │         ├─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion (*)
+               │         ├─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion (*)
                │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
-               ├─── org.jetbrains.compose.material:material-ripple:1.7.3
-               │    ╰─── org.jetbrains.compose.material:material-ripple-uikitx64:1.7.3
-               │         ├─── org.jetbrains.compose.animation:animation:1.7.3 (*)
-               │         ├─── org.jetbrains.compose.collection-internal:collection:1.7.3 (*)
-               │         ├─── org.jetbrains.compose.foundation:foundation:1.7.3 (*)
-               │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-               │         ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+               ├─── org.jetbrains.compose.material:material-ripple:#composeDefaultVersion
+               │    ╰─── org.jetbrains.compose.material:material-ripple-uikitx64:#composeDefaultVersion
+               │         ├─── org.jetbrains.compose.animation:animation:#composeDefaultVersion (*)
+               │         ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
+               │         ├─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion (*)
+               │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+               │         ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
                │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
-               ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-               ├─── org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
-               ├─── org.jetbrains.compose.ui:ui-text:1.7.3 (*)
-               ├─── org.jetbrains.compose.ui:ui-util:1.7.3 (*)
+               ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+               ├─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion (*)
+               ├─── org.jetbrains.compose.ui:ui-text:#composeDefaultVersion (*)
+               ├─── org.jetbrains.compose.ui:ui-util:#composeDefaultVersion (*)
                ├─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24 -> #kotlinVersion (*)
                ├─── org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                ╰─── org.jetbrains.kotlinx:kotlinx-datetime:0.6.0

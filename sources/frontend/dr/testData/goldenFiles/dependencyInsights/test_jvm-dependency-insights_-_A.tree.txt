@@ -5,19 +5,19 @@ A:COMPILE:JVM
 │              ├─── org.jetbrains:annotations:23.0.0
 │              ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
 │              │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.9.0 (c)
-│              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20
+│              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> #kotlinVersion
 │                   ╰─── org.jetbrains:annotations:13.0 -> 23.0.0
 ├─── A:common:org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0 -> 1.9.0
 │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
 │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0 (*)
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20 (*)
+│         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> #kotlinVersion (*)
 ├─── A:common:org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0
 │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
 │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0 (*)
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> 2.1.20 (*)
-├─── A:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
-╰─── A:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+│         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> #kotlinVersion (*)
+├─── A:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+╰─── A:jvm:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)

@@ -1,16 +1,16 @@
 shared:COMPILE:IOS_ARM64
-├─── shared:common:org.jetbrains.compose.foundation:foundation:1.7.3
-│    ╰─── org.jetbrains.compose.foundation:foundation:1.7.3
-│         ╰─── org.jetbrains.compose.foundation:foundation-uikitarm64:1.7.3
-│              ├─── org.jetbrains.compose.animation:animation:1.7.3
-│              │    ╰─── org.jetbrains.compose.animation:animation-uikitarm64:1.7.3
-│              │         ├─── org.jetbrains.compose.animation:animation-core:1.7.3
-│              │         │    ╰─── org.jetbrains.compose.animation:animation-core-uikitarm64:1.7.3
-│              │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3
-│              │         │         │    ╰─── org.jetbrains.compose.runtime:runtime-uikitarm64:1.7.3
+├─── shared:common:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+│         ╰─── org.jetbrains.compose.foundation:foundation-uikitarm64:#composeDefaultVersion
+│              ├─── org.jetbrains.compose.animation:animation:#composeDefaultVersion
+│              │    ╰─── org.jetbrains.compose.animation:animation-uikitarm64:#composeDefaultVersion
+│              │         ├─── org.jetbrains.compose.animation:animation-core:#composeDefaultVersion
+│              │         │    ╰─── org.jetbrains.compose.animation:animation-core-uikitarm64:#composeDefaultVersion
+│              │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│              │         │         │    ╰─── org.jetbrains.compose.runtime:runtime-uikitarm64:#composeDefaultVersion
 │              │         │         │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-│              │         │         ├─── org.jetbrains.compose.ui:ui:1.7.3
-│              │         │         │    ╰─── org.jetbrains.compose.ui:ui-uikitarm64:1.7.3
+│              │         │         ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion
+│              │         │         │    ╰─── org.jetbrains.compose.ui:ui-uikitarm64:#composeDefaultVersion
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
 │              │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4
@@ -22,76 +22,76 @@ shared:COMPILE:IOS_ARM64
 │              │         │         │         │         ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.4 (*)
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4
 │              │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-│              │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         ├─── org.jetbrains.compose.runtime:runtime-saveable:1.7.3
-│              │         │         │         │    ╰─── org.jetbrains.compose.runtime:runtime-saveable-uikitarm64:1.7.3
-│              │         │         │         │         ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:1.7.3
-│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-geometry-uikitarm64:1.7.3
-│              │         │         │         │         ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-graphics:1.7.3
-│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-graphics-uikitarm64:1.7.3
-│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.7.3
-│              │         │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-unit-uikitarm64:1.7.3
-│              │         │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         │         │         ╰─── org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
+│              │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.compose.runtime:runtime-saveable:#composeDefaultVersion
+│              │         │         │         │    ╰─── org.jetbrains.compose.runtime:runtime-saveable-uikitarm64:#composeDefaultVersion
+│              │         │         │         │         ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion
+│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-geometry-uikitarm64:#composeDefaultVersion
+│              │         │         │         │         ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion
+│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-graphics-uikitarm64:#composeDefaultVersion
+│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion
+│              │         │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-unit-uikitarm64:#composeDefaultVersion
+│              │         │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         │         │         ╰─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion (*)
 │              │         │         │         │         ╰─── org.jetbrains.skiko:skiko:0.8.18
 │              │         │         │         │              ╰─── org.jetbrains.skiko:skiko-iosarm64:0.8.18
 │              │         │         │         │                   ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-text:1.7.3
-│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-text-uikitarm64:1.7.3
-│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime-saveable:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
-│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-text:#composeDefaultVersion
+│              │         │         │         │    ╰─── org.jetbrains.compose.ui:ui-text-uikitarm64:#composeDefaultVersion
+│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.runtime:runtime-saveable:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion (*)
+│              │         │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion (*)
 │              │         │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 │              │         │         │         │         ╰─── org.jetbrains.skiko:skiko:0.8.18 (*)
-│              │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
+│              │         │         │         ├─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion (*)
 │              │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
 │              │         │         │         ╰─── org.jetbrains.skiko:skiko:0.8.18 (*)
-│              │         │         ├─── org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
+│              │         │         ├─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion (*)
 │              │         │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-│              │         ├─── org.jetbrains.compose.foundation:foundation-layout:1.7.3
-│              │         │    ╰─── org.jetbrains.compose.foundation:foundation-layout-uikitarm64:1.7.3
-│              │         │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         │         ╰─── org.jetbrains.compose.ui:ui:1.7.3 (*)
-│              │         ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              │         ├─── org.jetbrains.compose.ui:ui:1.7.3 (*)
-│              │         ╰─── org.jetbrains.compose.ui:ui-geometry:1.7.3 (*)
-│              ├─── org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
-│              ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              ├─── org.jetbrains.compose.ui:ui:1.7.3 (*)
-│              ├─── org.jetbrains.compose.ui:ui-text:1.7.3 (*)
+│              │         ├─── org.jetbrains.compose.foundation:foundation-layout:#composeDefaultVersion
+│              │         │    ╰─── org.jetbrains.compose.foundation:foundation-layout-uikitarm64:#composeDefaultVersion
+│              │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         ╰─── org.jetbrains.compose.ui:ui:#composeDefaultVersion (*)
+│              │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion (*)
+│              │         ╰─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.foundation:foundation-layout:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.ui:ui-text:#composeDefaultVersion (*)
 │              ╰─── org.jetbrains.skiko:skiko:0.8.18 (*)
-├─── shared:common:org.jetbrains.compose.material3:material3:1.7.3
-│    ╰─── org.jetbrains.compose.material3:material3:1.7.3
-│         ╰─── org.jetbrains.compose.material3:material3-uikitarm64:1.7.3
-│              ├─── org.jetbrains.compose.animation:animation-core:1.7.3 (*)
-│              ├─── org.jetbrains.compose.foundation:foundation:1.7.3 (*)
-│              ├─── org.jetbrains.compose.foundation:foundation-layout:1.7.3 (*)
-│              ├─── org.jetbrains.compose.material:material-icons-core:1.7.3
-│              │    ╰─── org.jetbrains.compose.material:material-icons-core-uikitarm64:1.7.3
-│              │         ├─── org.jetbrains.compose.ui:ui:1.7.3 (*)
-│              │         ├─── org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
-│              │         ╰─── org.jetbrains.compose.ui:ui-unit:1.7.3 (*)
-│              ├─── org.jetbrains.compose.material:material-ripple:1.7.3
-│              │    ╰─── org.jetbrains.compose.material:material-ripple-uikitarm64:1.7.3
-│              │         ├─── org.jetbrains.compose.animation:animation:1.7.3 (*)
-│              │         ├─── org.jetbrains.compose.foundation:foundation:1.7.3 (*)
-│              │         ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              ├─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-│              ├─── org.jetbrains.compose.ui:ui-graphics:1.7.3 (*)
-│              ╰─── org.jetbrains.compose.ui:ui-text:1.7.3 (*)
-├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.7.3
-│    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-├─── shared:apple:org.jetbrains.compose.runtime:runtime:1.7.3
-│    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-├─── shared:common:org.jetbrains.compose.runtime:runtime:1.7.3
-│    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-├─── shared:ios:org.jetbrains.compose.runtime:runtime:1.7.3
-│    ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
-╰─── shared:native:org.jetbrains.compose.runtime:runtime:1.7.3
-     ╰─── org.jetbrains.compose.runtime:runtime:1.7.3 (*)
+├─── shared:common:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│         ╰─── org.jetbrains.compose.material3:material3-uikitarm64:#composeDefaultVersion
+│              ├─── org.jetbrains.compose.animation:animation-core:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.foundation:foundation-layout:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.material:material-icons-core:#composeDefaultVersion
+│              │    ╰─── org.jetbrains.compose.material:material-icons-core-uikitarm64:#composeDefaultVersion
+│              │         ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion (*)
+│              │         ├─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion (*)
+│              │         ╰─── org.jetbrains.compose.ui:ui-unit:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.material:material-ripple:#composeDefaultVersion
+│              │    ╰─── org.jetbrains.compose.material:material-ripple-uikitarm64:#composeDefaultVersion
+│              │         ├─── org.jetbrains.compose.animation:animation:#composeDefaultVersion (*)
+│              │         ├─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion (*)
+│              │         ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              ├─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion (*)
+│              ╰─── org.jetbrains.compose.ui:ui-text:#composeDefaultVersion (*)
+├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+├─── shared:apple:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+├─── shared:common:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+├─── shared:ios:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+╰─── shared:native:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+     ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)

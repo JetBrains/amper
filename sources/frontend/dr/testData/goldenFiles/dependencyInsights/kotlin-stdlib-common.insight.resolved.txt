@@ -1,12 +1,12 @@
 shared:COMPILE:IOS_ARM64
-├─── shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:2.1.20 (c)
-├─── shared:apple:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
-├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
-├─── shared:ios:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
-╰─── shared:native:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+├─── shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
+│         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
+├─── shared:apple:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+├─── shared:ios:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+╰─── shared:native:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)

@@ -129,7 +129,9 @@ abstract class BaseModuleDrTest {
     ) {
         val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.files.txt"
         val expected = getGoldenFileText(fileName, fileDescription = "Golden file for files")
-        assertFiles(expected.trim().lines(), root, withSources, checkExistence, checkAutoAddedDocumentation)
+        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+            assertFiles(expected.trim().lines(), root, withSources, checkExistence, checkAutoAddedDocumentation)
+        }
     }
 
     // todo (AB) : Reuse utility methods from dependence-resolution test module
@@ -164,6 +166,7 @@ abstract class BaseModuleDrTest {
         return goldenFile
             .readText()
             .replace("#kotlinVersion", UsedVersions.kotlinVersion)
+            .replace("#composeDefaultVersion", UsedVersions.composeVersion)
             .trim()
     }
 
@@ -185,14 +188,49 @@ abstract class BaseModuleDrTest {
             } catch (e: AssertionFailedError) {
                 if (e.isExpectedDefined && e.isActualDefined && expectedResultPath != null) {
                     val actualResultPath = expectedResultPath.parent.resolve(expectedResultPath.fileName.name + ".tmp")
-                    when(e.actual.value) {
-                        is List<*> -> actualResultPath.writeLines((e.actual.value as List<*>).map { it.toString() })
-                        is String -> actualResultPath.writeText(e.actual.value as String)
+                    when(val actualValue = e.actual.value) {
+                        is List<*> -> actualResultPath.writeLines(actualValue.map { it.toString().replaceVersionsWithVariables() })
+                        is String -> actualResultPath.writeText(actualValue.replaceVersionsWithVariables())
                         else -> { /* do nothing */ }
                     }
                 }
                 throw e
             }
+        }
+
+        private fun String.replaceVersionsWithVariables(): String =
+            replaceArtifactFilenames(
+                filePrefix = "kotlin-stdlib",
+                version = UsedVersions.kotlinVersion,
+                versionVariableName = "kotlinVersion",
+            )
+                .replaceCoordinateVersionWithReference(
+                    groupPrefix = "org.jetbrains.kotlin",
+                    artifactPrefix = "kotlin-",
+                    version = UsedVersions.kotlinVersion,
+                    versionVariableName = "kotlinVersion",
+                )
+                .replaceCoordinateVersionWithReference(
+                    groupPrefix = "org.jetbrains.compose",
+                    artifactPrefix = "",
+                    version = UsedVersions.composeVersion,
+                    versionVariableName = "composeDefaultVersion",
+                )
+
+        private fun String.replaceArtifactFilenames(
+            filePrefix: String,
+            version: String,
+            versionVariableName: String,
+        ): String = replace(Regex("""${Regex.escape(filePrefix)}.*-${Regex.escape(version)}\.(jar|aar|klib)""")) {
+            it.value.replace(version, "#$versionVariableName")
+        }
+        private fun String.replaceCoordinateVersionWithReference(
+            groupPrefix: String,
+            artifactPrefix: String,
+            version: String,
+            versionVariableName: String,
+        ): String = replace(Regex("""${Regex.escape(groupPrefix)}[^:]*:${Regex.escape(artifactPrefix)}[^:]*:([\w.\-]+ -> )?${Regex.escape(version)}""")) {
+            it.value.replace(version, "#$versionVariableName")
         }
     }
 }

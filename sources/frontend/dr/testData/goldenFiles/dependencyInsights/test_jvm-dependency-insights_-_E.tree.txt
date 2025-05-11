@@ -16,8 +16,8 @@ E:COMPILE:JVM
 │         ╰─── org.apiguardian:apiguardian-api:1.1.2
 ├─── E:common:org.junit:junit-bom:5.11.4
 │    ╰─── org.junit:junit-bom:5.11.4 (*)
-├─── E:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
+├─── E:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
 │         ╰─── org.jetbrains:annotations:13.0 -> 23.0.0
-╰─── E:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+╰─── E:jvm:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
