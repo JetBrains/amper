@@ -4,53 +4,47 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import org.jetbrains.amper.BuildPrimitives
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import kotlinx.serialization.Serializable
+import org.jetbrains.amper.android.PathAsStringSerializer
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.requireSingleDependency
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
-import org.jetbrains.amper.util.BuildType
-import kotlin.io.path.createParentDirectories
+import java.nio.file.Path
 
 class IosPreBuildTask(
     override val taskName: TaskName,
-    private val module: AmperModule,
-    private val buildType: BuildType,
-    private val platform: Platform,
-    private val outputRoot: AmperBuildOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val frameworkPath = checkNotNull(
             dependenciesResult.requireSingleDependency<NativeLinkTask.Result>().linkedBinary
         ) { "Framework must always be linked" }
 
-        val targetPath = IosConventions(
-            buildRootPath = outputRoot.path,
-            moduleName = module.userReadableName,
-            buildType = buildType,
-            platform = platform,
-        ).getAppFrameworkPath()
+        val composeResourcesPath = dependenciesResult
+            .filterIsInstance<IosComposeResourcesTask.Result>()
+            .firstOrNull()?.composeResourcesDirectory
 
-        targetPath.createParentDirectories()
-        executeOnChangedInputs.execute(taskName.name, emptyMap(), listOf(frameworkPath)) {
-            BuildPrimitives.copy(
-                from = frameworkPath,
-                to = targetPath,
-                overwrite = true,
-            )
-            ExecuteOnChangedInputs.ExecutionResult(
-                outputs = listOf(targetPath),
-            )
+        return Result(
+            appFrameworkPath = frameworkPath,
+            composeResourcesDirectoryPath = composeResourcesPath,
+        )
+    }
+
+    @Serializable
+    class Result(
+        @Serializable(with = PathAsStringSerializer::class)
+        val appFrameworkPath: Path,
+        @Serializable(with = PathAsStringSerializer::class)
+        val composeResourcesDirectoryPath: Path?,
+    ) : TaskResult {
+        companion object {
+            /**
+             * If set, signals the integration command that there is a super Amper call and all the necessary tasks have
+             * been run.
+             */
+            const val ENV_JSON_NAME = "AMPER_XCI_INFO_JSON"
         }
-
-        return EmptyTaskResult
     }
 }

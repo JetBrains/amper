@@ -138,13 +138,16 @@ class ManageXCodeProjectTask(
                 target = target,
             )
 
-            val bundleId = settingsResolver.getBuildSetting(BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER).string ?:
-            userReadableError("Unable to resolve bundleId. " +
-                    "Please make sure the `${BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER}` configuration option " +
-                    "is properly set")
+            fun resolveRequiredString(setting: String, friendlyName: String): String {
+                return settingsResolver.getBuildSetting(setting).string
+                    ?: userReadableError("Unable to resolve $friendlyName in the Xcode project. " +
+                            "Please make sure the `$setting` configuration option " +
+                            "is properly set for configuration ${buildType.name}")
+            }
 
             return ResolvedXcodeSettings(
-                bundleId = bundleId,
+                bundleId = resolveRequiredString(BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER, "bundleId"),
+                productName = resolveRequiredString(BuildSettingNames.PRODUCT_NAME, "Product Name"),
                 hasTeamId = !settingsResolver.getBuildSetting("DEVELOPMENT_TEAM").string.isNullOrBlank(),
                 isSigningDisabled = settingsResolver.getBuildSetting("CODE_SIGNING_ALLOWED").string == "NO",
             )
@@ -218,7 +221,7 @@ class ManageXCodeProjectTask(
             this[BuildSettingNames.FRAMEWORK_SEARCH_PATHS] =
                 "$(inherited) $(TARGET_BUILD_DIR)/${IosConventions.FRAMEWORKS_DIR_NAME}"
             // TODO: Move to the XConfig. For now generated a single time and is not managed anymore.
-            this[AMPER_WRAPPER_PATH_CONF] = CliContext.wrapperScriptPath.relativeTo(baseDir).let { 
+            this[AMPER_WRAPPER_PATH_CONF] = CliContext.wrapperScriptPath.relativeTo(baseDir).let {
                 if (it.parent == null) Path(".") / it else it
             }.pathString
 
@@ -285,6 +288,7 @@ class ManageXCodeProjectTask(
 
         val defaultSettings = ResolvedXcodeSettings(
             bundleId = defaultAppBundleId,
+            productName = defaultProductName,
         )
         return Result(
             targetName = DEFAULT_TARGET_NAME,
@@ -346,6 +350,7 @@ class ManageXCodeProjectTask(
         val bundleId: String,
         val hasTeamId: Boolean = false,
         val isSigningDisabled: Boolean = false,
+        val productName: String,
     )
 
     class Result(

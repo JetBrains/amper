@@ -5,26 +5,22 @@
 package org.jetbrains.amper.cli.commands.tools
 
 import com.github.ajalt.clikt.core.terminal
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.tasks.ios.IosBuildTask
 import org.jetbrains.amper.tasks.ios.IosConventions
+import org.jetbrains.amper.tasks.ios.IosPreBuildTask
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.createSymbolicLinkPointingTo
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
-import kotlin.io.path.isDirectory
-import kotlin.io.path.writeText
 
 internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integration") {
 
@@ -37,47 +33,35 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
         validateGeneralXcodeEnvironment()
 
         // Info passed down from the super Amper process if it's the case
-        val superAmperInfo: IosBuildTask.PreBuildInfo? = env[IosBuildTask.PreBuildInfo.ENV_JSON_NAME]
+        val readyPrebuildResult: IosPreBuildTask.Result? = env[IosPreBuildTask.Result.ENV_JSON_NAME]
             ?.let { envJson -> Json.decodeFromString(envJson) }
 
-        val buildType = inferBuildTypeFromEnv().let { inferred ->
-            if (inferred != BuildType.Debug) {
-                // TODO: Support Release configuration in Amper
-                logger.warn(
-                    "Amper doesn't yet support building Kotlin for `${inferred.name}` configuration. " +
-                            "Falling back to `Debug`"
-                )
-            }
-            BuildType.Debug
-        }
-        val platform = inferPlatformFromEnv()
-
-        val amperInfo: IosBuildTask.PreBuildInfo = superAmperInfo ?: run {
+        val prebuildResult = readyPrebuildResult ?: run {
             // Running from xcode only - need to run iOS prebuild task ourselves
             withBackend(commonOptions, commandName, terminal) { backend ->
                 backend.prebuildForXcode(
                     moduleDir = Path(requireXcodeVar("PROJECT_DIR")),
-                    buildType = buildType,
-                    platform = platform,
+                    buildType = inferBuildTypeFromEnv().let { inferred ->
+                        if (inferred != BuildType.Debug) {
+                            // TODO: Support Release configuration in Amper
+                            logger.warn(
+                                "Amper doesn't yet support building Kotlin for `${inferred.name}` configuration. " +
+                                        "Falling back to `Debug`"
+                            )
+                        }
+                        BuildType.Debug
+                    },
+                    platform = inferPlatformFromEnv(),
                 )
             }
         }
 
-        val iosConventions = IosConventions(
-            buildRootPath = amperInfo.buildOutputRoot,
-            moduleName = amperInfo.moduleName,
-            buildType = buildType,
-            platform = platform,
-        )
-
         val xcodeTargetBuildDir = Path(requireXcodeVar("TARGET_BUILD_DIR"))
 
         // Symlink the built framework, so the xcodebuild finds it during linking.
-        linkFrameworkToConventionSearchLocation(iosConventions, xcodeTargetBuildDir)
+        linkFrameworkToConventionSearchLocation(prebuildResult, xcodeTargetBuildDir)
 
-        embedComposeResources(iosConventions, xcodeTargetBuildDir)
-
-        writeOutputDescription(iosConventions)
+        embedComposeResources(prebuildResult, xcodeTargetBuildDir)
     }
 
     private fun validateGeneralXcodeEnvironment() {
@@ -89,52 +73,35 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
         }
     }
 
-    private fun writeOutputDescription(iosConventions: IosConventions) {
-        val outputDescription = IosConventions.BuildOutputDescription(
-            appPath = getBuiltAppDirectory().also { appPath ->
-                check(appPath.isDirectory()) {
-                    "Expected app path '$appPath' to be an existing directory"
-                }
-            }.absolutePathString(),
-            productBundleId = requireXcodeVar("PRODUCT_BUNDLE_IDENTIFIER"),
-            isSigningEnabled = "EXPANDED_CODE_SIGN_IDENTITY" in env,
-        )
-        iosConventions.getBuildOutputDescriptionFilePath().writeText(Json.encodeToString(outputDescription))
-    }
-
     private fun linkFrameworkToConventionSearchLocation(
-        iosConventions: IosConventions,
+        prebuildResult: IosPreBuildTask.Result,
         xcodeTargetBuildDir: Path,
     ) {
         val targetPath = xcodeTargetBuildDir / IosConventions.FRAMEWORKS_DIR_NAME /
-                iosConventions.getAppFrameworkPath().fileName
+                prebuildResult.appFrameworkPath.fileName
         targetPath.createParentDirectories()
         targetPath.deleteIfExists()
-        targetPath.createSymbolicLinkPointingTo(iosConventions.getAppFrameworkPath())
+        targetPath.createSymbolicLinkPointingTo(prebuildResult.appFrameworkPath)
     }
 
     private suspend fun embedComposeResources(
-        iosConventions: IosConventions,
+        prebuildResult: IosPreBuildTask.Result,
         xcodeTargetBuildDir: Path,
     ) {
         val embeddedComposeResourcesDir = xcodeTargetBuildDir / requireXcodeVar("CONTENTS_FOLDER_PATH") /
                 IosConventions.COMPOSE_RESOURCES_CONTENT_DIR_NAME
-        if (iosConventions.getComposeResourcesDirectory().isDirectory()) {
-            embeddedComposeResourcesDir.apply {
-                createParentDirectories()
-                deleteRecursively()
-            }
+        embeddedComposeResourcesDir.apply {
+            createParentDirectories()
+            deleteRecursively()
+        }
+        prebuildResult.composeResourcesDirectoryPath?.let { path ->
             BuildPrimitives.copy(
-                from = iosConventions.getComposeResourcesDirectory(),
+                from = path,
                 to = embeddedComposeResourcesDir,
                 followLinks = true,
             )
         }
     }
-
-    private fun getBuiltAppDirectory(): Path = Path(requireXcodeVar("SYMROOT")) /
-            "${requireXcodeVar("CONFIGURATION")}-${requireXcodeVar("PLATFORM_NAME")}" /
-            "${requireXcodeVar("PRODUCT_NAME")}.app"
 
     private fun inferBuildTypeFromEnv(): BuildType = requireXcodeVar("CONFIGURATION").let { value ->
         BuildType.entries.find { it.name == value } ?: userReadableError("Invalid `CONFIGURATION`: `$value`")

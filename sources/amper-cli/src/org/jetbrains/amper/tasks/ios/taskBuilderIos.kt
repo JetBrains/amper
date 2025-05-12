@@ -53,35 +53,35 @@ fun ProjectTasksBuilder.setupIosTasks() {
     allModules()
         .alsoPlatforms(Platform.IOS)
         .filterModuleType { it == ProductType.IOS_APP }
+        .filter { isComposeEnabledFor(it.module) }
         .withEach {
-            val composeResourcesTaskName = IosTaskType.PrepareComposeResources.getTaskName(module, platform)
-                .takeIf { isComposeEnabledFor(module) }
-                ?.also { taskName ->
-                    tasks.registerTask(
-                        task = IosComposeResourcesTask(
-                            taskName = taskName,
-                            leafFragment = module.leafFragments.single {
-                                it.platform == platform && !it.isTest
-                            },
-                            buildOutputRoot = context.buildOutputRoot,
-                            executeOnChangedInputs = executeOnChangedInputs,
-                            userCacheRoot = context.userCacheRoot,
-                        ),
-                    )
-                }
+            val taskName = IosTaskType.PrepareComposeResources.getTaskName(module, platform)
+            tasks.registerTask(
+                task = IosComposeResourcesTask(
+                    taskName = taskName,
+                    leafFragment = module.leafFragments.single {
+                        it.platform == platform && !it.isTest
+                    },
+                    executeOnChangedInputs = executeOnChangedInputs,
+                    taskOutputRoot = context.getTaskOutputPath(taskName),
+                    userCacheRoot = context.userCacheRoot,
+                ),
+            )
+        }
 
-            val preBuildTaskName = IosTaskType.PreBuildIosApp.getTaskName(module, platform)
+    allModules()
+        .alsoPlatforms(Platform.IOS)
+        .filterModuleType { it == ProductType.IOS_APP }
+        .withEach {
+            val preBuildTaskName = IosTaskType.PreBuildIosApp.getTaskName(module, platform, false, buildType)
             tasks.registerTask(
                 task = IosPreBuildTask(
                     taskName = preBuildTaskName,
-                    module = module,
-                    buildType = BuildType.Debug,
-                    platform = platform,
-                    outputRoot = context.buildOutputRoot,
-                    executeOnChangedInputs = executeOnChangedInputs,
                 ),
                 dependsOn = buildList {
-                    composeResourcesTaskName?.let(::add)
+                    if (isComposeEnabledFor(module)) {
+                        add(IosTaskType.PrepareComposeResources.getTaskName(module, platform))
+                    }
                     add(IosTaskType.Framework.getTaskName(module, platform, false, BuildType.Debug),)
                 },
             )
@@ -92,7 +92,6 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     platform = platform,
                     module = module,
                     buildType = BuildType.Debug,
-                    buildOutputRoot = context.buildOutputRoot,
                     userCacheRoot = context.userCacheRoot,
                     taskOutputPath = context.getTaskOutputPath(buildTaskName),
                     taskName = buildTaskName,

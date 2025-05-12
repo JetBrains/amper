@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.ios
 
+import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -11,11 +12,15 @@ import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 
 class IosRunTask(
@@ -36,7 +41,7 @@ class IosRunTask(
             launchAppOnDevice(simulatorDevice.deviceId, builtApp.bundleId)
         } else {
             // Physical device
-            if (!builtApp.isSigningEnabled) {
+            if (!checkAppIsSigned(builtApp.appPath)) {
                 userReadableError("Running an unsigned app on a physical device (${platform.pretty}) is not possible. " +
                         "Please select a development team in the Xcode project editor (Signing & Capabilities) " +
                         "or use a simulator platform instead.")
@@ -58,5 +63,13 @@ class IosRunTask(
         } else {
             pickBestDevice() ?: userReadableError("Unable to detect any usable iOS simulator, check your environment")
         }
+    }
+
+    private suspend fun checkAppIsSigned(appPath: Path): Boolean {
+        return BuildPrimitives.runProcessAndGetOutput(
+            workingDir = Path("."),
+            command = listOf("codesign", "-v", appPath.absolutePathString()),
+            outputListener = ProcessOutputListener.NOOP,
+        ).exitCode == 0
     }
 }

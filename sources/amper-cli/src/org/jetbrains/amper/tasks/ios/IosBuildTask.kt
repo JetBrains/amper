@@ -7,12 +7,8 @@ package org.jetbrains.amper.tasks.ios
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
-import org.jetbrains.amper.android.PathAsStringSerializer
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
@@ -41,7 +37,6 @@ import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
@@ -49,7 +44,6 @@ import kotlin.io.path.div
 import kotlin.io.path.getPosixFilePermissions
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
-import kotlin.io.path.readText
 import kotlin.io.path.setPosixFilePermissions
 
 
@@ -57,7 +51,6 @@ class IosBuildTask(
     override val platform: Platform,
     override val module: AmperModule,
     override val buildType: BuildType,
-    private val buildOutputRoot: AmperBuildOutputRoot,
     private val taskOutputPath: TaskOutputRoot,
     override val taskName: TaskName,
     private val userCacheRoot: AmperUserCacheRoot,
@@ -66,26 +59,12 @@ class IosBuildTask(
         require(platform.isDescendantOf(Platform.IOS)) { "Invalid iOS platform: $platform" }
     }
 
-    @Serializable
-    data class PreBuildInfo(
-        @Serializable(with = PathAsStringSerializer::class)
-        val buildOutputRoot: Path,
-        val moduleName: String,
-    ) {
-        companion object {
-            /**
-             * If set, signals the integration command that there is a super Amper call and all the necessary tasks have
-             * been run.
-             */
-            const val ENV_JSON_NAME = "AMPER_XCI_INFO_JSON"
-        }
-    }
-
     override val isTest: Boolean
         get() = false
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val projectInitialInfo = dependenciesResult.requireSingleDependency<ManageXCodeProjectTask.Result>()
+        val prebuildResult = dependenciesResult.requireSingleDependency<IosPreBuildTask.Result>()
         val xcodeSettings = projectInitialInfo.getResolvedXcodeSettings(buildType)
 
         val workingDir = taskOutputPath.path.createDirectories()
@@ -144,12 +123,7 @@ class IosBuildTask(
                         command = xcodebuildArgs,
                         span = span,
                         environment = mapOf(
-                            PreBuildInfo.ENV_JSON_NAME to Json.encodeToString(
-                                PreBuildInfo(
-                                    buildOutputRoot = buildOutputRoot.path,
-                                    moduleName = module.userReadableName,
-                                )
-                            ),
+                            IosPreBuildTask.Result.ENV_JSON_NAME to Json.encodeToString(prebuildResult),
                         ),
                         redirectErrorStream = true,
                         outputListener = outputListener,
@@ -165,18 +139,9 @@ class IosBuildTask(
                 }
         }
 
-        val iosConventions = IosConventions(
-            buildRootPath = buildOutputRoot.path,
-            moduleName = module.userReadableName,
-            buildType = buildType,
-            platform = platform,
-        )
-        val outputDescription: IosConventions.BuildOutputDescription =
-            Json.decodeFromString(iosConventions.getBuildOutputDescriptionFilePath().readText())
         return Result(
-            bundleId = outputDescription.productBundleId,
-            appPath = Path(outputDescription.appPath),
-            isSigningEnabled = outputDescription.isSigningEnabled,
+            bundleId = xcodeSettings.bundleId,
+            appPath = symRootPath / "${buildType.name}-${platform.sdk}" / "${xcodeSettings.productName}.app",
         )
     }
 
@@ -211,7 +176,6 @@ class IosBuildTask(
     class Result(
         val bundleId: String,
         val appPath: Path,
-        val isSigningEnabled: Boolean,
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

@@ -27,7 +27,7 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask
-import org.jetbrains.amper.tasks.ios.IosBuildTask
+import org.jetbrains.amper.tasks.ios.IosPreBuildTask
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.BuildType
@@ -384,7 +384,7 @@ class AmperBackend(val context: CliContext) {
         moduleDir: Path,
         platform: Platform,
         buildType: BuildType,
-    ): IosBuildTask.PreBuildInfo {
+    ): IosPreBuildTask.Result {
         val module = resolvedModel.modules.find { it.source.moduleDir == moduleDir }
         requireNotNull(module) {
             "Unable to resolve a module with the module directory '$moduleDir'"
@@ -405,12 +405,8 @@ class AmperBackend(val context: CliContext) {
             isTest = false,
             buildType = buildType,
         )
-        taskExecutor.runTasksAndReportOnFailure(setOf(taskName))
-
-        return IosBuildTask.PreBuildInfo(
-            moduleName = module.userReadableName,
-            buildOutputRoot = context.buildOutputRoot.path,
-        )
+        // Should throw otherwise
+        return (runTask(taskName) as ExecutionResult.Success).result as IosPreBuildTask.Result
     }
 
     private fun resolveModule(moduleName: String) = modulesByName[moduleName] ?: userReadableError(
