@@ -32,6 +32,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     module = module,
                     projectRoot = context.projectRoot,
                     terminal = context.terminal,
+                    commonRunSettings = context.commonRunSettings,
                     platform = platform,
                     buildType = BuildType.Debug,
                 ),

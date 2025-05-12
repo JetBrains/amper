@@ -19,21 +19,23 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
+import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
+import org.jetbrains.amper.tasks.native.toNativeTestExecutableArgs
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.pathString
 
 class IosKotlinTestTask(
     override val taskName: TaskName,
     override val module: AmperModule,
     private val projectRoot: AmperProjectRoot,
     private val terminal: Terminal,
+    private val commonRunSettings: CommonRunSettings,
     override val platform: Platform,
     override val buildType: BuildType,
 ) : TestTask {
@@ -55,8 +57,7 @@ class IosKotlinTestTask(
                 chosenDevice.deviceId,
                 executable.absolutePathString(),
                 "--",
-                "--ktest_logger=TEAMCITY",
-            )
+            ) + commonRunSettings.toNativeTestExecutableArgs()
 
             return spanBuilder("ios-kotlin-test")
                 .setAttribute("executable", spawnTestsCommand.first())

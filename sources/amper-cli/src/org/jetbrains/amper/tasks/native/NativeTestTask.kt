@@ -20,11 +20,8 @@ import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
-import org.jetbrains.amper.test.FilterMode
-import org.jetbrains.amper.test.TestFilter
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import kotlin.io.path.pathString
@@ -55,15 +52,7 @@ class NativeTestTask(
 
         val command = buildList {
             add(executable.pathString)
-            val testFilterArg = testFilterArg()
-            if (testFilterArg != null) {
-                add(testFilterArg)
-            }
-            val ktestLogger = when (commonRunSettings.testResultsFormat) {
-                TestResultsFormat.Pretty -> "gtest"
-                TestResultsFormat.TeamCity -> "teamcity"
-            }
-            add("--ktest_logger=$ktestLogger")
+            addAll(commonRunSettings.toNativeTestExecutableArgs())
         }
 
         return spanBuilder("native-test")
@@ -88,39 +77,4 @@ class NativeTestTask(
                 EmptyTaskResult
             }
     }
-
-    // see CLI args by running the test executable help, or check there:
-    // https://code.jetbrains.team/p/kt/repositories/kotlin/files/df027063420af0abd48c64ef598b1c5b0b5d7b1b/kotlin-native/runtime/src/main/kotlin/kotlin/native/internal/test/TestRunner.kt?tab=source&line=188&lines-count=34
-    private fun testFilterArg(): String? {
-        if (commonRunSettings.testFilters.isEmpty()) {
-            return null
-        }
-        val nativeFilters = commonRunSettings.testFilters.map { it.toKNativeTestFilter() }
-        val includeFilters = nativeFilters.filter { it.mode == FilterMode.Include }.joinToString(":") { it.pattern }
-        val excludeFilters = nativeFilters.filter { it.mode == FilterMode.Exclude }.joinToString(":") { it.pattern }
-
-        val filterArgValue = when {
-            excludeFilters.isEmpty() -> includeFilters
-            else -> "$includeFilters-$excludeFilters"
-        }
-        return "--ktest_filter=$filterArgValue"
-    }
-}
-
-private data class KNativeTestFilter(val pattern: String, val mode: FilterMode)
-
-private fun TestFilter.toKNativeTestFilter(): KNativeTestFilter = when (this) {
-    is TestFilter.SpecificTestInclude -> KNativeTestFilter(
-        pattern = toKotlinNativeFormat(),
-        mode = FilterMode.Include,
-    )
-    is TestFilter.SuitePattern -> KNativeTestFilter(
-        pattern = "${pattern.replace('/', '.')}.*",
-        mode = mode,
-    )
-}
-
-private fun TestFilter.SpecificTestInclude.toKotlinNativeFormat(): String {
-    val nestedClassSuffix = if (nestedClassName != null) ".$nestedClassName" else ""
-    return "$suiteFqn$nestedClassSuffix.$testName"
 }
