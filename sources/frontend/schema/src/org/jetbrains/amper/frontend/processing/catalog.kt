@@ -190,6 +190,7 @@ class BuiltInCatalog(
         put("compose.html.testUtils", library("org.jetbrains.compose.html:html-test-utils", composeVersion))
         put("compose.material", library("org.jetbrains.compose.material:material", composeVersion))
         put("compose.material3", library("org.jetbrains.compose.material3:material3", composeVersion))
+        put("compose.materialIconsCore", library("org.jetbrains.compose.material:material-icons-core", composeVersion))
         put("compose.materialIconsExtended", library("org.jetbrains.compose.material:material-icons-extended", composeVersion))
         put("compose.preview", library("org.jetbrains.compose.ui:ui-tooling-preview", composeVersion))
         put("compose.runtime", library("org.jetbrains.compose.runtime:runtime", composeVersion))
