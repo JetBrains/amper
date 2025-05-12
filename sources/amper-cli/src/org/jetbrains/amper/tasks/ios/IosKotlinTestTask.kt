@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.ios
@@ -22,6 +22,7 @@ import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
+import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
@@ -47,20 +48,21 @@ class IosKotlinTestTask(
         val chosenDevice = pickBestDevice() ?: error("No available device")
 
         DeviceLock.withLock(hash = chosenDevice.deviceId.hashCode()) {
+            val spawnTestsCommand = listOf(
+                XCRUN_EXECUTABLE,
+                "simctl",
+                "spawn",
+                chosenDevice.deviceId,
+                executable.absolutePathString(),
+                "--",
+                "--ktest_logger=TEAMCITY",
+            )
+
             return spanBuilder("ios-kotlin-test")
-                .setAttribute("executable", executable.pathString)
+                .setAttribute("executable", spawnTestsCommand.first())
+                .setListAttribute("args", spawnTestsCommand.drop(1))
                 .use { span ->
                     bootAndWaitSimulator(chosenDevice)
-
-                    val spawnTestsCommand = listOf(
-                        XCRUN_EXECUTABLE,
-                        "simctl",
-                        "spawn",
-                        chosenDevice.deviceId,
-                        executable.absolutePathString(),
-                        "--",
-                        "--ktest_logger=TEAMCITY",
-                    )
 
                     val result = BuildPrimitives.runProcessAndGetOutput(
                         workingDir = workingDir,

@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.native
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
@@ -20,6 +21,7 @@ import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestResultsFormat
+import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
@@ -51,8 +53,23 @@ class NativeTestTask(
             return EmptyTaskResult
         }
 
+        val command = buildList {
+            add(executable.pathString)
+            val testFilterArg = testFilterArg()
+            if (testFilterArg != null) {
+                add(testFilterArg)
+            }
+            val ktestLogger = when (commonRunSettings.testResultsFormat) {
+                TestResultsFormat.Pretty -> "gtest"
+                TestResultsFormat.TeamCity -> "teamcity"
+            }
+            add("--ktest_logger=$ktestLogger")
+        }
+
         return spanBuilder("native-test")
-            .setAttribute("executable", executable.pathString)
+            .setAmperModule(module)
+            .setAttribute("executable", command.first())
+            .setListAttribute("args", command.drop(1))
             .use { span ->
                 logger.info("Testing module '${module.userReadableName}' for platform '${platform.pretty}'...")
 
@@ -60,18 +77,7 @@ class NativeTestTask(
 
                 val result = BuildPrimitives.runProcessAndGetOutput(
                     workingDir = workingDir,
-                    command = buildList {
-                        add(executable.pathString)
-                        val testFilterArg = testFilterArg()
-                        if (testFilterArg != null) {
-                            add(testFilterArg)
-                        }
-                        val ktestLogger = when (commonRunSettings.testResultsFormat) {
-                            TestResultsFormat.Pretty -> "gtest"
-                            TestResultsFormat.TeamCity -> "teamcity"
-                        }
-                        add("--ktest_logger=$ktestLogger")
-                    },
+                    command = command,
                     span = span,
                     outputListener = PrintToTerminalProcessOutputListener(terminal),
                 )
