@@ -287,9 +287,9 @@ wrapper_path=$(realpath "$0")
 
 if [ "$simpleOs" = "windows" ]; then
   # Can't cygpath the *
-  classpath="$(cygpath -w "$script_dir/build/tasks/_cli_unpackedDist/dist/lib")\*"
+  classpath="$(cygpath -w "$script_dir/build/tasks/_amper-cli_unpackedDist/dist/lib")\*"
 else
-  classpath="$script_dir/build/tasks/_cli_unpackedDist/dist/lib/*"
+  classpath="$script_dir/build/tasks/_amper-cli_unpackedDist/dist/lib/*"
 fi
 jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
 # shellcheck disable=SC2086
