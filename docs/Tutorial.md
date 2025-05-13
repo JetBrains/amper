@@ -238,25 +238,11 @@ Examples:
 
 ## Step 6. Modularize
 
-Let's split our project into a JVM application and a library module, with shared code that we are going to reuse.
+Let's split our project into a JVM application and a library module, with shared code that we are going to reuse later
+when making the project multiplatform.
 
-It will have the following structure:
-
-```
-|-jvm-app/
-|  |-src/
-|  |  |-main.kt
-|  |-test/
-|  |  |-...
-|  |-module.yaml
-|-shared/
-|  |-src/
-|  |  |-hello.kt
-|  |-module.yaml
-```
-
-We also add `project.yaml` file in the root, next to the existing `amper` and `amper.bat` files. 
-It will help Amper find all modules in the project:
+Our goal here is to separate our app into a `shared` library module and a `jvm-app` application module and reach the 
+following structure:
 ```
 |-jvm-app/
 |  |-...
@@ -269,14 +255,88 @@ It will help Amper find all modules in the project:
 |-project.yaml
 ```
 
-After that add the module to the `project.yaml` file:
+First let's move our current `src`, `test` and `module.yaml` files into a new `jvm-app` directory:
+```
+|-jvm-app/
+|  |-src/
+|  |  |-main.kt
+|  |-test/
+|  |  |-...
+|  |-module.yaml
+|-amper
+|-amper.bat
+```
+
+Add a `project.yaml` file in the root, next to the existing `amper` and `amper.bat` files, with the following content:
 
 ```yaml
 modules:
   - ./jvm-app
   - ./shared
 ```
-Read more about the [project layout](Documentation.md#project-layout)
+
+If you're using IntelliJ IDEA, you should see a warning that the `shared` module is missing, and you can automatically
+create it from here. Otherwise, just create a new `shared` directory manually, with `src` and `test` directories, and
+a `module.yaml` with the following content:
+
+```YAML
+product:
+  type: lib
+  platforms: [jvm]
+
+dependencies:
+  - $compose.foundation: exported
+  - $compose.material3: exported
+  - $compose.desktop.currentOs: exported
+
+settings:
+  compose:
+    enabled: true
+```
+
+Note how the library 'exports' its dependencies. The dependent module will 'see' these dependencies and don't need to
+explicitly depend on them.
+
+We can now change our `jvm-app/module.yaml` to depend on the `shared` module:
+
+```YAML
+product: jvm/app
+
+dependencies:
+  - ../shared # use the 'shared' module as a dependency
+
+settings:
+  compose:
+    enabled: true
+```
+
+Note how the dependency on the `shared` module is declared using a relative path.
+
+Let's extract the common code into a new `shared/src/hello.kt` file:
+
+```kotlin
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
+
+@Composable
+fun sayHello() {
+    BasicText("Hello, World!")
+}
+```
+
+And re-use it in the `jvm-app/src/main.kt` file:
+```kotlin
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+
+fun main() = application {
+    Window(onCloseRequest = ::exitApplication) {
+        sayHello()
+    }
+}
+```
+
+We now have a multi-module project with some neatly extracted shared code.
 
 > In the case of a [Gradle-based project](Documentation.md#gradle-based-projects), 
 > `settings.gradle.kts` is used instead of `project.yaml` file.
@@ -301,77 +361,15 @@ Read more about the [project layout](Documentation.md#project-layout)
 > 
 > // add new modules to the project
 > include("jvm-app", "shared")
-> ``` 
->
-> Read more about the [project layout](Documentation.md#project-layout)
+> ```
 
+Examples: Compose Multiplatform ([standalone](../examples-standalone/compose-multiplatform), 
+[Gradle-based](../examples-gradle/compose-multiplatform))
 
-The `jvm-app/module.yaml` will look like this
-```YAML
-product: jvm/app
-
-dependencies:
-  - ../shared # use the 'shared' module as a dependency
-
-settings:
-  compose:
-    enabled: true
-```
-
-Note how a dependency on the `shared` module is declared using a relative path.
-
-And the `shared/module.yaml`:
-```YAML
-product:
-  type: lib
-  platforms: [jvm]
-
-dependencies:
-  - $compose.foundation: exported
-  - $compose.material3: exported
-  - $compose.desktop.currentOs: exported
-
-settings:
-  compose:
-    enabled: true
-```
-
-Note how the library 'exports' its dependencies. The dependent module will 'see' these dependencies and don't need to
-explicitly depend on them.
-
-Let's extract the common code into the `shared/src/hello.kt` file:
-
-```kotlin
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.runtime.Composable
-
-@Composable
-fun sayHello() {
-    BasicText("Hello, World!")
-}
-```
-
-And re-use it in the `jvm-app/src/main.kt` file:
-```kotlin
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
-
-fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
-        sayHello()
-    }
-}
-```
-
-Now we have a multi-module project with some neatly extracted shared code. 
-
-Examples: Compose
-Multiplatform ([standalone](../examples-standalone/compose-multiplatform), [Gradle-based](../examples-gradle/compose-multiplatform))
-
-Documentation:
-- [Project layout](Documentation.md#project-layout)
-- [Module dependencies](Documentation.md#module-dependencies)
-- [Dependency visibility and scope](Documentation.md#scopes-and-visibility)
+> See the full documentation about:
+> - [Project layout](Documentation.md#project-layout)
+> - [Module dependencies](Documentation.md#module-dependencies)
+> - [Dependency visibility and scope](Documentation.md#scopes-and-visibility)
 
 ## Step 7. Make project multiplatform
 
@@ -396,9 +394,10 @@ Here is the project structure that we need:
 |  |-...
 |-shared/
 |  |-...
+| project.yaml
 ```
 
-Don't forget to add the new modules into the `project.yaml` file:
+Remember to add the new modules into the `project.yaml` file:
 
 ```yaml
 modules:
