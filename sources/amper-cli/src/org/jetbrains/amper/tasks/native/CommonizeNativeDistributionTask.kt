@@ -10,6 +10,7 @@ import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Model
@@ -23,7 +24,6 @@ import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
@@ -37,7 +37,7 @@ class CommonizeNativeDistributionTask(
     private val model: Model,
     private val userCacheRoot: AmperUserCacheRoot,
     private val tempRoot: AmperProjectTempRoot,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     companion object {
         val TASK_NAME = TaskName("commonizeNativeDistribution")
@@ -71,24 +71,34 @@ class CommonizeNativeDistributionTask(
                 add("-output-targets"); add(todoOutputTargets.joinToString(separator = ";"))
             }
 
-            // TODO Add caching.
             spanBuilder("kotlin-native-distribution-commonize")
                 .setAttribute("compiler-version", kotlinVersion)
                 .setListAttribute("commonizer-args", commonizerArgs)
                 .use {
-                    logger.info("Commonizing Kotlin/Native distribution...")
-                    val result = jdk.runJava(
-                        workingDir = Path("."),
-                        mainClass = "org.jetbrains.kotlin.commonizer.cli.CommonizerCLI",
-                        classpath = commonizerClasspath,
-                        programArgs = commonizerArgs,
-                        jvmArgs = listOf(),
-                        outputListener = LoggingProcessOutputListener(logger),
-                        tempRoot = tempRoot,
-                    )
-                    if (result.exitCode != 0) {
-                        userReadableError("Kotlin commonizer invocation failed (see errors above)")
-                    }
+                    executeOnChangedInputs.execute(
+                        "native-dist-commonize-$todoOutputTargets",
+                        mapOf("commonizerArgs" to commonizerArgs.joinToString()),
+                        listOf(
+                            compiler.kotlinNativeHome,
+                            compiler.commonizedPath,
+                            *commonizerClasspath.toTypedArray()
+                        )
+                    ) {
+                        logger.info("Commonizing Kotlin/Native distribution...")
+                        val result = jdk.runJava(
+                            workingDir = Path("."),
+                            mainClass = "org.jetbrains.kotlin.commonizer.cli.CommonizerCLI",
+                            classpath = commonizerClasspath,
+                            programArgs = commonizerArgs,
+                            jvmArgs = listOf(),
+                            outputListener = LoggingProcessOutputListener(logger),
+                            tempRoot = tempRoot,
+                        )
+                        if (result.exitCode != 0) {
+                            userReadableError("Kotlin commonizer invocation failed (see errors above)")
+                        }
+                        return@execute ExecuteOnChangedInputs.ExecutionResult(emptyList())
+                    }.outputs
                 }
         }
 
