@@ -5,3 +5,6 @@ compose-multiplatform
 jvm-cli
 kmp-lib
 multiplatform-cli
+ktor-server
+spring-boot
+spring-boot-kotlin

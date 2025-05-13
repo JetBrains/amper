@@ -1,0 +1,6 @@
+ktor:
+    application:
+        modules:
+            - org.jetbrains.amper.ktor.ApplicationKt.module
+    deployment:
+        port: 8080

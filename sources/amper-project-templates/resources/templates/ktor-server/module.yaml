@@ -1,0 +1,15 @@
+product: jvm/app
+
+settings:
+  ktor: enabled
+  jvm:
+    mainClass: org.jetbrains.amper.ktor.ApplicationKt
+
+dependencies:
+  - $ktor.server.core
+  - $ktor.server.netty
+  - $ktor.server.configYaml
+  - $logback.classic
+
+test-dependencies:
+  - $ktor.server.testHost

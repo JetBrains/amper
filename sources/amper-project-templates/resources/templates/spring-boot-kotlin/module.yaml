@@ -1,0 +1,6 @@
+product: jvm/app
+
+settings:
+  springBoot: enabled
+  jvm:
+    mainClass: org.jetbrains.amper.spring.MainKt
