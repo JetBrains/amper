@@ -21,8 +21,7 @@ Each module describes a single product. Several modules can't share same sources
 
 > To get familiar with YAML, see [the brief intro](#brief-yaml-reference).
 
-_How_ to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine
-and [extensions](#extensibility).
+_How_ to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine.
 In Gradle-based Amper projects it's possible to use [plugins](Documentation.md#using-gradle-plugins) and
 write [custom Gradle tasks](#writing-custom-gradle-tasks).
 
@@ -405,7 +404,7 @@ dependencies:
 The `settings:` section contains toolchains settings.
 A _toolchain_ is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (linter, code generator).
 
-> Toolchains are supposed to be [extensible](#extensibility) in the future.
+> Toolchains are supposed to be extensible in the future.
 
 All toolchain settings are specified in the dedicated groups in the `settings:` section:
 ```yaml
