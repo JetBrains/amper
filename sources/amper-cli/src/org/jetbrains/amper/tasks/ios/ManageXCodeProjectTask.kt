@@ -35,6 +35,7 @@ import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
@@ -217,7 +218,9 @@ class ManageXCodeProjectTask(
             this[BuildSettingNames.FRAMEWORK_SEARCH_PATHS] =
                 "$(inherited) $(TARGET_BUILD_DIR)/${IosConventions.FRAMEWORKS_DIR_NAME}"
             // TODO: Move to the XConfig. For now generated a single time and is not managed anymore.
-            this[AMPER_WRAPPER_PATH_CONF] = CliContext.wrapperScriptPath.relativeTo(baseDir).pathString
+            this[AMPER_WRAPPER_PATH_CONF] = CliContext.wrapperScriptPath.relativeTo(baseDir).let { 
+                if (it.parent == null) Path(".") / it else it
+            }.pathString
 
             // Misc defaults:
             this[BuildSettingNames.LD_RUNPATH_SEARCH_PATHS] =
