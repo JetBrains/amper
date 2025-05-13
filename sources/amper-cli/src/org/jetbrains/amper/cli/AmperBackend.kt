@@ -322,14 +322,33 @@ class AmperBackend(val context: CliContext) {
         val moduleToRun = if (moduleName != null) {
             resolveModule(moduleName)
         } else {
-            val candidates = resolvedModel.modules.filter { it.type.isApplication() }
+            val candidates = resolvedModel.modules
+                .filter { it.type.isApplication() }
+                .filter { platform == null || platform in it.leafPlatforms }
             when {
-                candidates.isEmpty() -> userReadableError("No modules in the project with application type")
-                candidates.size > 1 ->
+                candidates.isEmpty() -> {
+                    val supportingClause = platform?.let { " supporting ${it.pretty}" } ?: ""
+                    userReadableError("No modules in the project with application type$supportingClause")
+                }
+                candidates.size > 1 -> {
+                    val canBeSelectedUsingPlatform = candidates.flatMap { it.leafPlatforms }.let { allPlatformEntries ->
+                        // Check if there are no such two app modules that share a leaf platform
+                        allPlatformEntries.distinct().size == allPlatformEntries.size
+                    }
+
+                    val supportingClause = if (platform != null) " supporting ${platform.pretty}" else ""
+                    val candidatesList = candidates.map { it.userReadableName }.sorted().joinToString()
+                    val optionSuggestion = if (canBeSelectedUsingPlatform) {
+                        "'--platform' or '--module' arguments"
+                    } else {
+                        "'--module' argument"
+                    }
                     userReadableError(
-                        "There are several application modules in the project. Please specify one with '--module' argument.\n\n" +
-                                "Available application modules: ${candidates.map { it.userReadableName }.sorted()}"
+                        "There are several matching application modules in the project. " +
+                                "Please specify one with $optionSuggestion.\n\n" +
+                                "Available application modules${supportingClause}: $candidatesList"
                     )
+                }
 
                 else -> candidates.single()
             }

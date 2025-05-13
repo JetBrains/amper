@@ -242,4 +242,63 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         result.assertStdoutContains("Started MainKt")
     }
+
+    @Test
+    fun `run fails if no app modules matching the platform`() = runSlowTest {
+        val projectRoot = testProject("multi-module")
+
+        val result = runCli(
+            projectRoot = projectRoot,
+            "run", "--platform", "iosArm64",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+
+        result.assertStderrContains("No modules in the project with application type supporting iosArm64")
+    }
+
+    @Test
+    fun `run fails if no app modules at all`() = runSlowTest {
+        val projectRoot = testProject("jvm-publish")
+
+        val result = runCli(
+            projectRoot = projectRoot,
+            "run",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+
+        result.assertStderrContains("No modules in the project with application type")
+    }
+
+    @Test
+    fun `run fails if more than one module matches`() = runSlowTest {
+        val projectRoot = testProject("multi-module-multi-apps")
+
+        val result1 = runCli(
+            projectRoot = projectRoot,
+            "run", "--platform", "linuxX64",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+
+        result1.assertStderrContains("""
+            There are several matching application modules in the project. Please specify one with '--module' argument.
+            
+            Available application modules supporting linuxX64: app1, app2
+        """.trimIndent())
+
+        val result2 = runCli(
+            projectRoot = projectRoot,
+            "run",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+
+        result2.assertStderrContains("""
+            There are several matching application modules in the project. Please specify one with '--module' argument.
+            
+            Available application modules: app1, app2, app3
+        """.trimIndent())
+    }
 }

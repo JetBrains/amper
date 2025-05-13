@@ -1,0 +1,4 @@
+product:
+  type: linux/app
+  platforms:
+    - linuxX64
