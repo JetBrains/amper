@@ -13,7 +13,7 @@ Module
 
 Meta
 ----
-	layout: AmperLayout, default: default - File layout of the module. [Read more](#file-layout-with-gradle-interop)
+	layout: AmperLayout, default: default - File layout of the module. [Read more](#file-layout-with-gradle-interoperability)
 
 ModuleProduct: Defines what should be produced out of the module. [Read more](#product-types)
 ---------------------------------------------------------------------------------------------

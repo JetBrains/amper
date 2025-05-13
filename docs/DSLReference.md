@@ -142,7 +142,7 @@ dependencies@debug:
 
 | Attribute      | Description                                                                                                            | Default   |
 |----------------|------------------------------------------------------------------------------------------------------------------------|-----------|
-| `layout: enum` | (Gradle-based projects only) File layout of the module. [Read more](Documentation.md#file-layout-with-gradle-interop). | `default` |
+| `layout: enum` | (Gradle-based projects only) File layout of the module. [Read more](Documentation.md#file-layout-with-gradle-interoperability). | `default` |
 
 Supported file layouts:
 
@@ -152,7 +152,7 @@ Supported file layouts:
 | `gradle-jvm` | The file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html).           |
 | `gradle-kmp` | The file layout corresponds to the Gradle [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). |
 
-See more on the layouts in the [documentation](Documentation.md#file-layout-with-gradle-interop).
+See more on the layouts in the [documentation](Documentation.md#file-layout-with-gradle-interoperability).
 
 Examples:
 

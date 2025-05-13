@@ -191,7 +191,7 @@
       "type": "object",
       "properties": {
         "layout": {
-          "x-intellij-html-description": "File layout of the module. [Read more](#file-layout-with-gradle-interop)",
+          "x-intellij-html-description": "File layout of the module. [Read more](#file-layout-with-gradle-interoperability)",
           "title": "File layout of the module",
           "enum": ["gradle-kmp","gradle-jvm","default"],
           "x-intellij-enum-metadata": {"gradle-kmp": "(Kotlin Multiplatform layout)","gradle-jvm": "(JVM layout)","default": "(Default Amper file layout)"}

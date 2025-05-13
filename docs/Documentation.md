@@ -133,7 +133,7 @@ Amper also supports Gradle-compatible layouts for [Gradle-based](#gradle-based-p
 |  |  |  |-...
 |-module.yaml
 ```
-Read more about [Gradle-compatible project layouts](#file-layout-with-gradle-interop).
+Read more about [Gradle-compatible project layouts](#file-layout-with-gradle-interoperability).
 
 ## Module file anatomy
 
@@ -581,7 +581,7 @@ The file layout for the standalone Amper is:
 ```
 
 To use multiplatform resources in a Gradle-based project,
-a module must be configured with a [Gradle-compatible file layout](#file-layout-with-gradle-interop):
+a module must be configured with a [Gradle-compatible file layout](#file-layout-with-gradle-interoperability):
 ```
 |-my-kmp-module/
 |  |-module.yaml
@@ -1088,9 +1088,9 @@ Android modules also have [res and assets](https://developer.android.com/guide/t
 |-module.yaml
 ```
 
-## Interop between languages
+## Interoperability between languages
 
-Kotlin Multiplatform implies smooth interop with platform languages, APIs, and frameworks.
+Kotlin Multiplatform implies smooth interoperability with platform languages, APIs, and frameworks.
 There are three distinct scenarios where such interoperability is needed:
 
 - Consuming: Kotlin code can use APIs from existing platform libraries, e.g. jars on JVM (later CocoaPods on iOS too).  
@@ -1618,9 +1618,9 @@ plugins {
 include("app", "lib")
 ```
 
-### Gradle interop
+### Gradle interoperability
 
-The Gradle interop supports the following scenarios:
+The Gradle interoperability supports the following scenarios:
 
 * partial use of Amper in an existing Gradle project,
 * smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Amper,
@@ -1632,7 +1632,7 @@ Gradle features supported in Amper modules:
 * Writing Gradle [custom tasks](#writing-custom-gradle-tasks).
 * Using [Gradle plugins](#using-gradle-plugins).
 * Configuring additional [settings in the `build.gradle.kts` files](#configuring-settings-in-the-gradle-build-files).
-* [Gradle-compatible file layout](#file-layout-with-gradle-interop).
+* [Gradle-compatible file layout](#file-layout-with-gradle-interoperability).
 
 To use Gradle interop in an Amper module, place either a `build.gradle.kts` or a `build.gradle` file next to
 your `module.yaml` file:
@@ -1733,7 +1733,7 @@ kotlin {
 Read more about C-interop configuration in
 the [Kotlin/Native documentation](https://kotlinlang.org/docs/native-app-with-c-and-libcurl.html#add-interoperability-to-the-build-process).
 
-#### File layout with Gradle interop
+#### File layout with Gradle interoperability
 
 The default [module layout](#project-layout) suites best for the newly created modules:  
 ```

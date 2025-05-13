@@ -108,7 +108,7 @@ class TaskSettings: SchemaNode() {
     var dependsOn by nullableValue<List<TraceableString>>()
 }
 
-@SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interop)")
+@SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interoperability)")
 enum class AmperLayout(
     override var schemaValue: String,
     override val outdated: Boolean = false
@@ -127,6 +127,6 @@ enum class AmperLayout(
 
 class Meta : SchemaNode() {
 
-    @SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interop)")
+    @SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interoperability)")
     var layout by value(AmperLayout.AMPER)
 }

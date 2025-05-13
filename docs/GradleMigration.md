@@ -149,7 +149,7 @@ module:
 ```
 
 The `product:` section controls the type of produced artifact, in this case, a library for the JVM platform.
-The `layout: gradle-jvm` enables a [Gradle-compatible mode](Documentation.md#file-layout-with-gradle-interop) for JVM
+The `layout: gradle-jvm` enables a [Gradle-compatible mode](Documentation.md#file-layout-with-gradle-interoperability) for JVM
 projects.
 
 > Due to current limitation, when you migrate a JVM subproject to an Amper module you need to replace
@@ -211,7 +211,7 @@ module:
 ```
 
 The `product:` section controls the type of produced artifact, in this case, a library for the JVM and for Android
-platforms. The `layout: gradle-kmp` enables a [Gradle-compatible mode](Documentation.md#file-layout-with-gradle-interop)
+platforms. The `layout: gradle-kmp` enables a [Gradle-compatible mode](Documentation.md#file-layout-with-gradle-interoperability)
 for Kotlin Multiplatform projects.
 
 After creating a module.yaml file, remove

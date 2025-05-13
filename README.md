@@ -37,7 +37,7 @@ Supported features:
 * Using Compose [multiplatform resources](docs/Documentation.md#using-multiplatform-resources).
 * Integration with [Gradle version catalogs](docs/Documentation.md#library-catalogs-aka-version-catalogs).
 * [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project*.
-* [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects*.
+* [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interoperability) for the smooth migration of existing Gradle projects*.
 
 *\* only in Gradle-based projects*
 
