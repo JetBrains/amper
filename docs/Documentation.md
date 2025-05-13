@@ -1094,51 +1094,21 @@ Android modules also have [res and assets](https://developer.android.com/guide/t
 Kotlin Multiplatform implies smooth interop with platform languages, APIs, and frameworks.
 There are three distinct scenarios where such interoperability is needed:
 
-- Consuming: Kotlin code can use APIs from existing platform libraries, e.g. jars on JVM or CocoaPods on iOS.  
-- Publishing: Kotlin code can be compiled and published as platform libraries to be consumed by the target platform's tooling; such as jars on JVM, *.so on linux or frameworks on iOS.    
-- Joint compilation: Kotlin code be compiled and linked into a final product together with the platform languages, like JVM, C, Objective-C and Swift.
+- Consuming: Kotlin code can use APIs from existing platform libraries, e.g. jars on JVM (later CocoaPods on iOS too).  
+- Publishing: Kotlin code can be compiled and published as platform libraries to be consumed by the target platform's 
+  tooling; such as jars on JVM, frameworks on iOS (maybe later .so on linux).    
+- Joint compilation: Kotlin code be compiled and linked into a final product together with the platform languages, like
+  JVM, Objective-C, and Swift.
 
-> Kotlin JVM supported all these scenarios from the beginning.
-> However, full interoperability is currently not supported in Kotlin Native.
+Joint compilation is already supported for Java and Kotlin, with 2-way interoperability: Java code can reference Kotlin
+declarations, and vice versa.
 
-Here is how the interop is designed to work in the current Amper design:
+In the future, Kotlin Native will also support joint Kotlin+Swift compilation in the same way, but this is not the case
+yet. At the moment, Kotlin code is first compiled into an Objective-C frameworks, and then Swift is compiled using the
+Xcode toolchain with a dependency on that framework. This means that Swift code can reference Kotlin declarations,
+but Kotlin cannot reference Swift declarations.
 
-Consuming: Platform libraries and package managers could be consumed using a dedicated (and [extensible](#extensibility)) [dependency notation](#native-dependencies):
-
-```yaml
-dependencies:
-  # Kotlin or JVM dependency
-  - io.ktor:ktor-client-core:2.2.0
-
-  # JS npm dependency
-  - npm: "react"
-    version: "^17.0.2"
-
-  # iOS CocoaPods dependency
-  - pod: 'Alamofire'
-    version: '~> 2.0.1'
-```
-
-Publishing: In order to create a platform library or a package different [packaging types](#packaging) are supported (also [extensible](#extensibility)):
-
-```yaml
-publishing:
-  # publish as JVM library 
-  - maven: lib        
-    groupId: ...
-    artifactId: ...
-
-  # publish as iOS CocoaPods framework 
-  - cocoapods: ios/framework
-    name: MyCocoaPod
-    version: 1.0
-    summary: ...
-    homepage: ...
-```
-
-Joint compilation is already supported for Java and Kotlin, and in the future Kotlin Native will also support joint Kotlin+Swift compilation.
-
-From the user's point of view, the joint compilation is transparent; they could simply place the code written in different languages into the same source folder:
+In Amper, both Java and Swift code can be placed alongside Kotlin code in the same `src` folder:
 
 ```
 |-src/             
