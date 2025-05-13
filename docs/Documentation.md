@@ -1019,7 +1019,7 @@ Example:
 |-test/           # Sees declarations from src/. Executed on all platforms. 
 |  |-MainTest.kt
 |  |-... 
-|-test@ios/       # Sees declarations from test/ and src@ios/. Executed on iOS platforms only.  
+|-test@ios/       # Sees declarations from src/, src@ios/, and `test/`. Executed on iOS platforms only.  
 |  |-IOSTest.kt 
 |  |-... 
 |-module.yaml
