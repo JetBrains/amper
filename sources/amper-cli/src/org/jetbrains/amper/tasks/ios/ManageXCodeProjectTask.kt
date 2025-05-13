@@ -145,7 +145,7 @@ class ManageXCodeProjectTask(
 
             return ResolvedXcodeSettings(
                 bundleId = bundleId,
-                hasTeamId = settingsResolver.getBuildSetting("DEVELOPMENT_TEAM").string != null,
+                hasTeamId = !settingsResolver.getBuildSetting("DEVELOPMENT_TEAM").string.isNullOrBlank(),
                 isSigningDisabled = settingsResolver.getBuildSetting("CODE_SIGNING_ALLOWED").string == "NO",
             )
         }
