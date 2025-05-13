@@ -630,9 +630,10 @@ Read more about setting up and using compose resources in [the documentation](ht
 #### Configuring entry points
 
 ##### JVM
-By convention, a single `main.kt` file (case-insensitive) in the source folder is the default entry point for the application.
+By default, the entrypoint of JVM applications (the `main` function) is expected to be in a `main.kt` file 
+(case-insensitive) in the `src` folder.
 
-Here is how to specify the entry point explicitly for JVM applications (main class):
+This can be overridden by specifying a main class explicitly in the module settings:
 ```yaml
 product: jvm/app
 
@@ -640,16 +641,36 @@ settings:
   jvm:
     mainClass: org.example.myapp.MyMainKt
 ```
+
+> [!NOTE]
+> In Kotlin, unlike Java, the `main` function doesn't have to be declared in a class, and is usually at the top level
+> of the file. However, the JVM still expects a main class when running any application. Kotlin always compiles 
+> top-level declarations to a class, and the name of that class is derived from the name of the file by capitalizing 
+> the name and turning the `.kt` extension into a `Kt` suffix.
+> 
+> For example, the top-level declarations of `myMain.kt` will be in a class named `MyMainKt`.
+
 ##### Native
-By convention, a single `main.kt` file (case-insensitive) in the source folder is the default entry point for the application.
+
+By default, the entrypoint of Kotlin native applications (the `main` function) is expected to be in a `main.kt` file 
+(case-insensitive) in the `src` folder.
+
+This can be overridden by specifying the fully qualified name of the `main` function explicitly in the module settings:
+```yaml
+product: jvm/app
+
+settings:
+  native:
+    entryPoint: org.example.myapp.main
+```
 
 ##### Android
 
-See the [dedicated Android section](#entry-point)
+Android apps have their own way to configure the entry point, see the [dedicated Android section](#entry-point).
 
 ##### iOS
 
-Currently, there should be a swift file in the `src/` folder with the `@main` struct:
+For iOS applications, the entrypoint is expected to be a `@main` struct in any Swift file in the `src` folder.
 ```
 |-src/ 
 |  |-main.swift
@@ -665,6 +686,8 @@ struct iosApp: App {
    ...
 }
 ```
+
+This is not customizable at the moment.
 
 #### Configuring Android
 
