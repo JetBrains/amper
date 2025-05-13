@@ -170,6 +170,27 @@ class ProjectTemplatesTest : AmperCliTestBase() {
         }
     }
 
+    @Test
+    fun `ktor-server`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
+
+        runCli(tempRoot, "build")
+    }
+
+    @Test
+    fun `spring-boot`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
+
+        runCli(tempRoot, "run")
+    }
+
+    @Test
+    fun `spring-boot-kotlin`(testInfo: TestInfo) = runSlowTest {
+        runInitForTemplateFromTestName(testInfo)
+
+        runCli(tempRoot, "run")
+    }
+
     private suspend fun runInitForTemplateFromTestName(testInfo: TestInfo): AmperCliResult =
         runCli(tempRoot, "init", templateNameFromTestName(testInfo.testMethod.get().name))
 
