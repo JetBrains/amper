@@ -378,6 +378,7 @@ Amper currently supports 2 types of dependency catalogs:
 The toolchain catalogs are implicitly defined, and contain predefined libraries that relate to the corresponding toolchain.
 The name of such a catalog corresponds to the [name of the corresponding toolchain in the settings section](#settings).
 For example, dependencies for the Compose Multiplatform frameworks are accessible using the `$compose` catalog.
+All dependencies in such catalogs usually have the same version, which is the toolchain version.
 
 The Gradle version catalogs are user-defined catalogs using the Gradle format.
 Dependencies from this catalog can be accessed via the `$libs` catalog, and the library keys are defined according
