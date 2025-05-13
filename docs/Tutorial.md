@@ -179,8 +179,10 @@ settings:
 ## Step 5. Add a UI with Compose
 
 Now, let's turn the example into a GUI application.
-To do that we'll add the [Compose Multiplatform framework](https://github.com/JetBrains/compose-multiplatform):
+To do that we'll add the [Compose Multiplatform framework](https://github.com/JetBrains/compose-multiplatform).
+It allows building plain JVM desktop apps, which are simple for now, and paves the way for turning multiplatform later.
 
+Let's change our `module.yaml` to:
 ```YAML
 product: jvm/app
 
@@ -200,7 +202,12 @@ settings:
     enabled: true
 ```
 
-and replace the contents of `main.kt` with the following code:
+> [!NOTE]
+> The `$compose.*` dependencies are declared with a special reference syntax here.
+> These are references to the Compose toolchain library catalog, and are available because we enabled the toolchain.
+> Read more about library catalogs in the [documentation](Documentation.md#library-catalogs-aka-version-catalogs).
+
+We can then replace the contents of `main.kt` with the following code:
 
 ```kotlin
 import androidx.compose.foundation.text.BasicText
@@ -218,13 +225,14 @@ Now we have a GUI application!
 
 Examples:
 
-- Compose
-  Desktop ([standalone](../examples-standalone/compose-desktop), [Gradle-based](../examples-gradle/compose-desktop))
-- Compose
-  Android ([standalone](../examples-standalone/compose-android), [Gradle-based](../examples-gradle/compose-android))
-- Compose iOS ([standalone](../examples-standalone/compose-ios), [Gradle-based](../examples-gradle/compose-ios))
-- Compose
-  Multiplatform ([standalone](../examples-standalone/compose-multiplatform), [Gradle-based](../examples-gradle/compose-multiplatform))
+- Compose Desktop ([standalone](../examples-standalone/compose-desktop), 
+  [Gradle-based](../examples-gradle/compose-desktop))
+- Compose Android ([standalone](../examples-standalone/compose-android), 
+  [Gradle-based](../examples-gradle/compose-android))
+- Compose iOS ([standalone](../examples-standalone/compose-ios), 
+  [Gradle-based](../examples-gradle/compose-ios))
+- Compose Multiplatform ([standalone](../examples-standalone/compose-multiplatform),
+  [Gradle-based](../examples-gradle/compose-multiplatform))
 
 > See the full documentation about [Compose](Documentation.md#configuring-compose-multiplatform).
 
@@ -536,18 +544,15 @@ Make sure that your project structure looks like this:
 > |-gradle.properties
 > |-local.properties
 > ```
->  
 
-Now you can build and run both apps using [the Fleet run configurations](Usage.md#using-amper-in-fleet).
+Now you can build and run both apps using [the IntelliJ IDEA run configurations](Usage.md#using-amper-in-intellij-idea).
 
 Examples: Compose Multiplatform
 ([standalone](../examples-standalone/compose-multiplatform),
 [Gradle-based](../examples-gradle/compose-multiplatform))
 
-Documentation:
-- [Multiplatform configuration](Documentation.md#multiplatform-configuration)
-- [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
-
+> See the full documentation about [multiplatform configuration](Documentation.md#multiplatform-configuration) and
+> [configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform) more specifically.
 
 ## Step 8. Deduplicate common configuration
 
@@ -639,8 +644,7 @@ settings:
 You can put all common dependencies and settings into the template. It's also possible to have multiple templates 
 for various typical configurations in the project.
 
-Documentation:
-- [Templates](Documentation.md#templates)
+> See the full documentation about [Templates](Documentation.md#templates).
 
 ## Further steps
 
