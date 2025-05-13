@@ -38,6 +38,13 @@ class TaskExecutor(
 
     /**
      * Runs the given set of tasks, and returns the result of all tasks that were executed, including dependencies.
+     * Use the [mode] on this [TaskExecutor] to choose whether to fail fast or keep executing as many as as possible in
+     * case of failure.
+     *
+     * @throws TaskExecutionFailed if any task fails with a non-[UserReadableError] exception in
+     * [FAIL_FAST][Mode.FAIL_FAST] mode.
+     * @throws UserReadableError if any of the given [tasksToRun] is not found in the current task graph, or if a task
+     * fails with a [UserReadableError] in [FAIL_FAST][Mode.FAIL_FAST] mode.
      */
     // Dispatch on default dispatcher, execute on tasks dispatcher
     suspend fun run(tasksToRun: Set<TaskName>): Map<TaskName, ExecutionResult> = withContext(Dispatchers.Default) {

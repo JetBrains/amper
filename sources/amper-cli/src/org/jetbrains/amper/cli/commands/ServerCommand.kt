@@ -114,7 +114,7 @@ internal class ServerCommand : AmperSubcommand(name = "server") {
                             val task = call.receive<Task>()
                             async {
                                 runCatching {
-                                    backend.runTask(taskName = TaskName.fromHierarchy(task.taskHierarchy))
+                                    backend.runTask(task = TaskName.fromHierarchy(task.taskHierarchy))
                                 }.onFailure { e ->
                                     when (e) {
                                         is UserReadableError -> {

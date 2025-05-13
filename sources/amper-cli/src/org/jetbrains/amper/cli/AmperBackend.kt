@@ -10,10 +10,10 @@ import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
-import org.jetbrains.amper.engine.ExecutionResult
 import org.jetbrains.amper.engine.PackageTask
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskExecutor
+import org.jetbrains.amper.engine.TaskExecutor.TaskExecutionFailed
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.ios.IosPreBuildTask
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
@@ -199,8 +200,19 @@ class AmperBackend(val context: CliContext) {
         taskExecutor.runTasksAndReportOnFailure(taskNames)
     }
 
-    suspend fun runTask(taskName: TaskName): ExecutionResult? =
-        taskExecutor.runTasksAndReportOnFailure(setOf(taskName))[taskName]
+    /**
+     * Runs the given [task] and its dependencies, and throws an exception if any task fails.
+     * If all tasks are successful, the result of the given [task] is returned.
+     *
+     * Use the [mode][TaskExecutor.mode] on this [TaskExecutor] to choose whether to fail fast or keep executing as many
+     * tasks as possible in case of failure.
+     *
+     * @throws TaskExecutionFailed if any task fails with a non-[UserReadableError] exception.
+     * @throws UserReadableError if the given [task] is not found in the current task graph, or if a task fails with a
+     * [UserReadableError].
+     */
+    suspend fun runTask(task: TaskName): TaskResult = taskExecutor.runTasksAndReportOnFailure(setOf(task))[task]
+        ?: error("Task '$task' was successfully executed but is not in the results map")
 
     @TestOnly
     fun tasks() = taskGraph.tasks.toList()
@@ -424,8 +436,8 @@ class AmperBackend(val context: CliContext) {
             isTest = false,
             buildType = buildType,
         )
-        // Should throw otherwise
-        return (runTask(taskName) as ExecutionResult.Success).result as IosPreBuildTask.Result
+        // If this cast fails, it should be an internal error anyway, no need for special handling
+        return runTask(taskName) as IosPreBuildTask.Result
     }
 
     private fun resolveModule(moduleName: String) = modulesByName[moduleName] ?: userReadableError(

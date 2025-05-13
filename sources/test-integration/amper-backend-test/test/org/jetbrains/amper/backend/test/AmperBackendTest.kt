@@ -5,10 +5,8 @@ package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.engine.ExecutionResult
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
-import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.TestCollector
@@ -24,7 +22,7 @@ import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class AmperBackendTest : AmperIntegrationTestBase() {
@@ -125,9 +123,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         // 1. Check compile classpath
         val result = AmperBackend(projectContext)
             .runTask(TaskName(":app:resolveDependenciesJvm"))
-            ?.taskResultOrNull<ResolveExternalDependenciesTask.Result>()
-
-        assertNotNull(result, "unexpected result absence for :app:resolveDependenciesJvm")
+        assertIs<ResolveExternalDependenciesTask.Result>(result)
 
         // Comparing the lists since the order of libraries on classpath is important
         assertEquals(
@@ -155,11 +151,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         )
 
         // 2. Check runtime classpath composed after compilation tasks are finished
-        val runtimeClasspathResult = AmperBackend(projectContext)
-                .runTask(TaskName(":app:runtimeClasspathJvm"))
-                ?.taskResultOrNull<JvmRuntimeClasspathTask.Result>()
-
-        assertNotNull(runtimeClasspathResult, "unexpected result absence for :app:runtimeClasspathJvm")
+        val runtimeClasspathResult = AmperBackend(projectContext).runTask(TaskName(":app:runtimeClasspathJvm"))
+        assertIs<JvmRuntimeClasspathTask.Result>(runtimeClasspathResult)
 
         val runtimeClassPath = runtimeClasspathResult.jvmRuntimeClasspath
 
@@ -206,11 +199,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
             "Unexpected list of resolved runtime dependencies"
         )
 
-        val runtimeClasspathViaTask = AmperBackend(projectContext)
-            .runTask(TaskName(":app:runtimeClasspathJvm"))
-            ?.taskResultOrNull<JvmRuntimeClasspathTask.Result>()
-
-        assertNotNull(runtimeClasspathViaTask, "unexpected result absence for :app:runtimeClasspathJvm")
+        val runtimeClasspathViaTask = AmperBackend(projectContext).runTask(TaskName(":app:runtimeClasspathJvm"))
+        assertIs<JvmRuntimeClasspathTask.Result>(runtimeClasspathViaTask)
 
         // Check correct module order in runtime classpath
         val modules = listOf("app", "D1_exp", "E1_exp", "B1", "C1", "D2", "E2_exp", "B2", "C2_exp", "C3_exp").map { "$it-jvm.jar"}
@@ -227,9 +217,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val projectContext = setupTestDataProject("jvm-runtime-classpath-conflict-resolution")
 
         val result = AmperBackend(projectContext)
-            .runTask(TaskName(":B2:resolveDependenciesJvm"))
-            ?.taskResultOrNull<ResolveExternalDependenciesTask.Result>()
-            ?: error("unexpected result absence for :B2:resolveDependenciesJvm")
+            .runTask(TaskName(":B2:resolveDependenciesJvm")) as ResolveExternalDependenciesTask.Result
+        assertIs<ResolveExternalDependenciesTask.Result>(result)
 
         // should be only one version of commons-io, the highest version
         assertEquals(
@@ -269,8 +258,3 @@ private fun Path.existsCaseSensitive(): Boolean =
 // tested with their real-life usage. For instance, source jars will be tested as part of publication.
 private fun CliContext.taskOutputPath(taskName: TaskName): Path =
     buildOutputRoot.path / "tasks" / taskName.name.replace(":", "_")
-
-private inline fun <reified T : TaskResult> ExecutionResult.taskResultOrNull(): T? = when (this) {
-    is ExecutionResult.Success -> result as? T
-    is ExecutionResult.Unsuccessful -> null
-}
