@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend.processing
 
+import com.intellij.util.containers.TreeTraversal
+import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.UsedVersions.logbackVersion
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -190,8 +192,8 @@ class BuiltInCatalog(
         put("compose.html.testUtils", library("org.jetbrains.compose.html:html-test-utils", composeVersion))
         put("compose.material", library("org.jetbrains.compose.material:material", composeVersion))
         put("compose.material3", library("org.jetbrains.compose.material3:material3", composeVersion))
-        put("compose.materialIconsCore", library("org.jetbrains.compose.material:material-icons-core", composeVersion))
-        put("compose.materialIconsExtended", library("org.jetbrains.compose.material:material-icons-extended", composeVersion))
+        put("compose.materialIconsCore", library("org.jetbrains.compose.material:material-icons-core", materialIconsVersion(composeVersion)))
+        put("compose.materialIconsExtended", library("org.jetbrains.compose.material:material-icons-extended", materialIconsVersion(composeVersion)))
         put("compose.preview", library("org.jetbrains.compose.ui:ui-tooling-preview", composeVersion))
         put("compose.runtime", library("org.jetbrains.compose.runtime:runtime", composeVersion))
         put("compose.runtimeSaveable", library("org.jetbrains.compose.runtime:runtime-saveable", composeVersion))
@@ -537,4 +539,10 @@ private object EmptyCatalog: VersionCatalog {
     override val isPhysical: Boolean = false
     override fun findInCatalog(key: String): TraceableString? = null
 }
+
+private fun materialIconsVersion(composeVersion: TraceableString) =
+    when {
+        ComparableVersion(composeVersion.value) >= ComparableVersion("1.8.0") -> TraceableString("1.7.3")
+        else -> composeVersion
+    }
 

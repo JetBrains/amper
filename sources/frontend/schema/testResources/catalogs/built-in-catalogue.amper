@@ -12,6 +12,7 @@ dependencies {
   "$compose.uiTooling"
   "$compose.preview"
   "$compose.materialIconsExtended"
+  "$compose.materialIconsCore"
   "$compose.components.resources"
   "$compose.html.svg"
   "$compose.html.testUtils"
