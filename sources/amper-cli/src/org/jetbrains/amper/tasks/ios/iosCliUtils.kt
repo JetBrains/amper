@@ -27,6 +27,8 @@ data class Device(
 
 const val XCRUN_EXECUTABLE = "/usr/bin/xcrun"
 
+private const val SIM_RUNTIME_PREFIX_IOS = "com.apple.CoreSimulator.SimRuntime.iOS-"
+
 suspend fun installAppOnDevice(deviceId: String, appPath: Path) =
     xcrun("simctl", "install", deviceId, appPath.pathString)
 
@@ -137,8 +139,13 @@ private object SimCtl {
             listener = ProcessOutputListener.NOOP,
         )
 
-        return SimCtlOutputFormat.decodeFromString<SimCtlListOutput>(simcltListOut)
-            .devices.flatMap { (runtimeId, devices) -> devices.map { it.toDevice(runtimeId) } }
+        return SimCtlOutputFormat.decodeFromString<SimCtlListOutput>(simcltListOut).devices
+            .filter { (runtimeId, _) -> runtimeId.startsWith(SIM_RUNTIME_PREFIX_IOS) }
+            .flatMap { (runtimeId, devices) ->
+                devices
+                    .filter { it.isAvailable }
+                    .map { it.toDevice(runtimeId) }
+            }
     }
 
     private fun DeviceData.toDevice(
