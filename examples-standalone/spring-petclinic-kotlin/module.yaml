@@ -3,7 +3,7 @@ product: jvm/app
 settings:
   springBoot: enabled
   jvm:
-    mainClass: org.springframework.samples.petclinic.PetClinicApplication
+    mainClass: org.springframework.samples.petclinic.PetClinicApplicationKt
 
 dependencies:
   - $spring.boot.starter.actuator
