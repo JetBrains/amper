@@ -7,10 +7,10 @@
 
    ![](images/ij-plugin.png)
 
-3. [Optional] If you want to share code between several platforms, install the
-   [Kotlin Multiplatform plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform).
+3. [Optional] If you want to write code for Apple platforms or share code between several platforms, install the
+   [Kotlin Multiplatform plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform)
 
-4. [Optional] If you want to make Android applications, also install the
+4. [Optional] If you want to write some Android-specific code, also install the
    [Android plugin](https://plugins.jetbrains.com/plugin/22989-android)
 
 ## Check your environment with KDoctor (macOS only)
