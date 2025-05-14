@@ -9,6 +9,7 @@ import org.gradle.tooling.events.FinishEvent
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.StartEvent
 import org.gradle.tooling.events.SuccessResult
+import org.gradle.tooling.events.problems.ProblemAggregationEvent
 import org.gradle.tooling.events.problems.ProblemEvent
 import org.gradle.tooling.events.problems.Severity.ADVICE
 import org.gradle.tooling.events.problems.Severity.ERROR
@@ -23,7 +24,13 @@ val logger = LoggerFactory.getLogger(object {}.javaClass)
 @Suppress("UnstableApiUsage")
 internal fun ProgressEvent.handle(stdoutPath: Path, stderrPath: Path) {
     if (this is ProblemEvent) {
-        val loggingFunc: (String) -> Unit = when((this as SingleProblemEvent).definition.severity) {
+        val (definition, detailsList) = when(this) {
+            is SingleProblemEvent -> definition to listOf(details)
+            is ProblemAggregationEvent ->
+                problemAggregation.definition to problemAggregation.problemContext.map { it.details }
+            else -> null to emptyList()
+        }
+        val loggingFunc: (String) -> Unit = when(definition?.severity) {
             ADVICE -> logger::info
             WARNING -> logger::warn
             ERROR -> logger::error
@@ -31,8 +38,10 @@ internal fun ProgressEvent.handle(stdoutPath: Path, stderrPath: Path) {
         }
         // TODO: BasePlugin.archiveBaseName will be deprecated in 9.0; however, agp now is using this field
         // eventually, after agp upgrade it should be deleted
-        if (this.definition.id.name != "the-basepluginextension-archivesbasename-property-has-been-deprecated") {
-            loggingFunc(this.details.details)
+        if (definition?.id?.name != "the-basepluginextension-archivesbasename-property-has-been-deprecated") {
+            detailsList.forEach { details ->
+                loggingFunc(details.details)
+            }
         }
     }
     if (descriptor.name == "Run build") {
