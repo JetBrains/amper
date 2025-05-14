@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend.processing
 
+import org.jetbrains.amper.frontend.schema.AllOpenSettings
+import org.jetbrains.amper.frontend.schema.AndroidJavaResourcesPackagingSettings
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schema.Base
@@ -21,15 +23,14 @@ import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.KspSettings
 import org.jetbrains.amper.frontend.schema.KtorSettings
-import org.jetbrains.amper.frontend.schema.SpringBootSettings
 import org.jetbrains.amper.frontend.schema.NativeSettings
+import org.jetbrains.amper.frontend.schema.NoArgSettings
 import org.jetbrains.amper.frontend.schema.ParcelizeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.SpringBootSettings
 import org.jetbrains.amper.frontend.schema.TaskSettings
-import org.jetbrains.amper.frontend.schema.NoArgSettings
-import org.jetbrains.amper.frontend.schema.AllOpenSettings
 
 
 /**
@@ -119,6 +120,7 @@ private fun AndroidSettings.mergeAndroidSettings(overwrite: AndroidSettings) =
         mergeProperty(AndroidSettings::signing, AndroidSigningSettings::mergeAndroidSigningSettings)
         mergeScalarProperty(AndroidSettings::versionCode)
         mergeScalarProperty(AndroidSettings::versionName)
+        mergeProperty(AndroidSettings::resourcePackaging, AndroidJavaResourcesPackagingSettings::mergeAndroidResourcePackaging)
         mergeProperty(AndroidSettings::parcelize, ParcelizeSettings::mergeParcelizeSettings)
     }
 
@@ -169,6 +171,14 @@ context(MergeCtxWithProp<*, *>)
 fun ComposeExperimentalHotReloadSettings.mergeComposeExperimentalHotReloadSettings(overwrite: ComposeExperimentalHotReloadSettings?) = mergeNode(overwrite, ::ComposeExperimentalHotReloadSettings) {
     mergeScalarProperty(ComposeExperimentalHotReloadSettings::enabled)
 }
+
+context(MergeCtxWithProp<*, *>)
+private fun AndroidJavaResourcesPackagingSettings.mergeAndroidResourcePackaging(overwrite: AndroidJavaResourcesPackagingSettings?) =
+    mergeNode(overwrite, ::AndroidJavaResourcesPackagingSettings) {
+        mergeCollectionProperty(AndroidJavaResourcesPackagingSettings::excludes)
+        mergeCollectionProperty(AndroidJavaResourcesPackagingSettings::merges)
+        mergeCollectionProperty(AndroidJavaResourcesPackagingSettings::pickFirsts)
+    }
 
 context(MergeCtxWithProp<*, *>)
 private fun ParcelizeSettings.mergeParcelizeSettings(overwrite: ParcelizeSettings?) =

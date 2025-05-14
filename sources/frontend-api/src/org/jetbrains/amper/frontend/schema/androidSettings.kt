@@ -144,6 +144,11 @@ class AndroidSettings : SchemaNode() {
     @ProductTypeSpecific(ProductType.ANDROID_APP)
     var versionName by value("unspecified")
 
+    @Aliases("packagingOptions")
+    @SchemaDoc("Packaging options for java resource files.")
+    @ProductTypeSpecific(ProductType.ANDROID_APP)
+    var resourcePackaging by value(::AndroidJavaResourcesPackagingSettings)
+
     @SchemaDoc("Configure [Kotlin Parcelize](https://developer.android.com/kotlin/parcelize) to automatically " +
             "implement the `Parcelable` interface for classes annotated with `@Parcelize`.")
     var parcelize by value<ParcelizeSettings>(ParcelizeSettings())
@@ -184,3 +189,21 @@ class ParcelizeSettings : SchemaNode() {
     var additionalAnnotations: List<TraceableString> by value(default = emptyList())
 }
 
+class AndroidJavaResourcesPackagingSettings : SchemaNode() {
+    @SchemaDoc("The set of excluded patterns. " +
+            "Java resources matching any of these patterns do not get packaged in the APK.<br>" +
+            "Example: '**/*.md', 'META-INF/LICENSE.txt', etc.")
+    var excludes by value<List<TraceableString>>(default = emptyList())
+
+    @SchemaDoc("The set of patterns for which matching java resources are merged. " +
+            "For each java resource APK entry path matching one of these patterns, " +
+            "all java resources with that path are concatenated and packaged as a single entry in the APK.<br>" +
+            "Example: '**/*.properties', 'META-INF/NOTICE.md', etc.")
+    var merges by value<List<TraceableString>>(default = emptyList())
+
+    @SchemaDoc("The set of patterns for which the first occurrence is packaged in the APK. " +
+            "For each java resource APK entry path matching one of these patterns, " +
+            "only the first java resource found with that path gets packaged in the APK.<br>" +
+            "Example: '**/*.version', 'META-INF/*.kotlin_module', etc.")
+    var pickFirsts by value<List<TraceableString>>(default = emptyList())
+}

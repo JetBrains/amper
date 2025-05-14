@@ -82,6 +82,7 @@ AndroidSettings
 	minSdk: AndroidVersion, default: 21 - Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
 	namespace: String, default: org.example.namespace - A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)
 	parcelize: ParcelizeSettings - Configure [Kotlin Parcelize](https://developer.android.com/kotlin/parcelize) to automatically implement the `Parcelable` interface for classes annotated with `@Parcelize`.
+	resourcePackaging: AndroidJavaResourcesPackagingSettings - Packaging options for java resource files.
 	signing: AndroidSigningSettings - Application signing settings. [Read more](https://developer.android.com/studio/publish/app-signing)
 	targetSdk: AndroidVersion - The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
 	versionCode: Int, default: 1 - Version code. [Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)
@@ -91,6 +92,12 @@ ParcelizeSettings
 -----------------
 	additionalAnnotations: List<String>, default: [] - The full-qualified name of additional annotations that should be considered as `@Parcelize`. This is useful if you need to annotate classes in common code shared between different platforms, where the real `@Parcelize` annotation is not available. In that case, create your own common annotation and add its fully-qualified name here so that Parcelize recognizes it.
 	enabled: Boolean, default: false - Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an implementation of the `Parcelable` interface is automatically generated for classes annotated with `@Parcelize`.
+
+AndroidJavaResourcesPackagingSettings
+-------------------------------------
+	excludes: List<String>, default: [] - The set of excluded patterns. Java resources matching any of these patterns do not get packaged in the APK.<br>Example: '**/*.md', 'META-INF/LICENSE.txt', etc.
+	merges: List<String>, default: [] - The set of patterns for which matching java resources are merged. For each java resource APK entry path matching one of these patterns, all java resources with that path are concatenated and packaged as a single entry in the APK.<br>Example: '**/*.properties', 'META-INF/NOTICE.md', etc.
+	pickFirsts: List<String>, default: [] - The set of patterns for which the first occurrence is packaged in the APK. For each java resource APK entry path matching one of these patterns, only the first java resource found with that path gets packaged in the APK.<br>Example: '**/*.version', 'META-INF/*.kotlin_module', etc.
 
 AndroidSigningSettings
 ----------------------

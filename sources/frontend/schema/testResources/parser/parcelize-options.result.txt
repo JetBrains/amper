@@ -21,6 +21,14 @@ Fragments:
           ]
           enabled: true
         }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -134,6 +142,14 @@ Fragments:
           ]
           enabled: true
         }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -243,6 +259,14 @@ Fragments:
             - com.example.MyParcelize
           ]
           enabled: true
+        }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
         }
         signing: <default> {
           enabled: <default> false
@@ -355,6 +379,14 @@ Fragments:
             - com.example.MyParcelize
           ]
           enabled: true
+        }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
         }
         signing: <default> {
           enabled: <default> false

@@ -4,7 +4,6 @@
 package org.jetbrains.amper.android.gradle
 
 import com.android.build.gradle.AppExtension
-import com.android.build.gradle.BaseExtension
 import kotlinx.serialization.json.Json
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -113,7 +112,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             project.plugins.apply("com.google.gms.google-services")
         }
 
-        val androidExtension = project.extensions.findByType(BaseExtension::class.java) ?: return
+        val androidExtension = project.extensions.findByType(AppExtension::class.java) ?: return
         project.setArtifactBaseName()
 
         val androidFragment = module
@@ -173,6 +172,13 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         }
         androidExtension.namespace = androidSettings.namespace
 
+        androidExtension.packagingOptions.resources {
+            val resourcePackaging = androidSettings.resourcePackaging
+            excludes.addAll(resourcePackaging.excludes.map { it.value })
+            merges.addAll(resourcePackaging.merges.map { it.value })
+            pickFirsts.addAll(resourcePackaging.pickFirsts.map { it.value })
+        }
+
         androidExtension.buildTypes {
             it.getByName("release") {
                 it.proguardFiles(
@@ -202,7 +208,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         project.afterEvaluate {
 
             // get variants
-            val variants = (androidExtension as AppExtension).applicationVariants
+            val variants = androidExtension.applicationVariants
             // choose variant
             val buildTypes = (project.gradle.request?.buildTypes ?: emptySet()).map { it.value }.toSet()
             val chosenVariants = variants.filter { it.name in buildTypes }

@@ -486,6 +486,12 @@
           "title": "Configure Kotlin Parcelize to automatically implement the `Parcelable` interface for classes annotated with `@Parcelize`",
           "$ref": "#/$defs/ParcelizeSettings"
         },
+        "resourcePackaging": {
+          "x-intellij-html-description": "Packaging options for java resource files.",
+          "title": "Packaging options for java resource files",
+          "x-intellij-metadata": {"productTypes": ["android/app"],"aliases": ["packagingOptions"]},
+          "$ref": "#/$defs/AndroidJavaResourcesPackagingSettings"
+        },
         "signing": {
           "x-intellij-html-description": "Application signing settings. [Read more](https://developer.android.com/studio/publish/app-signing)",
           "title": "Application signing settings",
@@ -543,6 +549,39 @@
           ]
         }
       ]
+    },
+    "AndroidJavaResourcesPackagingSettings": {
+      "type": "object",
+      "properties": {
+        "excludes": {
+          "x-intellij-html-description": "The set of excluded patterns. Java resources matching any of these patterns do not get packaged in the APK.<br>Example: '**/*.md', 'META-INF/LICENSE.txt', etc.",
+          "title": "The set of excluded patterns. Java resources matching any of these patterns do not get packaged in the APK.<br>Example: '**/*.md', 'META-INF/LICENSE.txt', etc",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "merges": {
+          "x-intellij-html-description": "The set of patterns for which matching java resources are merged. For each java resource APK entry path matching one of these patterns, all java resources with that path are concatenated and packaged as a single entry in the APK.<br>Example: '**/*.properties', 'META-INF/NOTICE.md', etc.",
+          "title": "The set of patterns for which matching java resources are merged. For each java resource APK entry path matching one of these patterns, all java resources with that path are concatenated and packaged as a single entry in the APK.<br>Example: '**/*.properties', 'META-INF/NOTICE.md', etc",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "pickFirsts": {
+          "x-intellij-html-description": "The set of patterns for which the first occurrence is packaged in the APK. For each java resource APK entry path matching one of these patterns, only the first java resource found with that path gets packaged in the APK.<br>Example: '**/*.version', 'META-INF/*.kotlin_module', etc.",
+          "title": "The set of patterns for which the first occurrence is packaged in the APK. For each java resource APK entry path matching one of these patterns, only the first java resource found with that path gets packaged in the APK.<br>Example: '**/*.version', 'META-INF/*.kotlin_module', etc",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
     },
     "AndroidSigningSettings": {
       "anyOf": [

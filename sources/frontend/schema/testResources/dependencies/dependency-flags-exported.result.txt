@@ -19,6 +19,14 @@ Fragments:
           ]
           enabled: <default> false
         }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -129,6 +137,14 @@ Fragments:
           additionalAnnotations: <default> [
           ]
           enabled: <default> false
+        }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
         }
         signing: <default> {
           enabled: <default> false
@@ -241,6 +257,14 @@ Fragments:
           ]
           enabled: <default> false
         }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -350,6 +374,14 @@ Fragments:
           additionalAnnotations: <default> [
           ]
           enabled: <default> false
+        }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
         }
         signing: <default> {
           enabled: <default> false
