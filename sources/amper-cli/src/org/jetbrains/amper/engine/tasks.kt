@@ -30,7 +30,7 @@ interface PackageTask : Task {
         Jar("jar"),
         ExecutableJar("executable-jar"),
         Aab("aab"),
-        DistZip("dist-zip"),
+        // TODO DistZip("dist-zip"),
     }
 
     val platform: Platform
