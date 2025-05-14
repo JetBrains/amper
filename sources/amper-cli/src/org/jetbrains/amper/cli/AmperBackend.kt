@@ -10,7 +10,9 @@ import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
+import org.jetbrains.amper.engine.MaybeBuildTypeAware
 import org.jetbrains.amper.engine.PackageTask
+import org.jetbrains.amper.engine.PlatformAware
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskExecutor.TaskExecutionFailed
@@ -108,9 +110,6 @@ class AmperBackend(val context: CliContext) {
         if (modules != null) {
             logger.info("Compiling modules: ${modules.sorted().joinToString(" ")}")
         }
-        if (buildTypes != null) {
-            logger.info("Compiling variants: ${buildTypes.map { it.value }.sorted().joinToString(" ")}")
-        }
 
         val possibleCompilationPlatforms = if (OsFamily.current.isMac) {
             Platform.leafPlatforms
@@ -121,16 +120,17 @@ class AmperBackend(val context: CliContext) {
 
         val platformsToCompile = platforms ?: possibleCompilationPlatforms
         val modulesToCompile = (modules?.map { resolveModule(it) } ?: resolvedModel.modules).toSet()
-        val buildTypesToCompile = buildTypes ?: setOf(BuildType.Debug)
 
         val taskNames = taskGraph
             .tasks
             .filterIsInstance<BuildTask>()
             .filter {
-                it.platform in platformsToCompile &&
-                        it.module in modulesToCompile &&
-                        (it.buildType == null || it.buildType in buildTypesToCompile)
+                it.platform in platformsToCompile && it.module in modulesToCompile
             }
+            .filterByBuildTypeAndReport(
+                explicit = buildTypes,
+                default = BuildType.Debug,
+            )
             .map { it.taskName }
             .toSet()
         logger.debug("Selected tasks to compile: ${formatTaskNames(taskNames)}")
@@ -188,7 +188,10 @@ class AmperBackend(val context: CliContext) {
                 it.platform in platformsToPackage &&
                 it.format in formatsToPackage &&
                 it.buildType in buildTypesToPackage
-            }
+            }.filterByBuildTypeAndReport(
+                explicit = buildTypes,
+                default = BuildType.Release,
+            )
             .map { it.taskName }
             .toSet()
 
@@ -278,13 +281,11 @@ class AmperBackend(val context: CliContext) {
             ?.filter { it !in PlatformUtil.platformsMayRunOnCurrentSystem }
             ?.takeIf { it.isNotEmpty() }
             ?.let { unsupportedPlatforms ->
-                fun format(platforms: Collection<Platform>) =
-                    platforms.map { it.pretty }.sorted().joinToString(" ")
                 val message = """
                     Unable to run requested platform(s) on the current system.
                     
-                    Requested unsupported platforms: ${format(unsupportedPlatforms)}
-                    Runnable platforms on the current system: ${format(PlatformUtil.platformsMayRunOnCurrentSystem)}
+                    Requested unsupported platforms: ${formatPlatforms(unsupportedPlatforms)}
+                    Runnable platforms on the current system: ${formatPlatforms(PlatformUtil.platformsMayRunOnCurrentSystem)}
                 """.trimIndent()
                 userReadableError(message)
             }
@@ -296,7 +297,10 @@ class AmperBackend(val context: CliContext) {
 
         val platformTestTasks = allTestTasks
             .filter { it.platform in (requestedPlatforms ?: PlatformUtil.platformsMayRunOnCurrentSystem) }
-            .filter { it.buildType == null || it.buildType == (buildType ?: BuildType.Debug) }
+            .filterByBuildTypeAndReport(
+                explicit = buildType?.let(::setOf),
+                default = BuildType.Debug,
+            )
         requestedPlatforms?.filter { requestedPlatform ->
             platformTestTasks.none { it.platform == requestedPlatform }
         }?.takeIf { it.isNotEmpty() }?.let { platformsWithMissingTests ->
@@ -368,7 +372,11 @@ class AmperBackend(val context: CliContext) {
 
         val moduleRunTasks = taskGraph.tasks.filterIsInstance<RunTask>()
             .filter { it.module == moduleToRun }
-            .filter { it.buildType == (buildType ?: BuildType.Debug) }
+            .filterByBuildTypeAndReport(
+                explicit = buildType?.let(::setOf),
+                default = BuildType.Debug,
+            )
+
         if (moduleRunTasks.isEmpty()) {
             userReadableError("No run tasks are available for module '${moduleToRun.userReadableName}'")
         }
@@ -450,6 +458,27 @@ class AmperBackend(val context: CliContext) {
 
     private fun formatTaskNames(publishTasks: Collection<TaskName>) =
         publishTasks.map { it.name }.sorted().joinToString(" ")
+
+    private fun formatPlatforms(platforms: Collection<Platform>) =
+        platforms.map { it.pretty }.sorted().joinToString(" ")
+
+    private fun <T> List<T>.filterByBuildTypeAndReport(
+        explicit: Set<BuildType>?,
+        default: BuildType,
+    ): List<T> where T : MaybeBuildTypeAware, T : PlatformAware {
+        return if (explicit != null) {
+            require(explicit.isNotEmpty())
+            val matchingTasks = filter { it.buildType == null || it.buildType in explicit }
+            if (matchingTasks.isNotEmpty() && matchingTasks.all { it.buildType == null }) {
+                val allPlatforms = matchingTasks.map(PlatformAware::platform).distinct()
+                logger.warn("Explicit -v/--variant argument is ignored because " +
+                        "all selected platforms (${formatPlatforms(allPlatforms)}) do not support build variants.")
+            }
+            matchingTasks
+        } else {
+            filter { it.buildType == null || it.buildType == default }
+        }
+    }
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 }

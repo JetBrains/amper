@@ -12,7 +12,6 @@ import com.github.ajalt.clikt.parameters.options.unique
 import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.PackageTask
-import org.jetbrains.amper.util.BuildType
 
 internal class PackageCommand : AmperSubcommand(name = "package") {
 
@@ -24,17 +23,12 @@ internal class PackageCommand : AmperSubcommand(name = "package") {
 
     private val platforms by leafPlatformOption(
         help = "The target platform to package for. This option can be repeated to package for several platforms.",
-    )
-        .multiple().unique()
+    ).multiple().unique()
 
-    private val buildTypes by option(
-        "-v",
-        "--variant",
-        help = "The variant to package. This option can be repeated to package several variants.",
-    )
-        .enum<BuildType> { it.value }
-        .multiple()
-        .unique()
+    private val buildTypes by buildTypeOption(
+        help = "The variant to package. This option can be repeated to package several variants. " +
+                "Release variant is packaged by default."
+    ).multiple().unique()
 
     private val formats by option(
         "-f",
@@ -52,8 +46,8 @@ internal class PackageCommand : AmperSubcommand(name = "package") {
             backend.`package`(
                 platforms = platforms.takeIf { it.isNotEmpty() },
                 modules = modules.takeIf { it.isNotEmpty() },
-                buildTypes = buildTypes.toSet().takeIf { it.isNotEmpty() },
-                formats = formats.toSet().takeIf { it.isNotEmpty() },
+                buildTypes = buildTypes.takeIf { it.isNotEmpty() },
+                formats = formats.takeIf { it.isNotEmpty() },
             )
         }
         printSuccessfulCommandConclusion("Build successful")

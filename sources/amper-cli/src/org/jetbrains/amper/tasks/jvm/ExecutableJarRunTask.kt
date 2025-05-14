@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.jvm.ExecutableJarTask
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 
@@ -39,8 +38,7 @@ class ExecutableJarRunTask(
     commonRunSettings,
     executeOnChangedInputs
 ) {
-    override val buildType: BuildType
-        get() = BuildType.Release
+    override val buildType get() = BuildType.Release
 
     override suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> =
         // Add -jar and the jar path to JVM args

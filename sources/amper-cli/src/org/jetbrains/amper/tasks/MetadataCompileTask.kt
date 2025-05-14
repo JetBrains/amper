@@ -58,6 +58,7 @@ internal class MetadataCompileTask(
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ): ArtifactTaskBase(), BuildTask {
 
+    override val buildType: Nothing? get() = null
     override val platform: Platform = Platform.COMMON
     override val isTest: Boolean = fragment.isTest
 

@@ -18,7 +18,6 @@ import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
-import org.jetbrains.amper.util.BuildType
 
 internal class TestCommand : AmperSubcommand(name = "test") {
 
@@ -116,12 +115,9 @@ internal class TestCommand : AmperSubcommand(name = "test") {
         """.trimIndent(),
     ).enum<TestResultsFormat> { it.cliValue }.default(TestResultsFormat.Pretty)
 
-    private val variant by option(
-        "-v",
-        "--variant",
-        help = "Test the specified variant of the app",
+    private val variant by buildTypeOption(
+        help = "Test the specified variant of the project. Debug variant is tested by default."
     )
-        .enum<BuildType> { it.value }
 
     override fun help(context: Context): String = "Run tests in the project"
 

@@ -9,8 +9,10 @@ import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.transformAll
+import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.util.BuildType
 
 private val prettyLeafPlatforms = Platform.leafPlatforms.associateBy { it.pretty }
 private val prettyLeafPlatformsString = prettyLeafPlatforms.keys.sorted().joinToString(" ")
@@ -78,3 +80,11 @@ internal fun String.splitArgsHonoringQuotes(): List<String> {
     }
     return args
 }
+
+internal fun ParameterHolder.buildTypeOption(
+    help: String,
+) = option(
+    "-v",
+    "--variant",
+    help = help,
+).enum<BuildType> { it.value }

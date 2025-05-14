@@ -19,13 +19,23 @@ interface Task {
     suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult
 }
 
-interface RunTask : Task {
+interface MaybeBuildTypeAware {
+    /**
+     * If `null`, then build type dimension is not applicable to this task.
+     */
+    val buildType: BuildType?
+}
+
+interface PlatformAware {
     val platform: Platform
-    val buildType: BuildType
+}
+
+interface RunTask : Task, MaybeBuildTypeAware, PlatformAware {
+    override val platform: Platform
     val module: AmperModule
 }
 
-interface PackageTask : Task {
+interface PackageTask : Task, MaybeBuildTypeAware, PlatformAware {
     enum class Format(val value: String) {
         Jar("jar"),
         ExecutableJar("executable-jar"),
@@ -33,34 +43,23 @@ interface PackageTask : Task {
         // TODO DistZip("dist-zip"),
     }
 
-    val platform: Platform
-    val buildType: BuildType
+    override val platform: Platform
     val format: Format
     val module: AmperModule
 }
 
-interface TestTask : Task {
-    val platform: Platform
-    /**
-     * If `null` then build type dimension is not applicable to the task.
-     */
-    val buildType: BuildType?
+interface TestTask : Task, MaybeBuildTypeAware, PlatformAware {
+    override val platform: Platform
     val module: AmperModule
 }
 
 /**
  * A task attached to the 'build' command.
  */
-interface BuildTask : Task {
+interface BuildTask : Task, MaybeBuildTypeAware, PlatformAware {
     val module: AmperModule
     val isTest: Boolean
-    val platform: Platform
-
-    /**
-     * If `null` then build type dimension is not applicable to the task.
-     */
-    val buildType: BuildType?
-        get() = null
+    override val platform: Platform
 }
 
 /**

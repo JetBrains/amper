@@ -9,10 +9,8 @@ import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.jetbrains.amper.util.BuildType
 
 internal class RunCommand : AmperSubcommand(name = "run") {
 
@@ -31,12 +29,9 @@ internal class RunCommand : AmperSubcommand(name = "run") {
         """.trimIndent(),
     )
 
-    private val variant by option(
-        "-v",
-        "--variant",
-        help = "Run the specified variant of the app",
+    private val variant by buildTypeOption(
+        help = "Run the specified variant of the app. Debug variant is launched by default.",
     )
-        .enum<BuildType> { it.value }
 
     private val jvmArgs by userJvmArgsOption(
         help = """

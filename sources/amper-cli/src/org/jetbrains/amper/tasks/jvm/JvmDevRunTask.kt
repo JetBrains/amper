@@ -17,8 +17,8 @@ import org.jetbrains.amper.run.ToolingArtifactsDownloader
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
-import kotlin.io.path.pathString
 import java.nio.file.Path
+import kotlin.io.path.pathString
 
 class JvmDevRunTask(
     taskName: TaskName,
@@ -43,7 +43,6 @@ class JvmDevRunTask(
     commonRunSettings,
     executeOnChangedInputs
 ) {
-
     override val buildType: BuildType
         get() = BuildType.Debug
 

@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.assertStdoutContains
+import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.parallel.Execution
@@ -182,5 +184,28 @@ class AmperBuildTest : AmperCliTestBase() {
 
             fail("Amper error doesn't match expected dependency resolution errors:\n$expectedActualComparisonText")
         }
+    }
+
+    @Test
+    fun `run build issues warning about unsupported build variant`() = runSlowTest {
+        val projectRoot = testProject("jvm-resources")
+
+        val result1 = runCli(
+            projectRoot = projectRoot,
+            "build", "-v", "debug",
+        )
+
+        result1.assertStdoutContains(
+            "Explicit -v/--variant argument is ignored because all selected platforms (jvm) do not support build variants."
+        )
+
+        val result2 = runCli(
+            projectRoot = projectRoot,
+            "build",
+        )
+
+        result2.assertStdoutDoesNotContain(
+            "Explicit -v/--variant argument is ignored because all selected platforms (jvm) do not support build variants."
+        )
     }
 }

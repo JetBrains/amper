@@ -25,7 +25,6 @@ import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
@@ -40,8 +39,6 @@ abstract class AbstractJvmRunTask(
     protected val executeOnChangedInputs: ExecuteOnChangedInputs?,
 ) : RunTask {
     override val platform = Platform.JVM
-    override val buildType: BuildType
-        get() = BuildType.Debug
 
     protected val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
     protected val logger = LoggerFactory.getLogger(javaClass)

@@ -9,9 +9,7 @@ import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
-import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.withBackend
-import org.jetbrains.amper.util.BuildType
 
 internal class BuildCommand : AmperSubcommand(name = "build") {
 
@@ -24,14 +22,10 @@ internal class BuildCommand : AmperSubcommand(name = "build") {
             "This option can be repeated to build several platforms.")
         .multiple().unique()
 
-    private val buildTypes by option(
-        "-v",
-        "--variant",
-        help = "Build the specified variant. This option can be repeated to build several variants.",
-    )
-        .enum<BuildType> { it.value }
-        .multiple()
-        .unique()
+    private val buildTypes by buildTypeOption(
+        help = "Build the specified variant. This option can be repeated to build several variants. " +
+                "Debug variant is built by default.",
+    ).multiple().unique()
 
     override fun help(context: Context): String = "Compile and link all code in the project"
 
