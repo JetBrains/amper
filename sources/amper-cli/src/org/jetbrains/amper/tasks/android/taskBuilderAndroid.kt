@@ -7,27 +7,20 @@ package org.jetbrains.amper.tasks.android
 import com.android.prefs.AndroidLocationsSingleton
 import com.android.sdklib.SystemImageTags.GOOGLE_APIS_TAG
 import com.android.sdklib.devices.Abi
-import org.jetbrains.amper.cli.AmperBuildLogsRoot
-import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.TaskGraphBuilder
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
@@ -82,34 +75,54 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
         .withEach {
             val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
 
-            tasks.setupPrepareAndroidTask(
-                platform,
-                module,
-                isTest,
-                executeOnChangedInputs,
-                fragments,
-                buildType,
-                androidSdkPath,
+            val prepareTaskName = AndroidTaskType.Prepare.getTaskName(
+                module, platform, isTest, buildType,
+            )
+            tasks.registerTask(
+                AndroidPrepareTask(
+                    taskName = prepareTaskName,
+                    module,
+                    buildType,
+                    executeOnChangedInputs,
+                    androidSdkPath,
+                    fragments,
+                    context.projectRoot,
+                    context.getTaskOutputPath(prepareTaskName),
+                    context.buildLogsRoot
+                ),
                 listOf(
                     AndroidTaskType.InstallBuildTools.getTaskName(module, platform, isTest),
                     AndroidTaskType.InstallPlatformTools.getTaskName(module, platform, isTest),
                     AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest),
                     CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
-                ),
-                context.projectRoot,
-                context.getTaskOutputPath(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType)),
-                context.buildLogsRoot
+                )
             )
+        }
 
-            tasks.setupAndroidBuildTask(
-                platform,
-                module,
-                isTest,
-                executeOnChangedInputs,
-                fragments,
-                buildType,
-                androidSdkPath,
-                context
+    allModules().alsoPlatforms(Platform.ANDROID)
+        .filterModuleType { it != ProductType.LIB }
+        // no `alsoTests()` here - we do the unit testing ourselves, no need to build anything with Gradle for that.
+        .alsoBuildTypes()
+        .withEach {
+            val taskName = AndroidTaskType.Build.getTaskName(
+                module, platform, isTest, buildType,
+            )
+            tasks.registerTask(
+                AndroidBuildTask(
+                    module = module,
+                    buildType = buildType,
+                    isTest = false,
+                    executeOnChangedInputs = executeOnChangedInputs,
+                    androidSdkPath = androidSdkPath,
+                    fragments = module.fragments.filter { !isTest && it.platforms.contains(platform) },
+                    projectRoot = context.projectRoot,
+                    taskOutputPath = context.getTaskOutputPath(taskName),
+                    buildLogsRoot = context.buildLogsRoot,
+                    taskName = taskName,
+                ),
+                listOf(
+                    CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType),
+                )
             )
         }
 
@@ -431,65 +444,6 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
     )
 }
 
-private fun TaskGraphBuilder.setupPrepareAndroidTask(
-    platform: Platform,
-    module: AmperModule,
-    isTest: Boolean,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
-    fragments: List<Fragment>,
-    buildType: BuildType,
-    androidSdkPath: Path,
-    prepareAndroidTaskDependencies: List<TaskName>,
-    projectRoot: AmperProjectRoot,
-    taskOutputPath: TaskOutputRoot,
-    buildLogsRoot: AmperBuildLogsRoot,
-) {
-    registerTask(
-        AndroidPrepareTask(
-            AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType),
-            module,
-            buildType,
-            executeOnChangedInputs,
-            androidSdkPath,
-            fragments,
-            projectRoot,
-            taskOutputPath,
-            buildLogsRoot
-        ),
-        prepareAndroidTaskDependencies
-    )
-}
-
-
-private fun TaskGraphBuilder.setupAndroidBuildTask(
-    platform: Platform,
-    module: AmperModule,
-    isTest: Boolean,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
-    fragments: List<Fragment>,
-    buildType: BuildType,
-    androidSdkPath: Path,
-    context: CliContext
-) {
-    val buildAndroidTaskName = AndroidTaskType.Build.getTaskName(module, platform, isTest, buildType)
-    registerTask(
-        AndroidBuildTask(
-            module = module,
-            buildType = buildType,
-            isTest = isTest,
-            executeOnChangedInputs = executeOnChangedInputs,
-            androidSdkPath = androidSdkPath,
-            fragments = fragments,
-            projectRoot = context.projectRoot,
-            taskOutputPath = context.getTaskOutputPath(buildAndroidTaskName),
-            buildLogsRoot = context.buildLogsRoot,
-            taskName = buildAndroidTaskName,
-        ),
-        listOf(
-            CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)
-        )
-    )
-}
 
 private fun TaskGraphBuilder.setupAndroidCommandlineTools(
     module: AmperModule,
