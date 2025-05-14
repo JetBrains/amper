@@ -1586,6 +1586,18 @@ settings:  # objects merged
     release: 8   # from the module.yaml
 ```
 
+## Packaging
+
+Amper provides a `package` command to build a project for distribution.
+For `jvm/app` modules it produces executable jars which follow [The Executable Jar Format](https://docs.spring.io/spring-boot/specification/executable-jar/index.html).
+The executable JAR format, while commonly associated with Spring applications, is a universal packaging solution
+suitable for any JVM application. This format provides a convenient, runnable self-contained deployment unit that
+includes all necessary dependencies, but unlike the shadow jar approach, it is deprived of the duplicate processing
+problems.
+
+For `android/app` modules, see [Android packaging](#packaging) section.
+
+
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value pairs and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
 YAML is indent-sensitive.
