@@ -186,8 +186,10 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     private suspend fun getLatestVersion(includeDevVersions: Boolean): String =
         spanBuilder("Fetch latest Amper version").use {
             terminal.println("Fetching latest Amper version info...")
-            val metadataXml = fetchMavenMetadataXml()
-            xmlVersionElementRegex.findAll(metadataXml)
+            // TODO use the latest-version.txt file instead when we update it from our builds
+            val oldMetadataXml = fetchMavenMetadataXml("cli")
+            val newMetadataXml = fetchMavenMetadataXml("amper-cli")
+            (xmlVersionElementRegex.findAll(oldMetadataXml) + xmlVersionElementRegex.findAll(newMetadataXml))
                 .mapNotNull { parseAmperVersion(it.groupValues[1]) }
                 .filter { !it.isDevVersion || (includeDevVersions && !it.isSpecialBranchVersion) }
                 .maxByOrNull { ComparableVersion(it.fullMavenVersion) }
@@ -196,11 +198,11 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
                     val versionMoniker = if (includeDevVersions) "dev version of Amper" else "Amper version"
                     terminal.println("Latest $versionMoniker is ${terminal.theme.info(it)}")
                 }
-                ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$metadataXml")
+                ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$newMetadataXml\n\n$oldMetadataXml")
         }
 
-    private suspend fun fetchMavenMetadataXml(): String = try {
-        httpClient.get("$repository/org/jetbrains/amper/cli/maven-metadata.xml").bodyAsText()
+    private suspend fun fetchMavenMetadataXml(artifactId: String): String = try {
+        httpClient.get("$repository/org/jetbrains/amper/$artifactId/maven-metadata.xml").bodyAsText()
     } catch (e: Exception) {
         userReadableError("Couldn't fetch the latest Amper version:\n$e")
     }
