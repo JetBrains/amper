@@ -4,7 +4,7 @@
 
 # Amper
 
-Amper is an experimental project configuration and build tool.
+Amper is an experimental build tool for the Kotlin and Java languages.
 Its goal is to provide a great and smooth user experience and IDE support. 
 We believe that this can be achieved by:
 
@@ -23,9 +23,6 @@ and more. At the current stage, however, the focus is primarily on configuring p
 use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform).
 However, the same approach to configuration could work for other languages and technology stacks in the future.
 
-Amper exists as a standalone build tool as well as a Gradle plugin for existing Gradle-based projects.
-Both versions offer a unified, easy-to-use, declarative configuration format.
-
 Supported features:
 * Creating and running JVM, Android, iOS, Linux, and macOS applications.
 * Creating Kotlin Multiplatform libraries.
@@ -36,10 +33,6 @@ Supported features:
 * Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
 * Using Compose [multiplatform resources](docs/Documentation.md#using-multiplatform-resources).
 * Integration with [Gradle version catalogs](docs/Documentation.md#library-catalogs-aka-version-catalogs).
-* [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project*.
-* [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interoperability) for the smooth migration of existing Gradle projects*.
-
-*\* only in Gradle-based projects*
 
 Future directions:
 * Support for more Kotlin and Kotlin Multiplatform scenarios and configurations.
@@ -54,8 +47,7 @@ For a quick start:
 * [Setup](docs/Setup.md) and [usage](docs/Usage.md) instructions
 * [Tutorial](docs/Tutorial.md)  
 * [Documentation](docs/Documentation.md) 
-* [Example projects](examples-gradle)
-* Gradle [migration guide](docs/GradleMigration.md)  
+* [Example projects](examples-standalone)
 
 ## Issues and feedback
 
@@ -72,7 +64,6 @@ There are multiple ways to try Amper:
 
 * In the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) ([instructions](docs/Usage.md#using-amper-in-intellij-idea)).
 * Using [Amper from the command line](docs/Usage.md#using-amper-from-the-command-line).
-* Using [Amper in existing Gradle projects](docs/Documentation.md#gradle-based-projects)
 
 ## Examples
 
@@ -93,7 +84,7 @@ product: jvm/app
 
 That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality are configured and available straight out of the box.
 You can build it, run it, write and run tests, and more.
-For more detailed information, check out the [full example](examples-gradle/jvm).
+For more detailed information, check out the [full example](examples-standalone/jvm).
 
 ![](docs/images/ij-jvm-result.png)
 
@@ -162,12 +153,10 @@ the [tutorial](docs/Tutorial.md), and [example projects](#more-examples).
 
 ### More examples
 Check our these example projects:
-* JVM "Hello, World!" ([standalone](examples-standalone/jvm), [Gradle-based](examples-gradle/jvm))
-* Compose Multiplatform ([standalone](examples-standalone/compose-multiplatform), [Gradle-based](examples-gradle/compose-multiplatform))
-* Compose on iOS ([standalone](examples-standalone/compose-ios), [Gradle-based](examples-gradle/compose-ios)),
-  Android ([standalone](examples-standalone/compose-android), [Gradle-based](examples-gradle/compose-android)),
-  and desktop ([standalone](examples-standalone/compose-desktop), [Gradle-based](examples-gradle/compose-desktop))
+* [JVM "Hello, World!"](examples-standalone/jvm)
+* [Compose Multiplatform](examples-standalone/compose-multiplatform)
+* Compose on [iOS](examples-standalone/compose-ios), [Android](examples-standalone/compose-android),
+  and [desktop](examples-standalone/compose-desktop)
 * Kotlin Multiplatform app template with [shared Compose UI](https://github.com/Kotlin/KMP-App-Template/tree/amper) 
-  and with [native Android and iOS UI](https://github.com/Kotlin/KMP-App-Template-Native/tree/amper)  
-* Gradle interop in the [Gradle-based Amper](examples-gradle/gradle-interop)
-* And other [standalone](examples-standalone) and [Gradle-based](examples-gradle) examples
+  and with [native Android and iOS UI](https://github.com/Kotlin/KMP-App-Template-Native/tree/amper)
+* And other [examples](examples-standalone/README.md)

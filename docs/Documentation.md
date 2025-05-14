@@ -1,29 +1,29 @@
+# Amper Documentation
+
+Amper is a build tool for the Kotlin and Java languages.
+It can build plain JVM console applications, Android and iOS mobile applications, server-side application like Spring
+or Ktor, multiplatform projects that share business logic and/or UI, and more.
+
 ## Before you start
 
-Check the [setup instructions](Setup.md)
+Check the [setup instructions](Setup.md).
+
+See the [usage instructions](Usage.md#using-amper-from-the-command-line) to get started with the Amper CLI.
 
 ## Basics
 
-Amper is a project configuration and build tool.
-See the [usage instructions](Usage.md#using-amper-from-the-command-line) to get started with the standalone CLI. 
-
-Also, for existing Gradle projects there is [Amper Gradle plugin](#gradle-based-projects) which offers full Gradle interop. Note that certain functionality and behavior might differ between the standalone and Gradle-based Amper versions.
-
 An Amper **project** is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
-configuration. The folder with the `project.yaml` file is the project root. Modules can only be located under the
-project root. If there is only one module in the project, a `project.yaml` file is not required.
-
-> In Gradle-based projects, a `settings.gradle.kts` file is used instead of a `project.yaml` file.
+configuration. The folder with the `project.yaml` file is the project root. Modules can only be located anywhere under
+the project root. If there is only one module in the project, a `project.yaml` file is not required.
 
 An Amper **module** is a directory with a `module.yaml` configuration file, module sources and resources.
 A *module configuration file* describes _what_ to produce: e.g. a reusable library or a platform-specific application.
-Each module describes a single product. Several modules can't share same sources or resources.
+Each module describes a single product. Several modules can't share same sources or resources, but they can depend on
+each other.
 
 > To get familiar with YAML, see [the brief intro](#brief-yaml-reference).
 
 _How_ to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine.
-In Gradle-based Amper projects it's possible to use [plugins](Documentation.md#using-gradle-plugins) and
-write [custom Gradle tasks](#writing-custom-gradle-tasks).
 
 Amper supports Kotlin Multiplatform as a core concept and offers special syntax to deal with multiplatform
 configuration. There is a dedicated [**@platform-qualifier**](#platform-qualifier) used to mark platform-specific
@@ -66,17 +66,6 @@ modules:
 
 Check the [reference](DSLReference.md#modules) for more options to define the list of modules in the `project.yaml` file.
 
-In Gradle-based projects, a `settings.gradle.kts` file is expected instead of a `project.yaml` file, and it's required 
-even for single-module projects.
-Read more in the [Gradle-based projects](Documentation.md#gradle-based-projects) section.
-```
-|-src/             
-|  |-main.kt      
-|-test/       
-|  |-MainTest.kt 
-|-module.yaml
-|-settings.gradle.kts
-```
 
 ### Source code
 
@@ -117,23 +106,6 @@ refactor the code, as it always exists in the scope of a single module, has a we
 
 See also info on [resource management](#resources).
 
-Amper also supports Gradle-compatible layouts for [Gradle-based](#gradle-based-projects) projects:
-
-```
-|-src/
-|  |-main/
-|  |  |-kotlin
-|  |  |  |-main.kt
-|  |  |-resources
-|  |  |  |-...
-|  |-test/
-|  |  |-kotlin
-|  |  |  |-test.kt
-|  |  |-resources
-|  |  |  |-...
-|-module.yaml
-```
-Read more about [Gradle-compatible project layouts](#file-layout-with-gradle-interoperability).
 
 ## Module file anatomy
 
@@ -233,7 +205,7 @@ To depend on another module, use a relative path to the folder which contains th
 Module dependency should start either with `./` or `../`.
 
 > Dependencies between modules are only allowed within the project scope.
-> That is, they must be listed in the `project.yaml` or `settings.gradle.kts` file.
+> That is, they must be listed in the `project.yaml` file.
 
 Example: given the project layout
 
@@ -286,7 +258,8 @@ dependencies:
 ```
 
 All dependencies by default are not accessible from the dependent code.  
-In order to make a dependency visible to a dependent module, you need to explicitly mark it as `exported` (aka Gradle API-dependency). 
+In order to make a dependency visible to a dependent module, you need to explicitly mark it as `exported` (this is 
+equivalent to declaring a dependency using the `api()` configuration in Gradle). 
 
 ```yaml
 dependencies:
@@ -352,18 +325,6 @@ my.private.repository.password=...
 
 > Currently only `*.properties` files with credentials are supported.
 
-**Note on Gradle interop**
-
-If some repositories are defined in `settings.gradle.kts` using a `dependencyResolutionManagement` block, they are only
-taken into account by pure Gradle subprojects, and don't affect Amper modules. If you want to define repositories in a
-central place for Amper modules, you can use a `repositories` list in a [template file](#templates) and apply this
-template to your modules.
-
-Technical explanation: in Gradle, adding any repository at the subproject level will by default discard the repositories
-configured in the settings (unless a different Gradle
-[RepositoriesMode](https://docs.gradle.org/current/javadoc/org/gradle/api/initialization/resolve/RepositoriesMode.html)
-is used). Default repositories provided by Amper is an equivalent to adding a `repositories` section in
-the `build.gradle.kts` file of each individual Amper module.
 
 ### Library Catalogs (a.k.a Version Catalogs)
 
@@ -544,24 +505,6 @@ settings:
     version: 1.5.10
 ```
 
-> In a [Gradle-based project](#gradle-based-projects) you also need to set a couple of flags in the `gradle.properties`
-> file:
-
-```
-|-...
-|-settings.gradle.kts
-|-gradle.properties    # create this file if it doesn't exist 
-``` 
-
-```properties
-# Compose requires AndroidX
-android.useAndroidX=true
-
-# Android and iOS build require more memory, so we set -Xmx4g.
-# The other options are just Gradle defaults that we restore because they are overridden as soon as we use this property
-org.gradle.jvmargs=-Xmx4g -Xms256m -XX:MaxMetaspaceSize=384m -XX:+HeapDumpOnOutOfMemoryError
-```
-
 ##### Using multiplatform resources
 
 Amper supports [Compose Multiplatform resources](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html).
@@ -578,33 +521,6 @@ The file layout for the standalone Amper is:
 |  |  |-drawable/
 |  |  |  |-image.jpg
 |  |-...
-```
-
-To use multiplatform resources in a Gradle-based project,
-a module must be configured with a [Gradle-compatible file layout](#file-layout-with-gradle-interoperability):
-```
-|-my-kmp-module/
-|  |-module.yaml
-|  |-src/
-|  |  |-commonMain/
-|  |  |  |-kotlin # your code is here
-|  |  |  |  |-...
-|  |  |  |-composeResources # place your multiplatform resources in this folder
-|  |  |  |  |-values/
-|  |  |  |  |  |-strings.xml
-|  |  |  |  |-drawable/
-|  |  |  |  |  |-image.jpg
-|  |  |-...
-```
-
-Configure the `module.yaml` to use `gradle-kmp` file layout:
-```yaml
-product: 
-  type: lib
-  platforms: [jvm, android]
-
-module:
-  layout: gradle-kmp 
 ```
 
 Amper automatically generates the accessors for resources during the build and when working with code in the IDE.
@@ -723,8 +639,6 @@ You can use the `build` command to create an APK, or the `package` command to cr
 
 The `package` command will not only build the APK, but also minify/obfuscate it with ProGuard, and sign it.
 See the dedicated [signing](#signing) and [code shrinking](#code-shrinking) sections to learn how to configure this. 
-
-> In Gradle-based Amper projects, you can use the Gradle tasks provided by the Android Gradle plugin.
 
 #### Code shrinking
 
@@ -855,7 +769,8 @@ settings:
 
 #### Google Services and Firebase
 
-To enable the [`google-services` plugin](https://developers.google.com/android/guides/google-services-plugin), place your `google-services.json` file in the module containing an `android/app` product, next to `module.yaml`.
+To enable the [`google-services` plugin](https://developers.google.com/android/guides/google-services-plugin), place 
+your `google-services.json` file in the module containing an `android/app` product, next to `module.yaml`.
     
 ```
 |-androidApp/
@@ -864,7 +779,7 @@ To enable the [`google-services` plugin](https://developers.google.com/android/g
 |  |-module.yaml
 ```
  
-This file will be consumed automatically in both standalone and Gradle-based Amper projects.
+This file will be found and consumed automatically.
 
 #### Configuring Kotlin Symbol Processing (KSP)
 
@@ -1567,336 +1482,6 @@ settings:  # objects merged
   jvm:
     release: 8   # from the module.yaml
 ```
-
-## Gradle-based projects
-
-> Gradle 8.7+ is required to use the Amper plugin, Gradle 8.11.1 is recommended.
-
-In a Gradle-based project, instead of a `project.yaml` file, you need a `settings.gradle.kts` file
-and a `gradle/wrapper/` folder in the project root:
-```
-|-gradle/...
-|-src/
-|  |-...
-|-module.yaml
-|-settings.gradle.kts
-```
-
-In case of a multi-module projects, the `settings.gradle.kts` should be placed in the root as usual:
-
-```
-|-app/
-|  |-...
-|  |-module.yaml
-|-lib/
-|  |-...
-|  |-module.yaml
-|-settings.gradle.kts
-```
-
-The Amper plugin needs to be added in the `settings.gradle.kts` and Amper modules explicitly specified:
-
-```kotlin
-pluginManagement {
-    // Configure repositories required for the Amper plugin
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        google()
-        maven("https://packages.jetbrains.team/maven/p/amper/amper")
-        maven("https://www.jetbrains.com/intellij-repository/releases")
-        maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
-    }
-}
-
-plugins {
-    // Add the plugin
-    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2829")
-}
-
-// Add Amper modules to the project
-include("app", "lib")
-```
-
-### Gradle interoperability
-
-The Gradle interoperability supports the following scenarios:
-
-* partial use of Amper in an existing Gradle project,
-* smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Amper,
-* writing custom Gradle tasks or using existing Gradle plugins in an existing Amper module.
-
-Gradle features supported in Amper modules:
-* Cross-project dependencies between Gradle sub-projects and Amper modules.
-* Using the default [libs.versions.toml version catalogs](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). 
-* Writing Gradle [custom tasks](#writing-custom-gradle-tasks).
-* Using [Gradle plugins](#using-gradle-plugins).
-* Configuring additional [settings in the `build.gradle.kts` files](#configuring-settings-in-the-gradle-build-files).
-* [Gradle-compatible file layout](#file-layout-with-gradle-interoperability).
-
-To use Gradle interop in an Amper module, place either a `build.gradle.kts` or a `build.gradle` file next to
-your `module.yaml` file:
-```
-|-src/
-|  |-main.kt
-|-module.yaml
-|-build.gradle.kts
-```
-
-#### Writing custom Gradle tasks
-
-As an example let's use the following `module.yaml`:
-```yaml
-product: jvm/app
-```
-
-Here is how to write a custom task in the `build.gradle.kts`:
-```kotlin
-tasks.register("hello") {
-    doLast {
-        println("Hello world!")
-    }
-}
-```
-Read more on [writing Gradle tasks](https://docs.gradle.org/current/userguide/more_about_tasks.html).
-
-
-#### Using Gradle plugins
-
-It's possible to use any existing Gradle plugin, e.g. a popular [SQLDelight](https://cashapp.github.io/sqldelight/2.0.0/multiplatform_sqlite/):
-```kotlin
-plugins { 
-    id("app.cash.sqldelight") version "2.0.0"
-}
-
-sqldelight {
-    databases {
-        create("Database") {
-            packageName.set("com.example")
-        }
-    }
-}
-```
-
-> The following plugins are preconfigured and their versions can't be changed:
-
-| Plugin                                      | Version |
-|---------------------------------------------|---------|
-| `org.jetbrains.kotlin.multiplatform`        | 2.1.20  |
-| `org.jetbrains.kotlin.android`              | 2.1.20  |
-| `org.jetbrains.kotlin.plugin.serialization` | 2.1.20  |
-| `com.android.library`                       | 8.2.0   |
-| `com.android.application`                   | 8.2.0   |
-| `org.jetbrains.compose`                     | 1.6.10  |
-
-Here is how to use these plugins in a Gradle script:
-```kotlin
-plugins {
-    kotlin("multiplatform")     // don't specify a version here,
-    id("com.android.library")   // here,
-    id("org.jetbrains.compose") // and here
-}
-```
-
-#### Configuring settings in the Gradle build files
-
-You can change all Gradle project settings in Gradle build files as usual. Configuration in `build.gradle*` file has
-precedence over `module.yaml`. That means that a Gradle script can be used to tune/change the final configuration of your
-Amper module.
-
-E.g., the following Gradle script configures the working dir and the `mainClass` property: 
-```kotlin
-application {
-    executableDir = "my_dir"
-    mainClass.set("my.package.Kt")
-}
-```
-
-#### Configuring C-interop using the Gradle build file
-
-Use the following configuration to add C-interop in a Gradle-based Amper project:
-
-```kotlin
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-
-kotlin {
-  targets.filterIsInstance<KotlinNativeTarget>().forEach {
-    it.compilations.getByName("main").cinterops {
-      val libcurl by creating {
-        // ...
-      }
-    }
-  }
-}
-```
-
-Read more about C-interop configuration in
-the [Kotlin/Native documentation](https://kotlinlang.org/docs/native-app-with-c-and-libcurl.html#add-interoperability-to-the-build-process).
-
-#### File layout with Gradle interoperability
-
-The default [module layout](#project-layout) suites best for the newly created modules:  
-```
-|-src/
-|  |-main.kt
-|-resources/
-|  |-...
-|-test/
-|  |-test.kt
-|-testResources/
-|  |-...
-|-module.yaml
-|-build.gradle.kts
-```
-
-For migration of an existing Gradle project, there is a compatibility mode (see also [Gradle migration guide](GradleMigration.md)).
-To set the compatibility mode, add the following snippet to a `module.yaml` file:
-```yaml
-module:
-  layout: gradle-kmp  # may be 'default', 'gradle-jvm', `gradle-kmp`
-```
-
-Here are possible layout modes:
- - `default`: Amper ['flat' file layout](#project-layout) is used. Source folders configured in the Gradle script are not available.  
- - `gradle-jvm`: the file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html). Additional source sets configured in the Gradle script are preserved.
- - `gradle-kmp`: the file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). Additional source sets configured in the Gradle script are preserved.
-
-See the [Gradle and Amper layouts comparison](#gradle-vs-amper-project-layout).
-
-E.g., for the `module.yaml`:
-```yaml
-product: jvm/app
-
-module:
-  layout: gradle-jvm
-```
-
-The file layout is:
-```
-|-src/
-|  |-main/
-|  |  |-kotlin
-|  |  |  |-main.kt
-|  |  |-resources
-|  |  |  |-...
-|  |-test/
-|  |  |-kotlin
-|  |  |  |-test.kt
-|  |  |-resources
-|  |  |  |-...
-|-module.yaml
-|-build.gradle.kts
-```
-
-While for the `module.yaml`:
-```yaml
-product: jvm/app
-
-module:
-  layout: gradle-kmp
-```
-
-The file layout is:
-```
-|-src/
-|  |-commonMain/
-|  |  |-kotlin
-|  |  |  |-...
-|  |  |-resources
-|  |  |  |-...
-|  |-commonTest/
-|  |  |-kotlin
-|  |  |  |-...
-|  |  |-resources
-|  |  |  |-...
-|  |-jvmMain/
-|  |  |-kotlin
-|  |  |  |-main.kt
-|  |  |-resources
-|  |  |  |-...
-|  |-jvmTest/
-|  |  |-kotlin
-|  |  |  |-test.kt
-|  |  |-resources
-|  |  |  |-...
-|-module.yaml
-|-build.gradle.kts
-```
-
-In the compatibility mode source sets could be configured or amended in the Gradle script. They are accessible by their names: `commonMain`, `commonTest`, `jvmMain`, `jvmTest`, etc.:
-```kotlin
-kotlin {
-    sourceSets {
-        // configure an existing source set
-        val jvmMain by getting {
-            // your configuration here
-        }
-        
-        // add a new source set
-        val mySourceSet by creating {
-            // your configuration here
-        }
-    }
-}
-```
-
-Additionally, source sets are generated for each [alias](#aliases). E.g. given the following module configuration:
-
-```yaml
-product:
-  type: lib
-  platforms: [android, jvm]
-  
-module:
-  layout: gradle-kmp
-
-aliases:
-  - jvmAndAndroid: [jvm, android]
-```
-
-two source sets are generated: `jvmAndAndroid` and `jvmAndAndroidTest` and can be used as following:
-
-```kotlin
-kotlin {
-    sourceSets {
-        val jvmAndAndroid by getting {
-            // configure the main source set
-        }
-        
-        val jvmAndAndroidTest by getting {
-            // configure the test source set
-        }
-    }
-}
-```
-
-#### Gradle vs Amper project layout
-
-Here is how Gradle layout maps to the Amper file layout:
-
-| Gradle JVM         | Amper         |
-|--------------------|---------------|
-| src/main/kotlin    | src           |
-| src/main/java      | src           |
-| src/main/resources | resources     |
-| src/test/kotlin    | test          |
-| src/test/java      | test          |
-| src/test/resources | testResources |
-
-| Gradle KMP                      | Amper            |
-|---------------------------------|------------------|
-| src/commonMain/kotlin           | src              |
-| src/commonMain/java             | src              |
-| src/commonMain/composeResources | composeResources |
-| src/jvmMain/kotlin              | src@jvm          |
-| src/jvmMain/java                | src@jvm          |
-| src/jvmMain/resources           | resources@jvm    |
-| src/commonTest/kotlin           | test             |
-| src/commonTest/java             | test             |
-
-
-See also documentation on [Kotlin Multiplatform source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) and [custom source sets configuration](https://kotlinlang.org/docs/multiplatform-dsl-reference.html#custom-source-sets).
-
 
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value pairs and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).

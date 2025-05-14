@@ -1,3 +1,5 @@
+# Gradle migration
+
 This tutorial demonstrates how to add Amper module files to existing Gradle JVM and Kotlin Multiplatform projects.
 
 See also project examples:
@@ -5,11 +7,18 @@ See also project examples:
 * [gradle-migration-jvm](../examples-gradle/gradle-migration-jvm) demonstrates a JVM Gradle project with an Amper module.   
 * [gradle-migration-kmp](../examples-gradle/gradle-migration-kmp) demonstrates a Kotlin Multiplatform Gradle project with an Amper module.
 
-If you are looking for more detailed info on Gradle interop, check [the documentation](Documentation.md#gradle-interop).
+If you are looking for more detailed info on Gradle interoperability, check [the documentation](GradleBasedProjects.md).
 
 ### Before you start
 
-Check the [setup](Setup.md) and the [usage](Usage.md#using-the-gradle-based-amper-version-from-the-command-line) instructions.
+Check the [setup](Setup.md) instructions.
+
+> [!IMPORTANT]
+> To use the Gradle-based version of Amper:
+> * JDK 17+ is required.
+> * Gradle 8.7+ is required.
+    To make sure your project uses the desired Gradle version,
+    check the `./gradle/wrapper/gradle-wrapper.properties` in the root of your project.
 
 ### Step 1. Configure settings.gradle.kts
 
@@ -48,6 +57,7 @@ plugins {
 rootProject.name = "my-project-name"
 ```
 
+> [!TIP]
 > After this step, the build might fail. That's OK, please proceed to the next step.
 
 ### Step 2. Update plugin versions in Gradle scripts 
@@ -148,12 +158,13 @@ module:
   layout: gradle-jvm
 ```
 
-The `product:` section controls the type of produced artifact, in this case, a library for the JVM platform.
-The `layout: gradle-jvm` enables a [Gradle-compatible mode](Documentation.md#file-layout-with-gradle-interoperability) for JVM
-projects.
+The `product:` section controls the type of produced artifact, in this case, a library for the JVM platform. The 
+`layout: gradle-jvm` enables a [Gradle-compatible mode](GradleBasedProjects.md#file-layout-with-gradle-interoperability)
+for JVM projects.
 
-> Due to current limitation, when you migrate a JVM subproject to an Amper module you need to replace
-> the `org.jetbrains.kotlin.jvm` plugin with `org.jetbrains.kotlin.multiplatform`.
+> [!IMPORTANT]
+> Due to current limitations, when migrating a JVM subproject to an Amper module, you need to replace the
+> `org.jetbrains.kotlin.jvm` plugin with `org.jetbrains.kotlin.multiplatform`.
 
 Find code like
 
@@ -211,8 +222,9 @@ module:
 ```
 
 The `product:` section controls the type of produced artifact, in this case, a library for the JVM and for Android
-platforms. The `layout: gradle-kmp` enables a [Gradle-compatible mode](Documentation.md#file-layout-with-gradle-interoperability)
-for Kotlin Multiplatform projects.
+platforms. The `layout: gradle-kmp` enables a 
+[Gradle-compatible mode](GradleBasedProjects.md#file-layout-with-gradle-interoperability) for Kotlin Multiplatform
+projects.
 
 After creating a module.yaml file, remove
 the [Kotlin targets section](https://kotlinlang.org/docs/multiplatform-set-up-targets.html) from your Gradle build
@@ -274,7 +286,7 @@ test-dependencies:
 Note several things here:
 
 * The example assumes that `api` and `test-utils` modules can be found at the corresponding relative paths.
-  See [details on the internal dependencies](Documentation.md#internal-dependencies).
+  See [details on the module dependencies](Documentation.md#module-dependencies).
 * Gradle's `api()` dependency is mapped to `exported` dependency attribute.
   See [details on scopes and visibility](Documentation.md#scopes-and-visibility).
 * Use of cataloged dependencies requires a `$` prefix, so Gradle's `libs.gson` becomes `$libs.gson` in Amper.
@@ -390,7 +402,8 @@ As the next optional step, you may also consider migrating to the [lightweight l
 |-build.gradle.kts
 ```
 
-To do so, you need to rearrange the sources folders according to [these tables](Documentation.md#gradle-vs-amper-project-layout), and disable the Gradle compatibility mode.
+To do so, you need to rearrange the sources folders according to 
+[these tables](GradleBasedProjects.md#gradle-vs-amper-project-layout), and disable the Gradle compatibility mode.
 To enable the Amper layout, set `layout:` to `default` or remove the section:
 ```yaml
 product:

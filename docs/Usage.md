@@ -84,54 +84,6 @@ See `./amper update -h` for more information about the available options.
 > If you had generated a completion script before, you need to re-generate it with the new Amper version (see previous
 > section).
 
-## Using the Gradle-based Amper version from the command line
-
-> [!IMPORTANT]
-> To use the Gradle-based version of Amper: 
-> * JDK 17+ is required. 
-> * Gradle 8.7+ is required. 
-  To make sure your project uses the desired Gradle version, 
-  check the `./gradle/wrapper/gradle-wrapper.properties` in the root of your project.
-
-To learn how to add Amper to your existing Gradle project, 
-check the [documentation](Documentation.md#gradle-based-projects) and the [tutorial](GradleMigration.md).
-After adding Amper, you can use Gradle as usual.
-
-For example, to build and run the [JVM "Hello, World"](../examples-gradle/jvm) example:
-```
-cd jvm
-./gradlew run 
-```
-See the [Gradle tutorial](https://docs.gradle.org/current/samples/sample_building_java_applications.html) for more info.
-
-> To use Amper with Kotlin Multiplatform (e.g. running on devices and simulators), [Fleet](#using-amper-in-fleet) is
-> recommended.
-
-### Updating Gradle-based Amper to a newer version
-
-To find the latest Amper version, check the [releases section](https://github.com/JetBrains/amper/releases) in GitHub.
-
-Then, update the Amper plugin version in your `settings.gradle.kts` file: 
-
-```kotlin
-// ...
-pluginManagement {
-    repositories {
-        // check Amper repositories:
-        google()
-        maven("https://packages.jetbrains.team/maven/p/amper/amper")
-        maven("https://www.jetbrains.com/intellij-repository/releases")
-        maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
-    }
-}
-// ...
-plugins {
-    // update the Amper plugin version here:
-    id("org.jetbrains.amper.settings.plugin").version("0.7.0-dev-2829")
-}
-// ...
-```
-
 ## Using Amper in IntelliJ IDEA
 
 > The latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) can be used to work with 
@@ -155,10 +107,6 @@ To run an application:
   ![](images/ij-run-config-jvm.png)\
   ![](images/ij-run-config-android.png)
 
-
-* (Gradle-based projects only) launch a Gradle task directly:\
-  ![](images/ij-run-gradle-task.png)
-  
-
-To run tests use the same 'run' (![](images/ij-run-gutter-icon.png)) gutter icon or Gradle run configuration. Read more on [testing in IntelliJ IDEA](https://www.jetbrains.com/help/idea/work-with-tests-in-gradle.html#run_gradle_test).\
+To run tests, use the 'run' (![](images/ij-run-gutter-icon.png)) gutter icon next to the test functions or classes.
+Read more on [testing in IntelliJ IDEA](https://www.jetbrains.com/help/idea/work-with-tests-in-gradle.html#run_gradle_test).
 ![](images/ij-run-tests.png)

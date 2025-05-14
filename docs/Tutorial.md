@@ -77,7 +77,7 @@ no need to create separate Maven-like `java/` and `kotlin/` folders:
 |-module.yaml
 ```
 
-Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle-based](../examples-gradle/jvm))
+Examples: [JVM "Hello, World!"](../examples-standalone/jvm)
 
 You can now build your application using `./amper build`, or run it using `./amper run`.
 
@@ -150,7 +150,7 @@ test-dependencies:
   - io.mockk:mockk:1.13.10
 ```
 
-Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle-based](../examples-gradle/jvm))
+Examples: [JVM "Hello, World!"](../examples-standalone/jvm)
 
 > See the full documentation about [Tests](Documentation.md#tests).
 
@@ -225,14 +225,10 @@ Now we have a GUI application!
 
 Examples:
 
-- Compose Desktop ([standalone](../examples-standalone/compose-desktop), 
-  [Gradle-based](../examples-gradle/compose-desktop))
-- Compose Android ([standalone](../examples-standalone/compose-android), 
-  [Gradle-based](../examples-gradle/compose-android))
-- Compose iOS ([standalone](../examples-standalone/compose-ios), 
-  [Gradle-based](../examples-gradle/compose-ios))
-- Compose Multiplatform ([standalone](../examples-standalone/compose-multiplatform),
-  [Gradle-based](../examples-gradle/compose-multiplatform))
+- [Compose Desktop](../examples-standalone/compose-desktop)
+- [Compose Android](../examples-standalone/compose-android)
+- [Compose iOS](../examples-standalone/compose-ios)
+- [Compose Multiplatform](../examples-standalone/compose-multiplatform)
 
 > See the full documentation about [Compose](Documentation.md#configuring-compose-multiplatform).
 
@@ -363,8 +359,7 @@ We now have a multi-module project with some neatly extracted shared code.
 > include("jvm-app", "shared")
 > ```
 
-Examples: Compose Multiplatform ([standalone](../examples-standalone/compose-multiplatform), 
-[Gradle-based](../examples-gradle/compose-multiplatform))
+Examples: [Compose Multiplatform](../examples-standalone/compose-multiplatform)
 
 > See the full documentation about:
 > - [Project layout](Documentation.md#project-layout)
@@ -546,9 +541,7 @@ Make sure that your project structure looks like this:
 
 Now you can build and run both apps using [the IntelliJ IDEA run configurations](Usage.md#using-amper-in-intellij-idea).
 
-Examples: Compose Multiplatform
-([standalone](../examples-standalone/compose-multiplatform),
-[Gradle-based](../examples-gradle/compose-multiplatform))
+Examples: [Compose Multiplatform](../examples-standalone/compose-multiplatform)
 
 > See the full documentation about [multiplatform configuration](Documentation.md#multiplatform-configuration) and
 > [configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform) more specifically.

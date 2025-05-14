@@ -106,7 +106,7 @@ dependencies@jvmAndAndroid:
 
 ### Variants
 
-`variants:` section defines the list of build variants for the product. Variant names can be used as `@platform` qualifiers. Read more about [variants](Documentation.md#build-variants).
+`variants:` section defines the list of build variants for the product. Variant names can be used as `@platform` qualifiers.
 
 Examples:
 
@@ -140,9 +140,9 @@ dependencies@debug:
 
 `module:` section configures various aspects of the module, such as file layout.
 
-| Attribute      | Description                                                                                                            | Default   |
-|----------------|------------------------------------------------------------------------------------------------------------------------|-----------|
-| `layout: enum` | (Gradle-based projects only) File layout of the module. [Read more](Documentation.md#file-layout-with-gradle-interoperability). | `default` |
+| Attribute      | Description                                                                                                                           | Default   |
+|----------------|---------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| `layout: enum` | (Gradle-based projects only) File layout of the module. [Read more](GradleBasedProjects.md#file-layout-with-gradle-interoperability). | `default` |
 
 Supported file layouts:
 
@@ -152,7 +152,7 @@ Supported file layouts:
 | `gradle-jvm` | The file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html).           |
 | `gradle-kmp` | The file layout corresponds to the Gradle [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). |
 
-See more on the layouts in the [documentation](Documentation.md#file-layout-with-gradle-interoperability).
+See more on the layouts in the [documentation](GradleBasedProjects.md#file-layout-with-gradle-interoperability).
 
 Examples:
 
@@ -202,9 +202,9 @@ Supported dependency types:
 |--------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
 | `- ./<relative path>`<br/>`- ../<relative path>` | Dependency on [another module](Documentation.md#module-dependencies) in the codebase.                         |
 | `- <group ID>:<artifact ID>:<version>`           | Dependency on [a Kotlin or Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
-| `- $<catalog.key>`                               | Dependency from [a dependency catalog](Documentation.md#dependencyversion-catalogs).                          |
+| `- $<catalog.key>`                               | Dependency from [a dependency catalog](Documentation.md#library-catalogs-aka-version-catalogs).               |
 | `- bom: <group ID>:<artifact ID>:<version>`      | Dependency on [a BOM](Documentation.md#external-maven-bom-dependencies).                                      |
-| `- bom: $<catalog.key>`                          | Dependency on [a BOM from a dependency catalog](Documentation.md#dependencyversion-catalogs).                 |
+| `- bom: $<catalog.key>`                          | Dependency on [a BOM from a dependency catalog](Documentation.md#library-catalogs-aka-version-catalogs).      |
 
 Each dependency (except BOM) has the following attributes:
 
@@ -246,8 +246,7 @@ dependencies:
       scope: runtime-only
 ```
 
-The `dependencies:` section could also be [qualified with a platform](Documentation.md#platform-qualifier) or
-a [build variant](Documentation.md#build-variants).
+The `dependencies:` section can also be [qualified with a platform](Documentation.md#platform-qualifier).
 
 Examples:
 
