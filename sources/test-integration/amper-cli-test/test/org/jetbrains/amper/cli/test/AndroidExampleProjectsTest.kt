@@ -44,7 +44,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     fun `simple tests debug`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("android/simple"),
-            "task", ":simple:testAndroidTestDebug",
+            "task", ":simple:testAndroidDebug",
         )
         result.assertStdoutContains("1 tests successful")
     }
@@ -53,7 +53,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     fun `simple tests release`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("android/simple"),
-            "task", ":simple:testAndroidTestRelease",
+            "task", ":simple:testAndroidRelease",
         )
         result.assertStdoutContains("1 tests successful")
     }

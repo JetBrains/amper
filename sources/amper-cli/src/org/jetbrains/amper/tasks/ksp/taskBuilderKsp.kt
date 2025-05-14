@@ -12,8 +12,9 @@ import org.jetbrains.amper.frontend.schema.enabled
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.compilationTaskNamesFor
+import org.jetbrains.amper.tasks.compilationTaskNameFor
 import org.jetbrains.amper.tasks.getModuleDependencies
+import org.jetbrains.amper.util.BuildType
 
 fun ProjectTasksBuilder.setupKspTasks() {
     allModules()
@@ -89,10 +90,10 @@ fun ProjectTasksBuilder.setupKspTasks() {
                     }
                     if (isTest) {
                         // test compilation depends on main classes
-                        addAll(compilationTaskNamesFor(module, platform, isTest = false))
+                        add(compilationTaskNameFor(module, platform, isTest = false, buildType = BuildType.Debug))
                     }
                     module.getModuleDependencies(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot).forEach {
-                        addAll(compilationTaskNamesFor(it, platform, isTest = false))
+                        add(compilationTaskNameFor(it, platform, isTest = false,  buildType = BuildType.Debug))
 
                         // TODO add transitive 'exported' dependencies from module deps
                     }

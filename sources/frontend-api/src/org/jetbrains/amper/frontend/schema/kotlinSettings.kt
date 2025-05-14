@@ -8,9 +8,9 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.ContextAgnostic
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
-import org.jetbrains.amper.frontend.api.ContextAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -110,9 +110,16 @@ class KotlinSettings : SchemaNode() {
 //    @SchemaDoc("")
     var linkerOpts by nullableValue<List<TraceableString>>()
 
-    @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information")
+    @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
+            "Enable emitting debug information. Enabled in debug variants by default.")
     @PlatformSpecific(Platform.NATIVE)
-    var debug by value(true)
+    var debug by nullableValue<Boolean>()
+
+    @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
+            "Enable compilation optimizations and produce a binary with better runtime performance. " +
+            "Enabled in release variants by default.")
+    @PlatformSpecific(Platform.NATIVE)
+    var optimization by nullableValue<Boolean>()
 
     @SchemaDoc("Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)")
     var progressiveMode by value(false)

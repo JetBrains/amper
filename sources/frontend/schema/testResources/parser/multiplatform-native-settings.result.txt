@@ -72,7 +72,7 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
@@ -91,6 +91,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -191,7 +192,7 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
@@ -210,6 +211,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -308,7 +310,7 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
@@ -327,6 +329,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -425,7 +428,7 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
@@ -444,6 +447,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -545,7 +549,7 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
@@ -564,6 +568,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -665,7 +670,7 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
@@ -684,6 +689,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -782,7 +788,7 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
@@ -801,6 +807,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -902,7 +909,7 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
@@ -921,6 +928,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false

@@ -30,6 +30,7 @@ import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.ios.ManageXCodeProjectTask
+import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -43,6 +44,7 @@ internal class NativeLinkTask(
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
+    override val buildType: BuildType,
     val compilationType: KotlinCompilationType,
     /**
      * The name of the task that produces the klib for the sources of this module.
@@ -161,6 +163,7 @@ internal class NativeLinkTask(
                 plugins = kotlinUserSettings.compilerPlugins,
             )
             val args = kotlinNativeCompilerArgs(
+                buildType = buildType,
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,
                 entryPoint = entryPoint,

@@ -33,9 +33,10 @@ fun ProjectTasksBuilder.setupNativeTasks() {
 
     allModules()
         .alsoPlatforms(Platform.NATIVE)
+        .alsoBuildTypes()
         .alsoTests()
         .withEach {
-            val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, isTest)
+            val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, isTest, buildType)
             tasks.registerTask(
                 task = NativeCompileKlibTask(
                     module = module,
@@ -46,17 +47,18 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     taskName = compileKLibTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
+                    buildType = buildType,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
                     if (isTest) {
                         // todo (AB) : Check if this is required for test KLib compilation
-                        add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
+                        add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false, buildType))
                     }
                 },
             )
             if (needsLinkedExecutable(module, isTest)) {
-                val (linkAppTaskName, compilationType) = getNativeLinkTaskDetails(platform, module, isTest)
+                val (linkAppTaskName, compilationType) = getNativeLinkTaskDetails(platform, module, isTest, buildType)
                 tasks.registerTask(
                     task = NativeLinkTask(
                         module = module,
@@ -67,6 +69,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                         taskName = linkAppTaskName,
                         tempRoot = context.projectTempRoot,
                         isTest = isTest,
+                        buildType = buildType,
                         compilationType = compilationType,
                         compileKLibTaskName = compileKLibTaskName,
                         exportedKLibTaskNames = buildSet {
@@ -78,7 +81,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                                     dependencyReason = ResolutionScope.COMPILE,
                                     userCacheRoot = context.userCacheRoot,
                                 ).forEach { dependsOn ->
-                                    add(NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false))
+                                    add(NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false, buildType))
                                 }
                             }
                         },
@@ -87,7 +90,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                         add(compileKLibTaskName)
                         add(CommonTaskType.Dependencies.getTaskName(module, platform, false))
                         if (isTest) {
-                            add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
+                            add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false, buildType))
                         }
                         if (compilationType == KotlinCompilationType.IOS_FRAMEWORK) {
                             // Needed for bundleId inference
@@ -101,16 +104,17 @@ fun ProjectTasksBuilder.setupNativeTasks() {
     allModules()
         .alsoPlatforms(Platform.NATIVE)
         .alsoTests()
+        .alsoBuildTypes()
         .selectModuleDependencies(ResolutionScope.RUNTIME).withEach {
             tasks.registerDependency(
-                NativeTaskType.CompileKLib.getTaskName(module, platform, isTest),
-                NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+                NativeTaskType.CompileKLib.getTaskName(module, platform, isTest, buildType),
+                NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false, buildType)
             )
 
             if (needsLinkedExecutable(module, isTest)) {
                 tasks.registerDependency(
-                    getNativeLinkTaskName(platform, module, isTest),
-                    NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+                    getNativeLinkTaskName(platform, module, isTest, buildType),
+                    NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false, buildType)
                 )
             }
         }
@@ -120,18 +124,21 @@ fun ProjectTasksBuilder.setupNativeTasks() {
         .filter {
             // Skip running of ios/app modules, since it is handled in taskBuilderIos.kt
             it.module.type.isApplication() && !it.platform.isDescendantOf(Platform.IOS)
-        }.withEach {
-            val runTaskName = CommonTaskType.Run.getTaskName(module, platform)
+        }
+        .alsoBuildTypes()
+        .withEach {
+            val runTaskName = CommonTaskType.Run.getTaskName(module, platform, isTest = false, buildType)
             tasks.registerTask(
                 NativeRunTask(
                     module = module,
                     projectRoot = context.projectRoot,
                     taskName = runTaskName,
                     platform = platform,
+                    buildType = buildType,
                     commonRunSettings = context.commonRunSettings,
                     terminal = context.terminal,
                 ),
-                NativeTaskType.Link.getTaskName(module, platform, isTest = false)
+                NativeTaskType.Link.getTaskName(module, platform, isTest = false, buildType)
             )
         }
 
@@ -140,17 +147,20 @@ fun ProjectTasksBuilder.setupNativeTasks() {
         .filterNot {
             // Skip testing of ios modules, since it is handled in taskBuilderIos.kt
             it.platform.isDescendantOf(Platform.IOS)
-        }.withEach {
+        }
+        .alsoBuildTypes()
+        .withEach {
             tasks.registerTask(
                 NativeTestTask(
                     module = module,
                     projectRoot = context.projectRoot,
-                    taskName = CommonTaskType.Test.getTaskName(module, platform),
+                    taskName = CommonTaskType.Test.getTaskName(module, platform, buildType = buildType),
+                    buildType = buildType,
                     platform = platform,
                     commonRunSettings = context.commonRunSettings,
                     terminal = context.terminal,
                 ),
-                NativeTaskType.Link.getTaskName(module, platform, isTest = true)
+                NativeTaskType.Link.getTaskName(module, platform, isTest = true, buildType)
             )
         }
 }
@@ -158,24 +168,25 @@ fun ProjectTasksBuilder.setupNativeTasks() {
 private fun needsLinkedExecutable(module: AmperModule, isTest: Boolean) =
     module.type.isApplication() || isTest
 
-private fun getNativeLinkTaskName(platform: Platform, module: AmperModule, isTest: Boolean) =
-    getNativeLinkTaskDetails(platform, module, isTest).first
+private fun getNativeLinkTaskName(platform: Platform, module: AmperModule, isTest: Boolean, buildType: BuildType) =
+    getNativeLinkTaskDetails(platform, module, isTest, buildType).first
 
 private fun getNativeLinkTaskDetails(
     platform: Platform,
     module: AmperModule,
-    isTest: Boolean
+    isTest: Boolean,
+    buildType: BuildType,
 ) = when {
     isIosApp(platform, module) && !isTest ->
         IosTaskType.Framework.getTaskName(
             module,
             platform,
             false,
-            BuildType.Debug
+            buildType,
         ) to KotlinCompilationType.IOS_FRAMEWORK
 
     else ->
-        NativeTaskType.Link.getTaskName(module, platform, isTest) to KotlinCompilationType.BINARY
+        NativeTaskType.Link.getTaskName(module, platform, isTest, buildType) to KotlinCompilationType.BINARY
 }
 
 enum class NativeTaskType(override val prefix: String) : PlatformTaskType {

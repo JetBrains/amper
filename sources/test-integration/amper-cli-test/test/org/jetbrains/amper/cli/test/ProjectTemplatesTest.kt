@@ -119,8 +119,6 @@ class ProjectTemplatesTest : AmperCliTestBase() {
         )
 
         expect(0) { result.exitCode }
-        assertContains(result.stdout, "Amper doesn't yet support building Kotlin for `Release` configuration. " +
-                "Falling back to `Debug`")
         assertTrue {
             val appPath = buildDir / "Build" / "Products" / "Release-iphoneos" / "ios-app.app"
             appPath.isDirectory()

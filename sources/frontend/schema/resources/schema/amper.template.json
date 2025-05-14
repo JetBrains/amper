@@ -802,8 +802,8 @@
           "x-intellij-enum-order-sensitive": true
         },
         "debug": {
-          "x-intellij-html-description": "(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information",
-          "title": "Enable emitting debug information",
+          "x-intellij-html-description": "(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information. Enabled in debug variants by default.",
+          "title": "Enable emitting debug information. Enabled in debug variants by default",
           "x-intellij-metadata": {"platforms": ["native"]},
           "type": "boolean"
         },
@@ -855,6 +855,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "optimization": {
+          "x-intellij-html-description": "(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable compilation optimizations and produce a binary with better runtime performance. Enabled in release variants by default.",
+          "title": "Enable compilation optimizations and produce a binary with better runtime performance. Enabled in release variants by default",
+          "x-intellij-metadata": {"platforms": ["native"]},
+          "type": "boolean"
         },
         "progressiveMode": {
           "x-intellij-html-description": "Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)",

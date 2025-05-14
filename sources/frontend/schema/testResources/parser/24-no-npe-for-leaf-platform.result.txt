@@ -100,6 +100,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -235,6 +236,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -367,6 +369,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -501,6 +504,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -633,6 +637,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -767,6 +772,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -899,6 +905,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -1031,6 +1038,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -1165,6 +1173,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -1299,6 +1308,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -1433,6 +1443,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -1565,6 +1576,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -1699,6 +1711,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -1832,6 +1845,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -1964,6 +1978,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false
@@ -2098,6 +2113,7 @@ Fragments:
         optIns: [
           - kotlinx.Experimental
         ]
+        optimization: <default> null
         progressiveMode: false
         serialization: <default> {
           enabled: <default> false

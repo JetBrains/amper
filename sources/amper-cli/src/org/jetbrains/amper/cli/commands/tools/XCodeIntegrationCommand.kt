@@ -41,16 +41,7 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
             withBackend(commonOptions, commandName, terminal) { backend ->
                 backend.prebuildForXcode(
                     moduleDir = Path(requireXcodeVar("PROJECT_DIR")),
-                    buildType = inferBuildTypeFromEnv().let { inferred ->
-                        if (inferred != BuildType.Debug) {
-                            // TODO: Support Release configuration in Amper
-                            logger.warn(
-                                "Amper doesn't yet support building Kotlin for `${inferred.name}` configuration. " +
-                                        "Falling back to `Debug`"
-                            )
-                        }
-                        BuildType.Debug
-                    },
+                    buildType = inferBuildTypeFromEnv(),
                     platform = inferPlatformFromEnv(),
                 )
             }

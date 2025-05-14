@@ -116,19 +116,18 @@ open class IOSBaseTest : TestBase() {
     ): Path {
         val rootProjectName = projectRootDir.name
         val moduleName = iosAppModuleName ?: rootProjectName
-        val taskPath = ":$moduleName:buildIosAppIosSimulatorArm64" // TODO should we use 'build -m $module' instead?
 
         if (!projectRootDir.isDirectory()) {
             error("The path '$projectRootDir' does not exist or is not a directory.")
         }
         runAmper(
             workingDir = projectRootDir,
-            args = listOf("task", taskPath),
+            args = listOf("build", "-m", moduleName, "-p", "iosSimulatorArm64"),
             // xcode will in turn call Amper with this env
             environment = baseEnvironmentForWrapper(),
             assertEmptyStdErr = false,
         )
-        return projectRootDir / "build/tasks/_${moduleName}_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator"
+        return projectRootDir / "build/tasks/_${moduleName}_buildIosAppIosSimulatorArm64Debug/bin/Debug-iphonesimulator"
     }
 
     private fun Path.findAppFile(): Path =

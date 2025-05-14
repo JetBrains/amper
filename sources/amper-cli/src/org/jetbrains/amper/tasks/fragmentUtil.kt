@@ -15,43 +15,31 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.native.NativeTaskType
 import org.jetbrains.amper.util.BuildType
 
-internal fun compilationTaskNamesFor(fragment: Fragment): List<TaskName> {
-    val leafPlatform = requireNotNull(fragment.platforms.singleOrNull()) {
-        "Not a leaf fragment, we don't support compiling intermediate fragments"
-    }
-    return compilationTaskNamesFor(fragment.module, leafPlatform, fragment.isTest)
-}
 
-internal fun compilationTaskNamesFor(
+internal fun compilationTaskNameFor(
     module: AmperModule,
     platform: Platform,
     isTest: Boolean,
-) = when {
-    platform.isDescendantOf(Platform.ANDROID) -> BuildType.entries.map { buildType ->
-        // TODO: Don't we have fragment per buildType if applicable?
-        CommonTaskType.Compile.getTaskName(
-            module = module,
-            platform = platform,
-            isTest = isTest,
-            buildType = buildType,
-        )
-    }
+    buildType: BuildType,
+): TaskName = when {
+    platform.isDescendantOf(Platform.ANDROID) -> CommonTaskType.Compile.getTaskName(
+        module = module,
+        platform = platform,
+        isTest = isTest,
+        buildType = buildType,
+    )
 
-    platform.isDescendantOf(Platform.NATIVE) ->
-        listOf(
-            NativeTaskType.CompileKLib.getTaskName(
-                module = module,
-                platform = platform,
-                isTest = isTest,
-            )
-        )
+    platform.isDescendantOf(Platform.NATIVE) -> NativeTaskType.CompileKLib.getTaskName(
+        module = module,
+        platform = platform,
+        isTest = isTest,
+        buildType = buildType,
+    )
 
-    else -> listOf(
-        CommonTaskType.Compile.getTaskName(
-            module = module,
-            platform = platform,
-            isTest = isTest,
-        )
+    else -> CommonTaskType.Compile.getTaskName(
+        module = module,
+        platform = platform,
+        isTest = isTest,
     )
 }
 

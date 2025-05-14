@@ -5,13 +5,10 @@
 package org.jetbrains.amper.util
 
 import org.jetbrains.amper.android.AndroidBuildRequest
-import org.jetbrains.amper.frontend.Platform
 
 enum class BuildType(val value: String) {
     Debug("debug"),
     Release("release");
-
-    fun suffix(platform: Platform?): String = if (platform == Platform.ANDROID) name else ""
 }
 
 val BuildType.toAndroidRequestBuildType

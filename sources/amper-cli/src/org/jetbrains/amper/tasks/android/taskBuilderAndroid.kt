@@ -31,6 +31,7 @@ import java.nio.file.Path
 
 fun ProjectTasksBuilder.setupAndroidTasks() {
     val androidSdkPath = context.androidHomeRoot.path
+    val needDefaultSystemImage = context.commonRunSettings.deviceId == null
 
     allModules().alsoPlatforms(Platform.ANDROID).withEach {
         tasks.registerTask(
@@ -56,7 +57,9 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
         .withEach {
             tasks.setupDownloadBuildToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
             tasks.setupDownloadPlatformToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
-            tasks.setupDownloadSystemImageTask(module, androidSdkPath, context.userCacheRoot, isTest)
+            if (needDefaultSystemImage) {
+                tasks.setupDownloadSystemImageTask(module, androidSdkPath, context.userCacheRoot, isTest)
+            }
             tasks.registerTask(
                 GetAndroidPlatformFileFromPackageTask(
                     "emulator",
@@ -297,11 +300,13 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     androidSdkPath,
                     AndroidLocationsSingleton.avdLocation,
                 ),
-                listOf(
-                    AndroidTaskType.InstallSystemImage.getTaskName(module, platform, false),
-                    AndroidTaskType.InstallEmulator.getTaskName(module, platform, false),
-                    AndroidTaskType.Build.getTaskName(module, platform, false, buildType),
-                )
+                buildList {
+                    if (needDefaultSystemImage) {
+                        add(AndroidTaskType.InstallSystemImage.getTaskName(module, platform, false))
+                    }
+                    add(AndroidTaskType.InstallEmulator.getTaskName(module, platform, false))
+                    add(AndroidTaskType.Build.getTaskName(module, platform, false, buildType))
+                }
             )
         }
 
@@ -310,7 +315,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
         .alsoBuildTypes()
         .withEach {
             // test
-            val testTaskName = CommonTaskType.Test.getTaskName(module, platform, true, buildType)
+            val testTaskName = CommonTaskType.Test.getTaskName(module, platform, isTest = false, buildType)
             tasks.registerTask(
                 JvmTestTask(
                     module = module,

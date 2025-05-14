@@ -18,7 +18,6 @@
 
       allWarningsAsErrors: false [default]
       apiVersion: 2.1 [Inherited from 'languageVersion']
-      debug: true [default]
       freeCompilerArgs: [
          foobar [collection.module-template.yaml],
          boobaz

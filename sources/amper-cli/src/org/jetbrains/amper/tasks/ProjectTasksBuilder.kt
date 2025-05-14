@@ -5,9 +5,9 @@
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.engine.TaskGraphBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.TaskGraph
+import org.jetbrains.amper.engine.TaskGraphBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
@@ -39,8 +39,11 @@ internal interface PlatformTaskType : TaskType {
         buildType: BuildType? = null,
         suffix: String = "",
     ): TaskName {
+        if (platform == Platform.JVM) require(buildType == null) {
+            "BuildType must not be present in task names for JVM"
+        }
         val uppercasePlatform = platform.pretty.replaceFirstChar { it.uppercase() }
-        val buildTypeSuffix = buildType?.suffix(platform) ?: ""
+        val buildTypeSuffix = buildType?.name ?: ""
         val testSuffix = isTest.testSuffix
         return TaskName.moduleTask(module, "$prefix$uppercasePlatform$testSuffix$buildTypeSuffix$suffix")
     }

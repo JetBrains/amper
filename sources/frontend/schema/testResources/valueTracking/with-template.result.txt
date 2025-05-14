@@ -17,7 +17,6 @@
 
       allWarningsAsErrors: false [default]
       apiVersion: 2.1 [Inherited from 'languageVersion']
-      debug: true [default]
       ksp:
          processorOptions: {} [default]
          processors: (empty) [default]

@@ -31,6 +31,7 @@ class NativeRunTask(
     override val taskName: TaskName,
     override val module: AmperModule,
     override val platform: Platform,
+    override val buildType: BuildType,
     private val projectRoot: AmperProjectRoot,
     private val commonRunSettings: CommonRunSettings,
     private val terminal: Terminal,
@@ -39,9 +40,6 @@ class NativeRunTask(
         require(platform.isLeaf)
         require(platform.isDescendantOf(Platform.NATIVE))
     }
-
-    override val buildType: BuildType
-        get() = BuildType.Debug
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         DeadLockMonitor.disable()

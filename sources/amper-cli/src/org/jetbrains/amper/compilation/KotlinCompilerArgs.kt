@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.ios.IosConventions
+import org.jetbrains.amper.util.BuildType
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -170,6 +171,7 @@ internal fun AmperModule.kotlinModuleName(isTest: Boolean) =
 
 context(BuildTask)
 internal fun kotlinNativeCompilerArgs(
+    buildType: BuildType,
     kotlinUserSettings: KotlinUserSettings,
     compilerPlugins: List<ResolvedCompilerPlugin>,
     entryPoint: String?,
@@ -183,8 +185,11 @@ internal fun kotlinNativeCompilerArgs(
     compilationType: KotlinCompilationType,
     include: Path?,
 ): List<String> = buildList {
-    if (kotlinUserSettings.debug) {
+    if (kotlinUserSettings.debug ?: (buildType == BuildType.Debug)) {
         add("-g")
+    }
+    if (kotlinUserSettings.optimization ?: (buildType == BuildType.Release)) {
+        add("-opt")
     }
 
     add("-ea")

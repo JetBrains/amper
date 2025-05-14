@@ -40,7 +40,7 @@ class IosProjectsTest : AmperCliTestBase() {
     fun `framework for simple for iosSimulatorArm64`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("ios/interop"),
-            "task", ":interop:frameworkIosSimulatorArm64",
+            "task", ":interop:frameworkIosSimulatorArm64Debug",
             assertEmptyStdErr = false,
         )
         result.readTelemetrySpans().konancSpans.assertZeroExitCode(times = 2)
@@ -50,18 +50,19 @@ class IosProjectsTest : AmperCliTestBase() {
     fun `framework for simple for iosArm64`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("ios/interop"),
-            "task", ":interop:frameworkIosArm64",
+            "task", ":interop:frameworkIosArm64Debug",
             assertEmptyStdErr = false,
         )
         result.readTelemetrySpans().konancSpans.assertZeroExitCode(times = 2)
     }
 
     @Test
-    fun `buildIosApp for simple for iosSimulatorArm64`() = runSlowTest {
+    fun `build for simple for iosSimulatorArm64`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("ios/interop"),
-            "task", ":interop:buildIosAppIosSimulatorArm64",
+            "build", "-p", "iosSimulatorArm64",
             assertEmptyStdErr = false,
+            copyToTempDir = true,
         )
         result.withTelemetrySpans {
             xcodeProjectGenSpans.assertNone()
@@ -71,10 +72,10 @@ class IosProjectsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `build for simple for iosSimulatorArm64`() = runSlowTest {
+    fun `build for simple for iosSimulatorArm64 (release)`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("ios/interop"),
-            "build", "-p", "iosSimulatorArm64",
+            "build", "-p", "iosSimulatorArm64", "-v", "release",
             assertEmptyStdErr = false,
             copyToTempDir = true,
         )
@@ -104,7 +105,7 @@ class IosProjectsTest : AmperCliTestBase() {
     fun `framework for compose for iosSimulatorArm64`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("ios/compose"),
-            "task", ":compose:frameworkIosSimulatorArm64",
+            "task", ":compose:frameworkIosSimulatorArm64Debug",
             assertEmptyStdErr = false,
             copyToTempDir = true,
         )
@@ -115,7 +116,7 @@ class IosProjectsTest : AmperCliTestBase() {
     fun `framework for compose for iosArm64`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("ios/compose"),
-            "task", ":compose:frameworkIosArm64",
+            "task", ":compose:frameworkIosArm64Debug",
             assertEmptyStdErr = false,
             copyToTempDir = true,
         )
@@ -126,7 +127,7 @@ class IosProjectsTest : AmperCliTestBase() {
     fun `buildIosApp for compose app for iosSimulatorArm64`() = runSlowTest {
         val firstBuildResult = runCli(
             projectRoot = testProject(name = "ios/compose"),
-            "task", ":compose:buildIosAppIosSimulatorArm64",
+            "build", "-p", "iosSimulatorArm64",
             assertEmptyStdErr = false,
             copyToTempDir = true,
         )
@@ -134,7 +135,7 @@ class IosProjectsTest : AmperCliTestBase() {
 
         val secondBuildResult = runCli(
             projectRoot = firstBuildResult.projectRoot, // new root in temp dir
-            "task", ":compose:buildIosAppIosSimulatorArm64",
+            "build", "-p", "iosSimulatorArm64",
             assertEmptyStdErr = false,
         )
         secondBuildResult.withTelemetrySpans {

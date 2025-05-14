@@ -31,6 +31,7 @@ import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
+import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
@@ -46,6 +47,7 @@ internal class NativeCompileKlibTask(
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
+    override val buildType: BuildType,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ): ArtifactTaskBase(), BuildTask {
@@ -131,6 +133,7 @@ internal class NativeCompileKlibTask(
                 plugins = kotlinUserSettings.compilerPlugins,
             )
             val args = kotlinNativeCompilerArgs(
+                buildType = buildType,
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,
                 entryPoint = null,

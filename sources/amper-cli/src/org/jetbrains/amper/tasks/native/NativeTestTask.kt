@@ -32,9 +32,9 @@ class NativeTestTask(
     private val projectRoot: AmperProjectRoot,
     private val commonRunSettings: CommonRunSettings,
     override val platform: Platform,
+    override val buildType: BuildType,
     private val terminal: Terminal,
 ) : TestTask {
-    override val buildType: BuildType? get() = null
 
     private val logger = LoggerFactory.getLogger(javaClass)
 

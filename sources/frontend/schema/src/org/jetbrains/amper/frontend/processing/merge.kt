@@ -139,6 +139,7 @@ private fun KotlinSettings.mergeKotlinSettings(overwrite: KotlinSettings) =
         mergeScalarProperty(KotlinSettings::suppressWarnings)
         mergeScalarProperty(KotlinSettings::verbose)
         mergeScalarProperty(KotlinSettings::debug)
+        mergeScalarProperty(KotlinSettings::optimization)
         mergeScalarProperty(KotlinSettings::progressiveMode)
 
         mergeNullableCollectionProperty(KotlinSettings::freeCompilerArgs)
