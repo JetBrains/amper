@@ -70,7 +70,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
 
     allModules().alsoPlatforms(Platform.ANDROID)
         .filterModuleType { it != ProductType.LIB }
-        .alsoTests()
+        // No `alsoTests()` here - Android doesn't support unitTest-specific android res.
         .alsoBuildTypes()
         .withEach {
             val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
@@ -165,7 +165,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
                     add(CommonTaskType.TransformDependencies.getTaskName(module, platform))
                     add(CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest))
-                    if (module.type != ProductType.LIB) {
+                    if (module.type != ProductType.LIB && !isTest) {
                         add(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType))
                     }
                 }
