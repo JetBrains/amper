@@ -31,6 +31,11 @@ object Dirs {
     val amperSourcesRoot = amperCheckoutRoot / "sources"
 
     /**
+     * The `build` directory in the Amper project, containing most of the build output.
+     */
+    val amperBuildOutputRoot = amperCheckoutRoot / "build"
+
+    /**
      * The directory containing all test projects for Amper standalone.
      */
     val amperTestProjectsRoot = amperSourcesRoot / "test-integration/test-projects"
@@ -54,7 +59,7 @@ object Dirs {
             // Example: the incremental cache contains paths in Windows style on Windows, and unix style on other OSes.
             TeamCityHelper.persistentCacheDirectory / "amper build" / DefaultSystemInfo.detect().familyArch
         } else {
-            amperCheckoutRoot / "shared test caches"
+            amperBuildOutputRoot / "shared test caches"
         }
 
         dir.createDirectories()
@@ -97,7 +102,7 @@ object Dirs {
             // Let's make it unique and add build id (global build counter on TC server across the entire server).
             TeamCityHelper.cleanTempDirectory / "amper tests"
         } else {
-            amperCheckoutRoot / "build" / "tests temp"
+            amperBuildOutputRoot / "tests temp"
         }
         dir.createDirectories()
         println("Temp dir for tests: $dir")
