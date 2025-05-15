@@ -1,0 +1,8 @@
+product: jvm/app
+
+dependencies:
+  - ../../sources/amper-project-templates/amper-project-template-resources
+
+settings:
+  kotlin:
+    serialization: json

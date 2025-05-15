@@ -2,12 +2,14 @@ modules:
   - build-sources/build-dist
   - build-sources/build-unpacked-dist
   - build-sources/generate-build-properties
+  - build-sources/generate-template-resources
   - build-sources/task-helpers
   - repository-restrictions
   - sources/amper-cli
   - sources/amper-jdk-provisioning
   - sources/amper-junit-listeners
   - sources/amper-project-templates
+  - sources/amper-project-templates/amper-project-template-resources
   - sources/amper-wrapper
   - sources/android-integration/android-integration-core
   - sources/android-integration/android-sdk-detector

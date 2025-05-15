@@ -1,0 +1,10 @@
+type: jvm/external-task
+
+module: ../../build-sources/generate-template-resources
+programArguments:
+  - ${outputDirectory}
+
+addTaskOutputToSourceSet:
+  - taskOutputSubFolder: .
+    sourceSet: resources
+    platform: jvm
