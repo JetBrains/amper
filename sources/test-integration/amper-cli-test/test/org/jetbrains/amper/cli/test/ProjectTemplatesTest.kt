@@ -178,7 +178,7 @@ class ProjectTemplatesTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `spring-boot`(testInfo: TestInfo) = runSlowTest {
+    fun `spring-boot-java`(testInfo: TestInfo) = runSlowTest {
         runInitForTemplateFromTestName(testInfo)
 
         runCli(tempRoot, "run")
