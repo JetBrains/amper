@@ -2,10 +2,9 @@
 webjarsLocatorLiteVersion = "1.0.1"
 webjarsFontawesomeVersion = "4.7.0"
 webjarsBootstrapVersion = "5.3.3"
-jacksonKotlinVersion = "2.15.3"
-jaxbCoreVersion = "4.0.4"
-jaxbRuntimeVersion = "4.0.4"
-jakartaXmlBindVersion = "4.0.1"
+jacksonKotlinVersion = "2.18.2"
+jaxbVersion = "4.0.5"
+jakartaXmlBindVersion = "4.0.2"
 cacheApiVersion = "1.1.1"
 
 [libraries]
@@ -15,7 +14,7 @@ fontawesome = { module = "org.webjars.npm:font-awesome", version.ref = "webjarsF
 
 # Libraries for additional dependencies
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jacksonKotlinVersion" }
-jaxb-core = { module = "org.glassfish.jaxb:jaxb-core", version.ref = "jaxbCoreVersion" }
-jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxbRuntimeVersion" }
+jaxb-core = { module = "org.glassfish.jaxb:jaxb-core", version.ref = "jaxbVersion" }
+jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxbVersion" }
 jakarta-xml-bindApi = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jakartaXmlBindVersion" }
 javax-cacheApi = { module = "javax.cache:cache-api", version.ref = "cacheApiVersion" }
