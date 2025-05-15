@@ -5,7 +5,6 @@
 #
 
 # TODO gradlew also tries to set ulimit -n (max files), probably we should too
-# TODO Script could be run in parallel for the first time, so download/extract code should not fail in that case
 
 # Possible environment variables:
 #   AMPER_DOWNLOAD_ROOT        Maven repository to download Amper dist from.
