@@ -4,18 +4,17 @@
 
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
-import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.LocalAmperPublication
+import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.gradle.runGradle
-import org.junit.jupiter.api.AfterEach
+import org.jetbrains.amper.test.processes.checkExitCodeIsZero
+import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
-import kotlin.io.path.createDirectories
-import kotlin.io.path.createTempDirectory
-import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -27,13 +26,10 @@ import kotlin.io.path.writeText
  * Provides common utility functions.
  */
 open class TestBase : AmperCliWithWrapperTestBase() {
-    protected val amperMobileTestsRoot = Dirs.amperSourcesRoot / "test-integration" / "amper-mobile-test"
-    private val tempProjectsDir = amperMobileTestsRoot / "tempProjects"
-
-    @AfterEach
-    fun cleanup() {
-        tempProjectsDir.deleteRecursively()
-    }
+    @RegisterExtension
+    private val tempDirExtension = TempDirExtension()
+    private val tempRoot: Path
+        get() = tempDirExtension.path
 
     /**
      * Copies the project from the specified [projectSource] to a temporary projects directory.
@@ -41,92 +37,67 @@ open class TestBase : AmperCliWithWrapperTestBase() {
      *
      * @param localProjectsDirectory in-source projects directory for [ProjectSource.Local] projects.
      *
-     * @return the path to root directory of the copied project. Its name is guaranteed to match [projectName] to avoid
-     * issues with Gradle projects that don't specify a `rootProject.name` explicitly.
+     * @return the path to root directory of the copied project. Its name is determined by [projectSource].
      */
     suspend fun copyProjectToTempDir(projectSource: ProjectSource, localProjectsDirectory: Path): Path {
-        val sourceDir = when(projectSource) {
-            is ProjectSource.Local -> {
-                // Construct the local source directory path
-                localProjectsDirectory.resolve(projectSource.name).also {
-                    check(it.exists()) { "Project ${projectSource.name} is not found in $localProjectsDirectory" }
-                }
-            }
-            is ProjectSource.RemoteRepository -> {
-                val repoDir = createTempDirectory() / projectSource.cloneIntoDirName
-                try {
-                    gitClone(
-                        repoUrl = projectSource.cloneUrl,
-                        refLike = projectSource.refLikeToCheckout,
-                        cloneDestination = repoDir,
-                    )
-
-                    println("Git clone successful. Temp directory: $repoDir")
-
-                    // Verify if the repo has been cloned by checking the .git folder
-                    val gitFolder = repoDir.resolve(".git")
-                    if (!gitFolder.exists()) {
-                        error("Git clone completed but .git folder is missing. Something went wrong.")
-                    }
-                    println("Git repository successfully cloned.")
-
-                    val sourceDir = repoDir / projectSource.projectRelativePath
-
-                    // Log the path where the project is expected
-                    println("Project path being copied from: $sourceDir")
-
-                    check(sourceDir.exists()) {
-                        "Project directory does not exist in the cloned repository (${projectSource.cloneUrl} at) at $sourceDir"
-                    }
-                    sourceDir
-                } catch (ex: IOException) {
-                    throw RuntimeException("Failed to clone Git repository", ex)
-                }
-            }
-        }.normalize()
-
-        // Destination path for the copied project
-        val destinationProjectPath = tempProjectsDir / sourceDir.name
-
-        try {
-            // Ensure the destination directory exists
-            tempProjectsDir.createDirectories()
-
-            // Copy the project files from source to destination
-            println("Copying project from $sourceDir to $destinationProjectPath")
-            sourceDir.copyToRecursively(target = destinationProjectPath, followLinks = false, overwrite = true)
-            LocalAmperPublication.setupWrappersIn(destinationProjectPath)
-        } catch (ex: IOException) {
-            throw RuntimeException("Failed to copy files from $sourceDir to $destinationProjectPath", ex)
+        val destinationProjectPath = when(projectSource) {
+            is ProjectSource.Local -> copyToTempDir(projectSource, localProjectsDirectory)
+            is ProjectSource.RemoteRepository -> cloneToTempDir(projectSource)
         }
+
+        LocalAmperPublication.setupWrappersIn(destinationProjectPath)
         return destinationProjectPath
     }
 
-    /**
-     * Clones the Git repository from [repoUrl] (migrated-projects repository) into the specified [cloneDestination].
-     */
-    private suspend fun gitClone(repoUrl: String, refLike: String?, cloneDestination: Path) {
-        runProcessAndCaptureOutput(
-            command = listOf("git", "clone", repoUrl, cloneDestination.toAbsolutePath().toString()),
-            redirectErrorStream = true,
-        ).also { result ->
-            if (result.exitCode != 0) {
-                error("Git clone failed with exit code ${result.exitCode}. Output: ${result.stdout}")
-            }
+    private fun copyToTempDir(projectSource: ProjectSource.Local, localProjectsDirectory: Path): Path {
+        val sourceDir = localProjectsDirectory.resolve(projectSource.name)
+        check(sourceDir.exists()) { "Project ${projectSource.name} is not found in $localProjectsDirectory" }
+
+        val destinationProjectPath = (tempRoot / projectSource.name).normalize()
+
+        println("Copying project from $sourceDir to $destinationProjectPath")
+        sourceDir.copyToRecursively(target = destinationProjectPath, followLinks = false, overwrite = true)
+        return destinationProjectPath
+    }
+
+    private suspend fun cloneToTempDir(projectSource: ProjectSource.RemoteRepository): Path {
+        val cloneDir = tempRoot / projectSource.cloneIntoDirName
+
+        gitClone(repoUrl = projectSource.cloneUrl, cloneDestination = cloneDir)
+
+        if (projectSource.refLikeToCheckout != null) {
+            gitCheckout(repoDir = cloneDir, refLike = projectSource.refLikeToCheckout)
         }
 
-        if (refLike != null) {
-            runProcessAndCaptureOutput(
-                command = listOf("git", "checkout", refLike),
-                workingDir = cloneDestination.toAbsolutePath(),
-                redirectErrorStream = true,
-            ).also { result ->
-                if (result.exitCode != 0) {
-                    error("Git checkout to `$refLike` failed with exit code ${result.exitCode}. Output: ${result.stdout}")
-                }
-            }
-            println("Successfully checked out `$refLike`.")
+        val projectDir = (cloneDir / projectSource.projectRelativePath).normalize()
+        check(projectDir.exists()) {
+            "Project directory does not exist in the cloned repository (${projectSource.cloneUrl}) at $projectDir"
         }
+        return projectDir
+    }
+
+    /**
+     * Clones the Git repository from the given [repoUrl] into the specified [cloneDestination].
+     */
+    private suspend fun gitClone(repoUrl: String, cloneDestination: Path) {
+        runProcessAndCaptureOutput(command = listOf("git", "clone", repoUrl, cloneDestination.absolutePathString()))
+            .checkExitCodeIsZero()
+        val gitFolder = cloneDestination.resolve(".git")
+        if (!gitFolder.exists()) {
+            error("Git clone completed but .git folder is missing. Something went wrong.")
+        }
+        println("Git repository '${repoUrl.substringAfterLast('/')}' successfully cloned to $cloneDestination")
+    }
+
+    /**
+     * Checks out the given [refLike] in the git repo located at [repoDir].
+     */
+    private suspend fun gitCheckout(repoDir: Path, refLike: String) {
+        runProcessAndCaptureOutput(
+            command = listOf("git", "checkout", refLike),
+            workingDir = repoDir.toAbsolutePath(),
+        ).checkExitCodeIsZero()
+        println("Successfully checked out ref-like `$refLike`")
     }
 
     /**
