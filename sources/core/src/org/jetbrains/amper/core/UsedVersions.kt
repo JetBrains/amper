@@ -15,7 +15,7 @@ object UsedVersions {
     /*magic_replacement*/ val junitPlatform = "1.12.1"
     /*magic_replacement*/ val kotlinVersion = "2.1.20"
     /*magic_replacement*/ val kotlinxSerializationVersion = "1.8.0"
-    /*magic_replacement*/ val kspVersion = "2.1.20-1.0.31"
+    /*magic_replacement*/ val kspVersion = "2.1.21-2.0.1"
     /*magic_replacement*/ val ktorVersion = "3.1.1"
     /*magic_replacement*/ val logbackVersion = "1.5.18"
     /*magic_replacement*/ val slf4jVersion = "2.0.17"
