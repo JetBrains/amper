@@ -21,7 +21,7 @@
       ksp:
          processorOptions: {} [default]
          processors: (empty) [default]
-         version: 2.1.20-1.0.31 [default]
+         version: 2.1.21-2.0.1 [default]
 
       languageVersion: 2.1 [default]
       noArg:
