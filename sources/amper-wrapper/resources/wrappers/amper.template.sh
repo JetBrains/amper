@@ -4,8 +4,6 @@
 # Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 #
 
-# TODO gradlew also tries to set ulimit -n (max files), probably we should too
-
 # Possible environment variables:
 #   AMPER_DOWNLOAD_ROOT        Maven repository to download Amper dist from.
 #                              default: https://packages.jetbrains.team/maven/p/amper/amper
@@ -189,7 +187,6 @@ case "$kernelName" in
     ;;
 esac
 
-# TODO should we respect --shared-caches-root instead of (or in addition to) this env var?
 amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 
 # ********** Provision Amper distribution **********
