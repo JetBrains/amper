@@ -4,9 +4,12 @@
 
 package org.jetbrains.amper.templates
 
-import io.github.classgraph.ClassGraph
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import org.jetbrains.amper.templates.json.TemplateDescriptor
+import org.jetbrains.amper.templates.json.TemplateResource
 import org.jetbrains.annotations.Nls
-import org.jetbrains.annotations.NonNls
 import java.net.URL
 import java.nio.file.Path
 import java.util.ResourceBundle
@@ -23,17 +26,20 @@ object AmperProjectTemplates {
     /**
      * All available Amper project templates.
      */
+    @OptIn(ExperimentalSerializationApi::class)
     val availableTemplates by lazy {
-        javaClass.getResource("/templates/list.txt")
-            ?.readText()
-            ?.trim()
-            ?.lines()
-            ?.map { id ->
-                val name = bundle.getString("template.$id.name")
-                val description = bundle.getString("template.$id.description")
-                AmperProjectTemplate(id = id, name = name, description = description)
+        javaClass.getResource("/templates/templates.json")
+            ?.openStream()
+            ?.use { Json.decodeFromStream<List<TemplateDescriptor>>(it) }
+            ?.map { template ->
+                AmperProjectTemplate(
+                    id = template.id,
+                    name = bundle.getString("template.${template.id}.name"),
+                    description = bundle.getString("template.${template.id}.description"),
+                    fileResources = template.resources,
+                )
             }
-            ?: error("Template list not found")
+            ?: error("'templates.json' resource not found")
     }
 }
 
@@ -46,32 +52,15 @@ data class AmperProjectTemplate(
     val name: String,
     @Nls
     val description: String,
+    private val fileResources: List<TemplateResource>,
 ) {
-    companion object {
-        private val currentJarName = try {
-            AmperProjectTemplate::class.java.protectionDomain.codeSource?.location?.path?.substringAfterLast('/')
-        } catch (_: SecurityException) {
-            null
-        }
-    }
-
     /**
      * Finds all files for this template in resources.
      */
-    fun listFiles(): List<TemplateFile> = ClassGraph()
-        // for perf, avoid scanning everything (IDEA renames jars, so we cannot be too precise)
-        .acceptJars(currentJarName ?: "*amper*")
-        .acceptPaths("templates/$id")
-        .scan()
-        .use { scanResult ->
-            scanResult.allResources.map { resource ->
-                TemplateFile(resource.url, resource.path.removePrefix("templates/$id/"))
-            }
-        }
-        .also {
-            // something is very wrong (and out of the user's control) if there are no files
-            check(it.isNotEmpty()) { "No files were found for template '$id'" }
-        }
+    fun listFiles(): List<TemplateFile> = fileResources.map { res ->
+        val resourceUrl = javaClass.getResource(res.name) ?: error("Missing resource in template '$id': $res")
+        TemplateFile(resourceUrl = resourceUrl, relativePath = res.targetPath)
+    }
 }
 
 /**

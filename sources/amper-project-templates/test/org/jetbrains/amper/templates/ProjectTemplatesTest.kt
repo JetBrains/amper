@@ -15,6 +15,6 @@ class ProjectTemplatesTest {
     @Test
     fun `all templates are listed and can be instantiated`() {
         val templatesDirChildren = Path("resources/templates").listDirectoryEntries().map { it.name }.toSet()
-        assertEquals(templatesDirChildren - "list.txt", AmperProjectTemplates.availableTemplates.map { it.id }.toSet())
+        assertEquals(templatesDirChildren, AmperProjectTemplates.availableTemplates.map { it.id }.toSet())
     }
 }

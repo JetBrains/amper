@@ -36,7 +36,7 @@ class ProjectTemplatesTest : AmperCliTestBase() {
         val methods = javaClass.declaredMethods.map { templateNameFromTestName(it.name) }.toSet()
 
         val templatesRoot = Dirs.amperSourcesRoot.resolve("amper-project-templates/resources/templates")
-        val entries = templatesRoot.listDirectoryEntries().filterNot { it.name == "list.txt" }
+        val entries = templatesRoot.listDirectoryEntries()
         check(entries.size > 3) {
             "Possibly incorrect templates root: $templatesRoot"
         }

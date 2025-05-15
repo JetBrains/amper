@@ -6,4 +6,8 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
-  - io.github.classgraph:classgraph:4.8.172
+  - ./amper-project-template-resources
+
+settings:
+  kotlin:
+    serialization: json
