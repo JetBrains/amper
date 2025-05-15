@@ -39,6 +39,7 @@ object AmperProjectTemplates {
                     fileResources = template.resources,
                 )
             }
+            ?.sortedBy { it.name.lowercase() }
             ?: error("'templates.json' resource not found")
     }
 }
