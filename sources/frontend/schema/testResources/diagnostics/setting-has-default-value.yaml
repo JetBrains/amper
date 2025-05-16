@@ -1,5 +1,0 @@
-product: jvm/app
-
-settings:
-  compose:
-    <![Redundancy] Setting value is redundant. It's identical to the default value!>enabled: false<!>

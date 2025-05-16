@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.diagnostics
@@ -20,11 +20,6 @@ class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") 
     @Test
     fun `serialization version when serialization disabled`() {
         diagnosticsTest("serialization-version-disabled", levels = arrayOf(Level.Warning))
-    }
-
-    @Test
-    fun `setting has default value`() {
-        diagnosticsTest("setting-has-default-value", levels = arrayOf(Level.Redundancy))
     }
 
     @Test

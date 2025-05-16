@@ -29,9 +29,8 @@ object UselessSettingValue : AomSingleModuleDiagnosticFactory {
             override fun visitValue(it: ValueBase<*>) {
                 val psiTrace = it.trace as? PsiTrace
                 val precedingValue = psiTrace?.precedingValue
-                val isDefault = precedingValue == null && it.value == it.default?.value
                 val matchesPreceding = precedingValue?.value == it.value
-                if (psiTrace != null && (isDefault || matchesPreceding) && reportedPlaces.add(psiTrace.psiElement)) {
+                if (psiTrace != null && matchesPreceding && reportedPlaces.add(psiTrace.psiElement)) {
                     problemReporter.reportMessage(UselessSetting(it, precedingValue))
                 }
                 super.visitValue(it)
@@ -56,10 +55,6 @@ private class UselessSetting(
 
     override val message: @Nls String
         get() = when {
-            precedingValue?.trace == null -> SchemaBundle.message(
-                messageKey = "setting.value.is.same.as.default",
-            )
-
             isInheritedFromCommon() -> SchemaBundle.message(
                 messageKey = "setting.value.is.same.as.common",
             )
