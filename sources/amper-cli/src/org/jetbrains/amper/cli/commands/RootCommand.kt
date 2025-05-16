@@ -84,7 +84,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
     private val consoleLogLevel by option(
         "--log-level",
         help = "Console logging level"
-    ).choice(
+    ).choiceWithTypoSuggestion(
         mapOf(
             "debug" to Level.DEBUG,
             "info" to Level.INFO,
