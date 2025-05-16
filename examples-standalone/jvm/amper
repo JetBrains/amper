@@ -4,9 +4,6 @@
 # Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 #
 
-# TODO gradlew also tries to set ulimit -n (max files), probably we should too
-# TODO Script could be run in parallel for the first time, so download/extract code should not fail in that case
-
 # Possible environment variables:
 #   AMPER_DOWNLOAD_ROOT        Maven repository to download Amper dist from.
 #                              default: https://packages.jetbrains.team/maven/p/amper/amper
@@ -19,9 +16,9 @@
 set -e -u
 
 # The version of the Amper distribution to provision and use
-amper_version=0.8.0-dev-2849
+amper_version=0.8.0-dev-2855
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=78689d04042402e4e0138a57a7eb4a9009b7193a05c1fad73ad58b31ea5dd4be
+amper_sha256=60f61bf64a5e85079fa612b6c812d6e2fb8eadee80f25f97da8adf07f7356015
 
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
@@ -190,7 +187,6 @@ case "$kernelName" in
     ;;
 esac
 
-# TODO should we respect --shared-caches-root instead of (or in addition to) this env var?
 amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 
 # ********** Provision Amper distribution **********
