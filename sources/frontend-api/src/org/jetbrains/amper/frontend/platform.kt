@@ -95,6 +95,8 @@ enum class Platform(
 
     companion object : EnumMap<Platform, String>(Platform::values, { pretty }) {
 
+        val docsUrl = "https://github.com/JetBrains/amper/blob/HEAD/docs/Documentation.md#multiplatform-projects"
+
         val leafPlatforms: Set<Platform> = Platform.values.filterTo(mutableSetOf()) { it.isLeaf }
 
         /**

@@ -25,6 +25,27 @@ class TypoTest : AmperCliTestBase() {
         testTypo("modules", expectedError = "no such subcommand modules. Did you mean show modules?")
     }
 
+    @Test
+    fun `using -p mingw should suggest mingwX64`() {
+        testTypo(
+            "run", "-p", "mingw",
+            expectedError = "invalid value for -p: invalid choice: mingw. Did you mean mingwX64?\n\n" +
+                    "Check the full list of supported platforms in the documentation:\n" +
+                    "https://github.com/JetBrains/amper/blob/HEAD/docs/Documentation.md#multiplatform-projects"
+        )
+    }
+
+    @Test
+    fun `using -p ios should suggest macosArm64 and macosX64`() {
+        testTypo(
+            "run", "-p", "ios",
+            expectedError = "invalid value for -p: invalid choice: ios. Did you mean one of iosX64, iosArm64, " +
+                    "iosSimulatorArm64?\n\n" +
+                    "Check the full list of supported platforms in the documentation:\n" +
+                    "https://github.com/JetBrains/amper/blob/HEAD/docs/Documentation.md#multiplatform-projects"
+        )
+    }
+
     private fun testTypo(vararg command: String, expectedError: String) = runSlowTest {
         val result1 = runCli(newEmptyProjectDir(), *command, expectedExitCode = 1, assertEmptyStdErr = false)
         result1.assertStderrContains("Error: $expectedError")
