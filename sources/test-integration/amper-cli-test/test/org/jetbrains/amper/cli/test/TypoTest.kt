@@ -36,6 +36,16 @@ class TypoTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `using -p windows should suggest mingwX64`() {
+        testTypo(
+            "run", "-p", "windows",
+            expectedError = "invalid value for -p: invalid choice: windows. Did you mean mingwX64?\n\n" +
+                    "Check the full list of supported platforms in the documentation:\n" +
+                    "https://github.com/JetBrains/amper/blob/HEAD/docs/Documentation.md#multiplatform-projects"
+        )
+    }
+
+    @Test
     fun `using -p ios should suggest macosArm64 and macosX64`() {
         testTypo(
             "run", "-p", "ios",

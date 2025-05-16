@@ -7,17 +7,37 @@ package org.jetbrains.amper.cli
 import com.github.ajalt.clikt.core.TypoSuggestor
 
 private val introspectionCommands = setOf("modules", "tasks", "settings")
+private val winLikePlatforms = setOf("win", "windows", "win32", "win64")
 
 /**
- * Creates a custom typo-suggester that handles special cases for em dashes, and falls back to the default similarity
- * metric otherwise.
+ * Creates a custom typo-suggester with additional special cases for show commands, and falls back to the default
+ * similarity metric otherwise.
  */
-fun amperTypoSuggestor(defaultSuggestor: TypoSuggestor): TypoSuggestor {
+fun TypoSuggestor.withShowCommandSuggestions(): TypoSuggestor = withExtraSuggestions { enteredValue, possibleValues ->
+    if (enteredValue in introspectionCommands && "show" in possibleValues) {
+        listOf("show $enteredValue")
+    } else {
+        emptyList()
+    }
+}
+
+/**
+ * Adds extra suggestions for invalid platforms.
+ */
+fun TypoSuggestor.withPlatformSuggestions(): TypoSuggestor = withExtraSuggestions { enteredValue, possibleValues ->
+    if (enteredValue in winLikePlatforms) {
+        possibleValues.filter { "mingw" in it }
+    } else {
+        emptyList()
+    }
+}
+
+/**
+ * Prepend extra suggestions to the default suggestions from this [TypoSuggestor].
+ */
+private fun TypoSuggestor.withExtraSuggestions(extraSuggestions: TypoSuggestor): TypoSuggestor {
+    val current = this
     return { enteredValue, possibleValues ->
-        if (enteredValue in introspectionCommands && "show" in possibleValues) {
-            listOf("show $enteredValue") + defaultSuggestor(enteredValue, possibleValues)
-        } else {
-            defaultSuggestor(enteredValue, possibleValues)
-        }
+        extraSuggestions(enteredValue, possibleValues) + current(enteredValue, possibleValues)
     }
 }

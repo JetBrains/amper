@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.completion.CompletionCandidates.Fixed
+import com.github.ajalt.clikt.core.BaseCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.parameters.options.NullableOption
@@ -15,11 +16,12 @@ import com.github.ajalt.clikt.parameters.options.transformAll
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.mordant.rendering.TextColors.green
+import org.jetbrains.amper.cli.withPlatformSuggestions
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.util.BuildType
 import kotlin.collections.sorted
 
-internal fun ParameterHolder.leafPlatformOption(help: String) = option(
+internal fun BaseCliktCommand<*>.leafPlatformOption(help: String) = option(
     "-p",
     "--platform",
     help = help,
@@ -28,7 +30,11 @@ internal fun ParameterHolder.leafPlatformOption(help: String) = option(
     metavar = "<platform>", // too many values to show them in the metavar, so we override with this placeholder
     ignoreCase = true,
     supportedValuesMsg = "Check the full list of supported platforms in the documentation:\n${Platform.docsUrl}"
-)
+).also {
+    configureContext {
+        suggestTypoCorrection = suggestTypoCorrection.withPlatformSuggestions()
+    }
+}
 
 /**
  * Exactly like the original [choice] option type, but suggests typo corrections in case of invalid values.
