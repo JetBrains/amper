@@ -207,11 +207,17 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         userReadableError("Couldn't fetch the latest Amper version:\n$e")
     }
 
+    private val firstVersionWithNewArtifact = ComparableVersion("0.7.0-dev-2809")
+
     private suspend fun downloadWrapper(version: String, extension: String): Path = try {
         spanBuilder("Download wrapper script (amper$extension)").use {
+            val url = if (ComparableVersion(version) < firstVersionWithNewArtifact) {
+                "$repository/org/jetbrains/amper/cli/$version/cli-$version-wrapper$extension"
+            } else {
+                "$repository/org/jetbrains/amper/amper-cli/$version/amper-cli-$version-wrapper$extension"
+            }
             Downloader.downloadFileToCacheLocation(
-                // TODO update URL after transition
-                url = "$repository/org/jetbrains/amper/cli/$version/cli-$version-wrapper$extension",
+                url = url,
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 infoLog = false,
             )
