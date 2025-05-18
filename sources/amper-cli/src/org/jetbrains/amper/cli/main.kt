@@ -10,6 +10,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.cli.logging.DoNotLogToTerminalCookie
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
@@ -27,18 +28,28 @@ suspend fun main(args: Array<String>) {
         val mainStartTime = Instant.now()
         val jvmStartTime = mainStartTime.minusMillis(jvmUptimeMillisAtMainStart)
 
-        TelemetryEnvironment.setup()
+        val defaultCacheRoot = AmperUserCacheRoot.fromCurrentUserResult().unwrap()
+        val telemetrySetupStartTime = Instant.now()
+        TelemetryEnvironment.setup(defaultCacheRoot)
         spanBuilder("Root")
             .setStartTimestamp(jvmStartTime)
             .setListAttribute("args", args.toList())
             .setListAttribute("jvm-args", ManagementFactory.getRuntimeMXBean().inputArguments)
             .use {
+                // we add spans here to represent stuff that happened before telemetry was initialized
                 spanBuilder("JVM startup")
                     .setStartTimestamp(jvmStartTime)
                     .startSpan()
                     .end(mainStartTime)
-                // we add a fake span here to represent the telemetry setup
-                spanBuilder("Setup telemetry").setStartTimestamp(mainStartTime).startSpan().end()
+
+                spanBuilder("Setup telemetry")
+                    .setStartTimestamp(mainStartTime)
+                    .use {
+                        spanBuilder("Find default cache directory")
+                            .setStartTimestamp(mainStartTime)
+                            .startSpan()
+                            .end(telemetrySetupStartTime)
+                    }
 
                 val rootCommand = spanBuilder("Initialize CLI command definitions").use {
                     RootCommand()
