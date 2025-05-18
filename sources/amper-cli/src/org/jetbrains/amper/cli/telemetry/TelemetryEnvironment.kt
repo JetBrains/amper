@@ -15,7 +15,6 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.SpanProcessor
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
-import org.jetbrains.amper.cli.unwrap
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.slf4j.LoggerFactory
@@ -113,9 +112,8 @@ object TelemetryEnvironment {
             ?: error("Initial path for traces was not set. TelemetryEnvironment.setup() must be called first.")
     }
 
-    fun setup() {
-        val cacheRoot = AmperUserCacheRoot.fromCurrentUserResult().unwrap()
-        val initialTracesPath = userLevelTracesPath(cacheRoot)
+    fun setup(defaultCacheRoot: AmperUserCacheRoot) {
+        val initialTracesPath = userLevelTracesPath(defaultCacheRoot)
         movableFileOutputStream = MovableFileOutputStream(initialPath = initialTracesPath)
 
         val exporter = OtlpStdoutSpanExporter.builder()
