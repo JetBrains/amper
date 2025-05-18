@@ -25,17 +25,18 @@ suspend fun main(args: Array<String>) {
         // See https://bugs.openjdk.org/browse/JDK-6523160
         val jvmUptimeMillisAtMainStart = ManagementFactory.getRuntimeMXBean().uptime
         val mainStartTime = Instant.now()
+        val jvmStartTime = mainStartTime.minusMillis(jvmUptimeMillisAtMainStart)
+
         TelemetryEnvironment.setup()
         spanBuilder("Root")
-            .setStartTimestamp(mainStartTime)
+            .setStartTimestamp(jvmStartTime)
             .setListAttribute("args", args.toList())
             .setListAttribute("jvm-args", ManagementFactory.getRuntimeMXBean().inputArguments)
             .use {
                 spanBuilder("JVM startup")
-                    .setStartTimestamp(mainStartTime.minusMillis(jvmUptimeMillisAtMainStart))
+                    .setStartTimestamp(jvmStartTime)
                     .startSpan()
                     .end(mainStartTime)
-
                 // we add a fake span here to represent the telemetry setup
                 spanBuilder("Setup telemetry").setStartTimestamp(mainStartTime).startSpan().end()
 
