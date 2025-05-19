@@ -530,22 +530,6 @@ settings:
       additionalAnnotations: [ com.example.MyCommonParcelize ]
 ```
 
-#### iOS
-
-`settings:ios:` configures the iOS toolchain and platform.
-
-| Attribute           | Description                                                                                                                                                                                                                                                                                                                              | Default |
-|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| `teamID: string`    | A Team ID is a unique string assigned to your team by Apple.<br>It's necessary if you want to run/test on a Apple device.<br>Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/), or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`) | empty   |
-| `framework: object` | (Only for the library [product type](Documentation.md#product-types) Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework).                                                                               |         |
-
-`settings:ios:framework:` configures the generated framework. By default, a dynamically linked framework with the name of the module is generated
-
-| Attribute           | Description                                                            | Default |
-|---------------------|------------------------------------------------------------------------|---------|
-| `basename: string`  | The name of the generated framework.                                   | kotlin  |
-| `isStatic: boolean` | Whether to create a dynamically linked or statically linked framework. | false   |
-
 #### Native
 
 `settings:native:` configures settings specific to native applications.
