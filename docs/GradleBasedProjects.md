@@ -123,6 +123,24 @@ If the `gradle.properties` file doesn't exist, create it in the root of the proj
 |-gradle.properties 
 ```
 
+#### Android
+
+When developing Android apps in Gradle, a `local.properties` file is required to configure the Android SDK location.
+Create it in the root of the project with the following content:
+
+ ```properties 
+ ## This file must *NOT* be checked into Version Control Systems
+sdk.dir=<path to the Android SDK>
+ ```
+
+> [!TIP]
+> Here is how the path usually looks like:
+> 
+> * On macOS: `/Users/<username>/Library/Android/sdk`
+> * On Linux: `/home/<username>/Android/Sdk`
+> * On Windows: `C:\Users\<username>\AppData\Local\Android\Sdk`
+
+
 #### Using multiplatform resources
 
 To use multiplatform resources in a Gradle-based Amper project, a module must be configured with a
