@@ -592,6 +592,7 @@ For iOS applications, the entrypoint is expected to be a `@main` struct in any S
 |  |-main.swift
 |  |-... 
 |-module.yaml
+|-module.xcodeproj
 ```
 
 src/main.swift:
@@ -1072,14 +1073,8 @@ There are three distinct scenarios where such interoperability is needed:
   JVM, Objective-C, and Swift.
 
 Joint compilation is already supported for Java and Kotlin, with 2-way interoperability: Java code can reference Kotlin
-declarations, and vice versa.
-
-In the future, Kotlin Native will also support joint Kotlin+Swift compilation in the same way, but this is not the case
-yet. At the moment, Kotlin code is first compiled into an Objective-C frameworks, and then Swift is compiled using the
-Xcode toolchain with a dependency on that framework. This means that Swift code can reference Kotlin declarations,
-but Kotlin cannot reference Swift declarations.
-
-In Amper, both Java and Swift code can be placed alongside Kotlin code in the same `src` folder:
+declarations, and vice versa. 
+So Java code can be placed alongside Kotlin code in the same source folder that is compiled for JVM/Android:
 
 ```
 |-src/             
@@ -1087,11 +1082,20 @@ In Amper, both Java and Swift code can be placed alongside Kotlin code in the sa
 |-src@jvm/             
 |  |-KotlinCode.kt      
 |  |-JavaCode.java      
-|-src@ios/             
+|-src@android/             
 |  |-KotlinCode.kt 
-|  |-SwiftCore.swift
+|  |-JavaCode.java
+|-src@ios/
+|  |- ...
 |-module.yaml
 ```
+
+In the future, Kotlin Native will also support joint Kotlin+Swift compilation in the same way,
+but this is not the case yet. 
+At the moment, Kotlin code is first compiled into a single framework per `ios/app` module, 
+and then Swift is compiled using the Xcode toolchain with a dependency on that framework. 
+This means that Swift code can reference Kotlin declarations, but Kotlin cannot reference Swift declarations. 
+See more at the dedicated [Swift support](#swift-support) section.
 
 ## Multiplatform projects
 
@@ -1294,36 +1298,33 @@ settings:
   # Android-specific settings are used only when building for android
   android:
     compileSdk: 33
-
-  # iOS-specific settings are used only when building for iosArm64
-  ios:
-    deploymentTarget: 17
 ```
 
-There are situations when you need to override certain settings for a specific platform only. You can use `@platform`-qualifier. 
+There are situations when you need to override certain settings for a specific platform only.
+You can use `@platform`-qualifier. 
 
-Note that certain platform names match the toolchain names, e.g. iOS and Android:
-- `settings@ios` qualifier specifies settings for all iOS target platforms
-- `settings:ios:` is an iOS toolchain settings   
+Note that certain platform names match the toolchain names, e.g. Android:
+- `settings@android` qualifier specifies settings for all Android target platforms
+- `settings:android:` is an Android toolchain settings   
 
 This could lead to confusion in cases like:
 ```yaml
-product: ios/app
+product: android/app
 
-settings@ios:    # settings to be used for iOS target platform
-  ios:           # iOS toolchain settings
-    deploymentTarget: 17
+settings@android:    # settings to be used for Android target platform
+  android:           # Android toolchain settings
+    compileSdk: 33
   kotlin:        # Kotlin toolchain settings
     languageVersion: 1.8
 ```
 Luckily, there should rarely be a need for such a configuration.
 We also plan to address this by linting with conversion to a more readable form:   
 ```yaml
-product: ios/app
+product: android/app
 
 settings:
-  ios:           # iOS toolchain settings
-    deploymentTarget: 17
+  android:           # Android toolchain settings
+    compileSdk: 33
   kotlin:        # Kotlin toolchain settings
     languageVersion: 1.8
 ```
@@ -1339,8 +1340,8 @@ settings:           # common toolchain settings
   kotlin:           # Kotlin toolchain
     languageVersion: 1.8
     freeCompilerArgs: [x]
-  ios:              # iOS toolchain
-    deploymentTarget: 17
+  android:              # Android toolchain
+    compileSdk: 33
 
 settings@android:   # specialization for Android platform
   compose: enabled  # Compose toolchain
@@ -1352,7 +1353,7 @@ settings@ios:       # specialization for all iOS platforms
 
 settings@iosArm64:  # specialization for iOS arm64 platform 
   ios:              # iOS toolchain
-    deploymentTarget: 18
+    freeCompilerArgs: [z]
 ```
 The effective settings are:
 ```yaml 
@@ -1361,22 +1362,20 @@ settings@android:
     languageVersion: 1.8   # from settings:
     freeCompilerArgs: [x]  # from settings:
   compose: enabled         # from settings@android:
+  android:                
+    compileSdk: 33         # from settings@android:
 ```
 ```yaml 
 settings@iosArm64:
   kotlin:
     languageVersion: 1.9      # from settings@ios:
     freeCompilerArgs: [x, y]  # merged from settings: and settings@ios:
-  ios:
-    deploymentTarget: 18      # from settings@iosArm64:
 ```
 ```yaml 
 settings@iosSimulatorArm64:
   kotlin:
     languageVersion: 1.9      # from settings@ios:
-    freeCompilerArgs: [x, y]  # merged from settings: and settings@ios:
-  ios:
-    deploymentTarget: 17      # from settings:
+    freeCompilerArgs: [x, y, z]  # merged from settings: and settings@ios: and settings@iosArm64:
 ```
 
 ### Dependency/Settings propagation
@@ -1432,6 +1431,66 @@ Setting `ktor: enabled` performs the following actions:
 
 Examples of Ktor projects:
 * [ktor-simplest-sample](../examples-standalone/ktor-simplest-sample)
+
+## iOS support
+
+### Xcode Project
+
+Currently, an Xcode project is required to build an iOS application in Amper.
+It has to be named `module.xcodeproj` and located in the module root directory of the `ios/app` module.
+
+Normally, when the Amper project is created via `amper init` or via the IDE's Wizard, the appropriate Xcode project is
+already there. This is currently the recommended way of creating projects that have an iOS app module.
+
+However, if the Amper project is created from scratch, the default buildable Xcode project will be created automatically
+after the first project build.
+This project can later be customized and checked into a VCS.
+
+If you want to migrate an existing Xcode project so it has Amper support, you must manually ensure that:
+1. it is named `module.xcodeproj` and is located in the root of the `ios/app` module
+2. it has a single iOS application target
+3. the target has `Debug` & `Release` build configurations, each containing `AMPER_WRAPPER_PATH = <relative path to amper wrapper script>`. 
+The path is relative to the Amper module root.
+4. the target has a script build phase called `Build Kotlin with Amper` with the code:
+   ```bash
+    # !AMPER KMP INTEGRATION STEP!
+    # This script is managed by Amper, do not edit manually!
+    "${AMPER_WRAPPER_PATH}" tool xcode-integration
+   ```
+5. The _Framework Search Paths_ (`FRAMEWORK_SEARCH_PATHS`) option contains the `$(TARGET_BUILD_DIR)/AmperFrameworks` value
+
+Changes to the Xcode project that do not break these requirements are allowed.
+
+So the iOS app module layout looks like this:
+```
+|-src/             
+|  |-KotlinCode.kt      # optional, if all the code is in the libraries
+|  |-EntryPoint.swift
+|  |-Info.plist
+|-module.yaml           # ios/app
+|-module.xcodeproj      # xcode project
+```
+
+> [!NOTE]
+> The Xcode project can be built normally from the Xcode IDE, if needed.
+
+### Swift support
+
+> [!IMPORTANT]
+> Swift sources are only fully supported in the `src` directory of the `ios/app` module.
+
+While swift sources are, strictly speaking, managed by the Xcode project and, as such,
+can reside in arbitrary locations, it's not recommended to have them anywhere outside the `src` directory - the tooling
+might not work correctly.
+
+To use Kotlin code from Swift, one must import the `KotlinModules` framework.
+This framework is built from:
+1. the code inside the `ios/app` module itself 
+2. the modules that `ios/app` module depends on (e.g. `- ../shared`)
+3. all the external dependencies, transitively
+
+> [!NOTE]
+> All declarations from the source Kotlin code are accessible to Swift, while external dependencies are not.
 
 ## Compose Hot Reload (experimental)
 

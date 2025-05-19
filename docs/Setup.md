@@ -47,6 +47,9 @@ environment is configured correctly:
    Otherwise, KDoctor will highlight which parts of your setup still need to be configured and will suggest a way to fix
    them.
 
+> [!NOTE]
+> Xcode has to be 16 or newer.
+
 > [!WARNING]
 > KDoctor has a [known issue](https://youtrack.jetbrains.com/issue/KMT-1077) that triggers an incorrect warning:
 > `Kotlin Multiplatform Mobile Plugin: not installed`. This should be disregarded.

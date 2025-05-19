@@ -341,6 +341,7 @@ Here is the project structure that we need:
 |  |  |-iosApp.swift
 |  |  |-main.kt
 |  |-module.yaml
+|  |-module.xcodeproj
 |-jvm-app/
 |  |-...
 |-shared/
@@ -381,8 +382,6 @@ dependencies:
 settings:
   compose:
     enabled: true
-  ios:
-    teamId: <your team ID here> # See https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/
 ```
 
 Let's update the `shared/module.yaml` and add the new platforms and a couple of additional dependencies for Android:
@@ -468,6 +467,11 @@ Make sure that your project structure looks like this:
 ```
 
 Now you can build and run both apps using [the IntelliJ IDEA run configurations](Usage.md#using-amper-in-intellij-idea).
+
+> [!NOTE]
+> After the first build the Xcode project will appear beside the `module.yaml` in the `ios-app` module. 
+> It can be checked into the VCS and customized (e.g. _Team_ (`DEVELOPMENT_TEAM`) setting).
+> See [iOS Support](Documentation.md#ios-support) to learn more about the Xcode ↔ Amper interoperability.
 
 Examples: [Compose Multiplatform](../examples-standalone/compose-multiplatform)
 
@@ -555,10 +559,6 @@ product: ios/app
 apply:
   - ../compose.module-template.yaml
   - ../app.module-template.yaml
-
-settings:
-  ios:
-    teamId: <your team ID here> # See https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/
 ```
 
 You can put all common dependencies and settings into the template. It's also possible to have multiple templates 
