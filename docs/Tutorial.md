@@ -47,24 +47,6 @@ Your project should now look like this:
 |-amper.bat
 ```
 
-> To use Amper in a [Gradle-based project](Documentation.md#gradle-based-projects), instead of the 
-> `amper` and `amper.bat` files you need to create `settings.gradle.kts` and Gradle wrappers in the project root. 
-> These files are necessary to configure and launch Gradle. 
-> Copy the following files from a [template project](../examples-gradle/new-project-template):
->
-> - [settings.gradle.kts](../examples-gradle/new-project-template/settings.gradle.kts),
-> - [gradlew](../examples-gradle/new-project-template/gradlew) and [gradlew.bat](../examples-gradle/new-project-template/gradlew.bat),
-> - [gradle](../examples-gradle/new-project-template/gradle) folder
-> ```
-> |-gradle/...
-> |-src/
-> |  |-main.kt
-> |-module.yaml
-> |-settings.gradle.kts
-> |-gradlew
-> |-gradlew.bat
-> ```
-
 That’s it, we’ve just created a simple JVM application.
 
 And since it’s a JVM project, you can add Java code. Java and Kotlin files can reside together,
@@ -86,7 +68,6 @@ You can now build your application using `./amper build`, or run it using `./amp
 > - [Project layout](Documentation.md#project-layout)
 > - [Module file anatomy](Documentation.md#module-file-anatomy)
 > - [Using Amper from the command line](Usage.md#using-amper-from-the-command-line)
-> - [Using Gradle-based Amper](Usage.md#using-the-gradle-based-amper-version-from-the-command-line)
 
 ## Step 2. Add dependencies
 
@@ -334,31 +315,6 @@ fun main() = application {
 
 We now have a multi-module project with some neatly extracted shared code.
 
-> In the case of a [Gradle-based project](Documentation.md#gradle-based-projects), 
-> `settings.gradle.kts` is used instead of `project.yaml` file.
-> So all previously added Gradle files will remain in the project root:
->
-> ```
-> |-jvm-app/
-> |  |-...
-> |  |-module.yaml
-> |-shared/
-> |  |-...
-> |  |-module.yaml
-> |-gradle/...
-> |-settings.gradle.kts
-> |-gradlew
-> |-gradlew.bat
-> ```
->
-> Add modules to the `settings.gradle.kts` file:
-> ```kotlin
-> // ... existing code in the settings.gradle.kts file ...
-> 
-> // add new modules to the project
-> include("jvm-app", "shared")
-> ```
-
 Examples: [Compose Multiplatform](../examples-standalone/compose-multiplatform)
 
 > See the full documentation about:
@@ -401,13 +357,6 @@ modules:
   - ./jvm-app
   - ./shared   
 ```
-
-> In case of a Gradle-based Amper project, into the `settings.gradle.kts` file:
-> ```kotlin
-> // add new modules to the project
-> include("android-app", "ios-app", "jvm-app", "shared")
-> ``` 
-
 
 The `android-app/module.yaml` will look like this way:
 ```YAML
@@ -497,9 +446,8 @@ fun ViewController() = ComposeUIViewController {
 }
 ```
 
-And the last step, copy
-the [AndroidManifest.xml file from an example project](../examples-gradle/compose-multiplatform/android-app/src/AndroidManifest.xml)
-into `android-app/src` folder, and the [iosApp.swift file](../examples-gradle/compose-multiplatform/ios-app/src/iosApp.swift) into the `ios-app/src`.
+And the last step, copy the [AndroidManifest.xml file from an example project](../examples-standalone/compose-multiplatform/android-app/src/AndroidManifest.xml)
+into `android-app/src` folder, and the [iosApp.swift file](../examples-standalone/compose-multiplatform/ios-app/src/iosApp.swift) into the `ios-app/src`.
 These files bind the Compose UI code with the native application entry points.
 
 Make sure that your project structure looks like this:
@@ -518,26 +466,6 @@ Make sure that your project structure looks like this:
 |-shared/
 |-...
 ```
-
-> In the case of a Gradle-based project, you also need to add a couple of configuration files.
-> Copy the [gradle.properties](../examples-gradle/compose-multiplatform/gradle.properties) into your project root,
-> and create a `local.properties` file nearby with the follwoing content:
-> 
-> ```properties 
-> ## This file must *NOT* be checked into Version Control Systems
-> 
-> sdk.dir=<path to the Android SDK>
-> ```
-> [Check the instructions](https://stackoverflow.com/a/48155800) on how to set the `sdk.dir` on StackOverflow 
->
-> Your project root content will look like this: 
-> ```
-> |-android-app/
-> |-...
-> |-settings.gradle.kts
-> |-gradle.properties
-> |-local.properties
-> ```
 
 Now you can build and run both apps using [the IntelliJ IDEA run configurations](Usage.md#using-amper-in-intellij-idea).
 
@@ -640,5 +568,4 @@ for various typical configurations in the project.
 
 ## Further steps
 
-Check the [documentation](Documentation.md) and explore examples [for the standalone Amper projects](../examples-standalone) and
-[for the Gradle-based Amper projects](../examples-gradle).
+Check the [documentation](Documentation.md) and explore [example projects](../examples-standalone).
