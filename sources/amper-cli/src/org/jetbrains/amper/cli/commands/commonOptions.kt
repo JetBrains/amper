@@ -21,20 +21,25 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.util.BuildType
 import kotlin.collections.sorted
 
+private val checkPlatformsListMsg =
+    "Check the full list of supported platforms in the documentation:\n${Platform.docsUrl}"
+
 internal fun BaseCliktCommand<*>.leafPlatformOption(help: String) = option(
     "-p",
     "--platform",
-    help = help,
+    help = "${help.ensureEndsWith(".")}\n\n$checkPlatformsListMsg",
 ).choiceWithTypoSuggestion(
     choices = Platform.leafPlatforms.associateBy { it.pretty },
     metavar = "<platform>", // too many values to show them in the metavar, so we override with this placeholder
     ignoreCase = true,
-    supportedValuesMsg = "Check the full list of supported platforms in the documentation:\n${Platform.docsUrl}"
+    supportedValuesMsg = checkPlatformsListMsg,
 ).also {
     configureContext {
         suggestTypoCorrection = suggestTypoCorrection.withPlatformSuggestions()
     }
 }
+
+private fun String.ensureEndsWith(suffix: String): String = if (endsWith(suffix)) this else "$this$suffix"
 
 /**
  * Exactly like the original [choice] option type, but suggests typo corrections in case of invalid values.
