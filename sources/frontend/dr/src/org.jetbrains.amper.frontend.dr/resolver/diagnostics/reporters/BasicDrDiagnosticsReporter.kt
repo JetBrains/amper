@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters
 
-import com.intellij.openapi.vfs.toNioPathOrNull
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
@@ -31,6 +31,7 @@ import org.jetbrains.amper.frontend.getLineAndColumnRangeInPsiFile
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.annotations.Nls
+import java.io.File
 
 object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
     override val level = Level.Error
@@ -92,7 +93,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
                         errorMessage = message,
                         level = msgLevel,
                         element = psiElement,
-                        versionTrace = getVersionTrace(node, directDependency),
+                        versionDefinition = findVersionDefinition(node, directDependency, psiElement),
                     )
                     problemReporter.reportMessage(buildProblem)
                 }
@@ -100,20 +101,42 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         }
     }
 
-    private fun getVersionTrace(
+    /**
+     * Returns the definition of the version of the [node] if it is defined not in the same place
+     * where the [directDependency] itself (e.g., the version comes from the settings).
+     *
+     * @param node Dependency node that represents the problematic dependency in the graph
+     * @param directDependency Dependency node that references the [node] from the module file
+     * @param dependencyElement PSI element trace of [directDependency]
+     */
+    private fun findVersionDefinition(
         node: DependencyNode,
-        directDependency: DirectFragmentDependencyNodeHolder
-    ): TraceableVersion? {
-        // direct node could have version traces only
-        if (node != directDependency.dependencyNode || node !is MavenDependencyNode) return null
+        directDependency: DirectFragmentDependencyNodeHolder,
+        dependencyElement: PsiElement,
+    ): VersionDefinition? {
+        if (node !is MavenDependencyNode) return null
+        val notation = directDependency.notation as? MavenDependencyBase ?: return null
 
-        return (directDependency.notation as? MavenDependencyBase)
-            ?.coordinates
-            ?.resolveVersionTrace()
+        val resolvedVersion = notation.coordinates.resolveVersion() ?: return null
+
+        val versionTrace = resolvedVersion.trace
+
+        if (versionTrace !is PsiTrace) return null
+        if (versionTrace == directDependency.notation.trace) return null
+
+        if (resolvedVersion.value != node.dependency.version) return null
+
+        val dependencyVirtualFile = dependencyElement.containingFile?.virtualFile ?: return null
+        val versionFile = versionTrace.psiElement.containingFile?.virtualFile ?: return null
+
+        val relativePath = VfsUtilCore.findRelativePath(dependencyVirtualFile, versionFile, File.separatorChar)?.takeIf {
+            dependencyVirtualFile != versionFile
+        } ?: versionTrace.psiElement.containingFile.name
+        return VersionDefinition(versionTrace.psiElement, relativePath)
     }
 
-    private fun Traceable.resolveVersionTrace(): TraceableVersion? {
-        return (this as? TraceableVersion) ?: this.trace?.computedValueTrace?.resolveVersionTrace()
+    private fun Traceable.resolveVersion(): TraceableVersion? {
+        return (this as? TraceableVersion) ?: this.trace?.computedValueTrace?.resolveVersion()
     }
 }
 
@@ -125,9 +148,11 @@ class DependencyBuildProblem(
     level: Level,
     @field:UsedInIdePlugin
     override val element: PsiElement,
-    val versionTrace: TraceableVersion?,
+    @field:UsedInIdePlugin
+    val versionDefinition: VersionDefinition?,
 ) : PsiBuildProblem(level) {
     override val buildProblemId: BuildProblemId = ID
+
     override val message: @Nls String
         get() = buildString {
             if (!isTransitive) {
@@ -142,49 +167,42 @@ class DependencyBuildProblem(
                     )
                 )
             }
-            val versionDefinition = getVersionDefinition()
-            if (versionDefinition != null) {
+            val versionDefinitionMessage = getVersionDefinitionMessage()
+            if (versionDefinitionMessage != null) {
                 appendLine()
                 appendLine()
-                append(versionDefinition)
+                append(versionDefinitionMessage)
             }
         }
+
     val isTransitive: Boolean
         get() = problematicDependency.isTransitiveFor(directFragmentDependency)
+
+    private fun getVersionDefinitionMessage(): @Nls String? {
+        versionDefinition ?: return null
+        val node = problematicDependency as? MavenDependencyNode ?: return null
+        val range = getLineAndColumnRangeInPsiFile(versionDefinition.versionElement)
+
+        return FrontendDrBundle.message(
+            "dependency.problem.version.definition",
+            node.dependency.version,
+            "${versionDefinition.relativePath}:${range.start.line}:${range.start.column}",
+        )
+    }
 
     companion object {
         const val ID = "dependency.problem"
     }
 }
 
+/**
+ * Information about where the version of the dependency is defined.
+ *
+ * @param versionElement PSI element containing the version definition
+ * @param relativePath Relative path from the file containing dependency to the file containing the version definition
+ * @see BasicDrDiagnosticsReporter.findVersionDefinition
+ */
+data class VersionDefinition(val versionElement: PsiElement, val relativePath: String)
+
 internal fun DependencyNode.isTransitiveFor(fragmentDependency: DirectFragmentDependencyNodeHolder): Boolean =
     this != fragmentDependency && fragmentDependency !in parents
-
-private fun DependencyBuildProblem.getVersionDefinition(): @Nls String? {
-    if (versionTrace == null) return null
-    if (versionTrace.trace !is PsiTrace) return null
-    if (versionTrace.trace == directFragmentDependency.notation.trace) return null
-
-    val node = problematicDependency as? MavenDependencyNode ?: return null
-    if (versionTrace.value != node.dependency.version) return null
-
-    // Version trace points to the place the version is defined
-    val psiElement = (versionTrace.trace as? PsiTrace)?.psiElement ?: return null
-    val dependencyNotation = directFragmentDependency.notation as? MavenDependencyBase ?: return null
-    val range = getLineAndColumnRangeInPsiFile(psiElement)
-
-    val dependencyPsiFilePath =
-        dependencyNotation.trace?.extractPsiElementOrNull()?.containingFile?.virtualFile?.toNioPathOrNull()
-    val versionFilePath = psiElement.containingFile.virtualFile.toNioPathOrNull()
-
-    val relativeVersionFilePath =
-        if (dependencyPsiFilePath != null && versionFilePath != null && dependencyPsiFilePath != versionFilePath)
-            dependencyPsiFilePath.relativize(versionFilePath)
-        else psiElement.containingFile.name
-
-    return FrontendDrBundle.message(
-        "dependency.problem.version.definition",
-        node.dependency.version,
-        "$relativeVersionFilePath:${range.start.line}:${range.start.column}",
-    )
-}

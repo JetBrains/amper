@@ -149,7 +149,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         // A version of the library is taken from settings:serialization:version in file template.yaml
         checkBuiltInDependencyBuildProblem(
             buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core",
-            Path("..") / ".." / "templates" / "template.yaml",
+            Path("..") / "templates" / "template.yaml",
             5, 7
         )
     }
