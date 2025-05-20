@@ -778,7 +778,7 @@
         "framework": {
           "x-intellij-html-description": "(Only for the library [product type](#product-types) Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)",
           "title": "Configure the generated framework to share the common code with an Xcode project",
-          "x-intellij-metadata": {"productTypes": ["lib"],"gradleSpecific": true},
+          "x-intellij-metadata": {"productTypes": ["lib"]},
           "$ref": "#/$defs/IosFrameworkSettings"
         },
         "teamId": {
@@ -796,11 +796,13 @@
         "basename": {
           "x-intellij-html-description": "The name of the generated framework",
           "title": "The name of the generated framework",
+          "x-intellij-metadata": {"gradleSpecific": true},
           "type": "string"
         },
         "isStatic": {
           "x-intellij-html-description": "Whether to create a dynamically linked or statically linked framework",
           "title": "Whether to create a dynamically linked or statically linked framework",
+          "x-intellij-metadata": {"gradleSpecific": true},
           "type": "boolean"
         }
       },

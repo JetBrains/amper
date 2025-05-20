@@ -59,7 +59,7 @@ class Settings : SchemaNode() {
     @SchemaDoc("Publishing settings")
     var publishing by nullableValue<PublishingSettings>()
 
-    @GradleSpecific
+    @GradleSpecific("kover is not yet supported")
     @Aliases("coverage")
     @SchemaDoc("Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)")
     var kover by nullableValue<KoverSettings>()
@@ -140,14 +140,13 @@ const val legacySerializationFormatNone = "none"
 
 class IosSettings : SchemaNode() {
 
-    @GradleSpecific
+    @GradleSpecific("Team ID is managed in the Xcode project")
     @SchemaDoc("A Team ID is a unique string assigned to your team by Apple.<br>" +
             "It's necessary if you want to run/test on a Apple device.<br>" +
             "Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/)," +
             " or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`)")
     var teamId by nullableValue<String>()
 
-    @GradleSpecific
     @SchemaDoc("(Only for the library [product type](#product-types) " +
             "Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)")
     @ProductTypeSpecific(ProductType.LIB)
@@ -156,9 +155,11 @@ class IosSettings : SchemaNode() {
 
 class IosFrameworkSettings : SchemaNode() {
 
+    @GradleSpecific(message = "framework name is `KotlinModules`")
     @SchemaDoc("The name of the generated framework")
     var basename by value("kotlin")
 
+    @GradleSpecific(message = "Amper uses static framework linking")
     @SchemaDoc("Whether to create a dynamically linked or statically linked framework")
     var isStatic by value(false)
 }
