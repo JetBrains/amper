@@ -20,4 +20,5 @@ val AomSingleModuleDiagnosticFactories: List<AomSingleModuleDiagnosticFactory> =
     SerializationVersionWithDisabledSerialization,
     SigningEnabledWithoutPropertiesFileFactory,
     UselessSettingValue,
+    GradleSpecificUnsupportedFactory,
 )
