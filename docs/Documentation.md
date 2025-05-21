@@ -940,6 +940,51 @@ Or you can use one of the preconfigured presets that contain no-arg annotations 
           - jpa
 ```
 
+#### Java annotation processing
+
+To add java annotation processors to your module, add their maven coordinates to the 
+`settings.java.annotationProcessing.processors` list:  
+
+```yaml
+settings:
+  java:
+    annotationProcessing:
+      processors:
+        - org.mapstruct:mapstruct-processor:1.6.3
+```
+
+This option is only available for java or android modules (it's a platform-specific).
+
+As with KSP, it's possible to reference a local Amper module as a processor. See the 
+[KSP section](#using-your-own-local-ksp-processor) for more information. Using library catalog entry is also supported.
+
+Some annotation processors can be customized by passing options.
+You can pass these options using the `processorOptions` map:
+
+```yaml
+settings:
+  java:
+    annotationProcessing:
+      processors:
+        - $libs.auto.service # using catalog reference 
+      processorOptions:
+        debug: true
+```
+
+#### Configuring Lombok
+
+Despite there is a way to configure annotation processing in general for Java, for the Kotlin interop you need a 
+compiler plugin configured. So if you want to add Lombok to your project it is better to use `settings:lombok` instead 
+of configuring `settings:java:annotationProcessing` directly even if your module is java-only. Enabling Lombok is by
+
+```yaml
+
+  settings:
+    lombok: enabled
+```
+
+adds `lombok` dependency, annotation processor and kotlin compiler plugin.
+
 ### Tests
 
 Test code is located in the `test/` folder:

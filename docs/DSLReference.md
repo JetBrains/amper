@@ -457,6 +457,45 @@ settings:
       invokeInitializers: true
 ```
 
+#### Java
+
+`settings:java:` configures the Java language and the compiler.
+
+| Attribute                      | Description                         | Default |
+|--------------------------------|-------------------------------------|---------|
+| `annotationProcessing: object` | Java annotation processing settings | (empty) |
+
+##### Annotation Processing
+
+`settings:java:annotationProcessing:` configures Java annotation processing.
+
+| Attribute               | Description                                                                                                                    | Default |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------|
+| `processors: list`      | The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates | (empty) |
+| `processorOptions: map` | Options to pass to annotation processors                                                                                       | (empty) |
+
+Examples:
+
+```yaml
+# Add an annotation processor
+settings:
+  java:
+    annotationProcessing:
+      processors:
+        - org.mapstruct:mapstruct-processor:1.6.3
+```
+
+```yaml
+# Add an annotation processor with options
+settings:
+  java:
+    annotationProcessing:
+      processors:
+        - $libs.auto.service # using catalog reference
+      processorOptions:
+        debug: true
+```
+
 #### JVM
 
 `settings:jvm:` configures the JVM platform-specific settings.
@@ -662,6 +701,22 @@ By default, JUnit 5 is used.
 | `junit-5` | JUnit 5 dependencies and the test runner are configured (default). |
 | `junit-4` | JUnit 4 dependencies and the test runner are configured.           |
 | `none`    | JUnit is not automatically configured.                             |
+
+#### Lombok
+
+`settings:lombok:` configures Lombok.
+
+| Attribute          | Description    | Default |
+|--------------------|----------------|---------|  
+| `enabled: boolean` | Enable Lombok  | `false` |  
+
+Example:
+
+```yaml
+settings:
+  lombok:
+    enabled: true
+```
 
 #### Kover
 
