@@ -1,0 +1,12 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - $ktor.client.core: exported
+
+settings:
+  ktor: enabled
+
+
+

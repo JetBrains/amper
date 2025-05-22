@@ -22,6 +22,7 @@ import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.TestInfo
 import org.opentest4j.AssertionFailedError
 import java.nio.file.Path
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -195,6 +196,8 @@ abstract class BaseModuleDrTest {
                     }
                 }
                 throw e
+            }.also {
+                expectedResultPath?.parent?.resolve(expectedResultPath.fileName.name + ".tmp")?.deleteIfExists()
             }
         }
 
