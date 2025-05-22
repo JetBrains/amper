@@ -374,6 +374,37 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
         )
     }
 
+    /**
+     * Version of an exported direct dependency is resolved from BOM if it was left unspecified.
+     */
+    @Test
+    fun `resolving version of an exported direct dependency from BOM`(testInfo: TestInfo) {
+        val aom = getTestProjectModel("jvm-bom-support-exported", testDataRoot)
+
+        val jvmAppDeps = runBlocking {
+            doTestByFile(
+                testInfo,
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.ClassPathType(
+                        ResolutionScope.COMPILE,
+                        setOf(ResolutionPlatform.JVM),
+                        false,
+                        false)
+                    ,
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
+                verifyMessages = false,
+                module = "app"
+            )
+        }
+        assertFiles(
+            testInfo,
+            jvmAppDeps
+        )
+    }
+
     private fun String.toMavenCoordinates() =
         split(":").let { MavenCoordinates(it[0], it[1], it[2]) }
 }

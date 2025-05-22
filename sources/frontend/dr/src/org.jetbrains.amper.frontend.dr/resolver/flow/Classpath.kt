@@ -174,8 +174,9 @@ internal class Classpath(
             }
             is BomDependency -> {
                 when (flowType.scope) {
-                    // BOM affects the compilation classpath of the module where it is declared.
-                    ResolutionScope.COMPILE -> directDependencies
+                    // BOM affects the compilation classpath of the module where it is declared,
+                    // including exported direct dependencies
+                    ResolutionScope.COMPILE -> true
                     // BOM affects the runtime classpath of the module and all its consumers
                     ResolutionScope.RUNTIME -> true
                 }
