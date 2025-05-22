@@ -48,9 +48,11 @@ internal data class Versioning(
 @XmlSerialName("snapshot")
 internal data class Snapshot(
     @XmlElement(true)
-    val timestamp: String,
+    val timestamp: String? = null,
     @XmlElement(true)
-    val buildNumber: Int
+    val buildNumber: Int? = null,
+    @XmlElement(true)
+    val localCopy: Boolean? = null,
 )
 
 @Serializable

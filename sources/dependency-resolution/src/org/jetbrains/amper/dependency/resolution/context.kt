@@ -213,6 +213,8 @@ data class Repository(
     val userName: String? = null,
     val password: String? = null,
 ) {
+    val isMavenLocal = url == "mavenLocal"
+
     override fun toString(): String {
         return url
     }

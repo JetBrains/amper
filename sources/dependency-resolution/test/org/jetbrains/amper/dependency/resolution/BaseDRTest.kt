@@ -18,6 +18,7 @@ import org.opentest4j.AssertionFailedError
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -47,6 +48,28 @@ abstract class BaseDRTest {
         }
         expected?.let { assertEquals(expected, root) }
         return root
+    }
+
+    protected fun doTestByFile(
+        testInfo: TestInfo,
+        root: DependencyNodeHolder,
+        verifyMessages: Boolean = true,
+        @Language("text") expected: String? = null,
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+    ): DependencyNode {
+        val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
+        return withActualDump(goldenFile) {
+            if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
+            val expected = goldenFile.readText().replace("\r\n", "\n").trim()
+            runBlocking {
+                doTest(
+                    root,
+                    verifyMessages,
+                    expected,
+                    filterMessages,
+                )
+            }
+        }
     }
 
     private fun doTestImpl(
@@ -136,6 +159,8 @@ abstract class BaseDRTest {
                 }
             }
             throw e
+        }.also {
+            expectedResultPath?.parent?.resolve(expectedResultPath.fileName.name + ".tmp")?.deleteIfExists()
         }
     }
 
@@ -199,6 +224,19 @@ abstract class BaseDRTest {
 
     protected fun List<String>.toRootNode(context: Context) =
         DependencyNodeHolder(name = "root", children = map { it.toMavenNode(context) }, context)
+
+    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNode {
+        val isBom = artifactId.startsWith("bom:")
+        return MavenDependencyNode(context, groupId, artifactId, version, isBom = isBom)
+    }
+
+    protected fun String.toMavenCoordinates(): MavenCoordinates {
+        val parts = split(":")
+        val group = parts[0]
+        val module = parts[1]
+        val version = if (parts.size > 2) parts[2] else null
+        return MavenCoordinates(group, module, version)
+    }
 
     private fun String.toMavenNode(context: Context): MavenDependencyNode {
         val isBom = startsWith("bom:")
@@ -306,6 +344,8 @@ abstract class BaseDRTest {
             "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev"
         internal const val REDIRECTOR_JETBRAINS_KPM_PUBLIC =
             "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public"
+
+        internal const val MAVEN_LOCAL = "mavenLocal"
 
         fun List<Message>.defaultFilterMessages(): List<Message> =
             filter { it.severity > Severity.INFO }

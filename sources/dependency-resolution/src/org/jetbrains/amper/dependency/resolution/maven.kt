@@ -1254,7 +1254,7 @@ class MavenDependency internal constructor(
         val sha1 = context.spanBuilder("toDependencyFile -> getExpectedHash")
             .setAttribute("fileName", kmpMetadataFile.fileName)
             .use {
-                kmpMetadataFile.getExpectedHash("sha1", context)
+                kmpMetadataFile.getExpectedHash("sha1", context.settings)
             }
             ?: kmpMetadataFile.getPath()?.let { path ->
                 context.spanBuilder("toDependencyFile -> computeHash")
@@ -1751,7 +1751,7 @@ class MavenDependency internal constructor(
         context: Context,
         diagnosticsReporter: DiagnosticReporter
     ) =
-        isDownloaded() && hasMatchingChecksumLocally(diagnosticsReporter, context, level)
+        isDownloadedWithVerification(level, context.settings, diagnosticsReporter)
                 || level == ResolutionLevel.NETWORK && download(context, diagnosticsReporter)
 
     internal val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant>
@@ -1774,7 +1774,7 @@ class MavenDependency internal constructor(
             .filter {
                 (context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
                         || it.kmpSourceSet == null) // (except for artifact with all sources that is not marked with any kmpSourceSet)
-                        && !(it.isDownloaded() && it.hasMatchingChecksumLocally(context = context))
+                        && !it.isDownloadedWithVerification(settings = context.settings)
             }
 
         notDownloaded.forEach {

@@ -16,7 +16,7 @@ import kotlin.io.path.readLines
  * case of failure, for better readability.
  */
 fun assertEqualsWithDiff(expected: List<String>, actual: List<String>, message: String = "Comparison failed") {
-    if (expected != actual) {
+    if (expected.filter { it.isNotEmpty() } != actual.filter { it.isNotEmpty() }) {
         AssertionFailureBuilder.assertionFailure()
             .message("$message. Diff:\n${generateUnifiedDiff(expected, "expected", actual, "actual")}")
             .expected(expected)

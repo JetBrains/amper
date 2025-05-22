@@ -28,6 +28,7 @@ import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
+import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 
 private val logger = LoggerFactory.getLogger("resolutionFlow.kt")
 
@@ -100,7 +101,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
                 continue
             }
 
-            if (!repository.url.startsWith("https://")) {
+            if (!repository.url.startsWith("https://") && repository.url != SpecialMavenLocalUrl) {
 
                 // report only once per `url`
                 if (alreadyReportedNonHttpsRepositories.put(repository.url, true) == null) {
@@ -121,7 +122,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             .filterIsInstance<RepositoriesModulePart>()
             .firstOrNull()
             ?.mavenRepositories
-            ?.filter { it.resolve && !it.isMavenLocal }
+            ?.filter { it.resolve }
             ?.map { Repository(it.url, it.userName, it.password) }
             ?: defaultRepositories.map { Repository(it)}
 

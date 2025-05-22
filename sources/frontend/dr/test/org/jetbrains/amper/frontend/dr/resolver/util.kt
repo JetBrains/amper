@@ -12,6 +12,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
 import kotlin.test.assertIs
 import kotlin.test.fail
@@ -27,6 +28,19 @@ internal fun DependencyNode.fragmentDeps(module: String, fragment: String) =
 
 internal fun getTestProjectModel(testProjectName: String, testDataRoot: Path): Model {
     val projectPath = testDataRoot.resolve(testProjectName)
+    val aom = with(object : ProblemReporterContext {
+        override val problemReporter: ProblemReporter = TestProblemReporter()
+    }) {
+        val amperProjectContext =
+            StandaloneAmperProjectContext.create(projectPath, null) ?: fail("Fails to create test project context")
+        SchemaBasedModelImport.getModel(amperProjectContext).get()
+    }
+    return aom
+}
+
+internal fun getAmperModel(subPath: String? = null, rootDir: Path? = null): Model {
+    val baseDir = rootDir ?: Dirs.amperCheckoutRoot
+    val projectPath = subPath?.let { baseDir.resolve(it) } ?: baseDir
     val aom = with(object : ProblemReporterContext {
         override val problemReporter: ProblemReporter = TestProblemReporter()
     }) {

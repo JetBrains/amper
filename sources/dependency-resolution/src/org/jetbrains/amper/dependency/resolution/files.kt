@@ -63,7 +63,11 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
 import java.time.Duration
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.*
 import javax.net.ssl.SSLContext
 import kotlin.io.path.Path
@@ -104,7 +108,7 @@ interface LocalRepository {
      * Returns a path to a temp directory for a particular dependency.
      *
      * The file is downloaded to a temp directory to be later moved to a permanent one provided by [getPath].
-     * Both paths should preferably be on the same files drive to allow atomic move.
+     * Both paths should preferably be on the same file drive to allow atomic move.
      */
     fun getTempDir(dependency: MavenDependency): Path
 
@@ -112,7 +116,7 @@ interface LocalRepository {
      * Returns a path to a file on disk.
      * It can't return `null` as all necessary information must be available at a call site.
      *
-     * A SHA1 hash is used by Gradle as a part of a path.
+     * Gradle uses a SHA1 hash as a part of a path.
      */
     fun getPath(dependency: MavenDependency, name: String, sha1: String): Path
 
@@ -120,7 +124,7 @@ interface LocalRepository {
      * Returns a path to a file on disk.
      * It can't return `null` as all necessary information must be available at a call site.
      *
-     * A SHA1 hash is used by Gradle as a part of a path.
+     * Gradle uses a SHA1 hash as a part of a path.
      */
     suspend fun getPath(dependency: MavenDependency, name: String, sha1: suspend () -> String): Path =
         getPath(dependency, name, sha1())
@@ -218,14 +222,20 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
 internal fun getDependencyFile(dependency: MavenDependency, file: File) = getDependencyFile(
     dependency,
     file.url.substringBeforeLast('.'),
-    file.name.substringAfterLast('.'),
+    file.name.substringAfterLast('.')
+)
+
+fun DependencyFile.getHashDependencyFile(algorithm: String) = getDependencyFile(
+    dependency,
+    nameWithoutExtension,
+    "$extension.$algorithm"
 )
 
 fun getDependencyFile(
     dependency: MavenDependency,
     nameWithoutExtension: String,
     extension: String,
-    isAutoAddedDocumentation: Boolean = false,
+    isAutoAddedDocumentation: Boolean = false
 ) =
     // todo (AB) : What if version is nt specified, but later we will find out that it ends with "-SNAPSHOT",
     // todo (AB) : such a dependency file should be converted to SnapshotDependency
@@ -234,7 +244,7 @@ fun getDependencyFile(
             dependency,
             nameWithoutExtension,
             extension,
-            isAutoAddedDocumentation = isAutoAddedDocumentation,
+            isAutoAddedDocumentation = isAutoAddedDocumentation
         )
     } else {
         DependencyFile(dependency, nameWithoutExtension, extension, isAutoAddedDocumentation = isAutoAddedDocumentation)
@@ -258,6 +268,28 @@ open class DependencyFile(
 
     private fun getCacheDirectory(): LocalRepository = fileCache.localRepository
 
+    private suspend fun getMavenLocalPath(): Path? {
+        if (dependency.settings.repositories.none { it.url == "mavenLocal" })
+            return null
+
+        val mavenLocal = MavenLocalRepository()
+
+        return mavenLocal.guessPath(dependency, fileName).takeIf {
+            // Dependencies are published to mavenLocal without checksums by default
+            // (neither by Gradle plugin nor by mvn install)
+            isValidMavenLocalPath(it)
+                    /*&& getDependencyFile(
+                dependency, nameWithoutExtension, extension, isAutoAddedDocumentation,
+                // todo (AB) : Check that ERROR diagnostic bout non-matching checksum in maven Local is suppressed in case dependency was resolved from some external repo)
+                fileCache.copy(localRepository = mavenLocal)
+            ).hasMatchingChecksumLocally(
+                diagnosticsReporter, dependency.settings, it, ResolutionLevel.LOCAL
+            )*/
+        }
+    }
+
+    protected open suspend fun isValidMavenLocalPath(path: Path) = path.exists()
+
     internal val diagnosticsReporter: DiagnosticReporter = CollectingDiagnosticReporter()
 
     private suspend fun getReadOnlyCacheDirectory(): LocalRepository? {
@@ -277,31 +309,71 @@ open class DependencyFile(
     private var path: Path? = null
 
     @Volatile
-    private var guessedPath: Path? = null
+    private var guessedCacheLocalPath: Path? = null
 
-    suspend fun getPath(): Path? = path
-        ?: guessedPath
-        ?: withContext(Dispatchers.IO) { getPathBlocking() }
+    @Volatile
+    internal var mavenLocalPath: Path? = null
 
-    private fun getPathBlocking(): Path? =
-        path ?: guessedPath ?: getCacheDirectory().guessPath(dependency, fileName)?.also { guessedPath = it }
+    suspend fun getPath(): Path? = getResolvedPath()
+        ?: withContext(Dispatchers.IO) { resolvePath() }
 
-    override fun toString(): String = getPathBlocking()?.toString() ?: "[missing path]/$fileName"
+    private suspend fun resolvePath(): Path? = getResolvedPath()
+        ?: run {
+            // resolve the file from mavenLocal if possible
+            // (if mavenLocal is among a repository list + a file exists,
+            //  checksums from mavenLocal are ignored, since both Gradle and maven don't publish checksums to mavenLocal)
+            val mavenLocalPath = getMavenLocalPath()
+            val cacheLocalPath = getCacheDirectory().guessPath(dependency, fileName)
 
-    open suspend fun isDownloaded(): Boolean = getPath()?.exists() == true
+            if (mavenLocalPath != null
+                && (cacheLocalPath == null
+                        || !cacheLocalPath.exists()
+                        || mavenLocalPath.getLastModifiedTime() > cacheLocalPath.getLastModifiedTime())) {
+                mavenLocalPath.also { this.mavenLocalPath = it }
+            } else {
+                cacheLocalPath?.also { this.guessedCacheLocalPath = it } }
+            }
 
-    internal suspend fun hasMatchingChecksumLocally(
+    private fun getResolvedPath(): Path? = path
+            // a verified location in mavenLocal was detected and set => reuse it
+            ?: mavenLocalPath
+            // a location in Amper local storage was calculated and set => reuse it (at this point artifact can't be resolved from mavenLocal)
+            ?: guessedCacheLocalPath
+
+    override fun toString(): String = getResolvedPath()?.toString() ?: "[not yet resolved path]/$fileName"
+
+    private suspend fun hasMatchingChecksumLocally(
         diagnosticsReporter: DiagnosticReporter = this.diagnosticsReporter,
-        context: Context,
+        settings: Settings,
+        level: ResolutionLevel = ResolutionLevel.NETWORK,
+    ): Boolean =
+        if (mavenLocalPath != null) { // todo (AB) : Move to upper level?
+            // skipping verification of artifacts resolved from mavenLocal (it was verified already)
+            true
+        } else {
+            getPath()?.let {
+                hasMatchingChecksumLocally(
+                    diagnosticsReporter, settings, it, level
+                )
+            } ?: false
+        }
+
+    // todo (AB) : Move it to companion object
+    private suspend fun hasMatchingChecksumLocally(
+        diagnosticsReporter: DiagnosticReporter = this.diagnosticsReporter,
+        settings: Settings,
+        filePath: Path,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
     ): Boolean {
-        val path = getPath() ?: return false
-        return context.spanBuilder("hasMatchingChecksumLocally")
+//        val path = getPath() ?: return false
+//        if (mavenLocalPath != null) return true
+        return settings.spanBuilder("hasMatchingChecksumLocally")
             .setAttribute("fileName", fileName)
             .use {
-                val hashers = context.spanBuilder("computeHash").use { path.computeHash() }
-                val result = context.spanBuilder("verifyHashes").use {
-                    verifyHashes(hashers, diagnosticsReporter, level, context)
+                val computedHashes = settings.spanBuilder("Computing hashes").use { filePath.computeHash() }
+
+                val result = settings.spanBuilder("verifyHashes").use {
+                    verifyHashes(computedHashes, diagnosticsReporter, level, settings)
                 }
                 when (result) {
                     VerificationResult.PASSED -> true
@@ -478,6 +550,17 @@ open class DependencyFile(
 
     internal fun DependencyFile.getTempDir() = getCacheDirectory().getTempDir(dependency)
 
+    protected open suspend fun isDownloaded(): Boolean = getPath()?.exists() == true
+
+    internal open suspend fun isDownloadedWithVerification(
+        level: ResolutionLevel = ResolutionLevel.NETWORK,
+        settings: Settings = dependency.settings,
+        diagnosticsReporter: DiagnosticReporter = this.diagnosticsReporter
+    ): Boolean = isDownloaded() && when {
+        isChecksum() -> readText().sanitize() != null
+        else -> hasMatchingChecksumLocally(diagnosticsReporter, settings, level)
+    }
+
     private suspend fun DependencyFile.isDownloadedWithVerification(expectedHash: Hash) =
         isDownloadedWithVerification { expectedHash }
 
@@ -500,7 +583,7 @@ open class DependencyFile(
     ): Boolean {
         val nestedDownloadReporter = CollectingDiagnosticReporter()
 
-        val path = downloadUnderFileLock(repositories, progress, cache, spanBuilderSource, verify, nestedDownloadReporter, fileLockSource)
+        val path = downloadUnderFileLock(repositories.filterNot { it.isMavenLocal }, progress, cache, spanBuilderSource, verify, nestedDownloadReporter, fileLockSource)
         val collectedMessages = nestedDownloadReporter.getMessages()
 
         val messages = when {
@@ -660,11 +743,11 @@ open class DependencyFile(
         hashers: Collection<Hash>,
         diagnosticsReporter: DiagnosticReporter,
         requestedLevel: ResolutionLevel,
-        context: Context,
+        settings: Settings,
     ): VerificationResult {
         for (hasher in hashers) {
             val algorithm = hasher.algorithm
-            val expectedHash = context.spanBuilder("getExpectedHash").use { getExpectedHash(algorithm, context) } ?: continue
+            val expectedHash = settings.spanBuilder("getExpectedHash").use { getExpectedHash(algorithm, settings) } ?: continue
             return checkHash(
                 hasher,
                 expectedHash = object : Hash {
@@ -763,8 +846,8 @@ open class DependencyFile(
      * uses them for verification.
      * This way, the checksum file is presented in local storage only in case metadata contains invalid data or is completely missing.
      */
-    internal suspend fun getExpectedHash(algorithm: String, context: Context, searchInMetadata: Boolean = true): String? =
-        LocalStorageHashSource.getExpectedHash(this, algorithm, context, searchInMetadata)
+    internal suspend fun getExpectedHash(algorithm: String, settings: Settings, searchInMetadata: Boolean = true): String? =
+        LocalStorageHashSource.getExpectedHash(this, algorithm, settings, searchInMetadata)
 
     /**
      * Downloads hash of a particular type from one of the specified repositories.
@@ -778,7 +861,7 @@ open class DependencyFile(
         spanBuilderSource: SpanBuilderSource,
         diagnosticsReporter: DiagnosticReporter,
     ): String? {
-        val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm")
+        val hashFile = getHashDependencyFile(algorithm)
 
         for (repository in repositories) {
             // We need to iterate repositories one by one, because some invalid repo could return some invalid response
@@ -978,21 +1061,17 @@ open class DependencyFile(
 
     private enum class LocalStorageHashSource {
         File {
-            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, context: Context,) =
-                artifact.getHashFromGradleCacheDirectory(algorithm)
-                    ?: getDependencyFile(
-                            artifact.dependency,
-                            artifact.nameWithoutExtension,
-                            "${artifact.extension}.$algorithm",
-                        )
-                        .takeIf { file ->
-                            context.settings.spanBuilder("isDownloaded").use { file.isDownloaded() }
-                        }
-                        ?.let { file -> context.settings.spanBuilder("readText").use { file.readText() } }
-                        ?.sanitize()
+            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, settings: Settings) =
+                settings.spanBuilder("getHashFromGradleCacheDirectory").use { artifact.getHashFromGradleCacheDirectory(algorithm) }
+                    ?: settings.spanBuilder("getDependencyFile").use {
+                        artifact.getHashDependencyFile(algorithm)
+                    }
+                            .takeIf { file -> settings.spanBuilder("DependencyFile.isDownloaded").use { file.isDownloaded() }}
+                            ?.let { file -> settings.spanBuilder("readText").use { file.readText() } }
+                            ?.sanitize()
         },
         MetadataInfo {
-            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, context: Context,) =
+            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, settings: Settings) =
                 with(artifact) {
                     when (algorithm) {
                         "sha512" -> fileFromVariant(dependency, fileName)?.sha512?.fixOldGradleHash(128)
@@ -1004,11 +1083,11 @@ open class DependencyFile(
                 }
         };
 
-        protected abstract suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, context: Context): String?
+        protected abstract suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, settings: Settings): String?
 
-        private suspend fun getExpectedHash(artifact: DependencyFile, context: Context): Hash? {
+        private suspend fun getExpectedHash(artifact: DependencyFile, settings: Settings): Hash? {
             for (hashAlgorithm in hashAlgorithms) {
-                val expectedHash = getExpectedHash(artifact, hashAlgorithm, context)
+                val expectedHash = getExpectedHash(artifact, hashAlgorithm, settings)
                 if (expectedHash != null) {
                     return object : Hash {
                         override val hash: String = expectedHash
@@ -1020,12 +1099,12 @@ open class DependencyFile(
         }
 
         companion object {
-            suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, context: Context, searchInMetadata: Boolean) =
-                context.spanBuilder(" File.getExpectedHash").use {
-                    File.getExpectedHash(artifact, algorithm, context)
+            suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, settings: Settings, searchInMetadata: Boolean) =
+                settings.spanBuilder(" File.getExpectedHash").use {
+                    File.getExpectedHash(artifact, algorithm, settings)
                 }
-                    ?: if (searchInMetadata) context.spanBuilder("MetadataInfo.getExpectedHash").use {
-                        MetadataInfo.getExpectedHash(artifact, algorithm, context)
+                    ?: if (searchInMetadata) settings.spanBuilder("MetadataInfo.getExpectedHash").use {
+                        MetadataInfo.getExpectedHash(artifact, algorithm, settings)
                     } else null
 
             /**
@@ -1033,8 +1112,8 @@ open class DependencyFile(
              */
             suspend fun getExpectedHash(artifact: DependencyFile, searchInMetadata: Boolean = true): Hash? =
                 // todo (AB) : Remove this empty Context {}
-                File.getExpectedHash(artifact, Context {})
-                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, Context {}) else null
+                File.getExpectedHash(artifact, Context {}.settings)
+                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, Context {}.settings) else null
         }
     }
 
@@ -1132,6 +1211,9 @@ class SnapshotDependencyFile(
         if (path?.exists() != true) {
             return false
         }
+
+        if (mavenLocalPath != null) return true // Resolved from mavenLocal => no further checks are required
+
         if (nameWithoutExtension != "maven-metadata") {
             if (!mavenMetadata.isDownloaded()
                 && (!isChecksum() || path.isUpToDate())
@@ -1200,6 +1282,52 @@ class SnapshotDependencyFile(
         super.onFileDownloaded(target, repository)
         if (nameWithoutExtension != "maven-metadata") {
             getSnapshotVersion()?.let { getVersionFile()?.writeText(it) }
+        }
+    }
+
+    override suspend fun isValidMavenLocalPath(path: Path): Boolean =
+        super.isValidMavenLocalPath(path) && isRegisteredInMavenLocalMetadata(path)
+
+    /**
+     * Checks that descriptor file 'maven-metadata-local.xml' exists,
+     * and actual lasModified time of the file from mavenLocal matches the one taken from the descriptor
+     */
+    private suspend fun isRegisteredInMavenLocalMetadata(path: Path): Boolean {
+        return withContext(Dispatchers.IO) {
+            val mavenMetadataLocalPath = path.parent.resolve("maven-metadata-local.xml")
+            if (!mavenMetadataLocalPath.exists()) return@withContext false
+
+            val mavenMetadataLocal = try {
+                mavenMetadataLocalPath.readText().parseMetadata()
+            } catch (e: AmperDependencyResolutionException) {
+                logger.error("Failed to parse ${mavenMetadataLocalPath.toAbsolutePath()}", e)
+                return@withContext false
+            }
+
+            if (mavenMetadataLocal.versioning.snapshot.localCopy != true) return@withContext false
+
+            val lastUpdated = mavenMetadataLocal.versioning.snapshotVersions?.snapshotVersions
+                ?.find { it.extension == extension.substringBefore('.') } // pom.sha512 -> pom
+                ?.updated
+                ?: return@withContext false
+
+            // The timestamp is expressed using UTC in the format yyyyMMddHHmmss.
+            val pattern = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+            val lastUpdateFromMavenMetadata = try {
+                LocalDateTime.parse(lastUpdated, pattern)
+            } catch (e: DateTimeParseException) {
+                logger.error("Failed to parse value of property updated read from maven-metadata-local.xml", e)
+                return@withContext false
+            }
+
+            val actualLastUpdated = LocalDateTime.ofInstant(path.getLastModifiedTime().toInstant(), ZoneId.of("UTC"))
+
+            actualLastUpdated.year == lastUpdateFromMavenMetadata.year
+                    && actualLastUpdated.month == lastUpdateFromMavenMetadata.month
+                    && actualLastUpdated.dayOfMonth == lastUpdateFromMavenMetadata.dayOfMonth
+                    && actualLastUpdated.hour == lastUpdateFromMavenMetadata.hour
+                    && actualLastUpdated.minute == lastUpdateFromMavenMetadata.minute
+                    && actualLastUpdated.second == lastUpdateFromMavenMetadata.second
         }
     }
 
@@ -1278,7 +1406,7 @@ fun <T> resolveSafeOrNull(block: () -> T?): T? {
 /**
  * This is a way to inject custom HttpClient via resolution [Context].
  * The injected client is not closed after resolution is finished;
- * it is a responsibility of the calling side that provides the custom client to handle its lifecycle.
+ * it is the responsibility of the calling side that provides the custom client to handle its lifecycle.
  *
  * If the [Context] doesn't provide a custom client, then the default one is taken from [HttpClientProvider]
  */
@@ -1304,7 +1432,7 @@ internal object HttpClientProvider {
         }
 
     /**
-     * This is unsued now but left for the reference for future.
+     * This is unsued now but left for the reference for the future.
      * It might be a good practice to reinitialize HTTP Client from time to time after an idle period for
      * the connections leak prophylactics,
      * and in that case the old instance of a client should be properly shutdown.

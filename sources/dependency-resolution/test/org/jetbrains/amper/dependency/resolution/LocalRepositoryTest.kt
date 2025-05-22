@@ -79,7 +79,7 @@ class LocalRepositoryTest : BaseDRTest() {
                 "atomicfu-jvm-0.23.2.pom",
                 "atomicfu-jvm-0.23.2.module",
             ),
-            // Jar file has an incorrect checksums in maven local storage, => we ignore it
+            // Jar file has incorrect checksums in maven local storage, => we ignore it
             // Checksums are not taken from maven local storage
             filesThatMustBeDownloaded = listOf(
                 "atomicfu-jvm-0.23.2.jar",

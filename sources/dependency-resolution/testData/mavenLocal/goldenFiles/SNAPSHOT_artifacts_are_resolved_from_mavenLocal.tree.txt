@@ -1,0 +1,4 @@
+root
+╰─── org.jetbrains:dr-snapshot-sample:1.0-SNAPSHOT
+     ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.2
+          ╰─── com.fasterxml.jackson:jackson-bom:2.18.2
