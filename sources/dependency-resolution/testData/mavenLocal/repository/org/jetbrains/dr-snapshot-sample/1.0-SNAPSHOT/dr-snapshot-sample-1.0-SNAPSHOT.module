@@ -1,0 +1,82 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "org.jetbrains",
+    "module": "dr-snapshot-sample",
+    "version": "1.0-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.10.2"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "com.fasterxml.jackson.core",
+          "module": "jackson-annotations",
+          "version": {
+            "requires": "2.18.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "dr-snapshot-sample-1.0-SNAPSHOT.jar",
+          "url": "dr-snapshot-sample-1.0-SNAPSHOT.jar",
+          "size": 8701,
+          "sha512": "91ef2e15a6dad303f8eb8d4968556e5a7fb4c9fb4972a838d85fe5a8353911bf8e06f059c21db0eda6943c82cfb722af5f535fef1fdfdc6e3e10655c6b84c58c",
+          "sha256": "85938ed45084e880160b7fc6bc0212ee7d4f334e101a7b813446b246979c3d07",
+          "sha1": "3d341ef12b39847c5deb271ebd72535130350320",
+          "md5": "9b918637a31b640a08c2c480d0bc054a"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "com.fasterxml.jackson.core",
+          "module": "jackson-annotations",
+          "version": {
+            "requires": "2.18.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "dr-snapshot-sample-1.0-SNAPSHOT.jar",
+          "url": "dr-snapshot-sample-1.0-SNAPSHOT.jar",
+          "size": 8701,
+          "sha512": "91ef2e15a6dad303f8eb8d4968556e5a7fb4c9fb4972a838d85fe5a8353911bf8e06f059c21db0eda6943c82cfb722af5f535fef1fdfdc6e3e10655c6b84c58c",
+          "sha256": "85938ed45084e880160b7fc6bc0212ee7d4f334e101a7b813446b246979c3d07",
+          "sha1": "3d341ef12b39847c5deb271ebd72535130350320",
+          "md5": "9b918637a31b640a08c2c480d0bc054a"
+        }
+      ]
+    }
+  ]
+}
