@@ -25,7 +25,7 @@ import org.jetbrains.amper.frontend.fragmentsTargeting
 
 /**
  * Performs the initial resolution of module classpath dependencies.
- * The resulting graph contains a node for every compile module dependency
+ * The resulting graph contains a node for every 'compile' module dependency
  * as well as direct maven dependencies of that module.
  *
  * It doesn't download anything.
@@ -43,7 +43,7 @@ import org.jetbrains.amper.frontend.fragmentsTargeting
  *
  * ```
  *
- * Resolution of classpath dependencies graph takes the following steps:
+ * Resolution of the classpath dependencies graph takes the following steps:
  *
  * 1. Resolve complete fragment dependencies graph containing dependency on all other fragments transitively:
  * - adding all fragment dependencies from the same module
@@ -55,7 +55,7 @@ import org.jetbrains.amper.frontend.fragmentsTargeting
  * - repeating the last step until newly added fragments have exported dependencies
  *   => resulted set is a complete transitive fragment dependencies.
  *
- * 2. Now, walk through the resulted fragment dependencies graph and resolve actual maven dependencies
+ * 2. Now, walk through the resulting fragment dependencies graph and resolve actual maven dependencies
  * - adding maven dependencies of all fragments from ModuleFragmentDependencies unconditionally
  * - adding maven dependencies marked with the flag 'exported' for all the rest fragments from the graph
  */
@@ -144,7 +144,7 @@ internal class Classpath(
                     is LocalModuleDependency -> {
                         val resolvedDependencyModule = dependency.module
                         if (!visitedModules.contains(resolvedDependencyModule)) {
-                            val includeDependency = dependency.shouldBeAdded(platforms, directDependencies, flowType)
+                            val includeDependency = dependency.shouldBeAddedByNotion(platforms, directDependencies, flowType)
                             if (includeDependency) {
                                 resolvedDependencyModule.fragmentsModuleDependencies(
                                     flowType, directDependencies = false, notation = dependency, visitedModules = visitedModules, fileCacheBuilder = fileCacheBuilder
@@ -170,7 +170,7 @@ internal class Classpath(
     ): Boolean {
         return when(this) {
             is MavenDependency -> {
-                (this as DefaultScopedNotation).shouldBeAdded(platforms, directDependencies, flowType)
+                shouldBeAddedByNotion(platforms, directDependencies, flowType)
             }
             is BomDependency -> {
                 when (flowType.scope) {
@@ -184,14 +184,14 @@ internal class Classpath(
         }
     }
 
-    private fun DefaultScopedNotation.shouldBeAdded(
+    private fun DefaultScopedNotation.shouldBeAddedByNotion(
         platforms: Set<ResolutionPlatform>,
         directDependencies: Boolean,
         flowType: DependenciesFlowType.ClassPathType,
     ): Boolean =
         when (flowType.scope) {
-            // compilation classpath graph contains direct and exported transitive dependencies,
-            // for native platforms compilation classpath graph contains all transitive none-exported dependencies as well,
+            // the compilation classpath graph contains direct and exported transitive dependencies,
+            // for native platforms the compilation classpath graph contains all transitive none-exported dependencies as well,
             // because native compilation (and linking) depends on entire transitive dependencies.
             // runtime-only dependencies are not included in the compilation classpath graph
             ResolutionScope.COMPILE -> compile && (directDependencies || exported || (flowType.includeNonExportedNative && platforms.all { it.nativeTarget != null } ))
