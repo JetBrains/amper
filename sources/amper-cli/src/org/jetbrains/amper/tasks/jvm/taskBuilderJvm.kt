@@ -61,7 +61,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
 
             val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest)
 
-            val runtimeClasspathMode = fragments.firstOrNull { Platform.COMMON in it.platforms }
+            val runtimeClasspathMode = fragments.firstOrNull { Platform.JVM in it.platforms }
                 ?.settings
                 ?.jvm
                 ?.runtimeClasspathMode ?: DependencyMode.JARS
@@ -178,7 +178,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         tempRoot = context.projectTempRoot,
                         executeOnChangedInputs = executeOnChangedInputs,
                     ),
-                    CommonTaskType.RuntimeClasspathClasses.getTaskName(module, platform),
+                    CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
                 )
             }
 

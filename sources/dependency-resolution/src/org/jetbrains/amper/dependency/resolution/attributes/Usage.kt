@@ -21,4 +21,6 @@ sealed class Usage(override val value: String) : AttributeValue {
 
     fun isApi(): Boolean = value.endsWith("-api")
     fun isRuntime(): Boolean = value.endsWith("-runtime")
+
+    fun isComposeDevJavaRuntime(): Boolean = value == "compose-dev-java-runtime"
 }

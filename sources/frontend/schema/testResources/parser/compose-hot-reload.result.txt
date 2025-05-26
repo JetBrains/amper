@@ -1,7 +1,7 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:runtime-api:1.0.0-alpha02, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta01-143, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src
@@ -44,7 +44,7 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
         version: <default> 1.8.0
       }
@@ -131,7 +131,7 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:runtime-api:1.0.0-alpha02, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta01-143, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
@@ -176,7 +176,7 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
         version: <default> 1.8.0
       }
@@ -263,7 +263,7 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:runtime-api:1.0.0-alpha02, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta01-143, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
@@ -307,7 +307,7 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
         version: <default> 1.8.0
       }
@@ -394,7 +394,7 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:runtime-api:1.0.0-alpha02, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta01-143, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
@@ -440,7 +440,7 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
         version: <default> 1.8.0
       }
@@ -549,6 +549,12 @@ Repositories:
     password: null
   - id: https://maven.pkg.jetbrains.space/public/p/compose/dev
     url: https://maven.pkg.jetbrains.space/public/p/compose/dev
+    publish: false
+    resolve: true
+    username: null
+    password: null
+  - id: amper-hot-reload-dev
+    url: https://packages.jetbrains.team/maven/p/amper/compose-hot-reload
     publish: false
     resolve: true
     username: null

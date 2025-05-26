@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -16,6 +17,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
+import io.ktor.server.routing.route
 import io.ktor.server.sse.*
 import io.ktor.sse.*
 import io.opentelemetry.sdk.trace.ReadableSpan
@@ -98,45 +100,48 @@ internal class ServerCommand : AmperSubcommand(name = "server") {
                 install(ContentNegotiation) { json() }
                 install(SSE)
                 routing {
-                    sse("/task") {
-                        val channel = Channel<ReadableSpan>(1024)
-                        val listener = object : CustomListenerSpanProcessor.Listener {
-                            override fun onEnd(span: ReadableSpan) {
-                                if (span.name == runTasksSpanName) {
-                                    channel.close()
-                                    return
+                    route("/task", HttpMethod.Post) {
+                        sse {
+                            val channel = Channel<ReadableSpan>(1024)
+                            val listener = object : CustomListenerSpanProcessor.Listener {
+                                override fun onEnd(span: ReadableSpan) {
+                                    if (span.name == runTasksSpanName) {
+                                        channel.close()
+                                        return
+                                    }
+                                    channel.trySend(span)
                                 }
-                                channel.trySend(span)
                             }
-                        }
-                        try {
-                            CustomListenerSpanProcessor.addListener(listener)
-                            val task = call.receive<Task>()
-                            async {
-                                runCatching {
-                                    backend.runTask(task = TaskName.fromHierarchy(task.taskHierarchy))
-                                }.onFailure { e ->
-                                    when (e) {
-                                        is UserReadableError -> {
-                                            channel.close(e)
-                                            send(
-                                                ServerSentEvent(
-                                                    e.message,
-                                                    "error",
-                                                    "error"
+                            try {
+                                CustomListenerSpanProcessor.addListener(listener)
+                                val task = call.receive<Task>()
+                                async {
+                                    runCatching {
+                                        backend.runTask(task = TaskName.fromHierarchy(task.taskHierarchy))
+                                    }.onFailure { e ->
+                                        when (e) {
+                                            is UserReadableError -> {
+                                                logger.error("BUILD FAILED")
+                                                channel.close(e)
+                                                send(
+                                                    ServerSentEvent(
+                                                        e.message,
+                                                        "error",
+                                                        "error"
+                                                    )
                                                 )
-                                            )
+                                            }
                                         }
                                     }
                                 }
+                                channel.consumeAsFlow().collect {
+                                    val serializedSpan = Json.encodeToString(it.toSerializable())
+                                    send(ServerSentEvent(serializedSpan, "span", "span-data"))
+                                }
+                            } finally {
+                                channel.close()
+                                CustomListenerSpanProcessor.removeListener(listener)
                             }
-                            channel.consumeAsFlow().collect {
-                                val serializedSpan = Json.encodeToString(it.toSerializable())
-                                send(ServerSentEvent(serializedSpan, "span", "span-data"))
-                            }
-                        } finally {
-                            channel.close()
-                            CustomListenerSpanProcessor.removeListener(listener)
                         }
                     }
                 }

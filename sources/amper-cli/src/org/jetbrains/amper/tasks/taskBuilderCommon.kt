@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.allSourceFragmentCompileDependencies
 import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
+import org.jetbrains.amper.tasks.compose.isHotReloadEnabledFor
 
 internal enum class CommonTaskType(override val prefix: String) : PlatformTaskType {
     Compile("compile"),
@@ -24,7 +25,6 @@ internal enum class CommonTaskType(override val prefix: String) : PlatformTaskTy
     Publish("publish"),
     Run("run"),
     RuntimeClasspath("runtimeClasspath"),
-    RuntimeClasspathClasses("runtimeClasspathClasses"),
     KspProcessorDependencies("resolveKspProcessorDependencies"),
     KspProcessorClasspath("kspProcessorClasspath"),
     Test("test"),
@@ -47,7 +47,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                 else -> module.buildDependenciesGraph(
                     isTest,
                     platform,
-                    ResolutionScope.RUNTIME,
+                    if (!isHotReloadEnabledFor(module)) ResolutionScope.RUNTIME else ResolutionScope.DEV,
                     context.userCacheRoot
                 )
             }

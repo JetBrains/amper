@@ -119,13 +119,12 @@ class ComposeResourcesSettings : SchemaNode() {
 }
 
 class ComposeExperimentalSettings: SchemaNode() {
-    
+
     @SchemaDoc("Experimental Compose hot-reload settings")
     var hotReload by value(::ComposeExperimentalHotReloadSettings)
 }
 
 class ComposeExperimentalHotReloadSettings: SchemaNode() {
-    
     @Shorthand
     @SchemaDoc("Enable hot reload")
     var enabled by value(default = false)

@@ -10,13 +10,18 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.compose.reload.core.getOrThrow
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType
 import org.jetbrains.compose.reload.orchestration.connectOrchestrationClient
+import org.jetbrains.compose.reload.orchestration.sendBlocking
+import org.slf4j.LoggerFactory
 import java.io.File
 
 private const val ENV_COMPOSE_RELOAD_ORCHESTRATION_PORT = "COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT"
+
+val logger = LoggerFactory.getLogger("JvmReloadClassesTask")
 
 class JvmReloadClassesTask(override val taskName: TaskName) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
@@ -32,7 +37,7 @@ class JvmReloadClassesTask(override val taskName: TaskName) : Task {
 
         val changes = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().flatMap { it.changes }
 
-        connectOrchestrationClient(OrchestrationClientRole.Compiler, port).use { client ->
+        connectOrchestrationClient(OrchestrationClientRole.Compiler, port).getOrThrow().use { client ->
             val changedClassFiles = mutableMapOf<File, ChangeType>()
             changes.forEach { change ->
                 val changeType = when (change.type) {
@@ -42,7 +47,8 @@ class JvmReloadClassesTask(override val taskName: TaskName) : Task {
                 }
                 changedClassFiles[change.path.toAbsolutePath().toFile()] = changeType
             }
-            client.sendMessage(ReloadClassesRequest(changedClassFiles))
+            logger.info("Sending reload classes request to the IDE: $changedClassFiles")
+            client.sendBlocking(ReloadClassesRequest(changedClassFiles))
         }
 
         return EmptyTaskResult

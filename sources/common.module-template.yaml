@@ -21,7 +21,7 @@ repositories:
     url: https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2
   - id: mavenLocal
     url: mavenLocal
-    resolve: false
+    resolve: true
     publish: true
   - id: gradle
     url: https://cache-redirector.jetbrains.com/plugins.gradle.org/m2
@@ -33,6 +33,8 @@ repositories:
     url: https://repo.gradle.org/gradle/libs-releases
   - id: teamcity-repository
     url: https://cache-redirector.jetbrains.com/download.jetbrains.com/teamcity-repository
+  - id: amper-compose-hot-reload
+    url: https://packages.jetbrains.team/maven/p/amper/compose-hot-reload
 
 settings:
   publishing:

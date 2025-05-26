@@ -17,6 +17,7 @@ import org.jetbrains.amper.run.ToolingArtifactsDownloader
 import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
+import java.net.ServerSocket
 import java.nio.file.Path
 import kotlin.io.path.pathString
 
@@ -46,22 +47,30 @@ class JvmHotRunTask(
     override val buildType: BuildType
         get() = BuildType.Debug
 
+    private val portAvailable: Int get() = ServerSocket(0).use { it.localPort }
+
     override suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> {
         val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
-        val agent = agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/agent") }
-            ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
+        val agent =
+            agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/hot-reload-agent") }
+                ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
 
         val devToolsClasspath = toolingArtifactsDownloader.downloadDevTools()
 
         val amperJvmArgs = buildList {
             add("-ea")
-//                add("-agentlib:jdwp=transport=dt_socket,server=n,address=localhost:5007,suspend=y")
+//            add("-agentlib:jdwp=transport=dt_socket,server=n,address=localhost:5007,suspend=y")
             add("-XX:+AllowEnhancedClassRedefinition")
-            add("-XX:HotswapAgent=external")
             add("-javaagent:${agent.pathString}")
             add("-Dcompose.reload.devToolsClasspath=${devToolsClasspath.joinToString(":")}")
+            add("-Dcompose.reload.devToolsEnabled=true")
+            add("-Dcompose.reload.devToolsTransparencyEnabled=true")
+            add("-Dcompose.reload.dirtyResolveDepthLimit=5")
+            add("-Dcompose.reload.virtualMethodResolveEnabled=true")
             add("-Dcompose.reload.buildSystem=Amper")
             add("-Damper.build.root=${projectRoot.path}")
+            add("-Damper.server.command=server")
+            add("-Damper.server.port=$portAvailable")
             add("-Damper.build.task=${HotReloadTaskType.Reload.getTaskName(module, platform, isTest = false).name}")
         }
 
@@ -71,16 +80,24 @@ class JvmHotRunTask(
     override suspend fun getClasspath(dependenciesResult: List<TaskResult>): List<Path> {
         val classpath = super.getClasspath(dependenciesResult)
         val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
-        val agent = agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/agent") }
+        val agent = agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/hot-reload-agent") }
             ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
         val filteredAgentClasspath = agentClasspath.filter { !it.pathString.contains(agent.pathString) }
 
-        val hasSl4fjApi = classpath.any { it.pathString.contains("org/slf4j/slf4j-api") }
-        if (!hasSl4fjApi) {
-            val sl4fjApi = toolingArtifactsDownloader.downloadSlf4jApi()
-            return classpath + sl4fjApi + filteredAgentClasspath
+        return buildList {
+            addAll(classpath)
+            addAll(filteredAgentClasspath)
+
+            val hasSl4fjApi = classpath.any { it.pathString.contains("org/slf4j/slf4j-api") }
+            if (!hasSl4fjApi) {
+                addAll(toolingArtifactsDownloader.downloadSlf4jApi())
+            }
+
+            val hasComposeDesktop = classpath.any { it.pathString.contains("org/jetbrains/compose/desktop") }
+            if (!hasComposeDesktop) {
+                addAll(toolingArtifactsDownloader.downloadComposeDesktop())
+            }
         }
-        return classpath + filteredAgentClasspath
     }
 
     override suspend fun getJdk(): Jdk {

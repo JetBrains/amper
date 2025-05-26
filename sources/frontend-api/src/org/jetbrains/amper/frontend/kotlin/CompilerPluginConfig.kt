@@ -110,7 +110,8 @@ data class ComposeCompilerPluginConfig(val kotlinVersion: String) : CompilerPlug
     override val options = listOf(
         // added for hot reload
         Option(name = "featureFlag", value = "OptimizeNonSkippingGroups"),
-        Option(name = "generateFunctionKeyMetaAnnotations", value = "function"),
+        Option(name = "generateFunctionKeyMetaAnnotations", value = "true"),
+        Option(name = "sourceInformation", value = "true"),
     )
     override val mavenCoordinates = run {
         val legacyComposeVersion = legacyComposeCompilerVersionFor(kotlinVersion)

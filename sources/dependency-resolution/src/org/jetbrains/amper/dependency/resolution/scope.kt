@@ -36,6 +36,13 @@ enum class ResolutionScope(
         // in fact what is expected
         // (again it might, perhaps, have some questionable implications for Maven dependencies resolved from pom)
         fallback = { COMPILE }
+    ),
+
+    @Deprecated("This resolution scope is a hack intended only to assemble a demoable Compose Hot Reload support")
+    DEV(
+        variantMatcher = { it.getAttributeValue(Usage)?.isComposeDevJavaRuntime() == true || it.isScopeAgnostic() },
+        dependencyMatcher = { it.scope in setOf(null, "compile", "runtime") },
+        fallback = { RUNTIME }
     );
 
     internal fun matches(variant: Variant) = variantMatcher(variant)

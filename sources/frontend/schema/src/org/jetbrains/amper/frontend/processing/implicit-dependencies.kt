@@ -44,7 +44,7 @@ private val lombokDependency = MavenDependency(
 )
 
 private val hotReloadDependency = MavenDependency(
-    coordinates = TraceableString("org.jetbrains.compose.hot-reload:runtime-api:${UsedVersions.hotReloadVersion}")
+    coordinates = TraceableString("org.jetbrains.compose.hot-reload:hot-reload-runtime-api:${UsedVersions.hotReloadVersion}")
 )
 
 private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
@@ -260,14 +260,14 @@ private fun RepositoriesModulePart.withImplicitMavenRepositories(fragments: List
     val isHotReloadRuntimeApiPresent = fragments
         .flatMap { it.externalDependencies }
         .filterIsInstance<MavenDependency>()
-        .any { it.groupAndArtifact == "org.jetbrains.compose:hot-reload-runtime-api" }
+        .any { it.groupAndArtifact == "org.jetbrains.compose.hot-reload:hot-reload-runtime-api" }
     if (!isHotReloadRuntimeApiPresent) {
         return this
     }
     return RepositoriesModulePart(
         mavenRepositories = mavenRepositories + RepositoriesModulePart.Repository(
-            id = "firework-dev",
-            url = "https://packages.jetbrains.team/maven/p/firework/dev",
+            id = "amper-hot-reload-dev",
+            url = "https://packages.jetbrains.team/maven/p/amper/compose-hot-reload",
             publish = false,
             resolve = true,
         )
