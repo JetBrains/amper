@@ -12,17 +12,28 @@ import kotlin.io.path.pathString
 import kotlin.io.path.readAttributes
 import kotlin.io.path.visitFileTree
 
-internal fun readFileStates(paths: List<Path>, failOnMissing: Boolean): Map<String, String> {
-    return FileTracker(failOnMissing).readFileStates(paths)
+internal fun readFileStates(paths: List<Path>, excludedFiles: Set<Path>, failOnMissing: Boolean): Map<String, String> {
+    return FileTracker(excludedFiles, failOnMissing).readFileStates(paths)
 }
 
-private class FileTracker(private val failOnMissing: Boolean) {
+private class FileTracker(
+    private val excludedFiles: Set<Path>,
+    private val failOnMissing: Boolean,
+) {
     private val stateByFilePath = mutableMapOf<String, String>()
 
-    fun readFileStates(paths: List<Path>): Map<String, String> {
+    init {
+        check(excludedFiles.all { it.isAbsolute }) {
+            "Excluded file paths must be absolute. Got:\n${excludedFiles.joinToString("\n")}"
+        }
+    }
 
+    fun readFileStates(paths: List<Path>): Map<String, String> {
         paths.forEach { path ->
             check(path.isAbsolute) { "Path must be absolute: $path" }
+            if (path in excludedFiles) {
+                return@forEach
+            }
 
             val attr = getAttributes(path)
             when {
@@ -54,14 +65,18 @@ private class FileTracker(private val failOnMissing: Boolean) {
                 if (dir == subdir) {
                     return@onPreVisitDirectory FileVisitResult.CONTINUE
                 }
-                childrenCount += 1
-                recordDirState(subdir)
+                if (subdir !in excludedFiles) {
+                    childrenCount += 1
+                    recordDirState(subdir)
+                }
                 FileVisitResult.SKIP_SUBTREE
             }
 
             onVisitFile { file, attrs ->
-                childrenCount += 1
-                recordFileState(file, attrs)
+                if (file !in excludedFiles) {
+                    childrenCount += 1
+                    recordFileState(file, attrs)
+                }
                 FileVisitResult.CONTINUE
             }
 

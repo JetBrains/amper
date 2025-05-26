@@ -123,7 +123,11 @@ class ExecuteOnChangedInputs(
                 ensureStateFileIsConsistent(stateFile, stateFileChannel, configuration, inputs, result)
 
                 val oldState = cachedState?.state?.outputsState ?: mapOf()
-                val newState = readFileStates(result.outputs, failOnMissing = false)
+                val newState = readFileStates(
+                    paths = result.outputs,
+                    excludedFiles = result.excludedOutputs,
+                    failOnMissing = false,
+                )
 
                 val changes = oldState compare newState
 
@@ -149,9 +153,10 @@ class ExecuteOnChangedInputs(
             codeVersion = codeVersion,
             configuration = configuration,
             inputs = inputs.map { it.pathString }.toSet(),
-            inputsState = readFileStates(inputs, failOnMissing = false),
+            inputsState = readFileStates(paths = inputs, excludedFiles = emptySet(), failOnMissing = false),
             outputs = result.outputs.map { it.pathString }.toSet(),
-            outputsState = readFileStates(result.outputs, failOnMissing = true),
+            excludedOutputs = result.excludedOutputs.map { it.pathString }.toSet(),
+            outputsState = readFileStates(result.outputs, excludedFiles = result.excludedOutputs, failOnMissing = true),
             outputProperties = result.outputProperties,
         )
 
@@ -233,7 +238,7 @@ class ExecuteOnChangedInputs(
             return CachedState(state = state, outdated = true)
         }
 
-        val currentInputsState = readFileStates(inputs, failOnMissing = false)
+        val currentInputsState = readFileStates(inputs, excludedFiles = emptySet(), failOnMissing = false)
         if (state.inputsState != currentInputsState) {
             logger.debug(
                 "[inc] state file has a wrong inputs at '$stateFile' -> rebuilding\n" +
@@ -244,7 +249,8 @@ class ExecuteOnChangedInputs(
         }
 
         val outputsList = state.outputs.map { Path(it) }
-        val currentOutputsState = readFileStates(outputsList, failOnMissing = false)
+        val excludedOutputs = state.excludedOutputs.mapTo(mutableSetOf()) { Path(it) }
+        val currentOutputsState = readFileStates(outputsList, excludedFiles = excludedOutputs, failOnMissing = false)
         if (state.outputsState != currentOutputsState) {
             logger.debug(
                 "[inc] state file has a wrong outputs at '$stateFile' -> rebuilding\n" +
@@ -257,7 +263,24 @@ class ExecuteOnChangedInputs(
         return CachedState(state = state, outdated = false)
     }
 
-    open class ExecutionResult(val outputs: List<Path>, val outputProperties: Map<String, String> = emptyMap())
+    open class ExecutionResult(
+        /**
+         * The output files and directories created by the computation.
+         *
+         * The state of these files is recorded and persisted on disk. The next time the computation is run, the new
+         * state of the files is compared to the recorded state, and the computation is re-run if anything changed.
+         */
+        val outputs: List<Path>,
+        /**
+         * The key-value pairs produced by the computation.
+         */
+        val outputProperties: Map<String, String> = emptyMap(),
+        /**
+         * The files to ignore when comparing the state of the output files.
+         * Changes in these files do not invalidate the cache state.
+         */
+        val excludedOutputs: Set<Path> = emptySet(),
+    )
     
     data class IncrementalExecutionResult(private val executionResult: ExecutionResult, val changes: List<Change>): ExecutionResult(executionResult.outputs, executionResult.outputProperties)
     

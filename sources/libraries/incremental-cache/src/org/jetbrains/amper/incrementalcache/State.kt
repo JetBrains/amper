@@ -34,6 +34,7 @@ internal data class State(
     @Serializable(with = SortedMapSerializer::class)
     val inputsState: Map<String, String>,
     val outputs: Set<String>,
+    val excludedOutputs: Set<String>,
     @Serializable(with = SortedMapSerializer::class)
     val outputsState: Map<String, String>,
     @Serializable(with = SortedMapSerializer::class)

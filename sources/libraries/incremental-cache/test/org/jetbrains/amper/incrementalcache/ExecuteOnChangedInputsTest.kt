@@ -11,11 +11,15 @@ import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class ExecuteOnChangedInputsTest {
@@ -203,6 +207,150 @@ class ExecuteOnChangedInputsTest {
                     ExecuteOnChangedInputs.ExecutionResult(listOf(tempDir.resolve("1.out")))
                 }
             }
+        }
+    }
+
+    @Test
+    fun `excluded outputs are ignored for up-to-date checks`() {
+        runBlocking {
+            val regularOutput = tempDir.resolve("regular.txt")
+            val excludedOutput = tempDir.resolve("excluded.txt")
+
+            fun call() = runBlocking {
+                executeOnChanged.execute("1", emptyMap(), emptyList()) {
+                    regularOutput.writeText("regular-1")
+                    excludedOutput.writeText("excluded-1")
+                    executionsCount.incrementAndGet()
+                    ExecuteOnChangedInputs.ExecutionResult(
+                        outputs = listOf(regularOutput, excludedOutput),
+                        excludedOutputs = setOf(excludedOutput)
+                    )
+                }
+            }
+
+            call()
+            assertEquals(1, executionsCount.get(), "Should execute for the first time")
+            assertEquals("regular-1", regularOutput.readText())
+            assertEquals("excluded-1", excludedOutput.readText())
+
+            call()
+            assertEquals(1, executionsCount.get(), "Should not execute again, as no files changed")
+
+            excludedOutput.writeText("excluded-2")
+            call()
+            assertEquals(1, executionsCount.get(), "Should not execute again, as only excluded files changed")
+            assertEquals("excluded-2", excludedOutput.readText(), "The change to the excluded file should persist")
+
+            // Modify regular output - should trigger re-execution
+            regularOutput.writeText("regular-2")
+            call()
+            assertEquals(2, executionsCount.get(), "Should execute again due to output change")
+            assertEquals("regular-1", regularOutput.readText(), "The new exec should overwrite the regular file")
+            assertEquals("excluded-1", excludedOutput.readText(), "The new exec should overwrite the excluded file")
+        }
+    }
+
+    @Test
+    fun `excluded file in parent directory output`() {
+        runBlocking {
+            val outputDir = tempDir.resolve("output-dir")
+            val regularOutput = outputDir.resolve("regular.txt")
+            val excludedOutput = outputDir.resolve("excluded.txt")
+
+            fun call() = runBlocking {
+                executeOnChanged.execute("1", emptyMap(), emptyList()) {
+                    outputDir.createDirectories()
+                    regularOutput.writeText("regular-1")
+                    excludedOutput.writeText("excluded-1")
+                    executionsCount.incrementAndGet()
+                    ExecuteOnChangedInputs.ExecutionResult(
+                        outputs = listOf(outputDir), // Only the directory is in outputs
+                        excludedOutputs = setOf(excludedOutput) // But a file inside is excluded
+                    )
+                }
+            }
+
+            call()
+            assertEquals(1, executionsCount.get(), "Should execute for the first time")
+            assertEquals("regular-1", regularOutput.readText())
+            assertEquals("excluded-1", excludedOutput.readText())
+
+            call()
+            assertEquals(1, executionsCount.get(), "Should not execute again, as no files changed")
+
+            excludedOutput.writeText("excluded-2")
+            call()
+            assertEquals(1, executionsCount.get(), "Should not execute again, as only excluded files changed")
+            assertEquals("excluded-2", excludedOutput.readText(), "The change to the excluded file should persist")
+
+            regularOutput.writeText("regular-2")
+            call()
+            assertEquals(2, executionsCount.get(), "Should execute again due to output change")
+            assertEquals("regular-1", regularOutput.readText(), "The new exec should overwrite the regular file")
+            assertEquals("excluded-1", excludedOutput.readText(), "The new exec should overwrite the excluded file")
+        }
+    }
+
+    @Test
+    fun `excluded subdirectory`() {
+        runBlocking {
+            val outputDir = tempDir.resolve("output-dir")
+            val regularSubdir = outputDir.resolve("regular-subdir")
+            val excludedSubdir = outputDir.resolve("excluded-subdir")
+            val regularOutput = regularSubdir.resolve("file.txt")
+            val excludedOutput = excludedSubdir.resolve("file.txt")
+
+            fun call() = runBlocking {
+                executeOnChanged.execute("1", emptyMap(), emptyList()) {
+                    regularSubdir.createDirectories()
+                    excludedSubdir.createDirectories()
+
+                    outputDir.createDirectories()
+                    regularOutput.writeText("regular-1")
+                    excludedOutput.writeText("excluded-1")
+                    executionsCount.incrementAndGet()
+                    ExecuteOnChangedInputs.ExecutionResult(
+                        outputs = listOf(outputDir), // The parent directory is in outputs
+                        excludedOutputs = setOf(excludedSubdir) // An entire subdirectory is excluded
+                    )
+                }
+            }
+
+
+            call()
+            assertEquals(1, executionsCount.get(), "Should execute for the first time")
+            assertEquals("regular-1", regularOutput.readText())
+            assertEquals("excluded-1", excludedOutput.readText())
+
+            call()
+            assertEquals(1, executionsCount.get(), "Should not execute again, as no files changed")
+
+            excludedOutput.writeText("excluded-2")
+            call()
+            assertEquals(1, executionsCount.get(), "Should not execute again, as only excluded files changed")
+            assertEquals("excluded-2", excludedOutput.readText(), "The change to the excluded file should persist")
+
+            excludedSubdir.resolve("new-excluded-file").writeText("new-excluded")
+            call()
+            assertEquals(1, executionsCount.get(), "Should not execute again, as only excluded files changed")
+            assertTrue(excludedSubdir.resolve("new-excluded-file").exists(), "The new file should stay")
+
+            regularOutput.writeText("regular-2")
+            call()
+            assertEquals(2, executionsCount.get(), "Should execute again due to output change")
+            assertEquals("regular-1", regularOutput.readText(), "The new exec should overwrite the regular file")
+            assertEquals("excluded-1", excludedOutput.readText(), "The new exec should overwrite the excluded file")
+
+            excludedSubdir.deleteRecursively()
+            call()
+            assertEquals(2, executionsCount.get(), "Should not execute again, as the deleted dir was excluded")
+            assertFalse(excludedSubdir.exists(), "The excluded directory should stay removed")
+
+            regularSubdir.deleteRecursively()
+            call()
+            assertEquals(3, executionsCount.get(), "Should execute again due to output change")
+            assertEquals("regular-1", regularOutput.readText(), "The new exec should overwrite the regular file")
+            assertEquals("excluded-1", excludedOutput.readText(), "The new exec should overwrite the excluded file")
         }
     }
 }
