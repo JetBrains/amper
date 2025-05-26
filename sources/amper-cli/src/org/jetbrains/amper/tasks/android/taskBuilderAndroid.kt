@@ -163,6 +163,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     executeOnChangedInputs = executeOnChangedInputs,
                     tempRoot = context.projectTempRoot,
                     platform = Platform.ANDROID,
+                    buildOutputRoot = context.buildOutputRoot,
                 ),
                 buildList {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))

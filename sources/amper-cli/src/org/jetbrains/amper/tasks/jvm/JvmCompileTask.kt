@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.jvm
 
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
@@ -60,6 +61,7 @@ import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.isDirectory
@@ -80,6 +82,7 @@ internal class JvmCompileTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
+    private val buildOutputRoot: AmperBuildOutputRoot,
     override val buildType: BuildType? = null,
     override val platform: Platform = Platform.JVM,
 ): ArtifactTaskBase(), BuildTask {
@@ -354,7 +357,7 @@ internal class JvmCompileTask(
 
             val processorClasspathResult = dependenciesResult.filterIsInstance<JavaAnnotationProcessorClasspathTask.Result>().singleOrNull()
             if (processorClasspathResult?.processorClasspath?.isNotEmpty() == true) {
-                val generatedSourcesDir = fragments.firstOrNull()?.javaAnnotationProcessingGeneratedSourcesPath(taskOutputRoot.path)
+                val generatedSourcesDir = fragments.firstOrNull()?.javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)
                     ?: taskOutputRoot.path.resolve("generated-sources")
 
                 add("-processorpath")

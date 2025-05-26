@@ -38,6 +38,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     taskName = compileTaskName,
                     executeOnChangedInputs = executeOnChangedInputs,
                     tempRoot = context.projectTempRoot,
+                    buildOutputRoot = context.buildOutputRoot,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))

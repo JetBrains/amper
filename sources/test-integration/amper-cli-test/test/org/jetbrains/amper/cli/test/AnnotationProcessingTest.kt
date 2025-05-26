@@ -36,7 +36,7 @@ class AnnotationProcessingTest: AmperCliTestBase() {
         val projectRoot = testProject("mapstruct")
         val buildResult = runCli(projectRoot, "build")
 
-        val generatedJavaFile = buildResult.buildOutputRoot / "tasks" / "_mapstruct_compileJvm" / "generated" / "mapstruct" / "common" / "src" / "apt" / "java" / "UserMapperImpl.java"
+        val generatedJavaFile = buildResult.buildOutputRoot / "generated" / "mapstruct" / "common" / "src" / "apt" / "java" / "UserMapperImpl.java"
         assertTrue(generatedJavaFile.exists(), "Generated UserMapperImpl.java source file not found")
 
         val result = runCli(projectRoot, "run")
