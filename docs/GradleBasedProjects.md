@@ -59,7 +59,7 @@ pluginManagement {
 }
 // Amper plugin registration
 plugins {
-    id("org.jetbrains.amper.settings.plugin").version("0.8.0-dev-2868")
+    id("org.jetbrains.amper.settings.plugin").version("0.8.0-dev-2872")
 }
 
 // Add both Gradle and Amper modules to the project
