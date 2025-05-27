@@ -1,6 +1,7 @@
 Fragments:
   android
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
@@ -32,7 +33,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_32
+        targetSdk: VERSION_32
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -132,6 +133,7 @@ Fragments:
 
   androidTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
@@ -165,7 +167,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_32
+        targetSdk: VERSION_32
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -296,7 +298,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_32
+        targetSdk: VERSION_32
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -396,6 +398,7 @@ Fragments:
 
   commonTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
@@ -428,7 +431,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_32
+        targetSdk: VERSION_32
         versionCode: <default> 1
         versionName: <default> unspecified
       }

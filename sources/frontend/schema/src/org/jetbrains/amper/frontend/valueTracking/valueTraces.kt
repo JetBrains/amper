@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.valueTracking
@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Default
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.PsiTrace
@@ -20,10 +21,11 @@ import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.api.ValueDelegateBase
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.tree.scalarValue
 import kotlin.reflect.full.findAnnotation
 
 private sealed class PropertyWithSource(
@@ -46,7 +48,7 @@ private sealed class PropertyWithSource(
 
 sealed class ValueSource {
     data object Default : ValueSource()
-    class DependentDefault(val desc: String, val element: PsiElement?): ValueSource()
+    class DependentDefault(val desc: String, val element: PsiElement?) : ValueSource()
     class Element(val element: PsiElement) : ValueSource()
 }
 
@@ -68,7 +70,7 @@ private class CollectingVisitor(
     }
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-    override fun visitValue(valueBase: ValueBase<*>) {
+    override fun visitValue(valueBase: ValueDelegateBase<*>) {
         val applicablePlatforms = valueBase.property.findAnnotation<PlatformSpecific>()?.platforms?.toList()
         val applicableProductTypes = valueBase.property.findAnnotation<ProductTypeSpecific>()?.productTypes?.toList()
         val value = when {
@@ -99,10 +101,11 @@ private class CollectingVisitor(
                         ?: valueBase.default?.takeIf { valueBase.value == valueBase.default!!.value }
                             ?.let { def ->
                                 if (def is Default.Dependent<*, *>) {
-                                    ValueSource.DependentDefault(def.desc,
-                                        def.property.valueBase?.extractPsiElementOrNull())
-                                }
-                                else ValueSource.Default.takeIf { valueBase.trace == null }
+                                    ValueSource.DependentDefault(
+                                        def.desc,
+                                        def.property.valueBase?.extractPsiElementOrNull()
+                                    )
+                                } else ValueSource.Default.takeIf { valueBase.trace == null }
                             },
                     value,
                     applicablePlatforms,
@@ -124,7 +127,7 @@ enum class TracesPresentation {
 
 @UsedInIdePlugin
 fun tracesInfo(
-    linkedValue: ValueBase<*>?,
+    linkedValue: ValueDelegateBase<*>?,
     containingFile: PsiFile?,
     productType: ProductType?,
     contexts: Set<Platform>,
@@ -183,34 +186,39 @@ private fun List<PropertyWithSource>.printProperties(
     forEach { prop ->
         builder.append(
             "${wrapName(prop, presentation)}: ${
-            when (prop) {
-                is PropertyWithSource.PropertyWithObjectValue -> prop.value.prettyPrint(containingFile, presentation).let {
-                    "\n" + prependPrefix(it, presentation)
-                }
+                when (prop) {
+                    is PropertyWithSource.PropertyWithObjectValue -> prop.value.prettyPrint(
+                        containingFile,
+                        presentation
+                    ).let {
+                        "\n" + prependPrefix(it, presentation)
+                    }
 
-                is PropertyWithSource.PropertyWithPrimitiveValue -> {
-                    val value = prop.value
-                    presentableValue(value, containingFile, presentation).let {
-                        if (value is Collection<*>) it
-                        else presentation.wrapValue(it)
-                    } + sourcePostfix(prop, containingFile, presentation).let { 
-                        it.takeIf { value !is Collection<*> || value.isEmpty() } ?: ""
+                    is PropertyWithSource.PropertyWithPrimitiveValue -> {
+                        val value = prop.value
+                        presentableValue(value, containingFile, presentation).let {
+                            if (value is Collection<*>) it
+                            else presentation.wrapValue(it)
+                        } + sourcePostfix(prop, containingFile, presentation).let {
+                            it.takeIf { value !is Collection<*> || value.isEmpty() } ?: ""
+                        }
                     }
                 }
-            }
-        }${presentation.sectionSeparator}")
+            }${presentation.sectionSeparator}")
     }
 }
 
-private val TracesPresentation.sectionSeparator get() = when (this) {
-    TracesPresentation.IDE -> "\n\n"
-    else -> "\n"
-}
+private val TracesPresentation.sectionSeparator
+    get() = when (this) {
+        TracesPresentation.IDE -> "\n\n"
+        else -> "\n"
+    }
 
-private val TracesPresentation.prefix get() = when (this) {
-    TracesPresentation.IDE -> ">"
-    else -> "  "
-}
+private val TracesPresentation.prefix
+    get() = when (this) {
+        TracesPresentation.IDE -> ">"
+        else -> "  "
+    }
 
 private fun TracesPresentation.wrapValue(value: String) = when (this) {
     TracesPresentation.IDE -> "*$value*"
@@ -246,6 +254,7 @@ private fun sourcePostfix(
                 if (it.isNotBlank()) " @ $it" else ""
             }
         }.orEmpty())
+
         is ValueSource.Element -> getFileName(it.source.element, containingFile, presentation)
         null -> null
     }
@@ -272,14 +281,19 @@ private fun renderTraceableCollection(
             "${presentation.prefix} " +
                     presentation.wrapValue(presentableValue(element, currentFile, presentation)) +
                     (if (presentation != TracesPresentation.CLI || index == it.size - 1) "" else ",") +
-                     ((element as Traceable).trace?.let {
-                (it as? PsiTrace)?.let { getFileName(it.psiElement, currentFile, presentation) }?.let { formatSourceName(it, presentation) }
-            } ?: "") +
+                    ((element as Traceable).trace?.let {
+                        (it as? PsiTrace)?.let { getFileName(it.psiElement, currentFile, presentation) }
+                            ?.let { formatSourceName(it, presentation) }
+                    } ?: "") +
                     (if (presentation == TracesPresentation.CLI || index == it.size - 1) "" else ",")
         }.joinToString(presentation.sectionSeparator) +
         "${presentation.sectionSeparator}]"
 
-private fun getFileName(psiElement: PsiElement, ignoreIfFile: PsiFile? = null, presentation: TracesPresentation): String? =
+private fun getFileName(
+    psiElement: PsiElement,
+    ignoreIfFile: PsiFile? = null,
+    presentation: TracesPresentation
+): String? =
     ReadAction.compute<String, Throwable> {
         val containingFile = psiElement.containingFile
         if (ignoreIfFile == containingFile) return@compute null
@@ -290,19 +304,40 @@ private fun getFileName(psiElement: PsiElement, ignoreIfFile: PsiFile? = null, p
         } else containingFile?.name
     }
 
-private fun precedingValueTrace(linkedValue: ValueBase<*>?, containingFile: PsiFile?, presentation: TracesPresentation): String? {
+private fun precedingValueTrace(
+    linkedValue: ValueDelegateBase<*>?,
+    containingFile: PsiFile?,
+    presentation: TracesPresentation,
+): String? {
     return linkedValue?.trace?.precedingValue?.let {
-        val psiTrace = it.trace as? PsiTrace
+        val trace = it.trace
+        // FIXME This is not working with any collections/maps.
+        //  That should be fixed by getting TreeValue out from the delegate or event building traces
+        //  for the raw TreeValue.
+        val defaultValue = it.scalarValue<Any>()
         when {
-            psiTrace == null && it.default?.value != null -> {
-                presentation.sectionSeparator +
-                        SchemaBundle.message("tracing.overrides.default", presentation.wrapValue(presentableValue(it.default!!.value, containingFile, presentation)))
+            trace is DefaultTrace -> {
+                presentation.sectionSeparator + SchemaBundle.message(
+                    "tracing.overrides.default",
+                    presentation.wrapValue(
+                        presentableValue(defaultValue, containingFile, presentation)
+                    )
+                )
             }
 
-            psiTrace != null && it.value != linkedValue.value -> {
-                getFileName(psiTrace.psiElement, presentation = presentation)?.let { fileName ->
-                    presentation.sectionSeparator +
-                            SchemaBundle.message("tracing.overrides", presentation.wrapValue(presentableValue(it.value, containingFile, presentation)), fileName)
+            trace is PsiTrace && defaultValue != linkedValue.value -> {
+                getFileName(trace.psiElement, presentation = presentation)?.let { fileName ->
+                    presentation.sectionSeparator + SchemaBundle.message(
+                        "tracing.overrides",
+                        presentation.wrapValue(
+                            presentableValue(
+                                defaultValue,
+                                containingFile,
+                                presentation
+                            )
+                        ),
+                        fileName
+                    )
                 }
             }
 

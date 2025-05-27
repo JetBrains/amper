@@ -1,41 +1,16 @@
 Fragment 'android-app.android' dependencies
-├─── android-app:android:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-│         ╰─── org.jetbrains:annotations:13.0 -> 23.0.0
-├─── android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
-│         ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
-├─── android-app:android:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
-│    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
-│         ├─── androidx.compose.runtime:runtime:1.8.0
-│         │    ╰─── androidx.compose.runtime:runtime-android:1.8.0
-│         │         ├─── androidx.annotation:annotation-experimental:1.4.1
-│         │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> #kotlinVersion (*)
-│         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0
-│         │         │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-│         │         │    │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0
-│         │         │    │         ├─── org.jetbrains:annotations:23.0.0
-│         │         │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
-│         │         │    │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0 (c)
-│         │         │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
-│         │         │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0 (*)
-│         │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
-│         │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
-│         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 ├─── android-app:android:androidx.activity:activity-compose:1.7.2
 │    ╰─── androidx.activity:activity-compose:1.7.2
 │         ├─── androidx.activity:activity-ktx:1.7.2
 │         │    ├─── androidx.activity:activity:1.7.2
 │         │    │    ├─── androidx.annotation:annotation:1.1.0 -> 1.9.1
 │         │    │    │    ╰─── androidx.annotation:annotation-jvm:1.9.1
-│         │    │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
+│         │    │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion
+│         │    │    │              ╰─── org.jetbrains:annotations:13.0 -> 23.0.0
 │         │    │    ├─── androidx.core:core:1.8.0
 │         │    │    │    ├─── androidx.annotation:annotation:1.2.0 -> 1.9.1 (*)
-│         │    │    │    ├─── androidx.annotation:annotation-experimental:1.1.0 -> 1.4.1 (*)
+│         │    │    │    ├─── androidx.annotation:annotation-experimental:1.1.0 -> 1.4.1
+│         │    │    │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> #kotlinVersion (*)
 │         │    │    │    ├─── androidx.lifecycle:lifecycle-runtime:2.3.1 -> 2.8.7
 │         │    │    │    │    ╰─── androidx.lifecycle:lifecycle-runtime-android:2.8.7
 │         │    │    │    │         ├─── androidx.annotation:annotation:1.8.0 -> 1.9.1 (*)
@@ -45,11 +20,19 @@ Fragment 'android-app.android' dependencies
 │         │    │    │    │         │    ╰─── androidx.lifecycle:lifecycle-common-jvm:2.8.7
 │         │    │    │    │         │         ├─── androidx.annotation:annotation:1.8.1 -> 1.9.1 (*)
 │         │    │    │    │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
-│         │    │    │    │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
+│         │    │    │    │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0
+│         │    │    │    │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0
+│         │    │    │    │         │         │         ├─── org.jetbrains:annotations:23.0.0
+│         │    │    │    │         │         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0
+│         │    │    │    │         │         │         │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0 (c)
+│         │    │    │    │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 │         │    │    │    │         │         ├─── androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7 (c)
 │         │    │    │    │         │         ╰─── androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7 (c)
 │         │    │    │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> #kotlinVersion (*)
-│         │    │    │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0 (*)
+│         │    │    │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0
+│         │    │    │    │         │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
+│         │    │    │    │         │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0 (*)
+│         │    │    │    │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 │         │    │    │    │         ├─── androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7 (c)
 │         │    │    │    │         ╰─── androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7 (c)
 │         │    │    │    ╰─── androidx.versionedparcelable:versionedparcelable:1.1.1
@@ -105,7 +88,11 @@ Fragment 'android-app.android' dependencies
 │         │    │    ├─── androidx.savedstate:savedstate:1.2.1 (*)
 │         │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> #kotlinVersion (*)
 │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> #kotlinVersion (*)
-│         ├─── androidx.compose.runtime:runtime:1.0.1 -> 1.8.0 (*)
+│         ├─── androidx.compose.runtime:runtime:1.0.1 -> 1.8.0
+│         │    ╰─── androidx.compose.runtime:runtime-android:1.8.0
+│         │         ├─── androidx.annotation:annotation-experimental:1.4.1 (*)
+│         │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3 -> 1.8.0 (*)
+│         │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
 │         ├─── androidx.compose.runtime:runtime-saveable:1.0.1 -> 1.8.0
 │         │    ╰─── androidx.compose.runtime:runtime-saveable-android:1.8.0
 │         │         ├─── androidx.annotation:annotation:1.8.1 -> 1.9.1 (*)
@@ -147,6 +134,19 @@ Fragment 'android-app.android' dependencies
 │         │         │         ╰─── androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7 (c)
 │         │         ╰─── org.jspecify:jspecify:1.0.0
 │         ╰─── androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.7 (*)
+├─── android-app:android:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+├─── android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion
+│         ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+├─── android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
+│         ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+│         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
+├─── android-app:android:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│         ├─── androidx.compose.runtime:runtime:1.8.0 (*)
+│         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
 ├─── android-app:android:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
 │    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
 │         ├─── androidx.compose.foundation:foundation:1.8.0

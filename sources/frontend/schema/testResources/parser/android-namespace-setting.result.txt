@@ -9,7 +9,7 @@ Fragments:
       common (REFINE)
     Settings: {
       android: {
-        applicationId: <default> namespace
+        applicationId: namespace
         compileSdk: <default> VERSION_35
         maxSdk: <default> null
         minSdk: <default> VERSION_21
@@ -141,7 +141,7 @@ Fragments:
       android (FRIEND)
     Settings: {
       android: {
-        applicationId: <default> namespace
+        applicationId: namespace
         compileSdk: <default> VERSION_35
         maxSdk: <default> null
         minSdk: <default> VERSION_21
@@ -270,7 +270,7 @@ Fragments:
     Fragment dependencies:
     Settings: {
       android: {
-        applicationId: <default> namespace
+        applicationId: namespace
         compileSdk: <default> VERSION_35
         maxSdk: <default> null
         minSdk: <default> VERSION_21
@@ -401,7 +401,7 @@ Fragments:
       common (FRIEND)
     Settings: {
       android: {
-        applicationId: <default> namespace
+        applicationId: namespace
         compileSdk: <default> VERSION_35
         maxSdk: <default> null
         minSdk: <default> VERSION_21

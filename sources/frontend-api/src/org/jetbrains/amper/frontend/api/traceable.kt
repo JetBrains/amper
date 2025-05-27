@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.api
 import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.tree.TreeValue
 import java.nio.file.Path
 
 /**
@@ -18,7 +19,7 @@ sealed interface Trace {
      * Old value defined initially and suppressed by merge or inheritance during model building,
      * it could be a chain of the subsequent preceding values built during merge of templates and module file definitions.
      */
-    val precedingValue: ValueBase<*>? // old value suppressed by merge or inheritance
+    val precedingValue: TreeValue<*>? // old value suppressed by merge or inheritance
 
     /**
      * If the value of a property is computed based on the value of another property, then trace to that value is registered here.
@@ -26,23 +27,27 @@ sealed interface Trace {
     val computedValueTrace: Traceable?
 }
 
+open class DefaultTrace(
+    override val computedValueTrace: Traceable?,
+) : Trace {
+    companion object : DefaultTrace(null)
+    override val precedingValue: TreeValue<*>? = null
+}
 
-/**
- * This is for cases when there is no PSI element for the value being calculated.
- */
-data class DefaultValueDependentTrace(
-    override val computedValueTrace: Traceable? = null,
-    override val precedingValue: ValueBase<*>? = null
-) : Trace
+val Trace.precedingValuesSequence get() =
+    generateSequence(precedingValue) { it.trace.precedingValue }
 
 /**
  * The Property with this trace originates from the node of a PSI tree, in most cases from the manifest file.
  */
 data class PsiTrace(
     val psiElement: PsiElement,
-    override val precedingValue: ValueBase<*>? = null,
+    override val precedingValue: TreeValue<*>? = null,
     override val computedValueTrace: Traceable? = null,
 ) : Trace
+
+fun PsiElement.asTrace() = PsiTrace(this)
+val PsiElement.trace get() = PsiTrace(this)
 
 /**
  * The Property with this trace originates from the version catalog provided by the toolchain.
@@ -51,31 +56,20 @@ data class BuiltinCatalogTrace(
     val catalog: VersionCatalog,
     override val computedValueTrace: Traceable? = null,
 ) : Trace {
-    override val precedingValue: ValueBase<*>? = null
+    override val precedingValue: TreeValue<*>? = null
 }
 
-fun <V> Trace.withPrecedingValue(precedingValue: ValueBase<V>?): Trace =
-    when {
-        precedingValue == null -> this
-        this is PsiTrace -> this.copy(precedingValue = precedingValue)
-        this is DefaultValueDependentTrace -> this.copy(precedingValue = precedingValue)
-        this is BuiltinCatalogTrace -> this
-        else -> this
-    }
+fun Trace.withPrecedingValue(precedingValue: TreeValue<*>): Trace = when (this) {
+    is PsiTrace -> copy(precedingValue = precedingValue)
+    else -> this
+}
 
-fun Trace.withComputedValueTrace(computedValueTrace: Traceable?): Trace =
-    if (computedValueTrace == null)
-        this
-    else {
-        when (this) {
-            is PsiTrace -> this.copy(computedValueTrace = computedValueTrace)
-            is DefaultValueDependentTrace -> this.copy(computedValueTrace = computedValueTrace)
-            is BuiltinCatalogTrace -> this.copy(computedValueTrace = computedValueTrace)
-        }
-    }
-
-fun Traceable.withComputedValueTrace(substitutionTrace: Traceable?) {
-    trace = trace?.withComputedValueTrace(substitutionTrace)
+fun Trace.withComputedValueTrace(computedValueTrace: Traceable?): Trace = when {
+    computedValueTrace == null -> this
+    this is PsiTrace -> copy(computedValueTrace = computedValueTrace)
+    this is BuiltinCatalogTrace -> copy(computedValueTrace = computedValueTrace)
+    this is DefaultTrace -> DefaultTrace(computedValueTrace)
+    else -> this
 }
 
 /**
@@ -88,10 +82,14 @@ interface Traceable {
 }
 
 /**
+ * Basic wrapper for classes that have different trace contract (basically, non nullable).
+ */
+open class TrivialTraceable(override var trace: Trace? = null) : Traceable
+
+/**
  * A value that can persist its trace.
  */
-abstract class TraceableValue<T : Any>(val value: T) : Traceable {
-    override var trace: Trace? = null
+abstract class TraceableValue<T : Any>(val value: T) : TrivialTraceable() {
     override fun toString() = value.toString()
     override fun hashCode() = value.hashCode()
     override fun equals(other: Any?) = this === other || other?.asSafely<TraceableValue<*>>()?.value == value
@@ -99,7 +97,7 @@ abstract class TraceableValue<T : Any>(val value: T) : Traceable {
 
 open class TraceableString(value: String) : TraceableValue<String>(value)
 
-class TraceableVersion(value: String, source: ValueBase<*>?) : TraceableString(value) {
+class TraceableVersion(value: String, source: ValueDelegateBase<*>?) : TraceableString(value) {
     init {
         trace = source?.trace
     }

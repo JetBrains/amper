@@ -17,7 +17,6 @@ import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
-import org.jetbrains.amper.frontend.processing.readTemplate
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.SingleModuleProjectContextForIde
 import java.nio.file.Path

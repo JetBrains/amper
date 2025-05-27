@@ -1,0 +1,7 @@
+product: jvm/app
+
+settings:
+  myPlugin:
+    foo: <![Error] Expected an integer value!>"i am a string"<!>
+    bar: 123
+    <![Error] Unknown property baz!>baz<!>: "i am unknown"

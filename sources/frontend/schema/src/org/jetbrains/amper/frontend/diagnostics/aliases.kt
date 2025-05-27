@@ -8,32 +8,55 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.TraceableEnum
+import org.jetbrains.amper.frontend.api.unsafe
+import org.jetbrains.amper.frontend.contexts.MinimalModule
+import org.jetbrains.amper.frontend.diagnostics.helpers.visitMapLikeProperties
 import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.tree.Merged
+import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.asList
+import org.jetbrains.amper.frontend.tree.scalarValue
 
-private val Module.declaredLeaves get() = productIfDefined?.platforms?.leaves
-private val nhEntries = (Platform.naturalHierarchyExt - Platform.COMMON).entries
 
-object AliasesDontUseUndeclaredPlatform : IsmDiagnosticFactory {
+object AliasesDontUseUndeclaredPlatform : MergedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "validation.alias.use.undeclared.platform"
 
-    context(ProblemReporterContext)
-    override fun Module.analyze() = aliases?.forEach { (_, aliasPlatforms) ->
-        aliasPlatforms
-            .filter { it.value !in (declaredLeaves ?: return null) }
-            .forEach { SchemaBundle.reportBundleError(it, diagnosticId, it.value.pretty) }
+    override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) {
+        val declaredPlatforms = minimalModule.product::platforms.unsafe?.leaves ?: return
+        root.visitMapLikeProperties<Module>(Module::aliases) { _, aliasesRaw ->
+            aliasesRaw.children.flatMap { it.value.asList?.children.orEmpty() }.forEach { it ->
+                val platform = it.scalarValue<TraceableEnum<Platform>>()?.value ?: return@forEach
+                if (platform !in declaredPlatforms) SchemaBundle.reportBundleError(
+                    it.trace,
+                    diagnosticId,
+                    platform.pretty,
+                )
+            }
+        }
     }
 }
 
-object AliasesAreNotIntersectingWithNaturalHierarchy : IsmDiagnosticFactory {
+object AliasesAreNotIntersectingWithNaturalHierarchy : MergedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "validation.alias.intersects.with.natural.hierarchy"
-
-    context(ProblemReporterContext)
-    override fun Module.analyze() = aliases
-        ?.mapNotNull { alias -> nhEntries.singleOrNull { alias.value.leaves == it.value }?.let { alias.key to it.key } }
-        // TODO Report on a specific alias.
-        ?.forEach { SchemaBundle.reportBundleError(::aliases.valueBase, diagnosticId, it.first, it.second) }
+    private val nhEntries = (Platform.naturalHierarchyExt - Platform.COMMON).entries
+    override fun ProblemReporterContext.analyze(root: TreeValue<Merged>, minimalModule: MinimalModule) {
+        root.visitMapLikeProperties<Module>(Module::aliases) { _, aliasesRaw ->
+            aliasesRaw.children.forEach { (aliasName, _, aliasValue) ->
+                val aliasPlatforms = aliasValue.asList?.children
+                    ?.mapNotNull { it.scalarValue<TraceableEnum<Platform>>() }?.leaves ?: return@forEach
+                val similar = nhEntries.firstOrNull { aliasPlatforms == it.value }
+                if (similar != null) SchemaBundle.reportBundleError(
+                    aliasValue.trace,
+                    diagnosticId,
+                    aliasName,
+                    similar.key.pretty,
+                )
+            }
+        }
+    }
 }
 

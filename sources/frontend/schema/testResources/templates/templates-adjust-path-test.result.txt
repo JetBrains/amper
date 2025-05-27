@@ -1,7 +1,10 @@
 Fragments:
   apple
     External dependencies:
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src@apple
     Fragment dependencies:
       native (REFINE)
@@ -129,9 +132,12 @@ Fragments:
 
   appleTest
     External dependencies:
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test@apple
     Fragment dependencies:
       nativeTest (REFINE)
@@ -390,9 +396,12 @@ Fragments:
 
   commonTest
     External dependencies:
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -520,7 +529,10 @@ Fragments:
 
   ios
     External dependencies:
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
       apple (REFINE)
@@ -648,7 +660,10 @@ Fragments:
 
   iosArm64
     External dependencies:
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src@iosArm64
     Fragment dependencies:
       ios (REFINE)
@@ -776,9 +791,12 @@ Fragments:
 
   iosArm64Test
     External dependencies:
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test@iosArm64
     Fragment dependencies:
       iosTest (REFINE)
@@ -907,9 +925,12 @@ Fragments:
 
   iosTest
     External dependencies:
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test@ios
     Fragment dependencies:
       appleTest (REFINE)
@@ -1038,7 +1059,10 @@ Fragments:
 
   native
     External dependencies:
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src@native
     Fragment dependencies:
       common (REFINE)
@@ -1166,9 +1190,12 @@ Fragments:
 
   nativeTest
     External dependencies:
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test@native
     Fragment dependencies:
       commonTest (REFINE)

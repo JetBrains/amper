@@ -77,12 +77,6 @@ class AmperPublishTest : AmperCliTestBase() {
               </dependencyManagement>
               <dependencies>
                 <dependency>
-                  <groupId>org.jetbrains.kotlin</groupId>
-                  <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.kotlinVersion}</version>
-                  <scope>runtime</scope>
-                </dependency>
-                <dependency>
                   <groupId>io.ktor</groupId>
                   <artifactId>ktor-client-core-jvm</artifactId>
                   <version>2.3.9</version>
@@ -117,6 +111,12 @@ class AmperPublishTest : AmperCliTestBase() {
                   <artifactId>kotlinx-serialization-cbor-jvm</artifactId>
                   <version>1.6.3</version>
                   <scope>compile</scope>
+                </dependency>
+                <dependency>
+                  <groupId>org.jetbrains.kotlin</groupId>
+                  <artifactId>kotlin-stdlib</artifactId>
+                  <version>${UsedVersions.kotlinVersion}</version>
+                  <scope>runtime</scope>
                 </dependency>
               </dependencies>
             </project>
@@ -165,12 +165,6 @@ class AmperPublishTest : AmperCliTestBase() {
               <name>main-lib</name>
               <dependencies>
                 <dependency>
-                  <groupId>org.jetbrains.kotlin</groupId>
-                  <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.kotlinVersion}</version>
-                  <scope>runtime</scope>
-                </dependency>
-                <dependency>
                   <groupId>amper.test.jvm-publish-multimodule</groupId>
                   <artifactId>jvm-lib</artifactId>
                   <version>1.2.3</version>
@@ -180,6 +174,12 @@ class AmperPublishTest : AmperCliTestBase() {
                   <groupId>amper.test.jvm-publish-multimodule</groupId>
                   <artifactId>kmp-lib-jvm</artifactId>
                   <version>1.2.3</version>
+                  <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                  <groupId>org.jetbrains.kotlin</groupId>
+                  <artifactId>kotlin-stdlib</artifactId>
+                  <version>${UsedVersions.kotlinVersion}</version>
                   <scope>runtime</scope>
                 </dependency>
               </dependencies>

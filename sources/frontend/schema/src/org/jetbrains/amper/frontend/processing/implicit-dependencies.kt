@@ -17,9 +17,10 @@ import org.jetbrains.amper.frontend.aomBuilder.DefaultFragment
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
-import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.api.ValueDelegateBase
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withTraceFrom
+import org.jetbrains.amper.frontend.catalogs.library
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 import org.jetbrains.amper.frontend.toClassBasedSet
@@ -211,7 +212,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     }
 }
 
-private fun getSource(versionValue: ValueBase<*>?, enabledValue: ValueBase<*>?): ValueBase<*>? {
+private fun getSource(versionValue: ValueDelegateBase<*>?, enabledValue: ValueDelegateBase<*>?): ValueDelegateBase<*>? {
     return if (versionValue?.withoutDefault == null) enabledValue else versionValue
 }
 

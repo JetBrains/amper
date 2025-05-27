@@ -97,11 +97,6 @@ interface AmperModule {
 
     val source: AmperModuleSource
 
-    /**
-     * Original schema values, that this module came from.
-     */
-    val origin: Module
-
     val fragments: List<Fragment>
 
     val artifacts: List<Artifact>

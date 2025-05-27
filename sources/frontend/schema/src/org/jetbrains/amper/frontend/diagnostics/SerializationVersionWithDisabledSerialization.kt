@@ -12,8 +12,8 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.api.withoutDefault
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.annotations.Nls
@@ -27,7 +27,7 @@ object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnostic
         fragments.forEach { fragment ->
             val settings = fragment.settings.kotlin.serialization
             val versionProp = settings::version
-            if (versionProp.withoutDefault != null && !settings.enabled) {
+            if (!versionProp.isDefault && !settings.enabled) {
                 if (!reportedPlaces.add(versionProp.valueBase?.trace)) return@forEach
                 problemReporter.reportMessage(SerializationVersionWithoutSerialization(versionProp))
             }

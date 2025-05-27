@@ -38,9 +38,6 @@ class SyntheticBuilder(
         @JvmName("invokeList")
         operator fun KProperty1<out SchemaNode, List<*>?>.invoke(block: MutableList<OwnedTree>.() -> Unit) =
             setTo(list(block))
-
-        operator fun KProperty1<out SchemaNode, Any>.invoke(value: Any) =
-            setTo(scalar(value))
     }
 
     fun mapLike(type: ATypes.AObject, block: MapLikeValueBuilder.() -> Unit) =

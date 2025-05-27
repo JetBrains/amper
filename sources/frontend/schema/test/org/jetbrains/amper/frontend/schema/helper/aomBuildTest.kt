@@ -23,7 +23,7 @@ fun TestBase.aomTest(
 
 open class BuildAomTestRun(
     caseName: String,
-    private val systemInfo: SystemInfo = DefaultSystemInfo,
+    private val systemInfo: SystemInfo,
     override val base: Path,
     private val expectedError: String? = null,
     private val adjustCtx: TestProjectContext.() -> Unit = {},

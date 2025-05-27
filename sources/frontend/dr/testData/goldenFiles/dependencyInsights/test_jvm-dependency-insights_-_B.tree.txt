@@ -45,6 +45,8 @@ B:COMPILE:JVM
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 ├─── B:common:org.jetbrains.compose.runtime:runtime:1.5.0
 │    ╰─── org.jetbrains.compose.runtime:runtime:1.5.0 -> 1.6.0 (*)
+├─── B:jvm:org.jetbrains.compose.ui:ui-tooling:1.6.0
+│    ╰─── org.jetbrains.compose.ui:ui-tooling:1.6.0 (*)
 ├─── B:jvm:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 ╰─── B:jvm:org.jetbrains.compose.runtime:runtime:1.5.0

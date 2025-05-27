@@ -129,6 +129,7 @@ Fragments:
 
   commonTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.4.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: test
@@ -258,6 +259,7 @@ Fragments:
 
   jvm
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.4.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
@@ -386,6 +388,7 @@ Fragments:
 
   jvmTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.4.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: test@jvm

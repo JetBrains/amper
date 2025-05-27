@@ -4,63 +4,33 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.messages.BuildProblemImpl
-import org.jetbrains.amper.core.messages.BuildProblemSource
-import org.jetbrains.amper.core.messages.FileBuildProblemSource
-import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
+import org.jetbrains.amper.core.withEach
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.BomDependency
-import org.jetbrains.amper.frontend.CompositeString
-import org.jetbrains.amper.frontend.CompositeStringPart
-import org.jetbrains.amper.frontend.CustomTaskDescription
-import org.jetbrains.amper.frontend.DefaultScopedNotation
-import org.jetbrains.amper.frontend.KnownCurrentTaskProperty
-import org.jetbrains.amper.frontend.KnownModuleProperty
-import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Notation
-import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.VersionCatalog
-import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.TraceableVersion
-import org.jetbrains.amper.frontend.api.unsafe
+import org.jetbrains.amper.frontend.api.asTraceable
+import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withTraceFrom
-import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
-import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
-import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
+import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
+import org.jetbrains.amper.frontend.catalogs.tryGetCatalogFor
+import org.jetbrains.amper.frontend.contexts.MinimalModuleHolder
+import org.jetbrains.amper.frontend.contexts.PathCtx
+import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
-import org.jetbrains.amper.frontend.diagnostics.IsmDiagnosticFactories
-import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
-import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
-import org.jetbrains.amper.frontend.processing.BuiltInCatalog
-import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
+import org.jetbrains.amper.frontend.diagnostics.MergedTreeDiagnostics
+import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
-import org.jetbrains.amper.frontend.processing.configureHotReloadDefaults
-import org.jetbrains.amper.frontend.processing.configureSpringBootDefaults
-import org.jetbrains.amper.frontend.processing.configureLombokDefaults
-import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
-import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
-import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
-import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
+import org.jetbrains.amper.frontend.processing.configureLombokAnnotationProcessor
+import org.jetbrains.amper.frontend.processing.configureSpringBootKotlinCompilerPlugins
+import org.jetbrains.amper.frontend.processing.substituteComposeOsSpecific
 import org.jetbrains.amper.frontend.project.AmperProjectContext
-import org.jetbrains.amper.frontend.project.customTaskName
-import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.schema.Base
-import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
@@ -68,21 +38,15 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.schema.noModifiers
-import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
-import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
-import org.jetbrains.amper.frontend.schemaConverter.psi.asAbsolutePath
+import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.tree.Owned
+import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.appendDefaultValues
+import org.jetbrains.amper.frontend.tree.reading.readTree
+import org.jetbrains.amper.frontend.tree.resolveReferences
 import java.nio.file.Path
 import kotlin.io.path.name
-import kotlin.io.path.pathString
 
-/**
- * Module wrapper to hold also chosen catalog.
- */
-private data class ModuleHolder(
-    val module: Module,
-    val chosenCatalog: VersionCatalog?,
-)
 
 /**
  * AOM build function, introduced for testing.
@@ -91,418 +55,117 @@ context(ProblemReporterContext)
 internal fun doBuild(
     projectContext: AmperProjectContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
-): List<AmperModule>? {
+): List<AmperModule>? = with(BuildCtx(projectContext, systemInfo = systemInfo)) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
-    val path2SchemaModule = projectContext.amperModuleFiles
-        .mapNotNull { moduleFile ->
-            // Read initial module file.
-            val converter = ConverterImpl(
-                moduleFile.parent,
-                projectContext.frontendPathResolver,
-                problemReporter
-            )
-            val nonProcessed = converter.
-                // TODO Report when file is not found.
-                convertModule(moduleFile)?.readTemplatesAndMerge(projectContext)
-            ?: return@mapNotNull null
-
-            // Choose catalogs.
-            val chosenCatalog = with(converter) {
-                projectContext.tryGetCatalogFor(moduleFile, nonProcessed)
-            }
-
-            // Process the module file.
-            val processedModule = with(systemInfo) {
-                nonProcessed
-                    .configureSpringBootDefaults()
-                    .configureHotReloadDefaults()
-                    .configureLombokDefaults()
-                    .replaceCatalogDependencies(chosenCatalog)
-                    .replaceComposeOsSpecific()
-            }
-
-            IsmDiagnosticFactories.forEach {
-                with(it) { processedModule.analyze() }
-            }
-
-            // Return result module.
-            moduleFile to ModuleHolder(processedModule, chosenCatalog)
-        }
-        .toMap()
+    val rawModules = projectContext.amperModuleFiles.mapNotNull { readMergedTreesAndPreprocess(it) }
 
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
 
-    val moduleTriples = path2SchemaModule
-        .buildAom()
-        .onEach { triple -> triple.module.addImplicitDependencies() }
+    // Build [AmperModule]s.
+    val dumbGradleModules = projectContext.gradleBuildFilesWithoutAmper.map { DumbGradleModule(it) }
+    val result = buildAmperModules(rawModules, dumbGradleModules)
 
-    val moduleDir2module = moduleTriples
-        .associate { (path, _, module) -> path.parent to module }
-        .mapKeys { (k, _) -> k.toNioPath() }
+    // Do some alterations to the built modules.
+    result.forEach { it.module.addImplicitDependencies() }
 
-    projectContext.amperCustomTaskFiles.mapNotNull { customTaskFile ->
-        val moduleTriple = moduleTriples.firstOrNull { it.buildFile.parent == customTaskFile.parent } ?: run {
-            problemReporter.reportMessage(BuildProblemImpl(
-                buildProblemId = "INVALID_CUSTOM_TASK_FILE_PATH",
-                source = object : FileBuildProblemSource {
-                    override val file: Path
-                        get() = customTaskFile.toNioPath()
-                },
-                message = "Unable to find module for custom task file: $customTaskFile",
-                level = Level.Error,
-            ))
-            return@mapNotNull null
-        }
+    // Build custom tasks for relevant modules.
+    projectContext.amperCustomTaskFiles.forEach { buildCustomTask(it, result) }
 
-        val customTask = let {
-            val converter = ConverterImpl(moduleTriple.buildFile.parent, projectContext.frontendPathResolver, problemReporter)
-            val node = converter.convertCustomTask(customTaskFile)
-            if (node == null) {
-                problemReporter.reportMessage(BuildProblemImpl(
-                    buildProblemId = "INVALID_CUSTOM_TASK",
-                    source = object : FileBuildProblemSource {
-                        override val file: Path
-                            get() = customTaskFile.toNioPath()
-                    },
-                    message = "Invalid custom task format: $customTaskFile",
-                    level = Level.Error,
-                ))
-                return@mapNotNull null
-            }
-
-            val moduleResolver = { path: String ->
-                moduleDir2module[
-                    with(converter) { path.asAbsolutePath() }
-                ]
-            }
-            buildCustomTask(customTaskFile, node, moduleTriple.module, moduleResolver) ?: return@mapNotNull null
-        }
-
-        return@mapNotNull moduleTriple.module to customTask
-    }
-        .groupBy { it.first }
-        .forEach { (defaultModule, list) -> defaultModule.customTasks = list.map { it.second } }
-
-    moduleTriples.onEach { triple ->
-        AomSingleModuleDiagnosticFactories.forEach { with(it) { triple.module.analyze() } }
-    }
+    // Perform diagnostics.
+    AomSingleModuleDiagnosticFactories.withEach { result.forEach { it.module.analyze() } }
 
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
 
-    // Build AOM from ISM.
-    return moduleTriples.map { it.module }
+    return result.map { it.module } + dumbGradleModules
 }
 
-/**
- * Try to find gradle catalog and compose it with built-in catalog.
- */
-context(Converter)
-internal fun VersionsCatalogProvider.tryGetCatalogFor(file: VirtualFile, nonProcessed: Base): VersionCatalog {
-    val gradleCatalog = getCatalogPathFor(file)?.let { pathResolver.parseGradleVersionCatalog(it) }
-    val compositeCatalog = addBuiltInCatalog(nonProcessed, gradleCatalog)
-    return compositeCatalog
-}
+private fun BuildCtx.readMergedTreesAndPreprocess(
+    moduleFile: VirtualFile
+): ModuleBuildCtx? {
+    val moduleCtx = PathCtx(moduleFile.toNioPath(), moduleFile.asPsi().trace)
 
-/**
- * Try to get used version catalog.
- */
-private fun ProblemReporterContext.addBuiltInCatalog(
-    nonProcessed: Base,
-    otherCatalog: VersionCatalog? = null,
-): VersionCatalog {
-    val commonSettings = nonProcessed.settings[noModifiers]
-    val compose = commonSettings?.compose
-    val ktorServer = commonSettings?.ktor
-    val springBoot = commonSettings?.springBoot
-    val serialization = commonSettings?.kotlin?.serialization
-    val builtInCatalog = BuiltInCatalog(
-        serializationVersion = serialization?.version?.takeIf { serialization.enabled }
-            ?.let {
-                version(TraceableVersion(it, serialization::version.valueBase!!), UsedVersions.kotlinxSerializationVersion)
-            },
-        composeVersion = compose?.version?.takeIf { compose.enabled }
-            ?.let {
-                version(TraceableVersion(it, compose::version.valueBase!!), UsedVersions.composeVersion)
-            },
-        ktorVersion = ktorServer?.version?.takeIf { ktorServer.enabled }
-            ?.let {
-                version(TraceableVersion(it, ktorServer::version.valueBase!!), UsedVersions.ktorVersion)
-            },
-        springBootVersion = springBoot?.version?.takeIf { springBoot.enabled }
-            ?.let {
-                version(TraceableVersion(it, springBoot::version.valueBase!!), UsedVersions.springBootVersion)
-            },
-    )
-    val catalogs = otherCatalog?.let { listOf(it) }.orEmpty() + builtInCatalog
-    val compositeCatalog = CompositeVersionCatalog(catalogs)
-    return compositeCatalog
-}
+    // Read the initial module file.
+    val minimalModule = tryReadMinimalModule(moduleFile) ?: return null
 
-@OptIn(NonIdealDiagnostic::class)
-private fun ProblemReporterContext.version(
-    version: TraceableVersion,
-    fallbackVersion: String
-): TraceableString {
-    // we validate the version only for emptiness because maven artifacts allow any string as a version
-    //  that's why we cannot provide a precise validation for non-empty strings
-    return if (!version.value.isEmpty()) version
-    else {
-        problemReporter.reportMessage(
-            BuildProblemImpl(
-                "empty.version.string",
-                version.trace?.extractPsiElementOrNull()?.let { it1 -> PsiBuildProblemSource(it1) }
-                    ?: GlobalBuildProblemSource,
-                SchemaBundle.message("empty.version.string"),
-                Level.Error
-            )
-        )
-        // fallback to avoid double errors
-        TraceableString(fallbackVersion)
-    }
-}
+    // Read the whole module and used templates.
+    // FIXME Read templates by raw access API and then just reuse single read tree both
+    //       for module building and minimal module building.
+    val ownedTrees = readWithTemplates(minimalModule, moduleFile, moduleCtx) ?: return null
 
+    // Perform diagnostics for owned trees.
+    OwnedTreeDiagnostics.withEach { ownedTrees.forEach { analyze(it, minimalModule.module) } }
 
-context(ProblemReporterContext)
-private fun buildCustomTask(
-    virtualFile: VirtualFile,
-    node: CustomTaskNode,
-    module: AmperModule,
-    moduleResolver: (String) -> AmperModule?,
-): CustomTaskDescription? {
-    val buildProblemSource = object : FileBuildProblemSource {
-        override val file: Path
-            get() = virtualFile.toNioPath()
-    }
+    // Merge owned trees (see [TreeMerger]) and preprocess them.
+    val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
+        .substituteComposeOsSpecific()
+        .appendDefaultValues()
+        .resolveReferences()
 
-    val codeModule = moduleResolver(node.module.pathString)
-    if (codeModule == null) {
-        problemReporter.reportMessage(BuildProblemImpl(
-            buildProblemId = "UNKNOWN_MODULE",
-            source = buildProblemSource,
-            message = "Unresolved module reference: ${node.module.pathString}",
-            level = Level.Error,
-        ))
-        return null
-    }
+    // Choose catalogs.
+    // TODO This should be done without refining somehow?
+    val refiner = TreeRefiner(minimalModule.combinedInheritance)
+    val commonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
+    val commonModule = createSchemaNode<Module>(commonTree)
+    val chosenCatalog = tryGetCatalogFor(moduleFile, commonModule.settings)
 
-    return DefaultCustomTaskDescription(
-        name = TaskName.moduleTask(module, virtualFile.customTaskName()),
-        source = virtualFile.toNioPath(),
-        origin = node,
-        type = node.type,
-        module = module,
-        jvmArguments = node.jvmArguments.orEmpty().map { parseStringWithReferences(it, buildProblemSource, moduleResolver) },
-        programArguments = node.programArguments.orEmpty().map { parseStringWithReferences(it, buildProblemSource, moduleResolver) },
-        environmentVariables = node.environmentVariables.orEmpty().mapValues { parseStringWithReferences(it.value, buildProblemSource, moduleResolver) },
-        dependsOn = node.dependsOn.orEmpty().map { TaskName(it) },
-        publishArtifacts = node.publishArtifact.orEmpty().map {
-            DefaultPublishArtifactFromCustomTask(
-                pathWildcard = it.path,
-                artifactId = it.artifactId,
-                classifier = it.classifier,
-                extension = it.extension,
-            )
-        },
-        customTaskCodeModule = codeModule,
-        addToModuleRootsFromCustomTask = node.addTaskOutputToSourceSet.orEmpty().mapNotNull {
-            val relativePath = it.taskOutputSubFolder.toNioPathOrNull()
-            if (relativePath == null) {
-                problemReporter.reportMessage(BuildProblemImpl(
-                    buildProblemId = "INVALID_TASK_OUTPUT_SUBFOLDER",
-                    source = buildProblemSource,
-                    message = "'taskOutputSubFolder' property is not a relative path",
-                    level = Level.Error,
-                ))
-                return@mapNotNull null
-            }
+    val processedTree = preProcessedTree
+        .substituteCatalogDependencies(chosenCatalog)
+        .configureSpringBootKotlinCompilerPlugins(commonModule)
+        .configureLombokAnnotationProcessor(commonModule)
 
-            DefaultAddToModuleRootsFromCustomTask(
-                taskOutputRelativePath = relativePath,
-                isTest = it.addToTestSources,
-                type = when (it.sourceSet) {
-                    CustomTaskSourceSetType.SOURCES -> AddToModuleRootsFromCustomTask.Type.SOURCES
-                    CustomTaskSourceSetType.RESOURCES -> AddToModuleRootsFromCustomTask.Type.RESOURCES
-                },
-                platform = Platform.JVM, // TODO
-            )
-        },
+    // Perform diagnostics for the merged tree.
+    MergedTreeDiagnostics(refiner).withEach { analyze(processedTree, minimalModule.module) }
+
+    // Return result module.
+    return ModuleBuildCtx(
+        moduleFile = moduleFile,
+        mergedTree = processedTree,
+        refiner = refiner,
+        catalog = chosenCatalog,
+        moduleCtxModule = commonModule,
+        buildCtx = this,
     )
 }
 
-private val propertyReferenceRegex = Regex("\\$\\{(module\\(([./0-9a-zA-Z\\-_]+)\\)\\.)?([0-9a-zA-Z]+)}")
-private val unresolvedReferenceRegex1 = Regex("(?<!\\\\)\\$")
-private val unresolvedReferenceRegex2 = Regex("\\\\\\\\\\$")
-
-// TODO: This is not a real parser and it won't provide a good IDE support either
-// Please decide on an appropriate references syntax and rewrite
-context(ProblemReporterContext)
-internal fun parseStringWithReferences(
-    value: String,
-    source: BuildProblemSource,
-    moduleResolver: (String) -> AmperModule?,
-): CompositeString {
-    var pos = 0
-    val result = mutableListOf<CompositeStringPart>()
-
-    fun addLiteralPart(part: String) {
-        if (unresolvedReferenceRegex1.containsMatchIn(part) || unresolvedReferenceRegex2.containsMatchIn(part)) {
-            problemReporter.reportMessage(BuildProblemImpl(
-                buildProblemId = "STR_REF_UNRESOLVED_TYPE",
-                source = source,
-                message = "Contains unresolved reference: $part",
-                level = Level.Error,
-            ))
-        }
-
-        val unescaped = part
-            .replace("\\\\", "\u0000")
-            .replace("\\$", "$")
-            .replace("\u0000", "\\")
-
-        result.add(CompositeStringPart.Literal(unescaped))
+// FIXME Make internal.
+fun BuildCtx.readWithTemplates(
+    minimalModule: MinimalModuleHolder,
+    mPath: VirtualFile,
+    moduleCtx: PathCtx,
+): List<MapLikeValue<Owned>>? {
+    val moduleTree = readTree(mPath, moduleAType, moduleCtx) ?: return null
+    return listOf(moduleTree) + minimalModule.appliedTemplates.mapNotNull {
+        readTree(it.asVirtual(), templateAType, PathCtx(it, it.asVirtual().asPsi().trace))
     }
-
-    propertyReferenceRegex.findAll(value).forEach { match ->
-        val literalPart = value.substring(pos, match.range.first)
-        if (literalPart.isNotEmpty()) {
-            addLiteralPart(literalPart)
-        }
-        pos = match.range.last + 1
-
-        val (_, _, modulePath, propertyName) = match.groupValues
-
-        if (modulePath.isEmpty()) {
-            // current task property reference
-            val knownProperty = KnownCurrentTaskProperty.namesMap[propertyName]
-            if (knownProperty == null) {
-                problemReporter.reportMessage(BuildProblemImpl(
-                    buildProblemId = "STR_REF_UNKNOWN_CURRENT_TASK_PROPERTY",
-                    source = source,
-                    message = "Unknown current task property '$propertyName': ${match.value}",
-                    level = Level.Error,
-                ))
-                return@forEach
-            }
-
-            result.add(CompositeStringPart.CurrentTaskProperty(
-                property = knownProperty,
-                originalReferenceText = match.value,
-            ))
-        } else {
-            // module property reference
-            val knownPropertyName = KnownModuleProperty.namesMap[propertyName]
-            if (knownPropertyName == null) {
-                problemReporter.reportMessage(BuildProblemImpl(
-                    buildProblemId = "STR_REF_UNKNOWN_MODULE_PROPERTY",
-                    source = source,
-                    message = "Unknown property name '$propertyName': ${match.value}",
-                    level = Level.Error,
-                ))
-                return@forEach
-            }
-
-            val resolvedModule = moduleResolver(modulePath)
-            if (resolvedModule == null) {
-                problemReporter.reportMessage(BuildProblemImpl(
-                    buildProblemId = "STR_REF_UNKNOWN_MODULE",
-                    source = source,
-                    message = "Unknown module '$modulePath' referenced from '${match.value}'",
-                    level = Level.Error,
-                ))
-                return@forEach
-            }
-
-            result.add(CompositeStringPart.ModulePropertyReference(
-                referencedModule = resolvedModule,
-                property = knownPropertyName,
-                originalReferenceText = match.value,
-            ))
-        }
-    }
-
-    if (pos < value.length) {
-        addLiteralPart(value.substring(pos))
-    }
-
-    return CompositeString(parts = result)
 }
-
-private data class ModuleTriple(
-    val buildFile: VirtualFile,
-    val schemaModule: Module,
-    val module: DefaultModule,
-)
 
 /**
  * Build and resolve internal module dependencies.
  */
-context(ProblemReporterContext)
-private fun Map<VirtualFile, ModuleHolder>.buildAom(): List<ModuleTriple> {
-    val modules = mapNotNull { (mPath, holder) ->
-        val noProduct = holder.module::product.unsafe == null
-        if (noProduct || holder.module.product::type.unsafe == null) {
-            if (noProduct) {
-                reportEmptyModule(mPath)
-            }
-            else {
-                SchemaBundle.reportBundleError(
-                    property = holder.module::product,
-                    messageKey = "product.not.defined",
-                    level = Level.Fatal,
-                )
-            }
-            return@mapNotNull null
-        }
-        // TODO Remove duplicating enums.
-        ModuleTriple(
-            buildFile = mPath,
-            schemaModule = holder.module,
-            module = DefaultModule(
-                userReadableName = mPath.parent.name,
-                type = holder.module.product.type,
-                source = AmperModuleFileSource(mPath.toNioPath()),
-                origin = holder.module,
-                usedCatalog = holder.chosenCatalog,
-                parts = holder.module.convertModuleParts()
-            )
-        )
-    }
+private fun BuildCtx.buildAmperModules(
+    modules: List<ModuleBuildCtx>,
+    dumbModules: List<DumbGradleModule>
+): List<ModuleBuildCtx> {
+    val dir2module = dumbModules.associateBy { it.gradleBuildFile.parent.toNioPath() } +
+            modules.associate { it.moduleFile.parent.toNioPath() to it.module }
 
-    val moduleDirToModule = modules.associate { (path, _, module) -> path.parent.toNioPath() to module }
-
-    modules.forEach { (modulePath, ismModule, module) ->
+    modules.forEach {
         // Do build seeds and propagate settings.
-        val seeds = ismModule.buildFragmentSeeds()
-        // FIXME propagateSettingsForSeeds breaks dependencies, so we need to build them again.
-        // FIXME Fix is to optimize `propagateSettingsForSeeds()` by gradually propagating stuff instead of doing that for every seed.
-        val propagatedSeeds = seeds.propagateSettingsForSeeds().adjustSeedsDependencies()
+        val seeds = it.moduleCtxModule.buildFragmentSeeds()
 
-        val moduleFragments = createFragments(propagatedSeeds, modulePath, module) { it.resolveInternalDependency(moduleDirToModule) }
+        val moduleFragments = createFragments(seeds, it) { it.resolveInternalDependency(dir2module) }
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
-        module.apply {
+        it.module.apply {
             fragments = moduleFragments
-            artifacts = createArtifacts(false, module.type, leaves) +
-                    createArtifacts(true, module.type, testLeaves)
+            artifacts = createArtifacts(false, it.module.type, leaves) +
+                    createArtifacts(true, it.module.type, testLeaves)
         }
     }
 
     return modules
-}
-
-internal fun ProblemReporterContext.reportEmptyModule(mPath: VirtualFile) {
-    problemReporter.reportMessage(
-        BuildProblemImpl(
-            "product.not.defined",
-            object : FileBuildProblemSource {
-                override val file: Path = mPath.toNioPath()
-            },
-            SchemaBundle.message("product.not.defined.empty"),
-            Level.Fatal
-        )
-    )
 }
 
 private fun createArtifacts(
@@ -514,38 +177,25 @@ private fun createArtifacts(
     else -> fragments.map { DefaultArtifact(it.name, listOf(it), isTest) }
 }
 
-class DefaultLocalModuleDependency(
-    override val module: AmperModule,
-    val path: Path,
-    override val compile: Boolean = true,
-    override val runtime: Boolean = true,
-    override val exported: Boolean = false,
-) : LocalModuleDependency, DefaultScopedNotation {
-    override var trace: Trace? = null
-
-    override fun toString(): String {
-        return "InternalDependency(module=${path.pathString})"
-    }
-}
-
 /**
  * Resolve internal modules against known ones by path.
  */
 context(ProblemReporterContext)
 private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): Notation? =
     when (this) {
-        is ExternalMavenDependency -> {
-            val coordinatesWithTrace = TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!)
-            MavenDependency(coordinatesWithTrace, scope.compile, scope.runtime, exported)
-        }
+        is ExternalMavenDependency -> MavenDependency(
+            TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!),
+            scope.compile,
+            scope.runtime,
+            exported,
+        )
 
         is InternalDependency -> path?.let { path ->
             DefaultLocalModuleDependency(
-                // TODO Report to error module.
                 // Note: we can't really report an error to the problem reporter here, because of the fake single-module
                 // analysis that happens in the IDE. When editing a module file, the IDE will use a fake project context
                 // that only declares this specific module, and thus all module dependencies are "unresolved".
-                moduleDir2module[path] ?: NotResolvedModule(path.name, invalidPath = path),
+                moduleDir2module[path] ?: NotResolvedModule(path.name, path),
                 path,
                 scope.compile,
                 scope.runtime,
@@ -553,12 +203,10 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Amp
             )
         }
 
+        is ExternalMavenBomDependency ->
+            BomDependency(coordinates.asTraceable().withTraceFrom(::coordinates.valueBase))
+
         is CatalogDependency -> error("Catalog dependency must be processed earlier!")
 
-        is ExternalMavenBomDependency -> {
-            val coordinatesWithTrace = TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!)
-            BomDependency(coordinatesWithTrace)
-        }
-
-        is CatalogBomDependency -> error("Catalog BOM dependency must be processed earlier!")
+        else -> error("Unknown dependency type: ${this::class}")
     }?.withTraceFrom(this)

@@ -4,34 +4,50 @@
 
 package org.jetbrains.amper.frontend.processing
 
+import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
-import org.jetbrains.amper.frontend.schema.DependencyMode
+import org.jetbrains.amper.frontend.schema.AllOpenSettings
+import org.jetbrains.amper.frontend.schema.JvmSettings
+import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.NoArgPreset
+import org.jetbrains.amper.frontend.schema.NoArgSettings
+import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.tree.Merged
+import org.jetbrains.amper.frontend.tree.Owned
+import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.asMapLike
+import org.jetbrains.amper.frontend.tree.asOwned
+import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
-fun Module.configureSpringBootDefaults() = apply {
-    // temporary ugly hack until we have dependent values on external nodes
-    settings.values.forEach { fragmentSettings ->
-        if (fragmentSettings.springBoot.enabled) {
-            if (fragmentSettings.kotlin.allOpen.trace == null) { // the user explicitly hasn't touched the setting
-                fragmentSettings.kotlin.allOpen.enabled = true
-                fragmentSettings.kotlin.allOpen.presets = listOf(AllOpenPreset.Spring)
+
+context(BuildCtx)
+internal fun TreeValue<Merged>.configureSpringBootKotlinCompilerPlugins(
+    moduleCtxModule: Module,
+) = if (moduleCtxModule.settings.springBoot.enabled)
+    treeMerger.mergeTrees(
+        listOfNotNull(asOwned().asMapLike, springBootDefaultsTree())
+    ) else this
+
+private fun BuildCtx.springBootDefaultsTree() = syntheticBuilder<MapLikeValue<Owned>>(types, DefaultTrace) {
+    mapLike<Module> {
+        Module::settings {
+            Settings::kotlin {
+                KotlinSettings::allOpen {
+                    AllOpenSettings::enabled setTo scalar(true)
+                    AllOpenSettings::presets { add(scalar(AllOpenPreset.Spring)) }
+                }
+                KotlinSettings::noArg {
+                    NoArgSettings::enabled setTo scalar(true)
+                    NoArgSettings::presets { add(scalar(NoArgPreset.Jpa)) }
+                }
+                KotlinSettings::freeCompilerArgs { add(scalar(TraceableString("-Xjsr305=strict"))) }
             }
-
-            if (fragmentSettings.kotlin.noArg.trace == null) { // the user explicitly hasn't touched the setting
-                fragmentSettings.kotlin.noArg.enabled = true
-                fragmentSettings.kotlin.noArg.presets = listOf(NoArgPreset.Jpa)
-            }
-
-            // as default is empty at this stage, it means the user hasn't touched it
-            if (fragmentSettings.kotlin.freeCompilerArgs?.isEmpty() == true) {
-                fragmentSettings.kotlin.freeCompilerArgs = listOf(TraceableString("-Xjsr305=strict"))
-            }
-
-            fragmentSettings.jvm.storeParameterNames = true
-            if (fragmentSettings.jvm.trace == null) {
-                fragmentSettings.jvm.runtimeClasspathMode = DependencyMode.CLASSES
+            Settings::jvm {
+                JvmSettings::storeParameterNames setTo scalar(true)
             }
         }
     }

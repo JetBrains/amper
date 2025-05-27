@@ -8,62 +8,35 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.api.withoutDefault
+import org.jetbrains.amper.frontend.contexts.MinimalModule
+import org.jetbrains.amper.frontend.contexts.PlatformCtx
+import org.jetbrains.amper.frontend.diagnostics.helpers.extractKeyElement
+import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.schema.Modifiers
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.yaml.psi.YAMLPsiElement
+import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.OwnedTree
+import org.jetbrains.amper.frontend.tree.visitValues
 
-object UnknownQualifiers : IsmDiagnosticFactory {
-    override val diagnosticId: BuildProblemId = "product.unknown.qualifier"
 
+object UnknownQualifiers : OwnedTreeDiagnostic {
+    override val diagnosticId: BuildProblemId = "product.unknown.qualifiers"
     private val knownPlatforms = Platform.values.map { it.schemaValue }
-
-    context(ProblemReporterContext) override fun Module.analyze() {
-        val knownAliases = aliases?.keys.orEmpty()
-        val propertiesWithModifier = listOf(
-            ::dependencies,
-            ::settings,
-            ::`test-dependencies`,
-            ::`test-settings`,
-        )
-
-        propertiesWithModifier.forEach { property ->
-            property.withoutDefault?.keys?.forEach { modifiers -> modifiers.validate(knownAliases) }
-        }
-    }
-
-    context(ProblemReporterContext)
-    private fun Modifiers.validate(knownAliases: Set<String>) {
-        // NB: While we support diagnostic on multiple modifiers at the ISM level,
-        // it isn't currently supported by the AOM (fragmentSeeds#convertToLeavesWithHint).
-        val unknownModifiers = this
-            .filter { modifier -> modifier.value !in knownAliases }
-            .filter { modifier -> modifier.value !in knownPlatforms }
-            .filter { modifier -> modifier.value != "test" || (modifier.trace?.extractPsiElementOrNull())?.language?.id != "Amper" }
-
-        if (unknownModifiers.isNotEmpty()) {
-            val firstModifier = unknownModifiers.first()
-
-            if (firstModifier.trace?.extractPsiElementOrNull()?.parent is YAMLPsiElement) {
-                // In YAML `+` separated qualifiers are mapped to a single PsiElement (key of YAMLKeyValue),
-                // so we do a single report here.
-                SchemaBundle.reportBundleError(
-                    value = firstModifier,
-                    messageKey = diagnosticId,
-                    unknownModifiers.joinToString(),
-                )
-            }
-            else {
-                unknownModifiers.forEach { modifier ->
+    override fun ProblemReporterContext.analyze(root: OwnedTree, minimalModule: MinimalModule) {
+        val knownAliases = minimalModule.aliases?.keys.orEmpty()
+        val knownModifiers = knownAliases + knownPlatforms
+        root.visitValues { value ->
+            value.contexts
+                .filterIsInstance<PlatformCtx>().filter { it.trace != null }
+                .filter { it.value !in knownModifiers }
+                .forEach {
                     SchemaBundle.reportBundleError(
-                        value = modifier,
-                        messageKey = "product.unknown.context",
-                        modifier.value,
+                        node = it.trace?.extractPsiElementOrNull()?.extractKeyElement()
+                            ?: return@forEach, // Skip for unknown places.
+                        messageKey = "product.unknown.qualifier",
+                        it.value,
                     )
                 }
-            }
         }
     }
 }

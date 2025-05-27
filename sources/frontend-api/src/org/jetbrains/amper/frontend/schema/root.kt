@@ -19,37 +19,23 @@ import java.nio.file.Path
 
 
 typealias Modifiers = Set<TraceableString>
-val noModifiers = emptySet<TraceableString>()
 
-sealed class Base : SchemaNode() {
+abstract class Base : SchemaNode() {
 
     @SchemaDoc("The list of repositories used to look up and download the Module dependencies. [Read more](#managing-maven-repositories)")
     var repositories by nullableValue<List<Repository>>()
 
     @ModifierAware
     @SchemaDoc("The list of modules and libraries necessary to build the Module. [Read more](#dependencies)")
-    var dependencies by nullableValue<Map<Modifiers, List<Dependency>>>()
+    var dependencies by nullableValue<List<Dependency>>()
 
     @ModifierAware
     @SchemaDoc("Configures the toolchains used in the build process. [Read more](#settings)")
-    var settings by value(mapOf(noModifiers to Settings()))
-
-    @ModifierAware
-    @SchemaDoc("The dependencies necessary to build and run tests of the Module. [Read more](#dependencies)")
-    var `test-dependencies` by nullableValue<Map<Modifiers, List<Dependency>>>()
-
-    @ModifierAware
-    @SchemaDoc("Configures the toolchains used in the build process of the module's tests. [Read more](#settings)")
-    var `test-settings` by value(mapOf(noModifiers to Settings()))
+    var settings by value(::Settings)
 
     @SchemaDoc("Tasks settings. Experimental and will be replaced")
     var tasks by nullableValue<Map<String, TaskSettings>>()
 }
-
-/**
- * Common settings section.
- */
-val Base.commonSettings get() = checkNotNull(settings[noModifiers]) { "Common settings should always be present in the Base node" }
 
 class Template : Base()
 

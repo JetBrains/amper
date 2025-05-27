@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -13,9 +13,7 @@ import kotlin.test.Test
 
 internal class TemplatesTest : TestBase(Path("testResources") / "templates") {
 
-    // TODO Fix
     @Test
-    @Ignore
     fun `check artifacts of multi-variant builds`() {
         aomTest("templates-simple")
     }

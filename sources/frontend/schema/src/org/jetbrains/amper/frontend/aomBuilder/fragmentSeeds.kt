@@ -4,17 +4,10 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.isParentOfStrict
 import org.jetbrains.amper.frontend.leaves
-import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.schema.Dependency
-import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.Settings
-import kotlin.reflect.KMutableProperty0
 
 
 /**
@@ -41,13 +34,7 @@ data class FragmentSeed(
     val isLeaf by lazy { naturalHierarchyPlatform?.isLeaf == true }
     val dependencies = mutableSetOf<FragmentSeed>()
 
-    var seedSettings: Settings? = null
-    var seedTestSettings: Settings? = null
-
-    var seedDependencies: List<Dependency>? = null
-    var relevantTestDependencies: List<Dependency>? = null
-
-    // Seeds equality should be based on its [platforms] and possibly [naturalHierarchyPlatform].
+    // Seeds equality should be based its [platforms] and possibly [naturalHierarchyPlatform].
     override fun hashCode() = platforms.hashCode() + 31 * naturalHierarchyPlatform.hashCode()
     override fun equals(other: Any?) =
         this === other || (platforms == (other as? FragmentSeed)?.platforms && naturalHierarchyPlatform == other.naturalHierarchyPlatform)
@@ -56,7 +43,7 @@ data class FragmentSeed(
 /**
  * Creates [FragmentSeed]s for this [Module] based on its declared platforms and aliases.
  *
- * One seed is created for each alias declared in this module and mapped to the aliased set of leaf platforms.
+ * One seed is created for each alias declared in this module, and mapped to the aliased set of leaf platforms.
  *
  * One seed is also created for each platform of the natural hierarchy that contains at least one of the declared
  * leaf platforms of the module. For example, if the module declares `linuxX64`, seeds will be created for
@@ -66,7 +53,6 @@ data class FragmentSeed(
  * For example, `native` will only be mapped to `linuxX64` in the above case, not to all other platforms that
  * `native` can include in the natural hierarchy.
  */
-context(ProblemReporterContext)
 fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
     // Get declared platforms.
     val declaredPlatforms = product.platforms
@@ -88,7 +74,7 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
         .associate { it.key to (it.value intersect declaredLeafPlatforms) }
 
     // Required seeds that are computed from the hierarchy and aliases.
-    val requiredSeeds = buildSet {
+    val resultSeeds = buildSet {
 
         // Add seeds for applicable hierarchy.
         applicableHierarchy.forEach { (hierarchyPlatform, platforms) ->
@@ -109,62 +95,12 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
         }
     }
 
-    // Do adjust dependencies.
-    requiredSeeds.adjustSeedsDependencies()
-
-    // Get a list of leaf platforms, denoted by modifiers with
-    // the natural hierarchy platform as a hint, if any.
-    fun Modifiers.convertToLeavesWithHint(): Pair<Set<Platform>, Any?>? {
-        // If modifiers are empty, then treat them like common platform modifiers.
-        if (isEmpty()) return declaredLeafPlatforms to Platform.COMMON
-        val modifier = singleOrNull()?.value
-        // Otherwise, parse every modifier individually.
-        return when {
-            modifier == null -> {
-                SchemaBundle.reportBundleError(first(), "multiple.qualifiers.are.unsupported")
-                null
-            }
-            aliases2leaves.contains(modifier) -> aliases2leaves[modifier]!! to null
-            Platform.containsKey(modifier) -> Platform[modifier]!!.leaves to Platform[modifier]
-            else -> null
-        }
-    }
-
-    /**
-     * Utility function to apply block for the relevant fragment seed.
-     *
-     * For example,
-     * ```
-     * settings@ios: // Set into "ios" fragment seed
-     * settings@iosArm64: // Set into "iosArm64" fragment seed
-     * ```
-     */
-    fun <T> Map<Modifiers, T>.forRelevantSeeds(block: FragmentSeed.(T) -> Unit) = entries.forEach { entry ->
-        val (modifierPlatforms, hint) = entry.key.convertToLeavesWithHint() ?: return@forEach
-        if (hint == null) {
-            // Case when the modifier is an alias.
-            // Thus, there should be a seed with such exact platforms.
-            requiredSeeds.firstOrNull { it.platforms == modifierPlatforms }?.apply { block(this, entry.value) }
-        } else {
-            // Case when modifier is a hierarchy platform. Thus, [naturalHierarchyPlatform] should be set.
-            requiredSeeds.firstOrNull { it.naturalHierarchyPlatform == hint }?.apply { block(this, entry.value) }
-        }
-    }
-
-    // Should check an error of declaring settings twice for the same fragment in diagnostics.
-    fun <V> KMutableProperty0<V>.nullIfSet() = takeIf { get() == null }
-    // Set up the correct settings and dependencies.
-    settings.forRelevantSeeds { ::seedSettings.nullIfSet()?.set(it) }
-    `test-settings`.forRelevantSeeds { ::seedTestSettings.nullIfSet()?.set(it) }
-    dependencies?.forRelevantSeeds { ::seedDependencies.nullIfSet()?.set(it) }
-    `test-dependencies`?.forRelevantSeeds { ::relevantTestDependencies.nullIfSet()?.set(it) }
-    return requiredSeeds
+    return resultSeeds.apply { adjustSeedsDependencies() }
 }
 
 /**
  * Utility convenience comparator for [FragmentSeed] that follows dependency semantics.
- *
- * `f1 < f2` => `f1` depends on `f2`.
+ * f1 < f2 => f1 depends on f2.
  */
 operator fun FragmentSeed.compareTo(it: FragmentSeed): Int = when {
     it.naturalHierarchyPlatform != null && naturalHierarchyPlatform?.isParentOfStrict(it.naturalHierarchyPlatform) == true -> 1
@@ -177,7 +113,7 @@ operator fun FragmentSeed.compareTo(it: FragmentSeed): Int = when {
 /**
  * Set up dependencies following platform hierarchy.
  */
-internal fun Set<FragmentSeed>.adjustSeedsDependencies() = onEach { current ->
+fun Set<FragmentSeed>.adjustSeedsDependencies() = onEach { current ->
     val dependencyCandidates = filter { current < it }
     // Exclude all candidates that depend on other candidates.
     current.dependencies.apply { clear() } += dependencyCandidates.filter { candidate ->

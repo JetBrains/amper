@@ -1,6 +1,10 @@
 Fragments:
   android
     External dependencies:
+      MavenDependency(coordinates=androidx.activity:activity-compose:1.7.2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
@@ -132,6 +136,10 @@ Fragments:
 
   androidTest
     External dependencies:
+      MavenDependency(coordinates=androidx.activity:activity-compose:1.7.2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
@@ -399,6 +407,10 @@ Fragments:
 
   commonTest
     External dependencies:
+      MavenDependency(coordinates=androidx.activity:activity-compose:1.7.2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)

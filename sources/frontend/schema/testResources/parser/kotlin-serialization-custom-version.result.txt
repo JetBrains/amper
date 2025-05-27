@@ -93,7 +93,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: 1.9
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -224,7 +224,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: 1.9
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -354,7 +354,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: 1.9
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -486,7 +486,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: 1.9
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null

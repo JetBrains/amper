@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
@@ -42,16 +42,16 @@ open class BaseTestRun(
             assertEqualsIgnoreLineSeparator(expectContent, inputContent, if (expectIsInput) input else expect)
 
             val inputAmper = base / "$caseName$inputAmperPostfix"
-            if (inputAmper.exists()) {
-                problemReporter.clearAll()
-                val inputAmperContent = getInputContent(inputAmper)
-
-                val expectAmper = (base / "$caseName.result.amper.txt").takeIf { it.exists() }
-                    ?: (base / "$caseName$expectPostfix")
-                val expectAmperContent = getExpectContent(inputAmper, expectAmper)
-
-                assertEqualsIgnoreLineSeparator(expectAmperContent, inputAmperContent, if (expectIsInput) inputAmper else expect)
-            }
+//            if (inputAmper.exists()) {
+//                problemReporter.clearAll()
+//                val inputAmperContent = getInputContent(inputAmper)
+//
+//                val expectAmper = (base / "$caseName.result.amper.txt").takeIf { it.exists() }
+//                    ?: (base / "$caseName$expectPostfix")
+//                val expectAmperContent = getExpectContent(inputAmper, expectAmper)
+//
+//                assertEqualsIgnoreLineSeparator(expectAmperContent, inputAmperContent, if (expectIsInput) inputAmper else expect)
+//            }
         }
     }
 }

@@ -14,20 +14,24 @@ import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.CompositeString
 import org.jetbrains.amper.frontend.CustomTaskDescription
+import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
+import kotlin.io.path.pathString
 
 data class DefaultModel(
     override val projectRoot: Path,
@@ -38,9 +42,8 @@ internal open class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
     override val source: AmperModuleSource,
-    final override val origin: Module,
     override val usedCatalog: VersionCatalog?,
-    override var parts: ClassBasedSet<ModulePart<*>>,
+    override var parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
 ) : AmperModule {
     override var fragments = emptyList<Fragment>()
     override var artifacts = emptyList<Artifact>()
@@ -87,7 +90,6 @@ internal class NotResolvedModule(
     userReadableName = userReadableName,
     type = ProductType.LIB,
     source = AmperModuleInvalidPathSource(invalidPath),
-    origin = Module(),
     usedCatalog = null,
     parts = classBasedSet(),
 )
@@ -104,7 +106,6 @@ class DumbGradleModule(val gradleBuildFile: VirtualFile) : AmperModule {
     override val userReadableName = gradleBuildFile.parent.name
     override val type = ProductType.LIB
     override val source = AmperModuleFileSource(gradleBuildFile.toNioPath())
-    override val origin = Module()
     override val fragments = listOf<Fragment>()
     override val artifacts = listOf<Artifact>()
     override val parts = classBasedSet<ModulePart<*>>()

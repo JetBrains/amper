@@ -4,74 +4,68 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
+import com.intellij.openapi.util.NlsSafe
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.BuildProblemId
+import com.intellij.util.asSafely
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.PsiTrace
-import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
-import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.precedingValuesSequence
+import org.jetbrains.amper.frontend.contexts.MinimalModule
+import org.jetbrains.amper.frontend.diagnostics.helpers.collectScalarPropertiesWithOwners
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import org.jetbrains.annotations.Nls
+import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.scalarValue
+import org.jetbrains.amper.frontend.tree.single
 
-object UselessSettingValue : AomSingleModuleDiagnosticFactory {
-    override val diagnosticId: BuildProblemId
-        get() = "setting.value.overrides.nothing"
 
-    context(ProblemReporterContext) override fun AmperModule.analyze() {
-        val visitor = object : SchemaValuesVisitor() {
-            private val reportedPlaces = mutableSetOf<PsiElement>()
+private const val DiagnosticId = "setting.value.overrides.nothing"
 
-            override fun visitValue(it: ValueBase<*>) {
-                val psiTrace = it.trace as? PsiTrace
-                val precedingValue = psiTrace?.precedingValue
-                val matchesPreceding = precedingValue?.value == it.value
-                if (psiTrace != null && matchesPreceding && reportedPlaces.add(psiTrace.psiElement)) {
-                    problemReporter.reportMessage(UselessSetting(it, precedingValue))
-                }
-                super.visitValue(it)
+class UselessSettingValue(
+    private val refiner: TreeRefiner,
+) : MergedTreeDiagnostic {
+    override val diagnosticId = DiagnosticId
+
+    override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) {
+        val groupedScalars = root.collectScalarPropertiesWithOwners().groupBy { it.second.key }.map { (_, it) -> it }
+        val hasPotentialOverrides = groupedScalars.filter { it.size > 1 }
+        hasPotentialOverrides.forEach { group ->
+            // TODO There an optimization can be made.
+            // TODO We may not refine for all used contexts - only for most specific ones.
+            group.forEach { (owner, scalarProp) ->
+                val refined = refiner.refineTree(owner, scalarProp.value.contexts) as MapLikeValue
+
+                // Since there is at least one value assignment,
+                // we can safely assume that after refinement it is exactly single.
+                val refinedProp = refined.single(scalarProp.key).value
+                refinedProp.trace.precedingValuesSequence
+                    .filter { it.scalarValue<Any>() == refinedProp.scalarValue<Any>() }
+                    .forEach {
+                        problemReporter.reportMessage(
+                            UselessSetting(refinedProp.trace, it.trace.asSafely<PsiTrace>() ?: return@forEach),
+                        )
+                    }
             }
         }
-        fragments.forEach { fragment ->
-            visitor.visit(fragment.settings)
-        }
     }
-
 }
 
-private class UselessSetting(
-    private val settingProp: ValueBase<*>,
-    private val precedingValue: Traceable?,
-) : PsiBuildProblem(Level.Redundancy) {
-    override val element: PsiElement
-        get() = settingProp.extractPsiElement()
+private class UselessSetting(trace: Trace, private val precedingTrace: PsiTrace) : PsiBuildProblem(Level.Redundancy) {
+    override val element: PsiElement = trace.extractPsiElement()
+    override val buildProblemId = DiagnosticId
+    override val message = SchemaBundle.message(
+        messageKey = "setting.value.is.same.as.base",
+        formatLocation(),
+    )
 
-    override val buildProblemId: BuildProblemId =
-        UselessSettingValue.diagnosticId
-
-    override val message: @Nls String
-        get() = when {
-            isInheritedFromCommon() -> SchemaBundle.message(
-                messageKey = "setting.value.is.same.as.common",
-            )
-
-            else -> SchemaBundle.message(
-                messageKey = "setting.value.is.same.as.base",
-                formatLocation()
-            )
-        }
-
-    private fun formatLocation(): String? {
-        val precedingPsiElement = (precedingValue?.trace as? PsiTrace)?.psiElement ?: return "default"
-        val precedingFile = precedingPsiElement.containingFile ?: return "default"
-        val precedingLocation = precedingFile.takeIf { it.name != "module.yaml" && it.name != "module.amper" } ?: precedingFile.parent
-        return precedingLocation?.name
+    private fun formatLocation(): String {
+        val file = precedingTrace.psiElement.containingFile!!
+        return if (file.name != "module.yaml" && file.name != "module.amper") file.name
+        else file.parent!!.name
     }
-
-    private fun isInheritedFromCommon() =
-        (settingProp.trace as? PsiTrace)?.psiElement?.containingFile == (precedingValue?.trace as? PsiTrace)?.psiElement?.containingFile
 }

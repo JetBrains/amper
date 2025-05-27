@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
@@ -8,12 +8,14 @@ import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.api.ValueDelegateBase
+import org.jetbrains.amper.frontend.schema.SerializationSettings
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -176,19 +178,14 @@ private class HumanReadableSerializerVisitor(
         builder.appendLine(end).append(currentIndent)
     }
 
-    override fun visitValue(it: ValueBase<*>) {
+    override fun visitValue(it: ValueDelegateBase<*>) {
         builder.append(it.property.name)
         builder.append(": ")
-        if (it.withoutDefault == null || (
-                    // We are mutating ksp processors every time, so value will be set, but it will be empty.
-                    it.withoutDefault.asSafely<List<*>>()?.isEmpty() == true && it.value == it.withoutDefault
-                    )
-        ) {
-            builder.append("<default> ")
-            visit(it.default?.value)
-        } else {
-            visit(it.withoutDefault)
-        }
+        val nullableNotSet = it.trace == null && it.isNullable
+        // TODO Remove this hack after removing computable dependant defaults.
+        val isDefaultSerialize = it.property == SerializationSettings::enabled && it.trace is DefaultTrace
+        if (it.trace == DefaultTrace || nullableNotSet || isDefaultSerialize) builder.append("<default> ")
+        visit(it.value)
     }
 
     override fun visitOther(it: Any?) {

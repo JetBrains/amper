@@ -14,11 +14,11 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.aomBuilder.readProject
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Project
-import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.nio.file.Path
@@ -211,9 +211,7 @@ private fun parseAmperProject(projectRootDir: VirtualFile): Project? {
     val projectFile = projectRootDir.findChildMatchingAnyOf(amperProjectFileNames) ?: return null
     return spanBuilder("Parse Amper project file")
         .setAttribute("project-file", projectFile.path)
-        .useWithoutCoroutines {
-            ConverterImpl(projectRootDir, this@FrontendPathResolver, problemReporter).convertProject(projectFile)
-        }
+        .useWithoutCoroutines { readProject(this@FrontendPathResolver, projectFile) }
 }
 
 context(ProblemReporterContext)

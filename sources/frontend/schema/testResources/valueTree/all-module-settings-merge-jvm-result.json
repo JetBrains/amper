@@ -1,0 +1,119 @@
+{
+  "product" : {
+    "type" : "lib",
+    "platforms" : [
+      "JVM",
+      "ANDROID",
+      "IOS_ARM64"
+    ]
+  },
+  "module" : {
+    "layout" : "GRADLE"
+  },
+  "aliases" : {
+    "jvmAndAndroid" : [
+      "JVM",
+      "ANDROID"
+    ]
+  },
+  "dependencies(jvm)" : [
+    {
+      "coordinates(jvmAndAndroid)" : "org.jetbrains.compose.runtime:runtime:1.4.1(jvmAndAndroid)"
+    },
+    {
+      "coordinates(jvm)" : "io.ktor:ktor-server-core:2.3.2(jvm)"
+    },
+    {
+      "coordinates(jvm)" : "org.jetbrains.compose.material3:material3:1.4.1(jvm)"
+    },
+    {
+      "coordinates(jvm)" : "some.dep(jvm)",
+      "scope(jvm)" : "COMPILE_ONLY(jvm)"
+    },
+    {
+      "coordinates(jvm)" : "other.dep(jvm)",
+      "scope(jvm)" : "COMPILE_ONLY(jvm)",
+      "exported(jvm)" : "true(jvm)"
+    },
+    {
+      "catalogKey(jvm)" : "$kotlin-stdlib(jvm)",
+      "exported(jvm)" : "true(jvm)",
+      "scope(jvm)" : "RUNTIME_ONLY(jvm)"
+    }
+  ],
+  "settings" : {
+    "android" : {
+      "compileSdk" : "VERSION_33",
+      "minSdk" : "VERSION_30",
+      "applicationId" : "my-application",
+      "namespace" : "com.example.namespace",
+      "maxSdk" : "VERSION_33",
+      "targetSdk" : "VERSION_33"
+    },
+    "compose" : {
+      "enabled" : "true"
+    },
+    "jvm" : {
+      "mainClass" : "MainKt"
+    },
+    "junit" : "NONE",
+    "kotlin" : {
+      "apiVersion" : "1.8",
+      "languageVersion" : "1.8",
+      "allWarningsAsErrors" : "false",
+      "debug" : "false",
+      "progressiveMode" : "false",
+      "suppressWarnings" : "false",
+      "verbose" : "true",
+      "freeCompilerArgs" : [
+        "-Xinline-classes",
+        "-Xxxx"
+      ],
+      "optIns" : [
+        "kotlinx.Experimental"
+      ]
+    },
+    "ios" : {
+      "teamId" : "iosTeam",
+      "framework" : {
+        "basename" : "iosBasename",
+        "isStatic" : "true"
+      }
+    },
+    "publishing" : {
+      "group" : "org.jetbrains.amper.frontend.without-fragments.yaml",
+      "version" : "42-SNAPSHOT"
+    },
+    "kover" : {
+      "enabled" : "true",
+      "html" : {
+        "title" : "koverHtmlReportTitle",
+        "onCheck" : "true",
+        "reportDir" : "html",
+        "charset" : "UTF8"
+      },
+      "xml" : {
+        "onCheck" : "false",
+        "reportFile" : "coverage.xml"
+      }
+    },
+    "native" : {
+      "entryPoint" : "entrypoint-native"
+    }
+  },
+  "repositories" : [
+    {
+      "id" : "scratch",
+      "url" : "https://packages.jetbrains.team/maven/p/amper/amper",
+      "publish" : "true",
+      "credentials" : {
+        "file" : "local.properties",
+        "usernameKey" : "tName",
+        "passwordKey" : "tPass"
+      }
+    },
+    {
+      "url" : "https://packages.jetbrains.team/maven/p/deft/deft"
+    }
+  ]
+}

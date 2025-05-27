@@ -1,0 +1,5 @@
+
+settings:
+  kotlin:
+    debug: false
+    languageVersion: 1.5

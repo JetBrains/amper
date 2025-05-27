@@ -4,6 +4,6 @@ product:
 
 settings:
   ios:
-    <![Warning] This setting was only applicable in Gradle-based Amper and is now obsolete: the team ID is managed in the Xcode project.!>teamId: aaa<!>
-  <![Warning] This setting cannot be applied to platforms iosX64, jvm. Supported platforms are: android!>android<!>:
+    <![Warning] This setting was only applicable in Gradle-based Amper and is now obsolete: the team ID is managed in the Xcode project.!>teamId<!>: aaa
+  <![Warning] This setting cannot be applied to platforms jvm, iosX64. Supported platforms are: android!>android<!>:
     <![Warning] This setting cannot be applied to a product type lib. Supported product types are: android/app!>applicationId<!>: aaa

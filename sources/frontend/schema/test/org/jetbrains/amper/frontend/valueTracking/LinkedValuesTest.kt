@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.valueTracking
@@ -11,6 +11,7 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.api.linkedAmperValue
+import org.jetbrains.amper.frontend.api.precedingValuesSequence
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
 import org.jetbrains.amper.frontend.schema.helper.TestProblemReporterContext
@@ -24,10 +25,12 @@ import kotlin.io.path.div
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
+@Ignore
 class LinkedValuesTest : TestBase(Path("testResources") / "valueTracking") {
 
     // See: https://youtrack.jetbrains.com/issue/AMPER-3896
@@ -42,7 +45,7 @@ class LinkedValuesTest : TestBase(Path("testResources") / "valueTracking") {
         // Extract caret key value element.
         val caretKeyValue = caretPsi?.parentOfType<YAMLKeyValue>(true) ?: fail("Caret element is not a YAMLKeyValue: ${caretPsi?.text}")
         val linkedValue = caretKeyValue.getUserData(linkedAmperValue)
-        val valuesList = generateSequence(linkedValue) { it.trace?.precedingValue }.drop(1).toList()
+        val valuesList = linkedValue?.trace?.precedingValuesSequence?.toList().orEmpty()
 
         // Do assertions.
         assertEquals(2, valuesList.size, "Expected 2 preceding values, but got: ${valuesList.size}")

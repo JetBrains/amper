@@ -31,7 +31,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_27
+        targetSdk: VERSION_27
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -163,7 +163,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_27
+        targetSdk: VERSION_27
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -292,7 +292,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_27
+        targetSdk: VERSION_27
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -423,7 +423,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_27
+        targetSdk: VERSION_27
         versionCode: <default> 1
         versionName: <default> unspecified
       }

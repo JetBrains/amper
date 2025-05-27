@@ -1,0 +1,14 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+    - android
+    - iosArm64
+
+apply:
+  - ./templates/first-template.yaml
+  - ./templates/second-template.yaml
+
+settings:
+  kotlin:
+    debug: true

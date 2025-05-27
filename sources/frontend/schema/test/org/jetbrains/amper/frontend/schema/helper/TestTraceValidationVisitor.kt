@@ -1,12 +1,12 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
-import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.api.ValueDelegateBase
 import org.jetbrains.amper.frontend.schema.Module
 import kotlin.reflect.full.isSubclassOf
 import kotlin.test.assertNotNull
@@ -25,7 +25,7 @@ class TestTraceValidationVisitor: SchemaValuesVisitor() {
     super.visitNode(it)
   }
 
-  override fun visitValue(it: ValueBase<*>) {
+  override fun visitValue(it: ValueDelegateBase<*>) {
     with(it) {
       if (it.shouldHaveTrace()) {
         assertNotNull(trace, "Trace of the node value ${it.withoutDefault} of type ${it.withoutDefault!!::class.simpleName} should not be null")
@@ -34,7 +34,7 @@ class TestTraceValidationVisitor: SchemaValuesVisitor() {
     super.visitValue(it)
   }
 
-  private fun ValueBase<*>.shouldHaveTrace() =
+  private fun ValueDelegateBase<*>.shouldHaveTrace() =
     withoutDefault != null
         && nonTraceableValues.none { withoutDefault!!::class.isSubclassOf(it) }
 }

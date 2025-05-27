@@ -1,9 +1,17 @@
 Fragments:
   android
     External dependencies:
+      BomDependency(coordinates=org.my-company:my-bom)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company-group:my-lib-name:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-all:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-plain-string:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-version-ref:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-with-underscores:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-without-version, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib:1.4, compile=true, runtime=true, exported=false)
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
@@ -131,10 +139,18 @@ Fragments:
 
   androidTest
     External dependencies:
+      BomDependency(coordinates=org.my-company:my-bom)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company-group:my-lib-name:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-all:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-plain-string:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-version-ref:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-with-underscores:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-without-version, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib:1.4, compile=true, runtime=true, exported=false)
     Src folder: test@android
     Fragment dependencies:
       commonTest (REFINE)
@@ -400,10 +416,18 @@ Fragments:
 
   commonTest
     External dependencies:
+      BomDependency(coordinates=org.my-company:my-bom)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company-group:my-lib-name:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-all:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-plain-string:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-version-ref:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-with-underscores:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-without-version, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib:1.4, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)

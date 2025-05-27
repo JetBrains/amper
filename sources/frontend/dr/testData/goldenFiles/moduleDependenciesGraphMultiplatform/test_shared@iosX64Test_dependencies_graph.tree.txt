@@ -1,33 +1,4 @@
 Fragment 'shared.iosX64Test' dependencies
-├─── shared:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
-├─── shared:iosX64Test:org.jetbrains.kotlin:kotlin-test:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
-├─── shared:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion
-│         ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
-├─── shared:iosX64Test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
-│    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
-│         ╰─── org.jetbrains.compose.runtime:runtime-uikitx64:#composeDefaultVersion
-│              ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion
-│              │    ╰─── androidx.annotation:annotation:1.9.1
-│              │         ╰─── androidx.annotation:annotation-iosx64:1.9.1
-│              │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
-│              ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion
-│              │    ├─── androidx.collection:collection:1.5.0
-│              │    │    ╰─── androidx.collection:collection-iosx64:1.5.0
-│              │    │         ├─── androidx.annotation:annotation:1.9.1 (*)
-│              │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
-│              │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> #kotlinVersion (*)
-│              ├─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> #kotlinVersion (*)
-│              ├─── org.jetbrains.kotlinx:atomicfu:0.23.2
-│              │    ╰─── org.jetbrains.kotlinx:atomicfu-iosx64:0.23.2
-│              │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
-│              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-│                   ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
-│                        ├─── org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
-│                        ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 ├─── shared:iosX64Test:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
 │    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
 │         ╰─── org.jetbrains.compose.foundation:foundation-uikitx64:#composeDefaultVersion
@@ -35,9 +6,29 @@ Fragment 'shared.iosX64Test' dependencies
 │              │    ╰─── org.jetbrains.compose.animation:animation-uikitx64:#composeDefaultVersion
 │              │         ├─── org.jetbrains.compose.animation:animation-core:#composeDefaultVersion
 │              │         │    ╰─── org.jetbrains.compose.animation:animation-core-uikitx64:#composeDefaultVersion
-│              │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
-│              │         │         ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
-│              │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
+│              │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion
+│              │         │         │    ╰─── androidx.annotation:annotation:1.9.1
+│              │         │         │         ╰─── androidx.annotation:annotation-iosx64:1.9.1
+│              │         │         │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion
+│              │         │         │                   ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
+│              │         │         ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion
+│              │         │         │    ├─── androidx.collection:collection:1.5.0
+│              │         │         │    │    ╰─── androidx.collection:collection-iosx64:1.5.0
+│              │         │         │    │         ├─── androidx.annotation:annotation:1.9.1 (*)
+│              │         │         │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
+│              │         │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> #kotlinVersion (*)
+│              │         │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+│              │         │         │    ╰─── org.jetbrains.compose.runtime:runtime-uikitx64:#composeDefaultVersion
+│              │         │         │         ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.compose.collection-internal:collection:#composeDefaultVersion (*)
+│              │         │         │         ├─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> #kotlinVersion (*)
+│              │         │         │         ├─── org.jetbrains.kotlinx:atomicfu:0.23.2
+│              │         │         │         │    ╰─── org.jetbrains.kotlinx:atomicfu-iosx64:0.23.2
+│              │         │         │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
+│              │         │         │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+│              │         │         │              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.8.0
+│              │         │         │                   ├─── org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
+│              │         │         │                   ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 │              │         │         ├─── org.jetbrains.compose.ui:ui:#composeDefaultVersion
 │              │         │         │    ╰─── org.jetbrains.compose.ui:ui-uikitx64:#composeDefaultVersion
 │              │         │         │         ├─── org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.4
@@ -208,7 +199,16 @@ Fragment 'shared.iosX64Test' dependencies
 │                        │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 │                        │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 │                        ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
-╰─── shared:iosX64Test:org.tinylog:tinylog-api-kotlin:2.6.2
-     ╰─── org.tinylog:tinylog-api-kotlin:2.6.2
-          ├─── org.jetbrains.kotlin:kotlin-stdlib:1.4.32 -> #kotlinVersion (*)
-          ╰─── org.tinylog:tinylog-api:2.6.2
+├─── shared:iosX64Test:org.tinylog:tinylog-api-kotlin:2.6.2
+│    ╰─── org.tinylog:tinylog-api-kotlin:2.6.2
+│         ├─── org.jetbrains.kotlin:kotlin-stdlib:1.4.32 -> #kotlinVersion (*)
+│         ╰─── org.tinylog:tinylog-api:2.6.2
+├─── shared:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+├─── shared:iosX64Test:org.jetbrains.kotlin:kotlin-test:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
+├─── shared:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion
+│         ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
+╰─── shared:iosX64Test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+     ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)

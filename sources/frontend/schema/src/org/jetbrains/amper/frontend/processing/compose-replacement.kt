@@ -1,53 +1,41 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
 
-import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.api.withTraceFrom
-import org.jetbrains.amper.frontend.schema.Dependency
+import com.intellij.util.asSafely
+import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
-import org.jetbrains.amper.frontend.schema.Modifiers
-import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.tree.TreeTransformer
+import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.tree.Merged
+import org.jetbrains.amper.frontend.tree.ScalarValue
+import org.jetbrains.amper.frontend.tree.TreeValue
 
-context(SystemInfo)
-fun Module.replaceComposeOsSpecific() = apply {
-    fun List<Dependency>.replaceComposeOsSpecific() = mapNotNull {
-        if (it !is ExternalMavenDependency) return@mapNotNull it
-        else replaceComposeOsSpecific(it)
-    }
 
-    fun Map<Modifiers, List<Dependency>>.replaceComposeOsSpecific() =
-        entries.associate { it.key to it.value.replaceComposeOsSpecific() }
+context(BuildCtx)
+internal fun TreeValue<Merged>.substituteComposeOsSpecific() =
+    ComposeOsSpecificSubstitutor(this@BuildCtx).visitValue(this)!!
 
-    // Actual replacement.
-    dependencies = dependencies?.replaceComposeOsSpecific()
-    `test-dependencies` = `test-dependencies`?.replaceComposeOsSpecific()
-}
+class ComposeOsSpecificSubstitutor(
+    private val buildCtx: BuildCtx
+) : TreeTransformer<Merged>(), ProblemReporterContext by buildCtx {
+    private val dependencyType = buildCtx.types<ExternalMavenDependency>()
+    private val coordinatesPName = ExternalMavenDependency::coordinates.name
+    private val replacement = "org.jetbrains.compose.desktop:desktop-jvm-${buildCtx.systemInfo.detect().familyArch}:"
 
-context(SystemInfo)
-fun replaceComposeOsSpecific(other: ExternalMavenDependency) = when {
-    other.coordinates.startsWith("org.jetbrains.compose.desktop:desktop-jvm:") ->
-        ExternalMavenDependency().apply {
-            coordinates = other.coordinates.replace(
-                    "org.jetbrains.compose.desktop:desktop-jvm",
-                    "org.jetbrains.compose.desktop:desktop-jvm-${detect().familyArch}"
-                )
-            this::coordinates.valueBase?.withTraceFrom(other::coordinates.valueBase)
-            copyFrom(other)
+    private fun String.doReplace() = this
+        .replace("org.jetbrains.compose.desktop:desktop:", replacement)
+        .replace("org.jetbrains.compose.desktop:desktop-jvm:", replacement)
+
+    override fun visitMapValue(value: MapLikeValue<Merged>) =
+        if (value.type != dependencyType) super.visitMapValue(value)
+        else value.copy<ScalarValue<Merged>> { key, pValue, old ->
+            pValue.value.asSafely<String>()
+                .takeIf { key == coordinatesPName }
+                ?.let { old.copy(value = pValue.copy(value = it.doReplace())) }
+                .let { listOf(it ?: old) }
         }
-
-    other.coordinates.startsWith("org.jetbrains.compose.desktop:desktop:") ->
-        ExternalMavenDependency().apply {
-            coordinates = other.coordinates.replace(
-                    "org.jetbrains.compose.desktop:desktop",
-                    "org.jetbrains.compose.desktop:desktop-jvm-${detect().familyArch}"
-                )
-            this::coordinates.valueBase?.withTraceFrom(other::coordinates.valueBase)
-            copyFrom(other)
-        }
-
-    else -> other
 }

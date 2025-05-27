@@ -5,6 +5,12 @@ product:
 apply:
   - ../../common.module-template.yaml
 
+settings:
+  kotlin:
+    serialization:
+      enabled: true
+      format: json
+
 dependencies:
   - ../../frontend-api: exported
   - ../../core

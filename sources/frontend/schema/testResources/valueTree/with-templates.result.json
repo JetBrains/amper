@@ -1,0 +1,21 @@
+{
+  "product" : {
+    "type(with-templates.yaml)" : "lib(with-templates.yaml)",
+    "platforms(with-templates.yaml)" : [
+      "JVM(with-templates.yaml)",
+      "ANDROID(with-templates.yaml)",
+      "IOS_ARM64(with-templates.yaml)"
+    ]
+  },
+  "settings" : {
+    "kotlin" : {
+      "debug(with-templates.yaml)" : "true(with-templates.yaml)",
+      "apiVersion(templates/first-template.yaml)" : "1.5(templates/first-template.yaml)",
+      "languageVersion(templates/second-template.yaml)" : "1.5(templates/second-template.yaml)"
+    }
+  },
+  "apply(with-templates.yaml)" : [
+    "templates/first-template.yaml(with-templates.yaml)",
+    "templates/second-template.yaml(with-templates.yaml)"
+  ]
+}

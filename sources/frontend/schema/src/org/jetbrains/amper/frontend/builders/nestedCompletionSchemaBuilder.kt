@@ -1,13 +1,16 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.builders
 
-import org.jetbrains.amper.frontend.api.Default
+import org.jetbrains.amper.core.UsedInIdePlugin
+import org.jetbrains.amper.frontend.meta.ATypesDiscoverer
+import org.jetbrains.amper.frontend.meta.ATypesVisitor
+import org.jetbrains.amper.frontend.types.ATypes
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
-import kotlin.reflect.KType
+import kotlin.reflect.full.starProjectedType
+
 
 interface NestedCompletionNode {
     val name: String
@@ -22,97 +25,70 @@ interface NestedCompletionNode {
     val isolated: Boolean
 }
 
-fun NestedCompletionNode.iterateThrough(level: Int = 0, block: (NestedCompletionNode, Int) -> Unit) {
-    val node = this
-    node.children.forEach {
-        block(it, level)
-        it.iterateThrough(level + 2, block)
-    }
-}
-
-internal data class NestedCompletionNodeImpl (
+internal class NestedCompletionNodeImpl(
     override val name: String,
+    override val children: List<NestedCompletionNodeImpl>,
+    override var parent: NestedCompletionNodeImpl?,
     override val isRegExp: Boolean = false,
-    override val parent: NestedCompletionNodeImpl?,
-    override val children: MutableList<NestedCompletionNodeImpl> = mutableListOf(),
-    override val isolated: Boolean = false
 ) : NestedCompletionNode {
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is NestedCompletionNode) return false
-        if (name != other.name) return false
-        return true
+    override val isolated = isRegExp
+    
+    /**
+     * Constructor that sets up parent for passed children.
+     */
+    constructor(name: String, children: List<NestedCompletionNodeImpl>, isRegExp: Boolean = false) :
+            this(name, children, null, isRegExp) {
+        children.forEach { it.parent = this }
     }
-
-    override fun hashCode(): Int {
-        return name.hashCode()
-    }
+    
+    override fun equals(other: Any?) = this === other || (other is NestedCompletionNode && name == other.name)
+    override fun hashCode() = name.hashCode()
 }
 
 /**
- * A visitor, that traverses the tree and put all nested elements schema info into tree structure defined with NestedCompletionNode.
+ * A visitor that traverses the tree and put all nested elements schema
+ * info into a tree structure defined with [NestedCompletionNode].
  */
-class NestedCompletionSchemaBuilder(
-    var currentNode: NestedCompletionNode
-) : RecurringVisitor() {
+// TODO Simplify this IDE related API.
+@UsedInIdePlugin
+class NestedCompletionSchemaBuilder internal constructor(
+    @UsedInIdePlugin
+    val currentNode: NestedCompletionNode
+) {
     companion object {
-        fun buildNestedCompletionTree(
-            root: KClass<*>
-        ) = NestedCompletionSchemaBuilder(NestedCompletionNodeImpl("", parent = null))
-            .apply {
-                visitClas(root)
-            }
-
-        fun modifiersRegExp(propName: String) = "$propName(@[A-z]+)?"
+        @UsedInIdePlugin
+        fun buildNestedCompletionTree(root: KClass<*>) = NestedCompletionBuilder
+            .visitAType(ATypesDiscoverer[root.starProjectedType])
+            .let { NestedCompletionSchemaBuilder(NestedCompletionNodeImpl("", it)) }
     }
+}
 
-    override fun visitClas(klass: KClass<*>) =
-        visitSchema(klass, NestedCompletionSchemaBuilder(currentNode))
-
-
-    override fun visitTyped(
-        prop: KProperty<*>,
-        type: KType,
-        schemaNodeType: KType,
-        types: Collection<KClass<*>>,
-        modifierAware: Boolean
-    ) {
-        val previousNode = currentNode as NestedCompletionNodeImpl
-        when {
-            type.isSchemaNode -> {
-                val nestedNode = NestedCompletionNodeImpl(prop.name, parent = previousNode)
-                previousNode.children.add(nestedNode)
-                currentNode = nestedNode
-                types.forEach { visitClas(it) }
-                currentNode = previousNode
+internal object NestedCompletionBuilder : ATypesVisitor<List<NestedCompletionNodeImpl>> {
+    fun modifiersRegExp(propName: String) = "$propName(@[A-z]+)?"
+    private val empty = emptyList<NestedCompletionNodeImpl>()
+    override fun visitEnum(type: ATypes.AEnum) = empty
+    override fun visitScalar(type: ATypes.AScalar) = empty
+    override fun visitPolymorphic(type: ATypes.APolymorphic) = empty
+    override fun visitList(type: ATypes.AList) = empty
+    override fun visitMap(type: ATypes.AMap) = empty
+    override fun visitObject(type: ATypes.AObject) =
+        type.properties.flatMap { prop ->
+            if (prop.type !is ATypes.AObject) return@flatMap listOf()
+            val possibleNames = buildList {
+                add(prop.meta.name to false)
+                // Handle modifier-aware properties.
+                if (prop.meta.modifierAware != null) {
+                    add(modifiersRegExp(prop.meta.name) to true)
+                    // We add `test-` explicitly because in YAML that is a form of `@test` modifier.
+                    add("test-${prop.meta.name}" to false)
+                    add(modifiersRegExp("test-${prop.meta.name}") to true)
+                }
             }
-            type.isMap && type.mapValueType.isSchemaNode && modifierAware -> {
-                // first visit the node with the exact name
-                val nestedPlainNode = NestedCompletionNodeImpl(prop.name, isRegExp = false, parent = previousNode)
-                previousNode.children.add(nestedPlainNode)
-                currentNode = nestedPlainNode
-                types.forEach { visitClas(it) }
-                // then create a node for regex matches for platform-specific nodes
-                val parent = previousNode.firstParent() // isolated nodes are bound to the top level completion nodes list
-                val nestedNode = NestedCompletionNodeImpl(modifiersRegExp(prop.name), isRegExp = true, parent = parent, isolated = true)
-                parent.children.add(nestedNode)
-                currentNode = nestedNode
-                types.forEach { visitClas(it) }
-                currentNode = previousNode
+            // Propagate isolated nodes to the top level completion nodes list
+            val toTopLevel = prop.type.accept().filter { it.isRegExp }
+            // Other nodes are added as children.
+            toTopLevel + possibleNames.map { (name, isRegex) ->
+                NestedCompletionNodeImpl(name, prop.type.accept().filterNot { it.isRegExp }, isRegex)
             }
-
-            type.isMap -> {} // do nothing - skip
-
-            type.isCollection -> {} // do nothing - skip
-
-            else -> error("Unsupported type $type")
         }
-    }
-
-    override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<*>?) {
-        // do nothing - skip
-    }
-
-    private fun NestedCompletionNodeImpl.firstParent(): NestedCompletionNodeImpl = this.parent?.firstParent() ?: this
 }

@@ -19,5 +19,11 @@ A:COMPILE:JVM
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0 -> #kotlinVersion (*)
 ├─── A:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+├─── A:jvm:org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1
+│    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 -> 1.9.0 (*)
+├─── A:jvm:org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0
+│    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0 -> 1.9.0 (*)
+├─── A:jvm:org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0
+│    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0 (*)
 ╰─── A:jvm:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)

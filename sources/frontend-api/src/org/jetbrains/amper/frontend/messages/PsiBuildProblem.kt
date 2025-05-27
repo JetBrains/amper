@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.messages
@@ -9,8 +9,6 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
-import org.jetbrains.amper.frontend.api.DefaultValueDependentTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
@@ -33,26 +31,32 @@ fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? {
     return valueBase?.extractPsiElementOrNull()
 }
 
-fun Traceable.extractPsiElement(): PsiElement =
-    when (val trace = trace) {
-        is DefaultValueDependentTrace -> {
-            trace.computedValueTrace?.extractPsiElement()
-                // we assume that precedingValue is not null, the nullable preceding value is a programmatic error in case of DependentValueTrace
-                ?: error { "Can't extract PSI element from traceable ${this}. Preceding value is null" }
-        }
-        is PsiTrace -> trace.psiElement
-        is BuiltinCatalogTrace -> {
-            // todo (AB) : It is not correct to throw error here, either returned value should be nullable,
-            // todo (AB) : or built-in catalogue entries should be associated with the real trace in some virtual file.
-            error { "Can't extract PSI element from traceable ${this}. Expected to have PSI trace, but has ${trace.javaClass}" }
-        }
-        null -> error { "Can't extract PSI element from traceable ${this}. Element doesn't have trace" }
-    }
+// FIXME Why do we have this?
+//fun Traceable.extractPsiElement(): PsiElement =
+//    when (val trace = trace) {
+//        // FIXME Rethink default traces.
+//        is DefaultTrace -> trace.computedValueTrace?.extractPsiElement()
+//            ?: error { "Can't extract PSI element from traceable ${this}. Referenced trace is null" }
+//
+//        is PsiTrace -> trace.psiElement
+//
+//        // todo (AB) : It is not correct to throw error here, either returned value should be nullable,
+//        // todo (AB) : or built-in catalogue entries should be associated with the real trace in some virtual file.
+//        is BuiltinCatalogTrace -> error("Can't extract PSI element from traceable ${this}. Expected to have PSI trace, but has ${trace.javaClass}")
+//
+//        null -> error("Can't extract PSI element from traceable ${this}. Element doesn't have trace")
+//    }
 
 fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
-    is DefaultValueDependentTrace -> this.computedValueTrace?.trace?.extractPsiElementOrNull()
     is PsiTrace -> psiElement
-    is BuiltinCatalogTrace -> null
+    else -> computedValueTrace?.extractPsiElementOrNull()
 }
 
-fun Traceable.extractPsiElementOrNull(): PsiElement? = trace?.extractPsiElementOrNull()
+fun Traceable.extractPsiElementOrNull(): PsiElement? = 
+    trace?.extractPsiElementOrNull()
+
+fun Traceable.extractPsiElement(): PsiElement =
+    extractPsiElementOrNull() ?: error("Can't extract PSI element from traceable $this")
+
+fun Trace.extractPsiElement(): PsiElement =
+    extractPsiElementOrNull() ?: error("Can't extract PSI element from trace $this")

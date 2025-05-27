@@ -109,9 +109,8 @@ class AmperBuildTest : AmperCliTestBase() {
         val actualStderr = r.stderr.lines().filter { it.isNotBlank() }.joinToString("\n")
         val sharedModule = r.projectRoot.resolve("shared/module.yaml")
 
-        // could be any of them first
-        val expected1 = """
-            ERROR: Task ':app:resolveDependenciesJvm' failed: Unable to resolve dependencies for module app:
+        // Prepend \n manually, since trimIndent will remove it.
+        val sharedErrorPart = System.lineSeparator() + """
             $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
               Unable to download checksums of file junit-jupiter-api-9999.pom
               Unable to download checksums of file junit-jupiter-api-9999.module
@@ -119,63 +118,24 @@ class AmperBuildTest : AmperCliTestBase() {
               - https://repo1.maven.org/maven2
               - https://maven.google.com
               - https://maven.pkg.jetbrains.space/public/p/compose/dev
-        """.trimIndent()
-        val expected2 = """
-            ERROR: Task ':app:resolveDependenciesJvmTest' failed: Unable to resolve dependencies for module app:
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
-              Unable to download checksums of file junit-jupiter-api-9999.pom
-              Unable to download checksums of file junit-jupiter-api-9999.module
-            Repositories used for resolution:
-              - https://repo1.maven.org/maven2
-              - https://maven.google.com
-              - https://maven.pkg.jetbrains.space/public/p/compose/dev
-        """.trimIndent()
-        val expected3 = """
-            ERROR: Task ':shared:resolveDependenciesJvm' failed: Unable to resolve dependencies for module shared:
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
-              Unable to download checksums of file junit-jupiter-api-9999.pom
-              Unable to download checksums of file junit-jupiter-api-9999.module
-            Repositories used for resolution:
-              - https://repo1.maven.org/maven2
-              - https://maven.google.com
-              - https://maven.pkg.jetbrains.space/public/p/compose/dev
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
-              Unable to download checksums of file junit-jupiter-api-9999.pom
-              Unable to download checksums of file junit-jupiter-api-9999.module
-            Repositories used for resolution:
-              - https://repo1.maven.org/maven2
-              - https://maven.google.com
-              - https://maven.pkg.jetbrains.space/public/p/compose/dev
-        """.trimIndent()
-        val expected4 = """
-            ERROR: Task ':shared:resolveDependenciesJvmTest' failed: Unable to resolve dependencies for module shared:
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
-              Unable to download checksums of file junit-jupiter-api-9999.pom
-              Unable to download checksums of file junit-jupiter-api-9999.module
-            Repositories used for resolution:
-              - https://repo1.maven.org/maven2
-              - https://maven.google.com
-              - https://maven.pkg.jetbrains.space/public/p/compose/dev
-            $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
-              Unable to download checksums of file junit-jupiter-api-9999.pom
-              Unable to download checksums of file junit-jupiter-api-9999.module
-            Repositories used for resolution:
-              - https://repo1.maven.org/maven2
-              - https://maven.google.com
-              - https://maven.pkg.jetbrains.space/public/p/compose/dev
-        """.trimIndent()
+            """.trimIndent()
+        
+        // Could be any of them:
+        fun errorPrefix(module: String, task: String) = 
+            "ERROR: Task ':$module:$task' failed: Unable to resolve dependencies for module $module:"
+        val expectedOf = listOf(
+            errorPrefix("app", "resolveDependenciesJvm") + sharedErrorPart.repeat(2),
+            errorPrefix("app", "resolveDependenciesJvmTest") + sharedErrorPart.repeat(2),
+            errorPrefix("shared", "resolveDependenciesJvm") + sharedErrorPart.repeat(4),
+            errorPrefix("shared", "resolveDependenciesJvmTest") + sharedErrorPart.repeat(4),
+        )
 
-        if (expected1 != actualStderr && expected2 != actualStderr && expected3 != actualStderr && expected4 != actualStderr) {
-
+        if (actualStderr !in expectedOf) {
             val expectedActualComparisonText = buildString {
-                appendLine(expected1.prependIndent("EXPECTED1> "))
-                appendLine()
-                appendLine(expected2.prependIndent("EXPECTED2> "))
-                appendLine()
-                appendLine(expected3.prependIndent("EXPECTED3> "))
-                appendLine()
-                appendLine(expected4.prependIndent("EXPECTED4> "))
-                appendLine()
+                expectedOf.forEachIndexed { index, it ->
+                    appendLine(it.prependIndent("EXPECTED$index> "))
+                    appendLine()
+                }
                 appendLine(actualStderr.prependIndent("ACTUAL> "))
             }
 

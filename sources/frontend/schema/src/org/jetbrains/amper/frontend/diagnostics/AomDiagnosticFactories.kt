@@ -12,13 +12,10 @@ val AomModelDiagnosticFactories: List<AomModelDiagnosticFactory> = listOf(
 val AomSingleModuleDiagnosticFactories: List<AomSingleModuleDiagnosticFactory> = listOf(
     AndroidVersionShouldBeAtLeastMinSdkFactory,
     ComposeVersionWithDisabledCompose,
-    IncorrectSettingsLocation,
-    KeystoreMustExistFactory,
-    KeystorePropertiesDoesNotContainKeyFactory,
-    MandatoryFieldInPropertiesFileMustBePresentFactory,
-    ModuleDependencyDoesntHaveNeededPlatformsFactory,
     SerializationVersionWithDisabledSerialization,
     SigningEnabledWithoutPropertiesFileFactory,
-    UselessSettingValue,
-    GradleSpecificUnsupportedFactory,
+    KeystorePropertiesDoesNotContainKeyFactory,
+    MandatoryFieldInPropertiesFileMustBePresentFactory,
+    KeystoreMustExistFactory,
+    ModuleDependencyDoesntHaveNeededPlatformsFactory,
 )

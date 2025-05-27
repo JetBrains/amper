@@ -1,6 +1,8 @@
 Fragments:
   android
     External dependencies:
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
@@ -9,7 +11,7 @@ Fragments:
       common (REFINE)
     Settings: {
       android: {
-        applicationId: <default> com.jetbrains.sample.app
+        applicationId: com.jetbrains.sample.app
         compileSdk: <default> VERSION_35
         maxSdk: <default> null
         minSdk: <default> VERSION_21
@@ -92,7 +94,9 @@ Fragments:
             "room.generateKotlin": true
           }
           processors: [
-            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha12)
+            - {
+                coordinates: androidx.room:room-compiler:2.7.0-alpha12
+              }
           ]
           version: 1.9.20-1.0.24
         }
@@ -134,6 +138,8 @@ Fragments:
 
   androidTest
     External dependencies:
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
@@ -144,7 +150,7 @@ Fragments:
       android (FRIEND)
     Settings: {
       android: {
-        applicationId: <default> com.jetbrains.sample.app
+        applicationId: com.jetbrains.sample.app
         compileSdk: <default> VERSION_35
         maxSdk: <default> null
         minSdk: <default> VERSION_21
@@ -227,7 +233,9 @@ Fragments:
             "room.generateKotlin": true
           }
           processors: [
-            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha12)
+            - {
+                coordinates: androidx.room:room-compiler:2.7.0-alpha12
+              }
           ]
           version: 1.9.20-1.0.24
         }
@@ -278,7 +286,7 @@ Fragments:
     Fragment dependencies:
     Settings: {
       android: {
-        applicationId: <default> com.jetbrains.sample.app
+        applicationId: com.jetbrains.sample.app
         compileSdk: <default> VERSION_35
         maxSdk: <default> null
         minSdk: <default> VERSION_21
@@ -361,7 +369,9 @@ Fragments:
             "room.generateKotlin": true
           }
           processors: [
-            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha12)
+            - {
+                coordinates: androidx.room:room-compiler:2.7.0-alpha12
+              }
           ]
           version: 1.9.20-1.0.24
         }
@@ -403,6 +413,8 @@ Fragments:
 
   commonTest
     External dependencies:
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
@@ -412,7 +424,7 @@ Fragments:
       common (FRIEND)
     Settings: {
       android: {
-        applicationId: <default> com.jetbrains.sample.app
+        applicationId: com.jetbrains.sample.app
         compileSdk: <default> VERSION_35
         maxSdk: <default> null
         minSdk: <default> VERSION_21
@@ -495,7 +507,9 @@ Fragments:
             "room.generateKotlin": true
           }
           processors: [
-            - MavenKspProcessorDeclaration(coordinates=androidx.room:room-compiler:2.7.0-alpha12)
+            - {
+                coordinates: androidx.room:room-compiler:2.7.0-alpha12
+              }
           ]
           version: 1.9.20-1.0.24
         }

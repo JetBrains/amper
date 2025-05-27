@@ -84,7 +84,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: 1.9
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -138,12 +138,16 @@ Fragments:
 
   commonTest
     External dependencies:
+      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend-api)
+      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend{{ fileSeparator }}util)
       MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-api:5.9.2, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-engine:5.9.2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -223,7 +227,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: 1.9
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -277,7 +281,11 @@ Fragments:
 
   jvm
     External dependencies:
+      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend-api)
+      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend{{ fileSeparator }}util)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -357,7 +365,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: 1.9
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -411,8 +419,16 @@ Fragments:
 
   jvmTest
     External dependencies:
+      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend-api)
+      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend{{ fileSeparator }}util)
+      MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-api:5.9.2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-engine:5.9.2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)
@@ -493,7 +509,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: 1.9
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {

@@ -21,8 +21,9 @@ private val R_DIAG_START_LB = Regex.escape(DIAGNOSTIC_START_LB)
 private val R_DIAG_START_RB = Regex.escape(DIAGNOSTIC_START_RB)
 private val R_DIAG_END = Regex.escape(DIAGNOSTIC_END)
 
-private val DIAGNOSTIC_REGEX = """($R_DIAG_START_LB((?!$R_DIAG_START_RB).)*$R_DIAG_START_RB)+(?<code>((?!$R_DIAG_END).)*)($R_DIAG_END)+"""
-    .toRegex(RegexOption.DOT_MATCHES_ALL)
+private val DIAGNOSTIC_REGEX =
+    """($R_DIAG_START_LB((?!$R_DIAG_START_RB).)*$R_DIAG_START_RB)+(?<code>((?!$R_DIAG_END).)*)($R_DIAG_END)+"""
+        .toRegex(RegexOption.DOT_MATCHES_ALL)
 
 fun PsiFile.removeDiagnosticAnnotations(): PsiFile {
     val newFile = copy() as PsiFile
@@ -84,16 +85,18 @@ private fun BuildProblem.renderWithSanitization(sanitizeDiagnostic: (String) -> 
 
 private data class DiagnosticPoint(val offset: Int, val isStart: Boolean, val problem: BuildProblem)
 
+private val diagnosticComparator =
+    compareBy<Pair<BuildProblemSource, BuildProblem>> { (it.first as FileWithRangesBuildProblemSource).offsetRange.first }
+        .thenBy { (it.first as FileWithRangesBuildProblemSource).offsetRange.last }
+        .thenBy { it.second.message }
+
 private fun StringBuilder.appendFileTextDecoratedWithDiagnostics(
     origin: Path,
     clearedText: String,
     diagnostics: List<Pair<BuildProblemSource, BuildProblem>>,
     sanitizeDiagnostic: (String) -> String,
 ) {
-    val sortedDiagnostics = diagnostics.sortedWith(
-        compareBy<Pair<BuildProblemSource, BuildProblem>> { (it.first as FileWithRangesBuildProblemSource).offsetRange.first }
-            .then(compareBy { (it.first as FileWithRangesBuildProblemSource).offsetRange.last })
-    )
+    val sortedDiagnostics = diagnostics.sortedWith(diagnosticComparator)
 
     val diagnosticPoints: List<DiagnosticPoint> = sortedDiagnostics.flatMap { (source, diagnostic) ->
         source as FileWithRangesBuildProblemSource

@@ -1,0 +1,6 @@
+product: jvm/app
+
+settings:
+  myPlugin:
+    foo: 123
+    bar: "i am a string"

@@ -1,6 +1,10 @@
 Fragments:
   android
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
@@ -131,6 +135,10 @@ Fragments:
 
   androidTest
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
@@ -263,6 +271,10 @@ Fragments:
 
   apple
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src@apple
     Fragment dependencies:
@@ -391,6 +403,10 @@ Fragments:
 
   appleTest
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
@@ -653,6 +669,10 @@ Fragments:
 
   commonTest
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
@@ -783,6 +803,10 @@ Fragments:
 
   ios
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
@@ -911,6 +935,10 @@ Fragments:
 
   iosTest
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
@@ -1042,6 +1070,10 @@ Fragments:
 
   iosX64
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src@iosX64
     Fragment dependencies:
@@ -1170,6 +1202,10 @@ Fragments:
 
   iosX64Test
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
@@ -1301,6 +1337,10 @@ Fragments:
 
   jvm
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
@@ -1429,6 +1469,10 @@ Fragments:
 
   jvmTest
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: test@jvm
@@ -1559,6 +1603,10 @@ Fragments:
 
   native
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src@native
     Fragment dependencies:
@@ -1687,6 +1735,10 @@ Fragments:
 
   nativeTest
     External dependencies:
+      BomDependency(coordinates=com.fasterxml.jackson:jackson-bom:2.18.3)
+      BomDependency(coordinates=io.ktor:ktor-bom:2.3.9)
+      MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)

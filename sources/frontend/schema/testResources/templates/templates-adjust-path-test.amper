@@ -4,7 +4,7 @@ product {
 }
 
 apply {
-  "./inner-dir/inner-template.amper"
+  "./inner-dir/inner-template.module-template.amper"
 }
 
 dependencies {
