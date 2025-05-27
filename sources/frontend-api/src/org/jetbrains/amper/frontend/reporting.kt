@@ -15,6 +15,7 @@ import org.jetbrains.amper.core.messages.LineAndColumnRange
 import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
@@ -43,8 +44,23 @@ fun MessageBundle.reportBundleError(
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
+) = value?.trace?.let {
+    reportBundleError(
+        trace = it,
+        messageKey = messageKey,
+        *arguments,
+        level = level,
+    )
+}
+
+context(ProblemReporterContext)
+fun MessageBundle.reportBundleError(
+    trace: Trace,
+    messageKey: String,
+    vararg arguments: Any,
+    level: Level = Level.Error,
 ): Nothing? {
-    val psiElement = value?.extractPsiElementOrNull()
+    val psiElement = trace.extractPsiElementOrNull()
     return when {
         psiElement != null -> reportBundleError(
             node = psiElement,
@@ -52,6 +68,7 @@ fun MessageBundle.reportBundleError(
             *arguments,
             level = level,
         )
+
         else -> reportError(
             message = message(messageKey, *arguments),
             level = level,

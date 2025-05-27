@@ -70,6 +70,8 @@ interface FileBuildProblemSource : BuildProblemSource {
     val file: Path
 }
 
+class DefaultFileBuildProblemSource(override val file: Path) : FileBuildProblemSource
+
 interface FileWithRangesBuildProblemSource : FileBuildProblemSource {
     /**
      * Range of problematic code expressed in terms of lines and columns.

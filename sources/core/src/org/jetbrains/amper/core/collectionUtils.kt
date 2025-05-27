@@ -4,5 +4,10 @@
 
 package org.jetbrains.amper.core
 
-fun <T> Collection<T>.forEachEndAware(block: (Boolean, T) -> Unit) =
+
+inline fun <T> Collection<T>.withEach(block: T.() -> Unit) = forEach { it.block() }
+
+inline fun <T, R> Collection<T>.flatMapNotNull(block: (T) -> Iterable<R>?) = flatMap { block(it) ?: emptyList() }
+
+inline fun <T> Collection<T>.forEachEndAware(block: (Boolean, T) -> Unit) =
     forEachIndexed { index, it -> if (index == size - 1) block(true, it) else block(false, it) }

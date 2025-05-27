@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
+import java.nio.file.Path
 
 @EnumOrderSensitive(reverse = true)
 @EnumValueFilter("outdated", isNegated = true)
@@ -78,25 +79,25 @@ class JavaAnnotationProcessingSettings : SchemaNode() {
 
     @Aliases("processorSettings")
     @SchemaDoc("Options to pass to annotation processors")
-    var processorOptions by value<Map<TraceableString, TraceableString>>(default = emptyMap())
+    var processorOptions by value<Map<String, TraceableString>>(default = emptyMap())
 }
 
-sealed interface JavaAnnotationProcessorDeclaration
+sealed class JavaAnnotationProcessorDeclaration : SchemaNode()
 
-data class MavenJavaAnnotationProcessorDeclaration(
+class MavenJavaAnnotationProcessorDeclaration : JavaAnnotationProcessorDeclaration() {
     @DependencyKey
-    val coordinates: TraceableString
-) : JavaAnnotationProcessorDeclaration
+    val coordinates by value<String>()
+}
 
-data class ModuleJavaAnnotationProcessorDeclaration(
+class ModuleJavaAnnotationProcessorDeclaration : JavaAnnotationProcessorDeclaration() {
     @DependencyKey
-    val path: TraceablePath
-) : JavaAnnotationProcessorDeclaration
+    val path by value<Path>()
+}
 
-data class CatalogJavaAnnotationProcessorDeclaration(
+class CatalogJavaAnnotationProcessorDeclaration : JavaAnnotationProcessorDeclaration() {
     @DependencyKey
-    val catalogKey: TraceableString
-) : JavaAnnotationProcessorDeclaration
+    val catalogKey by value<String>()
+}
 
 /**
  * Whether Java annotation processing should be run.
@@ -130,7 +131,7 @@ class JvmSettings : SchemaNode() {
     var storeParameterNames by value(false)
 
     @SchemaDoc("JVM test-specific settings")
-    var test by value(default = JvmTestSettings())
+    var test by value(::JvmTestSettings)
 
     @ContextAgnostic // TODO: the agnosticism only must be spread to platform context, not other dimensions
     @SchemaDoc("Specifies how runtime classpath is constructed for the application. " +

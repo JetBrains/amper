@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.test
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AssertionFailureBuilder
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.readLines
+import kotlin.io.path.readText
 
 /**
  * Asserts that the given [actual] list matches the [expected] list, and generates a diff in the unified diff format in
@@ -48,3 +49,13 @@ fun generateUnifiedDiff(originalFile: Path, revisedFile: Path): String = generat
     revised = revisedFile.readLines(),
     revisedName = revisedFile.absolutePathString(),
 )
+
+fun generateUnifiedDiff(originalFile: String, revisedFile: Path): String {
+    fun String.normalizedLines() = split("\n").map { it.trimEnd('\r') }
+    return generateUnifiedDiff(
+        original = originalFile.normalizedLines(),
+        originalName = "expected",
+        revised = revisedFile.readText().normalizedLines(),
+        revisedName = revisedFile.absolutePathString(),
+    )
+}

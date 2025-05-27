@@ -43,7 +43,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
             // TODO rework AmperModule settings so we can use different types in parsing and processing
             val processorModuleDepsPaths = fragments.flatMap { it.settings.kotlin.ksp.processors }
                 .filterIsInstance<ModuleKspProcessorDeclaration>()
-                .map { it.path.value }
+                .map { it.path }
             val processorModuleDeps = model.modules.filter { it.source.moduleDir in processorModuleDepsPaths }
 
             val processorClasspathTaskName = CommonTaskType.KspProcessorClasspath.getTaskName(module, platform, isTest)

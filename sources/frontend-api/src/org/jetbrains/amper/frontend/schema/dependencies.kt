@@ -27,11 +27,18 @@ enum class DependencyScope(
     companion object : EnumMap<DependencyScope, String>(DependencyScope::values, DependencyScope::schemaValue)
 }
 
+// TODO Break this hierarchy into two:
+//  - DependencyNotation: MavenNotation, LocalNotation, CatalogNotation (in future replaced as just reference)
+//  - Dependency: ScopedDependency, BomDependency (if we need any special meaning here for Bom).
+//  .
+//  Also, by breaking this hierarchy we can replace KspDependencies by just notation.
+//  Also, it may contradict "constructor args" approach from AmperLang.
 sealed class Dependency : SchemaNode()
 
 sealed class ScopedDependency : Dependency() {
 
     // TODO Replace exported flag by new scope (rethink scopes).
+    @Shorthand
     @SchemaDoc("Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)")
     var exported by value(false)
 

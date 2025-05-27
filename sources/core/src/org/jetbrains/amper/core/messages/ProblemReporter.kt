@@ -18,6 +18,11 @@ interface ProblemReporter {
 
 interface ProblemReporterContext {
     val problemReporter: ProblemReporter
+
+    /**
+     * See [ProblemReporter.hasFatal]
+     */
+    val hasFatal: Boolean get() = problemReporter.hasFatal
 }
 
 // TODO: Can be refactored to the reporter chain to avoid inheritance.
@@ -30,7 +35,7 @@ abstract class CollectingProblemReporter : ProblemReporter {
 
     protected abstract fun doReportMessage(message: BuildProblem)
 
-    override fun reportMessage(message: BuildProblem) {
+    final override fun reportMessage(message: BuildProblem) {
         problems.add(message)
         doReportMessage(message)
     }
@@ -38,9 +43,13 @@ abstract class CollectingProblemReporter : ProblemReporter {
 
 class NoOpCollectingProblemReporter : CollectingProblemReporter() {
     fun getProblems(): Collection<BuildProblem> = problems
+    override fun doReportMessage(message: BuildProblem) = Unit
+    fun rewindTo(other: ProblemReporter) = problems.forEach { other.reportMessage(it) }
+}
 
-    override fun doReportMessage(message: BuildProblem) {
-    }
+class NoOpCollectingProblemReporterCtx : ProblemReporterContext {
+    override val problemReporter = NoOpCollectingProblemReporter()
+    fun rewindTo(other: ProblemReporterContext) = problemReporter.rewindTo(other.problemReporter)
 }
 
 @OptIn(NonIdealDiagnostic::class)

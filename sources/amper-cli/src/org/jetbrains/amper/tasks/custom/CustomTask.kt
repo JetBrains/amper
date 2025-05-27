@@ -171,9 +171,7 @@ internal class CustomTask(
                 is CompositeStringPart.ModulePropertyReference -> {
                     when (part.property) {
                         KnownModuleProperty.VERSION -> {
-                            val commonFragment = part.referencedModule.fragments
-                                .find { !it.isTest && it.fragmentDependencies.isEmpty() }
-                            commonFragment?.settings?.publishing?.version
+                            part.referencedModule.rootFragment.settings.publishing?.version
                                 ?: userReadableError("Version is not defined for module '${part.referencedModule.userReadableName}', but it's referenced in custom task '${taskName.name}'")
                         }
                         KnownModuleProperty.NAME -> part.referencedModule.userReadableName

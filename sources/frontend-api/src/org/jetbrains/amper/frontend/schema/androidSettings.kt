@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 import java.util.*
@@ -151,16 +152,17 @@ class AndroidSettings : SchemaNode() {
 
     @SchemaDoc("Configure [Kotlin Parcelize](https://developer.android.com/kotlin/parcelize) to automatically " +
             "implement the `Parcelable` interface for classes annotated with `@Parcelize`.")
-    var parcelize by value<ParcelizeSettings>(ParcelizeSettings())
+    var parcelize by value(::ParcelizeSettings)
 }
 
 class AndroidSigningSettings : SchemaNode() {
+    @Shorthand
     @SchemaDoc("Enable signing with keystore")
     var enabled by value(default = false)
 
     @Aliases("keystoreFile")
     @SchemaDoc("Properties file where the keystore data is stored.")
-    var propertiesFile by value<Path> { Path("keystore.properties") }
+    var propertiesFile by value(Path("keystore.properties"))
 }
 
 enum class KeystoreProperty(val key: String) {
@@ -177,6 +179,7 @@ val Properties.keyPassword: String? get() = getProperty(KeystoreProperty.KeyPass
 
 class ParcelizeSettings : SchemaNode() {
 
+    @Shorthand
     @SchemaDoc("Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an " +
             "implementation of the `Parcelable` interface is automatically generated for classes annotated with " +
             "`@Parcelize`.")

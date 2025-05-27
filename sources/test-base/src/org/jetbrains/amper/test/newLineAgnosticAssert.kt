@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.test
@@ -9,6 +9,7 @@ import org.opentest4j.FileInfo
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
@@ -23,12 +24,16 @@ fun assertEqualsIgnoreLineSeparator(expectedContent: String, actualContent: Stri
     if (expectedNormalized != actualNormalized) {
         // On Windows with core.crlf = auto setting, we get '\r' in all text files
         // Let's handle it transparently to developers
-        val crInExpectedFile = originalFile.readText().contains("\r")
+        val crInExpectedFile = originalFile.takeIf { it.exists() }?.readText()?.contains("\r") ?: false
         actualFile.writeText(if (crInExpectedFile) actualNormalized.replace("\n", "\r\n") else actualNormalized)
 
-        AssertionFailureBuilder.assertionFailure()
+        if (originalFile.exists()) AssertionFailureBuilder.assertionFailure()
             .message("Comparison failed:\n${generateUnifiedDiff(originalFile, actualFile)}")
             .expected(FileInfo(originalFile.absolutePathString(), originalFile.readBytes()))
+            .actual(FileInfo(actualFile.absolutePathString(), actualFile.readBytes()))
+            .buildAndThrow()
+        else AssertionFailureBuilder.assertionFailure()
+            .message("Comparison failed:\n${generateUnifiedDiff(expectedNormalized, actualFile)}")
             .actual(FileInfo(actualFile.absolutePathString(), actualFile.readBytes()))
             .buildAndThrow()
     } else {

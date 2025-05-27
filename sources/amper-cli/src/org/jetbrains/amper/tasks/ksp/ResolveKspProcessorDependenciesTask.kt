@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.ksp
@@ -46,7 +46,7 @@ internal class ResolveKspProcessorDependenciesTask(
         // catalog references have been handled in the frontend, so we don't need to resolve them here
         val processorCoords = fragments.flatMap { it.settings.kotlin.ksp.processors }
             .filterIsInstance<MavenKspProcessorDeclaration>()
-            .map { it.coordinates.value }
+            .map { it.coordinates }
 
         if (processorCoords.isEmpty()) {
             return Result(kspProcessorExternalJars = emptyList())

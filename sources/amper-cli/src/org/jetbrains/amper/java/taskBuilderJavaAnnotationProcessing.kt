@@ -34,7 +34,7 @@ fun ProjectTasksBuilder.setupJavaAnnotationProcessingTasks() {
 
             val processorModuleDepsPaths = fragments.flatMap { it.settings.java.annotationProcessing.processors }
                 .filterIsInstance<ModuleJavaAnnotationProcessorDeclaration>()
-                .map { it.path.value }
+                .map { it.path }
             val processorModuleDeps = model.modules.filter { it.source.moduleDir in processorModuleDepsPaths }
 
             val processorClasspathTaskName = JvmSpecificTaskType.JavaAnnotationProcessorClasspath.getTaskName(module, platform, isTest)

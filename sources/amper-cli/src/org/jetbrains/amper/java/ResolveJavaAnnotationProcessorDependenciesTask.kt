@@ -46,8 +46,8 @@ internal class ResolveJavaAnnotationProcessorDependenciesTask(
         val processorCoords = fragments.flatMap { it.settings.java.annotationProcessing.processors }
             .flatMap {
                 when (it) {
-                    is MavenJavaAnnotationProcessorDeclaration -> listOf(it.coordinates.value)
-                    is CatalogJavaAnnotationProcessorDeclaration -> listOf(it.catalogKey.value)
+                    is MavenJavaAnnotationProcessorDeclaration -> listOf(it.coordinates)
+                    is CatalogJavaAnnotationProcessorDeclaration -> listOf(it.catalogKey)
                     else -> emptyList()
                 }
             }

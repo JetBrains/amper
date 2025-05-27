@@ -111,3 +111,18 @@ class DumbGradleModule(val gradleBuildFile: VirtualFile) : AmperModule {
     override val usedCatalog = null
     override val customTasks: List<CustomTaskDescription> = emptyList()
 }
+
+// TODO Should it be data class?
+// The only concern here is how [module] is compared.
+// But, since [DefaultModule] seems to have no [equals] overwrite, 
+// thus is will be compared by reference, and that is fine.
+data class DefaultLocalModuleDependency(
+    override val module: AmperModule,
+    val path: Path,
+    override val compile: Boolean = true,
+    override val runtime: Boolean = true,
+    override val exported: Boolean = false,
+) : LocalModuleDependency, DefaultScopedNotation {
+    override var trace: Trace? = null
+    override fun toString() = "InternalDependency(module=${path.pathString})"
+}

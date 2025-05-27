@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
+import java.nio.file.Path
 
 class KspSettings : SchemaNode() {
 
@@ -25,22 +26,22 @@ class KspSettings : SchemaNode() {
     var processorOptions by value<Map<TraceableString, TraceableString>>(default = emptyMap())
 }
 
-sealed interface KspProcessorDeclaration
+sealed class KspProcessorDeclaration : SchemaNode()
 
-data class MavenKspProcessorDeclaration(
+class MavenKspProcessorDeclaration : KspProcessorDeclaration() {
     @DependencyKey
-    val coordinates: TraceableString
-) : KspProcessorDeclaration
+    var coordinates by value<String>()
+}
 
-data class ModuleKspProcessorDeclaration(
+class ModuleKspProcessorDeclaration : KspProcessorDeclaration() {
     @DependencyKey
-    val path: TraceablePath
-) : KspProcessorDeclaration
+    var path by value<Path>()
+}
 
-data class CatalogKspProcessorDeclaration(
+class CatalogKspProcessorDeclaration : KspProcessorDeclaration() {
     @DependencyKey
-    val catalogKey: TraceableString
-) : KspProcessorDeclaration
+    var catalogKey by value<String>()
+}
 
 /**
  * Whether KSP should be run.

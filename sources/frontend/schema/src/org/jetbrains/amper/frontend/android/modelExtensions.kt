@@ -16,7 +16,7 @@ fun LeafFragment.findAndroidManifestFragment(): Fragment {
 
     // This is the case when the whole fragment tree is a simple 2-element bamboo:
     // `common` <- `android`. Then we allow placing AndroidManifest in `src` directory.
-    return if (module.rootFragment.platforms.firstOrNull() == Platform.ANDROID) {
+    return if (module.rootFragment.platforms.singleOrNull() == Platform.ANDROID) {
         module.rootFragment
     } else this
 }

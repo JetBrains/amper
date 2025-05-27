@@ -8,9 +8,9 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
-import org.jetbrains.amper.frontend.api.ContextAgnostic
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
+import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -88,6 +88,7 @@ class AllOpenSettings : SchemaNode() {
 
 class KotlinSettings : SchemaNode() {
 
+    @Aliases("version")
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
     var languageVersion by value(KotlinVersion.Kotlin21)
 
@@ -136,15 +137,15 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.")
     var ksp by value<KspSettings>(::KspSettings)
 
-    @ContextAgnostic
+    @PlatformAgnostic
     @SchemaDoc("Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
     var serialization by value<SerializationSettings>(::SerializationSettings)
     
-    @ContextAgnostic
+    @PlatformAgnostic
     @SchemaDoc("Configure [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html)")
     var noArg by value<NoArgSettings>(::NoArgSettings)
     
-    @ContextAgnostic
+    @PlatformAgnostic
     @SchemaDoc("Configure [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)")
     var allOpen by value<AllOpenSettings>(::AllOpenSettings)
 }

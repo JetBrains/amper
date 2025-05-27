@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.api
@@ -25,6 +25,7 @@ annotation class SchemaDoc(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
+// TODO Need to rename this one, since now it is solely YAML specific.
 annotation class ModifierAware
 
 /**
@@ -107,7 +108,7 @@ annotation class StandaloneSpecific
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class ContextAgnostic
+annotation class PlatformAgnostic
 
 /**
  * This annotation should be applied to properties

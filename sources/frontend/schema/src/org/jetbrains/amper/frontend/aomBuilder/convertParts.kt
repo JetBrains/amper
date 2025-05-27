@@ -28,6 +28,8 @@ private val defaultMavenRepositories = listOf(
     "https://maven.pkg.jetbrains.space/public/p/compose/dev"
 )
 
+// FIXME Need to get rid of this `ModulePart` convention and 
+//  replace it by direct settings reading.
 context(ProblemReporterContext)
 fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
     val parts = classBasedSet<ModulePart<*>>()

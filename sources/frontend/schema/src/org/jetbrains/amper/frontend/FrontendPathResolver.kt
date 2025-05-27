@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
@@ -48,6 +48,9 @@ class FrontendPathResolver(
             ) { "Virtual file by path $path doesn't exist" }
         })
     }
+
+    fun toPsiFile(path: Path): PsiFile? =
+        loadVirtualFileOrNull(path)?.let(::toPsiFile)
 
     fun loadVirtualFileOrNull(path: Path): VirtualFile? {
         project

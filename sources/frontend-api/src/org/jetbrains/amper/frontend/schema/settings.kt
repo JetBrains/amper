@@ -9,16 +9,15 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
-import org.jetbrains.amper.frontend.api.ContextAgnostic
 import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.KnownStringValues
+import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import java.nio.file.Path
-import org.jetbrains.amper.frontend.schema.JavaSettings
 
 
 @SchemaDoc("JUnit version that is used for the module tests")
@@ -46,7 +45,7 @@ class Settings : SchemaNode() {
     @PlatformSpecific(Platform.ANDROID)
     var android by value(::AndroidSettings)
 
-    @ContextAgnostic
+    @PlatformAgnostic
     @SchemaDoc("[Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework." +
             "Read more about [Compose configuration](#configuring-compose-multiplatform)")
     var compose by value(::ComposeSettings)
@@ -87,6 +86,7 @@ class Settings : SchemaNode() {
 
 class ComposeSettings : SchemaNode() {
 
+    @Shorthand
     @SchemaDoc("Enable Compose runtime, dependencies and the compiler plugins")
     var enabled by value(default = false)
 
@@ -126,6 +126,7 @@ class ComposeExperimentalHotReloadSettings: SchemaNode() {
 
 class SerializationSettings : SchemaNode() {
 
+    @Shorthand
     @SchemaDoc("Enables the kotlinx.serialization compiler plugin, which generates code based on " +
             "@Serializable annotations. This also automatically adds the kotlinx-serialization-core library to " +
             "provide the annotations and facilities for serialization, but no specific serialization format.")
@@ -188,6 +189,7 @@ class PublishingSettings : SchemaNode() {
 
 class KoverSettings : SchemaNode() {
 
+    @Shorthand
     @SchemaDoc("Enable code overage with Kover")
     var enabled by value(false)
 
@@ -228,6 +230,8 @@ class NativeSettings : SchemaNode() {
 }
 
 class KtorSettings: SchemaNode() {
+
+    @Shorthand
     @SchemaDoc("Enable Ktor server")
     var enabled by value(default = false)
 
@@ -236,6 +240,8 @@ class KtorSettings: SchemaNode() {
 }
 
 class SpringBootSettings: SchemaNode() {
+
+    @Shorthand
     @SchemaDoc("Enable Spring Boot")
     var enabled by value(default = false)
 
@@ -244,6 +250,8 @@ class SpringBootSettings: SchemaNode() {
 }
 
 class LombokSettings: SchemaNode() {
+    
+    @Shorthand
     @SchemaDoc("Enable Lombok")
     var enabled by value(default = false)
 }

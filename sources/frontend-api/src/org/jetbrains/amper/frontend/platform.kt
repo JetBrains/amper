@@ -120,10 +120,18 @@ enum class Platform(
          * [naturalHierarchy] with [COMMON] and leaves included.
          */
         val naturalHierarchyExt = naturalHierarchy + (COMMON to leafPlatforms) + leafPlatforms.associateWith { setOf(it) }
+
+        /**
+         * [naturalHierarchy] with [COMMON] and leaves included.
+         */
+        val naturalHierarchyExtStr = naturalHierarchyExt.mapKeys { it.key.schemaValue }
     }
 }
 
+@get:JvmName("getLeavesTraceable")
 val Iterable<TraceableEnum<Platform>>.leaves get() = flatMap { it.value.leaves }.toSet()
+val Iterable<Platform>.leaves get() = flatMap { it.leaves }.toSet()
+val Array<out Platform>.leaves get() = flatMap { it.leaves }.toSet()
 
 fun Platform.isDescendantOf(other: Platform): Boolean =
     this == other || parent?.isDescendantOf(other) == true

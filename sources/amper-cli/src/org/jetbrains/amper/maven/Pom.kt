@@ -71,6 +71,7 @@ private fun generatePomModel(
     val coords = module.publicationCoordinates(platform)
     val fragment = module.singleProductionFragmentOrNull(platform)
         ?: error("Cannot generate pom for module '${module.userReadableName}': expected a single fragment for platform $platform")
+    // FIXME [distinct] can be error prone here, because we (I guess) have no guarantees about [externalDependencies] equality.
     val dependencies = fragment.ancestralPath().flatMap { it.externalDependencies }.distinct()
 
     val model = Model()

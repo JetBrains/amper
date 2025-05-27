@@ -3,6 +3,3 @@ product: jvm/app
 settings:
   publishing:
     version: 1.0-FANCY
-
-conventionsIDKhowtoName:
-  publish: $module(.).doZipStuff/subfolder
