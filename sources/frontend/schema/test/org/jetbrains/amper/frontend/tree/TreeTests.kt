@@ -1,0 +1,70 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.amper.frontend.tree
+
+import org.jetbrains.amper.frontend.api.PropertyMeta
+import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.contexts.PathCtx
+import org.jetbrains.amper.frontend.contexts.PlatformCtx
+import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.frontend.tree.helpers.TestATypesDiscoverer
+import org.jetbrains.amper.frontend.tree.helpers.diagnoseModuleRead
+import org.jetbrains.amper.frontend.tree.helpers.testModuleRead
+import org.jetbrains.amper.frontend.tree.helpers.testRefineModule
+import org.jetbrains.amper.frontend.tree.helpers.testRefineModuleWithTemplates
+import org.junit.jupiter.api.Test
+import kotlin.io.path.Path
+import kotlin.io.path.div
+
+class TreeTests : TestBase(Path(".") / "testResources" / "valueTree") {
+
+    @Test
+    fun `all settings read`() =
+        testModuleRead("all-module-settings")
+
+    @Test
+    fun `all settings merge for jvm`() = testRefineModule(
+        "all-module-settings",
+        selectedContexts = platformCtxs("jvm"),
+        expectPostfix = "-merge-jvm-result.json",
+    )
+
+    @Test
+    fun `all settings merge for android`() = testRefineModule(
+        "all-module-settings",
+        selectedContexts = platformCtxs("android"),
+        expectPostfix = "-merge-android-result.json",
+    )
+
+    @Test
+    fun `merge with templates`() = testRefineModuleWithTemplates(
+        "with-templates",
+        selectedContexts = { platformCtxs("jvm") + PathCtx(it, null) },
+    )
+
+    class CustomPluginSchema : SchemaNode() {
+        val foo: Int by value()
+        val bar: String by value()
+    }
+
+    @Test
+    fun `read module file with custom properties`() = testModuleRead(
+        "with-custom-properties",
+        types = TestATypesDiscoverer(
+            PropertyMeta("myPlugin", CustomPluginSchema::class)
+        )
+    )
+
+    @Test
+    fun `read module file with custom properties diagnostics`() = diagnoseModuleRead(
+        "with-custom-properties-diagnostics",
+        types = TestATypesDiscoverer(
+            PropertyMeta("myPlugin", CustomPluginSchema::class)
+        )
+    )
+    
+    private fun platformCtxs(vararg values: String) = 
+        values.map { PlatformCtx(it, null) }.toSet()
+}

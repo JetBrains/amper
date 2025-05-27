@@ -1,0 +1,134 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.amper.frontend.contexts
+
+import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.core.messages.BuildProblemImpl
+import org.jetbrains.amper.core.messages.DefaultFileBuildProblemSource
+import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporterCtx
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableEnum
+import org.jetbrains.amper.frontend.api.TraceablePath
+import org.jetbrains.amper.frontend.leaves
+import org.jetbrains.amper.frontend.schema.ModuleProduct
+import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
+import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.schema.Meta
+import org.jetbrains.amper.frontend.schema.Repository
+import org.jetbrains.amper.frontend.schema.TaskSettings
+import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.tree.Merged
+import org.jetbrains.amper.frontend.tree.RefinedTree
+import org.jetbrains.amper.frontend.tree.appendDefaultValues
+import org.jetbrains.amper.frontend.tree.get
+import org.jetbrains.amper.frontend.tree.reading.readTree
+import org.jetbrains.amper.frontend.tree.onlyMapLike
+import org.jetbrains.amper.frontend.tree.isEmptyOrNoValue
+import org.jetbrains.amper.frontend.tree.resolveReferences
+import org.jetbrains.amper.frontend.tree.trivialMerge
+import org.jetbrains.amper.frontend.tree.values
+
+
+/**
+ * Internal schema to read fields, which are crucial for contexts generation.
+ * Must be fully compatible with [org.jetbrains.amper.frontend.schema.Module].
+ */
+// TODO Make internal.
+class MinimalModule : SchemaNode() {
+    var product by value<ModuleProduct>()
+
+    var aliases by nullableValue<Map<String, Set<TraceableEnum<Platform>>>>()
+
+    @Aliases("templates")
+    var apply by nullableValue<List<TraceablePath>>()
+}
+
+val MinimalModule.unwrapAliases get() = aliases?.mapValues { it.value.leaves }.orEmpty()
+
+internal val defaultContextsInheritance by lazy {
+    PlatformsInheritance() + MainTestInheritance
+}
+
+fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
+    val reporterCtx = NoOpCollectingProblemReporterCtx()
+    return with(copy(problemReporterCtx = reporterCtx)) {
+        val rawModuleTree = readTree(
+            moduleFilePath,
+            type = types<MinimalModule>(),
+            reportUnknowns = false,
+        )
+        
+        // We need to resolve defaults for the tree.
+        val moduleTree = rawModuleTree
+            ?.trivialMerge()
+            ?.appendDefaultValues()
+            ?.resolveReferences() as? MapLikeValue<Merged>
+
+        // Check if there is no "product" section.
+        if (moduleTree == null || moduleTree["product"].isEmpty())
+            problemReporter.reportMessage(
+                BuildProblemImpl(
+                    "product.not.defined",
+                    DefaultFileBuildProblemSource(moduleFilePath.toNioPath()),
+                    SchemaBundle.message("product.not.defined.empty"),
+                    Level.Fatal,
+                )
+            )
+        // Check if there is no "product.type" section (also, when type section has not value).
+        else if (moduleTree["product"].values.onlyMapLike["type"].values.isEmptyOrNoValue())
+            SchemaBundle.reportBundleError(
+                moduleTree["product"].first().kTrace,
+                "product.not.defined",
+                level = Level.Fatal,
+            )
+
+        if (reporterCtx.hasFatal) {
+            // Rewind errors to the upper reporting context if something fatal had happened.
+            // Otherwise, we will read the file again and report.
+            reporterCtx.rewindTo(this@tryReadMinimalModule.problemReporterCtx)
+            return null
+        }
+
+        MinimalModuleHolder(
+            moduleFilePath,
+            this,
+            // We can cast here because we know that minimal module
+            // properties should be used outside any context.
+            createSchemaNode<MinimalModule>(moduleTree as RefinedTree)
+        )
+    }
+}
+
+// TODO Make internal.
+class MinimalModuleHolder(
+    val moduleFilePath: VirtualFile,
+    val buildCtx: BuildCtx,
+    val module: MinimalModule,
+) {
+    val appliedTemplates by lazy {
+        module.apply?.map { it.value }.orEmpty()
+    }
+
+    val platformsInheritance by lazy {
+        val aliases = module.aliases.orEmpty().mapValues { it.value.leaves }
+        PlatformsInheritance(aliases)
+    }
+
+    val templatesInheritance by lazy {
+        // Order first by files and then by platforms.
+        val appliedTemplates = module.apply?.map { it.value }.orEmpty()
+        val filesOrder = appliedTemplates + listOf(moduleFilePath.toNioPath())
+        PathsInheritance(filesOrder)
+    }
+
+    val combinedInheritance by lazy {
+        platformsInheritance + templatesInheritance + MainTestInheritance + DefaultInheritance
+    }
+}
