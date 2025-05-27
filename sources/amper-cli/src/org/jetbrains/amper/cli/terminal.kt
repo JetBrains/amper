@@ -17,15 +17,13 @@ fun createMordantTerminal(): Terminal = spanBuilder("Initialize Mordant terminal
 
 private fun createAmperTerminalTheme(): Theme = Theme {
     // The default is too low contrast and too flashy (highlight blue color on a medium gray background).
-    // Note: this has to read well on light background, hence the white foreground (instead of default).
-    styles["markdown.code.span"] = styles["markdown.code.span"] + (TextColors.white on TextColors.rgb("#32373e"))
+    // This has to read well on both dark and light background. See AMPER-4433 for experiments.
+    styles["markdown.code.span"] = TextColors.rgb("#7fa77d")
 
     // The default is too flashy (highlight blue color).
     // Markdown blocks are already in a box, so they are visible enough - no need for extra style
     styles["markdown.code.block"] = TextStyle()
 }
-
-private operator fun TextStyle?.plus(style: TextStyle): TextStyle = this?.let { it + style } ?: style
 
 /**
  * Prints a message to the console with the 'success' style.
