@@ -16,9 +16,9 @@
 set -e -u
 
 # The version of the Amper distribution to provision and use
-amper_version=0.8.0-dev-2877
+amper_version=0.8.0-dev-2878
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=3a06200e0d1cd846472eae97ea3b840411e63330c0bbedc4539f156beaa9936b
+amper_sha256=01e6b29e71d023683a19ed58f9cb562da1fc129b0ef2bb7f81e76d87ac763c40
 
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
