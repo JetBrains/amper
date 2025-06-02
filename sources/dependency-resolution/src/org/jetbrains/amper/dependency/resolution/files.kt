@@ -404,7 +404,7 @@ open class DependencyFile(
         )
 
     private suspend fun downloadUnderFileLock(
-        repositories: List<Repository>,
+        repositories: List<MavenRepository>,
         progress: Progress,
         cache: Cache,
         spanBuilderSource: SpanBuilderSource,
@@ -583,7 +583,7 @@ open class DependencyFile(
     ): Boolean {
         val nestedDownloadReporter = CollectingDiagnosticReporter()
 
-        val path = downloadUnderFileLock(repositories.filterNot { it.isMavenLocal }, progress, cache, spanBuilderSource, verify, nestedDownloadReporter, fileLockSource)
+        val path = downloadUnderFileLock(repositories.filterIsInstance<MavenRepository>(), progress, cache, spanBuilderSource, verify, nestedDownloadReporter, fileLockSource)
         val collectedMessages = nestedDownloadReporter.getMessages()
 
         val messages = when {
@@ -614,9 +614,9 @@ open class DependencyFile(
         return path != null
     }
 
-    private fun List<Repository>.ensureFirst(repository: Repository?) =
+    private inline fun <reified T:Repository> List<T>.ensureFirst(repository: Repository?) =
         repository?.let {
-            if (this.isEmpty() || this[0].url == repository.url || !this.map { it.url }.contains(repository.url))
+            if (this.isEmpty() || repository !is T || this[0] == repository || !this.contains(repository))
                 this
             else
                 buildList {
@@ -628,7 +628,7 @@ open class DependencyFile(
     private suspend fun downloadAndVerifyHash(
         channel: FileChannel,
         temp: Path,
-        repositories: List<Repository>,
+        repositories: List<MavenRepository>,
         progress: Progress,
         cache: Cache,
         spanBuilderSource: SpanBuilderSource,
@@ -671,7 +671,7 @@ open class DependencyFile(
         temp: Path,
         actualHash: Hash?,
         cache: Cache,
-        repository: Repository?,
+        repository: MavenRepository?,
         diagnosticsReporter: DiagnosticReporter,
         sha1: suspend () -> String,
     ): Path? {
@@ -786,7 +786,7 @@ open class DependencyFile(
      * If nothing is found, then it tries sha256, sha1 and then md5 consequently.
      */
     private suspend fun downloadHash(
-        repositories: List<Repository>,
+        repositories: List<MavenRepository>,
         progress: Progress,
         cache: Cache,
         spanBuilderSource: SpanBuilderSource,
@@ -855,7 +855,7 @@ open class DependencyFile(
      */
     internal suspend fun downloadHash(
         algorithm: String,
-        repositories: List<Repository>,
+        repositories: List<MavenRepository>,
         progress: Progress,
         cache: Cache,
         spanBuilderSource: SpanBuilderSource,
@@ -905,7 +905,7 @@ open class DependencyFile(
 
     private suspend fun download(
         writers: Collection<Writer>,
-        repository: Repository,
+        repository: MavenRepository,
         progress: Progress,
         cache: Cache,
         spanBuilderSource: SpanBuilderSource,
@@ -1032,7 +1032,7 @@ open class DependencyFile(
         return false
     }
 
-    private fun Builder.withBasicAuth(repository: Repository): Builder = also {
+    private fun Builder.withBasicAuth(repository: MavenRepository): Builder = also {
         if (repository.userName != null && repository.password != null) {
             header("Authorization", getBasicAuthenticationHeader(repository.userName, repository.password))
         }
@@ -1044,7 +1044,7 @@ open class DependencyFile(
     }
 
     internal open suspend fun getNamePart(
-        repository: Repository,
+        repository: MavenRepository,
         name: String,
         extension: String,
         progress: Progress,
@@ -1054,7 +1054,7 @@ open class DependencyFile(
     ) =
         "$name.$extension"
 
-    internal open suspend fun onFileDownloaded(target: Path, repository: Repository? = null) {
+    internal open suspend fun onFileDownloaded(target: Path, repository: MavenRepository? = null) {
         this.path = target
         this.dependency.repository = repository
     }
@@ -1245,7 +1245,7 @@ class SnapshotDependencyFile(
         getLastModifiedTime() > FileTime.from(ZonedDateTime.now().minusDays(1).toInstant())
 
     override suspend fun getNamePart(
-        repository: Repository,
+        repository: MavenRepository,
         name: String,
         extension: String,
         progress: Progress,
@@ -1266,7 +1266,7 @@ class SnapshotDependencyFile(
     }
 
     private suspend fun isMavenMetadataDownloadedOrDownload(
-        repository: Repository, progress: Progress, cache: Cache, spanBuilderSource: SpanBuilderSource, diagnosticsReporter: DiagnosticReporter,
+        repository: MavenRepository, progress: Progress, cache: Cache, spanBuilderSource: SpanBuilderSource, diagnosticsReporter: DiagnosticReporter,
     ): Boolean {
         return mavenMetadata.isDownloaded()
                 || mavenMetadata
@@ -1278,7 +1278,7 @@ class SnapshotDependencyFile(
                 || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
                 || super.shouldOverwrite(cache, expectedHash, actualHash)
 
-    override suspend fun onFileDownloaded(target: Path, repository: Repository?) {
+    override suspend fun onFileDownloaded(target: Path, repository: MavenRepository?) {
         super.onFileDownloaded(target, repository)
         if (nameWithoutExtension != "maven-metadata") {
             getSnapshotVersion()?.let { getVersionFile()?.writeText(it) }

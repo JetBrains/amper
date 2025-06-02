@@ -6,13 +6,13 @@ package org.jetbrains.amper.dependency.resolution.diagnostics
 
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
 import org.jetbrains.amper.dependency.resolution.MavenDependency
-import org.jetbrains.amper.dependency.resolution.Repository
+import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.annotations.Nls
 
 data class UnableToDownloadChecksums(
     val fileName: String,
     val dependency: MavenDependency,
-    val repositories: List<Repository>,
+    val repositories: List<MavenRepository>,
     val isAutoAddedDocumentation: Boolean = false,
     override val severity: Severity = if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
     override val childMessages: List<Message>,

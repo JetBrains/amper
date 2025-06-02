@@ -110,7 +110,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var progress: Progress = Progress()
     var scope: ResolutionScope = ResolutionScope.COMPILE
     var platforms: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM)
-    var repositories: List<Repository> = listOf(Repository("https://repo1.maven.org/maven2"))
+    var repositories: List<Repository> = listOf("https://repo1.maven.org/maven2").toRepositories()
     var cache: FileCacheBuilder.() -> Unit = {}
     var spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() }
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
@@ -207,20 +207,35 @@ val Context.nodeParents: MutableList<DependencyNode>
         CopyOnWriteArrayList()
     }
 
-
-data class Repository(
-    val url: String,
-    val userName: String? = null,
-    val password: String? = null,
-) {
-    val isMavenLocal = url == "mavenLocal"
-
-    override fun toString(): String {
-        return url
-    }
+sealed interface Repository {
+    val url: String
 }
 
-fun List<String>.toRepositories() = map { Repository(it) }
+data class MavenRepository(
+    override val url: String,
+    val userName: String? = null,
+    val password: String? = null,
+) : Repository {
+    init {
+        assert(url != MavenLocal.URL) { "Use dedicated object ${MavenLocal::class.simpleName} for ${MavenLocal.URL} instead" }
+    }
+    override fun toString()= url
+}
+
+object MavenLocal : Repository{
+    internal const val URL = "mavenLocal"
+
+    override val url: String = URL
+
+    override fun toString() = URL
+}
+
+fun List<String>.toRepositories() = map {
+    when  {
+        it == MavenLocal.URL -> MavenLocal
+        else -> MavenRepository(it)
+    }
+}
 
 typealias SpanBuilderSource = (String) -> SpanBuilder
 

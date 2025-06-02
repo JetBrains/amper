@@ -94,7 +94,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
                 ),
                 // Checksums are ignored when an artifact is resolved from mavenLocal
                 filesThatMustBeDownloaded = emptyList(),
-                repositories = listOf(Repository(MAVEN_LOCAL)),
+                repositories = listOf(MAVEN_LOCAL).toRepositories(),
                 initLocalRepository = { initEtalonMavenLocalStorage(mavenLocalPath) }
             )
         } finally {

@@ -8,6 +8,8 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenLocal
+import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.NoopSpanBuilder
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
@@ -101,7 +103,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
                 continue
             }
 
-            if (!repository.url.startsWith("https://") && repository.url != SpecialMavenLocalUrl) {
+            if (!repository.url.startsWith("https://") && repository != MavenLocal) {
 
                 // report only once per `url`
                 if (alreadyReportedNonHttpsRepositories.put(repository.url, true) == null) {
@@ -123,8 +125,16 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             .firstOrNull()
             ?.mavenRepositories
             ?.filter { it.resolve }
-            ?.map { Repository(it.url, it.userName, it.password) }
-            ?: defaultRepositories.map { Repository(it)}
+            ?.map { it.toRepository() }
+            ?: defaultRepositories.map { it.toRepository() }
+
+    private fun RepositoriesModulePart.Repository.toRepository() = when {
+        this.url == SpecialMavenLocalUrl -> MavenLocal
+        else -> MavenRepository(url, userName, password)
+    }
+
+    private fun String.toRepository() = RepositoriesModulePart.Repository(this, this).toRepository()
+
 
     protected fun AmperModule.resolveModuleContext(
         platforms: Set<ResolutionPlatform>,
