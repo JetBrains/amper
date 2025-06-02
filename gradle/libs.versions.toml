@@ -1,5 +1,5 @@
 [versions]
-# The version of AGP used in standalone Amper to delegate Android builds to Gradle
+# The version of AGP used in Amper to delegate Android builds to Gradle
 agp = "8.9.0"
 android-tools = "31.10.0"
 apache-commons = "1.27.1"

@@ -57,17 +57,17 @@ open class IOSBaseTest : TestBase() {
             projectsDir = examplesProjectsDir,
             bundleIdentifier = bundleIdentifier,
         ) { projectDir ->
-            buildIosAppWithStandaloneAmper(projectRootDir = projectDir, iosAppModuleName)
+            buildIosAppWithAmper(projectRootDir = projectDir, iosAppModuleName)
         }
     }
 
     /**
-     * Builds the iOS app for the project located at [projectRootDir] using standalone Amper.
+     * Builds the iOS app for the project located at [projectRootDir] using Amper.
      *
      * If [iosAppModuleName] is specified, the corresponding module is used as the iOS app to test,
      * otherwise the root module is expected to be the iOS app.
      */
-    private suspend fun buildIosAppWithStandaloneAmper(
+    private suspend fun buildIosAppWithAmper(
         projectRootDir: Path,
         iosAppModuleName: String?,
     ): Path {

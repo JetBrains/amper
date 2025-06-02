@@ -36,7 +36,7 @@ object Dirs {
     val amperBuildOutputRoot = amperCheckoutRoot / "build"
 
     /**
-     * The directory containing all test projects for Amper standalone.
+     * The directory containing all test projects for Amper integration tests.
      */
     val amperTestProjectsRoot = amperSourcesRoot / "test-integration/test-projects"
 

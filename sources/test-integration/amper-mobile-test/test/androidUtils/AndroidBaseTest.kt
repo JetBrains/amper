@@ -90,13 +90,13 @@ open class AndroidBaseTest : TestBase() {
     }
 
     /**
-     * Executes standalone tests for an Android project specified by [projectSource],
+     * Executes instrumented tests for the Android project specified by [projectSource],
      * optionally using [applicationId] for custom APK setups.
      *
      * @param androidAppModuleName android app module name inside the project;
      *   if `null` then the root module is assumed to be the android module.
      */
-    internal fun testRunnerStandalone(
+    internal fun runInstrumentedTests(
         projectSource: ProjectSource,
         applicationId: String? = null,
         androidAppModuleName: String? = null,

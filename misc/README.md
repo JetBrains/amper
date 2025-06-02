@@ -1,4 +1,4 @@
-# Try the standalone Amper version with an example project
+# Try Amper with an example project
 
 We have prepared a number of example projects to help you explore Amper. You can check them out right here on GitHub, 
 or download a zipped version to open in your IDE.

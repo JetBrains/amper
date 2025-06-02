@@ -509,7 +509,7 @@ settings:
 
 Amper supports [Compose Multiplatform resources](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html).
 
-The file layout for the standalone Amper is:
+The file layout in Amper is:
 ```
 |-my-kmp-module/
 |  |-module.yaml
@@ -700,8 +700,8 @@ settings:
       propertiesFile: ./keystore.properties # default value
 ```
 
-With the standalone version of Amper, you can use `./amper tool generate-keystore` to generate a new keystore if you
-don't have one yet. This will create a new self-signed certificate, using the details in the `keystore.properties` file.
+You can use `./amper tool generate-keystore` to generate a new keystore if you don't have one yet.
+This will create a new self-signed certificate, using the details in the `keystore.properties` file.
 
 > You can also pass in these details to `generate-keystore` as command line arguments. Invoke the tool with `--help`
 > to learn more.

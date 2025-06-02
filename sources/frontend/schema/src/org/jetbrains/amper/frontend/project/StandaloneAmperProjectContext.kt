@@ -47,8 +47,8 @@ class StandaloneAmperProjectContext(
 
     companion object {
         /**
-         * Finds a standalone Amper project, starting at the given [start] directory or file, or returns null if no
-         * Amper project is found.
+         * Finds an Amper project, starting at the given [start] directory or file, or returns null if no Amper project
+         * is found.
          *
          * Conceptually, we first find the closest ancestor directory of [start] that contains a project file or a
          * module file. Then:
@@ -173,7 +173,7 @@ private data class RootSearchResult(
 )
 
 /**
- * Attempts to find the project root directory in a standalone Amper project from the given [start] point.
+ * Attempts to find the project root directory in an Amper project from the given [start] point.
  *
  * In practice, this function goes up the file hierarchy and looks for module files or a project file along the way.
  * The returned [RootSearchResult] is a record of what was found.
