@@ -126,9 +126,8 @@ You have several options:
 
 * Kick-start your project using one of the [examples](../examples-standalone)
 
-* Read [the blog post](https://blog.jetbrains.com/amper/2024/05/amper-update-may-2024/#setting-up-projects-from-scratch)
-  to learn how to create a project from scratch using the IDE.
-* Generate a project from a template using the `amper init` command with standalone Amper.
+* Download the Amper script by following the [usage instructions](Usage.md), and generate a project from a template 
+  using the `amper init` command.
 
 ### How do I create a multi-module project in Amper?
 
