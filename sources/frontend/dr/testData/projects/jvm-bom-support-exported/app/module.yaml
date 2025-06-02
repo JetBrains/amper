@@ -1,0 +1,7 @@
+product: jvm/app
+
+# Direct dependencies on other modules.
+# Corresponding test case checks that transitive dependencies are collected correctly
+dependencies:
+  - ../B
+
