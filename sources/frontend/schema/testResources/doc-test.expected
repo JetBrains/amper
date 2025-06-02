@@ -149,7 +149,7 @@ JvmSettings
 -----------
 	mainClass: String - (Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application
 	release: JavaVersion, default: 17 - The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used.
-	runtimeClasspathMode: DependencyMode, default: jars - Specifies how runtime classpath is constructed for the application. The default is `jars`, which means that only the `.jar` files from the dependencies are used. The `classes` mode includes the project classes in the runtime classpath.
+	runtimeClasspathMode: DependencyMode, default: jars - Specifies how runtime classpath is constructed for the application. The default is `jars`, which means all the dependencies including local dependencies on Amper modules will be built as jars. The `classes` mode will use classes for local modules as part of the runtime classpath.
 	storeParameterNames: Boolean, default: false - Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.
 	test: JvmTestSettings - JVM test-specific settings
 

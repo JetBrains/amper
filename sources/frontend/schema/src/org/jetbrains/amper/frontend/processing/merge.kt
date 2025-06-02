@@ -103,6 +103,8 @@ private fun JvmSettings.mergeJvmSettings(overwrite: JvmSettings) =
     mergeNode(overwrite, ::JvmSettings) {
         mergeScalarProperty(JvmSettings::release)
         mergeScalarProperty(JvmSettings::mainClass)
+        mergeScalarProperty(JvmSettings::storeParameterNames)
+        mergeScalarProperty(JvmSettings::runtimeClasspathMode)
         mergeProperty(JvmSettings::test, JvmTestSettings::mergeJvmTestSettings)
     }
 

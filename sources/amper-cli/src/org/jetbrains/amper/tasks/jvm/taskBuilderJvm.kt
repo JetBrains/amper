@@ -64,7 +64,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
             val runtimeClasspathMode = fragments.firstOrNull { Platform.COMMON in it.platforms }
                 ?.settings
                 ?.jvm
-                ?.runtimeClasspathMode ?: error("No runtime classpath mode set for JVM module $module")
+                ?.runtimeClasspathMode ?: DependencyMode.JARS
 
             tasks.registerTask(
                 task = JvmRuntimeClasspathTask(

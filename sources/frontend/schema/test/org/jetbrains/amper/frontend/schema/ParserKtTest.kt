@@ -211,4 +211,9 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     fun `test with android version override`() {
         aomTest("overriding-android-sdk-compile-version", expectedError = "Version for compileSdk (27) should be at least minSdk version (30)")
     }
+
+    @Test
+    fun `compose hot reload sets runtime classpath mode to classes`() {
+        aomTest("compose-hot-reload")
+    }
 }
