@@ -150,19 +150,16 @@ class AmperProjectStructureTest {
 
     private fun Path.findWrapperFiles(): List<Path> {
         val filesWithWrappers = mutableListOf<Path>()
-        val gradleTestProjects = Dirs.amperSourcesRoot.resolve("gradle-e2e-test/testData/projects")
         visitFileTree {
             onPreVisitDirectory { dir, _ ->
-                when {
-                    dir.name in excludedDirs -> FileVisitResult.SKIP_SUBTREE
-                    // do not reference wrappers
-                    dir == gradleTestProjects -> FileVisitResult.SKIP_SUBTREE
-                    dir.name == "amper-dr-test-bom-usages" -> FileVisitResult.SKIP_SUBTREE
-                    else -> FileVisitResult.CONTINUE
+                if (dir.name in excludedDirs) {
+                    FileVisitResult.SKIP_SUBTREE
+                } else {
+                    FileVisitResult.CONTINUE
                 }
             }
             onVisitFile { file, _ ->
-                if (file.name in setOf("settings.gradle.kts", "amper", "amper.bat")) {
+                if (file.name in setOf("amper", "amper.bat")) {
                     filesWithWrappers.add(file)
                 }
                 FileVisitResult.CONTINUE
@@ -177,7 +174,6 @@ class AmperProjectStructureTest {
 
         val amperVersion = run {
             val versionPattern = when (file.name) {
-                "settings.gradle.kts" -> Regex("\\s*id\\(\"org\\.jetbrains\\.amper\\.settings\\.plugin\"\\)\\.version\\(\"([^\"]+)\"\\)\\s*")
                 "amper" -> Regex("amper_version=(.+)")
                 "amper.bat" -> Regex("set amper_version=(.+)")
                 else -> error("Unsupported file: $file")
