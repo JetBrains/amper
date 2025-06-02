@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package iosUtils
@@ -10,7 +10,6 @@ import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
@@ -45,24 +44,6 @@ open class IOSBaseTest : TestBase() {
     }
 
     /**
-     * Prepares and runs the iOS test for the Gradle-based project from [projectSource] using the given
-     * [bundleIdentifier].
-     *
-     * If [iosAppSubprojectName] is specified, the corresponding subproject is used as the iOS app to test,
-     * otherwise the root project is expected to be the iOS app.
-     */
-    internal fun testRunnerGradle(projectSource: ProjectSource, bundleIdentifier: String, iosAppSubprojectName: String? = null) {
-        val examplesGradleProjectsDir = Dirs.amperCheckoutRoot.resolve("examples-gradle")
-        prepareExecution(
-            projectSource = projectSource,
-            projectsDir = examplesGradleProjectsDir,
-            bundleIdentifier = bundleIdentifier,
-        ) { projectDir ->
-            buildIosAppWithGradle(projectRootDir = projectDir, iosAppSubprojectName)
-        }
-    }
-
-    /**
      * Prepares and runs the iOS test for the Standalone-based project from [projectSource] using the given
      * [bundleIdentifier].
      *
@@ -77,30 +58,6 @@ open class IOSBaseTest : TestBase() {
             bundleIdentifier = bundleIdentifier,
         ) { projectDir ->
             buildIosAppWithStandaloneAmper(projectRootDir = projectDir, iosAppModuleName)
-        }
-    }
-
-    /**
-     * Builds the iOS app for the project located at [projectRootDir] using Gradle.
-     *
-     * If [iosAppSubprojectName] is specified, the corresponding subproject is used as the iOS app to test,
-     * otherwise the root project is expected to be the iOS app.
-     */
-    private suspend fun buildIosAppWithGradle(
-        projectRootDir: Path,
-        iosAppSubprojectName: String?,
-    ): Path {
-        val rootProjectName = projectRootDir.name
-        if (!projectRootDir.isDirectory()) {
-            error("Project directory '${projectRootDir.absolutePathString()}' does not exist or is not a directory.")
-        }
-        putAmperToGradleFile(projectRootDir, runWithPluginClasspath = true)
-        assembleTargetApp(projectRootDir, iosAppSubprojectName)
-
-        return if (iosAppSubprojectName != null) {
-            projectRootDir / "$iosAppSubprojectName/build/bin/$iosAppSubprojectName/Debug-iphonesimulator"
-        } else {
-            projectRootDir / "build/bin/$rootProjectName/Debug-iphonesimulator"
         }
     }
 

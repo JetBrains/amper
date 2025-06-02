@@ -1,2 +1,0 @@
-[libraries]
-logback-classic = { module = "ch.qos.logback:logback-classic" }

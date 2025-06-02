@@ -1,5 +1,0 @@
-product: jvm/app
-
-dependencies:
-  - org.slf4j:slf4j-api
-  - $libs.logback.classic

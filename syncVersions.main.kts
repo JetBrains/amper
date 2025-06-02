@@ -100,10 +100,7 @@ fun syncVersions() {
 fun updateVersionsCatalog() {
     versionsCatalogToml.replaceFileText { text ->
         text
-            .replaceCatalogVersionVariable(variableName = "agp-forGradleBased", newValue = androidVersionForGradleBasedAmper)
             .replaceCatalogVersionVariable(variableName = "kotlin", newValue = kotlinVersion)
-            .replaceCatalogVersionVariable(variableName = "compose-forGradleBased", newValue = composeVersionForGradleBasedAmper)
-            .replaceCatalogVersionVariable(variableName = "gradle-api-forGradleBased", newValue = gradleVersion)
             .replaceCatalogVersionVariable(variableName = "hot-reload-version", newValue = hotReloadVersion)
             .replaceCatalogVersionVariable(variableName = "junit-platform", newValue = junitPlatformVersion)
     }

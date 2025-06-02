@@ -26,9 +26,6 @@ open class AndroidBaseTest : TestBase() {
 
     private val androidTools = runBlocking { AndroidTools.getOrInstallForTests() }
 
-    /** Path to the directory containing E2E test projects for Gradle-based tests */
-    private val gradleE2eTestProjectsPath = Dirs.amperSourcesRoot / "gradle-e2e-test/testData/projects"
-
     /**
      * Sets up and executes a test environment for the project located in [projectSource],
      * including assembling the app, optionally using [applicationId] for custom APK setup.
@@ -126,44 +123,6 @@ open class AndroidBaseTest : TestBase() {
         )
         // internal Amper convention based on the task name
         return projectDir / "build/tasks/_${moduleName}_buildAndroidDebug/gradle-project-debug.apk"
-    }
-
-    /**
-     * Runs Gradle-based tests for the Android project specified by [projectSource] using Amper.
-     *
-     * If [androidAppSubprojectName] is specified, the corresponding subproject is used as the Android app to test.
-     * Otherwise, the root project is expected to be the Android app.
-     */
-    internal fun testRunnerGradle(
-        projectSource: ProjectSource,
-        androidAppSubprojectName: String? = null,
-    ) {
-        prepareExecution(projectSource, gradleE2eTestProjectsPath) { projectDir ->
-            putAmperToGradleFile(projectDir, runWithPluginClasspath = true)
-            buildApkWithGradle(projectDir, androidAppSubprojectName)
-        }
-    }
-
-    /**
-     * Builds the Android debug APK for the project in the given [projectRootDir].
-     *
-     * If [androidAppSubprojectName] is specified, the corresponding subproject is used as the Android app to test.
-     * Otherwise, the root project is expected to be the Android app.
-     *
-     * @return the path to the built APK
-     */
-    private suspend fun buildApkWithGradle(
-        projectRootDir: Path,
-        androidAppSubprojectName: String?
-    ): Path {
-        assembleTargetApp(projectRootDir)
-
-        val rootProjectName = projectRootDir.name
-        return if (androidAppSubprojectName != null) {
-            projectRootDir / "$androidAppSubprojectName/build/outputs/apk/debug/$androidAppSubprojectName-debug.apk"
-        } else {
-            projectRootDir / "build/outputs/apk/debug/$rootProjectName-debug.apk"
-        }
     }
 }
 

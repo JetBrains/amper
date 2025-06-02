@@ -1,7 +1,0 @@
-product: jvm/app
-
-dependencies:
-  - $compose.desktop.common
-
-settings:
-  compose: enabled

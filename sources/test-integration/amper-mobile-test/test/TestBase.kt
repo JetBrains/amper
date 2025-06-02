@@ -6,21 +6,14 @@ import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
-import org.jetbrains.amper.test.android.AndroidTools
-import org.jetbrains.amper.test.gradle.runGradle
 import org.jetbrains.amper.test.processes.checkExitCodeIsZero
 import org.junit.jupiter.api.extension.RegisterExtension
-import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
-import kotlin.io.path.name
-import kotlin.io.path.readLines
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 /**
  * Provides common utility functions.
@@ -98,72 +91,6 @@ open class TestBase : AmperCliWithWrapperTestBase() {
             workingDir = repoDir.toAbsolutePath(),
         ).checkExitCodeIsZero()
         println("Successfully checked out ref-like `$refLike`")
-    }
-
-    /**
-     * Configures Amper in the Gradle settings file for the specified [projectDir].
-     *
-     * @throws IllegalArgumentException if the settings file contains a relative `includeBuild` call without a required marker.
-     */
-    fun putAmperToGradleFile(projectDir: Path, runWithPluginClasspath: Boolean) {
-        val gradleFile = projectDir / "settings.gradle.kts"
-        require(gradleFile.exists()) { "file not found: $gradleFile" }
-
-        if (runWithPluginClasspath) {
-            val lines = gradleFile.readLines().filterNot { "<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>" in it }
-            gradleFile.writeText(lines.joinToString("\n"))
-
-            val gradleFileText = gradleFile.readText()
-            val newText = gradleFileText.replace(
-                "mavenCentral()",
-                """
-            mavenCentral()
-            mavenLocal()
-            maven("https://www.jetbrains.com/intellij-repository/releases")
-            maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
-            """.trimIndent()
-            )
-            if (!gradleFileText.contains("mavenLocal()")) {
-                gradleFile.writeText(newText)
-            }
-
-            require(gradleFile.readText().contains("mavenLocal")) {
-                "Gradle file must have 'mavenLocal' after replacement: $gradleFile"
-            }
-
-            val updatedText = gradleFile.readText().replace(
-                "id(\"org.jetbrains.amper.settings.plugin\")",
-                "id(\"org.jetbrains.amper.settings.plugin\") version(\"+\")"
-            )
-            if (!gradleFileText.contains("version(")) {
-                gradleFile.writeText(updatedText)
-            }
-
-            require(gradleFile.readText().contains("version(")) {
-                "Gradle file must have 'version(' after replacement: $gradleFile"
-            }
-        }
-
-        if (gradleFile.readText().contains("includeBuild(\".\"")) {
-            throw IllegalArgumentException("Example project ${projectDir.name} has a relative includeBuild() call, but it's run within Amper tests from a moved directory. Add a comment '<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>' on the same line if this included build is for Amper itself (will be removed if Amper is on the classpath).")
-        }
-    }
-
-    /**
-     * Assembles the target app in the specified [projectDir] using Gradle’s `assemble` task.
-     */
-    suspend fun assembleTargetApp(projectDir: Path, subprojectName: String? = null) {
-        val task = if (subprojectName == null) "assemble" else ":$subprojectName:assemble"
-
-        println("Executing 'gradle $task' in ${projectDir.name}")
-        runGradle(
-            projectDir = projectDir,
-            args = listOf(task),
-            cmdName = "gradle",
-            testReporter = testReporter,
-            additionalEnv = AndroidTools.getOrInstallForTests().environment(),
-        )
-        println("Finished 'gradle $task' in ${projectDir.name}")
     }
 
     protected fun amperExternalProject(

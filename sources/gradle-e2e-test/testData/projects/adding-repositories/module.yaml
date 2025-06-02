@@ -1,7 +1,0 @@
-product: jvm/app
-
-repositories:
-  - https://jitpack.io
-
-dependencies:
-  - com.github.Zhuinden:tuples-kt:1.2.0

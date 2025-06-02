@@ -1,7 +1,0 @@
-product:
-  type: lib
-  platforms: [jvm, android, js]
-
-settings@jvm:
-  kotlin:
-    freeCompilerArgs: [ "-Xexplicit-api=strict" ]
