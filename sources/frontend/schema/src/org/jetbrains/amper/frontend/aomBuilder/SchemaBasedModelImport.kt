@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.readTemplate
 import org.jetbrains.amper.frontend.project.AmperProjectContext
-import org.jetbrains.amper.frontend.project.GradleAmperProjectContext
 import org.jetbrains.amper.frontend.project.SingleModuleProjectContextForIde
 import java.nio.file.Path
 
@@ -29,10 +28,6 @@ internal class SchemaBasedModelImportServiceProxy : ModelInit by SchemaBasedMode
 
 object SchemaBasedModelImport : ModelInit {
     override val name = "schema-based"
-
-    context(ProblemReporterContext)
-    override fun getGradleAmperModel(rootProjectDir: Path, subprojectDirs: List<Path>): Result<Model> =
-        getModel(GradleAmperProjectContext.fromNio(rootProjectDir, subprojectDirs))
 
     context(ProblemReporterContext)
     fun getModel(projectContext: AmperProjectContext): Result<Model> {

@@ -133,9 +133,8 @@ internal fun doBuild(
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
 
-    val gradleModules = projectContext.gradleBuildFilesWithoutAmper.map { DumbGradleModule(it) }
     val moduleTriples = path2SchemaModule
-        .buildAom(gradleModules)
+        .buildAom()
         .onEach { triple -> triple.module.addImplicitDependencies() }
 
     val moduleDir2module = moduleTriples
@@ -193,7 +192,7 @@ internal fun doBuild(
     if (problemReporter.hasFatal) return null
 
     // Build AOM from ISM.
-    return moduleTriples.map { it.module } + gradleModules
+    return moduleTriples.map { it.module }
 }
 
 /**
@@ -440,7 +439,7 @@ private data class ModuleTriple(
  * Build and resolve internal module dependencies.
  */
 context(ProblemReporterContext)
-private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGradleModule>): List<ModuleTriple> {
+private fun Map<VirtualFile, ModuleHolder>.buildAom(): List<ModuleTriple> {
     val modules = mapNotNull { (mPath, holder) ->
         val noProduct = holder.module::product.unsafe == null
         if (noProduct || holder.module.product::type.unsafe == null) {
@@ -471,9 +470,7 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGrad
         )
     }
 
-    val moduleDirToAmperModule = modules.associate { (path, _, module) -> path.parent.toNioPath() to module }
-    val moduleDirToGradleModule = gradleModules.associateBy { it.gradleBuildFile.parent.toNioPath() }
-    val moduleDirToModule = moduleDirToAmperModule + moduleDirToGradleModule
+    val moduleDirToModule = modules.associate { (path, _, module) -> path.parent.toNioPath() to module }
 
     modules.forEach { (modulePath, ismModule, module) ->
         // Do build seeds and propagate settings.

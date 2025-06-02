@@ -42,8 +42,6 @@ class StandaloneAmperProjectContext(
             .filter { it.isAmperCustomTaskFile() }
     }
 
-    override val gradleBuildFilesWithoutAmper: List<VirtualFile> = emptyList()
-
     override fun getCatalogPathFor(file: VirtualFile): VirtualFile? =
         GradleVersionsCatalogFinder.findDefaultCatalogIn(projectRootDir)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
@@ -58,37 +58,12 @@ interface ModelInit {
                 Result.success(service)
             }
         }
-
-        /**
-         * Initializes an Amper model in the context of a Gradle-based project.
-         *
-         * @param rootProjectDir The directory of the Gradle root project.
-         * @param subprojectDirs The directories of all Gradle subprojects declared in the Gradle settings.
-         * @param loader The ClassLoader from which to load the implementation of [ModelInit].
-         */
-        context(ProblemReporterContext)
-        fun getGradleAmperModel(
-            rootProjectDir: Path,
-            subprojectDirs: List<Path>,
-            loader: ClassLoader = Thread.currentThread().contextClassLoader,
-        ): Result<Model> {
-            return load(loader).flatMap { it.getGradleAmperModel(rootProjectDir, subprojectDirs) }
-        }
     }
 
     /**
      * A way to distinguish different models.
      */
     val name: String
-
-    /**
-     * Initializes an Amper model in the context of a Gradle-based project.
-     *
-     * @param rootProjectDir The directory of the Gradle root project.
-     * @param subprojectDirs The directories of all Gradle subprojects declared in the Gradle settings.
-     */
-    context(ProblemReporterContext)
-    fun getGradleAmperModel(rootProjectDir: Path, subprojectDirs: List<Path>): Result<Model>
 
     /**
      * Wrapper class to hold info about requested template.
