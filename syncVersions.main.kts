@@ -81,7 +81,6 @@ val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 
 val amperRootDir: Path = __FILE__.toPath().absolute().parent // __FILE__ is this script
 val examplesGradleDir = amperRootDir / "examples-gradle"
-val migratedProjectsDir = amperRootDir / "migrated-projects"
 val amperWrapperModuleDir = amperRootDir / "sources/amper-wrapper"
 val docsDir = amperRootDir / "docs"
 val versionsCatalogToml = amperRootDir / "gradle/libs.versions.toml"
@@ -247,7 +246,7 @@ fun getJbrChecksums(jvmVersion: String, jbrBuild: String): List<Jbr> = listOf("w
 }
 
 fun updateGradleFiles() {
-    (examplesGradleDir.walk() + migratedProjectsDir.walk()).forEach { path ->
+    examplesGradleDir.walk().forEach { path ->
         when (path.name) {
             "settings.gradle.kts" -> path.replaceFileText { it.replaceAmperGradlePluginVersion() }
             "gradle-wrapper.properties" -> path.replaceFileText { it.replaceGradleDistributionUrl() }
