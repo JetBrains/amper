@@ -269,7 +269,7 @@ open class DependencyFile(
     private fun getCacheDirectory(): LocalRepository = fileCache.localRepository
 
     private suspend fun getMavenLocalPath(): Path? {
-        if (dependency.settings.repositories.none { it.url == "mavenLocal" })
+        if (!dependency.settings.repositories.contains(MavenLocal))
             return null
 
         val mavenLocal = MavenLocalRepository()

@@ -386,7 +386,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
             )
         }
 
-        if (localExternalRepository is MavenLocalRepository && repositories.any{ it.url == "mavenLocal" }) {
+        if (localExternalRepository is MavenLocalRepository && repositories.contains(MavenLocal)) {
             // Artifact resolved from mavenLocal is not copied to DR local cache
             assertFalse(
                 cache.localRepository.repository.resolve(mavenCoordinates.urlPath)
