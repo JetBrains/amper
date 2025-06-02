@@ -875,6 +875,11 @@
           "enum": ["25","24","23","22","21","17","11","8"],
           "x-intellij-enum-order-sensitive": true
         },
+        "runtimeClasspathMode": {
+          "x-intellij-html-description": "Specifies how runtime classpath is constructed for the application. The default is `jars`, which means that only the `.jar` files from the dependencies are used. The `classes` mode includes the project classes in the runtime classpath.",
+          "title": "Specifies how runtime classpath is constructed for the application. The default is `jars`, which means that only the `.jar` files from the dependencies are used. The `classes` mode includes the project classes in the runtime classpath",
+          "enum": ["classes","jars"]
+        },
         "storeParameterNames": {
           "x-intellij-html-description": "Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.",
           "title": "Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection",

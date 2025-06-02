@@ -6,11 +6,10 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Module
 
-fun Module.configureLombokKotlinCompilerPlugins() = apply {
+fun Module.configureLombokDefaults() = apply {
     settings.values.forEach { fragmentSettings ->
         if (fragmentSettings.lombok.enabled) {
             val lombokProcessor = MavenJavaAnnotationProcessorDeclaration(

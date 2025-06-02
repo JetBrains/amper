@@ -49,8 +49,9 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
-import org.jetbrains.amper.frontend.processing.configureSpringBootKotlinCompilerPlugins
-import org.jetbrains.amper.frontend.processing.configureLombokKotlinCompilerPlugins
+import org.jetbrains.amper.frontend.processing.configureHotReloadDefaults
+import org.jetbrains.amper.frontend.processing.configureSpringBootDefaults
+import org.jetbrains.amper.frontend.processing.configureLombokDefaults
 import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
@@ -113,8 +114,9 @@ internal fun doBuild(
             // Process the module file.
             val processedModule = with(systemInfo) {
                 nonProcessed
-                    .configureSpringBootKotlinCompilerPlugins()
-                    .configureLombokKotlinCompilerPlugins()
+                    .configureSpringBootDefaults()
+                    .configureHotReloadDefaults()
+                    .configureLombokDefaults()
                     .replaceCatalogDependencies(chosenCatalog)
                     .replaceComposeOsSpecific()
             }

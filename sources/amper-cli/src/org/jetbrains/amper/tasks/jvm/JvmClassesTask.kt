@@ -11,9 +11,7 @@ import org.jetbrains.amper.tasks.TaskResult
 import java.nio.file.Path
 
 /**
- * Dummy task only needed as classpath provider because hot-reload requires to depend on classes instead of jars.
- * 
- * TODO: it seems like firework supports hotswap from jars, we probably need to utilize that instead  
+ * Dummy task only needed as a classpath provider because dev tools require depending on classes instead of jars.
  */
 class JvmClassesTask(override val taskName: TaskName): Task {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {

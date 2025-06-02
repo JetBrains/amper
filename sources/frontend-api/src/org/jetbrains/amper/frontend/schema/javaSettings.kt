@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.ContextAgnostic
 import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
@@ -63,6 +64,11 @@ enum class JavaVersion(
     val releaseNumber: Int = schemaValue.toInt()
 
     companion object Index : EnumMap<JavaVersion, String>(JavaVersion::values, JavaVersion::schemaValue)
+}
+
+enum class DependencyMode(override val schemaValue: String, override val outdated: Boolean = false): SchemaEnum {
+    CLASSES("classes"),
+    JARS("jars"),
 }
 
 class JavaAnnotationProcessingSettings : SchemaNode() {
@@ -125,4 +131,10 @@ class JvmSettings : SchemaNode() {
 
     @SchemaDoc("JVM test-specific settings")
     var test by value(default = JvmTestSettings())
+
+    @ContextAgnostic // TODO: the agnosticism only must be spread to platform context, not other dimensions
+    @SchemaDoc("Specifies how runtime classpath is constructed for the application. " +
+            "The default is `jars`, which means all the dependencies including local dependencies on Amper modules will " +
+            "be built as jars. The `classes` mode will use classes for local modules as part of the runtime classpath.")
+    var runtimeClasspathMode by value(default = DependencyMode.JARS)
 }

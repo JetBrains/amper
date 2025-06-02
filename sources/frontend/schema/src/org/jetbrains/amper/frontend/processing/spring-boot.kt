@@ -6,10 +6,11 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
+import org.jetbrains.amper.frontend.schema.DependencyMode
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.NoArgPreset
 
-fun Module.configureSpringBootKotlinCompilerPlugins() = apply {
+fun Module.configureSpringBootDefaults() = apply {
     // temporary ugly hack until we have dependent values on external nodes
     settings.values.forEach { fragmentSettings ->
         if (fragmentSettings.springBoot.enabled) {
@@ -29,6 +30,9 @@ fun Module.configureSpringBootKotlinCompilerPlugins() = apply {
             }
 
             fragmentSettings.jvm.storeParameterNames = true
+            if (fragmentSettings.jvm.trace == null) {
+                fragmentSettings.jvm.runtimeClasspathMode = DependencyMode.CLASSES
+            }
         }
     }
 }

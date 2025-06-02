@@ -20,7 +20,7 @@ import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 import kotlin.io.path.pathString
 
-class JvmDevRunTask(
+class JvmHotRunTask(
     taskName: TaskName,
     module: AmperModule,
     userCacheRoot: AmperUserCacheRoot,
