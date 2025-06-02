@@ -103,7 +103,7 @@ class DependencyFileTest {
     @Test
     fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message NETWORK level`() {
         Context {
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV).toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV)
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -141,7 +141,7 @@ class DependencyFileTest {
     @Test
     fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message LOCAL level`() {
         Context {
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV).toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV)
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -177,7 +177,7 @@ class DependencyFileTest {
                 localRepository = mavenLocalRepository()
                 readOnlyExternalRepositories = emptyList()
             }
-            repositories = listOf(REDIRECTOR_COMPOSE_DEV).toRepositories()
+            repositories = listOf(REDIRECTOR_COMPOSE_DEV)
             platforms = setOf(ResolutionPlatform.MACOS_ARM64)
         }.use { context ->
             val dependency = MavenDependency(
@@ -217,7 +217,7 @@ class DependencyFileTest {
                 REDIRECTOR_MAVEN_CENTRAL,
                 REDIRECTOR_MAVEN_GOOGLE,
                 REDIRECTOR_COMPOSE_DEV
-            ).toRepositories()
+            )
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64, ResolutionPlatform.IOS_ARM64)
         }.use { context ->
             val dependency = MavenDependency(
@@ -246,7 +246,7 @@ class DependencyFileTest {
                 REDIRECTOR_MAVEN_CENTRAL,
                 REDIRECTOR_MAVEN_GOOGLE,
                 REDIRECTOR_COMPOSE_DEV
-            ).toRepositories()
+            )
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
         }.use { context ->
             val root = DependencyNodeHolder(
@@ -288,7 +288,6 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE, REDIRECTOR_COMPOSE_DEV)
-                .toRepositories()
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
             scope = ResolutionScope.RUNTIME
         }.use { context ->
@@ -310,7 +309,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
         Context {
             platforms = setOf(ResolutionPlatform.MACOS_X64)
-            repositories = listOf("$REDIRECTOR_MAVEN_CENTRAL/").toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL.copy(url = "${REDIRECTOR_MAVEN_CENTRAL.url}/"))
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -333,7 +332,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_9_0 check metadata`() {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -364,7 +363,7 @@ class DependencyFileTest {
     fun `artifact is re-downloaded if it has incorrect checksum`() {
         Context {
             platforms = setOf(ResolutionPlatform.JVM)
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -408,7 +407,7 @@ class DependencyFileTest {
     fun `obsolete diagnostic errors from LOCAL run are suppressed after artifact is re-downloaded`() {
         Context {
             platforms = setOf(ResolutionPlatform.JVM)
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -461,7 +460,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -500,7 +499,7 @@ class DependencyFileTest {
                 ResolutionPlatform.IOS_X64,
             )
             scope = ResolutionScope.RUNTIME
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()
@@ -623,7 +622,7 @@ class DependencyFileTest {
                 ResolutionPlatform.IOS_X64,
                 )
             scope = ResolutionScope.RUNTIME
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories()
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
             cache = {
                 amperCache = amperPath
                 localRepository = mavenLocalRepository()

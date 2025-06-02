@@ -297,7 +297,7 @@ class BuildGraphTest : BaseDRTest() {
             testInfo,
             scope = ResolutionScope.COMPILE,
             platform = setOf(ResolutionPlatform.JVM),
-            repositories = listOf("https://jetbrains.team/p/amper/reviews/", REDIRECTOR_MAVEN_CENTRAL),
+            repositories = listOf(MavenRepository("https://jetbrains.team/p/amper/reviews/"), REDIRECTOR_MAVEN_CENTRAL),
             expected = """
                 root
                 ╰─── com.squareup.retrofit2:retrofit:2.11.0
@@ -730,7 +730,7 @@ class BuildGraphTest : BaseDRTest() {
 
     @Test
     fun `androidx_appcompat appcompat 1_6_1 many contexts`() {
-        val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID).toRepositories()
+        val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID)
         val contexts = listOf(
             context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories),
             context(platform = setOf(ResolutionPlatform.ANDROID), repositories = repositories),
@@ -1084,7 +1084,7 @@ class BuildGraphTest : BaseDRTest() {
         doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
-            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, "https://packages.jetbrains.team/maven/p/amper/amper"),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MavenRepository("https://packages.jetbrains.team/maven/p/amper/amper")),
             expected = """
                 root
                 ╰─── org.jetbrains.amper:amper-dr-test-bom-usages:1.0
@@ -1404,7 +1404,7 @@ class BuildGraphTest : BaseDRTest() {
             "Metadata error should be of type UnableToDownloadChecksums, got ${metadataError::class} instead"
         )
         assertContentEquals(
-            repositories.toRepositories().sortedBy { (it as MavenRepository).url },
+            repositories.sortedBy { it.url },
             metadataError.repositories.sortedBy { it.url },
         )
         assertFiles(testInfo, root)
@@ -1794,7 +1794,7 @@ class BuildGraphTest : BaseDRTest() {
 
     @Test
     fun `check method distinctBfsSequence`() {
-        val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID).toRepositories()
+        val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID)
         val context = context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories)
 
         val root = DependencyNodeHolder(

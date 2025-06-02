@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedClassesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedJavaSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
+import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.incrementalcache.executeForFiles
@@ -153,7 +154,7 @@ internal class KspTask(
     }
 
     private suspend fun downloadKspCli(kspVersion: String): List<Path> {
-        val repositories = module.mavenRepositories.filter { it.resolve }.map { it.url }.distinct()
+        val repositories = module.mavenRepositories.filter { it.resolve }.map { it.toRepository() }.distinct()
         val kspDownloadConfiguration = mapOf(
             "kspVersion" to kspVersion,
             "respositories" to repositories.joinToString("|"),

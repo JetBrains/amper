@@ -94,7 +94,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
                 ),
                 // Checksums are ignored when an artifact is resolved from mavenLocal
                 filesThatMustBeDownloaded = emptyList(),
-                repositories = listOf(MAVEN_LOCAL).toRepositories(),
+                repositories = listOf(MAVEN_LOCAL),
                 initLocalRepository = { initEtalonMavenLocalStorage(mavenLocalPath) }
             )
         } finally {
@@ -137,7 +137,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
                     "jackson-annotations-2.18.2.pom.sha512",
                     "jackson-annotations-2.18.2.module.sha512",
                 ),
-                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL).toRepositories(),
+                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL),
                 initLocalRepository = {
                     mavenLocalTestDataPath.copyToRecursively(mavenLocalPath, followLinks = false, overwrite = false)
 
@@ -184,7 +184,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
                     "dr-snapshot-sample-1.0-SNAPSHOT.jar",
                 ),
                 filesThatMustBeDownloaded = emptyList(),
-                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL).toRepositories(),
+                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL),
                 initLocalRepository = {
                     mavenLocalTestDataPath.copyToRecursively(mavenLocalPath, followLinks = false, overwrite = false)
 
@@ -239,7 +239,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
                     "dr-snapshot-sample-1.0-SNAPSHOT.jar",
                 ),
                 filesThatMustBeDownloaded = emptyList(),
-                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL).toRepositories(),
+                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL),
                 initLocalRepository = {
                     mavenLocalTestDataPath.copyToRecursively(mavenLocalPath, followLinks = false, overwrite = false)
 
@@ -343,7 +343,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         verifyMessages: Boolean = true,
         filesThatShouldNotBeDownloaded: List<String> = emptyList(),
         filesThatMustBeDownloaded: List<String> = emptyList(),
-        repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL).toRepositories(),
+        repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         updateLocalRepository: (LocalRepository) -> Unit = {},
         initLocalRepository: (Path) -> LocalRepository = { cacheRoot -> initEtalonMavenLocalStorage(cacheRoot) }
     ): DependencyNode {

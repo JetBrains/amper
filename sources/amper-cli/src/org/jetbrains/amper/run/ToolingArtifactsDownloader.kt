@@ -6,17 +6,17 @@ package org.jetbrains.amper.run
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.downloader.MAVEN_CENTRAL_REPOSITORY_URL
 import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.dependency.resolution.MavenRepository
+import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.toRepositories
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.resolver.MavenResolver
 import java.nio.file.Path
 
-const val GOOGLE_REPOSITORY = "https://maven.google.com"
+val GOOGLE_REPOSITORY = MavenRepository("https://maven.google.com")
 
 class ToolingArtifactsDownloader(
     userCacheRoot: AmperUserCacheRoot,
@@ -28,7 +28,7 @@ class ToolingArtifactsDownloader(
     suspend fun downloadHotReloadAgent(): List<Path> =
         downloadToolingArtifacts(
             listOf("org.jetbrains.compose.hot-reload:agent:${UsedVersions.hotReloadVersion}"),
-            listOf(MAVEN_CENTRAL_REPOSITORY_URL).toRepositories()
+            listOf(MavenCentral)
         )
 
     suspend fun downloadDevTools(): List<Path> = downloadToolingArtifacts(
@@ -37,19 +37,19 @@ class ToolingArtifactsDownloader(
             "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}",
         ),
         listOf(
-            MAVEN_CENTRAL_REPOSITORY_URL,
+            MavenCentral,
             GOOGLE_REPOSITORY,
-        ).toRepositories()
+        )
     )
 
     suspend fun downloadSlf4jApi(): List<Path> = downloadToolingArtifacts(
         listOf("org.slf4j:slf4j-api:${UsedVersions.slf4jVersion}"),
-        listOf(MAVEN_CENTRAL_REPOSITORY_URL).toRepositories(),
+        listOf(MavenCentral),
     )
 
     suspend fun downloadSpringBootLoader(): Path = downloadToolingArtifacts(
         listOf("org.springframework.boot:spring-boot-loader:${UsedVersions.springBootVersion}"),
-        listOf(MAVEN_CENTRAL_REPOSITORY_URL).toRepositories()
+        listOf(MavenCentral)
     ).single()
 
     private suspend fun downloadToolingArtifacts(coordinates: List<String>, repositories: List<Repository>): List<Path> =

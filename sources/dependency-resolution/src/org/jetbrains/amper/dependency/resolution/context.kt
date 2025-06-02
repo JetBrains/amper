@@ -110,7 +110,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var progress: Progress = Progress()
     var scope: ResolutionScope = ResolutionScope.COMPILE
     var platforms: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM)
-    var repositories: List<Repository> = listOf("https://repo1.maven.org/maven2").toRepositories()
+    var repositories: List<Repository> = listOf(MavenRepository.MavenCentral)
     var cache: FileCacheBuilder.() -> Unit = {}
     var spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() }
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
@@ -218,19 +218,16 @@ data class MavenRepository(
         assert(url != MavenLocal.URL) { "Use dedicated object ${MavenLocal::class.simpleName} for ${MavenLocal.URL} instead" }
     }
     override fun toString()= url
+
+    companion object {
+        val MavenCentral = MavenRepository("https://repo1.maven.org/maven2")
+    }
 }
 
 object MavenLocal : Repository{
     internal const val URL = "mavenLocal"
 
     override fun toString() = URL
-}
-
-fun List<String>.toRepositories() = map {
-    when  {
-        it == MavenLocal.URL -> MavenLocal
-        else -> MavenRepository(it)
-    }
 }
 
 typealias SpanBuilderSource = (String) -> SpanBuilder

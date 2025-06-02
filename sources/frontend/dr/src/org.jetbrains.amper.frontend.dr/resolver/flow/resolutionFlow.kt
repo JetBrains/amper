@@ -130,14 +130,6 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             ?.map { it.toRepository() }
             ?: defaultRepositories.map { it.toRepository() }
 
-    private fun RepositoriesModulePart.Repository.toRepository() = when {
-        this.url == SpecialMavenLocalUrl -> MavenLocal
-        else -> MavenRepository(url, userName, password)
-    }
-
-    private fun String.toRepository() = RepositoriesModulePart.Repository(this, this).toRepository()
-
-
     protected fun AmperModule.resolveModuleContext(
         platforms: Set<ResolutionPlatform>,
         scope: ResolutionScope,
@@ -168,6 +160,13 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         private val alreadyReportedNonHttpsRepositories = ConcurrentHashMap<String, Boolean>()
     }
 }
+
+fun RepositoriesModulePart.Repository.toRepository() = when {
+    this.url == SpecialMavenLocalUrl -> MavenLocal
+    else -> MavenRepository(url, userName, password)
+}
+
+private fun String.toRepository() = RepositoriesModulePart.Repository(this, this).toRepository()
 
 private val defaultRepositories = listOf(
     "https://repo1.maven.org/maven2",
