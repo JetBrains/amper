@@ -136,41 +136,6 @@ dependencies@debug:
   - ...
 ```
 
-### Module
-
-`module:` section configures various aspects of the module, such as file layout.
-
-| Attribute      | Description                                                                                                                           | Default   |
-|----------------|---------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| `layout: enum` | (Gradle-based projects only) File layout of the module. [Read more](GradleBasedProjects.md#file-layout-with-gradle-interoperability). | `default` |
-
-Supported file layouts:
-
-| Attribute    | Description                                                                                                                                           |
-|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `default`    | The [default Amper file layout](Documentation.md#project-layout) is used.                                                                             |
-| `gradle-jvm` | The file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html).           |
-| `gradle-kmp` | The file layout corresponds to the Gradle [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). |
-
-See more on the layouts in the [documentation](GradleBasedProjects.md#file-layout-with-gradle-interoperability).
-
-Examples:
-
-```yaml
-# Layout is not specified, default module layout is used
-product: jvm/app
-```
-
-```yaml
-# Use Gradle Kotlin Multiplatform compatibility mode for the file layout 
-product:
-  type: lib
-  platforms: [ android, jvm ]
-
-module:
-  layout: gradle-kmp
-```
-
 ### Templates
 
 `apply:` section lists the templates applied to the module. Read more about the [module templates](Documentation.md#templates)

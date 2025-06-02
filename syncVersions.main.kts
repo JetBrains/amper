@@ -34,14 +34,13 @@ val bootstrapAmperVersion = "0.8.0-dev-2886" // AUTO-UPDATED BY THE CI - DO NOT 
 val amperInternalJbrVersion = "21.0.6-b895.97"
 
 /**
- * The Kotlin version used in both standalone and Gradle-based Amper.
- * Bumping this can force the AGP to be bumped too.
+ * The Kotlin version used in Amper projects (not customizable yet).
+ * Make sure we respect the constraints of the Android Gradle plugin (used internally in delegated Gradle builds).
  * See the [compatiblity table](https://developer.android.com/build/kotlin-support).
  */
 val kotlinVersion = "2.1.20"
 
 val composeVersion = "1.8.0"
-val composeVersionForGradleBasedAmper = "1.6.10"
 val hotReloadVersion = "1.0.0-alpha02"
 val junitPlatformVersion = "1.12.1"
 val kotlinxSerializationVersion = "1.8.0"
@@ -58,24 +57,6 @@ val springCloudServicesVersion = "4.2.0"
 val springCloudVersion = "2024.0.1"
 val springShellVersion = "3.4.0"
 val lombokVersion = "1.18.38"
-
-/**
- * This is the Gradle version used in Gradle-based Amper projects, not Amper itself.
- */
-val gradleVersion = "8.11.1"
-
-/**
- * This is the version of AGP used in Gradle-based Amper (not the one for standalone, which is internal).
- * It may be limited by the current default [gradleVersion] we use (see above).
- * See the [compatibility table](https://developer.android.com/build/releases/gradle-plugin#updating-gradle).
- */
-// 8.3.0 fails with "Provided Metadata instance has version 2.1.0, while maximum supported version is 2.0.0"
-// 8.4.0 fails:
-//   GradleIntegrationTest.multiplatform (AndroidWorldTest.doTest fails with NoClassDefFoundError)
-//   GradleIntegrationTest.testing android common resources propagation
-// 8.6.0 fails with the same errors as 8.4 and 8.3
-// 8.7.x fails with missing build.gradle input file in LintModelWriterTask
-val androidVersionForGradleBasedAmper = "8.2.0"
 
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 
@@ -143,22 +124,8 @@ fun updateDocs() {
         fileText
             // For wrapper dist download URLs in Usage.md
             .replace(Regex("""/amper-cli/([^/]+)/amper-cli-\1-wrapper"""),"/amper-cli/$bootstrapAmperVersion/amper-cli-$bootstrapAmperVersion-wrapper")
-            // For Gradle-based Amper setup instructions
-            .replaceAmperGradlePluginVersion()
-            // For Documentation.md and GradleMigration.md files.
-            // These are in tables listing the Gradle plugins for which we can't change the version in Gradle-based Amper
-            .replaceInMarkdownTable(pluginId = "org.jetbrains.kotlin.multiplatform", version = kotlinVersion)
-            .replaceInMarkdownTable(pluginId = "org.jetbrains.kotlin.plugin.serialization", version = kotlinVersion)
-            .replaceInMarkdownTable(pluginId = "org.jetbrains.kotlin.android", version = kotlinVersion)
-            .replaceInMarkdownTable(pluginId = "org.jetbrains.compose", version = composeVersionForGradleBasedAmper)
-            .replaceInMarkdownTable(pluginId = "com.android.library", version = androidVersionForGradleBasedAmper)
-            .replaceInMarkdownTable(pluginId = "com.android.application", version = androidVersionForGradleBasedAmper)
     }
 }
-
-// For Documentation.md and GradleMigration.md files
-fun String.replaceInMarkdownTable(pluginId: String, version: String): String =
-    replaceRegexGroup1(Regex("""`${Regex.escape(pluginId)}`\s*\|\s*([^|\s]+)\s*\|"""), version)
 
 fun updateAmperWrappers() {
     val shellWrapperText = fetchContent("$amperMavenRepoUrl/org/jetbrains/amper/amper-cli/$bootstrapAmperVersion/amper-cli-$bootstrapAmperVersion-wrapper")
@@ -239,11 +206,6 @@ fun getJbrChecksums(jvmVersion: String, jbrBuild: String): List<Jbr> = listOf("w
         )
     }
 }
-
-fun String.replaceAmperGradlePluginVersion() = replaceRegexGroup1(
-    regex = Regex("""id\("org\.jetbrains\.amper\.settings\.plugin"\)\.version\(\"([^"]+)"\)"""),
-    replacement = bootstrapAmperVersion
-)
 
 fun fetchContent(url: String): String {
     val client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()

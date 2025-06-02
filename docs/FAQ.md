@@ -2,7 +2,7 @@
 
 ### Is Amper a brand-new build tool from JetBrains?
 
-Yes, Amper is a project configuration and build tool with a focus on user experience and IDE support.
+Yes, Amper is a new build tool with a focus on user experience and IDE support.
 
 ### Do you plan to support only Kotlin?
 
@@ -67,14 +67,14 @@ interpretation is much faster. These properties are critical for a good UX.
 
 Our final language choice will be made based on the overall UX it provides.
 
-### Why do you have a Gradle-based option to use Amper?
+### Why did you have a Gradle-based option to use Amper?
 
 In the initial Amper prototype, our main focus was improving the user experience and toolability of build configuration.
 Gradle, as a well-tested build engine, allowed us to start experimenting with the UX of the configuration very quickly.
 What’s more, smooth interoperability with Gradle allows for the use of Amper in existing projects, which is important if
 we want to get feedback from real-world use cases.
 
-Amper primarily exists as a standalone build tool, which allows us to improve the IDE support and workflows even further.
+Now, Amper is a standalone build tool, which allows us to improve the IDE support and workflows even further.
 
 ### Why not simply improve Gradle?
 
@@ -90,9 +90,6 @@ Gradle support in our IDEs and Gradle itself.
 We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box 
 and offer a reasonable level of extensibility.
 
-In addition to the standalone version, Amper can optionally be used in an existing Gradle project using a Gradle plugin
-which offers full interoperability with Gradle, including the use of Gradle plugins and writing custom tasks.
-
 ### How do Amper and Declarative Gradle relate to each other?
 
 Both projects aim to improve the developer experience and the IDE support, but from opposite directions and with
@@ -107,18 +104,12 @@ While both projects are still experimental, it's important that you provide your
 
 ### What are the requirements to use Amper?
 
-Amper has a self-contained command line tool.
-See the [usage instructions](Usage.md#using-amper-from-the-command-line).
+See the [setup instructions](Setup.md).
 
-To use Amper in an existing Gradle project as a Gradle plugin, JDK 17+ and Gradle 8.6 are required.
-See the [usage instructions](Usage.md#using-the-gradle-based-amper-version-from-the-command-line).
+The Amper command line tool doesn't require any software preinstallation, except the Xcode toolchain if you want to 
+build iOS applications. See the [usage instructions](Usage.md#using-amper-from-the-command-line).
 
-To use Amper in the IDE:
-
-* The latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) is required for JVM and Android projects.
-  See the [usage instructions](Usage.md#using-amper-in-intellij-idea).
-* The latest [JetBrains Fleet](https://www.jetbrains.com/fleet/) is required for the JVM, Android, and Kotlin
-  Multiplatform projects. See the [usage instructions](Usage.md#using-amper-in-fleet).
+The latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) is advised to work with Amper projects.
 
 ### How do I create a new Amper project?
 
