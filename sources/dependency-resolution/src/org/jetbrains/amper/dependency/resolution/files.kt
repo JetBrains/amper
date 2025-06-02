@@ -235,7 +235,7 @@ fun getDependencyFile(
     dependency: MavenDependency,
     nameWithoutExtension: String,
     extension: String,
-    isAutoAddedDocumentation: Boolean = false
+    isAutoAddedDocumentation: Boolean = false,
 ) =
     // todo (AB) : What if version is not specified, but later we will find out that it ends with "-SNAPSHOT",
     // todo (AB) : such a dependency file should be converted to SnapshotDependency
