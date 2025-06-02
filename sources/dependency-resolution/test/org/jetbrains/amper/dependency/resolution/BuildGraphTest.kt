@@ -1404,7 +1404,7 @@ class BuildGraphTest : BaseDRTest() {
             "Metadata error should be of type UnableToDownloadChecksums, got ${metadataError::class} instead"
         )
         assertContentEquals(
-            repositories.toRepositories().sortedBy { it.url },
+            repositories.toRepositories().sortedBy { (it as MavenRepository).url },
             metadataError.repositories.sortedBy { it.url },
         )
         assertFiles(testInfo, root)

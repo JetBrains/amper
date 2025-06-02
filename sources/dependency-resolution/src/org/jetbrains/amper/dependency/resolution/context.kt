@@ -207,12 +207,10 @@ val Context.nodeParents: MutableList<DependencyNode>
         CopyOnWriteArrayList()
     }
 
-sealed interface Repository {
-    val url: String
-}
+sealed interface Repository
 
 data class MavenRepository(
-    override val url: String,
+    val url: String,
     val userName: String? = null,
     val password: String? = null,
 ) : Repository {
@@ -224,8 +222,6 @@ data class MavenRepository(
 
 object MavenLocal : Repository{
     internal const val URL = "mavenLocal"
-
-    override val url: String = URL
 
     override fun toString() = URL
 }

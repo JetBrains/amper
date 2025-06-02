@@ -90,27 +90,29 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     fun AmperModule.getValidRepositories(): List<Repository> {
         val acceptedRepositories = mutableListOf<Repository>()
         for (repository in resolvableRepositories()) {
-            @Suppress("HttpUrlsUsage")
-            if (repository.url.startsWith("http://")) {
-                // TODO: Special --insecure-http-repositories option or some flag in project.yaml
-                // to acknowledge http:// usage
+            if (repository is MavenRepository) {
+                @Suppress("HttpUrlsUsage")
+                if (repository.url.startsWith("http://")) {
+                    // TODO: Special --insecure-http-repositories option or some flag in project.yaml
+                    // to acknowledge http:// usage
 
-                // report only once per `url`
-                if (alreadyReportedHttpRepositories.put(repository.url, true) == null) {
-                    logger.warn("http:// repositories are not secure and should not be used: ${repository.url}")
+                    // report only once per `url`
+                    if (alreadyReportedHttpRepositories.put(repository.url, true) == null) {
+                        logger.warn("http:// repositories are not secure and should not be used: ${repository.url}")
+                    }
+
+                    continue
                 }
 
-                continue
-            }
+                if (!repository.url.startsWith("https://") && repository != MavenLocal) {
 
-            if (!repository.url.startsWith("https://") && repository != MavenLocal) {
+                    // report only once per `url`
+                    if (alreadyReportedNonHttpsRepositories.put(repository.url, true) == null) {
+                        logger.warn("Non-https repositories are not supported, skipping url: ${repository.url}")
+                    }
 
-                // report only once per `url`
-                if (alreadyReportedNonHttpsRepositories.put(repository.url, true) == null) {
-                    logger.warn("Non-https repositories are not supported, skipping url: ${repository.url}")
+                    continue
                 }
-
-                continue
             }
 
             acceptedRepositories.add(repository)

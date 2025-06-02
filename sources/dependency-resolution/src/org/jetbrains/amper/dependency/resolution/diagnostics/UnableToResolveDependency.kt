@@ -31,6 +31,6 @@ class UnableToResolveDependency(
         get() = buildString {
             super.details?.let(::appendLine)
             appendLine(DependencyResolutionBundle.message("unable.to.resolve.dependency.repositories.header"))
-            append(repositories.joinToString(separator = "\n") { "  - ${it.url}" })
+            append(repositories.joinToString(separator = "\n") { "  - $it" })
         }
 }
