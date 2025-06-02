@@ -224,7 +224,7 @@ data class MavenRepository(
     }
 }
 
-object MavenLocal : Repository{
+data object MavenLocal : Repository{
     internal const val URL = "mavenLocal"
 
     override fun toString() = URL

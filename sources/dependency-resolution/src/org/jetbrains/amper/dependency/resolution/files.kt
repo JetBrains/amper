@@ -159,7 +159,6 @@ class GradleLocalRepository(internal val filesPath: Path) : LocalRepository {
     /**
      * A very basic and stupid implementation of DFWalk for a file tree, since [Files.walk]
      * sometimes does not notice directory changes.
-     * // TODO Need to redesign; See: [issue](https://youtrack.jetbrains.com/issue/AMPER-671/Redesign-resolution-files-downloading)
      */
     private fun Path.naiveSearchDepth2(shouldDescend: Boolean = true, filterBlock: (Path) -> Boolean): List<Path> =
         buildList {
@@ -365,8 +364,6 @@ open class DependencyFile(
         filePath: Path,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
     ): Boolean {
-//        val path = getPath() ?: return false
-//        if (mavenLocalPath != null) return true
         return settings.spanBuilder("hasMatchingChecksumLocally")
             .setAttribute("fileName", fileName)
             .use {
@@ -649,7 +646,6 @@ open class DependencyFile(
                 continue
             }
             if (hasher != null) {
-                // todo (AB) : [AMPER-4149]: Download hash file if expectedHash was resolved locally and doesn't match
                 val result = checkHash(hasher, expectedHash, diagnosticsReporter)
                 if (result > VerificationResult.PASSED) {
                     channel.truncate(0)
