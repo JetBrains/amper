@@ -51,10 +51,10 @@ open class IOSBaseTest : TestBase() {
      * otherwise the root module is expected to be the iOS app.
      */
     internal fun testRunnerStandalone(projectSource: ProjectSource, bundleIdentifier: String, iosAppModuleName: String? = null) {
-        val examplesStandaloneProjectsDir = Dirs.amperCheckoutRoot.resolve("examples-standalone")
+        val examplesProjectsDir = Dirs.amperCheckoutRoot.resolve("examples")
         prepareExecution(
             projectSource = projectSource,
-            projectsDir = examplesStandaloneProjectsDir,
+            projectsDir = examplesProjectsDir,
             bundleIdentifier = bundleIdentifier,
         ) { projectDir ->
             buildIosAppWithStandaloneAmper(projectRootDir = projectDir, iosAppModuleName)

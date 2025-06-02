@@ -47,7 +47,7 @@ Useful commands:
 - `amper run` to run your application 
 - `amper clean` to remove the project's build output and caches
 
-For example, to build and run the [JVM "Hello, World"](../examples-standalone/jvm):
+For example, to build and run the [JVM "Hello, World"](../examples/jvm):
 ```
 cd jvm
 ./amper run 

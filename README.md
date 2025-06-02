@@ -47,7 +47,7 @@ For a quick start:
 * [Setup](docs/Setup.md) and [usage](docs/Usage.md) instructions
 * [Tutorial](docs/Tutorial.md)  
 * [Documentation](docs/Documentation.md) 
-* [Example projects](examples-standalone)
+* [Example projects](examples)
 
 ## Issues and feedback
 
@@ -84,7 +84,7 @@ product: jvm/app
 
 That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality are configured and available straight out of the box.
 You can build it, run it, write and run tests, and more.
-For more detailed information, check out the [full example](examples-standalone/jvm).
+For more detailed information, check out the [full example](examples/jvm).
 
 ![](docs/images/ij-jvm-result.png)
 
@@ -153,10 +153,10 @@ the [tutorial](docs/Tutorial.md), and [example projects](#more-examples).
 
 ### More examples
 Check our these example projects:
-* [JVM "Hello, World!"](examples-standalone/jvm)
-* [Compose Multiplatform](examples-standalone/compose-multiplatform)
-* Compose on [iOS](examples-standalone/compose-ios), [Android](examples-standalone/compose-android),
-  and [desktop](examples-standalone/compose-desktop)
+* [JVM "Hello, World!"](examples/jvm)
+* [Compose Multiplatform](examples/compose-multiplatform)
+* Compose on [iOS](examples/compose-ios), [Android](examples/compose-android),
+  and [desktop](examples/compose-desktop)
 * Kotlin Multiplatform app template with [shared Compose UI](https://github.com/Kotlin/KMP-App-Template/tree/amper) 
   and with [native Android and iOS UI](https://github.com/Kotlin/KMP-App-Template-Native/tree/amper)
-* And other [examples](examples-standalone/README.md)
+* And other [examples](examples/README.md)

@@ -666,7 +666,7 @@ You can create a `proguard-rules.pro` file in the module folder to add custom ru
 
 It is automatically used by Amper if present.
 
-An example of how to add custom R8 rules can be found [in the android-app module](../examples-standalone/compose-multiplatform/android-app/proguard-rules.pro) of the `compose-multiplatform` example project.
+An example of how to add custom R8 rules can be found [in the android-app module](../examples/compose-multiplatform/android-app/proguard-rules.pro) of the `compose-multiplatform` example project.
 
 ##### Signing
 
@@ -1456,8 +1456,8 @@ Setting `springBoot: enabled` performs the following actions:
 Mixed projects (containing java and kotlin sources simultaneously) are supported.
 
 Examples of Spring Boot projects:
-* [spring-petclinic](../examples-standalone/spring-petclinic)
-* [spring-petclinic-kotlin](../examples-standalone/spring-petclinic-kotlin)
+* [spring-petclinic](../examples/spring-petclinic)
+* [spring-petclinic-kotlin](../examples/spring-petclinic-kotlin)
 
 ### Ktor
 
@@ -1475,7 +1475,7 @@ Setting `ktor: enabled` performs the following actions:
 *   Adds default jvmArgs when running the app
 
 Examples of Ktor projects:
-* [ktor-simplest-sample](../examples-standalone/ktor-simplest-sample)
+* [ktor-simplest-sample](../examples/ktor-simplest-sample)
 
 ## iOS support
 

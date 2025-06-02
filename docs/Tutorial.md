@@ -59,7 +59,7 @@ no need to create separate Maven-like `java/` and `kotlin/` folders:
 |-module.yaml
 ```
 
-Examples: [JVM "Hello, World!"](../examples-standalone/jvm)
+Examples: [JVM "Hello, World!"](../examples/jvm)
 
 You can now build your application using `./amper build`, or run it using `./amper run`.
 
@@ -131,7 +131,7 @@ test-dependencies:
   - io.mockk:mockk:1.13.10
 ```
 
-Examples: [JVM "Hello, World!"](../examples-standalone/jvm)
+Examples: [JVM "Hello, World!"](../examples/jvm)
 
 > See the full documentation about [Tests](Documentation.md#tests).
 
@@ -206,10 +206,10 @@ Now we have a GUI application!
 
 Examples:
 
-- [Compose Desktop](../examples-standalone/compose-desktop)
-- [Compose Android](../examples-standalone/compose-android)
-- [Compose iOS](../examples-standalone/compose-ios)
-- [Compose Multiplatform](../examples-standalone/compose-multiplatform)
+- [Compose Desktop](../examples/compose-desktop)
+- [Compose Android](../examples/compose-android)
+- [Compose iOS](../examples/compose-ios)
+- [Compose Multiplatform](../examples/compose-multiplatform)
 
 > See the full documentation about [Compose](Documentation.md#configuring-compose-multiplatform).
 
@@ -315,7 +315,7 @@ fun main() = application {
 
 We now have a multi-module project with some neatly extracted shared code.
 
-Examples: [Compose Multiplatform](../examples-standalone/compose-multiplatform)
+Examples: [Compose Multiplatform](../examples/compose-multiplatform)
 
 > See the full documentation about:
 > - [Project layout](Documentation.md#project-layout)
@@ -445,8 +445,8 @@ fun ViewController() = ComposeUIViewController {
 }
 ```
 
-And the last step, copy the [AndroidManifest.xml file from an example project](../examples-standalone/compose-multiplatform/android-app/src/AndroidManifest.xml)
-into `android-app/src` folder, and the [iosApp.swift file](../examples-standalone/compose-multiplatform/ios-app/src/iosApp.swift) into the `ios-app/src`.
+And the last step, copy the [AndroidManifest.xml file from an example project](../examples/compose-multiplatform/android-app/src/AndroidManifest.xml)
+into `android-app/src` folder, and the [iosApp.swift file](../examples/compose-multiplatform/ios-app/src/iosApp.swift) into the `ios-app/src`.
 These files bind the Compose UI code with the native application entry points.
 
 Make sure that your project structure looks like this:
@@ -473,7 +473,7 @@ Now you can build and run both apps using [the IntelliJ IDEA run configurations]
 > It can be checked into the VCS and customized (e.g. _Team_ (`DEVELOPMENT_TEAM`) setting).
 > See [iOS Support](Documentation.md#ios-support) to learn more about the Xcode ↔ Amper interoperability.
 
-Examples: [Compose Multiplatform](../examples-standalone/compose-multiplatform)
+Examples: [Compose Multiplatform](../examples/compose-multiplatform)
 
 > See the full documentation about [multiplatform configuration](Documentation.md#multiplatform-configuration) and
 > [configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform) more specifically.
@@ -568,4 +568,4 @@ for various typical configurations in the project.
 
 ## Further steps
 
-Check the [documentation](Documentation.md) and explore [example projects](../examples-standalone).
+Check the [documentation](Documentation.md) and explore [example projects](../examples).

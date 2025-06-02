@@ -115,7 +115,7 @@ The latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) is a
 
 You have several options:
 
-* Kick-start your project using one of the [examples](../examples-standalone)
+* Kick-start your project using one of the [examples](../examples)
 
 * Download the Amper script by following the [usage instructions](Usage.md), and generate a project from a template 
   using the `amper init` command.

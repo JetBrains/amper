@@ -67,4 +67,4 @@ Take your pick:
 * Discover the ins and outs of Amper in our comprehensive [documentation](Documentation.md).
 * Create a project from scratch by following the [tutorial](Tutorial.md).
 * Read how to use Amper in [IntelliJ IDEA](Usage.md#using-amper-in-intellij-idea).
-  Try downloading and opening [one of the example projects](../examples-standalone/README.md) to see Amper in action.
+  Try downloading and opening [one of the example projects](../examples/README.md) to see Amper in action.
