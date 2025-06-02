@@ -237,14 +237,14 @@ fun getDependencyFile(
     extension: String,
     isAutoAddedDocumentation: Boolean = false
 ) =
-    // todo (AB) : What if version is nt specified, but later we will find out that it ends with "-SNAPSHOT",
+    // todo (AB) : What if version is not specified, but later we will find out that it ends with "-SNAPSHOT",
     // todo (AB) : such a dependency file should be converted to SnapshotDependency
     if (dependency.version?.endsWith("-SNAPSHOT") == true) {
         SnapshotDependencyFile(
             dependency,
             nameWithoutExtension,
             extension,
-            isAutoAddedDocumentation = isAutoAddedDocumentation
+            isAutoAddedDocumentation = isAutoAddedDocumentation,
         )
     } else {
         DependencyFile(dependency, nameWithoutExtension, extension, isAutoAddedDocumentation = isAutoAddedDocumentation)
@@ -479,7 +479,7 @@ open class DependencyFile(
                         ?: expectedHash?.let {
                             // Downloading an artifact from external storage might have failed if checksum
                             // resolved from Gradle metadata is invalid (a pretty rare case though).
-                            // In this case we should take actual checksum downloaded from the external repository
+                            // In this case, we should take actual checksum downloaded from the external repository
                             // and perform one more downloading attempt.
                             val expectedHashIgnoringMetadata = getExpectedHash(
                                 diagnosticsReporter, ResolutionLevel.NETWORK, false
@@ -842,7 +842,7 @@ open class DependencyFile(
      * If checksums were found locally both in a metadata file and in a separate checksum file, the latter is preferred.
      * Usually, the checksum from the metadata file is enough for resolution,
      * and checksum files are not even downloaded from the external repository.
-     * But sometimes checksums declared in the metadata file are invalid, and in this case DR downloads checksum files and
+     * But sometimes checksums declared in the metadata file are invalid, and in this case, DR downloads checksum files and
      * uses them for verification.
      * This way, the checksum file is presented in local storage only in case metadata contains invalid data or is completely missing.
      */
@@ -1290,7 +1290,7 @@ class SnapshotDependencyFile(
 
     /**
      * Checks that descriptor file 'maven-metadata-local.xml' exists,
-     * and actual lasModified time of the file from mavenLocal matches the one taken from the descriptor
+     *  and the actual lasModified time of the file from mavenLocal matches the one taken from the descriptor
      */
     private suspend fun isRegisteredInMavenLocalMetadata(path: Path): Boolean {
         return withContext(Dispatchers.IO) {
@@ -1334,7 +1334,7 @@ class SnapshotDependencyFile(
     companion object {
         /**
          * maven-metadata.xml is downloaded on demand when downloading of the artifact (pom or module or jar)
-         * is in progress and file lock is already taken.
+         * is in progress, and file lock is already taken.
          * This lock source is used for nested locking under the main artifact lock.
          * It is safe since it is always ordered, it is taken under the artifact's ock, not vice versa.
          * It protects from concurrent attempts to download maven-metadata
@@ -1434,14 +1434,14 @@ internal object HttpClientProvider {
     /**
      * This is unsued now but left for the reference for the future.
      * It might be a good practice to reinitialize HTTP Client from time to time after an idle period for
-     * the connections leak prophylactics,
-     * and in that case the old instance of a client should be properly shutdown.
+     * the connection leak prophylactics,
+     * and in that case, the old instance of a client should be properly shutdown.
      */
     private fun closeHttpClient() {
         val client = this.client
         this.client = null
         try {
-            // In java 21 HttpClient is AutoClosable,
+            // In java 21, HttpClient is AutoClosable,
             // but it has an issue that prevents it from shutting down https://bugs.openjdk.org/browse/JDK-8316580
             // Calling 'HttpClient.shutdownNow' is a workaround
             client
