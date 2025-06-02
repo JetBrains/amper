@@ -18,16 +18,18 @@ import kotlin.io.path.writeText
  */
 object InstrumentedTestApp  {
 
-    /** Path to the directory containing Gradle E2E test projects. */
-    private val gradleE2eTestProjectsPath = Dirs.amperSourcesRoot / "gradle-e2e-test/testData/projects"
+    /**
+     * Path to the Gradle project containing the instrumented test app.
+     * This app is installed next to the app under test on the same device, and is responsible for running the tests.
+     */
+    private val testAppProject = Dirs.amperSourcesRoot / "test-integration/amper-mobile-test/testData/instrumented-tests-app/app"
 
     /**
      * Assembles the APK containing the instrumented tests themselves, optionally using a custom [applicationId].
      */
     suspend fun assemble(applicationId: String? = null, testReporter: TestReporter): Path {
-        val testApkAppProjectPath = gradleE2eTestProjectsPath / "test-apk/app"
-        val testFilePath = testApkAppProjectPath / "src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt"
-        val buildFilePath = testApkAppProjectPath / "build.gradle.kts"
+        val testFilePath = testAppProject / "src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt"
+        val buildFilePath = testAppProject / "build.gradle.kts"
         var originalTestFileContent: String? = null
         var originalBuildFileContent: String? = null
 
@@ -51,7 +53,7 @@ object InstrumentedTestApp  {
 
         try {
             runGradle(
-                projectDir = testApkAppProjectPath,
+                projectDir = testAppProject,
                 args = listOf("createDebugAndroidTestApk"),
                 cmdName = "gradle (test-apk)",
                 testReporter = testReporter,
@@ -68,6 +70,6 @@ object InstrumentedTestApp  {
             }
         }
 
-        return testApkAppProjectPath / "build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+        return testAppProject / "build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
     }
 }
