@@ -80,7 +80,6 @@ val androidVersionForGradleBasedAmper = "8.2.0"
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 
 val amperRootDir: Path = __FILE__.toPath().absolute().parent // __FILE__ is this script
-val examplesGradleDir = amperRootDir / "examples-gradle"
 val amperWrapperModuleDir = amperRootDir / "sources/amper-wrapper"
 val docsDir = amperRootDir / "docs"
 val versionsCatalogToml = amperRootDir / "gradle/libs.versions.toml"
@@ -92,7 +91,6 @@ fun syncVersions() {
     updateUsedVersionsKt()
     updateDocs()
     updateAmperWrappers()
-    updateGradleFiles()
     updateWrapperTemplates()
     println("Done.")
 }
@@ -242,24 +240,9 @@ fun getJbrChecksums(jvmVersion: String, jbrBuild: String): List<Jbr> = listOf("w
     }
 }
 
-fun updateGradleFiles() {
-    examplesGradleDir.walk().forEach { path ->
-        when (path.name) {
-            "settings.gradle.kts" -> path.replaceFileText { it.replaceAmperGradlePluginVersion() }
-            "gradle-wrapper.properties" -> path.replaceFileText { it.replaceGradleDistributionUrl() }
-        }
-    }
-}
-
 fun String.replaceAmperGradlePluginVersion() = replaceRegexGroup1(
     regex = Regex("""id\("org\.jetbrains\.amper\.settings\.plugin"\)\.version\(\"([^"]+)"\)"""),
     replacement = bootstrapAmperVersion
-)
-
-fun String.replaceGradleDistributionUrl() = replaceRegexGroup1(
-    // there is a backslash to escape the colon in .properties files: 'https\://services.gradle.org/...'
-    regex = Regex("""https\\://services\.gradle\.org/distributions/gradle-(.+)-bin.zip"""),
-    replacement = gradleVersion,
 )
 
 fun fetchContent(url: String): String {
