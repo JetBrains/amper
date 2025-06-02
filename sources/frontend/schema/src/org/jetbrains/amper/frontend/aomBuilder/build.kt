@@ -99,7 +99,6 @@ private fun BuildCtx.readMergedTreesAndPreprocess(
 
     // Merge owned trees (see [TreeMerger]) and preprocess them.
     val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
-        .substituteComposeOsSpecific()
         .appendDefaultValues()
         .resolveReferences()
 
@@ -112,6 +111,7 @@ private fun BuildCtx.readMergedTreesAndPreprocess(
 
     val processedTree = preProcessedTree
         .substituteCatalogDependencies(chosenCatalog)
+        .substituteComposeOsSpecific()
         .configureSpringBootKotlinCompilerPlugins(commonModule)
         .configureLombokAnnotationProcessor(commonModule)
 
@@ -130,7 +130,7 @@ private fun BuildCtx.readMergedTreesAndPreprocess(
 }
 
 // FIXME Make internal.
-fun BuildCtx.readWithTemplates(
+internal fun BuildCtx.readWithTemplates(
     minimalModule: MinimalModuleHolder,
     mPath: VirtualFile,
     moduleCtx: PathCtx,

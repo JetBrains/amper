@@ -9,6 +9,7 @@ import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.DefaultFileBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporterCtx
+import org.jetbrains.amper.core.messages.rewindTo
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
@@ -40,7 +41,6 @@ import org.jetbrains.amper.frontend.tree.values
  * Internal schema to read fields, which are crucial for contexts generation.
  * Must be fully compatible with [org.jetbrains.amper.frontend.schema.Module].
  */
-// TODO Make internal.
 class MinimalModule : SchemaNode() {
     var product by value<ModuleProduct>()
 
@@ -75,10 +75,10 @@ fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
         if (moduleTree == null || moduleTree["product"].isEmpty())
             problemReporter.reportMessage(
                 BuildProblemImpl(
-                    "product.not.defined",
-                    DefaultFileBuildProblemSource(moduleFilePath.toNioPath()),
-                    SchemaBundle.message("product.not.defined.empty"),
-                    Level.Fatal,
+                    buildProblemId = "product.not.defined",
+                    source = DefaultFileBuildProblemSource(moduleFilePath.toNioPath()),
+                    message = SchemaBundle.message("product.not.defined.empty"),
+                    level = Level.Fatal,
                 )
             )
         // Check if there is no "product.type" section (also, when type section has not value).

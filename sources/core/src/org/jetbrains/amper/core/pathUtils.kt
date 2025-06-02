@@ -4,11 +4,13 @@
 
 package org.jetbrains.amper.core
 
-import java.io.File
+import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import kotlin.io.path.absolute
 
 
-fun Path.resolveAbsoluteSafely(part: String): Path? = runCatching {
-    resolve(part.replace("/", File.separator)).absolute().normalize()
-}.getOrNull()
+fun Path.safelyResolveToAbsolute(part: String): Path? = try {
+    resolve(part).absolute().normalize()
+} catch (_: InvalidPathException) {
+    null
+}

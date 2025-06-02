@@ -14,4 +14,4 @@ fun chooseComposeVersion(model: Model) = model.modules
     .map { it.rootFragment.settings.compose }
     .filter { it.enabled }
     .mapNotNull { it.version }
-    .maxWithOrNull(compareBy(::ComparableVersion))
+    .maxByOrNull { ComparableVersion(it) }

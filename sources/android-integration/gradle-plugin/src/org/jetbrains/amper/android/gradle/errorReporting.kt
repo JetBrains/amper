@@ -32,13 +32,4 @@ internal class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::cla
             Level.Redundancy -> logger.info(renderMessage(message))
         }
     }
-
-    fun getErrors(): List<String> = problems.map(::renderMessage)
-
-    fun getGradleError(): String =
-        """
-        |Amper model initialization failed. 
-        |Errors: 
-        |$ERROR_PREFIX${getErrors().joinToString("\n|$ERROR_PREFIX") { it.replace("\n", "\n$ERROR_INDENT") }}
-        |See logs for details.""".trimMargin()
 }

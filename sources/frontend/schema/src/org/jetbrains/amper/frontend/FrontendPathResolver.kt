@@ -48,15 +48,4 @@ class FrontendPathResolver(
             ) { "Virtual file by path $path doesn't exist" }
         })
     }
-
-    fun toPsiFile(path: Path): PsiFile? =
-        loadVirtualFileOrNull(path)?.let(::toPsiFile)
-
-    fun loadVirtualFileOrNull(path: Path): VirtualFile? {
-        project
-        val application = ApplicationManager.getApplication()
-        return application.runReadAction(Computable {
-            VirtualFileManager.getInstance().findFileByNioPath(path)
-        })
-    }
 }

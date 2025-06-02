@@ -1,6 +1,8 @@
 C:COMPILE:JVM
-╰─── C:common:org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
-     ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
-          ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0
-               ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
-                    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0 (c)
+├─── C:common:org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
+│    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
+│         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0
+│              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
+│                   ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0 (c)
+╰─── C:jvm:org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
+     ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)

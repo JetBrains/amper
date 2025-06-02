@@ -11,10 +11,9 @@ import org.jetbrains.amper.frontend.contexts.ContextsInheritance.Result.SAME
 
 
 val DefaultCtxs = listOf(DefaultCtx)
-object DefaultCtx : Context {
+data object DefaultCtx : Context {
     override val trace: Trace? = null
     override fun withoutTrace() = DefaultCtx
-    override fun toString() = "test"
 }
 
 /**

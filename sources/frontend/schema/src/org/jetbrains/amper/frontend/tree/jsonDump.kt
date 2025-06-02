@@ -48,10 +48,12 @@ fun TreeValue<*>.jsonDump(
                 it.doJsonDump(newIdent, sb)
             }
 
-            is ScalarOrReference ->
-                if (value is Path) append("\"${(value as Path).relativeTo(root)}${contextStr()}\"")
+            is ScalarOrReference -> {
+                val normalizedPath = (value as? Path)?.relativeTo(root)?.toString()?.replace('\\', '/')
+                if (value is Path) append("\"$normalizedPath${contextStr()}\"")
                 else if (value is TraceablePath) append("\"${(value as TraceablePath).value.relativeTo(normalizedRoot)}${contextStr()}\"")
                 else append("\"$value${contextStr()}\"")
+            }
 
             is NoValue<*> -> append("")
         }

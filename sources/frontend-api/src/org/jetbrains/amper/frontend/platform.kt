@@ -120,11 +120,6 @@ enum class Platform(
          * [naturalHierarchy] with [COMMON] and leaves included.
          */
         val naturalHierarchyExt = naturalHierarchy + (COMMON to leafPlatforms) + leafPlatforms.associateWith { setOf(it) }
-
-        /**
-         * [naturalHierarchy] with [COMMON] and leaves included.
-         */
-        val naturalHierarchyExtStr = naturalHierarchyExt.mapKeys { it.key.schemaValue }
     }
 }
 

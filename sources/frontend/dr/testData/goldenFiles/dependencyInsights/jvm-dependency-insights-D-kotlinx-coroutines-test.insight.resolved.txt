@@ -1,8 +1,10 @@
 D:COMPILE:JVM
-╰─── D:common:io.ktor:ktor-client:3.0.3
-     ╰─── io.ktor:ktor-client:3.0.3
-          ╰─── io.ktor:ktor-client-jvm:3.0.3
-               ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
-                    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0
-                         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
-                              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0 (c)
+├─── D:common:io.ktor:ktor-client:3.0.3
+│    ╰─── io.ktor:ktor-client:3.0.3
+│         ╰─── io.ktor:ktor-client-jvm:3.0.3
+│              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
+│                   ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0
+│                        ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
+│                             ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0 (c)
+╰─── D:jvm:io.ktor:ktor-client:3.0.3
+     ╰─── io.ktor:ktor-client:3.0.3 (*)

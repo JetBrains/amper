@@ -12,6 +12,9 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.withEach
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.Platform.COMMON
+import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchy
+import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchyExt
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
@@ -26,6 +29,12 @@ import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.OwnedTree
 import org.jetbrains.amper.frontend.tree.visitMapLikeValues
+
+
+/**
+ * [naturalHierarchy] with [COMMON] and leaves included.
+ */
+private val naturalHierarchyExtStr = naturalHierarchyExt.mapKeys { it.key.schemaValue }
 
 object IncorrectSettingsLocation : OwnedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "settings.incorrect.section"
@@ -60,7 +69,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
 
         private fun platformSpecific() = prop.pType?.meta?.platformSpecific?.run {
             val platformsAndAliases =
-                minimalModule.unwrapAliases + Platform.naturalHierarchyExtStr - Platform.COMMON.schemaValue
+                minimalModule.unwrapAliases + naturalHierarchyExtStr - COMMON.schemaValue
             val propPlatforms = prop.contexts.platformCtxs().flatMapNotNull { platformsAndAliases[it.value] }.toSet()
             // Here we are considering "empty platforms" as all declared ones.
             val effectivePlatforms = propPlatforms.ifEmpty { minimalModule.product::platforms.unsafe?.leaves.orEmpty() }

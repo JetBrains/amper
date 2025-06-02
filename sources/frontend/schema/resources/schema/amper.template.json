@@ -1437,15 +1437,24 @@
       ]
     },
     "LombokSettings": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "x-intellij-html-description": "Enable Lombok",
-          "title": "Enable Lombok"
+      "anyOf": [
+        {
+          "enum": [
+            "enabled"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "x-intellij-html-description": "Enable Lombok",
+              "title": "Enable Lombok"
+            }
+          }
         }
-      }
+      ]
     },
     "NativeSettings": {
       "type": "object",

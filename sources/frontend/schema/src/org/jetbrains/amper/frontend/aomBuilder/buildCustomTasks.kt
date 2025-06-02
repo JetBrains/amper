@@ -13,7 +13,7 @@ import org.jetbrains.amper.core.messages.FileBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.core.resolveAbsoluteSafely
+import org.jetbrains.amper.core.safelyResolveToAbsolute
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.CompositeString
@@ -57,7 +57,7 @@ internal fun BuildCtx.buildCustomTask(
     // We can cast here only because no contexts are available inside the task definition.
     val node = createSchemaNode<CustomTaskNode>(taskTree as RefinedTree)
     val customTask = buildCustomTask(customTaskFile, node, module.module) {
-        module.moduleDirPath.resolveAbsoluteSafely(it)?.let(dir2module::get)?.module
+        module.moduleDirPath.safelyResolveToAbsolute(it)?.let(dir2module::get)?.module
     } ?: return
 
     module.module.customTasks += customTask

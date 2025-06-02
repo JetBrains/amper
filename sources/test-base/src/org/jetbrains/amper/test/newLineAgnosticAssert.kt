@@ -5,6 +5,7 @@
 package org.jetbrains.amper.test
 
 import org.junit.jupiter.api.AssertionFailureBuilder
+import org.junit.jupiter.api.fail
 import org.opentest4j.FileInfo
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -27,13 +28,9 @@ fun assertEqualsIgnoreLineSeparator(expectedContent: String, actualContent: Stri
         val crInExpectedFile = originalFile.takeIf { it.exists() }?.readText()?.contains("\r") ?: false
         actualFile.writeText(if (crInExpectedFile) actualNormalized.replace("\n", "\r\n") else actualNormalized)
 
-        if (originalFile.exists()) AssertionFailureBuilder.assertionFailure()
+        AssertionFailureBuilder.assertionFailure()
             .message("Comparison failed:\n${generateUnifiedDiff(originalFile, actualFile)}")
             .expected(FileInfo(originalFile.absolutePathString(), originalFile.readBytes()))
-            .actual(FileInfo(actualFile.absolutePathString(), actualFile.readBytes()))
-            .buildAndThrow()
-        else AssertionFailureBuilder.assertionFailure()
-            .message("Comparison failed:\n${generateUnifiedDiff(expectedNormalized, actualFile)}")
             .actual(FileInfo(actualFile.absolutePathString(), actualFile.readBytes()))
             .buildAndThrow()
     } else {

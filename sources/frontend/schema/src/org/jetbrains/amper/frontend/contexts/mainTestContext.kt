@@ -17,7 +17,7 @@ open class TestCtx(override val trace: Trace?) : Context {
 }
 
 /**
- * Interpret contexts as paths and make inheritance conclusion based on [order] order.
+ * Extract tests contexts if any and treat non containing these as less specific.
  */
 object MainTestInheritance : ContextsInheritance {
     override fun Contexts.isMoreSpecificThan(other: Contexts): ContextsInheritance.Result {

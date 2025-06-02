@@ -81,6 +81,8 @@ app:COMPILE:JVM
 │    │              │         ├─── io.ktor:ktor-http:3.1.1 (*)
 │    │              │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> #kotlinVersion (*)
 │    │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> #kotlinVersion (*)
+│    ├─── B:jvm:io.ktor:ktor-client-core:unspecified
+│    │    ╰─── io.ktor:ktor-client-core:unspecified -> 3.1.1 (*)
 │    ├─── B:common:io.ktor:ktor-bom:3.1.1
 │    │    ╰─── io.ktor:ktor-bom:3.1.1
 │    │         ╰─── io.ktor:ktor-client-core:3.1.1 (c)

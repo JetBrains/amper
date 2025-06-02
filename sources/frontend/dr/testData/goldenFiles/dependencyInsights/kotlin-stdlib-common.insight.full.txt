@@ -1,5 +1,5 @@
 shared:COMPILE:IOS_ARM64
-├─── shared:common:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+├─── shared:iosArm64:org.jetbrains.compose.material3:material3:#composeDefaultVersion
 │    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion
 │         ╰─── org.jetbrains.compose.material3:material3-uikitarm64:#composeDefaultVersion
 │              ╰─── org.jetbrains.kotlinx:kotlinx-datetime:0.6.0
@@ -9,6 +9,14 @@ shared:COMPILE:IOS_ARM64
 │                                  ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> #kotlinVersion
 │                                       ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
 │                                            ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
+├─── shared:apple:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion (*)
+├─── shared:common:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion (*)
+├─── shared:ios:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion (*)
+├─── shared:native:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion (*)
 ├─── shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 ├─── shared:apple:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit

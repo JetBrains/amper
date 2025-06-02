@@ -31,7 +31,7 @@ interface ProblemReporterContext {
 abstract class CollectingProblemReporter : ProblemReporter {
     override val hasFatal get() = problems.any { it.level == Level.Fatal }
 
-    protected val problems: MutableList<BuildProblem> = mutableListOf()
+    internal val problems: MutableList<BuildProblem> = mutableListOf()
 
     protected abstract fun doReportMessage(message: BuildProblem)
 
@@ -39,18 +39,27 @@ abstract class CollectingProblemReporter : ProblemReporter {
         problems.add(message)
         doReportMessage(message)
     }
+
+    fun getDiagnostics(vararg levels: Level = arrayOf(Level.Error, Level.Fatal)): List<BuildProblem> = 
+        problems.filter { levels.contains(it.level) }
 }
 
+// TODO Rename, since it is not strictly NoOp.
 class NoOpCollectingProblemReporter : CollectingProblemReporter() {
     fun getProblems(): Collection<BuildProblem> = problems
     override fun doReportMessage(message: BuildProblem) = Unit
-    fun rewindTo(other: ProblemReporter) = problems.forEach { other.reportMessage(it) }
 }
 
+// TODO Rename, since it is not strictly NoOp.
 class NoOpCollectingProblemReporterCtx : ProblemReporterContext {
     override val problemReporter = NoOpCollectingProblemReporter()
-    fun rewindTo(other: ProblemReporterContext) = problemReporter.rewindTo(other.problemReporter)
 }
+
+fun NoOpCollectingProblemReporterCtx.rewindTo(other: ProblemReporterContext) = 
+    problemReporter.rewindTo(other.problemReporter)
+
+fun NoOpCollectingProblemReporter.rewindTo(other: ProblemReporter) = 
+    problems.forEach { other.reportMessage(it) }
 
 @OptIn(NonIdealDiagnostic::class)
 fun renderMessage(problem: BuildProblem): @Nls String = buildString {

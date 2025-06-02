@@ -1,5 +1,5 @@
 shared:COMPILE:IOS_ARM64
-├─── shared:common:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+├─── shared:iosArm64:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
 │    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
 │         ╰─── org.jetbrains.compose.foundation:foundation-uikitarm64:#composeDefaultVersion
 │              ╰─── org.jetbrains.compose.animation:animation:#composeDefaultVersion
@@ -9,7 +9,23 @@ shared:COMPILE:IOS_ARM64
 │                                  ╰─── org.jetbrains.compose.ui:ui:#composeDefaultVersion
 │                                       ╰─── org.jetbrains.compose.ui:ui-uikitarm64:#composeDefaultVersion
 │                                            ╰─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion
-╰─── shared:common:org.jetbrains.compose.material3:material3:#composeDefaultVersion
-     ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion
-          ╰─── org.jetbrains.compose.material3:material3-uikitarm64:#composeDefaultVersion
-               ╰─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion
+├─── shared:iosArm64:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│         ╰─── org.jetbrains.compose.material3:material3-uikitarm64:#composeDefaultVersion
+│              ╰─── org.jetbrains.compose.ui:ui-graphics:#composeDefaultVersion
+├─── shared:apple:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion (*)
+├─── shared:apple:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion (*)
+├─── shared:common:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion (*)
+├─── shared:common:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion (*)
+├─── shared:ios:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion (*)
+├─── shared:ios:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion (*)
+├─── shared:native:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+│    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion (*)
+╰─── shared:native:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+     ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion (*)

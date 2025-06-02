@@ -39,8 +39,12 @@ D:COMPILE:JVM
 │                             ╰─── io.ktor:ktor-sse-jvm:3.0.3
 │                                  ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
 │                                  ╰─── io.ktor:ktor-http:3.0.3 (*)
-╰─── D:common:org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0
-     ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0 -> 1.9.0
-          ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.9.0
-               ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0 (*)
-               ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
+├─── D:common:org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0
+│    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0 -> 1.9.0
+│         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.9.0
+│              ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0 (*)
+│              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0 (*)
+├─── D:jvm:io.ktor:ktor-client:3.0.3
+│    ╰─── io.ktor:ktor-client:3.0.3 (*)
+╰─── D:jvm:org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0
+     ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0 -> 1.9.0 (*)

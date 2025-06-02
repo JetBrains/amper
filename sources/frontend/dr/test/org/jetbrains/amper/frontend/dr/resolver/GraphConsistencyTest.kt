@@ -66,9 +66,4 @@ class GraphConsistencyTest {
 
 class TestProblemReporter : CollectingProblemReporter() {
     override fun doReportMessage(message: BuildProblem) {}
-
-    fun clearAll() = problems.clear()
-
-    fun getDiagnostics(vararg levels: Level = arrayOf(Level.Error, Level.Fatal)): List<BuildProblem> =
-        problems.filter { levels.contains(it.level) }
 }

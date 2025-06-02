@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -46,8 +47,9 @@ data class BuildCtx(
     val templateAType = types<Template>()
     val projectAType = types<Project>()
 
+    // TODO Properly handle null cases of `loadVirtualFile`.
     fun VirtualFile.asPsi(): PsiFile = pathResolver.toPsiFile(this) ?: error("No $this file")
-    fun Path.asPsi(): PsiFile = pathResolver.toPsiFile(this) ?: error("No $this file")
+    fun Path.asPsi(): PsiFile = pathResolver.toPsiFile(pathResolver.loadVirtualFile(this@asPsi)) ?: error("No $this file")
     fun Path.asVirtual(): VirtualFile = pathResolver.loadVirtualFile(this)
 }
 

@@ -15,7 +15,7 @@ import com.intellij.util.asSafely
 import com.intellij.util.containers.Stack
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.core.resolveAbsoluteSafely
+import org.jetbrains.amper.core.safelyResolveToAbsolute
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.asTrace
@@ -146,7 +146,7 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
             kType.isString -> text
             kType.isInt -> text.toIntOrNull() ?: reportIfNeeded("validation.expected.integer")
             kType.isBoolean -> text.toBooleanStrictOrNull() ?: reportIfNeeded("validation.expected.boolean")
-            kType.isPath -> baseDir.resolveAbsoluteSafely(text) ?: reportIfNeeded("validation.expected.path")
+            kType.isPath -> baseDir.safelyResolveToAbsolute(text) ?: reportIfNeeded("validation.expected.path")
             kType.isEnum -> tryReadEnum(text, kType, origin, report)
             kType.isTraceableString -> readAs<String>(stringType)?.asTraceable(origin.trace)
             kType.isTraceablePath -> readAs<Path>(pathType)?.asTraceable(origin.trace)
