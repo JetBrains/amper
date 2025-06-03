@@ -254,10 +254,10 @@ open class DependencyFile(
     val dependency: MavenDependency,
     val nameWithoutExtension: String,
     val extension: String,
-    val kmpSourceSet: String? = null,
     val isAutoAddedDocumentation: Boolean = false,
     private val fileCache: FileCache = dependency.settings.fileCache,
 ) {
+    val settings = TypedKeyMap()
 
     @Volatile
     private var readOnlyExternalCacheDirectory: LocalRepository? = null

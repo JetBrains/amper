@@ -518,12 +518,12 @@ class DependencyFileTest {
 
             assertEquals(
                 setOf("commonMain", "concurrentMain"),
-                dependency.files().map{ it.kmpSourceSet }.toSet(),
+                dependency.files().map { it.settings[KmpSourceSetName] }.toSet(),
                 "Unexpected list of resolved source sets"
             )
 
             val sourceSetFiles = runBlocking {
-                dependency.files().associate { it.kmpSourceSet!! to it.getPath()!! }
+                dependency.files().associate { it.settings[KmpSourceSetName]!! to it.getPath()!! }
             }
 
             // check sourceSet files content validity
@@ -640,7 +640,7 @@ class DependencyFileTest {
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
             assertEquals(setOf("commonMain"),
-                dependency.files().map{ it.kmpSourceSet }.toSet(),
+                dependency.files().map { it.settings[KmpSourceSetName] }.toSet(),
                 "Unexpected list of resolved source sets"
             )
         }

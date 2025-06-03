@@ -362,6 +362,11 @@ data class MavenDependencyConstraint(
 )
 
 /**
+ * The name of the KMP source set represented by the given dependency file.
+ */
+val KmpSourceSetName = Key<String>("KmpSourceSetName")
+
+/**
  * An actual Maven dependency that can be resolved, that is, populated with children according to the requested
  * [ResolutionScope] and platform.
  * That means MavenDependency is bound to dependency resolution context, i.e., the instance of the class resolved for one context
@@ -1295,8 +1300,8 @@ class MavenDependency internal constructor(
             kmpMetadataFile.dependency,
             "${kmpMetadataFile.dependency.module}-$sourceSetName$sourcesSuffix",
             extension,
-            kmpSourceSet = sourceSetName
         )
+        sourceSetFile.settings[KmpSourceSetName] = sourceSetName
 
         val targetFileName = "$module-$sourceSetName-$version$sourcesSuffix.$extension"
 
@@ -1773,7 +1778,7 @@ class MavenDependency internal constructor(
         val notDownloaded = allFiles
             .filter {
                 (context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
-                        || it.kmpSourceSet == null) // (except for artifact with all sources that is not marked with any kmpSourceSet)
+                        || it.settings[KmpSourceSetName] == null) // (except for artifact with all sources that is not marked with any kmpSourceSet)
                         && !it.isDownloadedWithVerification(settings = context.settings)
             }
 
@@ -1804,7 +1809,7 @@ class MavenDependency internal constructor(
     ) {
         if (context.settings.platforms.size > 1
             && downloadSources
-            && this.kmpSourceSet == null
+            && this.settings[KmpSourceSetName] == null
             && this.isSourcesDependencyFile()
         ) {
             // repackage KMP library sources.
@@ -1818,7 +1823,7 @@ class MavenDependency internal constructor(
                                 async(Dispatchers.IO) {
                                     context.spanBuilder("toDependencyFile")
                                         .use {
-                                            val sourceSetName = sourceSetsFile.kmpSourceSet ?: return@use null
+                                            val sourceSetName = sourceSetsFile.settings[KmpSourceSetName] ?: return@use null
                                             val moduleMetadata =
                                                 moduleMetadata ?: error("moduleMetadata wasn't initialized")
 
