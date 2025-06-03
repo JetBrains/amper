@@ -27,6 +27,7 @@ import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 abstract class AbstractJvmRunTask(
     override val taskName: TaskName,
@@ -46,10 +47,8 @@ abstract class AbstractJvmRunTask(
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         DeadLockMonitor.disable()
 
-        val workingDir = module.source.moduleDir ?: projectRoot.path
-
         val result = getJdk().runJava(
-            workingDir = workingDir,
+            workingDir = commonRunSettings.workingDir ?: Path(System.getProperty("user.dir")),
             mainClass = getMainClass(dependenciesResult),
             classpath = getClasspath(dependenciesResult),
             programArgs = commonRunSettings.programArgs,

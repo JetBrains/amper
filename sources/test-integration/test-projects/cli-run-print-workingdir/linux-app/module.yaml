@@ -1,0 +1,4 @@
+product: linux/app
+
+dependencies:
+  - ../native-shared

@@ -1,0 +1,4 @@
+product: macos/app
+
+dependencies:
+  - ../native-shared

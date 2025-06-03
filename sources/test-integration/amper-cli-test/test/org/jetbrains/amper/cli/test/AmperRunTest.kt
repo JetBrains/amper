@@ -9,6 +9,9 @@ import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.core.system.Arch
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.test.LinuxOnly
 import org.jetbrains.amper.test.MacOnly
@@ -172,6 +175,55 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         val result3 = runCli(projectRoot, "run", "--jvm-args=-Dmy.system.prop=hello\\ world")
         result3.assertStdoutContains("my.system.prop=hello world")
+    }
+
+    @Test
+    fun `jvm run uses current working dir by default`() = runSlowTest {
+        val projectRoot = testProject("cli-run-print-workingdir")
+        val result = runCli(projectRoot, "run", "--module=jvm-app")
+        result.assertStdoutContains("workingDir=${result.projectRoot}")
+    }
+
+    @Test
+    fun `jvm run uses specified --working-dir`() = runSlowTest {
+        val projectRoot = testProject("cli-run-print-workingdir")
+        val currentHome = System.getProperty("user.home")
+        val result = runCli(projectRoot, "run", "--module=jvm-app", "--working-dir=$currentHome")
+        result.assertStdoutContains("workingDir=$currentHome")
+    }
+
+    @Test
+    fun `native run uses current working dir by default`() = runSlowTest {
+        val projectRoot = testProject("cli-run-print-workingdir")
+        val platform = currentNativePlatformName()
+        val result = runCli(projectRoot, "run", "--platform=$platform")
+        result.assertStdoutContains("workingDir=${result.projectRoot}")
+    }
+
+    @Test
+    fun `native run uses specified --working-dir`() = runSlowTest {
+        val projectRoot = testProject("cli-run-print-workingdir")
+        val platform = currentNativePlatformName()
+        val currentHome = System.getProperty("user.home")
+        val result = runCli(projectRoot, "run", "--platform=$platform", "--working-dir=$currentHome")
+        result.assertStdoutContains("workingDir=$currentHome")
+    }
+
+    private fun currentNativePlatformName(): String {
+        val systemInfo = DefaultSystemInfo.detect()
+        return when (systemInfo.family) {
+            OsFamily.FreeBSD,
+            OsFamily.Solaris,
+            OsFamily.Linux -> when (systemInfo.arch) {
+                Arch.X64 -> "linuxX64"
+                Arch.Arm64 -> "linuxArm64"
+            }
+            OsFamily.MacOs -> when (systemInfo.arch) {
+                Arch.X64 -> "macosX64"
+                Arch.Arm64 -> "macosArm64"
+            }
+            OsFamily.Windows -> "mingwX64"
+        }
     }
 
     @Test

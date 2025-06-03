@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.tasks.CommonRunSettings
 
@@ -43,7 +44,12 @@ internal class RunCommand : AmperSubcommand(name = "run") {
         """.trimIndent()
     )
 
-    private val jvmMainClass by option("--main-class", help = "Specifies the main class to run. This option is only applicable for JVM applications.")
+    private val jvmMainClass by option("--main-class", help = "The fully-qualified name of the main class to run. This option is only applicable for JVM applications. By default, the main class is read from the module configuration file, or is determined automatically by convention, searching for a main.kt file.")
+
+    private val workingDir by option("--working-dir", help = "The working directory for the application run. " +
+            "By default, the current directory is used. This option is only applicable for JVM and native desktop " +
+            "applications (the working directory is not customizable in mobile emulator runs).")
+        .path(mustExist = true, canBeFile = false, canBeDir = true)
 
     private val programArguments by argument(name = "app_arguments").multiple()
 
@@ -58,6 +64,7 @@ internal class RunCommand : AmperSubcommand(name = "run") {
             terminal = terminal,
             commonRunSettings = CommonRunSettings(
                 programArgs = programArguments,
+                workingDir = workingDir,
                 userJvmArgs = jvmArgs,
                 userJvmMainClass = jvmMainClass,
                 deviceId = deviceId,

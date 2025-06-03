@@ -1,0 +1,6 @@
+modules:
+  - jvm-app
+  - linux-app
+  - macos-app
+  - windows-app
+  - native-shared

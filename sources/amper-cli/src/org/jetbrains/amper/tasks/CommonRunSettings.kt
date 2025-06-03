@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.test.TestFilter
+import java.nio.file.Path
 
 /**
  * Settings that are passed from the command line to user-visible processes that Amper runs, such as tests or the
@@ -15,6 +16,10 @@ data class CommonRunSettings(
      * The arguments to use when running the user's JVM or native application.
      */
     val programArgs: List<String> = emptyList(),
+    /**
+     * The working directory to use when running the user's application.
+     */
+    val workingDir: Path? = null,
     /**
      * Filters to select or exclude tests.
      */

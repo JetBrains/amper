@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.native
 
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
-import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
@@ -25,6 +24,7 @@ import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
+import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
 class NativeRunTask(
@@ -32,7 +32,6 @@ class NativeRunTask(
     override val module: AmperModule,
     override val platform: Platform,
     override val buildType: BuildType,
-    private val projectRoot: AmperProjectRoot,
     private val commonRunSettings: CommonRunSettings,
     private val terminal: Terminal,
 ) : RunTask {
@@ -54,10 +53,8 @@ class NativeRunTask(
             .setAttribute("executable", executable.pathString)
             .setListAttribute("args", programArgs)
             .use { span ->
-                val workingDir = module.source.moduleDir ?: projectRoot.path
-
                 val result = BuildPrimitives.runProcessAndGetOutput(
-                    workingDir = workingDir,
+                    workingDir = commonRunSettings.workingDir ?: Path(System.getProperty("user.dir")),
                     command = listOf(executable.pathString) + programArgs,
                     span = span,
                     outputListener = PrintToTerminalProcessOutputListener(terminal),
