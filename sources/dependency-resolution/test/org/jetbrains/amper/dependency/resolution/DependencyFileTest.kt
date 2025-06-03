@@ -550,6 +550,37 @@ class DependencyFileTest {
                 val storedHash = sha1.readText()
                 assertEquals(calculatedHash, storedHash, "Wrong sha1 hash was stored")
             }
+
+            // check source set platforms
+            val commonPlatforms = setOf(
+                ResolutionPlatform.IOS_ARM64,
+                ResolutionPlatform.IOS_SIMULATOR_ARM64,
+                ResolutionPlatform.IOS_X64,
+                ResolutionPlatform.JS,
+                ResolutionPlatform.JVM,
+                ResolutionPlatform.LINUX_ARM64,
+                ResolutionPlatform.LINUX_X64,
+                ResolutionPlatform.MACOS_ARM64,
+                ResolutionPlatform.MACOS_X64,
+                ResolutionPlatform.MINGW_X64,
+                ResolutionPlatform.TVOS_ARM64,
+                ResolutionPlatform.TVOS_SIMULATOR_ARM64,
+                ResolutionPlatform.TVOS_X64,
+                ResolutionPlatform.WATCHOS_ARM32,
+                ResolutionPlatform.WATCHOS_ARM64,
+                ResolutionPlatform.WATCHOS_DEVICE_ARM64,
+                ResolutionPlatform.WATCHOS_SIMULATOR_ARM64,
+            )
+            val expectedPlatforms = mapOf(
+                "commonMain" to commonPlatforms,
+                "concurrentMain" to commonPlatforms - ResolutionPlatform.JS,
+            )
+            dependency.files().forEach { file ->
+                val sourceSetName = file.settings[KmpSourceSetName]
+                val platforms = expectedPlatforms[sourceSetName]
+                assertNotNull(platforms, "Unexpected source set: $sourceSetName")
+                assertEquals(platforms, file.settings[KmpPlatforms], "Wrong set of supported platforms for $sourceSetName")
+            }
         }
     }
 

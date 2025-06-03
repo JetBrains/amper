@@ -367,6 +367,14 @@ data class MavenDependencyConstraint(
 val KmpSourceSetName = Key<String>("KmpSourceSetName")
 
 /**
+ * Represents the list of platforms supported by the given source set.
+ *
+ * It is required for IDE to know about the capabilities of the dependency, which allows properly suggesting it
+ * for adding as a dependency found by the unresolved reference search.
+ */
+val KmpPlatforms = Key<Set<ResolutionPlatform>>("KmpPlatforms")
+
+/**
  * An actual Maven dependency that can be resolved, that is, populated with children according to the requested
  * [ResolutionScope] and platform.
  * That means MavenDependency is bound to dependency resolution context, i.e., the instance of the class resolved for one context
@@ -1302,6 +1310,13 @@ class MavenDependency internal constructor(
             extension,
         )
         sourceSetFile.settings[KmpSourceSetName] = sourceSetName
+        if (kotlinProjectStructureMetadata != null) {
+            sourceSetFile.settings[KmpPlatforms] = retrievePlatforms(
+                kotlinProjectStructureMetadata,
+                moduleMetadata,
+                sourceSetName,
+            )
+        }
 
         val targetFileName = "$module-$sourceSetName-$version$sourcesSuffix.$extension"
 
@@ -1338,6 +1353,24 @@ class MavenDependency internal constructor(
 
         sourceSetFile.onFileDownloaded(targetPath)
         return sourceSetFile
+    }
+
+    /**
+     * Retrieves all platforms supported by the given [sourceSetName] in the dependency.
+     */
+    private fun retrievePlatforms(
+        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata,
+        moduleMetadata: Module,
+        sourceSetName: String,
+    ): Set<ResolutionPlatform> {
+        val sourceSetVariants = kotlinProjectStructureMetadata.projectStructure
+            .variants
+            .filter { sourceSetName in it.sourceSet }
+            .map { it.name }
+        return moduleMetadata.variants
+            .filter { it.name.removeSuffix("-published") in sourceSetVariants }
+            .mapNotNull { getLeafPlatformFromVariant(it) }
+            .toSet()
     }
 
     /**
