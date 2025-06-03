@@ -1,7 +1,0 @@
-product:
-  type: lib
-  platforms: [ jvm ]
-
-repositories:
-  - <![Warning] The local Maven repository is only supported for publication, and will be ignored for resolution. Set 'resolve: false' explicitly to hide this warning.!>url: mavenLocal
-    resolve: true<!>
