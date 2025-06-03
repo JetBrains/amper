@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.diagnostics
 val IsmDiagnosticFactories: List<IsmDiagnosticFactory> = listOf(
     AndroidTooOldVersionFactory,
     LibShouldHavePlatforms,
-    MavenLocalResolutionUnsupported,
     ProductPlatformIsUnsupported,
     ProductPlatformsShouldNotBeEmpty,
     UnknownQualifiers,
