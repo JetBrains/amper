@@ -10,13 +10,13 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.toRepositories
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
@@ -41,7 +41,7 @@ internal class ResolveJavaAnnotationProcessorDependenciesTask(
     private val mavenResolver = MavenResolver(userCacheRoot)
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
-        val repositories = module.mavenRepositories.filter { it.resolve }.map { it.url }.distinct()
+        val repositories = module.mavenRepositories.filter { it.resolve }.map { it.toRepository() }.distinct()
 
         val processorCoords = fragments.flatMap { it.settings.java.annotationProcessing.processors }
             .flatMap {
@@ -75,7 +75,7 @@ internal class ResolveJavaAnnotationProcessorDependenciesTask(
                 .use {
                     mavenResolver.resolve(
                         coordinates = processorCoords,
-                        repositories = repositories.toRepositories(),
+                        repositories = repositories,
                         platform = ResolutionPlatform.JVM,
                         scope = ResolutionScope.RUNTIME,
                         resolveSourceMoniker = "Java annotation processors for ${module.userReadableName}-${platform.pretty}",
