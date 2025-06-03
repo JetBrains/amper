@@ -2,4 +2,4 @@ product: jvm/app
 
 settings:
   <![Warning] This setting cannot be applied to platforms jvm. Supported platforms are: ios!>ios<!>:
-    <![Warning] This setting is only for Gradle-based Amper, otherwise it has no effect: Team ID is managed in the Xcode project.!>teamId: aaa<!>
+    <![Warning] This setting was only applicable in Gradle-based Amper and is now obsolete: the team ID is managed in the Xcode project.!>teamId: aaa<!>

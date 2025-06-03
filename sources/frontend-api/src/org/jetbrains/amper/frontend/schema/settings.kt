@@ -149,7 +149,7 @@ const val legacySerializationFormatNone = "none"
 
 class IosSettings : SchemaNode() {
 
-    @GradleSpecific("Team ID is managed in the Xcode project")
+    @GradleSpecific("the team ID is managed in the Xcode project")
     @SchemaDoc("A Team ID is a unique string assigned to your team by Apple.<br>" +
             "It's necessary if you want to run/test on a Apple device.<br>" +
             "Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/)," +
@@ -164,7 +164,7 @@ class IosSettings : SchemaNode() {
 
 class IosFrameworkSettings : SchemaNode() {
 
-    @GradleSpecific(message = "framework name is `KotlinModules`")
+    @GradleSpecific(message = "the framework name is always `KotlinModules` in Amper")
     @SchemaDoc("The name of the generated framework")
     var basename by value("kotlin")
 
