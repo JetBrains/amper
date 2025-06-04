@@ -1,0 +1,6 @@
+product:
+  type: lib
+  platforms: [ jvm, iosArm64 ]
+
+dependencies:
+  - com.squareup.okio:okio:3.9.1

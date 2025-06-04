@@ -200,6 +200,49 @@ class MavenDependencyNode internal constructor(
     fun getOriginalMavenCoordinates(): MavenCoordinates = dependency.coordinates.copy(version = version)
 
     /**
+     * NB: This method currently works properly only in the single-platform resolution context.
+     *
+     * todo (AB) : Replace with proper isKmpLibrary() condition that takes multi-platform context into account
+     */
+    fun isKmpLibrary(): Boolean = when {
+        context.settings.platforms.size == 1 -> dependency.files(false).isEmpty()
+        else -> false
+    }
+
+    /**
+     * For a platform-specific artifact introduced into the resolution by a KMP library
+     * (as one of its `available-at`), this method returns the coordinates of such a KMP library.
+     *
+     * This method is useful for IDE to find out if the library can be introduced to a module by depending on the
+     * original multiplatform library (e.g., if the symbol from the platform-specific part was found).
+     * 
+     * This is the counterpart of [getMavenCoordinatesForPublishing].
+     * 
+     * If the current node is not a platform-specific variant of a KMP library, `null` is returned.
+     */
+    fun getParentKmpLibraryCoordinates(): MavenCoordinates? {
+        // When the node is resolved in the multiplatform context, it's unlikely that any platforms-specific artifacts
+        // will be resolved for KMP libraries. Thus, there will be no nodes to call this method on.
+        if (context.settings.platforms.size != 1) return null
+
+        val thisCoordinates = dependency.coordinates
+        for (parent in parents) {
+            if (parent !is MavenDependencyNode) continue
+
+            if (parent.isKmpLibrary()) {
+                val availableAtCoordinates = with(parent.dependency) { variants.withoutDocumentationAndMetadata }
+                    .mapNotNull { it.`available-at`?.toCoordinates() }
+
+                if (availableAtCoordinates.any { it == thisCoordinates }) {
+                    return parent.dependency.coordinates
+                }
+            }
+        }
+
+        return null
+    }
+
+    /**
      * Publishing of a KMP library involves publishing various variants of this library for different platforms.
      * JVM single-platform variant might be consumed by a simple Maven/Gradle project that is not aware of KMP at all.
      * That means, JVM variant, when it comes to declaring dependencies during publication, should not refer to other KMP libraries,
@@ -220,19 +263,17 @@ class MavenDependencyNode internal constructor(
      * This is because declared dependencies are published, not resolved ones.
      */
     fun getMavenCoordinatesForPublishing(): MavenCoordinates {
-        if (context.settings.platforms.size == 1) {
-            if (dependency.files(false).isEmpty()) { // todo (AB) : Replace with isKmpLibrary() condition
-                val childrenOriginalCoordinates = children
-                    .filterIsInstance<MavenDependencyNode>()
-                    .mapNotNull { nested ->
-                        nested.originalVersion()?.let { nested.dependency.coordinates.copy(version = it) }
-                    }
-                val singlePlatformCoordinates = with(dependency) { variants.withoutDocumentationAndMetadata }
-                    .mapNotNull { it.`available-at`?.toCoordinates() }
-                    .singleOrNull { it in childrenOriginalCoordinates }
+        if (context.settings.platforms.size == 1 && isKmpLibrary()) {
+            val childrenOriginalCoordinates = children
+                .filterIsInstance<MavenDependencyNode>()
+                .mapNotNull { nested ->
+                    nested.originalVersion()?.let { nested.dependency.coordinates.copy(version = it) }
+                }
+            val singlePlatformCoordinates = with(dependency) { variants.withoutDocumentationAndMetadata }
+                .mapNotNull { it.`available-at`?.toCoordinates() }
+                .singleOrNull { it in childrenOriginalCoordinates }
 
-                if (singlePlatformCoordinates != null) return singlePlatformCoordinates
-            }
+            if (singlePlatformCoordinates != null) return singlePlatformCoordinates
         }
 
         return getOriginalMavenCoordinates()

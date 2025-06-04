@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
@@ -299,6 +300,40 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
         )
     }
 
+    /**
+     * For platform-specific artifacts that were introduced into the resolution by KMP libraries
+     * (as one of their `available-at`), DR provides API [MavenDependencyNode.getParentKmpLibraryCoordinates]
+     * for getting coordinates of the original KMP libraries.
+     * These coordinates are used in the IDE to deduplicate dependencies when searching for symbols that appear
+     * both in the KMP library and in the platform-specific artifact.
+     *
+     * This test verifies that DR API provides correct coordinates of the KMP libraries
+     * for platform-specific variants.
+     */
+    @Test
+    fun `test finding KMP library for platform-specific variant`() {
+        val aom = getTestProjectModel("kmp-library", testDataRoot)
+
+        val moduleDeps = runBlocking {
+            doTest(
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom),
+                    ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                ),
+                module = "kmp-library",
+            ) as ModuleDependencyNodeWithModule
+        }
+
+        moduleDeps.assertParentKmpLibraries(
+            mapOf(
+                "com.squareup.okio:okio-jvm:3.9.1" to "com.squareup.okio:okio:3.9.1",
+                "com.squareup.okio:okio-iosarm64:3.9.1" to "com.squareup.okio:okio:3.9.1",
+            ),
+        )
+    }
+
     private fun ModuleDependencyNodeWithModule.assertMapping(
         expectedMapping: Map<String, String>
     ) {
@@ -324,6 +359,30 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                     "Unexpected coordinates for publishing were resolved for the library [$originalCoordinates]"
                 )
             }
+    }
+
+    private fun ModuleDependencyNodeWithModule.assertParentKmpLibraries(
+        expectedMapping: Map<String, String>
+    ) {
+        val expectedCoordinatesMapping =
+            expectedMapping.map { it.key.toMavenCoordinates() to it.value.toMavenCoordinates() }.toMap()
+        // Find all MavenDependencyNode instances in the dependency graph
+        val allMavenNodes = mutableListOf<MavenDependencyNode>()
+
+        fun collectMavenNodes(node: DependencyNode) {
+            if (node is MavenDependencyNode) {
+                allMavenNodes.add(node)
+            }
+            node.children.forEach { collectMavenNodes(it) }
+        }
+
+        collectMavenNodes(this)
+
+        val nodeParents = allMavenNodes.mapNotNull { dep ->
+            val parentCoordinates = dep.getParentKmpLibraryCoordinates() ?: return@mapNotNull null
+            dep.getOriginalMavenCoordinates() to parentCoordinates
+        }.toMap()
+        assertEquals(expectedCoordinatesMapping, nodeParents, "Incorrect parent KMP libraries were resolved")
     }
 
     /**
