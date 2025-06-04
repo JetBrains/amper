@@ -173,7 +173,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         userCacheRoot = context.userCacheRoot,
                         projectRoot = context.projectRoot,
                         taskName = HotReloadTaskType.HotRun.getTaskName(module, platform),
-                        commonRunSettings = context.commonRunSettings,
+                        runSettings = context.runSettings,
                         terminal = context.terminal,
                         tempRoot = context.projectTempRoot,
                         executeOnChangedInputs = executeOnChangedInputs,
@@ -190,7 +190,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                             userCacheRoot = context.userCacheRoot,
                             projectRoot = context.projectRoot,
                             taskName = CommonTaskType.Run.getTaskName(module, platform),
-                            commonRunSettings = context.commonRunSettings,
+                            runSettings = context.runSettings,
                             terminal = context.terminal,
                             tempRoot = context.projectTempRoot,
                             executeOnChangedInputs = executeOnChangedInputs,
@@ -224,7 +224,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         projectRoot = context.projectRoot,
                         tempRoot = context.projectTempRoot,
                         terminal = context.terminal,
-                        commonRunSettings = context.commonRunSettings,
+                        runSettings = context.runSettings,
                     ),
                     dependsOn = listOf(executableJarTaskName)
                 )
@@ -289,7 +289,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     taskName = testTaskName,
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
-                    commonRunSettings = context.commonRunSettings,
+                    runSettings = context.runSettings,
                     executeOnChangedInputs = executeOnChangedInputs,
                 ),
                 listOf(

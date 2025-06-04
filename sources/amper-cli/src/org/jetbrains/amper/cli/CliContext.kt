@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
-import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
@@ -29,7 +29,7 @@ class CliContext private constructor(
     // in the future it'll be customizable to support out-of-tree builds, e.g., on CI
     val buildOutputRoot: AmperBuildOutputRoot,
     val buildLogsRoot: AmperBuildLogsRoot,
-    val commonRunSettings: CommonRunSettings,
+    val runSettings: AllRunSettings,
     val taskExecutionMode: TaskExecutor.Mode,
     val terminal: Terminal,
     val androidHomeRoot: AndroidHomeRoot,
@@ -44,7 +44,7 @@ class CliContext private constructor(
         suspend fun create(
             explicitProjectRoot: Path?,
             taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
-            commonRunSettings: CommonRunSettings = CommonRunSettings(),
+            runSettings: AllRunSettings = AllRunSettings(),
             buildOutputRoot: AmperBuildOutputRoot? = null,
             userCacheRoot: AmperUserCacheRoot,
             currentTopLevelCommand: String,
@@ -88,7 +88,7 @@ class CliContext private constructor(
                 projectTempRoot = AmperProjectTempRoot(tempDir),
                 buildLogsRoot = AmperBuildLogsRoot(logsDir),
                 userCacheRoot = userCacheRoot,
-                commonRunSettings = commonRunSettings,
+                runSettings = runSettings,
                 taskExecutionMode = taskExecutionMode,
                 terminal = terminal,
                 backgroundScope = backgroundScope,

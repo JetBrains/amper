@@ -11,7 +11,7 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.cli.withBackend
-import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.AllRunSettings
 
 internal class RunCommand : AmperSubcommand(name = "run") {
 
@@ -62,9 +62,9 @@ internal class RunCommand : AmperSubcommand(name = "run") {
             commonOptions = commonOptions,
             currentCommand = commandName,
             terminal = terminal,
-            commonRunSettings = CommonRunSettings(
+            runSettings = AllRunSettings(
                 programArgs = programArguments,
-                workingDir = workingDir,
+                explicitWorkingDir = workingDir,
                 userJvmArgs = jvmArgs,
                 userJvmMainClass = jvmMainClass,
                 deviceId = deviceId,

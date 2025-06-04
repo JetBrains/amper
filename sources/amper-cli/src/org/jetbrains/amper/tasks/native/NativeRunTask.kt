@@ -17,14 +17,14 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
-import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
+import org.jetbrains.amper.tasks.NativeDesktopRunSettings
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.workingDir
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
-import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
 class NativeRunTask(
@@ -32,7 +32,7 @@ class NativeRunTask(
     override val module: AmperModule,
     override val platform: Platform,
     override val buildType: BuildType,
-    private val commonRunSettings: CommonRunSettings,
+    private val runSettings: NativeDesktopRunSettings,
     private val terminal: Terminal,
 ) : RunTask {
     init {
@@ -47,14 +47,14 @@ class NativeRunTask(
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
         val executable = checkNotNull(compileTaskResult.linkedBinary) { "Executable must always be linked" }
-        val programArgs = commonRunSettings.programArgs
+        val programArgs = runSettings.programArgs
 
         return spanBuilder("native-run")
             .setAttribute("executable", executable.pathString)
             .setListAttribute("args", programArgs)
             .use { span ->
                 val result = BuildPrimitives.runProcessAndGetOutput(
-                    workingDir = commonRunSettings.workingDir ?: Path(System.getProperty("user.dir")),
+                    workingDir = runSettings.workingDir,
                     command = listOf(executable.pathString) + programArgs,
                     span = span,
                     outputListener = PrintToTerminalProcessOutputListener(terminal),

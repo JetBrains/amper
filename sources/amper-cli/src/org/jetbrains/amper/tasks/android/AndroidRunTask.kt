@@ -36,7 +36,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.android.findAndroidManifestFragment
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.startLongLivedProcess
-import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.MobileRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
@@ -53,7 +53,7 @@ class AndroidRunTask(
     override val taskName: TaskName,
     override val module: AmperModule,
     override val buildType: BuildType,
-    private val commonRunSettings: CommonRunSettings,
+    private val runSettings: MobileRunSettings,
     private val androidSdkPath: Path,
     private val avdPath: Path,
 ) : RunTask {
@@ -73,7 +73,7 @@ class AndroidRunTask(
             ?: error("Emulator not found")).resolve("emulator")
 
         val device = run {
-            commonRunSettings.deviceId?.let { deviceId ->
+            runSettings.deviceId?.let { deviceId ->
                 adb.devices.find { it.serialNumber == deviceId } ?: userReadableError(
                     "Unable to find the device with the serial = `$deviceId`"
                 )

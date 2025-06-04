@@ -24,8 +24,8 @@ import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
-import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
+import org.jetbrains.amper.tasks.JvmTestRunSettings
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestResultsFormat
@@ -50,7 +50,7 @@ class JvmTestTask(
     private val projectRoot: AmperProjectRoot,
     private val buildOutputRoot: AmperBuildOutputRoot,
     private val terminal: Terminal,
-    private val commonRunSettings: CommonRunSettings,
+    private val runSettings: JvmTestRunSettings,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     override val module: AmperModule,
     override val taskName: TaskName,
@@ -110,7 +110,7 @@ class JvmTestTask(
             add("--fail-if-no-tests")
             add("--reports-dir=${reportsDir}")
 
-            val filterArguments = commonRunSettings.testFilters.map { it.toJUnitArgument() }
+            val filterArguments = runSettings.testFilters.map { it.toJUnitArgument() }
             addAll(filterArguments)
             if (filterArguments.isEmpty() ||
                 filterArguments.any { it.startsWith("--include") || it.startsWith("--exclude") }) {
@@ -122,7 +122,7 @@ class JvmTestTask(
         val jvmArgs = buildList {
             add("-ea")
 
-            if (commonRunSettings.testResultsFormat == TestResultsFormat.Pretty) {
+            if (runSettings.testResultsFormat == TestResultsFormat.Pretty) {
                 add("-Dorg.jetbrains.amper.junit.listener.console.enabled=true")
                 // We don't use inherited IO when starting the test launcher process, so the Mordant Terminal library
                 // inside the test launcher cannot detect the supported features of the current console.
@@ -132,7 +132,7 @@ class JvmTestTask(
                 add("-Dorg.jetbrains.amper.junit.listener.console.ansiLevel=${terminal.terminalInfo.ansiLevel}")
                 add("-Dorg.jetbrains.amper.junit.listener.console.ansiHyperlinks=${terminal.terminalInfo.ansiHyperLinks}")
             }
-            if (commonRunSettings.testResultsFormat == TestResultsFormat.TeamCity) {
+            if (runSettings.testResultsFormat == TestResultsFormat.TeamCity) {
                 add("-Dorg.jetbrains.amper.junit.listener.teamcity.enabled=true")
             }
 
@@ -140,7 +140,7 @@ class JvmTestTask(
             addAll(jvmTestSettings.systemProperties.map { (k, v) -> "-D${k.value}=${v.value}" })
             addAll(jvmTestSettings.freeJvmArgs)
 
-            addAll(commonRunSettings.userJvmArgs)
+            addAll(runSettings.userJvmArgs)
         }
 
         // We pass both the user classpath and the "infra" classpath (JUnit itself and our listeners) together

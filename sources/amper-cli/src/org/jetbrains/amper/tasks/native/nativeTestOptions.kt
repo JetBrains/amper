@@ -4,17 +4,18 @@
 
 package org.jetbrains.amper.tasks.native
 
-import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.NativeTestRunSettings
+import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
 
 /**
- * Converts these [CommonRunSettings] to a list of arguments that will be passed to the Kotlin Native test executable.
+ * Converts these [AllRunSettings] to a list of arguments that will be passed to the Kotlin Native test executable.
  */
 // see CLI args by running the test executable help, or check there:
 // https://code.jetbrains.team/p/kt/repositories/kotlin/files/df027063420af0abd48c64ef598b1c5b0b5d7b1b/kotlin-native/runtime/src/main/kotlin/kotlin/native/internal/test/TestRunner.kt?tab=source&line=188&lines-count=34
-internal fun CommonRunSettings.toNativeTestExecutableArgs(): List<String> = buildList {
+internal fun NativeTestRunSettings.toNativeTestExecutableArgs(): List<String> = buildList {
     add("--ktest_logger=${testResultsFormat.ktestLoggerName}")
 
     val testFilterArg = testFilters.toTestFilterArg()

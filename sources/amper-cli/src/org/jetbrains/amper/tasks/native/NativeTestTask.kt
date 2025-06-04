@@ -17,8 +17,8 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
-import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
+import org.jetbrains.amper.tasks.NativeTestRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
@@ -30,7 +30,7 @@ class NativeTestTask(
     override val taskName: TaskName,
     override val module: AmperModule,
     private val projectRoot: AmperProjectRoot,
-    private val commonRunSettings: CommonRunSettings,
+    private val runSettings: NativeTestRunSettings,
     override val platform: Platform,
     override val buildType: BuildType,
     private val terminal: Terminal,
@@ -52,7 +52,7 @@ class NativeTestTask(
 
         val command = buildList {
             add(executable.pathString)
-            addAll(commonRunSettings.toNativeTestExecutableArgs())
+            addAll(runSettings.toNativeTestExecutableArgs())
         }
 
         return spanBuilder("native-test")

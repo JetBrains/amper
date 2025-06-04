@@ -14,7 +14,7 @@ import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.TaskExecutor
-import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
@@ -128,7 +128,7 @@ internal class TestCommand : AmperSubcommand(name = "test") {
             currentCommand = commandName,
             terminal = terminal,
             taskExecutionMode = TaskExecutor.Mode.GREEDY, // try to execute as many tests as possible
-            commonRunSettings = CommonRunSettings(
+            runSettings = AllRunSettings(
                 userJvmArgs = jvmArgs,
                 testFilters = allTestFilters,
                 testResultsFormat = format,

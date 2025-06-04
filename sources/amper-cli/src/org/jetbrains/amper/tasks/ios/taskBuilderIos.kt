@@ -32,7 +32,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     module = module,
                     projectRoot = context.projectRoot,
                     terminal = context.terminal,
-                    commonRunSettings = context.commonRunSettings,
+                    runSettings = context.runSettings,
                     platform = platform,
                     buildType = buildType,
                 ),
@@ -112,7 +112,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     platform = platform,
                     buildType = buildType,
                     module = module,
-                    commonRunSettings = context.commonRunSettings,
+                    runSettings = context.runSettings,
                     taskOutputPath = context.getTaskOutputPath(runTaskName),
                 ),
                 dependsOn = listOf(buildTaskName)

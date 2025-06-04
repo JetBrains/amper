@@ -21,7 +21,7 @@ import org.jetbrains.amper.diagnostics.AsyncProfilerMode
 import org.jetbrains.amper.diagnostics.CoroutinesDebug
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskExecutor
-import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.createDirectories
@@ -32,7 +32,7 @@ internal suspend fun <T> withBackend(
     commonOptions: RootCommand.CommonOptions,
     currentCommand: String,
     terminal: Terminal,
-    commonRunSettings: CommonRunSettings = CommonRunSettings(),
+    runSettings: AllRunSettings = AllRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
     setupEnvironment: Boolean = true,
     block: suspend (AmperBackend) -> T,
@@ -66,7 +66,7 @@ internal suspend fun <T> withBackend(
                 },
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 currentTopLevelCommand = currentCommand,
-                commonRunSettings = commonRunSettings,
+                runSettings = runSettings,
                 taskExecutionMode = taskExecutionMode,
                 backgroundScope = backgroundScope,
                 terminal = terminal,

@@ -11,7 +11,8 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.DesktopRunSettings
+import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
@@ -26,7 +27,7 @@ class ExecutableJarRunTask(
     projectRoot: AmperProjectRoot,
     tempRoot: AmperProjectTempRoot,
     terminal: Terminal,
-    commonRunSettings: CommonRunSettings,
+    runSettings: JvmMainRunSettings,
     executeOnChangedInputs: ExecuteOnChangedInputs? = null,
 ) : AbstractJvmRunTask(
     taskName,
@@ -35,14 +36,14 @@ class ExecutableJarRunTask(
     projectRoot,
     tempRoot,
     terminal,
-    commonRunSettings,
+    runSettings,
     executeOnChangedInputs
 ) {
     override val buildType get() = BuildType.Release
 
     override suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> =
         // Add -jar and the jar path to JVM args
-        commonRunSettings.userJvmArgs + listOf("-ea", "-jar", findExecutableJarPath(dependenciesResult).toString())
+        runSettings.userJvmArgs + listOf("-ea", "-jar", findExecutableJarPath(dependenciesResult).toString())
 
     override suspend fun getClasspath(dependenciesResult: List<TaskResult>): List<Path> =
         // When using -jar, the classpath is ignored, so we return an empty list

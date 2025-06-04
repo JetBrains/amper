@@ -317,7 +317,7 @@ class AmperBackend(val context: CliContext) {
         if (includedTestTasks.isEmpty()) {
             userReadableError("No test tasks were found for specified include filters")
         }
-        if (context.commonRunSettings.userJvmArgs.isNotEmpty() &&
+        if (context.runSettings.userJvmArgs.isNotEmpty() &&
             includedTestTasks.none { it.platform in setOf(Platform.JVM, Platform.ANDROID) }
         ) {
             logger.warn("The $UserJvmArgsOption option has no effect when running only non-JVM tests")
@@ -403,10 +403,10 @@ class AmperBackend(val context: CliContext) {
                 """.trimIndent())
         }
 
-        if (context.commonRunSettings.userJvmArgs.isNotEmpty() && task.platform != Platform.JVM) {
+        if (context.runSettings.userJvmArgs.isNotEmpty() && task.platform != Platform.JVM) {
             logger.warn("The $UserJvmArgsOption option have no effect when running a non-JVM app")
         }
-        if (context.commonRunSettings.deviceId != null &&
+        if (context.runSettings.deviceId != null &&
             !task.platform.isDescendantOf(Platform.IOS) && task.platform != Platform.ANDROID) {
             userReadableError("-d/--device-id argument is not supported for the ${task.platform.pretty} platform")
         }

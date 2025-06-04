@@ -22,9 +22,10 @@ import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.runJava
-import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
+import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.workingDir
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -36,7 +37,7 @@ abstract class AbstractJvmRunTask(
     protected val projectRoot: AmperProjectRoot,
     protected val tempRoot: AmperProjectTempRoot,
     protected val terminal: Terminal,
-    protected val commonRunSettings: CommonRunSettings,
+    protected val runSettings: JvmMainRunSettings,
     protected val executeOnChangedInputs: ExecuteOnChangedInputs?,
 ) : RunTask {
     override val platform = Platform.JVM
@@ -48,10 +49,10 @@ abstract class AbstractJvmRunTask(
         DeadLockMonitor.disable()
 
         val result = getJdk().runJava(
-            workingDir = commonRunSettings.workingDir ?: Path(System.getProperty("user.dir")),
+            workingDir = runSettings.workingDir,
             mainClass = getMainClass(dependenciesResult),
             classpath = getClasspath(dependenciesResult),
-            programArgs = commonRunSettings.programArgs,
+            programArgs = runSettings.programArgs,
             jvmArgs = getJvmArgs(dependenciesResult),
             outputListener = PrintToTerminalProcessOutputListener(terminal),
             tempRoot = tempRoot,
@@ -75,7 +76,7 @@ abstract class AbstractJvmRunTask(
             add("-Dio.ktor.development=true")
         }
         add("-ea")
-        addAll(commonRunSettings.userJvmArgs)
+        addAll(runSettings.userJvmArgs)
     }
 
     protected open suspend fun getClasspath(dependenciesResult: List<TaskResult>): List<Path> {
@@ -85,5 +86,5 @@ abstract class AbstractJvmRunTask(
     }
 
     protected open suspend fun getMainClass(dependenciesResult: List<TaskResult>): String =
-        commonRunSettings.userJvmMainClass ?: fragments.getEffectiveJvmMainClass()
+        runSettings.userJvmMainClass ?: fragments.getEffectiveJvmMainClass()
 }

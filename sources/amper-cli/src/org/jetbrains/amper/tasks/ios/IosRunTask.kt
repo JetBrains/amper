@@ -13,8 +13,8 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.ProcessOutputListener
-import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
+import org.jetbrains.amper.tasks.MobileRunSettings
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
@@ -28,7 +28,7 @@ class IosRunTask(
     override val platform: Platform,
     override val buildType: BuildType,
     override val module: AmperModule,
-    private val commonRunSettings: CommonRunSettings,
+    private val runSettings: MobileRunSettings,
     private val taskOutputPath: TaskOutputRoot,
 ) : RunTask {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
@@ -46,7 +46,7 @@ class IosRunTask(
                         "Please select a development team in the Xcode project editor (Signing & Capabilities) " +
                         "or use a simulator platform instead.")
             }
-            val deviceId = commonRunSettings.deviceId
+            val deviceId = runSettings.deviceId
                 ?: userReadableError("To run on a physical iOS device, the -d/--device-id argument must be specified.\n" +
                         "Use `xcrun devicectl list devices` command to see what devices are available.")
             installAppOnPhysicalDevice(deviceId, builtApp.appPath)
@@ -56,10 +56,9 @@ class IosRunTask(
     }
 
     private suspend fun selectSimulatorDevice(): Device {
-        return if (commonRunSettings.deviceId != null) {
-            queryDevice(commonRunSettings.deviceId) ?: userReadableError(
-                "Unable to find the iOS simulator with the specified id: `${commonRunSettings.deviceId}`"
-            )
+        val id = runSettings.deviceId
+        return if (id != null) {
+            queryDevice(id) ?: userReadableError("Unable to find the iOS simulator with the specified id: `$id`")
         } else {
             pickBestDevice() ?: userReadableError("Unable to detect any usable iOS simulator, check your environment")
         }

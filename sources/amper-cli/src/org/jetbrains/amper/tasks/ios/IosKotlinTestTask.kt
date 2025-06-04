@@ -19,9 +19,10 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
-import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.EmptyTaskResult
+import org.jetbrains.amper.tasks.NativeTestRunSettings
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.TestRunSettings
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.tasks.native.toNativeTestExecutableArgs
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -35,7 +36,7 @@ class IosKotlinTestTask(
     override val module: AmperModule,
     private val projectRoot: AmperProjectRoot,
     private val terminal: Terminal,
-    private val commonRunSettings: CommonRunSettings,
+    private val runSettings: NativeTestRunSettings,
     override val platform: Platform,
     override val buildType: BuildType,
 ) : TestTask {
@@ -57,7 +58,7 @@ class IosKotlinTestTask(
                 chosenDevice.deviceId,
                 executable.absolutePathString(),
                 "--",
-            ) + commonRunSettings.toNativeTestExecutableArgs()
+            ) + runSettings.toNativeTestExecutableArgs()
 
             return spanBuilder("ios-kotlin-test")
                 .setAttribute("executable", spawnTestsCommand.first())

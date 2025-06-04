@@ -11,7 +11,7 @@ import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.diagnostics.CoroutinesDebug
-import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestCollector
@@ -74,7 +74,7 @@ abstract class AmperIntegrationTestBase {
             explicitProjectRoot = projectRoot,
             userCacheRoot = userCacheRoot,
             buildOutputRoot = AmperBuildOutputRoot(buildDir),
-            commonRunSettings = CommonRunSettings(programArgs = programArgs),
+            runSettings = AllRunSettings(programArgs = programArgs),
             currentTopLevelCommand = "integration-test-base",
             backgroundScope = backgroundScope,
             androidHomeRoot = androidHomeRoot,

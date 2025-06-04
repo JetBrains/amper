@@ -14,7 +14,7 @@ import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.run.ToolingArtifactsDownloader
-import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
@@ -27,7 +27,7 @@ class JvmHotRunTask(
     projectRoot: AmperProjectRoot,
     tempRoot: AmperProjectTempRoot,
     terminal: Terminal,
-    commonRunSettings: CommonRunSettings,
+    runSettings: JvmMainRunSettings,
     executeOnChangedInputs: ExecuteOnChangedInputs,
     private val toolingArtifactsDownloader: ToolingArtifactsDownloader = ToolingArtifactsDownloader(
         userCacheRoot,
@@ -40,7 +40,7 @@ class JvmHotRunTask(
     projectRoot,
     tempRoot,
     terminal,
-    commonRunSettings,
+    runSettings,
     executeOnChangedInputs
 ) {
     override val buildType: BuildType
@@ -65,7 +65,7 @@ class JvmHotRunTask(
             add("-Damper.build.task=${HotReloadTaskType.Reload.getTaskName(module, platform, isTest = false).name}")
         }
 
-        return amperJvmArgs + commonRunSettings.userJvmArgs
+        return amperJvmArgs + runSettings.userJvmArgs
     }
 
     override suspend fun getClasspath(dependenciesResult: List<TaskResult>): List<Path> {
