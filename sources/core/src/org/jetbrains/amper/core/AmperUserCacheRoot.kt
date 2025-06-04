@@ -47,7 +47,7 @@ data class AmperUserCacheRoot(val path: Path) : AmperUserCacheInitializationResu
     override fun toString(): String = path.pathString
 
     companion object {
-        private const val AMPER_CACHE_SUBFOLDER = "Amper"
+        private const val AMPER_CACHE_SUBFOLDER = "JetBrains/Amper"
 
         /**
          * The error here is user-friendly and can be reported as is.

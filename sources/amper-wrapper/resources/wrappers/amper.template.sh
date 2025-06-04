@@ -162,12 +162,12 @@ case "$kernelName" in
   Darwin* )
     simpleOs="macos"
     jbr_os="osx"
-    default_amper_cache_dir="$HOME/Library/Caches/Amper"
+    default_amper_cache_dir="$HOME/Library/Caches/JetBrains/Amper"
     ;;
   Linux* )
     simpleOs="linux"
     jbr_os="linux"
-    default_amper_cache_dir="$HOME/.cache/Amper"
+    default_amper_cache_dir="$HOME/.cache/JetBrains/Amper"
     # If linux runs in 32-bit mode, we want the "fake" 32-bit architecture, not the real hardware,
     # because in this mode linux cannot run 64-bit binaries.
     # shellcheck disable=SC2046
@@ -177,7 +177,7 @@ case "$kernelName" in
     simpleOs="windows"
     jbr_os="windows"
     if command -v cygpath >/dev/null 2>&1; then
-      default_amper_cache_dir=$(cygpath -u "$LOCALAPPDATA\Amper")
+      default_amper_cache_dir=$(cygpath -u "$LOCALAPPDATA\JetBrains\Amper")
     else
       die "The 'cypath' command is not available, but Amper needs it. Use amper.bat instead, or try a Cygwin or MSYS environment."
     fi
