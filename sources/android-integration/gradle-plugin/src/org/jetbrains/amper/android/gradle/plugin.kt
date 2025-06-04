@@ -18,6 +18,7 @@ import org.gradle.api.provider.Property
 import org.gradle.initialization.DefaultProjectDescriptor
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
+import org.jetbrains.amper.android.gradle.tooling.MockableJarModelBuilder
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.properties.readProperties
@@ -262,6 +263,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
     Plugin<Settings> {
     override fun apply(settings: Settings) = with(SLF4JProblemReporterContext()) {
         toolingModelBuilderRegistry.register(ProcessResourcesProviderTaskNameToolingModelBuilder())
+        toolingModelBuilderRegistry.register(MockableJarModelBuilder())
         val extension = settings.extensions.create("androidData", AmperAndroidIntegrationExtension::class.java)
 
         settings.gradle.settingsEvaluated {

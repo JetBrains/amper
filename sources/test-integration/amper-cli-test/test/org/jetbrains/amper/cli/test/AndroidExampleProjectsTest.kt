@@ -182,6 +182,17 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
         assertFileContainsInBundle("ALIAS.RSA", bundlePath)
     }
 
+    @Test
+    fun `mockable jar unit tests`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("android/mockable-jar"), 
+            "test",
+            assertEmptyStdErr = false // Allow stderr output from Mockito warnings
+        )
+        result.assertStdoutContains("5 tests successful")
+    }
+
+
     @AfterTest
     fun tearDown() {
         ConnectorServices.reset()

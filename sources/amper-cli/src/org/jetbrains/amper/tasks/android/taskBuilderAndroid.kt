@@ -132,6 +132,8 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
     allModules().alsoPlatforms(Platform.ANDROID)
         .alsoTests()
         .withEach {
+            val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
+
             tasks.registerTask(
                 TransformAarExternalDependenciesTask(
                     CommonTaskType.TransformDependencies.getTaskName(module, Platform.ANDROID, isTest),
@@ -139,6 +141,24 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 ),
                 CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
             )
+
+            if (isTest) {
+                val mockablePlatformJarTaskName = AndroidTaskType.MockablePlatformJar.getTaskName(module, platform, false)
+                tasks.registerTask(
+                    AndroidMockablePlatformJarTask(
+                        taskName = mockablePlatformJarTaskName,
+                        module = module,
+                        buildType = buildType,
+                        executeOnChangedInputs = executeOnChangedInputs,
+                        androidSdkPath = androidSdkPath,
+                        fragments = fragments,
+                        projectRoot = context.projectRoot,
+                        taskOutputRoot = context.getTaskOutputPath(mockablePlatformJarTaskName),
+                        buildLogsRoot = context.buildLogsRoot
+                    ),
+                    CommonTaskType.Dependencies.getTaskName(module, platform, false)
+                )
+            }
         }
 
     allModules().alsoPlatforms(Platform.ANDROID)
@@ -175,17 +195,19 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 }
             )
 
-            val runtimeClasspathTaskName =
-                CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)
+            val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)
             tasks.registerTask(
                 JvmRuntimeClasspathTask(
                     module = module,
                     isTest = isTest,
                     taskName = runtimeClasspathTaskName,
                 ),
-                listOf(
-                    CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
-                )
+                buildList {
+                    add(CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest))
+                    if (isTest) {
+                        add(AndroidTaskType.MockablePlatformJar.getTaskName(module, platform, false))
+                    }
+                }
             )
 
             if (isTest) {
@@ -483,6 +505,7 @@ private enum class AndroidTaskType(override val prefix: String) : PlatformTaskTy
     Prepare("prepare"),
     Build("build"),
     Bundle("bundle"),
+    MockablePlatformJar("mockablePlatformJar"),
 }
 
 private enum class AndroidFragmentTaskType(override val prefix: String) : FragmentTaskType {

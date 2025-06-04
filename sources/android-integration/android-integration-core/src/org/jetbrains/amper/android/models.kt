@@ -5,6 +5,7 @@
 package org.jetbrains.amper.android
 
 import kotlinx.serialization.Serializable
+import java.io.File
 import java.nio.file.Path
 
 
@@ -63,6 +64,11 @@ data class AndroidBuildRequest(
          * Bundle AAB for Google Play Store
          */
         Bundle,
+
+        /**
+         * Get a mockable jar for unit tests
+         */
+        Test,
     }
 }
 
@@ -73,4 +79,8 @@ typealias TaskName = String
 interface ProcessResourcesProviderData : java.io.Serializable {
 
     val data: Map<ProjectPath, Map<VariantName, TaskName>>
+}
+
+interface MockableJarModel: java.io.Serializable {
+    val file: File?
 }

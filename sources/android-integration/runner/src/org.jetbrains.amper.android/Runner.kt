@@ -5,7 +5,6 @@
 package org.jetbrains.amper.android
 
 import com.android.builder.model.v2.models.AndroidProject
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
@@ -20,17 +19,6 @@ import java.nio.file.StandardOpenOption.CREATE
 import java.nio.file.StandardOpenOption.WRITE
 import java.util.*
 import kotlin.collections.ArrayDeque
-import kotlin.collections.List
-import kotlin.collections.Map
-import kotlin.collections.buildList
-import kotlin.collections.buildMap
-import kotlin.collections.filter
-import kotlin.collections.forEach
-import kotlin.collections.isNotEmpty
-import kotlin.collections.map
-import kotlin.collections.mapOf
-import kotlin.collections.plus
-import kotlin.collections.toTypedArray
 import kotlin.io.path.div
 import kotlin.io.path.notExists
 import kotlin.io.path.outputStream
@@ -65,16 +53,21 @@ fun runAndroidBuild(
             val lazyArtifacts = buildList {
                 for (target in buildRequest.targets) {
                     val androidProject = androidProjects[target] ?: continue
-                    val tasks = androidProject.taskList(connection, buildRequest, target)
-                    androidProject.lazyArtifacts(buildRequest).also { addAll(it) }
-                    try {
-                        gradleLogStdoutPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stdout ->
-                            gradleLogStderrPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stderr ->
-                                connection.runBuild(tasks, eventHandler, stdout, stderr, buildRequest, debug)
+                    androidProject.lazyArtifacts(connection, buildRequest).also { addAll(it) }
+                    when(buildRequest.phase) {
+                        AndroidBuildRequest.Phase.Test -> { /* nothing to do here, just return the artifact */ }
+                        else -> {
+                            val tasks = androidProject.taskList(connection, buildRequest, target)
+                            try {
+                                gradleLogStdoutPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stdout ->
+                                    gradleLogStderrPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stderr ->
+                                        connection.runBuild(tasks, eventHandler, stdout, stderr, buildRequest, debug)
+                                    }
+                                }
+                            } catch (t: RuntimeException) {
+                                throw IllegalStateException("Error during Gradle build", t)
                             }
                         }
-                    } catch (t: RuntimeException) {
-                        throw IllegalStateException("Error during Gradle build", t)
                     }
                 }
             }
@@ -133,6 +126,7 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
 }
 
 private fun AndroidProject.lazyArtifacts(
+    connection: ProjectConnection,
     buildRequest: AndroidBuildRequest,
 ): List<LazyArtifact> = buildList {
     for (buildType in buildRequest.buildTypes) {
@@ -153,6 +147,12 @@ private fun AndroidProject.lazyArtifacts(
                             ?: error("File must exist")
                     )
                 )
+
+                AndroidBuildRequest.Phase.Test -> {
+                    connection.action { it.findModel(MockableJarModel::class.java).file }.run()?.toPath()?.let {
+                        add(DirectLazyArtifact(it))
+                    }
+                }
             }
         }
     }
@@ -174,6 +174,8 @@ private fun AndroidProject.taskList(
                 AndroidBuildRequest.Phase.Build -> variant.mainArtifact.assembleTaskName
                 AndroidBuildRequest.Phase.Bundle -> variant.mainArtifact.bundleInfo?.bundleTaskName
                     ?: error("Bundle info not found for variant: ${variant.displayName}")
+
+                else -> error("Building task list for phase: ${buildRequest.phase} is not supported")
             }
 
             for (target in buildRequest.targets) {
