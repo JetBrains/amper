@@ -413,111 +413,107 @@ open class DependencyFile(
             getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
         } else null
 
-        return withContext(Dispatchers.IO) {
-            try {
-                produceResultWithDoubleLock(
-                    tempDir = getTempDir(),
-                    fileName,
-                    fileLockSource,
-                    getAlreadyProducedResult = {
-                        if (verify) {
-                            getPath().takeIf {
-                                isDownloadedWithVerification {
-                                    expectedHashBeforeLocking ?: getExpectedHash(
-                                        diagnosticsReporter,
-                                        ResolutionLevel.NETWORK,
-                                    )
-                                }
-                            }
-                        } else null
-                    }
-                ) { tempFilePath, fileChannel ->
-                    // under lock.
-                    val expectedHash = if (verify) {
-                        val expectedHashResolved = expectedHashBeforeLocking
-                            ?: getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
-                            ?: downloadHash(repositories, progress, cache, spanBuilderSource, diagnosticsReporter)
-                            // if hash is not resolved, but we still need to verify it, then we can't proceed with downloading
-                            ?: return@produceResultWithDoubleLock null
-                        expectedHashResolved.also {
-                            if (isDownloadedWithVerification(expectedHashResolved)) {
-                                return@produceResultWithDoubleLock getPath()
+        return try {
+            produceResultWithDoubleLock(
+                tempDir = getTempDir(),
+                fileName,
+                fileLockSource,
+                getAlreadyProducedResult = {
+                    if (verify) {
+                        getPath().takeIf {
+                            isDownloadedWithVerification {
+                                expectedHashBeforeLocking
+                                    ?: getExpectedHash(diagnosticsReporter,ResolutionLevel.NETWORK,)
                             }
                         }
                     } else null
-
-                    val artifactPath = expectedHash
-                        ?.let {
-                            // First, try to resolve artifact from external local storage if the actual hash is known
-                            resolveFromExternalLocalRepository(
-                                tempFilePath,
-                                fileChannel,
-                                expectedHash,
-                                cache,
-                                diagnosticsReporter,
-                            )
+                }
+            ) { tempFilePath, fileChannel ->
+                // under lock.
+                val expectedHash = if (verify) {
+                    val expectedHashResolved = expectedHashBeforeLocking
+                        ?: getExpectedHash(diagnosticsReporter, ResolutionLevel.NETWORK)
+                        ?: downloadHash(repositories, progress, cache, spanBuilderSource, diagnosticsReporter)
+                        // if hash is not resolved, but we still need to verify it, then we can't proceed with downloading
+                        ?: return@produceResultWithDoubleLock null
+                    expectedHashResolved.also {
+                        if (isDownloadedWithVerification(expectedHashResolved)) {
+                            return@produceResultWithDoubleLock getPath()
                         }
-                        ?: run {
-                            // Download an artifact from external remote storage if it has not been resolved from the local cache
-                            // trying at first the same repo where hash was downloaded from
+                    }
+                } else null
+
+                val artifactPath = expectedHash
+                    ?.let {
+                        // First, try to resolve artifact from external local storage if the actual hash is known
+                        resolveFromExternalLocalRepository(
+                            tempFilePath,
+                            fileChannel,
+                            expectedHash,
+                            cache,
+                            diagnosticsReporter,
+                        )
+                    }
+                    ?: run {
+                        // Download an artifact from external remote storage if it has not been resolved from the local cache
+                        // trying at first the same repo where hash was downloaded from
+                        val optimizedRepositories = repositories.ensureFirst(dependency.repository)
+                        downloadAndVerifyHash(
+                            fileChannel,
+                            tempFilePath,
+                            optimizedRepositories,
+                            progress,
+                            cache,
+                            spanBuilderSource,
+                            expectedHash,
+                            diagnosticsReporter,
+                            deleteTempFileOnFinish = false,
+                        )
+                    }
+                    ?: expectedHash?.let {
+                        // Downloading an artifact from external storage might have failed if checksum
+                        // resolved from Gradle metadata is invalid (a pretty rare case though).
+                        // In this case, we should take actual checksum downloaded from the external repository
+                        // and perform one more downloading attempt.
+                        val expectedHashIgnoringMetadata = getExpectedHash(
+                            diagnosticsReporter, ResolutionLevel.NETWORK, false
+                        )
+                            ?: downloadHash(repositories, progress, cache, spanBuilderSource, diagnosticsReporter)
+                        if (expectedHashIgnoringMetadata != null && expectedHashIgnoringMetadata.hash != expectedHash.hash) {
+                            // Expected checksum was taken from metadata on the previous download attempt, not from the checksum file.
+                            // Trying to download the artifact one more time with the checksum downloaded from the remote repository.
                             val optimizedRepositories = repositories.ensureFirst(dependency.repository)
-                            downloadAndVerifyHash(
+                            return@let downloadAndVerifyHash(
                                 fileChannel,
                                 tempFilePath,
                                 optimizedRepositories,
                                 progress,
                                 cache,
                                 spanBuilderSource,
-                                expectedHash,
+                                expectedHashIgnoringMetadata,
                                 diagnosticsReporter,
-                                deleteTempFileOnFinish = false,
                             )
                         }
-                        ?: expectedHash?.let {
-                            // Downloading an artifact from external storage might have failed if checksum
-                            // resolved from Gradle metadata is invalid (a pretty rare case though).
-                            // In this case, we should take actual checksum downloaded from the external repository
-                            // and perform one more downloading attempt.
-                            val expectedHashIgnoringMetadata = getExpectedHash(
-                                diagnosticsReporter, ResolutionLevel.NETWORK, false
-                            )
-                                ?: downloadHash(repositories, progress, cache, spanBuilderSource, diagnosticsReporter)
-                            if (expectedHashIgnoringMetadata != null && expectedHashIgnoringMetadata.hash != expectedHash.hash) {
-                                // Expected checksum was taken from metadata on the previous download attempt, not from the checksum file.
-                                // Trying to download the artifact one more time with the checksum downloaded from the remote repository.
-                                val optimizedRepositories = repositories.ensureFirst(dependency.repository)
-                                return@let downloadAndVerifyHash(
-                                    fileChannel,
-                                    tempFilePath,
-                                    optimizedRepositories,
-                                    progress,
-                                    cache,
-                                    spanBuilderSource,
-                                    expectedHashIgnoringMetadata,
-                                    diagnosticsReporter,
-                                )
-                            }
-                            null
-                        }
+                        null
+                    }
 
-                    tempFilePath.deleteIfExists()
+                tempFilePath.deleteIfExists()
 
-                    artifactPath
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (t: Throwable) {
-                diagnosticsReporter.addMessage(
-                    UnexpectedErrorOnDownload.asMessage(
-                        fileName,
-                        dependency,
-                        t::class.simpleName,
-                        t.message,
-                        exception = t,
-                    )
-                )
-                null
+                artifactPath
             }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (t: Throwable) {
+            diagnosticsReporter.addMessage(
+                UnexpectedErrorOnDownload.asMessage(
+                    fileName,
+                    dependency,
+                    t::class.simpleName,
+                    t.message,
+                    exception = t,
+                )
+            )
+            null
         }
     }
 
@@ -957,6 +953,7 @@ open class DependencyFile(
                                     200 -> {
                                         val expectedSize = fileFromVariant(dependency, name)?.size
                                             ?: getContentLengthHeaderValue(response)
+                                        // todo (AB) : It might be useful to use here a dedicated limited dispatcher based on Dispatchers.IO
                                         val size = responseBody.toByteReadChannel().readTo(writers)
 //                                val size = responseBody.readTo(writers)
 
@@ -1294,7 +1291,7 @@ class SnapshotDependencyFile(
             if (!mavenMetadataLocalPath.exists()) return@withContext false
 
             val mavenMetadataLocal = try {
-                mavenMetadataLocalPath.readText().parseMetadata()
+                mavenMetadataLocalPath.readTextWithRetry().parseMetadata()
             } catch (e: AmperDependencyResolutionException) {
                 logger.error("Failed to parse ${mavenMetadataLocalPath.toAbsolutePath()}", e)
                 return@withContext false
