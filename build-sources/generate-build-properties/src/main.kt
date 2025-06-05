@@ -23,7 +23,11 @@ fun main(args: Array<String>) {
     val (taskOutputDirectoryString) = args
     val taskOutputDirectory = Path(taskOutputDirectoryString).createDirectories()
 
-    val projectRoot = Path(System.getProperty("user.dir")).parent.parent
+    val currentDir = Path(System.getProperty("user.dir"))
+    val projectRoot = generateSequence(currentDir) { it.parent }
+        .firstOrNull { it.resolve("project.yaml").exists() }
+        ?: error("Project root not found: no project.yaml when looking up the parent tree from $currentDir")
+
     val commonModuleTemplate = projectRoot.resolve("sources/common.module-template.yaml")
     check(commonModuleTemplate.exists()) {
         "Common module template file doesn't exist: $commonModuleTemplate"
