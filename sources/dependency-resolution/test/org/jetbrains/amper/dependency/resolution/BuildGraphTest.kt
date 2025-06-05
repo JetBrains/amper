@@ -5,6 +5,7 @@
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.BomDeclaredAsRegularDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
@@ -38,7 +39,7 @@ class BuildGraphTest : BaseDRTest() {
      * '9ed6d538ebcc66864e114a7040953dce6ab6ea53'
      */
     @Test
-    fun `com_fasterxml_jackson_datatype jackson-datatype-jdk8 2_18_2`(testInfo: TestInfo) {
+    fun `com_fasterxml_jackson_datatype jackson-datatype-jdk8 2_18_2`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             expected = """
@@ -54,21 +55,19 @@ class BuildGraphTest : BaseDRTest() {
                      ╰─── com.fasterxml.jackson:jackson-bom:2.18.2
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "jackson-annotations-2.18.2-sources.jar",
-                    "jackson-annotations-2.18.2.jar",
-                    "jackson-core-2.18.2-sources.jar",
-                    "jackson-core-2.18.2.jar",
-                    "jackson-databind-2.18.2-sources.jar",
-                    "jackson-databind-2.18.2.jar",
-                    "jackson-datatype-jdk8-2.18.2-sources.jar",
-                    "jackson-datatype-jdk8-2.18.2.jar",
-                ),
-                root, true, verifyMessages = true
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "jackson-annotations-2.18.2-sources.jar",
+                "jackson-annotations-2.18.2.jar",
+                "jackson-core-2.18.2-sources.jar",
+                "jackson-core-2.18.2.jar",
+                "jackson-databind-2.18.2-sources.jar",
+                "jackson-databind-2.18.2.jar",
+                "jackson-datatype-jdk8-2.18.2-sources.jar",
+                "jackson-datatype-jdk8-2.18.2.jar",
+            ),
+            root, true, verifyMessages = true
+        )
     }
 
 
@@ -78,7 +77,7 @@ class BuildGraphTest : BaseDRTest() {
      * Such a dependency could be used in single-platform fragments later.
      */
     @Test
-    fun `org_jetbrains_androidx_lifecycle lifecycle-viewmodel-compose 2_8_0`(testInfo: TestInfo) {
+    fun `org_jetbrains_androidx_lifecycle lifecycle-viewmodel-compose 2_8_0`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID),
@@ -97,7 +96,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `Gradle published JVM-only library used for non-JVM platforms`(testInfo: TestInfo) {
+    fun `Gradle published JVM-only library used for non-JVM platforms`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "com.fasterxml.jackson.core:jackson-core:2.18.0",
@@ -120,7 +119,7 @@ class BuildGraphTest : BaseDRTest() {
      * and vice versa.
      */
     @Test
-    fun `org_apache_solr solr-solrj-zookeeper 9_8_1`(testInfo: TestInfo) {
+    fun `org_apache_solr solr-solrj-zookeeper 9_8_1`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -150,7 +149,7 @@ class BuildGraphTest : BaseDRTest() {
      * project module being processed.
      */
     @Test
-    fun `org_springframework_data spring-data-jpa 3_4_2`(testInfo: TestInfo) {
+    fun `org_springframework_data spring-data-jpa 3_4_2`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             expected = """
@@ -191,49 +190,47 @@ class BuildGraphTest : BaseDRTest() {
                      ╰─── org.slf4j:slf4j-api:2.0.2
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "antlr4-runtime-4.13.0-sources.jar",
-                    "antlr4-runtime-4.13.0.jar",
-                    "jakarta.annotation-api-2.0.0-sources.jar",
-                    "jakarta.annotation-api-2.0.0.jar",
-                    "micrometer-commons-1.14.3-sources.jar",
-                    "micrometer-commons-1.14.3.jar",
-                    "micrometer-observation-1.14.3-sources.jar",
-                    "micrometer-observation-1.14.3.jar",
-                    "slf4j-api-2.0.2-sources.jar",
-                    "slf4j-api-2.0.2.jar",
-                    "spring-aop-6.2.2-sources.jar",
-                    "spring-aop-6.2.2.jar",
-                    "spring-beans-6.2.2-sources.jar",
-                    "spring-beans-6.2.2.jar",
-                    "spring-context-6.2.2-sources.jar",
-                    "spring-context-6.2.2.jar",
-                    "spring-core-6.2.2-sources.jar",
-                    "spring-core-6.2.2.jar",
-                    "spring-data-commons-3.4.2-sources.jar",
-                    "spring-data-commons-3.4.2.jar",
-                    "spring-data-jpa-3.4.2-sources.jar",
-                    "spring-data-jpa-3.4.2.jar",
-                    "spring-expression-6.2.2-sources.jar",
-                    "spring-expression-6.2.2.jar",
-                    "spring-jcl-6.2.2-sources.jar",
-                    "spring-jcl-6.2.2.jar",
-                    "spring-jdbc-6.2.2-sources.jar",
-                    "spring-jdbc-6.2.2.jar",
-                    "spring-orm-6.2.2-sources.jar",
-                    "spring-orm-6.2.2.jar",
-                    "spring-tx-6.2.2-sources.jar",
-                    "spring-tx-6.2.2.jar",
-                ),
-                root, true, verifyMessages = true
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "antlr4-runtime-4.13.0-sources.jar",
+                "antlr4-runtime-4.13.0.jar",
+                "jakarta.annotation-api-2.0.0-sources.jar",
+                "jakarta.annotation-api-2.0.0.jar",
+                "micrometer-commons-1.14.3-sources.jar",
+                "micrometer-commons-1.14.3.jar",
+                "micrometer-observation-1.14.3-sources.jar",
+                "micrometer-observation-1.14.3.jar",
+                "slf4j-api-2.0.2-sources.jar",
+                "slf4j-api-2.0.2.jar",
+                "spring-aop-6.2.2-sources.jar",
+                "spring-aop-6.2.2.jar",
+                "spring-beans-6.2.2-sources.jar",
+                "spring-beans-6.2.2.jar",
+                "spring-context-6.2.2-sources.jar",
+                "spring-context-6.2.2.jar",
+                "spring-core-6.2.2-sources.jar",
+                "spring-core-6.2.2.jar",
+                "spring-data-commons-3.4.2-sources.jar",
+                "spring-data-commons-3.4.2.jar",
+                "spring-data-jpa-3.4.2-sources.jar",
+                "spring-data-jpa-3.4.2.jar",
+                "spring-expression-6.2.2-sources.jar",
+                "spring-expression-6.2.2.jar",
+                "spring-jcl-6.2.2-sources.jar",
+                "spring-jcl-6.2.2.jar",
+                "spring-jdbc-6.2.2-sources.jar",
+                "spring-jdbc-6.2.2.jar",
+                "spring-orm-6.2.2-sources.jar",
+                "spring-orm-6.2.2.jar",
+                "spring-tx-6.2.2-sources.jar",
+                "spring-tx-6.2.2.jar",
+            ),
+            root, true, verifyMessages = true
+        )
     }
 
     @Test
-    fun `org_jetbrains_kotlin kotlin-test 1_9_10`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlin kotlin-test 1_9_10`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             expected = """
@@ -264,10 +261,10 @@ class BuildGraphTest : BaseDRTest() {
     // todo (AB) : - no errors is associated with corresponding dependency
 
     /**
-     * This test checks that packaging type 'eclipse-plugin' of dependency is successfully resolved to the downloaded JAR file
+     * This test checks that the packaging type 'eclipse-plugin' of dependency is successfully resolved to the downloaded JAR file
      */
     @Test
-    fun `org_eclipse_sisu org_eclipse_sisu_inject 0_3_5`(testInfo: TestInfo) {
+    fun `org_eclipse_sisu org_eclipse_sisu_inject 0_3_5`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             expected = """
@@ -275,15 +272,13 @@ class BuildGraphTest : BaseDRTest() {
                 ╰─── org.eclipse.sisu:org.eclipse.sisu.inject:0.3.5
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "org.eclipse.sisu.inject-0.3.5-sources.jar",
-                    "org.eclipse.sisu.inject-0.3.5.jar",
-                ),
-                root, true
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "org.eclipse.sisu.inject-0.3.5-sources.jar",
+                "org.eclipse.sisu.inject-0.3.5.jar",
+            ),
+            root, true
+        )
     }
 
     /**
@@ -292,7 +287,7 @@ class BuildGraphTest : BaseDRTest() {
      * dependency should still be resolved successfully from the valid repository
      */
     @Test
-    fun `com_squareup_retrofit2 retrofit 2_11_0`(testInfo: TestInfo) {
+    fun `com_squareup_retrofit2 retrofit 2_11_0`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.COMPILE,
@@ -305,19 +300,17 @@ class BuildGraphTest : BaseDRTest() {
                           ╰─── com.squareup.okio:okio:1.17.2
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "okhttp-3.14.9-sources.jar",
-                    "okhttp-3.14.9.jar",
-                    "okio-1.17.2-sources.jar",
-                    "okio-1.17.2.jar",
-                    "retrofit-2.11.0-sources.jar",
-                    "retrofit-2.11.0.jar",
-                ),
-                root, true
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "okhttp-3.14.9-sources.jar",
+                "okhttp-3.14.9.jar",
+                "okio-1.17.2-sources.jar",
+                "okio-1.17.2.jar",
+                "retrofit-2.11.0-sources.jar",
+                "retrofit-2.11.0.jar",
+            ),
+            root, true
+        )
     }
 
     /**
@@ -334,7 +327,7 @@ class BuildGraphTest : BaseDRTest() {
      * See https://youtrack.jetbrains.com/issue/AMPER-3957 for more details.
      */
     @Test
-    fun `androidx_sqlite sqlite 2_5_0-alpha11 android`(testInfo: TestInfo) {
+    fun `androidx_sqlite sqlite 2_5_0-alpha11 android`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "androidx.sqlite:sqlite:2.5.0-alpha11",
@@ -353,22 +346,20 @@ class BuildGraphTest : BaseDRTest() {
                           ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "annotation-jvm-1.8.1.jar",
-                    "annotations-13.0.jar",
-                    "kotlin-stdlib-1.8.22.jar",
-                    "kotlin-stdlib-common-1.8.22.jar",
-                    "sqlite-android-2.5.0-alpha11.aar",
-                ),
-                root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "annotation-jvm-1.8.1.jar",
+                "annotations-13.0.jar",
+                "kotlin-stdlib-1.8.22.jar",
+                "kotlin-stdlib-common-1.8.22.jar",
+                "sqlite-android-2.5.0-alpha11.aar",
+            ),
+            root
+        )
     }
 
     @Test
-    fun `androidx_sqlite sqlite 2_5_0-alpha11 jvm`(testInfo: TestInfo) {
+    fun `androidx_sqlite sqlite 2_5_0-alpha11 jvm`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "androidx.sqlite:sqlite:2.5.0-alpha11",
@@ -388,22 +379,20 @@ class BuildGraphTest : BaseDRTest() {
                           ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "annotation-jvm-1.8.1.jar",
-                    "annotations-13.0.jar",
-                    "kotlin-stdlib-1.8.22.jar",
-                    "kotlin-stdlib-common-1.8.22.jar",
-                    "sqlite-jvm-2.5.0-alpha11.jar",
-                ),
-                root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "annotation-jvm-1.8.1.jar",
+                "annotations-13.0.jar",
+                "kotlin-stdlib-1.8.22.jar",
+                "kotlin-stdlib-common-1.8.22.jar",
+                "sqlite-jvm-2.5.0-alpha11.jar",
+            ),
+            root
+        )
     }
 
     @Test
-    fun `com_google_guava listenablefuture 9999_0-empty-to-avoid-conflict-with-guava`(testInfo: TestInfo) {
+    fun `com_google_guava listenablefuture 9999_0-empty-to-avoid-conflict-with-guava`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE, REDIRECTOR_COMPOSE_DEV),
@@ -413,18 +402,16 @@ class BuildGraphTest : BaseDRTest() {
                 ╰─── com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf("listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"),
-                root,
-                withSources = true,
-                checkAutoAddedDocumentation = false
-            )
-        }
+        downloadAndAssertFiles(
+            listOf("listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"),
+            root,
+            withSources = true,
+            checkAutoAddedDocumentation = false
+        )
     }
 
     @Test
-    fun `org_jetbrains_kotlin kotlin-test-annotations-common 2_0_0`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlin kotlin-test-annotations-common 2_0_0`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             platform = setOf(
@@ -439,20 +426,18 @@ class BuildGraphTest : BaseDRTest() {
                           ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.0.0
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "kotlin-stdlib-commonMain-2.0.0-sources.jar",
-                    "kotlin-stdlib-commonMain-2.0.0.klib",
-                    "kotlin-test-annotationsCommonMain-2.0.0-sources.jar",
-                    "kotlin-test-annotationsCommonMain-2.0.0.klib",
-                    "kotlin-test-assertionsCommonMain-2.0.0-sources.jar",
-                    "kotlin-test-assertionsCommonMain-2.0.0.klib",
-                ),
-                withSources = true,
-                root = root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "kotlin-stdlib-commonMain-2.0.0-sources.jar",
+                "kotlin-stdlib-commonMain-2.0.0.klib",
+                "kotlin-test-annotationsCommonMain-2.0.0-sources.jar",
+                "kotlin-test-annotationsCommonMain-2.0.0.klib",
+                "kotlin-test-assertionsCommonMain-2.0.0-sources.jar",
+                "kotlin-test-assertionsCommonMain-2.0.0.klib",
+            ),
+            withSources = true,
+            root = root
+        )
     }
 
     /**
@@ -461,15 +446,13 @@ class BuildGraphTest : BaseDRTest() {
      * `com.google.android.gms:play-services-measurement-base`
      */
     @Test
-    fun `com_google_android_gms play-services-measurement-api 22_1_0`(testInfo: TestInfo) {
+    fun `com_google_android_gms play-services-measurement-api 22_1_0`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(
             testInfo,
             platform = setOf(ResolutionPlatform.ANDROID),
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
         )
-        runBlocking {
-            downloadAndAssertFiles(testInfo, root = root)
-        }
+        downloadAndAssertFiles(testInfo, root = root)
     }
 
     /**
@@ -482,7 +465,7 @@ class BuildGraphTest : BaseDRTest() {
      *     Though the version is defined in a BOM file imported in a corresponding '.pom' of `dev.gitlive:firebase-analytics-android`.
      */
     @Test
-    fun `dev_gitlive firebase-analytics 2_1_0`(testInfo: TestInfo) {
+    fun `dev_gitlive firebase-analytics 2_1_0`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(
             testInfo,
             platform = setOf(
@@ -490,13 +473,11 @@ class BuildGraphTest : BaseDRTest() {
             ),
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
         )
-        runBlocking {
-            downloadAndAssertFiles(testInfo, root = root)
-        }
+        downloadAndAssertFiles(testInfo, root = root)
     }
 
     @Test
-    fun `dev_gitlive firebase-crashlytics 2_1_0`(testInfo: TestInfo) {
+    fun `dev_gitlive firebase-crashlytics 2_1_0`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
@@ -504,13 +485,11 @@ class BuildGraphTest : BaseDRTest() {
                 ResolutionPlatform.ANDROID,
             )
         )
-        runBlocking {
-            downloadAndAssertFiles(testInfo, root = root)
-        }
+        downloadAndAssertFiles(testInfo, root = root)
     }
 
     @Test
-    fun `org_jetbrains_kotlin kotlin-test-annotations-common 1_9_0`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlin kotlin-test-annotations-common 1_9_0`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             platform = setOf(
@@ -534,7 +513,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_jetbrains_kotlinx atomicfu 0_23_2`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlinx atomicfu 0_23_2`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             expected = """
@@ -549,7 +528,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_jetbrains_kotlin kotlin-test 1_9_20`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlin kotlin-test 1_9_20`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -574,7 +553,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_jetbrains_compose_runtime runtime-saveable-desktop 1_5_10`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_runtime runtime-saveable-desktop 1_5_10`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -605,7 +584,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx-coroutines-core 1_6_4`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlinx kotlinx-coroutines-core 1_6_4`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             expected = """
@@ -625,7 +604,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_jetbrains_skiko skiko 0_7_85`(testInfo: TestInfo) {
+    fun `org_jetbrains_skiko skiko 0_7_85`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV),
@@ -644,7 +623,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_jetbrains_compose_desktop desktop-jvm-macos-arm64 1_5_10`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_desktop desktop-jvm-macos-arm64 1_5_10`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(testInfo, repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV))
 
         root.distinctBfsSequence()
@@ -652,12 +631,12 @@ class BuildGraphTest : BaseDRTest() {
             .flatMap { it.dependency.files() }
             .mapNotNull { runBlocking { it.getPath() } }
             .forEach {
-                assertTrue(it.extension == "jar", "Only jar files are expected, got ${it.name}")
+                assertEquals(it.extension, "jar", "Only jar files are expected, got ${it.name}")
             }
     }
 
     @Test
-    fun `androidx_annotation annotation 1_6_0`(testInfo: TestInfo) {
+    fun `androidx_annotation annotation 1_6_0`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
@@ -673,7 +652,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_jetbrains_compose_foundation foundation 1_6_10`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_foundation foundation 1_6_10`(testInfo: TestInfo) = runTest {
         doTestByFile(
             testInfo,
             platform = setOf(ResolutionPlatform.ANDROID),
@@ -683,7 +662,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `androidx_activity activity-compose 1_7_2`(testInfo: TestInfo) {
+    fun `androidx_activity activity-compose 1_7_2`(testInfo: TestInfo) = runTest {
         doTestByFile(
             testInfo,
             platform = setOf(ResolutionPlatform.ANDROID),
@@ -692,7 +671,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_tinylog slf4j-tinylog 2_7_0-M1`(testInfo: TestInfo) {
+    fun `org_tinylog slf4j-tinylog 2_7_0-M1`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             expected = """
@@ -705,7 +684,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_tinylog tinylog-api 2_7_0-M1`(testInfo: TestInfo) {
+    fun `org_tinylog tinylog-api 2_7_0-M1`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             expected = """
@@ -716,7 +695,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `androidx_appcompat appcompat 1_6_1`(testInfo: TestInfo) {
+    fun `androidx_appcompat appcompat 1_6_1`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID),
@@ -729,7 +708,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `androidx_appcompat appcompat 1_6_1 many contexts`() {
+    fun `androidx_appcompat appcompat 1_6_1 many contexts`() = runTest {
         val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID)
         val contexts = listOf(
             context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories),
@@ -742,13 +721,11 @@ class BuildGraphTest : BaseDRTest() {
             context()
         )
 
-        runBlocking {
-            doTest(root, verifyMessages = true)
-        }
+        doTest(root, verifyMessages = true)
     }
 
     @Test
-    fun `com_google_guava guava 33_0_0-android`(testInfo: TestInfo) {
+    fun `com_google_guava guava 33_0_0-android`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             platform = setOf(ResolutionPlatform.ANDROID),
@@ -797,7 +774,7 @@ class BuildGraphTest : BaseDRTest() {
      * Until that, such libraries are denied.
      */
     @Test
-    fun `com_google_guava guava 32_1_1-jre`(testInfo: TestInfo) {
+    fun `com_google_guava guava 32_1_1-jre`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             expected = """
@@ -811,30 +788,28 @@ class BuildGraphTest : BaseDRTest() {
                      ╰─── com.google.j2objc:j2objc-annotations:2.8
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "checker-qual-3.33.0-javadoc.jar",
-                    "checker-qual-3.33.0-sources.jar",
-                    "checker-qual-3.33.0.jar",
-                    "error_prone_annotations-2.18.0-sources.jar",
-                    "error_prone_annotations-2.18.0.jar",
-                    "failureaccess-1.0.1-sources.jar",
-                    "failureaccess-1.0.1.jar",
-                    "guava-32.1.1-jre-sources.jar",
-                    "guava-32.1.1-jre.jar",
-                    "j2objc-annotations-2.8-sources.jar",
-                    "j2objc-annotations-2.8.jar",
-                    "jsr305-3.0.2-sources.jar",
-                    "jsr305-3.0.2.jar",
-                ),
-                root, true, verifyMessages = true
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "checker-qual-3.33.0-javadoc.jar",
+                "checker-qual-3.33.0-sources.jar",
+                "checker-qual-3.33.0.jar",
+                "error_prone_annotations-2.18.0-sources.jar",
+                "error_prone_annotations-2.18.0.jar",
+                "failureaccess-1.0.1-sources.jar",
+                "failureaccess-1.0.1.jar",
+                "guava-32.1.1-jre-sources.jar",
+                "guava-32.1.1-jre.jar",
+                "j2objc-annotations-2.8-sources.jar",
+                "j2objc-annotations-2.8.jar",
+                "jsr305-3.0.2-sources.jar",
+                "jsr305-3.0.2.jar",
+            ),
+            root, true, verifyMessages = true
+        )
     }
 
     @Test
-    fun `org_jetbrains_packagesearch packagesearch-plugin 1_0_0-SNAPSHOT`(testInfo: TestInfo) {
+    fun `org_jetbrains_packagesearch packagesearch-plugin 1_0_0-SNAPSHOT`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC),
@@ -850,19 +825,17 @@ class BuildGraphTest : BaseDRTest() {
             """.trimIndent()
         )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "annotations-13.0.jar",
-                    "kotlin-stdlib-1.9.0.jar",
-                    "kotlin-stdlib-common-1.9.0.jar",
-                    "kotlin-stdlib-jdk7-1.9.0.jar",
-                    "kotlin-stdlib-jdk8-1.9.0.jar",
-                    "packagesearch-plugin-1.0.0-SNAPSHOT.jar",
-                ),
-                root,
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "annotations-13.0.jar",
+                "kotlin-stdlib-1.9.0.jar",
+                "kotlin-stdlib-common-1.9.0.jar",
+                "kotlin-stdlib-jdk7-1.9.0.jar",
+                "kotlin-stdlib-jdk8-1.9.0.jar",
+                "packagesearch-plugin-1.0.0-SNAPSHOT.jar",
+            ),
+            root,
+        )
     }
 
     /**
@@ -870,7 +843,7 @@ class BuildGraphTest : BaseDRTest() {
      * downloaded as a usual library (fallback to release flow).
      */
     @Test
-    fun `com_jetbrains_intellij_platform core-impl 251_23774_109-EAP-SNAPSHOT`(testInfo: TestInfo) {
+    fun `com_jetbrains_intellij_platform core-impl 251_23774_109-EAP-SNAPSHOT`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_INTELLIJ_DEPS, REDIRECTOR_INTELLIJ_SNAPSHOTS),
@@ -894,7 +867,7 @@ class BuildGraphTest : BaseDRTest() {
      * Such a BOM being imported applies dependency constraints to the resolution graph
      */
     @Test
-    fun `io_ktor ktor-bom 2_3_9`(testInfo: TestInfo) {
+    fun `io_ktor ktor-bom 2_3_9`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "bom: io.ktor:ktor-bom:2.3.9",
@@ -921,7 +894,7 @@ class BuildGraphTest : BaseDRTest() {
      * Dependency on a BOM as on a regular dependency is prohibited if BOM is published with Gradle metadata
      */
     @Test
-    fun `declaring BOM published with Gradle metadata as a regular dependency`(testInfo: TestInfo) {
+    fun `declaring BOM published with Gradle metadata as a regular dependency`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "io.ktor:ktor-bom:2.3.9",
@@ -951,7 +924,7 @@ class BuildGraphTest : BaseDRTest() {
      * If the regular dependency is declared as BOM we can notice it and suggest removing BOM prefix.
      */
     @Test
-    fun `declaring regular dependency published with Gradle metadata as BOM`(testInfo: TestInfo) {
+    fun `declaring regular dependency published with Gradle metadata as BOM`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "bom:com.fasterxml.jackson.core:jackson-annotations:2.18.3",
@@ -971,7 +944,7 @@ class BuildGraphTest : BaseDRTest() {
      * BOM is published with pom.xml only (no Gradle metadata in .module file)
      */
     @Test
-    fun `com_fasterxml_jackson jackson-bom 2_18_3`(testInfo: TestInfo) {
+    fun `com_fasterxml_jackson jackson-bom 2_18_3`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "bom: com.fasterxml.jackson:jackson-bom:2.18.3",
@@ -999,7 +972,7 @@ class BuildGraphTest : BaseDRTest() {
      * Direct dependency with an unspecified version is properly reported.
      */
     @Test
-    fun `error if direct dependency version is unspecified`(testInfo: TestInfo) {
+    fun `error if direct dependency version is unspecified`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "com.fasterxml.jackson.core:jackson-annotations",
@@ -1019,7 +992,7 @@ class BuildGraphTest : BaseDRTest() {
      * Dependency on a BOM as on a regular dependency is NOOP if BOM is published as a pom.xml only (without Gradle metadata)
      */
     @Test
-    fun `declaring BOM published without Gradle metadata as a regular dependency`(testInfo: TestInfo) {
+    fun `declaring BOM published without Gradle metadata as a regular dependency`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "com.fasterxml.jackson:jackson-bom:2.18.3",
@@ -1044,7 +1017,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `com_fasterxml_jackson_core jackson-annotations 2_18_3`(testInfo: TestInfo) {
+    fun `com_fasterxml_jackson_core jackson-annotations 2_18_3`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = listOf(
@@ -1063,16 +1036,14 @@ class BuildGraphTest : BaseDRTest() {
                      ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
             """.trimIndent()
         )
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "jackson-annotations-2.18.3.jar",
-                    "jackson-core-2.18.3.jar",
-                    "jackson-databind-2.18.3.jar",
-                ),
-                root, verifyMessages = true
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "jackson-annotations-2.18.3.jar",
+                "jackson-core-2.18.3.jar",
+                "jackson-databind-2.18.3.jar",
+            ),
+            root, verifyMessages = true
+        )
     }
 
     /**
@@ -1080,7 +1051,7 @@ class BuildGraphTest : BaseDRTest() {
      * testData/amper-dr-test-bom-usages
      */
     @Test
-    fun `org_jetbrains_amper amper-dr-test-bom-usages 1_0`(testInfo: TestInfo) {
+    fun `org_jetbrains_amper amper-dr-test-bom-usages 1_0`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -1184,7 +1155,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `junit junit 4_10`(testInfo: TestInfo) {
+    fun `junit junit 4_10`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
@@ -1197,12 +1168,12 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `io_ktor ktor-server-auth 2_2_2`(testInfo: TestInfo) {
+    fun `io_ktor ktor-server-auth 2_2_2`(testInfo: TestInfo) = runTest {
         doTestByFile(testInfo, repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE))
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             platform = setOf(ResolutionPlatform.MACOS_ARM64),
@@ -1228,7 +1199,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx-serialization-json 1_7_2`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlinx kotlinx-serialization-json 1_7_2`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             platform = setOf(ResolutionPlatform.MACOS_ARM64),
@@ -1258,17 +1229,16 @@ class BuildGraphTest : BaseDRTest() {
      * TODO: org.jetbrains.kotlin:kotlin-test-junit:1.9.20 (*) is missing from org.jetbrains.kotlin:kotlin-test:1.9.20
      */
     @Test
-    fun `kotlin test with junit`() {
+    fun `kotlin test with junit`() = runTest {
         context().use { context ->
-            val rootNode = listOf(
+            val root = listOf(
                 "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
                 "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
                 "org.jetbrains.kotlin:kotlin-test:1.9.20",
                 "junit:junit:4.12",
             ).toRootNode(context)
             val resolver = Resolver()
-            val root = rootNode
-            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
+            resolver.buildGraph(root, ResolutionLevel.NETWORK)
             assertEquals(
                 """
                 root
@@ -1301,7 +1271,7 @@ class BuildGraphTest : BaseDRTest() {
      *  DR should ignore all of those dependencies as those belong to the test scope.
      */
     @Test
-    fun `org_apache_logging_log4j log4j-core 2_17_1`(testInfo: TestInfo) {
+    fun `org_apache_logging_log4j log4j-core 2_17_1`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -1313,22 +1283,20 @@ class BuildGraphTest : BaseDRTest() {
             """.trimIndent()
         )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "log4j-api-2.17.1.jar",
-                    "log4j-core-2.17.1.jar",
-                ),
-                root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "log4j-api-2.17.1.jar",
+                "log4j-core-2.17.1.jar",
+            ),
+            root
+        )
     }
 
     /**
      * Check that pom.xml with an empty dependencyManagement section is parsed successfully
      */
     @Test
-    fun `org_openjfx javafx 24-ea+5`(testInfo: TestInfo) {
+    fun `org_openjfx javafx 24-ea+5`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             expected = """
@@ -1338,13 +1306,11 @@ class BuildGraphTest : BaseDRTest() {
                 .trimIndent()
         )
 
-        runBlocking {
-            downloadAndAssertFiles(emptyList(), root)
-        }
+        downloadAndAssertFiles(emptyList(), root)
     }
 
     @Test
-    fun `org_junit_jupiter junit-jupiter-params 5_7_2`(testInfo: TestInfo) {
+    fun `org_junit_jupiter junit-jupiter-params 5_7_2`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -1364,19 +1330,17 @@ class BuildGraphTest : BaseDRTest() {
             """.trimIndent()
         )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "apiguardian-api-1.1.0.jar",
-                    "junit-jupiter-api-5.7.2.jar",
-                    "junit-jupiter-params-5.7.2-all.jar",
-                    "junit-jupiter-params-5.7.2.jar",
-                    "junit-platform-commons-1.7.2.jar",
-                    "opentest4j-1.2.0.jar",
-                ),
-                root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "apiguardian-api-1.1.0.jar",
+                "junit-jupiter-api-5.7.2.jar",
+                "junit-jupiter-params-5.7.2-all.jar",
+                "junit-jupiter-params-5.7.2.jar",
+                "junit-platform-commons-1.7.2.jar",
+                "opentest4j-1.2.0.jar",
+            ),
+            root
+        )
     }
 
     /**
@@ -1386,7 +1350,7 @@ class BuildGraphTest : BaseDRTest() {
      * Library accessibility-test-framework:4.1.1 has incorrectly published checksums
      */
     @Test
-    fun `com_google_android_apps_common_testing_accessibility_framework accessibility-test-framework 4_1_1`(testInfo: TestInfo) {
+    fun `com_google_android_apps_common_testing_accessibility_framework accessibility-test-framework 4_1_1`(testInfo: TestInfo) = runTest {
         val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE)
         val root = doTestByFile(
             testInfo,
@@ -1414,7 +1378,7 @@ class BuildGraphTest : BaseDRTest() {
      * This test check that kotlin gradle plugin and its dependency are successfully resolved to the single variants.
      */
     @Test
-    fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20 RUNTIME`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20 RUNTIME`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             dependency = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20",
@@ -1428,7 +1392,7 @@ class BuildGraphTest : BaseDRTest() {
      * This test check that kotlin gradle plugin and its dependency are successfully resolved to the single variants.
      */
     @Test
-    fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20 COMPILE`(testInfo: TestInfo) {
+    fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20 COMPILE`(testInfo: TestInfo) = runTest {
         doTest(
             testInfo,
             dependency = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20",
@@ -1444,19 +1408,17 @@ class BuildGraphTest : BaseDRTest() {
      * the error introduced to resolution logic than its improvement while DR evolving.
      */
     @Test
-    fun `org_apache_maven maven-core 3_9_6`(testInfo: TestInfo) {
+    fun `org_apache_maven maven-core 3_9_6`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(
             testInfo,
             scope = ResolutionScope.COMPILE,
         )
 
-        runBlocking {
-            downloadAndAssertFiles(testInfo, root)
-        }
+        downloadAndAssertFiles(testInfo, root)
     }
 
     @Test
-    fun `kotlin test with junit5`() {
+    fun `kotlin test with junit5`() = runTest {
         context().use { context ->
             val root = listOf(
                 "org.jetbrains.kotlin:kotlin-test-junit5:1.9.20",
@@ -1464,7 +1426,7 @@ class BuildGraphTest : BaseDRTest() {
                 "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
             ).toRootNode(context)
             val resolver = Resolver()
-            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
+            resolver.buildGraph(root, ResolutionLevel.NETWORK)
             assertEquals(
                 """
                root
@@ -1489,7 +1451,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `datetime and kotlin test with junit`() {
+    fun `datetime and kotlin test with junit`() = runTest {
         context().use { context ->
             val root = listOf(
                 "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
@@ -1499,7 +1461,7 @@ class BuildGraphTest : BaseDRTest() {
                 "junit:junit:4.12",
             ).toRootNode(context)
             val resolver = Resolver()
-            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
+            resolver.buildGraph(root, ResolutionLevel.NETWORK)
             assertEquals(
                 """
                 root
@@ -1525,7 +1487,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `jackson and guava`() {
+    fun `jackson and guava`() = runTest {
         context().use { context ->
             val root = listOf(
                 "org.antlr:antlr4-runtime:4.7.1",
@@ -1539,7 +1501,7 @@ class BuildGraphTest : BaseDRTest() {
                 "net.openhft:compiler:2.3.4",
             ).toRootNode(context)
             val resolver = Resolver()
-            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
+            resolver.buildGraph(root, ResolutionLevel.NETWORK)
             assertEquals(
                 """
                 root
@@ -1585,7 +1547,7 @@ class BuildGraphTest : BaseDRTest() {
      * (ui-uikit-uikitarm64-1.6.10-metadata.jar)
      */
     @Test
-    fun `org_jetbrains_compose_ui ui-uikit 1_6_10 multiplatform`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_ui ui-uikit 1_6_10 multiplatform`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "org.jetbrains.compose.ui:ui-uikit:1.6.10",
@@ -1622,7 +1584,7 @@ class BuildGraphTest : BaseDRTest() {
      * (ui-util-macosx64-1.7.3-metadata.jar)
      */
     @Test
-    fun `org_jetbrains_compose_ui ui-util 1_7_3 multiplatform`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_ui ui-util 1_7_3 multiplatform`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "org.jetbrains.compose.ui:ui-util:1.7.3",
@@ -1655,7 +1617,7 @@ class BuildGraphTest : BaseDRTest() {
      * and is taken into account
      */
     @Test
-    fun `co_touchlab sqliter-driver-iosarm64 1_3_1`(testInfo: TestInfo) {
+    fun `co_touchlab sqliter-driver-iosarm64 1_3_1`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -1670,22 +1632,20 @@ class BuildGraphTest : BaseDRTest() {
             """.trimIndent()
         )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "sqliter-driver-iosarm64-1.3.1-cinterop-sqlite3.klib",
-                    "sqliter-driver-iosarm64-1.3.1.klib"
-                ),
-                root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "sqliter-driver-iosarm64-1.3.1-cinterop-sqlite3.klib",
+                "sqliter-driver-iosarm64-1.3.1.klib"
+            ),
+            root
+        )
     }
 
     /**
      * This test checks that cinterop dependency is correctly resolved in a multiplatform context and is taken into account.
      */
     @Test
-    fun `co_touchlab sqliter-driver-iosarm64 1_3_1 multiplatform`(testInfo: TestInfo) {
+    fun `co_touchlab sqliter-driver-iosarm64 1_3_1 multiplatform`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "co.touchlab:sqliter-driver:1.3.1",
@@ -1703,26 +1663,24 @@ class BuildGraphTest : BaseDRTest() {
             """.trimIndent()
         )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "kotlin-stdlib-commonMain-1.9.20-sources.jar",
-                    "kotlin-stdlib-commonMain-1.9.20.klib",
-                    "sqliter-driver-appleMain-1.3.1-sources.jar",
-                    "sqliter-driver-appleMain-1.3.1.klib",
-                    // There is no such thing as sources for cinterop sourceSet
-                    "sqliter-driver-appleMain-cinterop-1.3.1.klib",
-                    "sqliter-driver-nativeCommonMain-1.3.1-sources.jar",
-                    "sqliter-driver-nativeCommonMain-1.3.1.klib"
-                ),
-                root,
-                withSources = true
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "kotlin-stdlib-commonMain-1.9.20-sources.jar",
+                "kotlin-stdlib-commonMain-1.9.20.klib",
+                "sqliter-driver-appleMain-1.3.1-sources.jar",
+                "sqliter-driver-appleMain-1.3.1.klib",
+                // There is no such thing as sources for cinterop sourceSet
+                "sqliter-driver-appleMain-cinterop-1.3.1.klib",
+                "sqliter-driver-nativeCommonMain-1.3.1-sources.jar",
+                "sqliter-driver-nativeCommonMain-1.3.1.klib"
+            ),
+            root,
+            withSources = true
+        )
     }
 
     @Test
-    fun `org_jetbrains_compose_ui ui-uikit 1_6_10 single platform`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_ui ui-uikit 1_6_10 single platform`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "org.jetbrains.compose.ui:ui-uikit:1.6.10",
@@ -1736,44 +1694,17 @@ class BuildGraphTest : BaseDRTest() {
             """.trimIndent()
         )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "ui-uikit-uikitsimarm64-1.6.10-cinterop-utils.klib",
-                    "ui-uikit-uikitsimarm64-1.6.10.klib",
-                ),
-                root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "ui-uikit-uikitsimarm64-1.6.10-cinterop-utils.klib",
+                "ui-uikit-uikitsimarm64-1.6.10.klib",
+            ),
+            root
+        )
     }
 
-//    @Test
-//    fun `jetbrains_ring_bundle bundle-api 2_0_65`(testInfo: TestInfo) {
-//        val root = doTestImpl(
-//            testInfo,
-//            scope = ResolutionScope.RUNTIME,
-//            platform = setOf(ResolutionPlatform.JVM),
-//            repositories = listOf(Repository("https://packages.jetbrains.team/maven/p/bnd/internal",
-//                "Alexey.Barsov",
-//                "set-test-password"
-//            )),
-//            expected = """root
-//                │╰─── jetbrains.ring.bundle:bundle-api:2.0.65
-//                │     ╰─── org.jetbrains:annotations:13.0
-//            """.trimMargin()
-//        )
-//
-//        assertFiles("""
-//            annotations-13.0.jar
-//            bundle-api-2.0.65.jar
-//            """.trimIndent(),
-//            root
-//        )
-//    }
-
-
     @Test
-    fun `org_jetbrains_compose_material3 material3-uikitarm64 1_6_10`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_material3 material3-uikitarm64 1_6_10`(testInfo: TestInfo) = runTest {
         doTestByFile(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -1783,7 +1714,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `huge dependency graph with reused subgraphs`(testInfo: TestInfo) {
+    fun `huge dependency graph with reused subgraphs`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(
             testInfo,
             dependency = listOf("org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.5.10"),
@@ -1793,7 +1724,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `check method distinctBfsSequence`() {
+    fun `check method distinctBfsSequence`() = runTest {
         val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID)
         val context = context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories)
 
@@ -1815,7 +1746,7 @@ class BuildGraphTest : BaseDRTest() {
         )
 
         val resolver = Resolver()
-        runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
+        resolver.buildGraph(root, ResolutionLevel.NETWORK)
         root.verifyGraphConnectivity()
 
         // 2. Checking the absence of duplicates.
@@ -1903,7 +1834,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `resolving multiplatform library for unsupported leaf platform`(testInfo: TestInfo) {
+    fun `resolving multiplatform library for unsupported leaf platform`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "org.jetbrains.skiko:skiko:0.9.4",
@@ -1939,7 +1870,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `resolving multiplatform library for unsupported set of platforms`(testInfo: TestInfo) {
+    fun `resolving multiplatform library for unsupported set of platforms`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "org.jetbrains.skiko:skiko:0.9.4",
@@ -1986,7 +1917,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     @Test
-    fun `resolving Java-only library for native platform`(testInfo: TestInfo) {
+    fun `resolving Java-only library for native platform`(testInfo: TestInfo) = runTest {
         val root = doTest(
             testInfo,
             dependency = "com.google.code.gson:gson:2.13.1",

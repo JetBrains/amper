@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
@@ -15,7 +15,7 @@ import kotlin.test.assertTrue
 class ResolverTest: BaseDRTest() {
 
     @Test
-    fun `junit-jupiter-params resolved in two contexts (COMPILE, RUNTIME)`() {
+    fun `junit-jupiter-params resolved in two contexts (COMPILE, RUNTIME)`() = runTest {
         val jupiterParamsCoordinates = "org.junit.jupiter:junit-jupiter-params:5.7.2"
 
         val nodeInCompileContext = jupiterParamsCoordinates.toMavenNode(context(ResolutionScope.COMPILE))
@@ -23,51 +23,49 @@ class ResolverTest: BaseDRTest() {
 
         val root = DependencyNodeHolder("root", listOf(nodeInCompileContext, nodeInRuntimeContext), context())
 
-        runBlocking {
-            doTest(
-                root,
-                expected = """
-                root
-                ├─── org.junit.jupiter:junit-jupiter-params:5.7.2
-                │    ├─── org.junit:junit-bom:5.7.2
-                │    ├─── org.apiguardian:apiguardian-api:1.1.0
-                │    ╰─── org.junit.jupiter:junit-jupiter-api:5.7.2
-                │         ├─── org.junit:junit-bom:5.7.2
-                │         ├─── org.apiguardian:apiguardian-api:1.1.0
-                │         ├─── org.opentest4j:opentest4j:1.2.0
-                │         ╰─── org.junit.platform:junit-platform-commons:1.7.2
-                │              ├─── org.junit:junit-bom:5.7.2
-                │              ╰─── org.apiguardian:apiguardian-api:1.1.0
-                ╰─── org.junit.jupiter:junit-jupiter-params:5.7.2
-                     ├─── org.junit:junit-bom:5.7.2
-                     ├─── org.apiguardian:apiguardian-api:1.1.0
-                     ╰─── org.junit.jupiter:junit-jupiter-api:5.7.2
-                          ├─── org.junit:junit-bom:5.7.2
-                          ├─── org.apiguardian:apiguardian-api:1.1.0
-                          ├─── org.opentest4j:opentest4j:1.2.0
-                          ╰─── org.junit.platform:junit-platform-commons:1.7.2
-                               ├─── org.junit:junit-bom:5.7.2
-                               ╰─── org.apiguardian:apiguardian-api:1.1.0
-                """.trimIndent(),
-                verifyMessages = false
-            )
+        doTest(
+            root,
+            expected = """
+            root
+            ├─── org.junit.jupiter:junit-jupiter-params:5.7.2
+            │    ├─── org.junit:junit-bom:5.7.2
+            │    ├─── org.apiguardian:apiguardian-api:1.1.0
+            │    ╰─── org.junit.jupiter:junit-jupiter-api:5.7.2
+            │         ├─── org.junit:junit-bom:5.7.2
+            │         ├─── org.apiguardian:apiguardian-api:1.1.0
+            │         ├─── org.opentest4j:opentest4j:1.2.0
+            │         ╰─── org.junit.platform:junit-platform-commons:1.7.2
+            │              ├─── org.junit:junit-bom:5.7.2
+            │              ╰─── org.apiguardian:apiguardian-api:1.1.0
+            ╰─── org.junit.jupiter:junit-jupiter-params:5.7.2
+                 ├─── org.junit:junit-bom:5.7.2
+                 ├─── org.apiguardian:apiguardian-api:1.1.0
+                 ╰─── org.junit.jupiter:junit-jupiter-api:5.7.2
+                      ├─── org.junit:junit-bom:5.7.2
+                      ├─── org.apiguardian:apiguardian-api:1.1.0
+                      ├─── org.opentest4j:opentest4j:1.2.0
+                      ╰─── org.junit.platform:junit-platform-commons:1.7.2
+                           ├─── org.junit:junit-bom:5.7.2
+                           ╰─── org.apiguardian:apiguardian-api:1.1.0
+            """.trimIndent(),
+            verifyMessages = false
+        )
 
-            downloadAndAssertFiles(
-                listOf(
-                    "apiguardian-api-1.1.0.jar",
-                    "junit-jupiter-api-5.7.2.jar",
-                    "junit-jupiter-params-5.7.2-all.jar",
-                    "junit-jupiter-params-5.7.2.jar",
-                    "junit-platform-commons-1.7.2.jar",
-                    "opentest4j-1.2.0.jar",
-                ),
-                root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "apiguardian-api-1.1.0.jar",
+                "junit-jupiter-api-5.7.2.jar",
+                "junit-jupiter-params-5.7.2-all.jar",
+                "junit-jupiter-params-5.7.2.jar",
+                "junit-platform-commons-1.7.2.jar",
+                "opentest4j-1.2.0.jar",
+            ),
+            root
+        )
     }
 
     @Test
-    fun `kmp library sources downloaded`(testInfo: TestInfo) {
+    fun `kmp library sources downloaded`(testInfo: TestInfo) = runTest {
         val kmpLibrary = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0"
 
         val root = doTest(
@@ -86,33 +84,31 @@ class ResolverTest: BaseDRTest() {
             verifyMessages = false,
         )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "atomicfu-commonMain-0.23.1-sources.jar",
-                    "atomicfu-commonMain-0.23.1.klib",
-                    "atomicfu-nativeMain-0.23.1-sources.jar",
-                    "atomicfu-nativeMain-0.23.1.klib",
-                    "atomicfu-nativeMain-cinterop-0.23.1.klib",
-                    "kotlin-stdlib-commonMain-1.9.21-sources.jar",
-                    "kotlin-stdlib-commonMain-1.9.21.klib",
-                    "kotlinx-coroutines-core-commonMain-1.8.0-sources.jar",
-                    "kotlinx-coroutines-core-commonMain-1.8.0.klib",
-                    "kotlinx-coroutines-core-concurrentMain-1.8.0-sources.jar",
-                    "kotlinx-coroutines-core-concurrentMain-1.8.0.klib",
-                    "kotlinx-coroutines-core-nativeDarwinMain-1.8.0-sources.jar",
-                    "kotlinx-coroutines-core-nativeDarwinMain-1.8.0.klib",
-                    "kotlinx-coroutines-core-nativeMain-1.8.0-sources.jar",
-                    "kotlinx-coroutines-core-nativeMain-1.8.0.klib",
-                ),
-                withSources = true,
-                root = root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "atomicfu-commonMain-0.23.1-sources.jar",
+                "atomicfu-commonMain-0.23.1.klib",
+                "atomicfu-nativeMain-0.23.1-sources.jar",
+                "atomicfu-nativeMain-0.23.1.klib",
+                "atomicfu-nativeMain-cinterop-0.23.1.klib",
+                "kotlin-stdlib-commonMain-1.9.21-sources.jar",
+                "kotlin-stdlib-commonMain-1.9.21.klib",
+                "kotlinx-coroutines-core-commonMain-1.8.0-sources.jar",
+                "kotlinx-coroutines-core-commonMain-1.8.0.klib",
+                "kotlinx-coroutines-core-concurrentMain-1.8.0-sources.jar",
+                "kotlinx-coroutines-core-concurrentMain-1.8.0.klib",
+                "kotlinx-coroutines-core-nativeDarwinMain-1.8.0-sources.jar",
+                "kotlinx-coroutines-core-nativeDarwinMain-1.8.0.klib",
+                "kotlinx-coroutines-core-nativeMain-1.8.0-sources.jar",
+                "kotlinx-coroutines-core-nativeMain-1.8.0.klib",
+            ),
+            withSources = true,
+            root = root
+        )
     }
 
     @Test
-    fun `sources downloaded even if variant is not defined in Gradle metadata`(testInfo: TestInfo) {
+    fun `sources downloaded even if variant is not defined in Gradle metadata`(testInfo: TestInfo) = runTest {
         val library = "com.fasterxml.jackson.core:jackson-core:2.17.2"
 
         val root = doTest(
@@ -127,20 +123,18 @@ class ResolverTest: BaseDRTest() {
             verifyMessages = false,
         )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "jackson-core-2.17.2-sources.jar",
-                    "jackson-core-2.17.2.jar",
-                ),
-                withSources = true,
-                root = root
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "jackson-core-2.17.2-sources.jar",
+                "jackson-core-2.17.2.jar",
+            ),
+            withSources = true,
+            root = root
+        )
     }
 
     @Test
-    fun `invalid version is correctly reported`(testInfo: TestInfo) {
+    fun `invalid version is correctly reported`(testInfo: TestInfo) = runTest {
         val library = "com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared"
 
         val root = doTest(

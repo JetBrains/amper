@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
@@ -30,9 +30,9 @@ class GradleLocalRepositoryTest {
     }
 
     @Test
-    fun `guess path`() {
+    fun `guess path`() = runTest {
         val node = kotlinTest()
-        var path = runBlocking { gradleLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
+        var path = gradleLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar")
         assertNull(path)
 
         val sha1 = computeHash("sha1", randomString().toByteArray())
@@ -41,7 +41,7 @@ class GradleLocalRepositoryTest {
         baseDir.createDirectories()
         (baseDir / "kotlin-test-1.9.10.jar").createFile()
 
-        path = runBlocking { gradleLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
+        path = gradleLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar")
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path?.relativeTo(gradleLocalPath)?.toString()?.replace('\\', '/')
@@ -49,7 +49,7 @@ class GradleLocalRepositoryTest {
     }
 
     @Test
-    fun `guess path with variant`() {
+    fun `guess path with variant`() = runTest {
         val sha1 = computeHash("sha1", randomString().toByteArray())
         val node = kotlinTest().also {
             it.variants = listOf(
@@ -69,7 +69,7 @@ class GradleLocalRepositoryTest {
                 )
             )
         }
-        val path = runBlocking { gradleLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
+        val path = gradleLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar")
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path?.relativeTo(gradleLocalPath)?.toString()?.replace('\\', '/')

@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_COMPOSE_DEV
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_MAVEN_CENTRAL
 import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_MAVEN_GOOGLE
@@ -52,7 +52,7 @@ class DependencyFileTest {
     private fun mavenLocalRepository() = MavenLocalRepository(mavenLocalPath)
 
     @Test
-    fun `kotlin-test-1_9_20 module hash`() {
+    fun `kotlin-test-1_9_20 module hash`() = runTest {
         val gradleLocalRepository = gradleLocalRepository()
         Context {
             cache = {
@@ -69,10 +69,10 @@ class DependencyFileTest {
             Path("testData/metadata/json/module/$name").copyTo(target)
 
             val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), extension)
-            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(gradleLocalPath) })
+            assertTrue(dependencyFile.getPath()!!.startsWith(gradleLocalPath) )
 
-            val downloaded = runBlocking { dependencyFile.getPath()?.exists() == true }
-            val hasMatchingChecksum = runBlocking { dependencyFile.isDownloadedWithVerification(settings = context.settings) }
+            val downloaded = dependencyFile.getPath()?.exists() == true
+            val hasMatchingChecksum = dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertTrue(dependency.messages.isEmpty(), "There must be no messages: ${dependency.messages}")
             assertTrue(downloaded, "File must be downloaded as it was created above")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
@@ -80,7 +80,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `jackson-module-kotlin-2_15_2_jar hash`() {
+    fun `jackson-module-kotlin-2_15_2_jar hash`() = runTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -92,16 +92,15 @@ class DependencyFileTest {
                 context.settings,
                 "com.fasterxml.jackson.module", "jackson-module-kotlin", "2.15.2"
             )
-            runBlocking {
-                dependency.resolveChildren(context, ResolutionLevel.NETWORK)
-                dependency.downloadDependencies(context)
-            }
+            dependency.resolveChildren(context, ResolutionLevel.NETWORK)
+            dependency.downloadDependencies(context)
+
             dependency.verifyOwnMessages()
         }
     }
 
     @Test
-    fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message NETWORK level`() {
+    fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message NETWORK level`() = runTest {
         Context {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV)
             cache = {
@@ -114,10 +113,8 @@ class DependencyFileTest {
                 context.settings,
                 "org.junit.jupiter", "junit-jupiter-api", "9999"
             )
-            runBlocking {
-                dependency.resolveChildren(context, ResolutionLevel.NETWORK)
-                dependency.downloadDependencies(context)
-            }
+            dependency.resolveChildren(context, ResolutionLevel.NETWORK)
+            dependency.downloadDependencies(context)
             val messages = dependency.messages.defaultFilterMessages()
             assertEquals(
                 setOf("Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999"),
@@ -139,7 +136,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message LOCAL level`() {
+    fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message LOCAL level`() = runTest {
         Context {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV)
             cache = {
@@ -152,10 +149,8 @@ class DependencyFileTest {
                 context.settings,
                 "org.junit.jupiter", "junit-jupiter-api", "9999"
             )
-            runBlocking {
-                dependency.resolveChildren(context, ResolutionLevel.LOCAL)
-                dependency.downloadDependencies(context)
-            }
+            dependency.resolveChildren(context, ResolutionLevel.LOCAL)
+            dependency.downloadDependencies(context)
             val messages = dependency.messages.defaultFilterMessages().map{ it.message }.toSet()
             assertEquals(
                 setOf("Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999"),
@@ -170,7 +165,7 @@ class DependencyFileTest {
      * that define jvm-related variants only
      */
     @Test
-    fun `skiko-awt-runtime-macos-arm64-0_8_22_jar hash`() {
+    fun `skiko-awt-runtime-macos-arm64-0_8_22_jar hash`() = runTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -185,11 +180,10 @@ class DependencyFileTest {
                 "org.jetbrains.skiko", "skiko-awt-runtime-macos-arm64", "0.8.22"
             )
             val root = MavenDependencyNode(context, dependency)
-            runBlocking {
-                val resolver = Resolver()
-                resolver.buildGraph(root)
-                resolver.downloadDependencies(root)
-            }
+             val resolver = Resolver()
+            resolver.buildGraph(root)
+            resolver.downloadDependencies(root)
+
             root.distinctBfsSequence().forEach {
                 if (it is MavenDependencyNode && it.module.startsWith("skiko-awt")) {
                     val messages = it.messages.defaultFilterMessages()
@@ -206,7 +200,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `skiko-0_8_4_jar macOS platforms`() {
+    fun `skiko-0_8_4_jar macOS platforms`() = runTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -225,17 +219,15 @@ class DependencyFileTest {
                 "org.jetbrains.skiko", "skiko", "0.8.4"
             )
             val root = MavenDependencyNode(context, dependency)
-            runBlocking {
-                val resolver = Resolver()
-                resolver.buildGraph(root)
-                resolver.downloadDependencies(root)
-            }
+            val resolver = Resolver()
+            resolver.buildGraph(root)
+            resolver.downloadDependencies(root)
             root.verifyMessages()
         }
     }
 
     @Test
-    fun `compose-multiplatform iosSimulatorArm64`() {
+    fun `compose-multiplatform iosSimulatorArm64`() = runTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -270,17 +262,16 @@ class DependencyFileTest {
                 ),
                 context
             )
-            runBlocking {
-                val resolver = Resolver()
-                resolver.buildGraph(root)
-                resolver.downloadDependencies(root)
-            }
+            val resolver = Resolver()
+            resolver.buildGraph(root)
+            resolver.downloadDependencies(root)
+
             root.verifyMessages()
         }
     }
 
     @Test
-    fun `skiko-0_8_4_jar iosSimulatorArm64`() {
+    fun `skiko-0_8_4_jar iosSimulatorArm64`() = runTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -296,17 +287,15 @@ class DependencyFileTest {
                 "org.jetbrains.skiko", "skiko", "0.8.4"
             )
             val root = MavenDependencyNode(context, dependency)
-            runBlocking {
-                val resolver = Resolver()
-                resolver.buildGraph(root)
-                resolver.downloadDependencies(root)
-            }
+            val resolver = Resolver()
+            resolver.buildGraph(root)
+            resolver.downloadDependencies(root)
             root.verifyMessages()
         }
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
+    fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() = runTest {
         Context {
             platforms = setOf(ResolutionPlatform.MACOS_X64)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL.copy(url = "${REDIRECTOR_MAVEN_CENTRAL.url}/"))
@@ -320,16 +309,15 @@ class DependencyFileTest {
                 context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-datetime", "0.5.0"
             )
-            runBlocking {
-                dependency.resolveChildren(context, ResolutionLevel.NETWORK)
-            }
+            dependency.resolveChildren(context, ResolutionLevel.NETWORK)
+
             val errors = dependency.messages.filter { it.severity == Severity.ERROR }
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
         }
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_9_0 check metadata`() {
+    fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_9_0 check metadata`() = runTest {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
@@ -343,24 +331,23 @@ class DependencyFileTest {
                 context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.9.0"
             )
-            runBlocking {
-                dependency.resolveChildren(context, ResolutionLevel.NETWORK)
-            }
+            dependency.resolveChildren(context, ResolutionLevel.NETWORK)
+
             val errors = dependency.messages.filter { it.severity == Severity.ERROR }
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
             val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), "jar")
-            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(mavenLocalPath) })
+            assertTrue(dependencyFile.getPath()!!.startsWith(mavenLocalPath) )
 
-            val downloaded = runBlocking { dependencyFile.getPath()?.exists() == true }
-            val hasMatchingChecksum = runBlocking { dependencyFile.isDownloadedWithVerification(settings = context.settings) }
+            val downloaded = dependencyFile.getPath()?.exists() == true
+            val hasMatchingChecksum =  dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertTrue(downloaded, "File must be downloaded as it was created above")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
         }
     }
 
     @Test
-    fun `artifact is re-downloaded if it has incorrect checksum`() {
+    fun `artifact is re-downloaded if it has incorrect checksum`() = runTest {
         Context {
             platforms = setOf(ResolutionPlatform.JVM)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
@@ -374,37 +361,37 @@ class DependencyFileTest {
                 context.createOrReuseDependency("org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.8.0"), null
             )
 
-            runBlocking { Resolver().buildGraph(dependencyNode) }
+            Resolver().buildGraph(dependencyNode)
 
             val errors = dependencyNode.dependency.messages.filter { it.severity == Severity.ERROR }
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
-            runBlocking { Resolver().downloadDependencies(dependencyNode) }
+            Resolver().downloadDependencies(dependencyNode)
 
             val dependencyFile = DependencyFile(dependencyNode.dependency, getNameWithoutExtension(dependencyNode.dependency), "jar")
-            val path = runBlocking { dependencyFile.getPath()!! }
+            val path = dependencyFile.getPath()!!
             assertTrue(path.startsWith(mavenLocalPath))
 
-            val downloaded = runBlocking { dependencyFile.getPath()?.exists() == true }
-            val hasMatchingChecksum = runBlocking { dependencyFile.isDownloadedWithVerification(settings = context.settings) }
+            val downloaded = dependencyFile.getPath()?.exists() == true
+            val hasMatchingChecksum = dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertTrue(downloaded, "File must have been downloaded")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was just downloaded")
 
             // Update the locally stored file so that its checksum is no longer correct
             path.appendText("Now artifact from local storage have incorrect checksum and should be re-downloaded")
-            val hasMatchingChecksumAfterCorruption = runBlocking { dependencyFile.isDownloadedWithVerification(settings = context.settings) }
+            val hasMatchingChecksumAfterCorruption =  dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertFalse (hasMatchingChecksumAfterCorruption, "File was corrupted, checksum check should have failed")
 
             // Check that artifact was successfully re-downloaded
-            runBlocking { Resolver().downloadDependencies(dependencyNode) }
+            Resolver().downloadDependencies(dependencyNode)
             assertTrue(dependencyNode.dependency.messages.none { it.severity == Severity.ERROR }, "There must be no errors: ${dependencyNode.dependency.messages}")
-            val hasMatchingChecksumAfterReDownloading = runBlocking { dependencyFile.isDownloadedWithVerification(settings = context.settings) }
+            val hasMatchingChecksumAfterReDownloading = dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertTrue(hasMatchingChecksumAfterReDownloading, "File must have been re-downloaded and should have valid checksum")
         }
     }
 
     @Test
-    fun `obsolete diagnostic errors from LOCAL run are suppressed after artifact is re-downloaded`() {
+    fun `obsolete diagnostic errors from LOCAL run are suppressed after artifact is re-downloaded`() = runTest {
         Context {
             platforms = setOf(ResolutionPlatform.JVM)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
@@ -418,25 +405,25 @@ class DependencyFileTest {
                 MavenDependency(context.settings, "org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.7.3")
             )
 
-            runBlocking { Resolver().buildGraph(dependencyNode) }
+            Resolver().buildGraph(dependencyNode)
 
             val errors = dependencyNode.dependency.messages.filter { it.severity == Severity.ERROR }
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
-            runBlocking { Resolver().downloadDependencies(dependencyNode) }
+            Resolver().downloadDependencies(dependencyNode)
 
             val dependencyFile = DependencyFile(dependencyNode.dependency, getNameWithoutExtension(dependencyNode.dependency), "module")
-            val path = runBlocking { dependencyFile.getPath()!! }
+            val path = dependencyFile.getPath()!!
             assertTrue(path.startsWith(mavenLocalPath))
 
-            val downloaded = runBlocking { dependencyFile.getPath()?.exists() == true }
-            val hasMatchingChecksum = runBlocking { dependencyFile.isDownloadedWithVerification(settings = context.settings) }
+            val downloaded = dependencyFile.getPath()?.exists() == true
+            val hasMatchingChecksum = dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertTrue(downloaded, "File must have be downloaded")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was just downloaded")
 
             // Update the locally stored file so that its checksum is no longer correct
             path.appendText("Now artifact from local storage have incorrect checksum and should be re-downloaded")
-            val hasMatchingChecksumAfterCorruption = runBlocking { dependencyFile.isDownloadedWithVerification(settings = context.settings) }
+            val hasMatchingChecksumAfterCorruption = dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertFalse (hasMatchingChecksumAfterCorruption, "File was corrupted, checksum check should have failed")
 
             val dependencyNodeDuplicate = MavenDependencyNode(context,
@@ -445,19 +432,19 @@ class DependencyFileTest {
             val dependencyFileDuplicate = DependencyFile(dependencyNodeDuplicate.dependency, getNameWithoutExtension(dependencyNodeDuplicate.dependency), "module")
 
             // Check that artifact was not successfully re-downloaded during LOCAL run
-            runBlocking { Resolver().buildGraph(dependencyNodeDuplicate, level = ResolutionLevel.LOCAL) }
+            Resolver().buildGraph(dependencyNodeDuplicate, level = ResolutionLevel.LOCAL)
             assertTrue(dependencyNodeDuplicate.dependency.messages.any{ it.severity >= Severity.WARNING }, "There must be an errors about incorrect module file: ${dependencyNodeDuplicate.dependency.messages}")
 
             // Check that artifact was successfully re-downloaded after NETWORK run and no errors are left
-            runBlocking { Resolver().buildGraph(dependencyNodeDuplicate, level = ResolutionLevel.NETWORK) }
+            Resolver().buildGraph(dependencyNodeDuplicate, level = ResolutionLevel.NETWORK)
             assertTrue(dependencyNodeDuplicate.dependency.messages.none { it.severity == Severity.ERROR }, "There must be no errors: ${dependencyNodeDuplicate.dependency.messages}")
-            val hasMatchingChecksumAfterReDownloading = runBlocking { dependencyFileDuplicate.isDownloadedWithVerification(settings = context.settings) }
+            val hasMatchingChecksumAfterReDownloading = dependencyFileDuplicate.isDownloadedWithVerification(settings = context.settings)
             assertTrue(hasMatchingChecksumAfterReDownloading, "File must have been re-downloaded and should have valid checksum")
         }
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() {
+    fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() = runTest {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
@@ -471,25 +458,23 @@ class DependencyFileTest {
                 context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-datetime", "0.4.0"
             )
-            runBlocking {
-                dependency.resolveChildren(context, ResolutionLevel.NETWORK)
-            }
+            dependency.resolveChildren(context, ResolutionLevel.NETWORK)
             val errors = dependency.messages.filter { it.severity == Severity.ERROR }
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
 
             val dependencyFile = DependencyFile(dependency, "${getNameWithoutExtension(dependency)}-all", "jar")
-            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(mavenLocalPath) })
+            assertTrue(dependencyFile.getPath()!!.startsWith(mavenLocalPath) )
 
-            val downloaded = runBlocking { dependencyFile.getPath()?.exists() == true }
-            val hasMatchingChecksum = runBlocking { dependencyFile.isDownloadedWithVerification(settings = context.settings) }
+            val downloaded = dependencyFile.getPath()?.exists() == true
+            val hasMatchingChecksum = dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertTrue(downloaded, "File must be downloaded as it was created above")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
         }
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3 check sourceSets`() {
+    fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3 check sourceSets`() = runTest {
         Context {
             platforms = setOf(
                 ResolutionPlatform.JVM,
@@ -510,9 +495,7 @@ class DependencyFileTest {
                 context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.7.3"
             )
-            runBlocking {
-                dependency.resolveChildren(context, ResolutionLevel.NETWORK)
-            }
+            dependency.resolveChildren(context, ResolutionLevel.NETWORK)
             val errors = dependency.messages.filter { it.severity == Severity.ERROR }
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
@@ -522,9 +505,7 @@ class DependencyFileTest {
                 "Unexpected list of resolved source sets"
             )
 
-            val sourceSetFiles = runBlocking {
-                dependency.files().associate { it.settings[KmpSourceSetName]!! to it.getPath()!! }
-            }
+            val sourceSetFiles = dependency.files().associate { it.settings[KmpSourceSetName]!! to it.getPath()!! }
 
             // check sourceSet files content validity
             sourceSetFiles.forEach {
@@ -643,7 +624,7 @@ class DependencyFileTest {
     )
 
     @Test
-    fun `org_jetbrains_compose_ui ui 1_5_10 kmp library resolution`() {
+    fun `org_jetbrains_compose_ui ui 1_5_10 kmp library resolution`() = runTest {
         Context {
             platforms = setOf(
                 ResolutionPlatform.JVM,
@@ -664,9 +645,8 @@ class DependencyFileTest {
                 context.settings,
                 "org.jetbrains.compose.ui", "ui", "1.5.10"
             )
-            runBlocking {
-                dependency.resolveChildren(context, ResolutionLevel.NETWORK)
-            }
+            dependency.resolveChildren(context, ResolutionLevel.NETWORK)
+
             val errors = dependency.messages.filter { it.severity == Severity.ERROR }
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 

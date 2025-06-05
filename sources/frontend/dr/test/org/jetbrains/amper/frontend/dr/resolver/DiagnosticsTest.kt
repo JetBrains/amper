@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.Level
@@ -37,7 +37,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         get() = super.testGoldenFilesRoot.resolve("diagnostics")
 
     @Test
-    fun `test sync diagnostics`() {
+    fun `test sync diagnostics`() = runTest {
         val aom = getTestProjectModel("multi-module-failed-resolve", testDataRoot)
 
         assertEquals(
@@ -46,80 +46,76 @@ class DiagnosticsTest : BaseModuleDrTest() {
             ""
         )
 
-        val sharedTestFragmentDeps = runBlocking {
-            doTest(
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
-                ),
-                module = "shared",
-                expected = """
-                    module:shared
-                    ├─── shared:common:org.jetbrains.compose.foundation:foundation:12.12.12
-                    │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
-                    ├─── shared:common:org.jetbrains.compose.material3:material3:12.12.12
-                    │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
-                    ├─── shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
-                    │         ╰─── org.jetbrains:annotations:13.0
-                    ├─── shared:common:org.jetbrains.compose.runtime:runtime:12.12.12
-                    │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
-                    ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
-                    │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
-                    │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
-                    │              ├─── org.junit:junit-bom:5.10.1
-                    │              ├─── org.opentest4j:opentest4j:1.3.0
-                    │              ├─── org.junit.platform:junit-platform-commons:1.10.1
-                    │              │    ├─── org.junit:junit-bom:5.10.1
-                    │              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
-                    │              ╰─── org.apiguardian:apiguardian-api:1.1.2
-                    ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12
-                    │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
-                    ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
-                    │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
-                    ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion} (*)
-                    ╰─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
-                         ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
-                    """.trimIndent(),
-                messagesCheck = { node ->
-                    if (!assertDependencyError(node, "org.jetbrains.compose.foundation", "foundation")
-                        && !assertDependencyError(node, "org.jetbrains.compose.material3", "material3")
-                        && !assertDependencyError(node, "org.jetbrains.compose.runtime", "runtime")
-                        && !assertDependencyError(node, "org.jetbrains.kotlinx", "kotlinx-serialization-core")
-                    ) {
-                        node.verifyOwnMessages()
-                    }
+        val sharedTestFragmentDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+            ),
+            module = "shared",
+            expected = """
+                module:shared
+                ├─── shared:common:org.jetbrains.compose.foundation:foundation:12.12.12
+                │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
+                ├─── shared:common:org.jetbrains.compose.material3:material3:12.12.12
+                │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
+                ├─── shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                │         ╰─── org.jetbrains:annotations:13.0
+                ├─── shared:common:org.jetbrains.compose.runtime:runtime:12.12.12
+                │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
+                │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
+                │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
+                │              ├─── org.junit:junit-bom:5.10.1
+                │              ├─── org.opentest4j:opentest4j:1.3.0
+                │              ├─── org.junit.platform:junit-platform-commons:1.10.1
+                │              │    ├─── org.junit:junit-bom:5.10.1
+                │              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
+                │              ╰─── org.apiguardian:apiguardian-api:1.1.2
+                ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12
+                │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
+                │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion} (*)
+                ╰─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
+                     ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                """.trimIndent(),
+            messagesCheck = { node ->
+                if (!assertDependencyError(node, "org.jetbrains.compose.foundation", "foundation")
+                    && !assertDependencyError(node, "org.jetbrains.compose.material3", "material3")
+                    && !assertDependencyError(node, "org.jetbrains.compose.runtime", "runtime")
+                    && !assertDependencyError(node, "org.jetbrains.kotlinx", "kotlinx-serialization-core")
+                ) {
+                    node.verifyOwnMessages()
                 }
-            )
-        }
+            }
+        )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "annotations-13.0.jar",
-                    "apiguardian-api-1.1.2.jar",
-                    "junit-jupiter-api-5.10.1.jar",
-                    "junit-platform-commons-1.10.1.jar",
-                    "kotlin-stdlib-${UsedVersions.kotlinVersion}.jar",
-                    "kotlin-test-${UsedVersions.kotlinVersion}.jar",
-                    "kotlin-test-junit5-${UsedVersions.kotlinVersion}.jar",
-                    "opentest4j-1.3.0.jar",
-                ),
-                sharedTestFragmentDeps
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "annotations-13.0.jar",
+                "apiguardian-api-1.1.2.jar",
+                "junit-jupiter-api-5.10.1.jar",
+                "junit-platform-commons-1.10.1.jar",
+                "kotlin-stdlib-${UsedVersions.kotlinVersion}.jar",
+                "kotlin-test-${UsedVersions.kotlinVersion}.jar",
+                "kotlin-test-junit5-${UsedVersions.kotlinVersion}.jar",
+                "opentest4j-1.3.0.jar",
+            ),
+            sharedTestFragmentDeps
+        )
 
         val diagnosticsReporter = NoOpCollectingProblemReporter()
         collectBuildProblems(sharedTestFragmentDeps, diagnosticsReporter, Level.Error)
@@ -155,7 +151,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test invalid dependency coordinates`() {
+    fun `test invalid dependency coordinates`() = runTest {
         val aom = getTestProjectModel("jvm-invalid-dependencies", testDataRoot)
 
         assertEquals(
@@ -164,42 +160,40 @@ class DiagnosticsTest : BaseModuleDrTest() {
             ""
         )
 
-        val commonFragmentDeps = runBlocking {
-            doTest(
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
-                ),
-                module = "jvm-invalid-dependencies",
-                fragment = "common",
-                expected = """
-                    Fragment 'jvm-invalid-dependencies.common' dependencies
-                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
-                    │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
-                    ├─── jvm-invalid-dependencies:common:com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
-                    │    ╰─── com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
-                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 :exported, unresolved
-                    │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 :exported, unresolved
-                    ├─── jvm-invalid-dependencies:common:com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
-                    │    ╰─── com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
-                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core, unresolved
-                    │    ╰─── com.fasterxml.jackson.core, unresolved
-                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
-                    │    ╰─── com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
-                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:
-                    2.17.2, unresolved
-                    │    ╰─── com.fasterxml.jackson.core:jackson-core:
-                    2.17.2, unresolved
-                    ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
-                    │    ╰─── com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
-                    ╰─── jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                         ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
-                              ╰─── org.jetbrains:annotations:13.0
-                """.trimIndent(),
-                verifyMessages = false
-            )
-        }
+        val commonFragmentDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+            ),
+            module = "jvm-invalid-dependencies",
+            fragment = "common",
+            expected = """
+                Fragment 'jvm-invalid-dependencies.common' dependencies
+                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
+                │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
+                ├─── jvm-invalid-dependencies:common:com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
+                │    ╰─── com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
+                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 :exported, unresolved
+                │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 :exported, unresolved
+                ├─── jvm-invalid-dependencies:common:com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
+                │    ╰─── com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
+                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core, unresolved
+                │    ╰─── com.fasterxml.jackson.core, unresolved
+                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
+                │    ╰─── com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
+                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:
+                2.17.2, unresolved
+                │    ╰─── com.fasterxml.jackson.core:jackson-core:
+                2.17.2, unresolved
+                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
+                │    ╰─── com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
+                ╰─── jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                          ╰─── org.jetbrains:annotations:13.0
+            """.trimIndent(),
+            verifyMessages = false
+        )
 
         val diagnosticsReporter = NoOpCollectingProblemReporter()
         collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Error)
@@ -268,33 +262,30 @@ class DiagnosticsTest : BaseModuleDrTest() {
 
     // AMPER-4270
     @Test
-    fun `overridden version for BOM version is not displayed for unspecified versions`() {
+    fun `overridden version for BOM version is not displayed for unspecified versions`() = runTest {
         val aom = getTestProjectModel("jvm-bom-support", testDataRoot)
-        val commonDeps = runBlocking {
-            doTest(
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
-                ),
-                module = "app",
-                fragment = "common",
-                expected = """
-                    Fragment 'app.common' dependencies
-                    ├─── app:common:com.fasterxml.jackson.core:jackson-annotations:unspecified
-                    │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3
-                    │         ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
-                    │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
-                    ├─── app:common:com.fasterxml.jackson:jackson-bom:2.18.3
-                    │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                    ╰─── app:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-                         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
-                              ╰─── org.jetbrains:annotations:13.0
-                """.trimIndent(),
-                verifyMessages = false,
-            )
-        }
-
+        val commonDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+            ),
+            module = "app",
+            fragment = "common",
+            expected = """
+                Fragment 'app.common' dependencies
+                ├─── app:common:com.fasterxml.jackson.core:jackson-annotations:unspecified
+                │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3
+                │         ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
+                │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
+                ├─── app:common:com.fasterxml.jackson:jackson-bom:2.18.3
+                │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
+                ╰─── app:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
+                          ╰─── org.jetbrains:annotations:13.0
+            """.trimIndent(),
+            verifyMessages = false,
+        )
 
         val diagnosticsReporter = NoOpCollectingProblemReporter()
         collectBuildProblems(commonDeps, diagnosticsReporter, Level.Warning)
@@ -315,21 +306,19 @@ class DiagnosticsTest : BaseModuleDrTest() {
      * taken from BOM, but later was overridden due to conflict resolution.
      */
     @Test
-    fun `overridden version for unspecified version resolved from BOM is detected`(testInfo: TestInfo) {
+    fun `overridden version for unspecified version resolved from BOM is detected`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("jvm-bom-support-overridden", testDataRoot)
-        val commonDeps = runBlocking {
-            doTestByFile(
-                testInfo = testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
-                ),
-                module = "app",
-                fragment = "common",
-                verifyMessages = false,
-            )
-        }
+        val commonDeps = doTestByFile(
+            testInfo = testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+            ),
+            module = "app",
+            fragment = "common",
+            verifyMessages = false,
+        )
 
         val diagnosticsReporter = NoOpCollectingProblemReporter()
         collectBuildProblems(commonDeps, diagnosticsReporter, Level.Warning)
@@ -359,7 +348,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `classifiers are reported`() {
+    fun `classifiers are reported`() = runTest {
         val aom = getTestProjectModel("classifiers", testDataRoot)
 
         assertEquals(
@@ -368,30 +357,28 @@ class DiagnosticsTest : BaseModuleDrTest() {
             ""
         )
 
-        val commonFragmentDeps = runBlocking {
-            doTest(
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
-                ),
-                module = "classifiers",
-                fragment = "common",
-                expected = """
-                    Fragment 'classifiers.common' dependencies
-                    ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2
-                    │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2
-                    │         ╰─── com.fasterxml.jackson:jackson-bom:2.17.2
-                    ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
-                    ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
-                    ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
-                    ╰─── classifiers:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                         ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
-                              ╰─── org.jetbrains:annotations:13.0
-                """.trimIndent(),
-                verifyMessages = false
-            )
-        }
+        val commonFragmentDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+            ),
+            module = "classifiers",
+            fragment = "common",
+            expected = """
+                Fragment 'classifiers.common' dependencies
+                ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2
+                │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2
+                │         ╰─── com.fasterxml.jackson:jackson-bom:2.17.2
+                ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
+                ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
+                ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
+                ╰─── classifiers:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                          ╰─── org.jetbrains:annotations:13.0
+            """.trimIndent(),
+            verifyMessages = false
+        )
 
         val diagnosticsReporter = NoOpCollectingProblemReporter()
         collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Warning)

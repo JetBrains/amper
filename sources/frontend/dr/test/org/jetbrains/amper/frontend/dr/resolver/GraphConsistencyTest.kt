@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
@@ -21,7 +21,7 @@ class GraphConsistencyTest {
     private val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
 
     @Test
-    fun `check parents in a dependencies graph - ide`() {
+    fun `check parents in a dependencies graph - ide`() = runTest {
         val aom = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
         checkParentsInDependenciesGraph(
             ResolutionInput(
@@ -33,22 +33,22 @@ class GraphConsistencyTest {
     }
 
     @Test
-    fun `check parents in a dependencies graph - classpath`() = checkParentsInDependenciesGraph(
-        ResolutionInput(
-            DependenciesFlowType.ClassPathType(ResolutionScope.RUNTIME, setOf(ResolutionPlatform.JVM), isTest = false),
-            ResolutionDepth.GRAPH_FULL,
-            fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+    fun `check parents in a dependencies graph - classpath`() = runTest {
+        checkParentsInDependenciesGraph(
+            ResolutionInput(
+                DependenciesFlowType.ClassPathType(ResolutionScope.RUNTIME, setOf(ResolutionPlatform.JVM), isTest = false),
+                ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+            )
         )
-    )
+    }
 
-    private fun checkParentsInDependenciesGraph(
+    private suspend fun checkParentsInDependenciesGraph(
         resolutionInput: ResolutionInput,
         aom: Model = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
     ) {
-        val graph = runBlocking {
-            with(moduleDependenciesResolver) {
-                aom.modules.resolveDependencies(resolutionInput)
-            }
+        val graph = with(moduleDependenciesResolver) {
+            aom.modules.resolveDependencies(resolutionInput)
         }
 
         graph.distinctBfsSequence().forEach {

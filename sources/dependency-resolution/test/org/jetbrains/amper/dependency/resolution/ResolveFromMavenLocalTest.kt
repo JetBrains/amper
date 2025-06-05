@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.metadata.xml.SnapshotVersion
@@ -68,7 +68,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         systemProperties: SystemProperties,
         environmentVariables: EnvironmentVariables,
         testInfo: TestInfo,
-    ) {
+    ) = runTest {
         clearLocalM2MachineOverrides(systemProperties, environmentVariables)
 
         val testCacheRoot = uniqueCacheRoot()
@@ -108,7 +108,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         systemProperties: SystemProperties,
         environmentVariables: EnvironmentVariables,
         testInfo: TestInfo,
-    ) {
+    ) = runTest {
         clearLocalM2MachineOverrides(systemProperties, environmentVariables)
 
         val testCacheRoot = uniqueCacheRoot()
@@ -160,7 +160,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         systemProperties: SystemProperties,
         environmentVariables: EnvironmentVariables,
         testInfo: TestInfo,
-    ) {
+    ) = runTest {
         clearLocalM2MachineOverrides(systemProperties, environmentVariables)
 
         val testCacheRoot = uniqueCacheRoot()
@@ -215,7 +215,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         systemProperties: SystemProperties,
         environmentVariables: EnvironmentVariables,
         testInfo: TestInfo,
-    ) {
+    ) = runTest {
         clearLocalM2MachineOverrides(systemProperties, environmentVariables)
 
         val testCacheRoot = uniqueCacheRoot()
@@ -301,7 +301,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         }
     }
 
-    private fun initEtalonMavenLocalStorage(cacheRoot: Path): LocalRepository {
+    private suspend fun initEtalonMavenLocalStorage(cacheRoot: Path): LocalRepository {
         // Installing maven local repository at the custom location
         cacheRoot.createDirectories()
 
@@ -311,7 +311,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         return mavenLocal
     }
 
-    private fun initEtalonLocalStorage(localStoragePath: Path, localStorage: LocalRepository) {
+    private suspend fun initEtalonLocalStorage(localStoragePath: Path, localStorage: LocalRepository) {
         val atomicfuCoordinates = "org.jetbrains.kotlinx:atomicfu-jvm:0.23.2"
 
         // Initialize resolution context
@@ -323,20 +323,18 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
 
         val root = DependencyNodeHolder("root", listOf(atomicfuCoordinates.toMavenNode(context)), context)
 
-        runBlocking {
-            doTest(
-                root,
-                expected = """
-                root
-                ╰─── org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
-                """.trimIndent()
-            )
+        doTest(
+            root,
+            expected = """
+            root
+            ╰─── org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
+            """.trimIndent()
+        )
 
-            downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
-        }
+        downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
     }
 
-    private fun checkLocalRepositoryUsage(
+    private suspend fun checkLocalRepositoryUsage(
         testInfo: TestInfo,
         mavenCoordinates: MavenCoordinates,
         testCacheRoot: Path,
@@ -345,7 +343,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         filesThatMustBeDownloaded: List<String> = emptyList(),
         repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         updateLocalRepository: (LocalRepository) -> Unit = {},
-        initLocalRepository: (Path) -> LocalRepository = { cacheRoot -> initEtalonMavenLocalStorage(cacheRoot) }
+        initLocalRepository: suspend (Path) -> LocalRepository = { cacheRoot -> initEtalonMavenLocalStorage(cacheRoot) }
     ): DependencyNode {
         val urlPrefix =
             "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2/${mavenCoordinates.urlFolderPath}"
@@ -378,13 +376,11 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
             "Local repository should not contain artifacts resolved from mavenLocal"
         )
 
-        runBlocking {
-            doTestByFile(
-                testInfo,
-                root,
-                verifyMessages = verifyMessages
-            )
-        }
+        doTestByFile(
+            testInfo,
+            root,
+            verifyMessages = verifyMessages
+        )
 
         if (localExternalRepository is MavenLocalRepository && repositories.contains(MavenLocal)) {
             // Artifact resolved from mavenLocal is not copied to DR local cache
@@ -405,9 +401,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
             )
         }
 
-        runBlocking {
-            downloadAndAssertFiles(testInfo, root)
-        }
+        downloadAndAssertFiles(testInfo, root)
 
         val notDownloaded =
             filesThatMustBeDownloaded.filter { fileName -> httpClient.processedUrls.none { it.path.toString().endsWith(fileName) } }

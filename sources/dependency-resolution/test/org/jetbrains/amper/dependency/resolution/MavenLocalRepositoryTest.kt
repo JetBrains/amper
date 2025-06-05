@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
@@ -34,9 +34,9 @@ class MavenLocalRepositoryTest {
     }
 
     @Test
-    fun `guess path`() {
+    fun `guess path`() = runTest {
         val node = kotlinTest()
-        val path = runBlocking { mavenLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
+        val path = mavenLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar")
         assertEquals(
             "org/jetbrains/kotlin/kotlin-test/1.9.10/kotlin-test-1.9.10.jar",
             path.relativeTo(mavenRepository).toString().replace('\\', '/')

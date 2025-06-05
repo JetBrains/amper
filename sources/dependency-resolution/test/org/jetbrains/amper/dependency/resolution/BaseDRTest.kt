@@ -50,7 +50,7 @@ abstract class BaseDRTest {
         return root
     }
 
-    protected fun doTestByFile(
+    protected suspend fun doTestByFile(
         testInfo: TestInfo,
         root: DependencyNodeHolder,
         verifyMessages: Boolean = true,
@@ -61,18 +61,16 @@ abstract class BaseDRTest {
         return withActualDump(goldenFile) {
             if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
             val expected = goldenFile.readText().replace("\r\n", "\n").trim()
-            runBlocking {
-                doTest(
-                    root,
-                    verifyMessages,
-                    expected,
-                    filterMessages,
-                )
-            }
+            doTest(
+                root,
+                verifyMessages,
+                expected,
+                filterMessages,
+            )
         }
     }
 
-    private fun doTestImpl(
+    private suspend fun doTestImpl(
         testInfo: TestInfo,
         dependency: List<String> = listOf(testInfo.nameToDependency()),
         scope: ResolutionScope = ResolutionScope.COMPILE,
@@ -87,12 +85,10 @@ abstract class BaseDRTest {
         context(scope, platform, repositories, cacheBuilder, spanBuilder)
             .use { context ->
                 val root = dependency.toRootNode(context)
-                runBlocking {
-                    doTest(root, verifyMessages, expected, filterMessages)
-                }
+                doTest(root, verifyMessages, expected, filterMessages)
             }
 
-    protected fun doTest(
+    protected suspend fun doTest(
         testInfo: TestInfo,
         dependency: String = testInfo.nameToDependency(),
         scope: ResolutionScope = ResolutionScope.COMPILE,
@@ -116,7 +112,7 @@ abstract class BaseDRTest {
         spanBuilder
     )
 
-    protected fun doTestByFile(
+    protected suspend fun doTestByFile(
         testInfo: TestInfo,
         dependency: List<String> = listOf(testInfo.nameToDependency()),
         scope: ResolutionScope = ResolutionScope.COMPILE,
@@ -146,7 +142,7 @@ abstract class BaseDRTest {
         }
     }
 
-    private fun <T> withActualDump(expectedResultPath: Path? = null, block: () -> T): T {
+    private inline fun <T> withActualDump(expectedResultPath: Path? = null, block: () -> T): T {
         return try {
             block()
         } catch (e: AssertionFailedError) {
@@ -164,7 +160,7 @@ abstract class BaseDRTest {
         }
     }
 
-    protected fun doTest(
+    protected suspend fun doTest(
         testInfo: TestInfo,
         dependency: List<String>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
@@ -272,7 +268,7 @@ abstract class BaseDRTest {
             }
     }
 
-    protected fun assertFiles(
+    protected suspend fun assertFiles(
         testInfo: TestInfo,
         root: DependencyNode,
         withSources: Boolean = false,

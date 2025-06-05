@@ -5,6 +5,8 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
@@ -31,10 +33,14 @@ import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseModuleDrTest {
     protected open val testGoldenFilesRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/goldenFiles")
     protected val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
+
+    val testTimeoutInMillis: Duration = 5.minutes
 
     private val defaultMessagesCheck: (DependencyNode) -> Unit = { node ->
         val messages = node.messages.defaultFilterMessages()
@@ -104,6 +110,22 @@ abstract class BaseModuleDrTest {
 
     protected fun assertEquals(@Language("text") expected: String, root: DependencyNode, forMavenNode: MavenCoordinates? = null) =
         assertEqualsWithDiff(expected.trimEnd().lines(), root.prettyPrint(forMavenNode).trimEnd().lines())
+
+    protected suspend fun downloadAndAssertFiles(
+        testInfo: TestInfo,
+        root: DependencyNode,
+        withSources: Boolean = false,
+        checkAutoAddedDocumentation: Boolean = true
+    ) {
+        Resolver().downloadDependencies(root, withSources)
+        assertFiles(
+            testInfo,
+            root,
+            withSources,
+            checkExistence = true,
+            checkAutoAddedDocumentation = checkAutoAddedDocumentation
+        )
+    }
 
     protected suspend fun downloadAndAssertFiles(
         files: List<String>,
@@ -236,4 +258,7 @@ abstract class BaseModuleDrTest {
             it.value.replace(version, "#$versionVariableName")
         }
     }
+
+    protected fun runDrTest(testBody: suspend TestScope.() -> Unit) =
+        runTest(timeout = testTimeoutInMillis, testBody = testBody)
 }

@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
@@ -25,9 +25,9 @@ import kotlin.test.assertNotNull
  *
  * Known sources of differences between Amper and Gradle resolution logic:
  *
- * 1. Gradle includes dependency on 'org.jetbrains.compose.components:components-resources' unconditionally,
- *    while Amper adds this dependency in case module does have 'compose' resources only.
- * 2. Amper resolves runtime version of a library on IDE sync.
+ * 1. Gradle includes a dependency on 'org.jetbrains.compose.components:components-resources' unconditionally,
+ *    while Amper adds this dependency in case the module does have 'compose' resources only.
+ * 2. Amper resolves a runtime version of a library on IDE sync.
  *    This might cause a difference with the graph produced by Gradle.
  *    It will be fixed in the nearest future (as soon as Amper IDE plugin started calling
  *    CLI for running application instead of reusing module classpath from the Workspace model)
@@ -36,7 +36,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     override val testGoldenFilesRoot: Path = super.testGoldenFilesRoot / "moduleDependenciesGraphMultiplatform"
 
     @Test
-    fun `test sync empty jvm module`() {
+    fun `test sync empty jvm module`() = runDrTest {
         val aom = getTestProjectModel("jvm-empty", testDataRoot)
 
         assertEquals(
@@ -46,15 +46,14 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
         )
 
 
-        val jvmTestFragmentDeps = runBlocking {
-            doTest(
-                aom,
-                resolutionInput = ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "jvm-empty",
-                expected = """
+        val jvmTestFragmentDeps = doTest(
+            aom,
+            resolutionInput = ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "jvm-empty",
+            expected = """
                 module:jvm-empty
                 ├─── jvm-empty:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
@@ -79,183 +78,163 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 ╰─── jvm-empty:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
                      ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion} (*)
                 """.trimIndent()
-            )
-        }
+        )
 
-        runBlocking {
-            downloadAndAssertFiles(
-                listOf(
-                    "annotations-13.0.jar",
-                    "apiguardian-api-1.1.2.jar",
-                    "junit-jupiter-api-5.10.1.jar",
-                    "junit-platform-commons-1.10.1.jar",
-                    "kotlin-stdlib-${UsedVersions.kotlinVersion}.jar",
-                    "kotlin-test-${UsedVersions.kotlinVersion}.jar",
-                    "kotlin-test-junit5-${UsedVersions.kotlinVersion}.jar",
-                    "opentest4j-1.3.0.jar",
-                ),
-                jvmTestFragmentDeps
-            )
-        }
+        downloadAndAssertFiles(
+            listOf(
+                "annotations-13.0.jar",
+                "apiguardian-api-1.1.2.jar",
+                "junit-jupiter-api-5.10.1.jar",
+                "junit-platform-commons-1.10.1.jar",
+                "kotlin-stdlib-${UsedVersions.kotlinVersion}.jar",
+                "kotlin-test-${UsedVersions.kotlinVersion}.jar",
+                "kotlin-test-junit5-${UsedVersions.kotlinVersion}.jar",
+                "opentest4j-1.3.0.jar",
+            ),
+            jvmTestFragmentDeps
+        )
     }
 
     @Test
-    fun `test shared@ios dependencies graph`(testInfo: TestInfo) {
+    fun `test shared@ios dependencies graph`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
-        val sharedIosFragmentDeps = runBlocking {
-            doTestByFile(
-                testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "shared",
-                fragment = "ios",
-            )
-        }
+        val sharedIosFragmentDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "shared",
+            fragment = "ios",
+        )
         assertFiles(testInfo, sharedIosFragmentDeps)
     }
 
     @Test
-    fun `test shared@iosX64 dependencies graph`(testInfo: TestInfo) {
+    fun `test shared@iosX64 dependencies graph`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
-        val iosAppIosX64FragmentDeps = runBlocking {
-            doTestByFile(
-                testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "shared",
-                fragment = "iosX64",
-            )
-        }
+        val iosAppIosX64FragmentDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "shared",
+            fragment = "iosX64",
+        )
 
         assertFiles(testInfo, iosAppIosX64FragmentDeps)
     }
 
     @Test
-    fun `test shared@iosX64Test dependencies graph`(testInfo: TestInfo) {
+    fun `test shared@iosX64Test dependencies graph`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
-        val iosAppIosX64FragmentDeps = runBlocking {
-            doTestByFile(
-                testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "shared",
-                fragment = "iosX64Test",
-            )
-        }
+        val iosAppIosX64FragmentDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "shared",
+            fragment = "iosX64Test",
+        )
 
         assertFiles(testInfo, iosAppIosX64FragmentDeps)
     }
 
     /**
-     * Since test fragment from one module can't reference test fragment of another module,
-     * exported test dependency 'tinylog-api-kotlin' of shared module is not added to the fragment ios-app@iosX64Test.
+     * Since test fragment from one module can't reference the test fragment of another module,
+     * exported test dependency 'tinylog-api-kotlin' of the shared module is not added to the fragment ios-app@iosX64Test.
      */
     @Test
-    fun `test ios-app@iosX64Test dependencies graph`(testInfo: TestInfo) {
+    fun `test ios-app@iosX64Test dependencies graph`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
-        val iosAppIosX64FragmentDeps = runBlocking {
-            doTestByFile(
-                testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "ios-app",
-                fragment = "iosX64Test",
-            )
-        }
+        val iosAppIosX64FragmentDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "ios-app",
+            fragment = "iosX64Test",
+        )
 
         assertFiles(testInfo, iosAppIosX64FragmentDeps)
     }
 
     @Test
-    fun `test ios-app@ios dependencies graph`(testInfo: TestInfo) {
+    fun `test ios-app@ios dependencies graph`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
-        val iosAppIosFragmentDeps = runBlocking {
-            doTestByFile(
-                testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "ios-app",
-                fragment = "ios",
-            )
-        }
+        val iosAppIosFragmentDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "ios-app",
+            fragment = "ios",
+        )
         assertFiles(testInfo, iosAppIosFragmentDeps)
     }
 
     @Test
-    fun `test ios-app@iosX64 dependencies graph`(testInfo: TestInfo) {
+    fun `test ios-app@iosX64 dependencies graph`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
-        val iosAppIosX64FragmentDeps = runBlocking {
-            doTestByFile(
-                testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "ios-app",
-                fragment = "iosX64",
-            )
-        }
-
+        val iosAppIosX64FragmentDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "ios-app",
+            fragment = "iosX64",
+        )
         assertFiles(testInfo, iosAppIosX64FragmentDeps)
     }
 
-    // todo (AB) : 'anrdoid-app.android' differs from what Gradle produce (versions).
+    // todo (AB) : 'android-app.android' differs from what Gradle produce (versions).
     // todo (AB) : It seems it is caused by resolving RUNTIME version of library instead of COMPILE one being resolved by IdeSync.
     @Test
-    fun `test android-app@android dependencies graph`(testInfo: TestInfo) {
+    fun `test android-app@android dependencies graph`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
-        val androidAppAndroidFragmentDeps = runBlocking {
-            doTestByFile(
-                testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom),
-                    ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "android-app",
-                fragment = "android",
-            )
-        }
+        val androidAppAndroidFragmentDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom),
+                ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "android-app",
+            fragment = "android",
+        )
         // todo (AB) : Some versions are incorrect (?) - check difference with Gradle
         assertFiles(testInfo, androidAppAndroidFragmentDeps)
     }
 
     @Test
-    fun `test shared@android dependencies graph`(testInfo: TestInfo) {
+    fun `test shared@android dependencies graph`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
-        val sharedAndroidFragmentDeps = runBlocking {
-            doTestByFile(
-                testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "shared",
-                fragment = "android",
-            )
-        }
+        val sharedAndroidFragmentDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "shared",
+            fragment = "android",
+        )
         // todo (AB) : Some versions are incorrect (?) - check difference with Gradle
         assertFiles(testInfo, sharedAndroidFragmentDeps)
     }
@@ -270,25 +249,23 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
      * variants for KMP libraries.
      */
     @Test
-    fun `test publication of shared KMP module for single platform`() {
+    fun `test publication of shared KMP module for single platform`() = runTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
-        val sharedModuleDeps = runBlocking {
-            doTest(
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.ClassPathType(
-                        ResolutionScope.COMPILE,
-                        setOf(ResolutionPlatform.JVM),
-                        isTest = false,
-                        includeNonExportedNative = false
-                    ),
-                    ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+        val sharedModuleDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.ClassPathType(
+                    ResolutionScope.COMPILE,
+                    setOf(ResolutionPlatform.JVM),
+                    isTest = false,
+                    includeNonExportedNative = false
                 ),
-                module = "shared"
-            ) as ModuleDependencyNodeWithModule
-        }
+                ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "shared"
+        ) as ModuleDependencyNodeWithModule
 
         sharedModuleDeps.assertMapping(
             mapOf(
@@ -389,40 +366,38 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
      * Version of a direct dependency is resolved from BOM if it was left unspecified.
      */
     @Test
-    fun `resolving version of a direct dependency from BOM`() {
+    fun `resolving version of a direct dependency from BOM`() = runTest {
         val aom = getTestProjectModel("jvm-bom-support", testDataRoot)
 
-        val jvmAppDeps = runBlocking {
-            doTest(
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.ClassPathType(
-                        ResolutionScope.COMPILE,
-                        setOf(ResolutionPlatform.JVM),
-                        false,
-                        false)
-                    ,
-                    ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+        val jvmAppDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.ClassPathType(
+                    ResolutionScope.COMPILE,
+                    setOf(ResolutionPlatform.JVM),
+                    isTest = false,
+                    includeNonExportedNative = false
                 ),
-                verifyMessages = false,
-                module = "app",
-                expected = """
-                    app:COMPILE:JVM
-                    ├─── app:common:com.fasterxml.jackson.core:jackson-annotations:unspecified
-                    │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3
-                    │         ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
-                    │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
-                    ├─── app:common:com.fasterxml.jackson:jackson-bom:2.18.3
-                    │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                    ├─── app:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
-                    │         ╰─── org.jetbrains:annotations:13.0
-                    ╰─── app:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-                         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
-                """.trimIndent(),
-            )
-        }
+                ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            verifyMessages = false,
+            module = "app",
+            expected = """
+                app:COMPILE:JVM
+                ├─── app:common:com.fasterxml.jackson.core:jackson-annotations:unspecified
+                │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3
+                │         ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
+                │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
+                ├─── app:common:com.fasterxml.jackson:jackson-bom:2.18.3
+                │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
+                ├─── app:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
+                │         ╰─── org.jetbrains:annotations:13.0
+                ╰─── app:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+            """.trimIndent(),
+        )
         assertFiles(
             listOf(
                 "annotations-13.0.jar",
@@ -437,27 +412,26 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
      * Version of an exported direct dependency is resolved from BOM if it was left unspecified.
      */
     @Test
-    fun `resolving version of an exported direct dependency from BOM`(testInfo: TestInfo) {
+    fun `resolving version of an exported direct dependency from BOM`(testInfo: TestInfo) = runTest {
         val aom = getTestProjectModel("jvm-bom-support-exported", testDataRoot)
 
-        val jvmAppDeps = runBlocking {
-            doTestByFile(
-                testInfo,
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.ClassPathType(
-                        ResolutionScope.COMPILE,
-                        setOf(ResolutionPlatform.JVM),
-                        false,
-                        false)
-                    ,
-                    ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+        val jvmAppDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.ClassPathType(
+                    ResolutionScope.COMPILE,
+                    setOf(ResolutionPlatform.JVM),
+                    isTest = false,
+                    includeNonExportedNative = false
                 ),
-                verifyMessages = false,
-                module = "app"
-            )
-        }
+                ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            verifyMessages = false,
+            module = "app"
+        )
+
         assertFiles(
             testInfo,
             jvmAppDeps
@@ -466,4 +440,5 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 
     private fun String.toMavenCoordinates() =
         split(":").let { MavenCoordinates(it[0], it[1], it[2]) }
+
 }

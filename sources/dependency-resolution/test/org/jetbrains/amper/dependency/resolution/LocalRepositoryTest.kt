@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
@@ -99,7 +99,7 @@ class LocalRepositoryTest : BaseDRTest() {
     }
 
     @Test
-    fun `check maven local storage is ignored if primary storage misses artifact, but its checksum doesn't match`() {
+    fun `check maven local storage is ignored if primary storage misses artifact, but its checksum doesn't match`() = runTest {
         checkLocalRepositoryUsage(
             filesThatShouldNotBeDownloaded = listOf(
                 "atomicfu-jvm-0.23.2.pom",
@@ -124,7 +124,7 @@ class LocalRepositoryTest : BaseDRTest() {
         )
     }
 
-    private fun initEtalonGradleLocalStorage(cacheRoot: Path): LocalRepository {
+    private suspend fun initEtalonGradleLocalStorage(cacheRoot: Path): LocalRepository {
         // Installing Gradle local repository at the custom location
         cacheRoot.createDirectories()
 
@@ -135,7 +135,7 @@ class LocalRepositoryTest : BaseDRTest() {
         return gradleLocal
     }
 
-    private fun initEtalonMavenLocalStorage(cacheRoot: Path): LocalRepository {
+    private suspend fun initEtalonMavenLocalStorage(cacheRoot: Path): LocalRepository {
         // Installing maven local repository at the custom location
         cacheRoot.createDirectories()
 
@@ -145,7 +145,7 @@ class LocalRepositoryTest : BaseDRTest() {
         return mavenLocal
     }
 
-    private fun initEtalonLocalStorage(localStoragePath: Path, localStorage: LocalRepository) {
+    private suspend fun initEtalonLocalStorage(localStoragePath: Path, localStorage: LocalRepository) {
         val atomicfuCoordinates = "org.jetbrains.kotlinx:atomicfu-jvm:0.23.2"
 
         // Initialize resolution context
@@ -157,25 +157,22 @@ class LocalRepositoryTest : BaseDRTest() {
 
         val root = DependencyNodeHolder("root", listOf(atomicfuCoordinates.toMavenNode(context)), context)
 
-        runBlocking {
-            doTest(
-                root,
-                expected = """
+        doTest(
+            root, expected = """
                 root
                 ╰─── org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
                 """.trimIndent()
-            )
+        )
 
-            downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
-        }
+        downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
     }
 
     private fun checkLocalRepositoryUsage(
         filesThatShouldNotBeDownloaded: List<String> = emptyList(),
         filesThatMustBeDownloaded: List<String> = emptyList(),
         updateLocalRepository: (LocalRepository) -> Unit = {},
-        initLocalRepository: (Path) -> LocalRepository = { cacheRoot -> initEtalonMavenLocalStorage(cacheRoot) }
-    ) {
+        initLocalRepository: suspend (Path) -> LocalRepository = { cacheRoot -> initEtalonMavenLocalStorage(cacheRoot) }
+    ) = runTest {
         val atomicfuCoordinates = "org.jetbrains.kotlinx:atomicfu-jvm:0.23.2"
         val urlPrefix =
             "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2/org/jetbrains/kotlinx/atomicfu-jvm/0.23.2"
@@ -204,15 +201,13 @@ class LocalRepositoryTest : BaseDRTest() {
             "Local repository should not contain atomicfu-jvm"
         )
 
-        runBlocking {
-            doTest(
-                root,
-                expected = """
+        doTest(
+            root,
+            expected = """
                     root
                     ╰─── org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
                 """.trimIndent()
-            )
-        }
+        )
 
         assertTrue(
             (cache.localRepository as MavenLocalRepository).repository.resolve("org/jetbrains/kotlinx/atomicfu-jvm")
@@ -220,9 +215,7 @@ class LocalRepositoryTest : BaseDRTest() {
             "Local repository should not contain atomicfu-jvm"
         )
 
-        runBlocking {
-            downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
-        }
+        downloadAndAssertFiles(listOf("atomicfu-jvm-0.23.2.jar"), root)
 
         val notDownloaded =
             filesThatMustBeDownloaded.filterNot { URI.create("$urlPrefix/$it") in httpClient.processedUrls }
