@@ -12,37 +12,33 @@ import java.io.InputStreamReader
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
 import java.nio.file.Path
-import java.util.*
 import java.util.jar.JarEntry
-import java.util.jar.JarFile
 import java.util.jar.JarInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 
 internal suspend fun readJarEntry(jarPath: Path, entryPath: String) : String? =
-    withJarEntry(jarPath, entryPath) { jarFile, jarEntry ->
-        jarFile.getInputStream(jarEntry).use { inputStream ->
-            InputStreamReader(inputStream).readText()
+    withJarEntry(jarPath, entryPath) { jarInputStream ->
+        InputStreamReader(jarInputStream).use {
+            it.readText()
         }
     }
 
 internal suspend fun hasJarEntry(jarPath: Path, entryPath: String) : Boolean? =
-    withJarEntry(jarPath, entryPath) { _, _ -> true }
+    withJarEntry(jarPath, entryPath) { _ -> true }
 
-internal suspend fun <T> withJarEntry(jarPath: Path, entryPath: String, block: (JarFile, JarEntry) -> T) : T? =
+internal suspend fun <T> withJarEntry(jarPath: Path, entryPath: String, block: (JarInputStream) -> T) : T? =
     withContext(Dispatchers.IO) {
-        JarFile(jarPath.toFile()).use { jarFile ->
-            val source = JarInputStream(FileInputStream(jarPath.toFile()))
-            source.use {
-                var entry: JarEntry?
-                do {
-                    entry = source.nextJarEntry
-                } while (entry != null && entry.let { if (it.isDirectory) it.name.trimEnd('/') else it.name } != entryPath)
+        val jarInputStream = JarInputStream(FileInputStream(jarPath.toFile()))
+        jarInputStream.use {
+            var entry: JarEntry?
+            do {
+                entry = jarInputStream.nextJarEntry
+            } while (entry != null && entry.let { if (it.isDirectory) it.name.trimEnd('/') else it.name } != entryPath)
 
-                entry?.let {
-                    block(jarFile, it)
-                }
+            entry?.let {
+                block(jarInputStream)
             }
         }
     }
@@ -63,25 +59,21 @@ suspend fun copyJarEntryDirToJar(fileChannel: FileChannel, jarEntryDir: String, 
                 val buffer = ByteArray(4096)
 
                 val writtenPaths = mutableSetOf<String>()
-                JarFile(srcJar.toFile()).use { jarFile ->
-                    val entries = jarFile.entries()
-                    while (entries.hasMoreElements()) {
-                        val entry = entries.nextElement()
+                JarInputStream(FileInputStream(srcJar.toFile())).use { jarInputStream ->
+                    var entry: JarEntry? = jarInputStream.nextJarEntry
 
-                        if (!entry.name.startsWith("$jarEntryDir/")) {
-                            continue
-                        } else {
+                    while (entry != null) {
+                        if (entry.name.startsWith("$jarEntryDir/")) {
                             val newEntryName = entry.name.removePrefix("$jarEntryDir/")
-
-                            if (newEntryName.isBlank() || !writtenPaths.add(newEntryName))
-                                continue
-
-                            if (entry.isDirectory) {
-                                addDirectoryEntry(out, newEntryName)
-                            } else {
-                                copyJarEntry(jarFile, entry, newEntryName, out, buffer)
+                            if (!newEntryName.isBlank() && writtenPaths.add(newEntryName)) {
+                                if (entry.isDirectory) {
+                                    addDirectoryEntry(out, newEntryName)
+                                } else {
+                                    copyJarEntry(jarInputStream, entry, newEntryName, out, buffer)
+                                }
                             }
                         }
+                        entry = jarInputStream.nextJarEntry
                     }
                     out.finish()
                 }
@@ -91,32 +83,30 @@ suspend fun copyJarEntryDirToJar(fileChannel: FileChannel, jarEntryDir: String, 
 }
 
 private fun copyJarEntry(
-    jarFile: JarFile,
+    jarInputStream: JarInputStream,
     sourceEntry: ZipEntry,
     newEntryName: String,
     out: ZipOutputStream,
     buffer: ByteArray
 ) {
-    jarFile.getInputStream(sourceEntry).use { inputStream ->
-        val newEntry = JarEntry(newEntryName)
+    val newEntry = JarEntry(newEntryName)
 
-        if (sourceEntry.method == JarEntry.STORED) {
-            newEntry.method = ZipEntry.STORED
-            newEntry.size = sourceEntry.size
-            newEntry.crc = sourceEntry.crc
-        }
-        newEntry.time = System.currentTimeMillis()
-        newEntry.extra = sourceEntry.extra
-
-        out.putNextEntry(newEntry)
-
-        while (true) {
-            val read = inputStream.read(buffer)
-            if (read < 0) break
-            out.write(buffer, 0, read)
-        }
-        out.closeEntry()
+    if (sourceEntry.method == JarEntry.STORED) {
+        newEntry.method = ZipEntry.STORED
+        newEntry.size = sourceEntry.size
+        newEntry.crc = sourceEntry.crc
     }
+    newEntry.time = System.currentTimeMillis()
+    newEntry.extra = sourceEntry.extra
+
+    out.putNextEntry(newEntry)
+
+    while (true) {
+        val read = jarInputStream.read(buffer)
+        if (read < 0) break
+        out.write(buffer, 0, read)
+    }
+    out.closeEntry()
 }
 
 @Throws(IOException::class)
