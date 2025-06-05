@@ -27,20 +27,21 @@ open class AndroidBaseTest : TestBase() {
     private val androidTools = runBlocking { AndroidTools.getOrInstallForTests() }
 
     /**
-     * Sets up and executes a test environment for the project located in [projectSource],
-     * including assembling the app, optionally using [applicationId] for custom APK setup.
-     * The [buildApk] function is used to build the APK via the build tool used for the test.
+     * Executes instrumented tests for the Android project specified by [projectSource],
+     * optionally using [applicationId] for custom APK setups.
      *
-     * @param projectsDir in-source projects directory for [ProjectSource.Local] projects.
+     * @param androidAppModuleName android app module name inside the project;
+     *   if `null` then the root module is assumed to be the android module.
      */
-    private fun prepareExecution(
+    protected fun runInstrumentedTests(
         projectSource: ProjectSource,
-        projectsDir: Path,
         applicationId: String? = null,
-        buildApk: suspend (projectDir: Path) -> Path,
+        androidAppModuleName: String? = null,
     ) = runTest(timeout = 15.minutes) {
-        val copiedProjectDir = copyProjectToTempDir(projectSource, projectsDir)
-        val targetApkPath = buildApk(copiedProjectDir)
+        val androidTestProjectsPath = Dirs.amperTestProjectsRoot / "android"
+
+        val copiedProjectDir = copyProjectToTempDir(projectSource, androidTestProjectsPath)
+        val targetApkPath = buildApkWithAmper(copiedProjectDir, moduleName = androidAppModuleName ?: copiedProjectDir.name)
         val testAppApkPath = InstrumentedTestApp.assemble(applicationId, testReporter)
 
         // This dispatcher switch is not superstition. The test dispatcher skips delays by default.
@@ -87,25 +88,6 @@ open class AndroidBaseTest : TestBase() {
     private suspend fun adbShell(vararg command: String): String {
         val outputListener = TestReporterProcessOutputListener("adb shell", testReporter)
         return androidTools.adb("shell", *command, outputListener = outputListener).checkExitCodeIsZero().stdout
-    }
-
-    /**
-     * Executes instrumented tests for the Android project specified by [projectSource],
-     * optionally using [applicationId] for custom APK setups.
-     *
-     * @param androidAppModuleName android app module name inside the project;
-     *   if `null` then the root module is assumed to be the android module.
-     */
-    internal fun runInstrumentedTests(
-        projectSource: ProjectSource,
-        applicationId: String? = null,
-        androidAppModuleName: String? = null,
-    ) {
-        val androidTestProjectsPath = Dirs.amperTestProjectsRoot / "android"
-
-        prepareExecution(projectSource, androidTestProjectsPath, applicationId) { projectDir ->
-            buildApkWithAmper(projectDir, moduleName = androidAppModuleName ?: projectDir.name)
-        }
     }
 
     /**

@@ -23,42 +23,24 @@ import kotlin.io.path.name
 open class IOSBaseTest : TestBase() {
 
     /**
-     * Copies the project with the given [projectSource] to a temporary folder,
-     * runs the iOS application built with [buildIosApp] on an iOS simulator.
+     * Runs the simulator-based iOS tests for the project from [projectSource] using the given [bundleIdentifier].
      *
-     * @param projectsDir in-source projects directory for [ProjectSource.Local] projects.
+     * If [iosAppModuleName] is specified, the corresponding module is used as the iOS app to test, otherwise the root
+     * module is expected to be the iOS app.
      */
     @OptIn(ProcessLeak::class)
-    protected fun prepareExecution(
+    internal fun runIosAppTests(
         projectSource: ProjectSource,
-        projectsDir: Path,
         bundleIdentifier: String,
-        buildIosApp: suspend (projectDir: Path) -> Path,
+        iosAppModuleName: String? = null,
     ) = runBlocking {
-        val copiedProjectDir = copyProjectToTempDir(projectSource, projectsDir)
-        val appDir = buildIosApp(copiedProjectDir)
+        val examplesProjectsDir = Dirs.amperCheckoutRoot.resolve("examples")
+        val copiedProjectDir = copyProjectToTempDir(projectSource, examplesProjectsDir)
+        val appDir = buildIosAppWithAmper(projectRootDir = copiedProjectDir, iosAppModuleName)
         SimulatorManager.launchSimulator()
         val appFile = appDir.findAppFile()
         println("Running iOS app ${appFile.name} from $appDir")
         AppManager.installAndVerifyAppLaunch(appFile = appFile, appBundleId = bundleIdentifier)
-    }
-
-    /**
-     * Prepares and runs the iOS test for the Standalone-based project from [projectSource] using the given
-     * [bundleIdentifier].
-     *
-     * If [iosAppModuleName] is specified, the corresponding module is used as the iOS app to test,
-     * otherwise the root module is expected to be the iOS app.
-     */
-    internal fun testRunnerStandalone(projectSource: ProjectSource, bundleIdentifier: String, iosAppModuleName: String? = null) {
-        val examplesProjectsDir = Dirs.amperCheckoutRoot.resolve("examples")
-        prepareExecution(
-            projectSource = projectSource,
-            projectsDir = examplesProjectsDir,
-            bundleIdentifier = bundleIdentifier,
-        ) { projectDir ->
-            buildIosAppWithAmper(projectRootDir = projectDir, iosAppModuleName)
-        }
     }
 
     /**
