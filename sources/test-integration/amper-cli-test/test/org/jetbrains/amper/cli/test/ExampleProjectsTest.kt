@@ -29,15 +29,13 @@ import kotlin.test.assertTrue
 
 class ExampleProjectsTest: AmperCliTestBase() {
 
-    private val examplesDir = Dirs.amperCheckoutRoot.resolve("examples")
-
-    private fun exampleProject(name: String): Path = examplesDir.resolve(name)
+    private fun exampleProject(name: String): Path = Dirs.examplesRoot.resolve(name)
 
     @Test
     fun `all examples are covered`() {
         val methods = javaClass.declaredMethods.map { it.name.substringBefore("_") }.toSet()
 
-        val exampleProjects = examplesDir.listDirectoryEntries().filter { it.isDirectory() }
+        val exampleProjects = Dirs.examplesRoot.listDirectoryEntries().filter { it.isDirectory() }
         for (entry in exampleProjects) {
             assertContains(methods, entry.name, "Example '${entry.pathString}' is not covered by test '${javaClass.name}'. " +
                     "Please add a test method named '${entry.name}'")

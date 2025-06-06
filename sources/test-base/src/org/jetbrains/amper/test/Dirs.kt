@@ -36,6 +36,11 @@ object Dirs {
     val amperBuildOutputRoot = amperCheckoutRoot / "build"
 
     /**
+     * The `examples` directory in the Amper project, containing all example projects that we refer to from the docs.
+     */
+    val examplesRoot = amperCheckoutRoot / "examples"
+
+    /**
      * The directory containing all test projects for Amper integration tests.
      */
     val amperTestProjectsRoot = amperSourcesRoot / "test-integration/test-projects"
