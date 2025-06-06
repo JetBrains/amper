@@ -137,7 +137,8 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
             tasks.registerTask(
                 TransformAarExternalDependenciesTask(
                     CommonTaskType.TransformDependencies.getTaskName(module, Platform.ANDROID, isTest),
-                    executeOnChangedInputs
+                    executeOnChangedInputs,
+                    { it.runtimeClasspath }
                 ),
                 CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
             )
@@ -203,6 +204,9 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     taskName = runtimeClasspathTaskName,
                 ),
                 buildList {
+                    if (isTest) {
+                        add(CommonTaskType.TransformDependencies.getTaskName(module, platform, true))
+                    }
                     add(CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest))
                     if (isTest) {
                         add(AndroidTaskType.MockablePlatformJar.getTaskName(module, platform, false))

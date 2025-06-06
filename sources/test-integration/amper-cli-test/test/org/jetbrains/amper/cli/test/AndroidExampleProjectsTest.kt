@@ -192,6 +192,16 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
         result.assertStdoutContains("5 tests successful")
     }
 
+    @Test
+    fun `robolectric unit tests`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("android/robolectric"),
+            "test",
+            assertEmptyStdErr = false // Allow stderr output from Robolectric
+        )
+        result.assertStdoutContains("1 tests successful")
+    }
+
 
     @AfterTest
     fun tearDown() {

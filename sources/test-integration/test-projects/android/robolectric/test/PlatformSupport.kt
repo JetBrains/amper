@@ -1,0 +1,1 @@
+expect abstract class PlatformSupport()

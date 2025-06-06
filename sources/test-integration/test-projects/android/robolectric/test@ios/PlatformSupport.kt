@@ -1,0 +1,1 @@
+actual abstract class PlatformSupport

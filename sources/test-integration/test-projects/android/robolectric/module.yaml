@@ -1,0 +1,9 @@
+product:
+  type: lib
+  platforms: [ android, iosArm64, iosSimulatorArm64, iosX64 ]
+
+test-dependencies@android:
+  - org.robolectric:robolectric:4.13
+
+settings:
+  junit: junit-4

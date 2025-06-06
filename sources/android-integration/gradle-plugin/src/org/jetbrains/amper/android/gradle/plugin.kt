@@ -103,10 +103,6 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         project.repositories.mavenCentral()
         val module = project.gradle.projectPathToModule[project.path] ?: return
 
-        if (module.type != ProductType.ANDROID_APP) {
-            error("Unsupported module type: ${module.type}")
-        }
-
         project.plugins.apply("com.android.application")
 
         if ((module.buildDir / "google-services.json").exists()) {
@@ -275,9 +271,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         settings.gradle.beforeProject { project ->
             adjustXmlFactories()
             settings.gradle.projectPathToModule[project.path]?.let { module ->
-                if (module.type == ProductType.ANDROID_APP) {
-                    project.plugins.apply(AmperAndroidIntegrationProjectPlugin::class.java)
-                }
+                project.plugins.apply(AmperAndroidIntegrationProjectPlugin::class.java)
             }
         }
     }
