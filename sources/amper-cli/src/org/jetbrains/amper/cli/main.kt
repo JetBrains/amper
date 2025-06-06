@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parsers.CommandLineParser
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.commands.RootCommand
@@ -56,6 +57,8 @@ suspend fun main(args: Array<String>) {
                 }
                 rootCommand.mainWithTelemetry(args)
             }
+    } catch (e: ExitProcessButCloseTelemetrySpansException) {
+        exitProcess(e.exitCode)
     } catch (e: UserReadableError) {
         printUserError(e.message)
         exitProcess(e.exitCode)
@@ -68,17 +71,43 @@ suspend fun main(args: Array<String>) {
 /**
  * Parses command line arguments and runs this command.
  */
-// This implementation is inlined from CoreSuspendingCliktCommand.main
-// to isolate the parsing of CLI arguments for telemetry purposes (FTR, it's ~20ms).
+// This implementation is inlined from CoreSuspendingCliktCommand.main() and CommandLineParser.main()
+// to isolate the parsing of CLI arguments for telemetry purposes.
 private suspend fun SuspendingCliktCommand.mainWithTelemetry(args: Array<String>) {
     val command = this
-    CommandLineParser.main(command) {
-        val result = spanBuilder("Parse CLI arguments").use {
-            CommandLineParser.parse(command, args.asList())
+    val result = spanBuilder("Parse CLI arguments").use { span ->
+        CommandLineParser.parse(command, args.asList()).also { r ->
+            span.setListAttribute("errors", r.invocation.errors.map { it.toString() })
         }
-        CommandLineParser.run(result.invocation) { it.run() }
     }
+    spanBuilder("Run command")
+        .setAttribute("command", result.invocation.command.commandName)
+        .setListAttribute("subcommands", result.invocation.subcommandInvocations.map { it.command.commandName })
+        .use {
+            try {
+                CommandLineParser.run(result.invocation) { it.run() }
+            } catch (e: CliktError) {
+                command.echoFormattedHelp(e)
+
+                // We don't want to throw the exception from the "run command" span unconditionally because some errors
+                // are simply used as a short-circuiting mechanism (like to print the help or abort gracefully).
+                // If we threw when the exit code is 0, the telemetry span would be incorrectly marked as failed.
+                // It's ok to do nothing here, because nothing else happens after this function: we just complete all
+                // the spans and exit the process normally (thus with exit code 0).
+                if (e.statusCode != 0) {
+                    // We don't use the exitProcess() function like in the original CommandLineParser.main() function
+                    // because it bypasses any finally blocks, and thus prevents our telemetry spans from completing.
+                    throw ExitProcessButCloseTelemetrySpansException(e.statusCode)
+                }
+            }
+        }
 }
+
+/**
+ * An exception used to convey that we want to exit the current process but still close the telemetry spans properly.
+ * This is necessary because exitProcess() bypasses any finally block and thus prevents telemetry from completing.
+ */
+private class ExitProcessButCloseTelemetrySpansException(val exitCode: Int) : RuntimeException()
 
 private fun printUserError(message: String) {
     printRedToStderr("\nERROR: $message")
