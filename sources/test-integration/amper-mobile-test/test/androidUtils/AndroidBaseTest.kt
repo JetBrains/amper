@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.android.AndroidTools
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.jetbrains.amper.test.processes.checkExitCodeIsZero
@@ -38,9 +37,8 @@ open class AndroidBaseTest : TestBase() {
         applicationId: String? = null,
         androidAppModuleName: String? = null,
     ) = runTest(timeout = 15.minutes) {
-        val androidTestProjectsPath = Dirs.amperTestProjectsRoot / "android"
 
-        val copiedProjectDir = copyProjectToTempDir(projectSource, androidTestProjectsPath)
+        val copiedProjectDir = copyProjectToTempDir(projectSource)
         val targetApkPath = buildApkWithAmper(copiedProjectDir, moduleName = androidAppModuleName ?: copiedProjectDir.name)
         val testAppApkPath = InstrumentedTestApp.assemble(applicationId, testReporter)
 

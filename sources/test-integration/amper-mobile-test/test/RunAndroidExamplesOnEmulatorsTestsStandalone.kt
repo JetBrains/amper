@@ -4,22 +4,26 @@
 
 
 import androidUtils.AndroidBaseTest
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
+import kotlin.io.path.div
 
 class RunAndroidExamplesOnEmulatorsTestsStandalone : AndroidBaseTest() {
 
+    private val androidTestProjectsPath = Dirs.amperTestProjectsRoot / "android"
+
     @Test
     fun simple() = runInstrumentedTests(
-        projectSource = ProjectSource.Local("simple"),
+        projectSource = ProjectSource.Local(androidTestProjectsPath / "simple"),
     )
 
     @Test
     fun appcompat() = runInstrumentedTests(
-        projectSource = ProjectSource.Local("appcompat"),
+        projectSource = ProjectSource.Local(androidTestProjectsPath / "appcompat"),
     )
 
     @Test
     fun parcelize() = runInstrumentedTests(
-        projectSource = ProjectSource.Local("parcelize"),
+        projectSource = ProjectSource.Local(androidTestProjectsPath / "parcelize"),
     )
 }

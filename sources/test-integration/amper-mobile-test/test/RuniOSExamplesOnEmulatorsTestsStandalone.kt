@@ -4,19 +4,21 @@
 
 
 import iosUtils.IOSBaseTest
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
+import kotlin.io.path.div
 
 class RuniOSExamplesOnEmulatorsTestsStandalone : IOSBaseTest() {
 
     @Test
     fun composeiOSAppStandalone() = runIosAppTests(
-        projectSource = ProjectSource.Local("compose-ios"),
+        projectSource = ProjectSource.Local(Dirs.examplesRoot / "compose-ios"),
         bundleIdentifier = "compose-ios",
     )
 
     @Test
     fun composeiOSAppMultiplatform() = runIosAppTests(
-        projectSource = ProjectSource.Local("compose-multiplatform"),
+        projectSource = ProjectSource.Local(Dirs.examplesRoot / "compose-multiplatform"),
         bundleIdentifier = "ios-app",
         iosAppModuleName = "ios-app",
     )

@@ -34,7 +34,7 @@ open class IOSBaseTest : TestBase() {
         bundleIdentifier: String,
         iosAppModuleName: String? = null,
     ) = runBlocking {
-        val copiedProjectDir = copyProjectToTempDir(projectSource, Dirs.examplesRoot)
+        val copiedProjectDir = copyProjectToTempDir(projectSource)
         val appDir = buildIosAppWithAmper(projectRootDir = copiedProjectDir, iosAppModuleName)
         SimulatorManager.launchSimulator()
         val appFile = appDir.findAppFile()

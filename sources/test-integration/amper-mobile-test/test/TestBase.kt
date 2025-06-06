@@ -14,6 +14,8 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.name
 
 /**
  * Provides common utility functions.
@@ -28,13 +30,11 @@ open class TestBase : AmperCliWithWrapperTestBase() {
      * Copies the project from the specified [projectSource] to a temporary projects directory.
      * Setup Amper in the copied project directory.
      *
-     * @param localProjectsDirectory in-source projects directory for [ProjectSource.Local] projects.
-     *
      * @return the path to root directory of the copied project. Its name is determined by [projectSource].
      */
-    suspend fun copyProjectToTempDir(projectSource: ProjectSource, localProjectsDirectory: Path): Path {
+    suspend fun copyProjectToTempDir(projectSource: ProjectSource): Path {
         val destinationProjectPath = when(projectSource) {
-            is ProjectSource.Local -> copyToTempDir(projectSource, localProjectsDirectory)
+            is ProjectSource.Local -> copyToTempDir(projectSource)
             is ProjectSource.RemoteRepository -> cloneToTempDir(projectSource)
         }
 
@@ -42,14 +42,11 @@ open class TestBase : AmperCliWithWrapperTestBase() {
         return destinationProjectPath
     }
 
-    private fun copyToTempDir(projectSource: ProjectSource.Local, localProjectsDirectory: Path): Path {
-        val sourceDir = localProjectsDirectory.resolve(projectSource.name)
-        check(sourceDir.exists()) { "Project ${projectSource.name} is not found in $localProjectsDirectory" }
-
+    private fun copyToTempDir(projectSource: ProjectSource.Local): Path {
         val destinationProjectPath = (tempRoot / projectSource.name).normalize()
 
-        println("Copying project from $sourceDir to $destinationProjectPath")
-        sourceDir.copyToRecursively(target = destinationProjectPath, followLinks = false, overwrite = true)
+        println("Copying project from ${projectSource.path} to $destinationProjectPath")
+        projectSource.path.copyToRecursively(target = destinationProjectPath, followLinks = false, overwrite = true)
         return destinationProjectPath
     }
 
@@ -110,10 +107,17 @@ open class TestBase : AmperCliWithWrapperTestBase() {
          */
         data class Local(
             /**
-             * Local project directory name. The directory is located in a conventional place.
+             * The local directory containing the project.
              */
-            val name: String,
-        ) : ProjectSource
+            val path: Path,
+        ) : ProjectSource {
+            init {
+                check(path.exists()) { "Project path $path does not exist" }
+                check(path.isDirectory()) { "Project path $path is not a directory" }
+            }
+
+            val name: String = path.name
+        }
 
         /**
          * The project needs to be cloned for the remote repository.
