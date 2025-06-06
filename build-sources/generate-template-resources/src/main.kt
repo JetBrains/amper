@@ -4,18 +4,19 @@
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToStream
 import org.jetbrains.amper.templates.json.TemplateDescriptor
 import org.jetbrains.amper.templates.json.TemplateResource
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
-import kotlin.io.path.outputStream
+import kotlin.io.path.readText
 import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
+import kotlin.io.path.writeText
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main(args: Array<String>) {
@@ -26,10 +27,10 @@ fun main(args: Array<String>) {
 
     val templateDirs = moduleDir.resolve("resources/templates").listDirectoryEntries()
     val descriptors = templateDirs.map { createTemplateDescriptor(it) }
+
     taskOutputDir.resolve("templates/templates.json")
         .createParentDirectories()
-        .outputStream()
-        .use { outStream -> Json.encodeToStream(descriptors, outStream) }
+        .writeTextIfChanged(Json.encodeToString(descriptors)) // important for caching of dependent modules
 }
 
 private fun createTemplateDescriptor(templateDir: Path): TemplateDescriptor {
@@ -43,3 +44,11 @@ private fun createTemplateDescriptor(templateDir: Path): TemplateDescriptor {
 
 private fun Path.listDescendantRelativePathStrings(): List<String> =
     walk().map { it.relativeTo(this).joinToString("/") }.toList()
+
+private fun Path.writeTextIfChanged(content: String) {
+    if (exists()) {
+        val existingContent = readText()
+        if (content == existingContent) return
+    }
+    writeText(content)
+}
