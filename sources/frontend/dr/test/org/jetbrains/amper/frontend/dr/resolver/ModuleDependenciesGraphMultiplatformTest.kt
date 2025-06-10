@@ -288,20 +288,18 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
      * for platform-specific variants.
      */
     @Test
-    fun `test finding KMP library for platform-specific variant`() {
+    fun `test finding KMP library for platform-specific variant`() = runTest {
         val aom = getTestProjectModel("kmp-library", testDataRoot)
 
-        val moduleDeps = runBlocking {
-            doTest(
-                aom,
-                ResolutionInput(
-                    DependenciesFlowType.IdeSyncType(aom),
-                    ResolutionDepth.GRAPH_FULL,
-                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                ),
-                module = "kmp-library",
-            ) as ModuleDependencyNodeWithModule
-        }
+        val moduleDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom),
+                ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            module = "kmp-library",
+        ) as ModuleDependencyNodeWithModule
 
         moduleDeps.assertParentKmpLibraries(
             mapOf(
