@@ -12,11 +12,17 @@ import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
 import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
 import org.jetbrains.amper.test.spans.withAmperModule
+import kotlin.io.path.Path
 import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class SmokeTest : AmperCliTestBase() {
+
+    @Test
+    fun `amper help works`() = runSlowTest {
+        runCli(Path("."), "--help")
+    }
 
     @Test
     fun smoke() = runSlowTest {
