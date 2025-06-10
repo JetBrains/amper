@@ -139,7 +139,13 @@ class DiagnosticsTest : BaseModuleDrTest() {
         collectBuildProblems(sharedTestFragmentDeps, diagnosticsReporter, Level.Error)
         val buildProblems = diagnosticsReporter.problems
 
-        // TODO Check magic number again.
+        /**
+         * This magic number appears because we are diagnosing each fragment (4 fragments total),
+         * and each fragment contains 4 incorrect dependencies.
+         * 
+         * Common fragment contain incorrect dependencies by definition in module file.
+         * More specific fragments contain incorrect dependencies because they were propagated during merge.
+         */
         assertEquals(16, buildProblems.size)
 
         // Direct dependency on a built-in library,

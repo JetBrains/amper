@@ -10,7 +10,6 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.core.messages.renderMessage
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
@@ -92,7 +91,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         val diagnosticsReporter = CollectingProblemReporter()
         collectBuildProblems(root, diagnosticsReporter, Level.Warning)
 
-        val buildProblems = diagnosticsReporter.getProblems()
+        val buildProblems = diagnosticsReporter.problems
 
         for (buildProblem in buildProblems) {
             when (buildProblem.level) {
