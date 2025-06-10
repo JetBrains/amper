@@ -27,8 +27,9 @@ import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactori
 import org.jetbrains.amper.frontend.diagnostics.MergedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
-import org.jetbrains.amper.frontend.processing.configureLombokAnnotationProcessor
-import org.jetbrains.amper.frontend.processing.configureSpringBootKotlinCompilerPlugins
+import org.jetbrains.amper.frontend.processing.configureHotReloadDefaults
+import org.jetbrains.amper.frontend.processing.configureLombokDefaults
+import org.jetbrains.amper.frontend.processing.configureSpringBootDefaults
 import org.jetbrains.amper.frontend.processing.substituteComposeOsSpecific
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -57,14 +58,13 @@ internal fun doBuild(
     systemInfo: SystemInfo = DefaultSystemInfo,
 ): List<AmperModule>? = with(BuildCtx(projectContext, systemInfo = systemInfo)) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
-    val rawModules = projectContext.amperModuleFiles.mapNotNull { readMergedTreesAndPreprocess(it) }
+    val rawModules = projectContext.amperModuleFiles.mapNotNull { readModuleMergedTree(it) }
 
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
 
     // Build [AmperModule]s.
-    val dumbGradleModules = projectContext.gradleBuildFilesWithoutAmper.map { DumbGradleModule(it) }
-    val result = buildAmperModules(rawModules, dumbGradleModules)
+    val result = buildAmperModules(rawModules)
 
     // Do some alterations to the built modules.
     result.forEach { it.module.addImplicitDependencies() }
@@ -78,10 +78,10 @@ internal fun doBuild(
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
 
-    return result.map { it.module } + dumbGradleModules
+    return result.map { it.module }
 }
 
-private fun BuildCtx.readMergedTreesAndPreprocess(
+internal fun BuildCtx.readModuleMergedTree(
     moduleFile: VirtualFile
 ): ModuleBuildCtx? {
     val moduleCtx = PathCtx(moduleFile.toNioPath(), moduleFile.asPsi().trace)
@@ -112,13 +112,13 @@ private fun BuildCtx.readMergedTreesAndPreprocess(
     val processedTree = preProcessedTree
         .substituteCatalogDependencies(chosenCatalog)
         .substituteComposeOsSpecific()
-        .configureSpringBootKotlinCompilerPlugins(commonModule)
-        .configureLombokAnnotationProcessor(commonModule)
+        .configureSpringBootDefaults(commonModule)
+        .configureHotReloadDefaults(commonModule)
+        .configureLombokDefaults(commonModule)
 
     // Perform diagnostics for the merged tree.
     MergedTreeDiagnostics(refiner).withEach { analyze(processedTree, minimalModule.module) }
-
-    // Return result module.
+    
     return ModuleBuildCtx(
         moduleFile = moduleFile,
         mergedTree = processedTree,
@@ -129,7 +129,6 @@ private fun BuildCtx.readMergedTreesAndPreprocess(
     )
 }
 
-// FIXME Make internal.
 internal fun BuildCtx.readWithTemplates(
     minimalModule: MinimalModuleHolder,
     mPath: VirtualFile,
@@ -146,10 +145,8 @@ internal fun BuildCtx.readWithTemplates(
  */
 private fun BuildCtx.buildAmperModules(
     modules: List<ModuleBuildCtx>,
-    dumbModules: List<DumbGradleModule>
 ): List<ModuleBuildCtx> {
-    val dir2module = dumbModules.associateBy { it.gradleBuildFile.parent.toNioPath() } +
-            modules.associate { it.moduleFile.parent.toNioPath() to it.module }
+    val dir2module = modules.associate { it.moduleFile.parent.toNioPath() to it.module }
 
     modules.forEach {
         // Do build seeds and propagate settings.
@@ -195,7 +192,7 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Amp
                 // Note: we can't really report an error to the problem reporter here, because of the fake single-module
                 // analysis that happens in the IDE. When editing a module file, the IDE will use a fake project context
                 // that only declares this specific module, and thus all module dependencies are "unresolved".
-                moduleDir2module[path] ?: NotResolvedModule(path.name, path),
+                moduleDir2module[path] ?: NotResolvedModule(userReadableName = path.name, invalidPath = path),
                 path,
                 scope.compile,
                 scope.runtime,

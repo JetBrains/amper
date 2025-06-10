@@ -28,37 +28,40 @@ interface ProblemReporterContext {
 // TODO: Can be refactored to the reporter chain to avoid inheritance.
 // Note: This class is not thread-safe.
 // Problems collecting might misbehave when used from multiple threads (e.g. in Gradle).
-abstract class CollectingProblemReporter : ProblemReporter {
+open class CollectingProblemReporter : ProblemReporter {
     override val hasFatal get() = problems.any { it.level == Level.Fatal }
 
-    internal val problems: MutableList<BuildProblem> = mutableListOf()
-
-    protected abstract fun doReportMessage(message: BuildProblem)
+    private val myProblems = mutableListOf<BuildProblem>()
+    val problems: List<BuildProblem> by ::myProblems
 
     final override fun reportMessage(message: BuildProblem) {
-        problems.add(message)
+        myProblems.add(message)
         doReportMessage(message)
     }
 
-    fun getDiagnostics(vararg levels: Level = arrayOf(Level.Error, Level.Fatal)): List<BuildProblem> = 
-        problems.filter { levels.contains(it.level) }
+    protected open fun doReportMessage(message: BuildProblem) = Unit
+
+    fun getDiagnostics(vararg levels: Level = arrayOf(Level.Error, Level.Fatal)): List<BuildProblem> =
+        myProblems.filter { levels.contains(it.level) }
 }
 
-// TODO Rename, since it is not strictly NoOp.
-class NoOpCollectingProblemReporter : CollectingProblemReporter() {
-    fun getProblems(): Collection<BuildProblem> = problems
-    override fun doReportMessage(message: BuildProblem) = Unit
+/**
+ * Problem reporter context that collects problems only without any additional actions.
+ */
+class CollectingOnlyProblemReporterCtx : ProblemReporterContext {
+    override val problemReporter = CollectingProblemReporter()
 }
 
-// TODO Rename, since it is not strictly NoOp.
-class NoOpCollectingProblemReporterCtx : ProblemReporterContext {
-    override val problemReporter = NoOpCollectingProblemReporter()
-}
+/**
+ * Report all collected problems from the current context to `other`.
+ */
+fun CollectingOnlyProblemReporterCtx.replayProblemsTo(other: ProblemReporterContext) = 
+    problemReporter.replayProblemsTo(other.problemReporter)
 
-fun NoOpCollectingProblemReporterCtx.rewindTo(other: ProblemReporterContext) = 
-    problemReporter.rewindTo(other.problemReporter)
-
-fun NoOpCollectingProblemReporter.rewindTo(other: ProblemReporter) = 
+/**
+ * Report all collected problems from the current reporter to `other`.
+ */
+fun CollectingProblemReporter.replayProblemsTo(other: ProblemReporter) = 
     problems.forEach { other.reportMessage(it) }
 
 @OptIn(NonIdealDiagnostic::class)

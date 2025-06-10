@@ -12,7 +12,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.meta.ATypesVisitor
 import org.jetbrains.amper.frontend.meta.collectReferencedObjects
-import org.jetbrains.amper.frontend.types.ATypes
+import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.types.isBoolean
 import org.jetbrains.amper.frontend.types.isInt
 import org.jetbrains.amper.frontend.types.isPath
@@ -22,12 +22,12 @@ import org.jetbrains.amper.frontend.types.isTraceableString
 import org.jetbrains.amper.frontend.types.kClass
 
 
-fun jsonSchemaString(root: ATypes.AType) = JsonSchema(root).jsonString
+fun jsonSchemaString(root: AmperTypes.AmperType) = JsonSchema(root).jsonString
 
 /**
  * Creates a [JsonElement] that represents a JSON schema for the specified [root].
  */
-fun JsonSchema(root: ATypes.AType) = root.kType.kClass.simpleName!!.let { simpleName ->
+fun JsonSchema(root: AmperTypes.AmperType) = root.kType.kClass.simpleName!!.let { simpleName ->
     val objects = collectReferencedObjects(root)
     JsonSchema(
         "https://json-schema.org/draft/2020-12/schema",
@@ -41,16 +41,16 @@ fun JsonSchema(root: ATypes.AType) = root.kType.kClass.simpleName!!.let { simple
 }
 
 /**
- * A visitor that is building the definition of a single [ATypes.AType] as a [JsonElement] in JSON schema.
+ * A visitor that is building the definition of a single [AmperTypes.AmperType] as a [JsonElement] in JSON schema.
  */
 private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
 
     /**
-     * Generate a corresponding JSON schema [JsonElement] for the specified [ATypes.AObject].
+     * Generate a corresponding JSON schema [JsonElement] for the specified [AmperTypes.Object].
      */
-    fun asSchemaObject(root: ATypes.AObject): JsonElement {
+    fun asSchemaObject(root: AmperTypes.Object): JsonElement {
         // Create a JSON element describing the selected property.
-        fun ATypes.AProperty.propDesc() = type.accept().withExtras(this).wrapKnownValues(this)
+        fun AmperTypes.Property.propDesc() = type.accept().withExtras(this).wrapKnownValues(this)
 
         val notCtorArgs = root.properties.filterNot { it.meta.isCtorArg }
         val modifierAware = notCtorArgs.filter { it.meta.modifierAware != null }
@@ -86,7 +86,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
     /**
      * Copy [JsonObject] with extra fields, like `x-intellij-html-description` or `x-intellij-metadata`.
      */
-    private fun JsonElement.withExtras(prop: ATypes.AProperty): JsonElement {
+    private fun JsonElement.withExtras(prop: AmperTypes.Property): JsonElement {
         if (this !is JsonObject) return this
         val doc = prop.meta.schemaDoc?.doc ?: return this
         return this
@@ -98,7 +98,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
     /**
      * See [withExtras].
      */
-    private fun JsonElement.withIntellijMetdata(prop: ATypes.AProperty): JsonElement = with(prop.meta) {
+    private fun JsonElement.withIntellijMetdata(prop: AmperTypes.Property): JsonElement = with(prop.meta) {
         if (this@withIntellijMetdata !is JsonObject) return this@withIntellijMetdata
         val extras = listOfNotNull(
             "platforms" toNotNull platformSpecific?.platforms?.jsonArray { it.schemaValue },
@@ -118,7 +118,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
     /**
      * Wrap an element with [EnumElement] if it has some known values to provide them in autocompletion.
      */
-    private fun JsonElement.wrapKnownValues(prop: ATypes.AProperty): JsonElement {
+    private fun JsonElement.wrapKnownValues(prop: AmperTypes.Property): JsonElement {
         val knownValues = prop.meta.knownStringValues
         return if (knownValues?.isNotEmpty() == true) AnyOfElement(
             EnumElement(knownValues).`x-intellij-enum-order-sensitive`(true), this
@@ -128,15 +128,15 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
     /**
      * Add known type shorthands to the schema element in form of `anyOf` wrapper.
      */
-    private fun JsonElement.wrapShorthands(type: ATypes.AType): JsonElement {
-        if (type !is ATypes.AObject) return this
+    private fun JsonElement.wrapShorthands(type: AmperTypes.AmperType): JsonElement {
+        if (type !is AmperTypes.Object) return this
         val shorthands = type.properties.filter { it.meta.hasShorthand }
         return if (shorthands.isNotEmpty()) {
             val booleanShorthands = shorthands
                 .filter { it.meta.type.isBoolean }
                 .map { it.meta.name }
             val enumShorthands = shorthands
-                .mapNotNull { it.type.asSafely<ATypes.AEnum>()?.enumValues }
+                .mapNotNull { it.type.asSafely<AmperTypes.Enum>()?.enumValues }
                 .flatten()
                 .map { it.schemaValue }
             val stringShorthands = shorthands
@@ -149,7 +149,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
         } else this
     }
 
-    override fun visitEnum(type: ATypes.AEnum) =
+    override fun visitEnum(type: AmperTypes.Enum) =
         EnumElement(
             enumValues = type.enumValues
                 .filterNot { it.outdated }
@@ -161,7 +161,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
                 .toMap()
         ).`x-intellij-enum-order-sensitive`(type.orderSensitive != null)
 
-    override fun visitScalar(type: ATypes.AScalar) = when {
+    override fun visitScalar(type: AmperTypes.Scalar) = when {
         type.kType.isString || type.kType.isTraceableString -> ScalarElement("string")
         type.kType.isPath || type.kType.isTraceablePath -> ScalarElement("string")
         type.kType.isBoolean -> ScalarElement("boolean")
@@ -169,19 +169,19 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
         else -> error("Unreachable code. Type: ${type.kType}")
     }
 
-    override fun visitMap(type: ATypes.AMap) =
+    override fun visitMap(type: AmperTypes.Map) =
         ArrayElement(
             items = ObjectElement(patternProperties = mapOf("^[^@+:]+$" to type.valueType.accept())),
             uniqueItems = true,
         )
 
-    override fun visitList(type: ATypes.AList) =
+    override fun visitList(type: AmperTypes.List) =
         ArrayElement(type.valueType.accept())
 
-    override fun visitPolymorphic(type: ATypes.APolymorphic) =
+    override fun visitPolymorphic(type: AmperTypes.Polymorphic) =
         AnyOfElement(type.inheritors.map { it.accept() })
 
-    override fun visitObject(type: ATypes.AObject): JsonObject =
+    override fun visitObject(type: AmperTypes.Object): JsonObject =
         RefElement(type.kType.kClass.simpleName!!)
 }
 

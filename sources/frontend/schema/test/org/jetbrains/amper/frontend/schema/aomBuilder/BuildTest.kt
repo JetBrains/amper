@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema.aomBuilder
 
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
@@ -90,7 +91,7 @@ class BuildTest {
         }
     }
 
-    private class MockModule: AmperModule {
+    private class MockModule() : AmperModule {
         override val userReadableName: String
             get() = throw UnsupportedOperationException()
         override val type: ProductType
@@ -104,6 +105,8 @@ class BuildTest {
         override val parts: ClassBasedSet<ModulePart<*>>
             get() = throw UnsupportedOperationException()
         override val usedCatalog: VersionCatalog
+            get() = throw UnsupportedOperationException()
+        override val usedTemplates: List<VirtualFile>
             get() = throw UnsupportedOperationException()
         override val customTasks: List<CustomTaskDescription>
             get() = throw UnsupportedOperationException()

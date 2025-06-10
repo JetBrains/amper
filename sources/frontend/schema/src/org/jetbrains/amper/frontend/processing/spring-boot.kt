@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
 import org.jetbrains.amper.frontend.schema.AllOpenSettings
+import org.jetbrains.amper.frontend.schema.DependencyMode
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.Module
@@ -25,7 +26,7 @@ import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 
 context(BuildCtx)
-internal fun TreeValue<Merged>.configureSpringBootKotlinCompilerPlugins(
+internal fun TreeValue<Merged>.configureSpringBootDefaults(
     moduleCtxModule: Module,
 ) = if (moduleCtxModule.settings.springBoot.enabled)
     treeMerger.mergeTrees(
@@ -48,6 +49,7 @@ private fun BuildCtx.springBootDefaultsTree() = syntheticBuilder<MapLikeValue<Ow
             }
             Settings::jvm {
                 JvmSettings::storeParameterNames setTo scalar(true)
+                JvmSettings::runtimeClasspathMode setTo scalar(DependencyMode.CLASSES)
             }
         }
     }

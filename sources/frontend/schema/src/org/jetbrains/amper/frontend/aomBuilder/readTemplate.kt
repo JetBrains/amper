@@ -20,15 +20,15 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 context(ProblemReporterContext)
 fun readTemplate(
     catalogFinder: VersionsCatalogProvider,
-    tPath: VirtualFile,
+    templateFile: VirtualFile,
 ): ModelInit.TemplateHolder? = with(BuildCtx(catalogFinder)) {
-    val templateTree = readTree(tPath, templateAType) ?: return null
+    val templateTree = readTree(templateFile, templateAType) ?: return null
     val refiner = TreeRefiner()
     // We can cast here, since we are not merging templates for now.
     // NOTE: That will change when nested templated will be allowed.
     val noContextsTree = refiner.refineTree(templateTree as MergedTree, EmptyContexts)
     val noContextsTemplate = createSchemaNode<Template>(noContextsTree)
-    val catalog = tryGetCatalogFor(tPath, noContextsTemplate.settings)
+    val catalog = tryGetCatalogFor(templateFile, noContextsTemplate.settings)
     // TODO Check if return null is good here.
     val substituted = templateTree.substituteCatalogDependencies(catalog) ?: return null
     val substitutedRefined = refiner.refineTree(substituted, EmptyContexts)

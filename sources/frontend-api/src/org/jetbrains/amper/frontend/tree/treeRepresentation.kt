@@ -11,7 +11,7 @@ import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.contexts.WithContexts
 import org.jetbrains.amper.frontend.tree.MapLikeValue.Property
-import org.jetbrains.amper.frontend.types.ATypes
+import org.jetbrains.amper.frontend.types.AmperTypes
 import kotlin.reflect.KProperty1
 
 
@@ -157,18 +157,18 @@ data class MapLikeValue<TS : TreeState>(
     val children: MapLikeChildren<TS>,
     override val trace: Trace,
     override val contexts: Contexts,
-    val type: ATypes.AObject?,
+    val type: AmperTypes.Object?,
 ) : TreeValue<TS> {
     data class Property<out T : TreeValue<*>>(
         val key: String,
         val kTrace: Trace,
         val value: T,
-        val pType: ATypes.AProperty?,
+        val pType: AmperTypes.Property?,
     ) : WithContexts {
-        constructor(key: String, kTrace: Trace, value: T, parentType: ATypes.AObject) :
+        constructor(key: String, kTrace: Trace, value: T, parentType: AmperTypes.Object) :
                 this(key, kTrace, value, parentType.aliased[key])
 
-        constructor(value: T, kTrace: Trace, pType: ATypes.AProperty) :
+        constructor(value: T, kTrace: Trace, pType: AmperTypes.Property) :
                 this(pType.meta.name, kTrace, value, pType)
 
         override val contexts get() = value.contexts
@@ -180,7 +180,7 @@ data class MapLikeValue<TS : TreeState>(
     inline fun <reified T : TreeValue<TS>> copy(
         trace: Trace = this.trace,
         contexts: Contexts = this.contexts,
-        type: ATypes.AObject? = this.type,
+        type: AmperTypes.Object? = this.type,
         crossinline transform: (key: String, pValue: T, old: Property<TreeValue<TS>>) -> MapLikeChildren<TS>?,
     ) = MapLikeValue(
         children = children.flatMap { if (it.value is T) transform(it.key, it.value, it).orEmpty() else listOf(it) },
@@ -197,7 +197,7 @@ typealias ReferenceProperty<TS> = Property<ReferenceValue<TS>>
 typealias MapLikeChildren<TS> = List<Property<TreeValue<TS>>>
 
 // Convenient accessors for typed map-like nodes.
-fun <TS : TreeState> MapLikeValue<TS>.get(key: String, type: ATypes.AProperty?) = children.filter { it.key == key && it.pType == type }
+fun <TS : TreeState> MapLikeValue<TS>.get(key: String, type: AmperTypes.Property?) = children.filter { it.key == key && it.pType == type }
 inline val <TS : TreeState> TreeValue<TS>.asMapLike get() = asSafely<MapLikeValue<TS>>()
 inline val <TS : TreeState> List<TreeValue<TS>>.onlyMapLike get() = mapNotNull { it.asMapLike }
 inline val <TS : TreeState> List<Property<TreeValue<TS>>>.values get() = map { it.value }
@@ -213,7 +213,7 @@ fun MapLikeValue<Refined>.single(key: String) = this[key].single()
 /** Constructs a [MapLikeValue.Property] instance with [ScalarValue] inside. */
 @Suppress("FunctionName")
 fun <TS : TreeState> ScalarProperty(
-    aProp: ATypes.AProperty,
+    aProp: AmperTypes.Property,
     kTrace: Trace,
     value: Any,
     trace: Trace,
@@ -223,7 +223,7 @@ fun <TS : TreeState> ScalarProperty(
 /** Constructs a [MapLikeValue.Property] instance with [ReferenceValue] inside. */
 @Suppress("FunctionName")
 fun <TS : TreeState> ReferenceProperty(
-    aProp: ATypes.AProperty,
+    aProp: AmperTypes.Property,
     kTrace: Trace,
     referencedPath: String,
     trace: Trace,
@@ -233,9 +233,9 @@ fun <TS : TreeState> ReferenceProperty(
 /** Constructs a [MapLikeValue.Property] instance with [ReferenceValue] inside. */
 @Suppress("FunctionName")
 fun <TS : TreeState> MapProperty(
-    aProp: ATypes.AProperty,
+    aProp: AmperTypes.Property,
     kTrace: Trace,
     trace: Trace,
     contexts: Contexts,
-    type: ATypes.AObject?,
+    type: AmperTypes.Object?,
 ) = MapProperty<TS>(aProp.meta.name, kTrace, MapLikeValue(emptyList(), trace, contexts, type), aProp)

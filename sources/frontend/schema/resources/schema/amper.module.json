@@ -1077,6 +1077,14 @@
             ]
           }
         },
+        "runtimeClasspathMode": {
+          "enum": [
+            "classes",
+            "jars"
+          ],
+          "x-intellij-html-description": "Specifies how runtime classpath is constructed for the application. The default is `jars`, which means all the dependencies including local dependencies on Amper modules will be built as jars. The `classes` mode will use classes for local modules as part of the runtime classpath.",
+          "title": "Specifies how runtime classpath is constructed for the application. The default is `jars`, which means all the dependencies including local dependencies on Amper modules will be built as jars. The `classes` mode will use classes for local modules as part of the runtime classpath"
+        },
         "storeParameterNames": {
           "type": "boolean",
           "x-intellij-html-description": "Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.",

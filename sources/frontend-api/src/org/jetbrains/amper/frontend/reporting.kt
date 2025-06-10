@@ -44,23 +44,21 @@ fun MessageBundle.reportBundleError(
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-) = value?.trace?.let {
-    reportBundleError(
-        trace = it,
+) = reportBundleError(
+        trace = value?.trace,
         messageKey = messageKey,
         *arguments,
         level = level,
     )
-}
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
-    trace: Trace,
+    trace: Trace?,
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
 ): Nothing? {
-    val psiElement = trace.extractPsiElementOrNull()
+    val psiElement = trace?.extractPsiElementOrNull()
     return when {
         psiElement != null -> reportBundleError(
             node = psiElement,

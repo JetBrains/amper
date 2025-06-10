@@ -16,7 +16,7 @@ import org.jetbrains.amper.frontend.types.isTraceablePath
 import org.jetbrains.amper.frontend.types.kClass
 import org.jetbrains.amper.frontend.types.allSealedSubclasses
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.types.ATypes
+import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.types.isEnum
 import org.jetbrains.amper.frontend.types.isTraceableEnum
 import java.util.Properties
@@ -26,28 +26,28 @@ import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
 
-val ATypesDiscoverer = DefaultATypesDiscoverer()
+val ATypesDiscoverer = DefaultAmperTypesDiscoverer()
 
 /**
  * Discovering all schema-defined properties and types.
  */
-open class DefaultATypesDiscoverer : ATypes() {
-    private val discoveredTypes = mutableMapOf<KType, AType>()
+open class DefaultAmperTypesDiscoverer : AmperTypes() {
+    private val discoveredTypes = mutableMapOf<KType, AmperType>()
 
     private val amperCL = this::class.java.classLoader
 
     /**
-     * Load [AType] for specified [KType].
+     * Load [AmperType] for specified [KType].
      */
-    override fun get(type: KType): AType = discoveredTypes.computeIfAbsent(type) {
+    override fun get(type: KType): AmperType = discoveredTypes.computeIfAbsent(type) {
         when {
-            type.isEnum || type.isTraceableEnum -> AEnum(type)
-            type.isTraceablePath -> AScalar(type)
-            type.isScalar -> AScalar(type)
-            type.isMap -> AMap(type)
-            type.isCollection -> AList(type)
-            type.isSchemaNode && type.isSealed -> APolymorphic(type) { polyInheritors(type) }
-            type.isSchemaNode -> AObject(type) { type.allSchemaProperties() }
+            type.isEnum || type.isTraceableEnum -> Enum(type)
+            type.isTraceablePath -> Scalar(type)
+            type.isScalar -> Scalar(type)
+            type.isMap -> Map(type)
+            type.isCollection -> List(type)
+            type.isSchemaNode && type.isSealed -> Polymorphic(type) { polyInheritors(type) }
+            type.isSchemaNode -> Object(type) { type.allSchemaProperties() }
             else -> error("Unsupported type: $type")
         }
     }
@@ -69,7 +69,7 @@ open class DefaultATypesDiscoverer : ATypes() {
      *
      * Note: [type] is not a receiver to have a possibility to call `super.customProperties()`.
      */
-    protected open fun customProperties(type: KType): List<PropertyMeta> =
+    protected open fun customProperties(type: KType): kotlin.collections.List<PropertyMeta> =
         if (type.kClass != Settings::class) emptyList()
         else amperCL.getResources("META-INF/amper/plugin.properties").toList().mapNotNull out@{
             val props = Properties().apply { it.openStream().use(::load) }

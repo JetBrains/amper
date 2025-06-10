@@ -4,14 +4,33 @@
 
 package org.jetbrains.amper.frontend.processing
 
+import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.schema.DependencyMode
+import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.tree.Merged
+import org.jetbrains.amper.frontend.tree.Owned
+import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.asMapLike
+import org.jetbrains.amper.frontend.tree.asOwned
+import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
-fun Module.configureHotReloadDefaults() = apply {
-    settings.values.forEach { fragmentSettings ->
-        if (fragmentSettings.compose.enabled && fragmentSettings.compose.experimental.hotReload.enabled) {
-            if (fragmentSettings.jvm.trace == null) {
-                fragmentSettings.jvm.runtimeClasspathMode = DependencyMode.CLASSES
+
+context(BuildCtx)
+internal fun TreeValue<Merged>.configureHotReloadDefaults(commonModule: Module) =
+    if (commonModule.settings.compose.enabled && commonModule.settings.compose.experimental.hotReload.enabled)
+        treeMerger.mergeTrees(
+            listOfNotNull(asOwned().asMapLike, hotReloadDefaulsTree())
+        ) else this
+
+private fun BuildCtx.hotReloadDefaulsTree() = syntheticBuilder<MapLikeValue<Owned>>(types, DefaultTrace) {
+    mapLike<Module> {
+        Module::settings {
+            Settings::jvm {
+                JvmSettings::runtimeClasspathMode setTo scalar(DependencyMode.CLASSES)
             }
         }
     }

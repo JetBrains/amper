@@ -8,6 +8,7 @@ import io.opentelemetry.api.trace.Span
 import org.jetbrains.amper.cli.logging.DoNotLogToTerminalCookie
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.core.messages.renderMessage
@@ -88,7 +89,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         }
 
     private fun reportDiagnostics(root: DependencyNodeHolder, span: Span, resolveSourceMoniker: String) {
-        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        val diagnosticsReporter = CollectingProblemReporter()
         collectBuildProblems(root, diagnosticsReporter, Level.Warning)
 
         val buildProblems = diagnosticsReporter.getProblems()

@@ -7,7 +7,7 @@ import com.charleskorn.kaml.decodeFromStream
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.core.get
-import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
+import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -62,7 +62,8 @@ class AmperProjectStructureTest {
             .map { it to it.linesWithTheWordAmper() }
             .filter { it.second.isNotEmpty() }
         if (invalidLines.isNotEmpty()) {
-            fail("Some Amper-agnostic library modules contain the word 'Amper'.\n\n" +
+            fail(
+                "Some Amper-agnostic library modules contain the word 'Amper'.\n\n" +
                     invalidLines.joinToString("\n\n") { (module, linesWithAmper) ->
                         "Module '${module.userReadableName}' uses the word 'Amper':\n" +
                                 linesWithAmper.joinToString("\n") { "  - $it" }
@@ -76,7 +77,7 @@ class AmperProjectStructureTest {
         (src.walk() + resourcesPath.walk()).flatMap { it.linesWithTheWordAmper() }
 
     /**
-     * We are still in the Amper repo and the libraries are not yet (or maybe ever) separated from Amper, so they still
+     * We are still in the Amper repo, and the libraries are not yet (or maybe ever) separated from Amper, so they still
      * legitimately use the org.jetbrains.amper package root. Apart from that, there should be no Amper reference.
      */
     private val amperExceptInPackageRegex = Regex("""(?<!org\.jetbrains\.)[aA]mper""")
@@ -95,10 +96,10 @@ class AmperProjectStructureTest {
         if (invalidDeps.isNotEmpty()) {
             fail(
                 "Some Amper-agnostic library modules depend on Amper-aware modules.\n\n" +
-                    invalidDeps.joinToString("\n\n") { (module, dependencies) ->
-                        "Module '${module.userReadableName}' depends on Amper-aware module(s):\n" +
-                                dependencies.joinToString("\n") { "  - $it" }
-                    } + "\n\nRemove these dependencies or move the modules out of the 'libraries' directory.")
+                        invalidDeps.joinToString("\n\n") { (module, dependencies) ->
+                            "Module '${module.userReadableName}' depends on Amper-aware module(s):\n" +
+                                    dependencies.joinToString("\n") { "  - $it" }
+                        } + "\n\nRemove these dependencies or move the modules out of the 'libraries' directory.")
         }
     }
 
@@ -111,12 +112,12 @@ class AmperProjectStructureTest {
         if (invalidDeps.isNotEmpty()) {
             fail(
                 "The '$drModuleName' module depends on the following Amper-aware modules:\n\n" +
-                    invalidDeps.joinToString("\n") { "  - $it" } +
+                        invalidDeps.joinToString("\n") { "  - $it" } +
                         "\n\nPlease remove these dependencies, as we want DR to be independent of Amper.")
         }
     }
 
-    private fun readAmperProjectModel(): Model = with(SimpleProblemReporterContext(NoOpCollectingProblemReporter())) {
+    private fun readAmperProjectModel(): Model = with(SimpleProblemReporterContext(CollectingProblemReporter())) {
         val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, project = null)
             ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
         SchemaBasedModelImport.getModel(projectContext).get()

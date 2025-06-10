@@ -9,7 +9,6 @@ import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 

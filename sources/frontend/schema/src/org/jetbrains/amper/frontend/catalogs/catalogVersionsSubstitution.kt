@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.withComputedValueTrace
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
-import org.jetbrains.amper.frontend.types.ATypes
+import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
@@ -45,7 +45,7 @@ internal class CatalogVersionsSubstitutor(
 
     override fun visitMapValue(value: MapLikeValue<Merged>): MergedTree? {
         val valueType = value.type ?: return super.visitMapValue(value)
-        val substituted = substitutionTypes[valueType].asSafely<ATypes.AObject>() ?: return super.visitMapValue(value)
+        val substituted = substitutionTypes[valueType].asSafely<AmperTypes.Object>() ?: return super.visitMapValue(value)
         val catalogKeyProp = value.children.singleOrNull { it.key == "catalogKey" } ?: return super.visitMapValue(value)
         // TODO Maybe report here.
         val catalogValue = catalogKeyProp.value.asScalar ?: return null

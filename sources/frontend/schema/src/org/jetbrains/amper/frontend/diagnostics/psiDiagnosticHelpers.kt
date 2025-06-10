@@ -10,10 +10,15 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
+import org.jetbrains.amper.frontend.aomBuilder.readModuleMergedTree
 import org.jetbrains.amper.frontend.aomBuilder.readTemplate
 import org.jetbrains.amper.frontend.project.AmperProjectContext
+import org.jetbrains.amper.frontend.project.SingleModuleProjectContextForIde
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.TreeRefiner
 
 /**
  * Analyzes a single [moduleFile] from the Amper project defined by the given [projectContext], to get diagnostics via
@@ -72,6 +77,27 @@ fun diagnoseAmperProjectFile(projectFile: PsiFile, problemReporter: ProblemRepor
             rootDir = projectFile.virtualFile.parent,
             frontendPathResolver = FrontendPathResolver(project = projectFile.project),
         )
+    }
+}
+
+data class MergedTreeHolder(
+    val mergedTree: MergedTree,
+    val refiner: TreeRefiner,
+)
+
+/**
+ * Reads the merged tree of an Amper module file and returns it with the corresponding [TreeRefiner].
+ */
+@UsedInIdePlugin
+fun readAmperModuleTree(
+    moduleFile: PsiFile,
+    problemReporter: ProblemReporter,
+): MergedTreeHolder? {
+    val pathResolver = FrontendPathResolver(moduleFile.project)
+    val projectCtx = SingleModuleProjectContextForIde(moduleFile.virtualFile, pathResolver)
+    return with(SimpleProblemReporterContext(problemReporter)) {
+        val (_, tree, refiner) = BuildCtx(projectCtx).readModuleMergedTree(moduleFile.virtualFile) ?: return null
+        MergedTreeHolder(tree, refiner)
     }
 }
 

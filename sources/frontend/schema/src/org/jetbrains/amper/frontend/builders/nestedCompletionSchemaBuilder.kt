@@ -7,16 +7,22 @@ package org.jetbrains.amper.frontend.builders
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.meta.ATypesDiscoverer
 import org.jetbrains.amper.frontend.meta.ATypesVisitor
-import org.jetbrains.amper.frontend.types.ATypes
+import org.jetbrains.amper.frontend.types.AmperTypes
 import kotlin.reflect.KClass
 import kotlin.reflect.full.starProjectedType
 
 
 interface NestedCompletionNode {
     val name: String
-    val isRegExp: Boolean
     val parent: NestedCompletionNode?
     val children: List<NestedCompletionNode>
+
+    /**
+     * If this node describes completion for a string with regular expression.
+     * 
+     * P.S. The most common case is for modifiers, like `settings@smth`.
+     */
+    val isRegExp: Boolean
 
     /**
      * Isolated tree node doesn't forward nested completions from outside down into it's children
@@ -31,6 +37,12 @@ internal class NestedCompletionNodeImpl(
     override var parent: NestedCompletionNodeImpl?,
     override val isRegExp: Boolean = false,
 ) : NestedCompletionNode {
+
+    /**
+     * We want regexp nodes to be isolated because further 
+     * completion from them does not seem reasonable 
+     * (if we started completion from a top level node).
+     */
     override val isolated = isRegExp
     
     /**
@@ -66,14 +78,14 @@ class NestedCompletionSchemaBuilder internal constructor(
 internal object NestedCompletionBuilder : ATypesVisitor<List<NestedCompletionNodeImpl>> {
     fun modifiersRegExp(propName: String) = "$propName(@[A-z]+)?"
     private val empty = emptyList<NestedCompletionNodeImpl>()
-    override fun visitEnum(type: ATypes.AEnum) = empty
-    override fun visitScalar(type: ATypes.AScalar) = empty
-    override fun visitPolymorphic(type: ATypes.APolymorphic) = empty
-    override fun visitList(type: ATypes.AList) = empty
-    override fun visitMap(type: ATypes.AMap) = empty
-    override fun visitObject(type: ATypes.AObject) =
+    override fun visitEnum(type: AmperTypes.Enum) = empty
+    override fun visitScalar(type: AmperTypes.Scalar) = empty
+    override fun visitPolymorphic(type: AmperTypes.Polymorphic) = empty
+    override fun visitList(type: AmperTypes.List) = empty
+    override fun visitMap(type: AmperTypes.Map) = empty
+    override fun visitObject(type: AmperTypes.Object) =
         type.properties.flatMap { prop ->
-            if (prop.type !is ATypes.AObject) return@flatMap listOf()
+            if (prop.type !is AmperTypes.Object) return@flatMap listOf()
             val possibleNames = buildList {
                 add(prop.meta.name to false)
                 // Handle modifier-aware properties.

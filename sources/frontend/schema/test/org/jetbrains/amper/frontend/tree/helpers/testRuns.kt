@@ -15,8 +15,8 @@ import org.jetbrains.amper.frontend.types.kClass
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
-import org.jetbrains.amper.frontend.types.ATypes
-import org.jetbrains.amper.frontend.meta.DefaultATypesDiscoverer
+import org.jetbrains.amper.frontend.types.AmperTypes
+import org.jetbrains.amper.frontend.meta.DefaultAmperTypesDiscoverer
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.helper.BaseTestRun
@@ -44,10 +44,10 @@ import kotlin.test.fail
  * 2. Checks that there are no diagnostics reported afterward.
  * 3. Compares tree dump with `[base]/[caseName][expectPostfix]` file contents.
  */
-open class TreeTestRun(
+internal open class TreeTestRun(
     caseName: String,
     override val base: Path,
-    protected val types: ATypes,
+    protected val types: AmperTypes,
     override val expectPostfix: String,
     protected val treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>?,
     protected val dumpPathContexts: Boolean = false,
@@ -87,10 +87,10 @@ open class TreeTestRun(
  * 2. Marks the psi text with diagnostics.
  * 3. Compares the result with input.
  */
-open class DiagnosticsTreeTestRun(
+internal open class DiagnosticsTreeTestRun(
     caseName: String,
     base: Path,
-    types: ATypes,
+    types: AmperTypes,
     treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>?,
     dumpPathContexts: Boolean = false,
 ) : TreeTestRun(caseName, base, types, "", treeBuilder, dumpPathContexts) {
@@ -104,9 +104,9 @@ open class DiagnosticsTreeTestRun(
         readContentsAndReplace(inputPath, base).trimTrailingWhitespacesAndEmptyLines()
 }
 
-internal class TestATypesDiscoverer(
+internal class TestAmperTypesDiscoverer(
     vararg customProperties: PropertyMeta,
-) : DefaultATypesDiscoverer() {
+) : DefaultAmperTypesDiscoverer() {
     private val customProperties = customProperties.toList()
     override fun customProperties(type: KType) =
         if (type.kClass == Settings::class) customProperties.ifEmpty { super.customProperties(type) }

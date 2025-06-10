@@ -28,7 +28,6 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
-import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -43,6 +42,7 @@ internal open class DefaultModule(
     override val type: ProductType,
     override val source: AmperModuleSource,
     override val usedCatalog: VersionCatalog?,
+    override val usedTemplates: List<VirtualFile>,
     override var parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
 ) : AmperModule {
     override var fragments = emptyList<Fragment>()
@@ -91,6 +91,7 @@ internal class NotResolvedModule(
     type = ProductType.LIB,
     source = AmperModuleInvalidPathSource(invalidPath),
     usedCatalog = null,
+    usedTemplates = emptyList(),
     parts = classBasedSet(),
 )
 
@@ -110,6 +111,7 @@ class DumbGradleModule(val gradleBuildFile: VirtualFile) : AmperModule {
     override val artifacts = listOf<Artifact>()
     override val parts = classBasedSet<ModulePart<*>>()
     override val usedCatalog = null
+    override val usedTemplates = emptyList<VirtualFile>()
     override val customTasks: List<CustomTaskDescription> = emptyList()
 }
 

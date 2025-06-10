@@ -17,10 +17,10 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 context(ProblemReporterContext)
 fun readProject(
     resolver: FrontendPathResolver,
-    pPath: VirtualFile
+    projectFile: VirtualFile
 ): Project? =
     with(BuildCtx(resolver, this@ProblemReporterContext)) {
-        val projectTree = readTree(pPath, projectAType) ?: return null
+        val projectTree = readTree(projectFile, projectAType) ?: return null
         val refiner = TreeRefiner()
         // We can cast here because there is only one project file, thus no need to merge.
         val noContextsTree = refiner.refineTree(projectTree as MergedTree, EmptyContexts)

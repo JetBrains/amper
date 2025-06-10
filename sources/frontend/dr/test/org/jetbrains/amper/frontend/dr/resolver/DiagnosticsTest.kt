@@ -7,8 +7,8 @@ package org.jetbrains.amper.frontend.dr.resolver
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.BuildProblem
+import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
@@ -135,9 +135,9 @@ class DiagnosticsTest : BaseModuleDrTest() {
             sharedTestFragmentDeps
         )
 
-        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        val diagnosticsReporter = CollectingProblemReporter()
         collectBuildProblems(sharedTestFragmentDeps, diagnosticsReporter, Level.Error)
-        val buildProblems = diagnosticsReporter.getProblems()
+        val buildProblems = diagnosticsReporter.problems
 
         // TODO Check magic number again.
         assertEquals(16, buildProblems.size)
@@ -214,9 +214,9 @@ class DiagnosticsTest : BaseModuleDrTest() {
             verifyMessages = false
         )
 
-        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        val diagnosticsReporter = CollectingProblemReporter()
         collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Error)
-        val buildProblems = diagnosticsReporter.getProblems()
+        val buildProblems = diagnosticsReporter.problems
 
         assertEquals(8, buildProblems.size)
 
@@ -306,9 +306,9 @@ class DiagnosticsTest : BaseModuleDrTest() {
             verifyMessages = false,
         )
 
-        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        val diagnosticsReporter = CollectingProblemReporter()
         collectBuildProblems(commonDeps, diagnosticsReporter, Level.Warning)
-        val buildProblems = diagnosticsReporter.getProblems()
+        val buildProblems = diagnosticsReporter.problems
 
         assertEquals(
             0, buildProblems.size,
@@ -339,16 +339,16 @@ class DiagnosticsTest : BaseModuleDrTest() {
             verifyMessages = false,
         )
 
-        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        val diagnosticsReporter = CollectingProblemReporter()
         collectBuildProblems(commonDeps, diagnosticsReporter, Level.Warning)
 
-        val buildProblem = diagnosticsReporter.getProblems().singleOrNull()
+        val buildProblem = diagnosticsReporter.problems.singleOrNull()
 
         assertNotNull (
             buildProblem,
             "One build problem should be reported for dependency 'io.ktor:ktor-client-cio-jvm', " +
-                    "but got the following ${diagnosticsReporter.getProblems().size} problem(s):\n${
-                        diagnosticsReporter.getProblems().joinToString("\n") { it.message }
+                    "but got the following ${diagnosticsReporter.problems.size} problem(s):\n${
+                        diagnosticsReporter.problems.joinToString("\n") { it.message }
                     }"
         )
 
@@ -399,9 +399,9 @@ class DiagnosticsTest : BaseModuleDrTest() {
             verifyMessages = false
         )
 
-        val diagnosticsReporter = NoOpCollectingProblemReporter()
+        val diagnosticsReporter = CollectingProblemReporter()
         collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Warning)
-        val buildProblems = diagnosticsReporter.getProblems()
+        val buildProblems = diagnosticsReporter.problems
         assertEquals(4, buildProblems.size)
 
         buildProblems.forEach {

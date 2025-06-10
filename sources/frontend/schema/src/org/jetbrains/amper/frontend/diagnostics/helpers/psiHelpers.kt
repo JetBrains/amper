@@ -9,7 +9,10 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.yaml.psi.YAMLKeyValue
 
 
-fun PsiElement.extractKeyElement(): PsiElement = when (this) {
+/**
+ * Get the corresponding key PsiElement if the current node is a key value pair. Return `this` otherwise.
+ */
+internal fun PsiElement.extractKeyElement(): PsiElement = when (this) {
     is YAMLKeyValue -> key ?: this
     is AmperProperty -> nameElement ?: this
     else -> this

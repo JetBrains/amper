@@ -55,7 +55,7 @@ enum class ValueState {
     INHERITED,
 
     /**
-     * The value has been set explicitly and merged with inherited one.
+     * The value has been set explicitly and merged with previous one.
      */
     MERGED,
 }

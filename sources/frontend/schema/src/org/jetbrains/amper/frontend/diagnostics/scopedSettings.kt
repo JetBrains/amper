@@ -6,12 +6,10 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.flatMapNotNull
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.withEach
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.Platform.COMMON
 import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchy
 import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchyExt
@@ -70,7 +68,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
         private fun platformSpecific() = prop.pType?.meta?.platformSpecific?.run {
             val platformsAndAliases =
                 minimalModule.unwrapAliases + naturalHierarchyExtStr - COMMON.schemaValue
-            val propPlatforms = prop.contexts.platformCtxs().flatMapNotNull { platformsAndAliases[it.value] }.toSet()
+            val propPlatforms = prop.contexts.platformCtxs().flatMap { platformsAndAliases[it.value] ?: emptyList() }.toSet()
             // Here we are considering "empty platforms" as all declared ones.
             val effectivePlatforms = propPlatforms.ifEmpty { minimalModule.product::platforms.unsafe?.leaves.orEmpty() }
             if (platforms.leaves.intersect(effectivePlatforms).isEmpty())

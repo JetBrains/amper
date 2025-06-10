@@ -70,7 +70,13 @@ interface FileBuildProblemSource : BuildProblemSource {
     val file: Path
 }
 
-class DefaultFileBuildProblemSource(override val file: Path) : FileBuildProblemSource
+/**
+ * Source, pointing to the whole Amper file.
+ * 
+ * N.B. Use only when there is no way to pinpoint the cause of the problem inside the Amper files.
+ */
+@NonIdealDiagnostic
+class WholeFileBuildProblemSource(override val file: Path) : FileBuildProblemSource
 
 interface FileWithRangesBuildProblemSource : FileBuildProblemSource {
     /**

@@ -29,14 +29,19 @@ private const val DiagnosticId = "setting.value.overrides.nothing"
 class UselessSettingValue(
     private val refiner: TreeRefiner,
 ) : MergedTreeDiagnostic {
+    companion object {
+        const val diagnosticId = DiagnosticId
+    }
     override val diagnosticId = DiagnosticId
 
     override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) {
+        // TODO There an optimization can be made.
+        //  Here we can group by not by key name, but by key path.
         val groupedScalars = root.collectScalarPropertiesWithOwners().groupBy { it.second.key }.map { (_, it) -> it }
         val hasPotentialOverrides = groupedScalars.filter { it.size > 1 }
         hasPotentialOverrides.forEach { group ->
             // TODO There an optimization can be made.
-            // TODO We may not refine for all used contexts - only for most specific ones.
+            //  We may not refine for all used contexts - only for most specific ones.
             group.forEach { (owner, scalarProp) ->
                 val refined = refiner.refineTree(owner, scalarProp.value.contexts) as MapLikeValue
 
@@ -44,8 +49,9 @@ class UselessSettingValue(
                 // we can safely assume that after refinement it is exactly single.
                 val refinedProp = refined.single(scalarProp.key).value
                 refinedProp.trace.precedingValuesSequence
-                    .filter { it.scalarValue<Any>() == refinedProp.scalarValue<Any>() }
-                    .forEach {
+                    .firstOrNull()
+                    ?.takeIf { it.scalarValue<Any>() == refinedProp.scalarValue<Any>() }
+                    ?.let {
                         problemReporter.reportMessage(
                             UselessSetting(refinedProp.trace, it.trace.asSafely<PsiTrace>() ?: return@forEach),
                         )

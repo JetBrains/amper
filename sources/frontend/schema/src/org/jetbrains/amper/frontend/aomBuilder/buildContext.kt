@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -14,8 +13,7 @@ import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
-import org.jetbrains.amper.frontend.contexts.MinimalModule
-import org.jetbrains.amper.frontend.types.ATypes
+import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.meta.ATypesDiscoverer
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
@@ -28,17 +26,24 @@ import java.nio.file.Path
 
 
 internal fun ProblemReporterContext.BuildCtx(
-    ctx: VersionsCatalogProvider,
+    catalogProvider: VersionsCatalogProvider,
     treeMerger: TreeMerger = TreeMerger(),
-    types: ATypes = ATypesDiscoverer,
+    types: AmperTypes = ATypesDiscoverer,
     systemInfo: SystemInfo = DefaultSystemInfo,
-) = BuildCtx(ctx.frontendPathResolver, this, treeMerger, types, ctx, systemInfo)
+) = BuildCtx(
+    pathResolver = catalogProvider.frontendPathResolver,
+    problemReporterCtx = this,
+    treeMerger = treeMerger,
+    types = types,
+    catalogFinder = catalogProvider,
+    systemInfo = systemInfo,
+)
 
-data class BuildCtx(
+internal data class BuildCtx(
     val pathResolver: FrontendPathResolver,
     val problemReporterCtx: ProblemReporterContext,
     val treeMerger: TreeMerger = TreeMerger(),
-    val types: ATypes = ATypesDiscoverer,
+    val types: AmperTypes = ATypesDiscoverer,
     val catalogFinder: VersionsCatalogProvider? = null,
     val systemInfo: SystemInfo = DefaultSystemInfo,
 ) : ProblemReporterContext by problemReporterCtx {
@@ -59,7 +64,7 @@ internal data class ModuleBuildCtx(
     val refiner: TreeRefiner,
     val catalog: VersionCatalog,
     val buildCtx: BuildCtx,
-    
+
     /**
      * Module which has settings that do not contain any platform, test, etc. contexts.
      */
@@ -72,6 +77,7 @@ internal data class ModuleBuildCtx(
                 type = moduleCtxModule.product.type,
                 source = AmperModuleFileSource(moduleFile.toNioPath()),
                 usedCatalog = catalog,
+                usedTemplates = moduleCtxModule.apply?.map { buildCtx.pathResolver.loadVirtualFile(it.value) }.orEmpty(),
                 parts = moduleCtxModule.convertModuleParts(),
             )
         }

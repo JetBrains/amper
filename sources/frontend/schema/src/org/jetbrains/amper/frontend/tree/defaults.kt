@@ -8,14 +8,12 @@ import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.DefaultTrace
-import org.jetbrains.amper.frontend.contexts.DefaultCtx
 import org.jetbrains.amper.frontend.contexts.DefaultCtxs
-import org.jetbrains.amper.frontend.contexts.EmptyContexts
-import org.jetbrains.amper.frontend.types.ATypes
+import org.jetbrains.amper.frontend.types.AmperTypes
 
 
 context(BuildCtx)
-fun TreeValue<Merged>.appendDefaultValues() = DefaultsAppender(types).visitValue(this)!!
+internal fun TreeValue<Merged>.appendDefaultValues() = DefaultsAppender(types).visitValue(this)!!
 
 /**
  * Visitor that is adding default leaves with special [DefaultTrace] trace and default values to the tree.
@@ -23,11 +21,11 @@ fun TreeValue<Merged>.appendDefaultValues() = DefaultsAppender(types).visitValue
  * // FIXME That is not 100% true, need to rethink/rewrite.
  * Note: Since this visitor is duplicating intermediate properties so it does not change [Merged] state of the tree.
  */
-class DefaultsAppender(
-    val types: ATypes,
+private class DefaultsAppender(
+    val types: AmperTypes,
 ) : TreeTransformer<Merged>() {
     override fun visitMapValue(value: MapLikeValue<Merged>): MergedTree? {
-        val aObject = value.type?.asSafely<ATypes.AObject>() ?: return super.visitMapValue(value)
+        val aObject = value.type?.asSafely<AmperTypes.Object>() ?: return super.visitMapValue(value)
         val emptyContextLeavesKeys = value.children.filter { it.value.contexts.isEmpty() }.map { it.key }.toSet()
 
         // Note: We are using special [DefaultCtxs] that has the least possible priority during merge.
@@ -59,7 +57,7 @@ class DefaultsAppender(
                         DefaultTrace,
                         DefaultTrace,
                         DefaultCtxs,
-                        it.type as? ATypes.AObject ?: return@out null,
+                        it.type as? AmperTypes.Object ?: return@out null,
                     )
 
                     // Other cases are unsupported.
@@ -74,8 +72,8 @@ class DefaultsAppender(
     /**
      * Construct a default value tree from the passed value.
      */
-    private fun defaultValueFrom(value: Any, type: ATypes.AType): MergedTree = when {
-        type is ATypes.AMap && value is Map<*, *> -> MapLikeValue(
+    private fun defaultValueFrom(value: Any, type: AmperTypes.AmperType): MergedTree = when {
+        type is AmperTypes.Map && value is Map<*, *> -> MapLikeValue(
             children = value
                 .mapNotNull {
                     MapLikeValue.Property(
@@ -90,13 +88,13 @@ class DefaultsAppender(
             type = null,
         )
 
-        type is ATypes.AList && value is List<*> -> ListValue(
+        type is AmperTypes.List && value is List<*> -> ListValue(
             children = value.mapNotNull { defaultValueFrom(it ?: return@mapNotNull null, type.valueType) },
             trace = DefaultTrace,
             contexts = DefaultCtxs,
         )
 
-        type is ATypes.AScalar -> ScalarValue(
+        type is AmperTypes.Scalar -> ScalarValue(
             value = value,
             trace = DefaultTrace,
             contexts = DefaultCtxs,

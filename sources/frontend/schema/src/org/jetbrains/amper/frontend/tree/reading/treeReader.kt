@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.tree.reading
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
@@ -15,7 +16,6 @@ import com.intellij.util.asSafely
 import com.intellij.util.containers.Stack
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.core.safelyResolveToAbsolute
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.asTrace
@@ -29,8 +29,8 @@ import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.PsiReporterCtx
 import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.types.ATypes
-import org.jetbrains.amper.frontend.types.ATypes.AType
+import org.jetbrains.amper.frontend.types.AmperTypes
+import org.jetbrains.amper.frontend.types.AmperTypes.AmperType
 import org.jetbrains.amper.frontend.types.enumValuesOrNull
 import org.jetbrains.amper.frontend.types.isBoolean
 import org.jetbrains.amper.frontend.types.isEnum
@@ -46,13 +46,14 @@ import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
 import java.nio.file.Path
+import kotlin.io.path.absolute
 import kotlin.reflect.KType
 import kotlin.reflect.full.starProjectedType
 
 
-fun BuildCtx.readTree(
+internal fun BuildCtx.readTree(
     file: VirtualFile,
-    type: ATypes.AObject,
+    type: AmperTypes.Object,
     vararg contexts: Context,
     reportUnknowns: Boolean = true
 ) = TreeReadRequest(
@@ -69,7 +70,7 @@ fun BuildCtx.readTree(
  * values for both [AmperLangTreeReader] and [YamlTreeReader].
  */
 internal data class TreeReadRequest(
-    val initialType: ATypes.AObject,
+    val initialType: AmperTypes.Object,
     val initialContexts: Contexts,
     val file: VirtualFile,
     val psiFile: PsiFile,
@@ -97,20 +98,20 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
 
     private val baseDir = params.file.parent.toNioPath()
     private val contextsStack = Stack<Contexts>().apply { push(params.initialContexts) }
-    private val types = Stack<AType>().apply { push(params.initialType) }
+    private val types = Stack<AmperType>().apply { push(params.initialType) }
     private var currentValue: TreeValue<Owned>? = null
     private val currentContexts get() = contextsStack.lastOrNull().orEmpty()
 
     /**
      * Current type that is being read.
      */
-    val currentType: AType get() = types.last()
+    val currentType: AmperType get() = types.last()
 
     // Convention constructor functions that are providing [currentContext].
     fun scalarValue(value: Any, trace: Trace) = ScalarValue<Owned>(value, trace, currentContexts)
     fun listValue(children: List<TreeValue<Owned>>, trace: Trace) = ListValue(children, trace, currentContexts)
     fun mapValue(children: List<MapLikeValue.Property<TreeValue<Owned>>>, trace: Trace) =
-        MapLikeValue(children, trace, currentContexts, currentType.asSafely<ATypes.AObject>())
+        MapLikeValue(children, trace, currentContexts, currentType.asSafely<AmperTypes.Object>())
 
     /**
      * Shortcut to catch the key in the trace also.
@@ -146,7 +147,7 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
             kType.isString -> text
             kType.isInt -> text.toIntOrNull() ?: reportIfNeeded("validation.expected.integer")
             kType.isBoolean -> text.toBooleanStrictOrNull() ?: reportIfNeeded("validation.expected.boolean")
-            kType.isPath -> baseDir.safelyResolveToAbsolute(text) ?: reportIfNeeded("validation.expected.path")
+            kType.isPath -> baseDir.resolveOrNull(text) ?: reportIfNeeded("validation.expected.path")
             kType.isEnum -> tryReadEnum(text, kType, origin, report)
             kType.isTraceableString -> readAs<String>(stringType)?.asTraceable(origin.trace)
             kType.isTraceablePath -> readAs<Path>(pathType)?.asTraceable(origin.trace)
@@ -154,6 +155,12 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
             else -> error("Unknown type: $kType while reading \"$text\"")
         }
     }
+
+    /**
+     * Try to resolve an absolute path and return `null` if `part` is invalid.
+     */
+    private fun Path.resolveOrNull(part: String): Path? =
+        part.toNioPathOrNull()?.let { resolve(it).absolute().normalize() }
 
     private fun String.splitByCamelHumps() = sequence {
         onEach { if (it.isUpperCase()) yield(' ') }.forEach { yield(it.lowercase()) }
@@ -175,7 +182,7 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
             ) else null
     }
 
-    fun <R> withNew(type: AType? = null, contexts: Collection<Context> = emptySet(), block: () -> R) =
+    fun <R> withNew(type: AmperType? = null, contexts: Collection<Context> = emptySet(), block: () -> R) =
         types.pushAndPop(type) {
             val newCtx = currentContexts.map(Context::withoutTrace).plus(contexts).ifEmpty { null }
             this@ReaderCtx.contextsStack.pushAndPop(newCtx, block)

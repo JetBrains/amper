@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext

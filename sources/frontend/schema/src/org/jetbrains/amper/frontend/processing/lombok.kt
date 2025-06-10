@@ -7,17 +7,10 @@ package org.jetbrains.amper.frontend.processing
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
-import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.schema.AllOpenPreset
-import org.jetbrains.amper.frontend.schema.AllOpenSettings
 import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessingSettings
 import org.jetbrains.amper.frontend.schema.JavaSettings
-import org.jetbrains.amper.frontend.schema.JvmSettings
-import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.NoArgPreset
-import org.jetbrains.amper.frontend.schema.NoArgSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
@@ -29,7 +22,7 @@ import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 
 context(BuildCtx)
-internal fun TreeValue<Merged>.configureLombokAnnotationProcessor(
+internal fun TreeValue<Merged>.configureLombokDefaults(
     moduleCtxModule: Module,
 ) = if (moduleCtxModule.settings.lombok.enabled)
     treeMerger.mergeTrees(

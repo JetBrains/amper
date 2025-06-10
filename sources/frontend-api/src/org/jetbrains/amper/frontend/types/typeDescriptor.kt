@@ -17,26 +17,26 @@ import kotlin.reflect.full.starProjectedType
 
 
 /**
- * Container for [AType]s.
+ * Container for [AmperType]s.
  */
-abstract class ATypes {
+abstract class AmperTypes {
     
-    abstract operator fun get(type: KType): AType
+    abstract operator fun get(type: KType): AmperType
     
     inline fun <reified T> aType() = this[T::class.starProjectedType]
 
     /**
      * Shortcut to get schema type descriptors.
      */
-    inline operator fun <reified T : SchemaNode> invoke() = aType<T>() as AObject
+    inline operator fun <reified T : SchemaNode> invoke() = aType<T>() as Object
 
     // TODO Add overall types validation.
-    sealed class AType(val kType: KType)
+    sealed class AmperType(val kType: KType)
 
-    open inner class AScalar(kType: KType) : AType(kType)
+    open class Scalar(kType: KType) : AmperType(kType)
 
     // TODO Check that type is SchemaEnum.
-    inner class AEnum(kType: KType) : AScalar(kType) {
+    class Enum(kType: KType) : Scalar(kType) {
         private val unwrapped = kType.unwrapTraceableValue
         private val enumKlass = unwrapped.kClass as KClass<SchemaEnum>
         
@@ -51,32 +51,32 @@ abstract class ATypes {
         val propertyFilter: (SchemaEnum) -> Boolean = { filterProp?.get(it) == valueFilter?.isNegated?.not() }
     }
 
-    inner class AMap(kType: KType) : AType(kType) {
-        val valueType by lazy { this@ATypes[kType.mapValueType] }
+    inner class Map(kType: KType) : AmperType(kType) {
+        val valueType by lazy { this@AmperTypes[kType.mapValueType] }
     }
 
-    inner class AList(kType: KType) : AType(kType) {
-        val valueType by lazy { this@ATypes[kType.collectionType] }
+    inner class List(kType: KType) : AmperType(kType) {
+        val valueType by lazy { this@AmperTypes[kType.collectionType] }
     }
 
-    inner class APolymorphic(
+    inner class Polymorphic(
         kType: KType,
         inheritors: () -> Iterable<KType>,
-    ) : AType(kType) {
-        val inheritors by lazy { inheritors().map { this@ATypes[it] as AObject } }
+    ) : AmperType(kType) {
+        val inheritors by lazy { inheritors().map { this@AmperTypes[it] as Object } }
 
         override fun toString() = "APolymorphic(${kType.kClass.qualifiedName})"
     }
 
-    inner class AProperty(val meta: PropertyMeta) {
-        val type by lazy { this@ATypes[meta.type] }
+    inner class Property(val meta: PropertyMeta) {
+        val type by lazy { this@AmperTypes[meta.type] }
     }
 
-    inner class AObject(
+    inner class Object(
         kType: KType,
-        kProperties: () -> List<PropertyMeta>,
-    ) : AType(kType) {
-        val properties by lazy { kProperties().map { AProperty(it) } }
+        kProperties: () -> kotlin.collections.List<PropertyMeta>,
+    ) : AmperType(kType) {
+        val properties by lazy { kProperties().map { Property(it) } }
 
         // TODO Add validation, that aliases are not intersecting with any of other properties.
         val aliased by lazy {

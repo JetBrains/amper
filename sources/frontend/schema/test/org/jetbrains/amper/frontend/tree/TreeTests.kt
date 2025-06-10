@@ -9,7 +9,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
 import org.jetbrains.amper.frontend.old.helper.TestBase
-import org.jetbrains.amper.frontend.tree.helpers.TestATypesDiscoverer
+import org.jetbrains.amper.frontend.tree.helpers.TestAmperTypesDiscoverer
 import org.jetbrains.amper.frontend.tree.helpers.diagnoseModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModule
@@ -52,7 +52,7 @@ class TreeTests : TestBase(Path(".") / "testResources" / "valueTree") {
     @Test
     fun `read module file with custom properties`() = testModuleRead(
         "with-custom-properties",
-        types = TestATypesDiscoverer(
+        types = TestAmperTypesDiscoverer(
             PropertyMeta("myPlugin", CustomPluginSchema::class)
         )
     )
@@ -60,7 +60,7 @@ class TreeTests : TestBase(Path(".") / "testResources" / "valueTree") {
     @Test
     fun `read module file with custom properties diagnostics`() = diagnoseModuleRead(
         "with-custom-properties-diagnostics",
-        types = TestATypesDiscoverer(
+        types = TestAmperTypesDiscoverer(
             PropertyMeta("myPlugin", CustomPluginSchema::class)
         )
     )

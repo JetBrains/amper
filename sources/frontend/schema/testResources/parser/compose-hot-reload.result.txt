@@ -66,7 +66,7 @@ Fragments:
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
-        runtimeClasspathMode: CLASSES
+        runtimeClasspathMode: <default> CLASSES
         storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
@@ -197,7 +197,7 @@ Fragments:
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
+        runtimeClasspathMode: <default> CLASSES
         storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
@@ -327,7 +327,7 @@ Fragments:
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
-        runtimeClasspathMode: CLASSES
+        runtimeClasspathMode: <default> CLASSES
         storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
@@ -459,7 +459,7 @@ Fragments:
       jvm: <default> {
         mainClass: <default> null
         release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
+        runtimeClasspathMode: <default> CLASSES
         storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [

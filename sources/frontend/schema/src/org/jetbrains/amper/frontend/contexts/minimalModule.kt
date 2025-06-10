@@ -6,10 +6,11 @@ package org.jetbrains.amper.frontend.contexts
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.BuildProblemImpl
-import org.jetbrains.amper.core.messages.DefaultFileBuildProblemSource
+import org.jetbrains.amper.core.messages.WholeFileBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.NoOpCollectingProblemReporterCtx
-import org.jetbrains.amper.core.messages.rewindTo
+import org.jetbrains.amper.core.messages.CollectingOnlyProblemReporterCtx
+import org.jetbrains.amper.core.messages.NonIdealDiagnostic
+import org.jetbrains.amper.core.messages.replayProblemsTo
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
@@ -21,9 +22,6 @@ import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.schema.Meta
-import org.jetbrains.amper.frontend.schema.Repository
-import org.jetbrains.amper.frontend.schema.TaskSettings
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.RefinedTree
@@ -56,8 +54,9 @@ internal val defaultContextsInheritance by lazy {
     PlatformsInheritance() + MainTestInheritance
 }
 
-fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
-    val reporterCtx = NoOpCollectingProblemReporterCtx()
+@OptIn(NonIdealDiagnostic::class)
+internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
+    val reporterCtx = CollectingOnlyProblemReporterCtx()
     return with(copy(problemReporterCtx = reporterCtx)) {
         val rawModuleTree = readTree(
             moduleFilePath,
@@ -76,7 +75,7 @@ fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
             problemReporter.reportMessage(
                 BuildProblemImpl(
                     buildProblemId = "product.not.defined",
-                    source = DefaultFileBuildProblemSource(moduleFilePath.toNioPath()),
+                    source = WholeFileBuildProblemSource(moduleFilePath.toNioPath()),
                     message = SchemaBundle.message("product.not.defined.empty"),
                     level = Level.Fatal,
                 )
@@ -92,7 +91,7 @@ fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
         if (reporterCtx.hasFatal) {
             // Rewind errors to the upper reporting context if something fatal had happened.
             // Otherwise, we will read the file again and report.
-            reporterCtx.rewindTo(this@tryReadMinimalModule.problemReporterCtx)
+            reporterCtx.replayProblemsTo(this@tryReadMinimalModule.problemReporterCtx)
             return null
         }
 
@@ -106,8 +105,7 @@ fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
     }
 }
 
-// TODO Make internal.
-class MinimalModuleHolder(
+internal class MinimalModuleHolder(
     val moduleFilePath: VirtualFile,
     val buildCtx: BuildCtx,
     val module: MinimalModule,

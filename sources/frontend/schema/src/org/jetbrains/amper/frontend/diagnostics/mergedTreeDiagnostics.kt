@@ -34,5 +34,4 @@ fun MergedTreeDiagnostics(refiner: TreeRefiner) = listOf(
     AliasesDontUseUndeclaredPlatform,
     AliasesAreNotIntersectingWithNaturalHierarchy,
     UselessSettingValue(refiner),
-    MavenLocalResolutionUnsupported,
 )

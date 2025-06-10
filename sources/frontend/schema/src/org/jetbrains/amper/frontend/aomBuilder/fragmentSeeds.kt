@@ -100,7 +100,7 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
 
 /**
  * Utility convenience comparator for [FragmentSeed] that follows dependency semantics.
- * f1 < f2 => f1 depends on f2.
+ * `f1 < f2` => `f1` depends on `f2`.
  */
 operator fun FragmentSeed.compareTo(it: FragmentSeed): Int = when {
     it.naturalHierarchyPlatform != null && naturalHierarchyPlatform?.isParentOfStrict(it.naturalHierarchyPlatform) == true -> 1
@@ -113,7 +113,7 @@ operator fun FragmentSeed.compareTo(it: FragmentSeed): Int = when {
 /**
  * Set up dependencies following platform hierarchy.
  */
-fun Set<FragmentSeed>.adjustSeedsDependencies() = onEach { current ->
+internal fun Set<FragmentSeed>.adjustSeedsDependencies() = onEach { current ->
     val dependencyCandidates = filter { current < it }
     // Exclude all candidates that depend on other candidates.
     current.dependencies.apply { clear() } += dependencyCandidates.filter { candidate ->

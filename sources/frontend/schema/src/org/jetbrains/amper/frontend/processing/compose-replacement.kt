@@ -19,7 +19,7 @@ context(BuildCtx)
 internal fun TreeValue<Merged>.substituteComposeOsSpecific() =
     ComposeOsSpecificSubstitutor(this@BuildCtx).visitValue(this)!!
 
-class ComposeOsSpecificSubstitutor(
+internal class ComposeOsSpecificSubstitutor(
     private val buildCtx: BuildCtx
 ) : TreeTransformer<Merged>(), ProblemReporterContext by buildCtx {
     private val dependencyType = buildCtx.types<ExternalMavenDependency>()

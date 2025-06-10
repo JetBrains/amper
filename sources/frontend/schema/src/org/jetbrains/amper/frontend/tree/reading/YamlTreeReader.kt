@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.tree.reading
 
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
 import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.asTrace
@@ -14,9 +13,7 @@ import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
 import org.jetbrains.amper.frontend.contexts.TestCtx
-import org.jetbrains.amper.frontend.diagnostics.helpers.extractKeyElement
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.schema.BomDependency
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
@@ -36,12 +33,12 @@ import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.owned
-import org.jetbrains.amper.frontend.types.ATypes
-import org.jetbrains.amper.frontend.types.ATypes.AList
-import org.jetbrains.amper.frontend.types.ATypes.AMap
-import org.jetbrains.amper.frontend.types.ATypes.AObject
-import org.jetbrains.amper.frontend.types.ATypes.APolymorphic
-import org.jetbrains.amper.frontend.types.ATypes.AType
+import org.jetbrains.amper.frontend.types.AmperTypes
+import org.jetbrains.amper.frontend.types.AmperTypes.List
+import org.jetbrains.amper.frontend.types.AmperTypes.Map
+import org.jetbrains.amper.frontend.types.AmperTypes.Object
+import org.jetbrains.amper.frontend.types.AmperTypes.Polymorphic
+import org.jetbrains.amper.frontend.types.AmperTypes.AmperType
 import org.jetbrains.amper.frontend.types.isBoolean
 import org.jetbrains.amper.frontend.types.isEnum
 import org.jetbrains.amper.frontend.types.isString
@@ -66,9 +63,9 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
 
     override fun visitMapping(mapping: YAMLMapping) = ctx.readCurrent {
         when (val type = currentType) {
-            is AMap -> tryReadAsMap(type, mapping.keyValues, mapping) // TODO Report if failed to read.
-            is AObject -> tryReadAsObject(type, mapping.keyValues, mapping) // TODO Report if failed to read.
-            is APolymorphic -> tryReadAsPolyFromKeyValues(type, mapping.keyValues) // TODO Report if failed to read.
+            is Map -> tryReadAsMap(type, mapping.keyValues, mapping) // TODO Report if failed to read.
+            is Object -> tryReadAsObject(type, mapping.keyValues, mapping) // TODO Report if failed to read.
+            is Polymorphic -> tryReadAsPolyFromKeyValues(type, mapping.keyValues) // TODO Report if failed to read.
             else -> null // TODO Report.
         }
     }
@@ -84,8 +81,8 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
      */
     override fun visitSequence(sequence: YAMLSequence) = ctx.readCurrent {
         when (val type = currentType) {
-            is AList -> tryReadAsList(type, sequence) // TODO Report if failed to read.
-            is AMap -> sequence.items.mapNotNull { it.value }
+            is List -> tryReadAsList(type, sequence) // TODO Report if failed to read.
+            is Map -> sequence.items.mapNotNull { it.value }
                 .filterIsInstance<YAMLMapping>()
                 .mapNotNull { it.keyValues.singleOrNull() }
                 .takeIf { sequence.items.size == it.size }
@@ -98,7 +95,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
     override fun visitScalar(scalar: YAMLScalar) = ctx.readCurrent {
         tryReadAsShorthand(scalar)
             ?: when (val type = currentType) {
-                is APolymorphic -> tryReadAsPolyFromScalar(type, scalar)
+                is Polymorphic -> tryReadAsPolyFromScalar(type, scalar)
                 else -> tryReadScalar(scalar.textValue, currentType.kType, scalar)
                     // We explicitly here construct trace from that parent to catch also the key. 
                     ?.let { scalarValue(it, scalar.parentOrSelfTrace()) }
@@ -110,13 +107,13 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         element.acceptChildren(this)
     }
 
-    private fun ReaderCtx.tryReadAsPolyFromKeyValues(type: APolymorphic, keyValues: Collection<YAMLKeyValue>) =
+    private fun ReaderCtx.tryReadAsPolyFromKeyValues(type: Polymorphic, keyValues: Collection<YAMLKeyValue>) =
         keyValues.singleOrNull()?.let {
             val (keyText, contexts) = extractContexts(it)
             withNew(contexts = contexts) { tryReadAsPolyDependency(type, keyText, it) }
         }
 
-    private fun ReaderCtx.tryReadAsPolyFromScalar(type: APolymorphic, scalar: YAMLScalar) =
+    private fun ReaderCtx.tryReadAsPolyFromScalar(type: Polymorphic, scalar: YAMLScalar) =
         tryReadAsPolyDependency(type, scalar.textValue, scalar)
 
     // Triple elements order matters!
@@ -140,7 +137,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
     )
 
     private fun ReaderCtx.tryReadAsPolyDependency(
-        type: APolymorphic,
+        type: Polymorphic,
         keyText: String,
         currentElement: PsiElement,
     ): MapLikeValue<Owned>? {
@@ -156,11 +153,11 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
             else -> error("Unsupported type: ${type.kType}")
         }
 
-        fun <T : Any> APolymorphic.findInheritor(klass: KClass<T>) =
+        fun <T : Any> Polymorphic.findInheritor(klass: KClass<T>) =
             inheritors.singleOrNull { it.kType.kClassOrNull.isSubclassOf(klass) }
 
         data class Grouped(
-            val type: AObject,
+            val type: Object,
             val ctorText: String,
             val ctorElement: PsiElement,
             val childElement: PsiElement?,
@@ -191,7 +188,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
     }
 
     private fun ReaderCtx.doTryReadAsPoly(
-        type: AObject,
+        type: Object,
         ctorText: String,
         ctorElement: PsiElement,
         parentElement: PsiElement,
@@ -209,7 +206,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
     }
 
     private fun ReaderCtx.tryReadAsShorthand(scalar: YAMLScalar): TreeValue<Owned>? {
-        val lastObjectType = currentType.asSafely<AObject>() ?: return null
+        val lastObjectType = currentType.asSafely<Object>() ?: return null
         if (!lastObjectType.hasShorthands) return null
         val shorthandAware = lastObjectType.properties.filter { it.meta.hasShorthand }.sortedBy {
             // Booleans have priority.
@@ -235,14 +232,14 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         } else null
     }
 
-    private fun ReaderCtx.tryReadAsList(type: AList, sequence: YAMLSequence) = sequence.items
+    private fun ReaderCtx.tryReadAsList(type: List, sequence: YAMLSequence) = sequence.items
         .mapNotNull { withNew(type = type.valueType) { it.value?.acceptAndGet() } }
         .let { listValue(it, sequence.parentOrSelfTrace()) }
 
-    private fun ReaderCtx.tryReadAsMap(type: AMap, keyValues: Collection<YAMLKeyValue>, origin: PsiElement) =
+    private fun ReaderCtx.tryReadAsMap(type: Map, keyValues: Collection<YAMLKeyValue>, origin: PsiElement) =
         tryReadAsObjectOrMap(keyValues, origin) { pName, _ -> type.valueType to null }
 
-    private fun ReaderCtx.tryReadAsObject(type: AObject, keyValues: Collection<YAMLKeyValue>, origin: PsiElement) =
+    private fun ReaderCtx.tryReadAsObject(type: Object, keyValues: Collection<YAMLKeyValue>, origin: PsiElement) =
         tryReadAsObjectOrMap(keyValues, origin) out@{ pName, pOrigin ->
             val prop = type.aliased[pName] ?: return@out if (params.reportUnknowns) pOrigin.reportAndNull(
                 "unknown.property",
@@ -259,7 +256,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
     private fun ReaderCtx.tryReadAsObjectOrMap(
         keyValues: Collection<YAMLKeyValue>,
         origin: PsiElement,
-        childType: (String, PsiElement) -> Pair<AType, ATypes.AProperty?>?,
+        childType: (String, PsiElement) -> Pair<AmperType, AmperTypes.Property?>?,
     ): MapLikeValue<Owned>? {
         val properties = keyValues.mapNotNull {
             val (key, contexts) = extractContexts(it)

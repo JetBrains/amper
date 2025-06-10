@@ -4,46 +4,46 @@
 
 package org.jetbrains.amper.frontend.meta
 
-import org.jetbrains.amper.frontend.types.ATypes
+import org.jetbrains.amper.frontend.types.AmperTypes
 
 
 /**
- * Basic visitor for [ATypes].
+ * Basic visitor for [AmperTypes].
  */
 interface ATypesVisitor<R> {
-    fun ATypes.AType.accept(): R = visitAType(this)
-    fun visitAType(type: ATypes.AType): R = when (type) {
-        is ATypes.AEnum -> visitEnum(type)
-        is ATypes.AScalar -> visitScalar(type)
-        is ATypes.AMap -> visitMap(type)
-        is ATypes.AList -> visitList(type)
-        is ATypes.APolymorphic -> visitPolymorphic(type)
-        is ATypes.AObject -> visitObject(type)
+    fun AmperTypes.AmperType.accept(): R = visitAType(this)
+    fun visitAType(type: AmperTypes.AmperType): R = when (type) {
+        is AmperTypes.Enum -> visitEnum(type)
+        is AmperTypes.Scalar -> visitScalar(type)
+        is AmperTypes.Map -> visitMap(type)
+        is AmperTypes.List -> visitList(type)
+        is AmperTypes.Polymorphic -> visitPolymorphic(type)
+        is AmperTypes.Object -> visitObject(type)
     }
 
-    fun visitEnum(type: ATypes.AEnum): R
-    fun visitScalar(type: ATypes.AScalar): R
-    fun visitMap(type: ATypes.AMap): R
-    fun visitList(type: ATypes.AList): R
-    fun visitPolymorphic(type: ATypes.APolymorphic): R
-    fun visitObject(type: ATypes.AObject): R
+    fun visitEnum(type: AmperTypes.Enum): R
+    fun visitScalar(type: AmperTypes.Scalar): R
+    fun visitMap(type: AmperTypes.Map): R
+    fun visitList(type: AmperTypes.List): R
+    fun visitPolymorphic(type: AmperTypes.Polymorphic): R
+    fun visitObject(type: AmperTypes.Object): R
 }
 
 /**
- * Collect all referenced [ATypes.AObject]s starting from the given [root].
+ * Collect all referenced [AmperTypes.Object]s starting from the given [root].
  */
-fun collectReferencedObjects(root: ATypes.AType) = AObjectRecursiveCollector().visitAType(root)
-private class AObjectRecursiveCollector : ATypesVisitor<List<ATypes.AObject>> {
-    private val visited = mutableSetOf<ATypes.AType>()
-    private val empty = emptyList<ATypes.AObject>()
+fun collectReferencedObjects(root: AmperTypes.AmperType) = AObjectRecursiveCollector().visitAType(root)
+private class AObjectRecursiveCollector : ATypesVisitor<List<AmperTypes.Object>> {
+    private val visited = mutableSetOf<AmperTypes.AmperType>()
+    private val empty = emptyList<AmperTypes.Object>()
     
     // Rough recursion prevention.
-    override fun visitAType(type: ATypes.AType) = if (visited.add(type)) super.visitAType(type) else empty
+    override fun visitAType(type: AmperTypes.AmperType) = if (visited.add(type)) super.visitAType(type) else empty
     
-    override fun visitEnum(type: ATypes.AEnum) = empty
-    override fun visitScalar(type: ATypes.AScalar) = empty
-    override fun visitMap(type: ATypes.AMap) = type.valueType.accept()
-    override fun visitList(type: ATypes.AList) = type.valueType.accept()
-    override fun visitPolymorphic(type: ATypes.APolymorphic) = type.inheritors.flatMap { it.accept() }
-    override fun visitObject(type: ATypes.AObject) = type.properties.flatMap { it.type.accept() } + type
+    override fun visitEnum(type: AmperTypes.Enum) = empty
+    override fun visitScalar(type: AmperTypes.Scalar) = empty
+    override fun visitMap(type: AmperTypes.Map) = type.valueType.accept()
+    override fun visitList(type: AmperTypes.List) = type.valueType.accept()
+    override fun visitPolymorphic(type: AmperTypes.Polymorphic) = type.inheritors.flatMap { it.accept() }
+    override fun visitObject(type: AmperTypes.Object) = type.properties.flatMap { it.type.accept() } + type
 }

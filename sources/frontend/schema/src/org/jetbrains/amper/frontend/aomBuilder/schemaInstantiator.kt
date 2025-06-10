@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import com.intellij.util.alsoIfNull
 import com.intellij.util.asSafely
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -12,20 +11,18 @@ import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueHolder
 import org.jetbrains.amper.frontend.api.ValueState
-import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.types.isString
 import org.jetbrains.amper.frontend.types.isSubclassOf
 import org.jetbrains.amper.frontend.types.kClass
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
-import org.jetbrains.amper.frontend.types.ATypes
-import org.jetbrains.amper.frontend.types.ATypes.AList
-import org.jetbrains.amper.frontend.types.ATypes.AMap
-import org.jetbrains.amper.frontend.types.ATypes.AObject
-import org.jetbrains.amper.frontend.types.ATypes.APolymorphic
-import org.jetbrains.amper.frontend.types.ATypes.AScalar
-import org.jetbrains.amper.frontend.types.ATypes.AType
+import org.jetbrains.amper.frontend.types.AmperTypes
+import org.jetbrains.amper.frontend.types.AmperTypes.List
+import org.jetbrains.amper.frontend.types.AmperTypes.Map
+import org.jetbrains.amper.frontend.types.AmperTypes.Object
+import org.jetbrains.amper.frontend.types.AmperTypes.Polymorphic
+import org.jetbrains.amper.frontend.types.AmperTypes.Scalar
+import org.jetbrains.amper.frontend.types.AmperTypes.AmperType
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Refined
@@ -39,21 +36,21 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 
 
-inline fun <reified T : SchemaNode> BuildCtx.createSchemaNode(node: RefinedTree) =
-    InstantiationCtx(this, types, types<T>() as AObject, node).createSchemaNode() as T
+inline internal fun <reified T : SchemaNode> BuildCtx.createSchemaNode(node: RefinedTree) =
+    InstantiationCtx(this, types, types<T>() as Object, node).createSchemaNode() as T
 
-class InstantiationCtx<V : RefinedTree, T : AType>(
+internal class InstantiationCtx<V : RefinedTree, T : AmperType>(
     private val reporterCtx: ProblemReporterContext,
-    private val types: ATypes,
+    private val types: AmperTypes,
     val currentType: T,
     val currentValue: V,
-    val parents: List<RefinedTree> = emptyList(),
+    val parents: kotlin.collections.List<RefinedTree> = emptyList(),
 ) : ProblemReporterContext by reporterCtx, TreeValueReporterCtx {
 
     /**
      * Create new factory with new class.
      */
-    private fun <N : AType> newCtx(type: N) = InstantiationCtx(reporterCtx, types, type, currentValue, parents)
+    private fun <N : AmperType> newCtx(type: N) = InstantiationCtx(reporterCtx, types, type, currentValue, parents)
 
     /**
      * Create new factory with new current node.
@@ -87,7 +84,7 @@ class InstantiationCtx<V : RefinedTree, T : AType>(
     /**
      * Try to perform last validations on the property value and then set it with the correct trace.
      */
-    private fun SchemaNode.setSafely(prop: ATypes.AProperty, value: Any) {
+    private fun SchemaNode.setSafely(prop: AmperTypes.Property, value: Any) {
         if (value is String && prop.meta.type.isString && prop.meta.knownStringValues?.contains(value) == false)
             currentValue.reportAndNull(
                 problemId = "validation.not.within.known.values",
@@ -111,14 +108,14 @@ class InstantiationCtx<V : RefinedTree, T : AType>(
      * Tries to instantiate [currentType] with default constructor
      * or choose right descendant if [currentType] is polymorphic.
      */
-    private fun tryInstantiate(configure: InstantiationCtx<MapLikeValue<Refined>, AObject>.(SchemaNode) -> Unit): SchemaNode {
+    private fun tryInstantiate(configure: InstantiationCtx<MapLikeValue<Refined>, Object>.(SchemaNode) -> Unit): SchemaNode {
         if (currentValue !is MapLikeValue<*>)
             error("Expected `MapValue` but got `$currentValue` instead.") // TODO Report.
 
         val valueType = currentValue.type
         when (currentType) {
-            is AObject -> if (valueType !== currentType) error("Expected value to have `$currentType` but got `$valueType` instead.")
-            is APolymorphic -> if (valueType !in currentType.inheritors) error("Expected value type (`$valueType`) to be inheritor of `$currentType`.")
+            is Object -> if (valueType !== currentType) error("Expected value to have `$currentType` but got `$valueType` instead.")
+            is Polymorphic -> if (valueType !in currentType.inheritors) error("Expected value type (`$valueType`) to be inheritor of `$currentType`.")
             else -> error("Expected `AObject` or `APolymorphic` but got `$currentType` instead.")
         }
 
@@ -139,15 +136,15 @@ class InstantiationCtx<V : RefinedTree, T : AType>(
             // We can safely cast here, because [currentValue] is [MapValue], but smart cast cannot
             // raise type deduction to the class from property.
             @Suppress("UNCHECKED_CAST")
-            (newCtx(valueType) as InstantiationCtx<MapLikeValue<Refined>, AObject>).configure(it)
+            (newCtx(valueType) as InstantiationCtx<MapLikeValue<Refined>, Object>).configure(it)
         }
     }
 
     /**
      * Read value of a specified [type] from the children of the [currentValue].
      */
-    private fun readValue(type: AType): Any? = when (type) {
-        is AMap -> currentValue.asSafely<MapLikeValue<Refined>>()
+    private fun readValue(type: AmperType): Any? = when (type) {
+        is Map -> currentValue.asSafely<MapLikeValue<Refined>>()
             .also { if (it == null) currentValue.reportAndNull("validation.expected.map") }
             ?.children?.associate {
                 val key = if (type.kType.mapKeyType.isTraceableString) {
@@ -156,19 +153,19 @@ class InstantiationCtx<V : RefinedTree, T : AType>(
                 key to it.value.newCtx().readValue(type.valueType)
             }
 
-        is AList -> currentValue.asSafely<ListValue<Refined>>()
+        is List -> currentValue.asSafely<ListValue<Refined>>()
             .also { if (it == null) currentValue.reportAndNull("validation.expected.collection") }
             ?.children?.map { it.newCtx().readValue(type.valueType) }
 
         // Reporting should happen when we are reading the tree.
-        is AScalar -> currentValue.asSafely<ScalarValue<Refined>>()?.value
+        is Scalar -> currentValue.asSafely<ScalarValue<Refined>>()?.value
 
         // Reporting will happen in [createSchemaNode].
-        is AObject, is APolymorphic -> newCtx(type).createSchemaNode()
+        is Object, is Polymorphic -> newCtx(type).createSchemaNode()
     }
 
     // We can use this transformation here because we treat the tree as already merged,
     // so we are not expecting any duplicating keys.
-    private val MapLikeValue<*>.asMap: Map<String, RefinedTree> get() = children.associate { it.key to it.value as RefinedTree }
+    private val MapLikeValue<*>.asMap: kotlin.collections.Map<String, RefinedTree> get() = children.associate { it.key to it.value as RefinedTree }
     private val RefinedTree.psiElement get() = trace.extractPsiElementOrNull()
 }

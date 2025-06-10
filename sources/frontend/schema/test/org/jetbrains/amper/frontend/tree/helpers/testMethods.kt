@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.tree.helpers
 
 
 import org.jetbrains.amper.frontend.contexts.Contexts
-import org.jetbrains.amper.frontend.types.ATypes
+import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.nio.file.Path
 
@@ -16,7 +16,7 @@ import java.nio.file.Path
  */
 fun TestBase.testModuleRead(
     caseName: String,
-    types: ATypes = TestATypesDiscoverer(),
+    types: AmperTypes = TestAmperTypesDiscoverer(),
     expectPostfix: String = ".result.json",
 ) = TreeTestRun(
     caseName = caseName,
@@ -32,7 +32,7 @@ fun TestBase.testModuleRead(
 fun TestBase.testRefineModule(
     caseName: String,
     selectedContexts: Contexts,
-    types: ATypes = TestATypesDiscoverer(),
+    types: AmperTypes = TestAmperTypesDiscoverer(),
     expectPostfix: String = ".result.json",
 ) = TreeTestRun(
     caseName = caseName,
@@ -48,7 +48,7 @@ fun TestBase.testRefineModule(
 fun TestBase.testRefineModuleWithTemplates(
     caseName: String,
     selectedContexts: (Path) -> Contexts,
-    types: ATypes = TestATypesDiscoverer(),
+    types: AmperTypes = TestAmperTypesDiscoverer(),
     expectPostfix: String = ".result.json",
 ) = TreeTestRun(
     caseName = caseName,
@@ -64,7 +64,7 @@ fun TestBase.testRefineModuleWithTemplates(
  */
 fun TestBase.diagnoseModuleRead(
     caseName: String,
-    types: ATypes = TestATypesDiscoverer(),
+    types: AmperTypes = TestAmperTypesDiscoverer(),
 ) = DiagnosticsTreeTestRun(
     caseName = caseName,
     base = baseTestResourcesPath,

@@ -8,12 +8,12 @@ import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.BuildProblemSource
-import org.jetbrains.amper.core.messages.DefaultFileBuildProblemSource
 import org.jetbrains.amper.core.messages.FileBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.core.safelyResolveToAbsolute
+import org.jetbrains.amper.core.messages.WholeFileBuildProblemSource
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.CompositeString
@@ -29,35 +29,32 @@ import org.jetbrains.amper.frontend.project.customTaskName
 import org.jetbrains.amper.frontend.tree.RefinedTree
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import java.nio.file.Path
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.map
-import kotlin.collections.mapNotNull
-import kotlin.collections.mapValues
-import kotlin.collections.orEmpty
 import kotlin.io.path.absolute
 import kotlin.io.path.pathString
 
 
-context(ProblemReporterContext)
+@OptIn(NonIdealDiagnostic::class)
 internal fun BuildCtx.buildCustomTask(
     customTaskFile: VirtualFile,
     allModules: List<ModuleBuildCtx>,
 ) {
     val dir2module = allModules.associateBy { it.moduleFile.parent.toNioPath().absolute() }
 
-    val module = dir2module[customTaskFile.parent.toNioPath().absolute()]
-        ?: problemReporter.reportMessage(
+    val module = dir2module[customTaskFile.parent.toNioPath().absolute()] ?: run {
+        problemReporter.reportMessage(
             buildProblemId = "INVALID_CUSTOM_TASK_FILE_PATH",
-            source = DefaultFileBuildProblemSource(customTaskFile.toNioPath()),
+            source = WholeFileBuildProblemSource(customTaskFile.toNioPath()),
             message = "Unable to find module for custom task file: $customTaskFile",
-        ) ?: return
+        )
+        return
+    }
 
     val taskTree = readTree(customTaskFile, types<CustomTaskNode>()) ?: return
     // We can cast here only because no contexts are available inside the task definition.
     val node = createSchemaNode<CustomTaskNode>(taskTree as RefinedTree)
     val customTask = buildCustomTask(customTaskFile, node, module.module) {
-        module.moduleDirPath.safelyResolveToAbsolute(it)?.let(dir2module::get)?.module
+        val modulePathPart = it.toNioPathOrNull() ?: return@buildCustomTask null
+        module.moduleDirPath.resolve(modulePathPart).absolute().normalize().let(dir2module::get)?.module
     } ?: return
 
     module.module.customTasks += customTask
@@ -75,11 +72,14 @@ private fun BuildCtx.buildCustomTask(
     }
 
     val codeModule = moduleResolver(node.module.pathString)
-    if (codeModule == null) return problemReporter.reportMessage(
-        buildProblemId = "UNKNOWN_MODULE",
-        source = buildProblemSource,
-        message = "Unresolved module reference: ${node.module.pathString}",
-    )
+    if (codeModule == null) {
+        problemReporter.reportMessage(
+            buildProblemId = "UNKNOWN_MODULE",
+            source = buildProblemSource,
+            message = "Unresolved module reference: ${node.module.pathString}",
+        )
+        return null
+    }
 
     return DefaultCustomTaskDescription(
         name = TaskName.moduleTask(module, virtualFile.customTaskName()),
@@ -105,11 +105,14 @@ private fun BuildCtx.buildCustomTask(
         customTaskCodeModule = codeModule,
         addToModuleRootsFromCustomTask = node.addTaskOutputToSourceSet.orEmpty().mapNotNull {
             val relativePath = it.taskOutputSubFolder.toNioPathOrNull()
-            if (relativePath == null) return@mapNotNull problemReporter.reportMessage(
-                buildProblemId = "INVALID_TASK_OUTPUT_SUBFOLDER",
-                source = buildProblemSource,
-                message = "'taskOutputSubFolder' property is not a relative path",
-            )
+            if (relativePath == null) {
+                problemReporter.reportMessage(
+                    buildProblemId = "INVALID_TASK_OUTPUT_SUBFOLDER",
+                    source = buildProblemSource,
+                    message = "'taskOutputSubFolder' property is not a relative path",
+                )
+                return@mapNotNull null
+            }
 
             DefaultAddToModuleRootsFromCustomTask(
                 taskOutputRelativePath = relativePath,
@@ -167,11 +170,14 @@ internal fun ProblemReporterContext.parseStringWithReferences(
         if (modulePath.isEmpty()) {
             // current task property reference
             val knownProperty = KnownCurrentTaskProperty.namesMap[propertyName]
-            if (knownProperty == null) return@mapNotNullTo problemReporter.reportMessage(
-                buildProblemId = "STR_REF_UNKNOWN_CURRENT_TASK_PROPERTY",
-                source = source,
-                message = "Unknown current task property '$propertyName': ${match.value}",
-            )
+            if (knownProperty == null) {
+                problemReporter.reportMessage(
+                    buildProblemId = "STR_REF_UNKNOWN_CURRENT_TASK_PROPERTY",
+                    source = source,
+                    message = "Unknown current task property '$propertyName': ${match.value}",
+                )
+                return@mapNotNullTo null
+            }
 
             CompositeStringPart.CurrentTaskProperty(
                 property = knownProperty,
@@ -180,18 +186,24 @@ internal fun ProblemReporterContext.parseStringWithReferences(
         } else {
             // module property reference
             val knownPropertyName = KnownModuleProperty.namesMap[propertyName]
-            if (knownPropertyName == null) return@mapNotNullTo problemReporter.reportMessage(
-                buildProblemId = "STR_REF_UNKNOWN_MODULE_PROPERTY",
-                source = source,
-                message = "Unknown property name '$propertyName': ${match.value}",
-            )
+            if (knownPropertyName == null) {
+                problemReporter.reportMessage(
+                    buildProblemId = "STR_REF_UNKNOWN_MODULE_PROPERTY",
+                    source = source,
+                    message = "Unknown property name '$propertyName': ${match.value}",
+                )
+                return@mapNotNullTo null
+            }
 
             val resolvedModule = moduleResolver(modulePath)
-            if (resolvedModule == null) return@mapNotNullTo problemReporter.reportMessage(
-                buildProblemId = "STR_REF_UNKNOWN_MODULE",
-                source = source,
-                message = "Unknown module '$modulePath' referenced from '${match.value}'",
-            )
+            if (resolvedModule == null) {
+                problemReporter.reportMessage(
+                    buildProblemId = "STR_REF_UNKNOWN_MODULE",
+                    source = source,
+                    message = "Unknown module '$modulePath' referenced from '${match.value}'",
+                )
+                return@mapNotNullTo null
+            }
 
             CompositeStringPart.ModulePropertyReference(
                 referencedModule = resolvedModule,
@@ -208,4 +220,4 @@ internal fun ProblemReporterContext.parseStringWithReferences(
 
 private fun ProblemReporter.reportMessage(
     buildProblemId: String, source: BuildProblemSource, message: String, level: Level = Level.Error,
-): Nothing? = reportMessage(BuildProblemImpl(buildProblemId, source, message, level)).run { null }
+) = reportMessage(BuildProblemImpl(buildProblemId, source, message, level))

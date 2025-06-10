@@ -30,13 +30,13 @@ interface TreeVisitor<R, TS : TreeState> {
  */
 abstract class RecurringTreeVisitor<R, TS : TreeState> : TreeVisitor<R, TS> {
     abstract fun aggregate(value: TreeValue<TS>, childResults: List<R>): R
-    open fun aggregateList(value: ListValue<TS>, childResults: List<R>) = aggregate(value, childResults)
-    open fun aggregateMap(value: MapLikeValue<TS>, childResults: List<R>) = aggregate(value, childResults)
+    open fun aggregateList(value: ListValue<TS>, childResults: List<R>): R = aggregate(value, childResults)
+    open fun aggregateMap(value: MapLikeValue<TS>, childResults: List<R>): R = aggregate(value, childResults)
 
-    override fun visitListValue(value: ListValue<TS>) =
+    override fun visitListValue(value: ListValue<TS>): R =
         aggregateList(value, value.children.map(::visitValue))
 
-    override fun visitMapValue(value: MapLikeValue<TS>) =
+    override fun visitMapValue(value: MapLikeValue<TS>): R =
         aggregateMap(value, value.children.map { it.value }.map(::visitValue))
 }
 
