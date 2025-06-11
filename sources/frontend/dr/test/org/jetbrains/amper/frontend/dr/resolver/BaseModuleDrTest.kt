@@ -16,6 +16,8 @@ import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleDiagnosticDescriptor
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.Model
@@ -31,6 +33,8 @@ import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration
@@ -261,4 +265,42 @@ abstract class BaseModuleDrTest {
 
     protected fun runDrTest(testBody: suspend TestScope.() -> Unit) =
         runTest(timeout = testTimeoutInMillis, testBody = testBody)
+
+    internal inline fun <reified MessageT : Message> assertTheOnlyNonInfoMessage(
+        root: DependencyNode,
+        severity: Severity
+    ): MessageT {
+        val messages = root.children.single().messages.defaultFilterMessages()
+        val message = messages.singleOrNull()
+        assertNotNull(message, "A single error message is expected, but found: ${messages.toSet()}")
+        assertIs<MessageT>(message, "Unexpected error message")
+        kotlin.test.assertEquals(
+            severity,
+            message.severity,
+            "Unexpected severity of the error message"
+        )
+        return message
+    }
+
+    internal fun assertTheOnlyNonInfoMessage(
+        root: DependencyNode,
+        diagnostic: SimpleDiagnosticDescriptor,
+        severity: Severity = diagnostic.defaultSeverity,
+        transitively: Boolean = false
+    ) {
+        val nodes = if (transitively) root.distinctBfsSequence() else sequenceOf(root)
+        val messages = nodes.flatMap{ it.children.flatMap { it.messages.defaultFilterMessages() } }
+        val message = messages.singleOrNull()
+        assertNotNull(message, "A single error message is expected, but found: ${messages.toSet()}")
+        kotlin.test.assertEquals(
+            diagnostic.id,
+            message.id,
+            "Unexpected error message"
+        )
+        kotlin.test.assertEquals(
+            severity,
+            message.severity,
+            "Unexpected severity of the error message"
+        )
+    }
 }

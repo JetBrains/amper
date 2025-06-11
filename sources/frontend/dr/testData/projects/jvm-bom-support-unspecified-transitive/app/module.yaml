@@ -1,0 +1,8 @@
+product: android/app
+
+# Direct dependencies on other modules.
+# Corresponding test case checks that transitive dependencies are collected correctly
+dependencies:
+  - io.github.dokar3:sonner:0.3.8
+  - bom: androidx.compose:compose-bom:2025.05.00
+

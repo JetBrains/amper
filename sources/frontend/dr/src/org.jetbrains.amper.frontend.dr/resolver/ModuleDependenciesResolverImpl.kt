@@ -93,7 +93,6 @@ class DirectMavenDependencyUnspecifiedVersionResolver(): UnspecifiedVersionResol
 
     override fun isApplicable(node: MavenDependencyNode): Boolean {
         return node.originalVersion() == null
-                && node.parents.any { it is DirectFragmentDependencyNodeHolder }
     }
 
     override fun resolveVersions(nodes: Set<MavenDependencyNode>): Map<MavenDependencyNode, String> {
@@ -108,10 +107,18 @@ class DirectMavenDependencyUnspecifiedVersionResolver(): UnspecifiedVersionResol
 
     /**
      * Resolve an unspecified dependency version from the BOM imported in the same module.
-     * Unspecified dependency version should not be taken from transitive dependencies or constraints.
+     * Unspecified dependency version of direct dependency should not be taken from transitive dependencies or constraints.
      */
     private fun resolveVersionFromBom(node: MavenDependencyNode): String? {
-        val boms = node.parents.filter { it is DirectFragmentDependencyNodeHolder }
+        val nodeParentsToFindBomsFrom: List<DirectFragmentDependencyNodeHolder> = when {
+            // Direct dependency
+            node.parents.any { it is DirectFragmentDependencyNodeHolder } -> node.parents.filterIsInstance<DirectFragmentDependencyNodeHolder>()
+            // Transitive dependency,
+            // find all direct dependencies this transitive one is referenced by and use those for BOM resolution
+            else -> node.fragmentDependencies
+        }
+
+        val boms = nodeParentsToFindBomsFrom
             .mapNotNull { it.parents.singleOrNull() as? ModuleDependencyNodeWithModule }
             .map { node ->
                 node.children

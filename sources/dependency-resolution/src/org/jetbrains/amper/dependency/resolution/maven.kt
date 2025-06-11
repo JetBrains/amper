@@ -787,7 +787,7 @@ class MavenDependency internal constructor(
                                     level,
                                     diagnosticsReporter
                                 ) + listOfNotNull(it.`available-at`?.asDependency())
-                            }.mapNotNull {
+                            }.map {
                                 it.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
                             }.let {
                                 children = it
@@ -927,7 +927,7 @@ class MavenDependency internal constructor(
                 .let {
                     it.flatMap {
                         it.dependencies(context, moduleMetadata, level, diagnosticsReporter)
-                    }.mapNotNull {
+                    }.map {
                         it.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
                     }.let {
                         children = it
@@ -954,16 +954,16 @@ class MavenDependency internal constructor(
     private fun Dependency.toMavenDependency(
         context: Context,
         reportError: (reason: String) -> Unit = {},
-    ): MavenDependency? {
+    ): MavenDependency {
         val resolvedVersion = resolveVersion(reportError)
-        return resolvedVersion?.let { context.createOrReuseDependency(group, module, resolvedVersion, isBom()) }
+        return context.createOrReuseDependency(group, module, resolvedVersion, isBom())
     }
 
     private fun Dependency.toMavenDependency(
         context: Context,
         module: Module,
         diagnosticsReporter: DiagnosticReporter
-    ): MavenDependency? {
+    ): MavenDependency {
         val dependency = this
         return toMavenDependency(context) { reason ->
             val coordinates = "${module.component.group}:${module.component.module}:${module.component.version}"
@@ -1044,7 +1044,7 @@ class MavenDependency internal constructor(
 
     private fun Dependency.resolveVersion(reportError: (reason: String) -> Unit): String? {
         return if (version == null) {
-            reportError(DependencyResolutionBundle.message("attribute.version.is.not.defined"))
+            // Empty version of transitive dependency might be resolved from some BOM file from dependency graph
             null
         } else {
             val resolvedVersion = version.resolve()
