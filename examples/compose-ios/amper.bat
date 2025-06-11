@@ -16,13 +16,13 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.8.0-dev-2890
+set amper_version=0.8.0-dev-2904
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=95a9381297760b9af57ad206404f38598a6c295c98ffc6d46429e95ae93dc2e5
+set amper_sha256=5c0f51b00c2b58d516add442ea365d39bfead4f9d8e53d3b2f6090293fc6f565
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
-if not defined AMPER_BOOTSTRAP_CACHE_DIR set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper
+if not defined AMPER_BOOTSTRAP_CACHE_DIR set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\JetBrains\Amper
 @rem remove trailing \ if present
 if [%AMPER_BOOTSTRAP_CACHE_DIR:~-1%] EQU [\] set AMPER_BOOTSTRAP_CACHE_DIR=%AMPER_BOOTSTRAP_CACHE_DIR:~0,-1%
 
@@ -141,7 +141,7 @@ if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
 )
 
 REM !! DO NOT REMOVE !!
-REM                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    exit /b %ERRORLEVEL%
+REM                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          exit /b %ERRORLEVEL%
 REM
 REM The above comment is strategically placed to compensate for a bug in the update command in Amper 0.5.0.
 REM During the update, the wrapper script is overwritten in-place while running. The problem is that cmd.exe doesn't

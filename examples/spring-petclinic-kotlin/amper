@@ -16,9 +16,9 @@
 set -e -u
 
 # The version of the Amper distribution to provision and use
-amper_version=0.8.0-dev-2890
+amper_version=0.8.0-dev-2904
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=95a9381297760b9af57ad206404f38598a6c295c98ffc6d46429e95ae93dc2e5
+amper_sha256=5c0f51b00c2b58d516add442ea365d39bfead4f9d8e53d3b2f6090293fc6f565
 
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
@@ -89,10 +89,10 @@ download_and_extract() {
   if command -v curl >/dev/null 2>&1; then
     if [ -t 1 ]; then CURL_PROGRESS="--progress-bar"; else CURL_PROGRESS="--silent --show-error"; fi
     # shellcheck disable=SC2086
-    curl $CURL_PROGRESS -L --fail --retry 5 --connect-timeout 30 --output "${temp_file}" "$file_url" 2>&1
+    curl $CURL_PROGRESS -L --fail --retry 5 --connect-timeout 30 --output "${temp_file}" "$file_url"
   elif command -v wget >/dev/null 2>&1; then
     if [ -t 1 ]; then WGET_PROGRESS=""; else WGET_PROGRESS="-nv"; fi
-    wget $WGET_PROGRESS --tries=5 --connect-timeout=30 --read-timeout=120 -O "${temp_file}" "$file_url" 2>&1
+    wget $WGET_PROGRESS --tries=5 --connect-timeout=30 --read-timeout=120 -O "${temp_file}" "$file_url"
   else
     die "ERROR: Please install 'wget' or 'curl', as Amper needs one of them to download $moniker"
   fi
@@ -162,12 +162,12 @@ case "$kernelName" in
   Darwin* )
     simpleOs="macos"
     jbr_os="osx"
-    default_amper_cache_dir="$HOME/Library/Caches/Amper"
+    default_amper_cache_dir="$HOME/Library/Caches/JetBrains/Amper"
     ;;
   Linux* )
     simpleOs="linux"
     jbr_os="linux"
-    default_amper_cache_dir="$HOME/.cache/Amper"
+    default_amper_cache_dir="$HOME/.cache/JetBrains/Amper"
     # If linux runs in 32-bit mode, we want the "fake" 32-bit architecture, not the real hardware,
     # because in this mode linux cannot run 64-bit binaries.
     # shellcheck disable=SC2046
@@ -177,7 +177,7 @@ case "$kernelName" in
     simpleOs="windows"
     jbr_os="windows"
     if command -v cygpath >/dev/null 2>&1; then
-      default_amper_cache_dir=$(cygpath -u "$LOCALAPPDATA\Amper")
+      default_amper_cache_dir=$(cygpath -u "$LOCALAPPDATA\JetBrains\Amper")
     else
       die "The 'cypath' command is not available, but Amper needs it. Use amper.bat instead, or try a Cygwin or MSYS environment."
     fi
