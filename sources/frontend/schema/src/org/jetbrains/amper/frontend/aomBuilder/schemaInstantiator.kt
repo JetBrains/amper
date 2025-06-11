@@ -36,7 +36,10 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 
 
-inline internal fun <reified T : SchemaNode> BuildCtx.createSchemaNode(node: RefinedTree) =
+/**
+ * Instantiate requested [T] and fill its properties from the [node].
+ */
+internal inline fun <reified T : SchemaNode> BuildCtx.createSchemaNode(node: RefinedTree) =
     InstantiationCtx(this, types, types<T>() as Object, node).createSchemaNode() as T
 
 internal class InstantiationCtx<V : RefinedTree, T : AmperType>(

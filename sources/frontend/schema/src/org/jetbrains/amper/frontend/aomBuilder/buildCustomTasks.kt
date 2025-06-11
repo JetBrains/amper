@@ -158,54 +158,49 @@ internal fun ProblemReporterContext.parseStringWithReferences(
         result.add(CompositeStringPart.Literal(unescaped))
     }
 
-    propertyReferenceRegex.findAll(value).mapNotNullTo(result) { match ->
+    propertyReferenceRegex.findAll(value).forEach { match ->
         val literalPart = value.substring(pos, match.range.first)
-        if (literalPart.isNotEmpty()) {
-            addLiteralPart(literalPart)
-        }
+        if (literalPart.isNotEmpty()) addLiteralPart(literalPart)
         pos = match.range.last + 1
 
         val (_, _, modulePath, propertyName) = match.groupValues
 
         if (modulePath.isEmpty()) {
             // current task property reference
-            val knownProperty = KnownCurrentTaskProperty.namesMap[propertyName]
-            if (knownProperty == null) {
+            val knownProperty = KnownCurrentTaskProperty.namesMap[propertyName] ?: run {
                 problemReporter.reportMessage(
                     buildProblemId = "STR_REF_UNKNOWN_CURRENT_TASK_PROPERTY",
                     source = source,
                     message = "Unknown current task property '$propertyName': ${match.value}",
                 )
-                return@mapNotNullTo null
+                return@forEach
             }
 
-            CompositeStringPart.CurrentTaskProperty(
+            result += CompositeStringPart.CurrentTaskProperty(
                 property = knownProperty,
                 originalReferenceText = match.value,
             )
         } else {
             // module property reference
-            val knownPropertyName = KnownModuleProperty.namesMap[propertyName]
-            if (knownPropertyName == null) {
+            val knownPropertyName = KnownModuleProperty.namesMap[propertyName] ?: run {
                 problemReporter.reportMessage(
                     buildProblemId = "STR_REF_UNKNOWN_MODULE_PROPERTY",
                     source = source,
                     message = "Unknown property name '$propertyName': ${match.value}",
                 )
-                return@mapNotNullTo null
+                return@forEach
             }
 
-            val resolvedModule = moduleResolver(modulePath)
-            if (resolvedModule == null) {
+            val resolvedModule = moduleResolver(modulePath) ?: run {
                 problemReporter.reportMessage(
                     buildProblemId = "STR_REF_UNKNOWN_MODULE",
                     source = source,
                     message = "Unknown module '$modulePath' referenced from '${match.value}'",
                 )
-                return@mapNotNullTo null
+                return@forEach
             }
 
-            CompositeStringPart.ModulePropertyReference(
+            result += CompositeStringPart.ModulePropertyReference(
                 referencedModule = resolvedModule,
                 property = knownPropertyName,
                 originalReferenceText = match.value,
