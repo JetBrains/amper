@@ -13,12 +13,21 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.mordant.rendering.TextColors.green
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.cli.CliProblemReporterContext
+import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.cli.commands.AmperSubcommand
+import org.jetbrains.amper.cli.createProjectContext
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.ExtractOptions
@@ -26,20 +35,32 @@ import org.jetbrains.amper.core.extract.extractFileToCacheLocation
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
+import org.jetbrains.amper.telemetry.use
 import java.net.Socket
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.exists
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.streams.asSequence
 
-internal class JaegerToolCommand: AmperSubcommand(name = "jaeger") {
+internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
 
     private val openBrowser by option(
         "--open-browser",
         help = "Open Jaeger UI in browser if Jaeger successfully starts",
+    ).boolean().default(true)
+
+    private val autoImportTraces by option(
+        "--auto-import-traces",
+        help = "Automatically import traces from the local file system",
     ).boolean().default(true)
 
     private val port by option("--jaeger-port", help = "The HTTP port to use for the Jaeger UI")
@@ -83,15 +104,86 @@ internal class JaegerToolCommand: AmperSubcommand(name = "jaeger") {
             DeadLockMonitor.disable()
 
             coroutineScope {
-                if (shouldAutoOpenBrowser) {
-                    launch { autoOpenBrowserWhenReady() }
+                launch {
+                    if (autoImportTraces) {
+                       importTraces()
+                    }
+                    if (shouldAutoOpenBrowser) {
+                        autoOpenBrowserWhenReady()
+                    }
                 }
+
+
                 val exitCode = runProcess(
                     command = CommandLineUtils.quoteCommandLineForCurrentPlatform(cmd),
                     outputListener = PrintToTerminalProcessOutputListener(terminal),
                 )
                 if (exitCode != 0) {
                     userReadableError("${executable.name} exited with code $exitCode")
+                }
+            }
+        }
+    }
+
+    private suspend fun importTraces() = coroutineScope {
+        awaitJaegerPortReady()
+
+        val traceFiles = findTraceFiles()
+        if (traceFiles.isEmpty()) {
+            terminal.println("No trace files found, do nothing")
+            return@coroutineScope
+        }
+
+        terminal.println("Found ${traceFiles.size} trace file(s), sending them to Jaeger")
+
+        for (file in traceFiles) {
+            val jsonLines = Files.readAllLines(file)
+            launch { sendTracesToJaeger(jsonLines) }
+        }
+    }
+
+    private suspend fun findTraceFiles(): List<Path> {
+        val result = mutableListOf<Path>()
+
+        val buildLogsDir = commonOptions.buildOutputRoot?.resolve("logs") ?: run {
+            val amperProjectContext = try {
+                spanBuilder("Create Amper project context").use {
+                    with(CliProblemReporterContext) {
+                        createProjectContext(commonOptions.explicitRoot?.toAbsolutePath())
+                    }
+                }
+            } catch (_: UserReadableError) {
+                null
+            }
+            amperProjectContext
+                ?.projectRootDir
+                ?.toNioPath()
+                ?.resolve("build")
+                ?.resolve("logs")
+        }
+
+        if (buildLogsDir?.exists() == true) {
+            Files.walk(buildLogsDir)
+                .asSequence()
+                .filter { it.isRegularFile() && it.name.endsWith("opentelemetry_traces.jsonl") }
+                .forEach { result.add(it) }
+        }
+        return result
+    }
+
+    private suspend fun sendTracesToJaeger(jsonLines: List<String>) {
+        awaitJaegerPortReady()
+        val otlpUrl = "http://127.0.0.1:4318/v1/traces"  // Standard OTLP HTTP port
+        HttpClient().use { client ->
+            for (line in jsonLines) {
+                if (line.isBlank()) continue
+
+                val response = client.post(otlpUrl) {
+                    contentType(ContentType.Application.Json)
+                    setBody(line)
+                }
+                if (response.status.value !in 200..299) {
+                    terminal.println("Error sending trace to OTLP endpoint: ${response.status.value} - ${response.bodyAsText()}")
                 }
             }
         }
