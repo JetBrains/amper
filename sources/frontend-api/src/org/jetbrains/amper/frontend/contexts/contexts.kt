@@ -12,11 +12,25 @@ import org.jetbrains.amper.frontend.contexts.ContextsInheritance.Result.IS_MORE_
 import org.jetbrains.amper.frontend.contexts.ContextsInheritance.Result.SAME
 
 
+/**
+ * A context represents the specificity of the value in the `TreeValue`
+ * that affects how this value will be refined (see `TreeRefiner`).
+ *
+ * Each subclass should represent a new "dimension" of possible contexts.
+ * For example, `PlatformContext` represents the platforms for which some value is set.
+ *
+ * Each context "dimension" contains "null" context implicitly,
+ * which means that there is no context of that dimension in `Contexts` for the value.
+ */
 interface Context {
     val trace: Trace?
     fun withoutTrace(): Context
 }
 
+/**
+ * Set of contexts that are applied to the value.
+ * Contexts from different dimensions may be present here.
+ */
 typealias Contexts = Collection<Context>
 
 interface WithContexts {
@@ -25,7 +39,10 @@ interface WithContexts {
 
 val EmptyContexts : Contexts = emptyList()
 
-fun interface ContextsInheritance {
+/**
+ * Declares an inheritance relation between two sets of contexts for the provided dimension.
+ */
+fun interface ContextsInheritance<T : Context> {
 
     enum class Result {
         IS_MORE_SPECIFIC,
@@ -34,12 +51,17 @@ fun interface ContextsInheritance {
         INDETERMINATE,
     }
 
-    fun Contexts.isMoreSpecificThan(other: Contexts): Result
+    fun Collection<T>.isMoreSpecificThan(other: Collection<T>): Result
 }
 
-operator fun ContextsInheritance.plus(other: ContextsInheritance) = ContextsInheritance {
-    val firstResult = isMoreSpecificThan(it)
-    val secondResult = with(other) { this@ContextsInheritance.isMoreSpecificThan(it) }
+/**
+ * A way to combine two context inheritance relations and make a generic one.
+ */
+inline operator fun <reified F : Context, reified S : Context> ContextsInheritance<F>.plus(
+    other: ContextsInheritance<S>
+) = ContextsInheritance<Context> {
+    val firstResult = filterIsInstance<F>().isMoreSpecificThan(it.filterIsInstance<F>())
+    val secondResult = with(other) { filterIsInstance<S>().isMoreSpecificThan(it.filterIsInstance<S>()) }
     when {
         firstResult == SAME -> secondResult
         secondResult == SAME -> firstResult

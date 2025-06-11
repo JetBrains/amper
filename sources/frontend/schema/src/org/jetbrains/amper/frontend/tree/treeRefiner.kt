@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.api.withPrecedingValue
+import org.jetbrains.amper.frontend.contexts.Context
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.ContextsInheritance
 import org.jetbrains.amper.frontend.contexts.WithContexts
@@ -34,7 +35,7 @@ import org.jetbrains.annotations.TestOnly
  * ```
  */
 class TreeRefiner(
-    private val contextComparator: ContextsInheritance = defaultContextsInheritance,
+    private val contextComparator: ContextsInheritance<Context> = defaultContextsInheritance,
 ) {
     @Suppress("UNCHECKED_CAST")
     fun refineTree(tree: TreeValue<Merged>, selectedContexts: Contexts) =
@@ -42,13 +43,13 @@ class TreeRefiner(
 }
 
 @TestOnly
-internal fun TreeValue<Merged>.refineTree(selectedContexts: Contexts, contextComparator: ContextsInheritance) =
+internal fun TreeValue<Merged>.refineTree(selectedContexts: Contexts, contextComparator: ContextsInheritance<Context>) =
     RefineRequest(selectedContexts, contextComparator).refine(this) as TreeValue<Refined>
 
 class RefineRequest(
     private val selectedContexts: Contexts,
-    contextComparator: ContextsInheritance,
-) : ContextsInheritance by contextComparator {
+    contextComparator: ContextsInheritance<Context>,
+) : ContextsInheritance<Context> by contextComparator {
 
     /**
      * Creates a copy out of the subtree of the initial tree, selected by [selectedContexts]

@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.contexts
 
-import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.ContextsInheritance.Result.INDETERMINATE
@@ -22,16 +21,15 @@ class PlatformCtx(val value: String, override val trace: Trace? = null) : Contex
 fun Contexts.platformCtxs() = filterIsInstance<PlatformCtx>().toSet()
 
 /**
- * Interpret contexts as platforms and make
- * inheritance conclusion based on platform hierarchy.
+ * Make inheritance conclusion based on platform hierarchy.
  */
 class PlatformsInheritance(
     val aliases: Map<String, Set<Platform>> = emptyMap()
-) : ContextsInheritance {
+) : ContextsInheritance<PlatformCtx> {
     private val PlatformCtx.leaves get() = Platform[value]?.leaves ?: aliases[value]?.leaves
-    private val Contexts.ctxLeaves get() = mapNotNull { it.asSafely<PlatformCtx>()?.leaves }.flatten().toSet()
+    private val Collection<PlatformCtx>.ctxLeaves get() = mapNotNull { it.leaves }.flatten().toSet()
 
-    override fun Contexts.isMoreSpecificThan(other: Contexts): ContextsInheritance.Result {
+    override fun Collection<PlatformCtx>.isMoreSpecificThan(other: Collection<PlatformCtx>): ContextsInheritance.Result {
         val thisLeaves = ctxLeaves
         val otherLeaves = other.ctxLeaves
         return when {

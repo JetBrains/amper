@@ -17,12 +17,12 @@ open class TestCtx(override val trace: Trace?) : Context {
 }
 
 /**
- * Extract tests contexts if any and treat non containing these as less specific.
+ * Treat non-tests these as less specific.
  */
-object MainTestInheritance : ContextsInheritance {
-    override fun Contexts.isMoreSpecificThan(other: Contexts): ContextsInheritance.Result {
-        val thisIsTest = this.any { it is TestCtx }
-        val otherIsTest = other.any { it is TestCtx }
+object MainTestInheritance : ContextsInheritance<TestCtx> {
+    override fun Collection<TestCtx>.isMoreSpecificThan(other: Collection<TestCtx>): ContextsInheritance.Result {
+        val thisIsTest = this.isNotEmpty()
+        val otherIsTest = other.isNotEmpty()
         return when {
             thisIsTest == otherIsTest -> SAME
             thisIsTest -> IS_MORE_SPECIFIC

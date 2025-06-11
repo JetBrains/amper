@@ -54,7 +54,7 @@ class TreeReferencesResolver(
             ?: return null // TODO Report here we had not found any referenced value.
         val resolved = refPath.fold(listOf(resolutionRoot), ::resolveReferencePart)
 
-        // Clear contexts if the reference was the DefaultValue.
+        // Adjust contexts if the reference was the DefaultValue.
         return if (value.trace is DefaultTrace) resolved.map { it.withContexts(it.contexts + DefaultCtx) } else resolved
     }
 

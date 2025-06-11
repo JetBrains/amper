@@ -119,14 +119,14 @@ internal class MinimalModuleHolder(
         PlatformsInheritance(aliases)
     }
 
-    val templatesInheritance by lazy {
+    val pathInheritance by lazy {
         // Order first by files and then by platforms.
         val appliedTemplates = module.apply?.map { it.value }.orEmpty()
         val filesOrder = appliedTemplates + listOf(moduleFilePath.toNioPath())
-        PathsInheritance(filesOrder)
+        PathInheritance(filesOrder)
     }
 
     val combinedInheritance by lazy {
-        platformsInheritance + templatesInheritance + MainTestInheritance + DefaultInheritance
+        platformsInheritance + pathInheritance + MainTestInheritance + DefaultInheritance
     }
 }

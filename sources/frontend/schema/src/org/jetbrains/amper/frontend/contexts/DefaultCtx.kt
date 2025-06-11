@@ -19,10 +19,10 @@ data object DefaultCtx : Context {
 /**
  * Interpret contexts as paths and make inheritance conclusion based on [order] order.
  */
-object DefaultInheritance : ContextsInheritance {
-    override fun Contexts.isMoreSpecificThan(other: Contexts): ContextsInheritance.Result {
-        val thisIsDefault = this.any { it is DefaultCtx }
-        val otherIsDefault = other.any { it is DefaultCtx }
+object DefaultInheritance : ContextsInheritance<DefaultCtx> {
+    override fun Collection<DefaultCtx>.isMoreSpecificThan(other: Collection<DefaultCtx>): ContextsInheritance.Result {
+        val thisIsDefault = this.isNotEmpty()
+        val otherIsDefault = other.isNotEmpty()
         return when {
             thisIsDefault == otherIsDefault -> SAME
             thisIsDefault -> IS_LESS_SPECIFIC

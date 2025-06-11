@@ -22,15 +22,16 @@ class PathCtx(path: Path, override val trace: Trace? = null) : Context {
 /**
  * Interpret contexts as paths and make inheritance conclusion based on [order] order.
  */
-class PathsInheritance(
+class PathInheritance(
     val order: List<Path>,
-) : ContextsInheritance {
+) : ContextsInheritance<PathCtx> {
     private fun List<Path>.normalized() = map(Path::absolute).map(Path::normalize)
     private val orderNormalized = order.normalized()
-    private fun Contexts.paths() = filterIsInstance<PathCtx>().map { it.path }.normalized()
-    private fun Contexts.pathIndices() = paths().map { orderNormalized.indexOf(it) }.filterNot { it == -1 }.sorted()
+    private fun Collection<PathCtx>.paths() = map { it.path }.normalized()
+    private fun Collection<PathCtx>.pathIndices() =
+        paths().map { orderNormalized.indexOf(it) }.filterNot { it == -1 }.sorted()
 
-    override fun Contexts.isMoreSpecificThan(other: Contexts): ContextsInheritance.Result {
+    override fun Collection<PathCtx>.isMoreSpecificThan(other: Collection<PathCtx>): ContextsInheritance.Result {
         val thisIndices = pathIndices()
         val otherIndices = other.pathIndices()
 
