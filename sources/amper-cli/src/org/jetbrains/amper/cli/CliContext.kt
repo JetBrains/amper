@@ -109,7 +109,7 @@ class CliContext private constructor(
 }
 
 context(ProblemReporterContext)
-internal fun createProjectContext(explicitProjectRoot: Path?): StandaloneAmperProjectContext =
+private fun createProjectContext(explicitProjectRoot: Path?): StandaloneAmperProjectContext =
     if (explicitProjectRoot != null) {
         StandaloneAmperProjectContext.create(explicitProjectRoot)
             ?: userReadableError(
