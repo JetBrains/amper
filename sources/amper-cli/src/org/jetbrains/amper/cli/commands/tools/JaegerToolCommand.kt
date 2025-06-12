@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.int
@@ -47,7 +48,6 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
-import kotlin.streams.asSequence
 
 internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
 
@@ -56,10 +56,10 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
         help = "Open Jaeger UI in browser if Jaeger successfully starts",
     ).boolean().default(true)
 
-    private val autoImportTraces by option(
-        "--auto-import-traces",
+    private val preloadExistingTraces by option(
+        "--preload-existing-traces",
         help = "Automatically import traces from the local file system",
-    ).boolean().default(true)
+    ).flag("--no-preload-existing-traces", default = true)
 
     private val port by option("--jaeger-port", help = "The HTTP port to use for the Jaeger UI")
         .int().default(16686)
@@ -103,7 +103,7 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
 
             coroutineScope {
                 launch {
-                    if (autoImportTraces) {
+                    if (preloadExistingTraces) {
                        importTraces()
                     }
                     if (shouldAutoOpenBrowser) {
