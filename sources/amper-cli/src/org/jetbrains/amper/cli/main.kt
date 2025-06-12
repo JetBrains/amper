@@ -32,7 +32,7 @@ suspend fun main(args: Array<String>) {
         val defaultCacheRoot = AmperUserCacheRoot.fromCurrentUserResult().unwrap()
         val telemetrySetupStartTime = Instant.now()
         TelemetryEnvironment.setup(defaultCacheRoot)
-        spanBuilder(args.joinToString(" "))
+        spanBuilder("Root")
             .setStartTimestamp(jvmStartTime)
             .setListAttribute("args", args.toList())
             .setListAttribute("jvm-args", ManagementFactory.getRuntimeMXBean().inputArguments)
