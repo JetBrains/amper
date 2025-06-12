@@ -126,8 +126,6 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
     }
 
     private suspend fun importTraces() = coroutineScope {
-        awaitJaegerPortReady()
-
         val traceFiles = findTraceFiles()
         if (traceFiles.isEmpty()) {
             terminal.println("No trace files found, do nothing")
