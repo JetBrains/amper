@@ -783,12 +783,11 @@ class MavenDependency internal constructor(
                             variants.flatMap {
                                 it.dependencies(
                                     context,
-                                    moduleMetadata,
                                     level,
                                     diagnosticsReporter
                                 ) + listOfNotNull(it.`available-at`?.asDependency())
                             }.map {
-                                it.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
+                                it.toMavenDependency(context, diagnosticsReporter)
                             }.let {
                                 children = it
                             }
@@ -926,9 +925,9 @@ class MavenDependency internal constructor(
                 .variants
                 .let {
                     it.flatMap {
-                        it.dependencies(context, moduleMetadata, level, diagnosticsReporter)
+                        it.dependencies(context, level, diagnosticsReporter)
                     }.map {
-                        it.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
+                        it.toMavenDependency(context, diagnosticsReporter)
                     }.let {
                         children = it
                     }
@@ -961,12 +960,11 @@ class MavenDependency internal constructor(
 
     private fun Dependency.toMavenDependency(
         context: Context,
-        module: Module,
         diagnosticsReporter: DiagnosticReporter
     ): MavenDependency {
-        val dependency = this
+        val dependency = this@Dependency
         return toMavenDependency(context) { reason ->
-            val coordinates = "${module.component.group}:${module.component.module}:${module.component.version}"
+            val coordinates = this@MavenDependency.coordinates
             val dependency = "${dependency.group}:${dependency.module}"
             diagnosticsReporter.addMessage(
                 UnableToDetermineDependencyVersion.asMessage(
@@ -980,7 +978,6 @@ class MavenDependency internal constructor(
 
     private suspend fun Variant.bomDependencyConstraints(
         context: Context,
-        module: Module,
         level: ResolutionLevel,
         diagnosticsReporter: DiagnosticReporter
     ): List<MavenDependencyConstraint> =
@@ -990,7 +987,7 @@ class MavenDependency internal constructor(
             } else {
                 withResolvedVersion(it)
                     .takeIf { it.version != null }
-                    ?.toMavenDependency(context, module, diagnosticsReporter)
+                    ?.toMavenDependency(context, diagnosticsReporter)
                     ?.let {
                         it.resolveChildren(context, level)
                         it.dependencyConstraints
@@ -1003,12 +1000,11 @@ class MavenDependency internal constructor(
 
     private suspend fun Variant.dependencies(
         context: Context,
-        module: Module,
         level: ResolutionLevel,
         diagnosticsReporter: DiagnosticReporter
     ): List<Dependency> =
         dependencies.map {
-            withResolvedVersion(it) { bomDependencyConstraints(context, module, level, diagnosticsReporter) }
+            withResolvedVersion(it) { bomDependencyConstraints(context, level, diagnosticsReporter) }
         }
 
     /**
@@ -1201,7 +1197,7 @@ class MavenDependency internal constructor(
                 } else {
                     val dependencyGroup = parts[0]
                     val dependencyModule = parts[1]
-                    kotlinMetadataVariant.dependencies(context, moduleMetadata, level, diagnosticsReporter)
+                    kotlinMetadataVariant.dependencies(context, level, diagnosticsReporter)
                         .firstOrNull { it.group == dependencyGroup && it.module == dependencyModule }
                         ?.toMavenDependency(context) { reason ->
                             diagnosticsReporter.addMessage(
@@ -1475,7 +1471,7 @@ class MavenDependency internal constructor(
                 it.first
                     .`available-at`
                     ?.asDependency()
-                    ?.toMavenDependency(context, moduleMetadata, diagnosticsReporter)
+                    ?.toMavenDependency(context, diagnosticsReporter)
                     ?.let { dependency ->
                         val depModuleMetadata = dependency.parseModuleMetadata(context, level, diagnosticsReporter)
                         depModuleMetadata?.let {
