@@ -18,16 +18,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.cli.CliProblemReporterContext
+import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.cli.commands.AmperSubcommand
-import org.jetbrains.amper.cli.createProjectContext
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.ExtractOptions
@@ -35,16 +33,15 @@ import org.jetbrains.amper.core.extract.extractFileToCacheLocation
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
-import org.jetbrains.amper.telemetry.use
 import java.net.Socket
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
@@ -140,33 +137,35 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
         }
     }
 
-    private suspend fun findTraceFiles(): List<Path> {
-        val result = mutableListOf<Path>()
+    private suspend fun findTraceFiles(): List<Path> = coroutineScope {
+        val buildLogsDir = try {
+            val context = CliContext.create(
+                explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
+                buildOutputRoot = commonOptions.buildOutputRoot?.let {
+                    it.createDirectories()
+                    AmperBuildOutputRoot(it.toAbsolutePath())
+                },
+                userCacheRoot = commonOptions.sharedCachesRoot,
+                currentTopLevelCommand = commandName,
+                backgroundScope = this,
+                terminal = terminal,
+            )
 
-        val buildLogsDir = commonOptions.buildOutputRoot?.resolve("logs") ?: run {
-            val amperProjectContext = try {
-                spanBuilder("Create Amper project context").use {
-                    with(CliProblemReporterContext) {
-                        createProjectContext(commonOptions.explicitRoot?.toAbsolutePath())
-                    }
-                }
-            } catch (_: UserReadableError) {
-                null
+            // We need the logs folder itself, not to folder of the actual command logs (besides, there are no logs without
+            // a backend)
+            context.buildLogsRoot.path.parent
+        } catch (_: UserReadableError) {
+            return@coroutineScope emptyList()
+        }
+
+        buildList {
+            if (buildLogsDir.exists()) {
+                Files.walk(buildLogsDir)
+                    .asSequence()
+                    .filter { it.isRegularFile() && it.name.endsWith("opentelemetry_traces.jsonl") }
+                    .forEach { add(it) }
             }
-            amperProjectContext
-                ?.projectRootDir
-                ?.toNioPath()
-                ?.resolve("build")
-                ?.resolve("logs")
         }
-
-        if (buildLogsDir?.exists() == true) {
-            Files.walk(buildLogsDir)
-                .asSequence()
-                .filter { it.isRegularFile() && it.name.endsWith("opentelemetry_traces.jsonl") }
-                .forEach { result.add(it) }
-        }
-        return result
     }
 
     private suspend fun sendTracesToJaeger(jsonLines: List<String>) {
