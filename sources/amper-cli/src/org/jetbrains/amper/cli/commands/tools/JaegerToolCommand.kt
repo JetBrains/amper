@@ -46,6 +46,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.io.path.walk
 import kotlin.streams.asSequence
 
 internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
@@ -158,13 +159,12 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
             return@coroutineScope emptyList()
         }
 
-        buildList {
-            if (buildLogsDir.exists()) {
-                Files.walk(buildLogsDir)
-                    .asSequence()
-                    .filter { it.isRegularFile() && it.name.endsWith("opentelemetry_traces.jsonl") }
-                    .forEach { add(it) }
-            }
+        if (buildLogsDir.exists()) {
+            buildLogsDir.walk()
+                .filter { it.isRegularFile() && it.name.endsWith("opentelemetry_traces.jsonl") }
+                .toList()
+        } else {
+            emptyList()
         }
     }
 
