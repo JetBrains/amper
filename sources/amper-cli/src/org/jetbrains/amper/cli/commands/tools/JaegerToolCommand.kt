@@ -181,7 +181,10 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
                     setBody(line)
                 }
                 if (response.status.value !in 200..299) {
-                    terminal.println("Error sending trace to OTLP endpoint: ${response.status.value} - ${response.bodyAsText()}")
+                    terminal.println(
+                        "Error sending trace to OTLP endpoint: ${response.status.value} - ${response.bodyAsText()}",
+                        stderr = true
+                    )
                 }
             }
         }
