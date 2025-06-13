@@ -1,23 +1,14 @@
 app:RUNTIME:ANDROID
-├─── app:android:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-│         ├─── org.jetbrains:annotations:13.0 -> 23.0.0
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
-├─── app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
-│         ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
-├─── app:common:io.github.dokar3:sonner:0.3.8
+├─── app:android:io.github.dokar3:sonner:0.3.8
 │    ╰─── io.github.dokar3:sonner:0.3.8
 │         ╰─── io.github.dokar3:sonner-android:0.3.8
 │              ├─── androidx.compose.ui:ui-tooling-preview:unspecified -> 1.8.1
 │              │    ╰─── androidx.compose.ui:ui-tooling-preview-android:1.8.1
 │              │         ├─── androidx.annotation:annotation:1.8.1 -> 1.9.1
 │              │         │    ╰─── androidx.annotation:annotation-jvm:1.9.1
-│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion (*)
+│              │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.24 -> #kotlinVersion
+│              │         │              ├─── org.jetbrains:annotations:13.0 -> 23.0.0
+│              │         │              ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
 │              │         ├─── androidx.compose.runtime:runtime:1.8.1
 │              │         │    ╰─── androidx.compose.runtime:runtime-android:1.8.1
 │              │         │         ├─── androidx.annotation:annotation-experimental:1.4.1
@@ -295,10 +286,23 @@ app:RUNTIME:ANDROID
 │              ├─── org.jetbrains.compose.ui:ui:1.6.11
 │              │    ╰─── androidx.compose.ui:ui:1.6.7 -> 1.8.1 (*)
 │              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1 (*)
-├─── app:common:androidx.compose:compose-bom:2025.05.00
+├─── app:android:androidx.compose:compose-bom:2025.05.00
 │    ╰─── androidx.compose:compose-bom:2025.05.00
 │         ├─── androidx.compose.foundation:foundation:1.8.1 (c)
 │         ╰─── androidx.compose.ui:ui-tooling-preview:1.8.1 (c)
+├─── app:android:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+├─── app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion
+│         ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+├─── app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
+│         ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+│         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
+├─── app:common:io.github.dokar3:sonner:0.3.8
+│    ╰─── io.github.dokar3:sonner:0.3.8 (*)
+├─── app:common:androidx.compose:compose-bom:2025.05.00
+│    ╰─── androidx.compose:compose-bom:2025.05.00 (*)
 ├─── app:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 ├─── app:common:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit

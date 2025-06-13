@@ -44,6 +44,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -177,6 +178,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -306,6 +308,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -438,6 +441,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -566,6 +570,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -697,6 +702,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -826,6 +832,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -955,6 +962,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -1087,6 +1095,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -1216,6 +1225,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -1346,6 +1356,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -1479,6 +1490,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -1611,6 +1623,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -1743,6 +1756,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -1872,6 +1886,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -2004,6 +2019,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -2133,6 +2149,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }
@@ -2265,6 +2282,7 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default> 
         }

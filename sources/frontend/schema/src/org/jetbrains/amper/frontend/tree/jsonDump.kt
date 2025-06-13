@@ -22,7 +22,9 @@ fun TreeValue<*>.jsonDump(
     contextsFilter: (Any) -> Boolean = { true },
 ): String {
     val normalizedRoot = root.absolute().normalize()
-    fun Context.pathCtxString() = if (this is PathCtx) path.relativeTo(normalizedRoot).pathString else null
+    fun Path.normalizedPath(): String = this.relativeTo(normalizedRoot).toString().replace('\\', '/')
+    
+    fun Context.pathCtxString() = if (this is PathCtx) path.normalizedPath() else null
     fun TreeValue<*>.contextStr() = contexts
         .filter(contextsFilter).ifEmpty { null }
         ?.joinToString(",", "(", ")") { it.pathCtxString() ?: it.toString() }
@@ -49,9 +51,9 @@ fun TreeValue<*>.jsonDump(
             }
 
             is ScalarOrReference -> {
-                val normalizedPath = (value as? Path)?.relativeTo(root)?.toString()?.replace('\\', '/')
-                if (value is Path) append("\"$normalizedPath${contextStr()}\"")
-                else if (value is TraceablePath) append("\"${(value as TraceablePath).value.relativeTo(normalizedRoot)}${contextStr()}\"")
+                val asPath = (value as? Path) ?: (value as? TraceablePath)?.value
+                val asNormalizedPath = asPath?.normalizedPath()
+                if (asNormalizedPath != null) append("\"$asNormalizedPath${contextStr()}\"")
                 else append("\"$value${contextStr()}\"")
             }
 

@@ -67,42 +67,42 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 ├─── shared:common:org.jetbrains.compose.runtime:runtime:12.12.12
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:commonTest:org.jetbrains.compose.foundation:foundation:12.12.12
-                    │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
-                    ├─── shared:commonTest:org.jetbrains.compose.material3:material3:12.12.12
-                    │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
-                    ├─── shared:commonTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
-                    │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
-                    │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
-                    │              ├─── org.junit:junit-bom:5.10.1
-                    │              ├─── org.opentest4j:opentest4j:1.3.0
-                    │              ├─── org.junit.platform:junit-platform-commons:1.10.1
-                    │              │    ├─── org.junit:junit-bom:5.10.1
-                    │              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
-                    │              ╰─── org.apiguardian:apiguardian-api:1.1.2
-                    ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12
-                    │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
-                    ├─── shared:jvm:org.jetbrains.compose.foundation:foundation:12.12.12
-                    │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
-                    ├─── shared:jvm:org.jetbrains.compose.material3:material3:12.12.12
-                    │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
-                    ├─── shared:jvm:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                    ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
-                    │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
-                    ├─── shared:jvmTest:org.jetbrains.compose.foundation:foundation:12.12.12
-                    │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
-                    ├─── shared:jvmTest:org.jetbrains.compose.material3:material3:12.12.12
-                    │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
-                    ├─── shared:jvmTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                    │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
+                ├─── shared:commonTest:org.jetbrains.compose.material3:material3:12.12.12
+                │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
+                ├─── shared:commonTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
+                │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
+                │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
+                │              ├─── org.junit:junit-bom:5.10.1
+                │              ├─── org.opentest4j:opentest4j:1.3.0
+                │              ├─── org.junit.platform:junit-platform-commons:1.10.1
+                │              │    ├─── org.junit:junit-bom:5.10.1
+                │              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
+                │              ╰─── org.apiguardian:apiguardian-api:1.1.2
+                ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12
+                │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                ├─── shared:jvm:org.jetbrains.compose.foundation:foundation:12.12.12
+                │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
+                ├─── shared:jvm:org.jetbrains.compose.material3:material3:12.12.12
+                │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
+                ├─── shared:jvm:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
+                │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
+                ├─── shared:jvmTest:org.jetbrains.compose.foundation:foundation:12.12.12
+                │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
+                ├─── shared:jvmTest:org.jetbrains.compose.material3:material3:12.12.12
+                │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
+                ├─── shared:jvmTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
+                │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
                 ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
@@ -143,7 +143,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
          * This magic number appears because we are diagnosing each fragment (4 fragments total),
          * and each fragment contains 4 incorrect dependencies.
          * 
-         * Common fragment contain incorrect dependencies by definition in module file.
+         * The common fragment contains incorrect dependencies by definition in module file.
          * More specific fragments contain incorrect dependencies because they were propagated during merge.
          */
         assertEquals(16, buildProblems.size)

@@ -706,6 +706,9 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
         "exposedAccessors": {
           "type": "boolean",
           "x-intellij-html-description": "Whether the generated resources accessors should be exposed to other modules (public) or internal.",

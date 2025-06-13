@@ -110,7 +110,7 @@ class AmperBuildTest : AmperCliTestBase() {
         val sharedModule = r.projectRoot.resolve("shared/module.yaml")
 
         // Prepend \n manually, since trimIndent will remove it.
-        val sharedErrorPart = System.lineSeparator() + """
+        val sharedErrorPart = "\n" + """
             $sharedModule:6:5: Unable to resolve dependency org.junit.jupiter:junit-jupiter-api:9999
               Unable to download checksums of file junit-jupiter-api-9999.pom
               Unable to download checksums of file junit-jupiter-api-9999.module
