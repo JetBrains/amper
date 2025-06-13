@@ -25,13 +25,10 @@ internal class SettingsCommand: AmperSubcommand(name = "settings") {
     override suspend fun run() {
         withBackend(commonOptions, commandName, terminal) { backend ->
             val terminal = backend.context.terminal
+            val modules = backend.modules()
 
-            val model = with(CliProblemReporterContext) {
-                SchemaBasedModelImport.getModel(backend.context.projectContext)
-            }.get()
-
-            model.modules.forEach { module ->
-                if (model.modules.size > 1) {
+            modules.forEach { module ->
+                if (modules.size > 1) {
                     terminal.info(
                         "Module: " + module.userReadableName + "\n",
                         Whitespace.PRE_LINE, TextAlign.LEFT
