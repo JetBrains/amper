@@ -40,7 +40,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Test
     fun `simple multiplatform cli sources jars`() = runTestWithCollector {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = emptyList())
-        val backend = AmperBackend(projectContext)
+        val backend = AmperBackend(projectContext, backgroundScope = backgroundScope)
 
         val sourcesJarJvm = TaskName(":shared:sourcesJarJvm")
         backend.runTask(sourcesJarJvm)
@@ -121,7 +121,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val projectContext = setupTestDataProject("jvm-transitive-dependencies")
 
         // 1. Check compile classpath
-        val result = AmperBackend(projectContext)
+        val result = AmperBackend(projectContext, backgroundScope = backgroundScope)
             .runTask(TaskName(":app:resolveDependenciesJvm"))
         assertIs<ResolveExternalDependenciesTask.Result>(result)
 
@@ -151,7 +151,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         )
 
         // 2. Check runtime classpath composed after compilation tasks are finished
-        val runtimeClasspathResult = AmperBackend(projectContext).runTask(TaskName(":app:runtimeClasspathJvm"))
+        val runtimeClasspathResult = AmperBackend(projectContext, backgroundScope = backgroundScope)
+            .runTask(TaskName(":app:runtimeClasspathJvm"))
         assertIs<JvmRuntimeClasspathTask.Result>(runtimeClasspathResult)
 
         val runtimeClassPath = runtimeClasspathResult.jvmRuntimeClasspath
@@ -199,7 +200,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
             "Unexpected list of resolved runtime dependencies"
         )
 
-        val runtimeClasspathViaTask = AmperBackend(projectContext).runTask(TaskName(":app:runtimeClasspathJvm"))
+        val runtimeClasspathViaTask = AmperBackend(projectContext, backgroundScope = backgroundScope)
+            .runTask(TaskName(":app:runtimeClasspathJvm"))
         assertIs<JvmRuntimeClasspathTask.Result>(runtimeClasspathViaTask)
 
         // Check correct module order in runtime classpath
@@ -216,7 +218,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     fun `jvm runtime classpath conflict resolution`() = runTestWithCollector {
         val projectContext = setupTestDataProject("jvm-runtime-classpath-conflict-resolution")
 
-        val result = AmperBackend(projectContext)
+        val result = AmperBackend(projectContext, backgroundScope = backgroundScope)
             .runTask(TaskName(":B2:resolveDependenciesJvm")) as ResolveExternalDependenciesTask.Result
         assertIs<ResolveExternalDependenciesTask.Result>(result)
 
@@ -235,7 +237,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Test
     fun `simple multiplatform cli metadata`() = runTestWithCollector {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = emptyList())
-        val backend = AmperBackend(projectContext)
+        val backend = AmperBackend(projectContext, backgroundScope = backgroundScope)
 
         val compileMetadataJvmMain = TaskName(":shared:compileMetadataJvm")
         backend.runTask(compileMetadataJvmMain)

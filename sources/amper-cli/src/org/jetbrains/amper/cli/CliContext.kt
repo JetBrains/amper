@@ -5,11 +5,9 @@
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.terminal.Terminal
-import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.tasks.AllRunSettings
@@ -30,25 +28,18 @@ class CliContext private constructor(
     val buildOutputRoot: AmperBuildOutputRoot,
     val buildLogsRoot: AmperBuildLogsRoot,
     val runSettings: AllRunSettings,
-    val taskExecutionMode: TaskExecutor.Mode,
     val terminal: Terminal,
     val androidHomeRoot: AndroidHomeRoot,
-    /**
-     * Background scope is terminated when project-related activities are finished (e.g., on Amper exit)
-     */
-    val backgroundScope: CoroutineScope,
 ) {
     val projectRoot: AmperProjectRoot = AmperProjectRoot(projectContext.projectRootDir.toNioPath())
 
     companion object {
         suspend fun create(
             explicitProjectRoot: Path?,
-            taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
             runSettings: AllRunSettings = AllRunSettings(),
             buildOutputRoot: AmperBuildOutputRoot? = null,
             userCacheRoot: AmperUserCacheRoot,
             currentTopLevelCommand: String,
-            backgroundScope: CoroutineScope,
             terminal: Terminal,
             androidHomeRoot: AndroidHomeRoot? = null,
         ): CliContext {
@@ -89,9 +80,7 @@ class CliContext private constructor(
                 buildLogsRoot = AmperBuildLogsRoot(logsDir),
                 userCacheRoot = userCacheRoot,
                 runSettings = runSettings,
-                taskExecutionMode = taskExecutionMode,
                 terminal = terminal,
-                backgroundScope = backgroundScope,
                 androidHomeRoot = androidHomeRoot ?: AndroidHomeRoot(
                     AndroidSdkDetector.detectSdkPath().createDirectories()
                 ),

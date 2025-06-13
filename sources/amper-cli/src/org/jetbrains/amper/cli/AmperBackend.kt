@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli
 
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.cli.commands.UserJvmArgsOption
 import org.jetbrains.amper.cli.widgets.TaskProgressRenderer
 import org.jetbrains.amper.core.Result
@@ -41,7 +42,17 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 
-class AmperBackend(val context: CliContext) {
+class AmperBackend(
+    val context: CliContext,
+    /**
+     * Defines how other tasks are executed if a task fails.
+     */
+    val taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
+    /**
+     * Background scope is terminated when project-related activities are finished (e.g., on Amper exit)
+     */
+    val backgroundScope: CoroutineScope,
+) {
     private val resolvedModel: Model = with(CliProblemReporterContext) {
         val model = spanBuilder("Read model from Amper files")
             .setAttribute("root", context.projectRoot.path.pathString)
@@ -82,8 +93,8 @@ class AmperBackend(val context: CliContext) {
     }
 
     private val taskExecutor: TaskExecutor by lazy {
-        val progress = TaskProgressRenderer(context.terminal, context.backgroundScope)
-        TaskExecutor(taskGraph, context.taskExecutionMode, progress)
+        val progress = TaskProgressRenderer(context.terminal, backgroundScope)
+        TaskExecutor(taskGraph, taskExecutionMode, progress)
     }
 
     /**

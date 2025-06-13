@@ -148,7 +148,6 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
                 },
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 currentTopLevelCommand = commandName,
-                backgroundScope = this,
                 terminal = terminal,
             )
 

@@ -73,8 +73,6 @@ internal suspend fun <T> withBackend(
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 currentTopLevelCommand = currentCommand,
                 runSettings = runSettings,
-                taskExecutionMode = taskExecutionMode,
-                backgroundScope = backgroundScope,
                 terminal = terminal,
             )
         }
@@ -101,7 +99,11 @@ internal suspend fun <T> withBackend(
             }
         }
 
-        val backend = AmperBackend(context = cliContext)
+        val backend = AmperBackend(
+            context = cliContext,
+            taskExecutionMode = taskExecutionMode,
+            backgroundScope = backgroundScope,
+        )
         spanBuilder("Run command with backend").use {
             block(backend)
         }.also {
