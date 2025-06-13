@@ -37,7 +37,7 @@ class CliContext private constructor(
         suspend fun create(
             explicitProjectRoot: Path?,
             runSettings: AllRunSettings = AllRunSettings(),
-            buildOutputRoot: AmperBuildOutputRoot? = null,
+            explicitBuildOutputRoot: Path?,
             userCacheRoot: AmperUserCacheRoot,
             currentTopLevelCommand: String,
             terminal: Terminal,
@@ -49,7 +49,7 @@ class CliContext private constructor(
 
             val amperProjectContext = spanBuilder("Create Amper project context").use {
                 with(CliProblemReporterContext) {
-                    createProjectContext(explicitProjectRoot).also {
+                    createProjectContext(explicitProjectRoot?.toAbsolutePath()).also {
                         if (problemReporter.wereProblemsReported()) {
                             userReadableError("aborting because there were errors in the Amper project file, please see above")
                         }
@@ -59,25 +59,21 @@ class CliContext private constructor(
 
             val rootPath = amperProjectContext.projectRootDir.toNioPath()
 
-            val buildOutputRootNotNull = buildOutputRoot ?: run {
-                val defaultBuildDir = rootPath.resolve("build").also { it.createDirectories() }
-                AmperBuildOutputRoot(defaultBuildDir)
-            }
+            val buildOutputDir = explicitBuildOutputRoot?.toAbsolutePath() ?: rootPath.resolve("build")
 
-            val tempDir = buildOutputRootNotNull.path.resolve("temp").also { it.createDirectories() }
+            val tempDir = buildOutputDir.resolve("temp")
 
             val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
             val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
-            val logsDir = buildOutputRootNotNull.path
+            val logsDir = buildOutputDir
                 .resolve("logs")
                 .resolve("amper_${currentTimestamp}_${pid}_$currentTopLevelCommand")
-                .also { it.createDirectories() }
 
             return CliContext(
                 projectContext = amperProjectContext,
-                buildOutputRoot = buildOutputRootNotNull,
-                projectTempRoot = AmperProjectTempRoot(tempDir),
-                buildLogsRoot = AmperBuildLogsRoot(logsDir),
+                buildOutputRoot = AmperBuildOutputRoot(buildOutputDir.createDirectories()),
+                projectTempRoot = AmperProjectTempRoot(tempDir.createDirectories()),
+                buildLogsRoot = AmperBuildLogsRoot(logsDir.createDirectories()),
                 userCacheRoot = userCacheRoot,
                 runSettings = runSettings,
                 terminal = terminal,

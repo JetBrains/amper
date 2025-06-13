@@ -6,7 +6,6 @@
 
 package org.jetbrains.amper.backend.test
 
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -73,7 +72,7 @@ abstract class AmperIntegrationTestBase {
         return CliContext.create(
             explicitProjectRoot = projectRoot,
             userCacheRoot = userCacheRoot,
-            buildOutputRoot = AmperBuildOutputRoot(buildDir),
+            explicitBuildOutputRoot = buildDir,
             runSettings = AllRunSettings(programArgs = programArgs),
             currentTopLevelCommand = "integration-test-base",
             androidHomeRoot = androidHomeRoot,

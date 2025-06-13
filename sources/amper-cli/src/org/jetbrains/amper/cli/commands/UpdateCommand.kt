@@ -88,7 +88,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         // discovery, by passing more info from the wrapper to Amper), but the benefit would be marginal, and it would
         // break amper-from-sources.
         // Also, we would still have to respect an explicit --root option to allow users to update other projects.
-        val targetDir = commonOptions.explicitRoot ?: Path(".")
+        val targetDir = commonOptions.explicitProjectRoot ?: Path(".")
         val amperBashPath = targetDir.resolve("amper")
         val amperBatPath = targetDir.resolve("amper.bat")
         checkNotDirectories(amperBashPath, amperBatPath)
@@ -159,7 +159,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         if (missingScripts.isEmpty()) {
             return
         }
-        val targetDirRef = commonOptions.explicitRoot?.pathString ?: "the current directory"
+        val targetDirRef = commonOptions.explicitProjectRoot?.pathString ?: "the current directory"
         val prompt = if (missingScripts.size == amperScriptPaths.size) {
             "Amper scripts were not found in $targetDirRef.\nWould you like to create them from scratch? (Y/n)"
         } else {

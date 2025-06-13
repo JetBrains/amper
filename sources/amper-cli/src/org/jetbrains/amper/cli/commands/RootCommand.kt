@@ -116,11 +116,11 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         TelemetryEnvironment.setUserCacheRoot(sharedCachesRoot)
 
         currentContext.obj = CommonOptions(
-            explicitRoot = root,
+            explicitProjectRoot = root,
             consoleLogLevel = consoleLogLevel,
             asyncProfiler = asyncProfiler,
             sharedCachesRoot = sharedCachesRoot,
-            buildOutputRoot = buildOutputRoot,
+            explicitBuildOutputRoot = buildOutputRoot,
         )
 
         spanBuilder("Setup console logging").use {
@@ -135,10 +135,10 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         /**
          * The explicit project root provided by the user, or null if the root should be discovered.
          */
-        val explicitRoot: Path?,
+        val explicitProjectRoot: Path?,
         val consoleLogLevel: Level,
         val asyncProfiler: Boolean,
         val sharedCachesRoot: AmperUserCacheRoot,
-        val buildOutputRoot: Path?,
+        val explicitBuildOutputRoot: Path?,
     )
 }

@@ -29,7 +29,7 @@ internal class InitCommand : AmperSubcommand(name = "init") {
     override fun help(context: Context): String = "Initialize a new Amper project based on a template"
 
     override suspend fun run() {
-        val targetRootDir = commonOptions.explicitRoot ?: Path(System.getProperty("user.dir"))
+        val targetRootDir = commonOptions.explicitProjectRoot ?: Path(System.getProperty("user.dir"))
         val selectedTemplate = template ?: promptForTemplate()
         terminal.println("Extracting template ${terminal.theme.info(selectedTemplate.id)} to $targetRootDir…")
 

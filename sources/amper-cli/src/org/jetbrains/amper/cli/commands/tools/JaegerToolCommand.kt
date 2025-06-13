@@ -23,7 +23,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.cli.commands.AmperSubcommand
@@ -42,7 +41,6 @@ import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import java.net.Socket
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
@@ -141,11 +139,8 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
     private suspend fun findTraceFiles(): List<Path> = coroutineScope {
         val buildLogsDir = try {
             val context = CliContext.create(
-                explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
-                buildOutputRoot = commonOptions.buildOutputRoot?.let {
-                    it.createDirectories()
-                    AmperBuildOutputRoot(it.toAbsolutePath())
-                },
+                explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
+                explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot?.toAbsolutePath(),
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 currentTopLevelCommand = commandName,
                 terminal = terminal,
