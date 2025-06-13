@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
@@ -21,7 +20,7 @@ class GraphConsistencyTest {
     private val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
 
     @Test
-    fun `check parents in a dependencies graph - ide`() = runTest {
+    fun `check parents in a dependencies graph - ide`() = runSlowTest {
         val aom = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
         checkParentsInDependenciesGraph(
             ResolutionInput(
@@ -33,7 +32,7 @@ class GraphConsistencyTest {
     }
 
     @Test
-    fun `check parents in a dependencies graph - classpath`() = runTest {
+    fun `check parents in a dependencies graph - classpath`() = runSlowTest {
         checkParentsInDependenciesGraph(
             ResolutionInput(
                 DependenciesFlowType.ClassPathType(ResolutionScope.RUNTIME, setOf(ResolutionPlatform.JVM), isTest = false),
