@@ -35,7 +35,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     override val testGoldenFilesRoot: Path = super.testGoldenFilesRoot / "moduleDependenciesGraphMultiplatform"
 
     @Test
-    fun `test sync empty jvm module`() = runDrTest {
+    fun `test sync empty jvm module`() = runSlowTest {
         val aom = getTestProjectModel("jvm-empty", testDataRoot)
 
         assertEquals(
@@ -95,7 +95,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test shared@ios dependencies graph`(testInfo: TestInfo) = runDrTest {
+    fun `test shared@ios dependencies graph`(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val sharedIosFragmentDeps = doTestByFile(
@@ -112,7 +112,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test shared@iosX64 dependencies graph`(testInfo: TestInfo) = runDrTest {
+    fun `test shared@iosX64 dependencies graph`(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
         val iosAppIosX64FragmentDeps = doTestByFile(
             testInfo,
@@ -129,7 +129,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test shared@iosX64Test dependencies graph`(testInfo: TestInfo) = runDrTest {
+    fun `test shared@iosX64Test dependencies graph`(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
         val iosAppIosX64FragmentDeps = doTestByFile(
             testInfo,
@@ -150,7 +150,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
      * exported test dependency 'tinylog-api-kotlin' of the shared module is not added to the fragment ios-app@iosX64Test.
      */
     @Test
-    fun `test ios-app@iosX64Test dependencies graph`(testInfo: TestInfo) = runDrTest {
+    fun `test ios-app@iosX64Test dependencies graph`(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
         val iosAppIosX64FragmentDeps = doTestByFile(
             testInfo,
@@ -167,7 +167,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test ios-app@ios dependencies graph`(testInfo: TestInfo) = runDrTest {
+    fun `test ios-app@ios dependencies graph`(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val iosAppIosFragmentDeps = doTestByFile(
@@ -184,7 +184,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test ios-app@iosX64 dependencies graph`(testInfo: TestInfo) = runDrTest {
+    fun `test ios-app@iosX64 dependencies graph`(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
         val iosAppIosX64FragmentDeps = doTestByFile(
             testInfo,
@@ -202,7 +202,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     // todo (AB) : 'android-app.android' differs from what Gradle produce (versions).
     // todo (AB) : It seems it is caused by resolving RUNTIME version of library instead of COMPILE one being resolved by IdeSync.
     @Test
-    fun `test android-app@android dependencies graph`(testInfo: TestInfo) = runDrTest {
+    fun `test android-app@android dependencies graph`(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val androidAppAndroidFragmentDeps = doTestByFile(
@@ -221,7 +221,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test shared@android dependencies graph`(testInfo: TestInfo) = runDrTest {
+    fun `test shared@android dependencies graph`(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val sharedAndroidFragmentDeps = doTestByFile(
@@ -248,7 +248,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
      * variants for KMP libraries.
      */
     @Test
-    fun `test publication of shared KMP module for single platform`() = runDrTest {
+    fun `test publication of shared KMP module for single platform`() = runSlowTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val sharedModuleDeps = doTest(
@@ -287,7 +287,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
      * for platform-specific variants.
      */
     @Test
-    fun `test finding KMP library for platform-specific variant`() = runDrTest {
+    fun `test finding KMP library for platform-specific variant`() = runSlowTest {
         val aom = getTestProjectModel("kmp-library", testDataRoot)
 
         val moduleDeps = doTest(

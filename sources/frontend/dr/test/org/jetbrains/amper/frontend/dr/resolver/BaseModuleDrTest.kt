@@ -5,8 +5,6 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
@@ -37,14 +35,10 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseModuleDrTest {
     protected open val testGoldenFilesRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/goldenFiles")
     protected val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
-
-    val testTimeoutInMillis: Duration = 5.minutes
 
     private val defaultMessagesCheck: (DependencyNode) -> Unit = { node ->
         val messages = node.messages.defaultFilterMessages()
@@ -262,9 +256,6 @@ abstract class BaseModuleDrTest {
             it.value.replace(version, "#$versionVariableName")
         }
     }
-
-    protected fun runDrTest(testBody: suspend TestScope.() -> Unit) =
-        runTest(timeout = testTimeoutInMillis, testBody = testBody)
 
     internal inline fun <reified MessageT : Message> assertTheOnlyNonInfoMessage(
         root: DependencyNode,
