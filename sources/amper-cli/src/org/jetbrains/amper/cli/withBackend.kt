@@ -33,7 +33,7 @@ private val backendInitialized = AtomicReference<Throwable>(null)
 
 internal suspend fun <T> withBackend(
     commonOptions: RootCommand.CommonOptions,
-    currentCommand: String,
+    commandName: String,
     terminal: Terminal,
     runSettings: AllRunSettings = AllRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
@@ -67,13 +67,13 @@ internal suspend fun <T> withBackend(
                 explicitProjectRoot = commonOptions.explicitProjectRoot,
                 explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
                 userCacheRoot = commonOptions.sharedCachesRoot,
-                currentTopLevelCommand = currentCommand,
+                commandName = commandName,
                 runSettings = runSettings,
                 terminal = terminal,
             )
         }
 
-        TelemetryEnvironment.setLogsRootDirectory(cliContext.buildLogsRoot)
+        TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
 
         // we make sure coroutines debug probes are installed before trying to setup DeadLockMonitor
         // and before executing coroutines-heavy backend work
@@ -81,16 +81,16 @@ internal suspend fun <T> withBackend(
 
         if (setupEnvironment) {
             spanBuilder("Setup file logging and monitoring").use {
-                DeadLockMonitor.install(cliContext.buildLogsRoot)
-                LoggingInitializer.setupFileLogging(cliContext.buildLogsRoot)
+                DeadLockMonitor.install(cliContext.currentLogsRoot)
+                LoggingInitializer.setupFileLogging(cliContext.currentLogsRoot)
 
                 // TODO output version, os and some env to log file only
-                val printableLogsPath = cliContext.buildLogsRoot.path.toString().replaceWhitespaces()
+                val printableLogsPath = cliContext.currentLogsRoot.path.toString().replaceWhitespaces()
                 cliContext.terminal.println("Logs are in file://$printableLogsPath")
                 cliContext.terminal.println()
 
                 if (commonOptions.asyncProfiler) {
-                    AsyncProfilerMode.attachAsyncProfiler(cliContext.buildLogsRoot, cliContext.buildOutputRoot)
+                    AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.buildOutputRoot)
                 }
             }
         }

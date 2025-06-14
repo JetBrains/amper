@@ -125,7 +125,7 @@ internal class TestCommand : AmperSubcommand(name = "test") {
         val allTestFilters = includeTestFilters + includeClassFilters + excludeClassFilters
         withBackend(
             commonOptions = commonOptions,
-            currentCommand = commandName,
+            commandName = commandName,
             terminal = terminal,
             taskExecutionMode = TaskExecutor.Mode.GREEDY, // try to execute as many tests as possible
             runSettings = AllRunSettings(

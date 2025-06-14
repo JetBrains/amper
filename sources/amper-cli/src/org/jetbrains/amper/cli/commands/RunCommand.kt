@@ -60,7 +60,7 @@ internal class RunCommand : AmperSubcommand(name = "run") {
     override suspend fun run() {
         withBackend(
             commonOptions = commonOptions,
-            currentCommand = commandName,
+            commandName = commandName,
             terminal = terminal,
             runSettings = AllRunSettings(
                 programArgs = programArguments,

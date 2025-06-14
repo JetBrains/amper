@@ -137,24 +137,21 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
     }
 
     private suspend fun findTraceFiles(): List<Path> = coroutineScope {
-        val buildLogsDir = try {
+        val logsRootDir = try {
             val context = CliContext.create(
                 explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
                 explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot?.toAbsolutePath(),
                 userCacheRoot = commonOptions.sharedCachesRoot,
-                currentTopLevelCommand = commandName,
+                commandName = commandName,
                 terminal = terminal,
             )
-
-            // We need the logs folder itself, not to folder of the actual command logs (besides, there are no logs without
-            // a backend)
-            context.buildLogsRoot.path.parent
+            context.projectLogsRoot.path
         } catch (_: UserReadableError) {
             return@coroutineScope emptyList()
         }
 
-        if (buildLogsDir.exists()) {
-            buildLogsDir.walk()
+        if (logsRootDir.exists()) {
+            logsRootDir.walk()
                 .filter { it.isRegularFile() && it.name.endsWith("opentelemetry_traces.jsonl") }
                 .toList()
         } else {

@@ -74,7 +74,7 @@ abstract class AmperIntegrationTestBase {
             userCacheRoot = userCacheRoot,
             explicitBuildOutputRoot = buildDir,
             runSettings = AllRunSettings(programArgs = programArgs),
-            currentTopLevelCommand = "integration-test-base",
+            commandName = "integration-test-base",
             androidHomeRoot = androidHomeRoot,
             terminal = terminal,
         )

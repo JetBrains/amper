@@ -21,17 +21,34 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.isDirectory
 
 class CliContext private constructor(
+    val commandName: String,
     val projectContext: AmperProjectContext,
     val userCacheRoot: AmperUserCacheRoot,
     val projectTempRoot: AmperProjectTempRoot,
     // in the future it'll be customizable to support out-of-tree builds, e.g., on CI
     val buildOutputRoot: AmperBuildOutputRoot,
-    val buildLogsRoot: AmperBuildLogsRoot,
     val runSettings: AllRunSettings,
     val terminal: Terminal,
     val androidHomeRoot: AndroidHomeRoot,
 ) {
     val projectRoot: AmperProjectRoot = AmperProjectRoot(projectContext.projectRootDir.toNioPath())
+
+    /**
+     * The root directory containing all logs for all Amper executions in the current project.
+     */
+    val projectLogsRoot: AmperProjectLogsRoot by lazy {
+        AmperProjectLogsRoot(buildOutputRoot.path.resolve("logs").createDirectories())
+    }
+
+    /**
+     * The logs directory for the current Amper execution.
+     */
+    val currentLogsRoot: AmperBuildLogsRoot by lazy {
+        val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
+        val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
+        val currentLogsPath = projectLogsRoot.path.resolve("amper_${currentTimestamp}_${pid}_$commandName")
+        AmperBuildLogsRoot(currentLogsPath.createDirectories())
+    }
 
     companion object {
         suspend fun create(
@@ -39,11 +56,11 @@ class CliContext private constructor(
             runSettings: AllRunSettings = AllRunSettings(),
             explicitBuildOutputRoot: Path?,
             userCacheRoot: AmperUserCacheRoot,
-            currentTopLevelCommand: String,
+            commandName: String,
             terminal: Terminal,
             androidHomeRoot: AndroidHomeRoot? = null,
         ): CliContext {
-            require(currentTopLevelCommand.isNotBlank()) {
+            require(commandName.isNotBlank()) {
                 "currentTopLevelCommand should not be blank"
             }
 
@@ -63,17 +80,11 @@ class CliContext private constructor(
 
             val tempDir = buildOutputDir.resolve("temp")
 
-            val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
-            val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
-            val logsDir = buildOutputDir
-                .resolve("logs")
-                .resolve("amper_${currentTimestamp}_${pid}_$currentTopLevelCommand")
-
             return CliContext(
+                commandName = commandName,
                 projectContext = amperProjectContext,
                 buildOutputRoot = AmperBuildOutputRoot(buildOutputDir.createDirectories()),
                 projectTempRoot = AmperProjectTempRoot(tempDir.createDirectories()),
-                buildLogsRoot = AmperBuildLogsRoot(logsDir.createDirectories()),
                 userCacheRoot = userCacheRoot,
                 runSettings = runSettings,
                 terminal = terminal,
@@ -117,6 +128,17 @@ data class AmperBuildOutputRoot(val path: Path) {
         }
         require(path.isAbsolute) {
             "Build output root is not an absolute path: $path"
+        }
+    }
+}
+
+data class AmperProjectLogsRoot(val path: Path) {
+    init {
+        require(path.isDirectory()) {
+            "Logs root is not a directory: $path"
+        }
+        require(path.isAbsolute) {
+            "Logs root is not an absolute path: $path"
         }
     }
 }
