@@ -40,7 +40,10 @@ class BomTest: BaseModuleDrTest() {
             verifyMessages = false,
             module = "app",
             expected = """
-                app:COMPILE:JVM
+                Module app
+                │ - main
+                │ - scope = COMPILE
+                │ - platforms = [jvm]
                 ├─── app:common:com.fasterxml.jackson.core:jackson-annotations:unspecified
                 │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3
                 │         ╰─── com.fasterxml.jackson:jackson-bom:2.18.3

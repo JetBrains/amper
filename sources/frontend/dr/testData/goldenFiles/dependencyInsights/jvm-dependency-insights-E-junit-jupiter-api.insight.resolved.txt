@@ -1,4 +1,7 @@
-E:COMPILE:JVM
+Module E
+│ - main
+│ - scope = COMPILE
+│ - platforms = [jvm]
 ├─── E:common:org.junit.platform:junit-platform-engine:1.11.4
 │    ╰─── org.junit.platform:junit-platform-engine:1.11.4
 │         ╰─── org.junit:junit-bom:5.11.4

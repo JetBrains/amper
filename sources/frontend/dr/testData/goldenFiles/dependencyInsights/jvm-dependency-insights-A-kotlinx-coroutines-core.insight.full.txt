@@ -1,4 +1,7 @@
-A:COMPILE:JVM
+Module A
+│ - main
+│ - scope = COMPILE
+│ - platforms = [jvm]
 ├─── A:common:org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0 -> 1.9.0
 │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0

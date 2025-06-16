@@ -448,12 +448,12 @@ class AmperBackend(val context: CliContext) {
         return runTask(taskName) as IosPreBuildTask.Result
     }
 
-    private fun resolveModule(moduleName: String) = modulesByName[moduleName] ?: userReadableError(
+    internal fun resolveModule(moduleName: String) = modulesByName[moduleName] ?: userReadableError(
         "Unable to resolve module by name '$moduleName'.\n\n" +
                 "Available modules: ${availableModulesString()}"
     )
 
-    private fun availableModulesString() =
+    internal fun availableModulesString() =
         resolvedModel.modules.map { it.userReadableName }.sorted().joinToString(" ")
 
     private fun formatTaskNames(publishTasks: Collection<TaskName>) =

@@ -35,13 +35,20 @@ internal fun AmperModule.buildDependenciesGraph(
     platform: Platform,
     dependencyReason: ResolutionScope,
     userCacheRoot: AmperUserCacheRoot
+): ModuleDependencyNodeWithModule = buildDependenciesGraph(isTest, setOf(platform), dependencyReason, userCacheRoot)
+
+internal fun AmperModule.buildDependenciesGraph(
+    isTest: Boolean,
+    platforms: Set<Platform>,
+    dependencyReason: ResolutionScope,
+    userCacheRoot: AmperUserCacheRoot
 ): ModuleDependencyNodeWithModule {
-    val resolutionPlatform = platform.toResolutionPlatform()
-        ?: throw IllegalArgumentException("Dependency resolution is not supported for the platform $platform")
+    val resolutionPlatform = platforms.map { it.toResolutionPlatform()
+        ?: throw IllegalArgumentException("Dependency resolution is not supported for the platform $it") }.toSet()
 
     return with(moduleDependenciesResolver) {
         resolveDependenciesGraph(
-            DependenciesFlowType.ClassPathType(dependencyReason, setOf(resolutionPlatform), isTest),
+            DependenciesFlowType.ClassPathType(dependencyReason, resolutionPlatform, isTest),
             getAmperFileCacheBuilder(userCacheRoot),
             { spanBuilder(it) }
         )

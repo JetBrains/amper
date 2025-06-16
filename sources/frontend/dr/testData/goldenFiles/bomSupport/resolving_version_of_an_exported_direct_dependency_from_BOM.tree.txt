@@ -1,5 +1,8 @@
-app:COMPILE:JVM
-├─── B:COMPILE:JVM
+Module app
+│ - main
+│ - scope = COMPILE
+│ - platforms = [jvm]
+├─── Module B
 │    ├─── B:common:io.ktor:ktor-client-core:unspecified
 │    │    ╰─── io.ktor:ktor-client-core:unspecified -> 3.1.1
 │    │         ╰─── io.ktor:ktor-client-core-jvm:3.1.1

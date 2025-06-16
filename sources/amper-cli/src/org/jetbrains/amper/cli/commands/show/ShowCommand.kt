@@ -14,6 +14,7 @@ internal class ShowCommand : AmperSubcommand(name = "show") {
         subcommands(
             ModulesCommand(),
             SettingsCommand(),
+            DependenciesCommand(),
             TasksCommand(),
         )
     }

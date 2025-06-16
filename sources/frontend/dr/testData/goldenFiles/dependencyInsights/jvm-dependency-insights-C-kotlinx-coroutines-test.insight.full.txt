@@ -1,4 +1,7 @@
-C:COMPILE:JVM
+Module C
+│ - main
+│ - scope = COMPILE
+│ - platforms = [jvm]
 ├─── C:common:org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
 │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0

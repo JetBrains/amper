@@ -1,4 +1,7 @@
-shared:COMPILE:IOS_ARM64
+Module shared
+│ - main
+│ - scope = COMPILE
+│ - platforms = [iosArm64]
 ├─── shared:iosArm64:org.jetbrains.compose.material3:material3:#composeDefaultVersion
 │    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion
 │         ╰─── org.jetbrains.compose.material3:material3-uikitarm64:#composeDefaultVersion

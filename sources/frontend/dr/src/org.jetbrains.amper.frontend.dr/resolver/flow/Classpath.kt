@@ -111,15 +111,35 @@ internal class Classpath(
             .flatMap { it.toDependencyNode(resolutionPlatforms, directDependencies, moduleContext, visitedModules, flowType, fileCacheBuilder) }
             .sortedByDescending { (it.notation as? DefaultScopedNotation)?.exported == true }
 
+        val moduleName = getModuleName(addContextInfo = directDependencies, flowType, resolutionPlatforms)
+
         val node = ModuleDependencyNodeWithModule(
             module = this,
-            name = "${this.userReadableName}:${flowType.scope.name}:${resolutionPlatforms.joinToString{ it.toPlatform().name } }",
+            name = moduleName.toString(),
             notation = notation,
             children = dependencies,
             templateContext = moduleContext
         )
 
         return node
+    }
+
+    private fun AmperModule.getModuleName(
+        addContextInfo: Boolean,
+        flowType: DependenciesFlowType.ClassPathType,
+        resolutionPlatforms: Set<ResolutionPlatform>
+    ): StringBuilder {
+        val moduleName = StringBuilder("Module ${this.userReadableName}")
+        if (addContextInfo) {
+            moduleName.append("\n")
+            moduleName.append(
+                """│ - ${if (flowType.isTest) "test" else "main"}
+                  |│ - scope = ${flowType.scope.name}
+                  |│ - platforms = [${resolutionPlatforms.joinToString { it.toPlatform().pretty }}]
+                  """.trimMargin()
+            )
+        }
+        return moduleName
     }
 
     private fun Fragment.toDependencyNode(

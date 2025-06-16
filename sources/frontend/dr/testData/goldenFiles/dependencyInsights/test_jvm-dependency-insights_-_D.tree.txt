@@ -1,4 +1,7 @@
-D:COMPILE:JVM
+Module D
+│ - main
+│ - scope = COMPILE
+│ - platforms = [jvm]
 ├─── D:common:io.ktor:ktor-client:3.0.3
 │    ╰─── io.ktor:ktor-client:3.0.3
 │         ╰─── io.ktor:ktor-client-jvm:3.0.3

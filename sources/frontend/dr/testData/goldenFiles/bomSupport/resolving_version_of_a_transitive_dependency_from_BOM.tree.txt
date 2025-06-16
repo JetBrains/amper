@@ -1,4 +1,7 @@
-app:RUNTIME:ANDROID
+Module app
+│ - main
+│ - scope = RUNTIME
+│ - platforms = [android]
 ├─── app:android:io.github.dokar3:sonner:0.3.8
 │    ╰─── io.github.dokar3:sonner:0.3.8
 │         ╰─── io.github.dokar3:sonner-android:0.3.8
