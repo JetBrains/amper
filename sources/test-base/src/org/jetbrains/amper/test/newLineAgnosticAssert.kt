@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.test
 
+import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import org.junit.jupiter.api.AssertionFailureBuilder
-import org.junit.jupiter.api.fail
 import org.opentest4j.FileInfo
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -19,8 +19,8 @@ import kotlin.io.path.writeText
 fun assertEqualsIgnoreLineSeparator(expectedContent: String, actualContent: String, originalFile: Path) {
     val actualFile = originalFile.parent.resolve(originalFile.name + ".tmp")
 
-    val expectedNormalized = expectedContent.normalizeLineSeparators()
-    val actualNormalized = actualContent.normalizeLineSeparators()
+    val expectedNormalized = expectedContent.normalizeLineSeparators().trimTrailingWhitespacesAndEmptyLines()
+    val actualNormalized = actualContent.normalizeLineSeparators().trimTrailingWhitespacesAndEmptyLines()
 
     if (expectedNormalized != actualNormalized) {
         // On Windows with core.crlf = auto setting, we get '\r' in all text files

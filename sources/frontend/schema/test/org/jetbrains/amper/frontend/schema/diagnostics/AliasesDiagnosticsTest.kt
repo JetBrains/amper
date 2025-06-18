@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema.diagnostics
 
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class AliasesDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") {
+class AliasesDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnostics") {
 
     @Test
     fun `alias intersects with natural hierarchy`() {

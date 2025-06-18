@@ -4,18 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.asTraceable
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.convertTest
-import org.jetbrains.amper.frontend.schema.helper.listOfTraceable
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
-import kotlin.io.path.div
 import kotlin.test.Test
 
-class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
+class ConverterTest : GoldenTestBase(Path("testResources",  "converter").absolute()) {
 
     // TODO Check that there are all of settings withing that file.
     @Test

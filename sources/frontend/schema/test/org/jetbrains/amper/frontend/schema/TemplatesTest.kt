@@ -4,14 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.aomTest
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
-import kotlin.test.Ignore
 import kotlin.test.Test
 
-internal class TemplatesTest : TestBase(Path("testResources") / "templates") {
+internal class TemplatesTest : GoldenTestBase(Path("testResources") / "templates") {
 
     @Test
     fun `check artifacts of multi-variant builds`() {

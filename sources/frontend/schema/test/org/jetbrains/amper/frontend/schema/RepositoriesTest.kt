@@ -4,15 +4,15 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.aomTest
 import org.jetbrains.amper.frontend.schema.helper.copyLocal
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-internal class RepositoriesTest : TestBase(Path("testResources") / "repositories") {
+internal class RepositoriesTest : GoldenTestBase(Path("testResources") / "repositories") {
 
     @Test
     fun `parsing id and url`() {

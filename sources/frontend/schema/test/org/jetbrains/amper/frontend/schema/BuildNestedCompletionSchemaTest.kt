@@ -7,12 +7,11 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.builders.NestedCompletionBuilder
 import org.jetbrains.amper.frontend.builders.NestedCompletionNode
 import org.jetbrains.amper.frontend.builders.NestedCompletionSchemaBuilder
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.doTestWithInput
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.test.Test
 
-
-class BuildNestedCompletionSchemaTest : TestBase() {
+class BuildNestedCompletionSchemaTest : GoldenTestBase() {
 
     @Test
     fun `build nested completion schema test`(): Unit = doTestWithInput("amper.nested.completion.schema", ".txt") {

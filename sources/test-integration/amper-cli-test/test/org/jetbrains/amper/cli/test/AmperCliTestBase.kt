@@ -29,6 +29,8 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     protected val tempRoot: Path
         get() = tempDirExtension.path
 
+    override fun buildDir(): Path = tempRoot
+
     companion object {
         /**
          * A temp directory where we placed the wrapper scripts that will be used to run Amper.

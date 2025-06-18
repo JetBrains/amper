@@ -5,13 +5,13 @@
 package org.jetbrains.amper.frontend.schema.diagnostics
 
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class AndroidDiagnosticsTest : TestBase(Path("testResources") / "diagnostics" / "android") {
+class AndroidDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnostics" / "android") {
     @Test
     fun `test Android too old version`() {
         diagnosticsTest("too-old-version")

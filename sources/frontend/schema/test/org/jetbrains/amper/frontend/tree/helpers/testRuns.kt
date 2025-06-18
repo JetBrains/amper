@@ -17,19 +17,19 @@ import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
 import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.meta.DefaultAmperTypesDiscoverer
-import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.schema.helper.BaseTestRun
+import org.jetbrains.amper.frontend.schema.helper.BaseFrontendTestRun
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
 import org.jetbrains.amper.frontend.schema.helper.annotateTextWithDiagnostics
-import org.jetbrains.amper.frontend.schema.helper.readContentsAndReplace
 import org.jetbrains.amper.frontend.schema.helper.removeDiagnosticAnnotations
-import org.jetbrains.amper.frontend.schema.helper.trimTrailingWhitespacesAndEmptyLines
 import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.jsonDump
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
+import org.jetbrains.amper.test.golden.readContentsAndReplace
+import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.reflect.KType
@@ -51,7 +51,7 @@ internal open class TreeTestRun(
     override val expectPostfix: String,
     protected val treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>?,
     protected val dumpPathContexts: Boolean = false,
-) : BaseTestRun(caseName) {
+) : BaseFrontendTestRun(caseName) {
 
     protected val diagnostics get() = ctx.problemReporter.getDiagnostics()
 
@@ -71,7 +71,7 @@ internal open class TreeTestRun(
         return readTree
     }
 
-    override fun TestBase.getInputContent(inputPath: Path): String {
+    override fun GoldenTest.getInputContent(inputPath: Path): String {
         val readTree = doReadTree(inputPath)
         assertTrue(
             diagnostics.isEmpty(),
@@ -94,14 +94,18 @@ internal open class DiagnosticsTreeTestRun(
     treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>?,
     dumpPathContexts: Boolean = false,
 ) : TreeTestRun(caseName, base, types, "", treeBuilder, dumpPathContexts) {
-    override fun TestBase.getInputContent(inputPath: Path): String = with(buildCtx) {
+
+    override val expectPostfix: String = ".yaml"
+    override val expectAmperPostfix: String = ".amper"
+
+    override fun GoldenTest.getInputContent(inputPath: Path): String = with(buildCtx) {
         doReadTree(inputPath)
         annotateTextWithDiagnostics(inputPath, inputPath.asPsi().text!!, diagnostics) { it }
             .trimTrailingWhitespacesAndEmptyLines()
     }
 
-    override fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path) =
-        readContentsAndReplace(inputPath, base).trimTrailingWhitespacesAndEmptyLines()
+    override fun GoldenTest.getExpectContent(expectedPath: Path) =
+        readContentsAndReplace(expectedPath, base).trimTrailingWhitespacesAndEmptyLines()
 }
 
 internal class TestAmperTypesDiscoverer(

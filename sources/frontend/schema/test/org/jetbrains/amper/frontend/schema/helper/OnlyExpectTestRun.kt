@@ -4,12 +4,12 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
-import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.test.golden.GoldenTest
 import java.nio.file.Path
 import kotlin.io.path.Path
 
 
-fun TestBase.doTestWithInput(caseName: String, postfix: String, base: Path = Path("testResources"), input: () -> String) =
+fun GoldenTest.doTestWithInput(caseName: String, postfix: String, base: Path = Path("testResources"), input: () -> String) =
     OnlyExpectTestRun(caseName, postfix, input, base).doTest()
 
 class OnlyExpectTestRun(
@@ -17,7 +17,7 @@ class OnlyExpectTestRun(
     postfix: String,
     private val input: () -> String,
     override val base: Path
-) : BaseTestRun(caseName) {
+) : BaseFrontendTestRun(caseName) {
     override val expectPostfix = postfix
-    override fun TestBase.getInputContent(inputPath: Path) = input()
+    override fun GoldenTest.getInputContent(inputPath: Path) = input()
 }

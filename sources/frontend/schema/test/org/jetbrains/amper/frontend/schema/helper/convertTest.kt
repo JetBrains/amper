@@ -7,25 +7,26 @@ package org.jetbrains.amper.frontend.schema.helper
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Merged
-import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.reading.readTree
+import org.jetbrains.amper.test.golden.GoldenTest
 import java.nio.file.Path
 
-fun TestBase.convertTest(caseName: String, expectedErrors: String = "", expectedModule: Module? = null) =
-    ConvertTestRun(caseName, expectedErrors, baseTestResourcesPath, expectedModule).doTest()
+fun GoldenTest.convertTest(caseName: String, expectedErrors: String = "", expectedModule: Module? = null) =
+    ConvertTestRun(caseName, expectedErrors, baseTestResourcesPath(), expectedModule).doTest()
 
 private class ConvertTestRun(
     caseName: String,
     private val expectedErrors: String = "",
     override val base: Path,
     private val expectedModule: Module? = null
-) : BaseTestRun(caseName) {
-    override fun TestBase.getInputContent(inputPath: Path): String {
+) : BaseFrontendTestRun(caseName) {
+
+    override val expectPostfix = ".yaml"
+
+    override fun GoldenTest.getInputContent(inputPath: Path): String {
         val module = with(ctx) {
             val pathResolver = FrontendPathResolver(
                 intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
@@ -43,5 +44,5 @@ private class ConvertTestRun(
         return ctx.problemReporter.getDiagnostics().joinToString { it.message }
     }
 
-    override fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path) = expectedErrors
+    override fun GoldenTest.getExpectContent(expectedPath: Path) = expectedErrors
 }

@@ -4,12 +4,12 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.convertTest
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-class GracefulDegradationTest : TestBase() {
+class GracefulDegradationTest : GoldenTestBase() {
 
     @Test
     @Ignore

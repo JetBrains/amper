@@ -10,12 +10,13 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.api.linkedAmperValue
-import org.jetbrains.amper.frontend.old.helper.TestBase
-import org.jetbrains.amper.frontend.schema.helper.BaseTestRun
+import org.jetbrains.amper.frontend.schema.helper.BaseFrontendTestRun
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
 import org.jetbrains.amper.frontend.schema.helper.TestProjectContext
-import org.jetbrains.amper.frontend.schema.helper.readContentsAndReplace
-import org.jetbrains.amper.frontend.schema.helper.trimTrailingWhitespacesAndEmptyLines
+import org.jetbrains.amper.test.golden.GoldenTest
+import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.test.golden.readContentsAndReplace
+import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -23,7 +24,7 @@ import kotlin.io.path.div
 import kotlin.test.Ignore
 
 @Ignore
-class ValueTrackingTest : TestBase(Path("testResources") / "valueTracking") {
+class ValueTrackingTest : GoldenTestBase(Path("testResources") / "valueTracking") {
     @Test
     fun `test no template`() {
         trackingTest("no-template")
@@ -51,27 +52,27 @@ class ValueTrackingTest : TestBase(Path("testResources") / "valueTracking") {
 }
 
 
-private fun TestBase.trackingTest(caseName: String,
-                         propertyName: String = "settings",
-                                  customPostfix: String? = null)
-    = TrackingTestRun(caseName, baseTestResourcesPath, propertyName, customPostfix).doTest()
+private fun GoldenTest.trackingTest(caseName: String,
+                                        propertyName: String = "settings",
+                                        customPostfix: String? = null)
+    = TrackingTestRun(caseName, baseTestResourcesPath(), propertyName, customPostfix).doTest()
 
 private class TrackingTestRun(
     caseName: String,
     override val base: Path,
     private val propertyName: String,
     private val customPostfix: String? = null
-) : BaseTestRun(caseName) {
+) : BaseFrontendTestRun(caseName) {
 
     override val expectPostfix: String
         get() = customPostfix ?: super.expectPostfix
 
-    override fun TestBase.getInputContent(inputPath: Path): String {
+    override fun GoldenTest.getInputContent(inputPath: Path): String {
         // Fix paths, so they will point to resources.
         val readCtx = FrontendPathResolver(
             intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator
         )
-        val buildDirFile = readCtx.loadVirtualFile(buildDir)
+        val buildDirFile = readCtx.loadVirtualFile(buildDir())
         val inputFile = readCtx.loadVirtualFile(inputPath)
         val psiFile = readCtx.toPsiFile(inputFile) ?: error("no psi file")
 
@@ -82,8 +83,6 @@ private class TrackingTestRun(
             .trimTrailingWhitespacesAndEmptyLines()
     }
 
-    override fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path) =
+    override fun GoldenTest.getExpectContent(expectedPath: Path) =
         readContentsAndReplace(expectedPath, base).trimTrailingWhitespacesAndEmptyLines()
-
-    override val expectIsInput: Boolean = false
 }

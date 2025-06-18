@@ -5,13 +5,13 @@
 package org.jetbrains.amper.frontend.schema.diagnostics
 
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") {
+class SettingsDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnostics") {
     @Test
     fun `compose version when compose disabled`() {
         diagnosticsTest("compose-version-disabled", levels = arrayOf(Level.Warning))

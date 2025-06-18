@@ -5,12 +5,12 @@
 package org.jetbrains.amper.frontend.schema.diagnostics
 
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
 import kotlin.io.path.Path
 import kotlin.test.Test
 
-class ModuleRepositoryDiagnosticsTests : TestBase(Path("testResources/diagnostics/repositories")) {
+class ModuleRepositoryDiagnosticsTests : GoldenTestBase(Path("testResources/diagnostics/repositories")) {
 
     @Test
     fun `no warning for maven local repository`() {

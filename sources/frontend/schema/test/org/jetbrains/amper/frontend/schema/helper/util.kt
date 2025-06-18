@@ -7,23 +7,17 @@ package org.jetbrains.amper.frontend.schema.helper
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
-import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.frontend.project.AmperProjectContext
-import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 class TestProblemReporter : CollectingProblemReporter() {
     override fun doReportMessage(message: BuildProblem) {}
@@ -33,30 +27,10 @@ class TestProblemReporterContext : ProblemReporterContext {
     override val problemReporter: TestProblemReporter = TestProblemReporter()
 }
 
-fun TestBase.copyLocal(localName: String, dest: Path = buildFile, newPath: () -> Path = { dest / localName }) {
-    val localFile = baseTestResourcesPath.resolve(localName).normalize().takeIf(Path::exists)
+fun GoldenTest.copyLocal(localName: String, dest: Path = buildDir(), newPath: () -> Path = { dest / localName }) {
+    val localFile = baseTestResourcesPath().resolve(localName).normalize().takeIf(Path::exists)
     val newPathWithDirs = newPath().apply { createDirectories() }
     localFile?.copyTo(newPathWithDirs, overwrite = true)
-}
-
-fun TestBase.readContentsAndReplace(
-    expectedPath: Path,
-    base: Path,
-): String {
-    val buildDir = buildFile.normalize().toString()
-    val potDir = expectedPath.toAbsolutePath().normalize().parent.toString()
-    val testProcessDir = Path(".").normalize().absolutePathString()
-    val testResources = Path(".").resolve(base).normalize().absolutePathString()
-
-    // This is the actual check.
-    if (!expectedPath.exists()) expectedPath.writeText("")
-    val resourceFileText = expectedPath.readText()
-    return resourceFileText
-        .replace("{{ buildDir }}", buildDir)
-        .replace("{{ potDir }}", buildFile.parent.relativize(Path(potDir)).toString())
-        .replace("{{ testProcessDir }}", testProcessDir)
-        .replace("{{ testResources }}", testResources)
-        .replace("{{ fileSeparator }}", File.separator)
 }
 
 class TestSystemInfo(
@@ -77,9 +51,3 @@ open class TestProjectContext(
 
 fun listOfTraceable(vararg items: String) = items.map { TraceableString(it) }
 
-internal fun String.trimTrailingWhitespacesAndEmptyLines(): String {
-    return lines()
-        .dropWhile { it.isBlank() }
-        .dropLastWhile { it.isBlank() }
-        .joinToString(separator = "\n") { it.trimEnd() }
-}

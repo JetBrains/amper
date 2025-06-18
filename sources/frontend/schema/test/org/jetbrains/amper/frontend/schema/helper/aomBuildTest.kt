@@ -10,16 +10,17 @@ import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
-import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.test.golden.GoldenTest
+import org.jetbrains.amper.test.golden.readContentsAndReplace
 import java.nio.file.Path
 import kotlin.test.assertNotNull
 
-fun TestBase.aomTest(
+fun GoldenTest.aomTest(
     caseName: String,
     systemInfo: SystemInfo = DefaultSystemInfo,
     expectedError: String? = null,
     adjustCtx: TestProjectContext.() -> Unit = {},
-) = BuildAomTestRun(caseName, systemInfo, baseTestResourcesPath, expectedError, adjustCtx).doTest()
+) = BuildAomTestRun(caseName, systemInfo, baseTestResourcesPath(), expectedError, adjustCtx).doTest()
 
 open class BuildAomTestRun(
     caseName: String,
@@ -27,15 +28,15 @@ open class BuildAomTestRun(
     override val base: Path,
     private val expectedError: String? = null,
     private val adjustCtx: TestProjectContext.() -> Unit = {},
-) : BaseTestRun(caseName) {
-    override fun TestBase.getInputContent(inputPath: Path): String {
+) : BaseFrontendTestRun(caseName) {
+    override fun GoldenTest.getInputContent(inputPath: Path): String {
         val readCtx = FrontendPathResolver(
             intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
             transformPsiFile = PsiFile::removeDiagnosticAnnotations,
         )
 
         // Read module.
-        val buildDirFile = readCtx.loadVirtualFile(buildDir)
+        val buildDirFile = readCtx.loadVirtualFile(buildDir())
         val inputFile = readCtx.loadVirtualFile(inputPath)
         val fioCtx = TestProjectContext(buildDirFile, listOf(inputFile), readCtx)
         fioCtx.adjustCtx()
@@ -68,6 +69,6 @@ open class BuildAomTestRun(
         return module?.prettyPrintForGoldFile() ?: error("Could not read and parse")
     }
 
-    override fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path) =
-        readContentsAndReplace(expectedPath, base)
+    override fun GoldenTest.getExpectContent(expectedPath: Path) =
+        this.readContentsAndReplace(expectedPath, base)
 }

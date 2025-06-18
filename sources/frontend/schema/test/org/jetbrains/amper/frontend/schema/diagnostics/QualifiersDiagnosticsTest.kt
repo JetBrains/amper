@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema.diagnostics
 
-import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class QualifiersDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") {
+class QualifiersDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnostics") {
     @Test
     fun `unknown qualifiers`() {
         diagnosticsTest("unknown-qualifiers")

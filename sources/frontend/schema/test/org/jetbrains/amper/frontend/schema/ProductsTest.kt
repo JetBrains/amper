@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.aomTest
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-internal class ProductsTest : TestBase(Path("testResources") / "product") {
+internal class ProductsTest : GoldenTestBase(Path("testResources") / "product") {
     @Test
     fun `product lib `() {
         aomTest("product-lib")

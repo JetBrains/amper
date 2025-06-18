@@ -8,17 +8,17 @@ import org.jetbrains.amper.frontend.api.PropertyMeta
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.tree.helpers.TestAmperTypesDiscoverer
 import org.jetbrains.amper.frontend.tree.helpers.diagnoseModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModule
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModuleWithTemplates
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
-class TreeTests : TestBase(Path(".") / "testResources" / "valueTree") {
+class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
 
     @Test
     fun `all settings read`() =

@@ -12,20 +12,22 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModel
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
-import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.test.golden.GoldenTest
+import org.jetbrains.amper.test.golden.readContentsAndReplace
+import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 
-fun TestBase.diagnosticsTest(
+fun GoldenTest.diagnosticsTest(
     caseName: String,
     systemInfo: SystemInfo = DefaultSystemInfo,
     vararg levels: Level = arrayOf(Level.Error, Level.Fatal),
     additionalFiles: List<String> = emptyList()
 ) =
-    DiagnosticsTestRun(caseName, systemInfo, baseTestResourcesPath, levels, additionalFiles).doTest()
+    DiagnosticsTestRun(caseName, systemInfo, baseTestResourcesPath(), levels, additionalFiles).doTest()
 
 class DiagnosticsTestRun(
     caseName: String,
@@ -33,15 +35,18 @@ class DiagnosticsTestRun(
     override val base: Path,
     private val levels: Array<out Level>,
     private val additionalPaths: List<String>,
-) : BaseTestRun(caseName) {
+) : BaseFrontendTestRun(caseName) {
 
-    override fun TestBase.getInputContent(inputPath: Path): String {
+    override val expectPostfix: String = ".yaml"
+    override val expectAmperPostfix: String = ".amper"
+
+    override fun GoldenTest.getInputContent(inputPath: Path): String {
         // Fix paths, so they will point to resources.
         val readCtx = FrontendPathResolver(
             intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
             transformPsiFile = PsiFile::removeDiagnosticAnnotations
         )
-        val buildDirFile = readCtx.loadVirtualFile(buildDir)
+        val buildDirFile = readCtx.loadVirtualFile(buildDir())
         val inputFile = readCtx.loadVirtualFile(inputPath.absolute())
         val cleared = readCtx.toPsiFile(inputFile)!!.text
         val additionalFiles = additionalPaths.map { readCtx.loadVirtualFile((base / it).absolute()) }
@@ -58,13 +63,11 @@ class DiagnosticsTestRun(
         // Collect errors.
         val errors = with(ctx) { problemReporter.getDiagnostics(*levels) }
         val annotated = annotateTextWithDiagnostics(inputPath.absolute(), cleared, errors) {
-            it.replace(buildDir.absolutePathString() + File.separator, "")
+            it.replace(buildDir().absolutePathString() + File.separator, "")
         }
         return annotated.trimTrailingWhitespacesAndEmptyLines()
     }
 
-    override fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path) =
-        readContentsAndReplace(inputPath, base).trimTrailingWhitespacesAndEmptyLines()
-
-    override val expectIsInput: Boolean = true
+    override fun GoldenTest.getExpectContent(expectedPath: Path) =
+        readContentsAndReplace(expectedPath, base).trimTrailingWhitespacesAndEmptyLines()
 }

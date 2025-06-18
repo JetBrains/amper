@@ -6,14 +6,13 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.builders.schema.jsonSchemaString
 import org.jetbrains.amper.frontend.meta.ATypesDiscoverer
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.doTestWithInput
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-
-class BuildJsonSchemaTest : TestBase() {
+class BuildJsonSchemaTest : GoldenTestBase() {
 
     @Test
     fun `build module schema`() = doTest("amper.module") { jsonSchemaString(ATypesDiscoverer.aType<Module>()) }

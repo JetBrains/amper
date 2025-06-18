@@ -12,10 +12,10 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.api.linkedAmperValue
 import org.jetbrains.amper.frontend.api.precedingValuesSequence
-import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
 import org.jetbrains.amper.frontend.schema.helper.TestProblemReporterContext
 import org.jetbrains.amper.frontend.schema.helper.TestProjectContext
+import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
@@ -31,7 +31,7 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 @Ignore
-class LinkedValuesTest : TestBase(Path("testResources") / "valueTracking") {
+class LinkedValuesTest : GoldenTestBase(Path("testResources") / "valueTracking") {
 
     // See: https://youtrack.jetbrains.com/issue/AMPER-3896
     @Test
