@@ -13,7 +13,6 @@ import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
-import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.logs.readLogs
 import org.jetbrains.amper.test.otlp.serialization.decodeOtlpTraces
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
@@ -37,7 +36,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-abstract class AmperCliWithWrapperTestBase : GoldenTest {
+abstract class AmperCliWithWrapperTestBase {
 
     @RegisterExtension
     protected val testReporter = TestReporterExtension()

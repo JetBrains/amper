@@ -13,6 +13,7 @@ import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.android.AndroidTools
+import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
@@ -22,7 +23,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.pathString
 
-abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
+abstract class AmperCliTestBase : AmperCliWithWrapperTestBase(), GoldenTest {
     @RegisterExtension
     private val tempDirExtension = TempDirExtension()
 
