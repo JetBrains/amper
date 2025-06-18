@@ -48,33 +48,6 @@ fun String.trimTrailingWhitespacesAndEmptyLines(): String {
         .joinToString(separator = "\n") { it.trimEnd() }
 }
 
-internal inline fun <T> withActualDump(expected: Pair<Path, String>? = null, block: () -> T): T {
-    return try {
-        block()
-    } catch (e: AssertionFailedError) {
-        val expectedResultPath = expected?.first
-        val expectedContent = expected?.second
-        if (e.isExpectedDefined && e.isActualDefined && expectedResultPath != null) {
-            val actualResultPath = expectedResultPath.actualFilePath()
-
-            when(val actualValue = e.actual.value) {
-                is List<*> -> actualResultPath.writeLines(actualValue.map { it.toString().replaceVersionsWithVariables() })
-                is String -> actualResultPath.writeText(actualValue.replaceVersionsWithVariables().adjustEol(expectedResultPath))
-                else -> { throw e }
-            }
-
-            AssertionFailureBuilder.assertionFailure()
-                .message("Comparison failed:\n${generateUnifiedDiff(expectedResultPath, actualResultPath)}")
-                .expected(FileInfo(expectedResultPath.absolutePathString(), expectedContent!!.toByteArray()))
-                .actual(FileInfo(actualResultPath.absolutePathString(), actualResultPath.readBytes()))
-                .buildAndThrow()
-        }
-        throw e
-    }.also {
-        expected?.first?.actualFilePath()?.deleteIfExists()
-    }
-}
-
 private fun String.adjustEol(expectedFilePath: Path): String {
     // On Windows with core.crlf = auto setting, we get '\r' in all text files
     // Let's handle it transparently to developers
