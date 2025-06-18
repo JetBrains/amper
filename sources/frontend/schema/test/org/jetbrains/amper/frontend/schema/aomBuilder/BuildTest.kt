@@ -22,7 +22,7 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.parseStringWithReferences
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.schema.helper.TestProblemReporterContext
+import org.jetbrains.amper.test.golden.TestProblemReporterContext
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail

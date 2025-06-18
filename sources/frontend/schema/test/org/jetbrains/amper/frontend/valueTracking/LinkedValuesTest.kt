@@ -13,9 +13,9 @@ import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.api.linkedAmperValue
 import org.jetbrains.amper.frontend.api.precedingValuesSequence
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
-import org.jetbrains.amper.frontend.schema.helper.TestProblemReporterContext
 import org.jetbrains.amper.frontend.schema.helper.TestProjectContext
 import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.test.golden.TestProblemReporterContext
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.junit.jupiter.api.Test
 import java.nio.file.Path

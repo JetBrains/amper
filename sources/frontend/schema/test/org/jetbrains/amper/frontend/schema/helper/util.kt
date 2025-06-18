@@ -5,27 +5,16 @@
 package org.jetbrains.amper.frontend.schema.helper
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.frontend.project.AmperProjectContext
+import org.jetbrains.amper.test.golden.GoldenTest
 import java.nio.file.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
-
-class TestProblemReporter : CollectingProblemReporter() {
-    override fun doReportMessage(message: BuildProblem) {}
-}
-
-class TestProblemReporterContext : ProblemReporterContext {
-    override val problemReporter: TestProblemReporter = TestProblemReporter()
-}
 
 fun GoldenTest.copyLocal(localName: String, dest: Path = buildDir(), newPath: () -> Path = { dest / localName }) {
     val localFile = baseTestResourcesPath().resolve(localName).normalize().takeIf(Path::exists)
