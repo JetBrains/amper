@@ -5,6 +5,9 @@
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.terminal.Terminal
+import com.github.ajalt.mordant.terminal.warning
+import com.sun.jna.platform.win32.Kernel32
+import com.sun.jna.platform.win32.Kernel32Util
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +26,7 @@ import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
+import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.createDirectories
 
@@ -41,6 +45,8 @@ internal suspend fun <T> withBackend(
     if (initializedException != null) {
         throw IllegalStateException("withBackend was already called, see nested exception", initializedException)
     }
+
+    fixSystemOutEncodingOnWindows(terminal)
 
     // TODO think of a better place to activate it. e.g. we need it in tests too
     // TODO disabled jul bridge for now since it reports too much in debug mode
@@ -104,6 +110,27 @@ internal suspend fun <T> withBackend(
             }
         }
     }
+}
+
+private fun fixSystemOutEncodingOnWindows(terminal: Terminal): Boolean {
+    if (!System.getProperty("os.name").lowercase().contains("win")) return true
+
+    try {
+        // Set console code page to 65001 = UTF-8
+        if (Kernel32.INSTANCE.SetConsoleOutputCP(65001)) {
+            // Replace System.out and System.err with PrintStreams using UTF-8
+            System.setOut(PrintStream(System.out, true, Charsets.UTF_8))
+            System.setErr(PrintStream(System.err, true, Charsets.UTF_8))
+        } else {
+            // SetConsoleOutputCP() failed, throw exception with error message.
+            error(Kernel32Util.getLastErrorMessage())
+        }
+    } catch (t: Throwable) {
+        terminal.warning("Failed to set UTF-8 as console output encoding: ${t.message}.")
+        return false
+    }
+
+    return true
 }
 
 private fun CoroutineScope.childScope(name: String): CoroutineScope =

@@ -43,6 +43,7 @@ dependencies:
   - $libs.opentelemetry.sdk
   - $libs.opentelemetry.sdkTrace
   - $libs.opentelemetry.kotlin
+  - net.java.dev.jna:jna-platform:5.17.0
   # for files downloading
   - $libs.ktor.client.cio
   - $libs.ktor.client.encoding

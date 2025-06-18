@@ -1,0 +1,32 @@
+Dependencies of module root:
+
+Module root
+│ - main
+│ - scope = RUNTIME
+│ - platforms = [jvm]
+├─── root:common:org.apache.commons:commons-text:1.11.0
+│    ╰─── org.apache.commons:commons-text:1.11.0
+│         ╰─── org.apache.commons:commons-lang3:3.13.0
+├─── root:jvm:org.apache.commons:commons-text:1.11.0
+│    ╰─── org.apache.commons:commons-text:1.11.0 (*)
+├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
+│         ╰─── org.jetbrains:annotations:13.0
+╰─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+
+Module root
+│ - main
+│ - scope = COMPILE
+│ - platforms = [jvm]
+├─── root:common:org.apache.commons:commons-text:1.11.0
+│    ╰─── org.apache.commons:commons-text:1.11.0
+│         ╰─── org.apache.commons:commons-lang3:3.13.0
+├─── root:jvm:org.apache.commons:commons-text:1.11.0
+│    ╰─── org.apache.commons:commons-text:1.11.0 (*)
+├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
+│         ╰─── org.jetbrains:annotations:13.0
+╰─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+
