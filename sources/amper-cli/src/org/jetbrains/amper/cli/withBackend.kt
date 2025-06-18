@@ -112,6 +112,12 @@ internal suspend fun <T> withBackend(
     }
 }
 
+/**
+ * Some Windows encoding used by default doesn't support symbols used in `show dependencies` output
+ * Updating it on UTF-8 solves the issue.
+ *
+ * See https://github.com/ajalt/mordant/issues/249 for details.
+ */
 private fun fixSystemOutEncodingOnWindows(terminal: Terminal): Boolean {
     if (!System.getProperty("os.name").lowercase().contains("win")) return true
 
