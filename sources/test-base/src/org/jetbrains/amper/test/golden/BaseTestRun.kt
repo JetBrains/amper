@@ -40,7 +40,7 @@ abstract class BaseTestRun(
     }
 
     context(GoldenTest)
-    open fun doTest() = doTest(base / "$caseName$expectPostfix")
+    open fun doTest() = doTest(expect = base / "$caseName$expectPostfix")
 
 }
 
