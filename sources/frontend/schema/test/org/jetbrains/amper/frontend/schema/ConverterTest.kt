@@ -10,6 +10,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.test.Test
 
+// TODO Check and remove
 class ConverterTest : GoldenTestBase(Path("testResources",  "converter").absolute()) {
 
     // TODO Check that there are all of settings withing that file.

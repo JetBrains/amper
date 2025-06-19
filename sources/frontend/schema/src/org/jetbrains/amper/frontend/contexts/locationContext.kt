@@ -4,32 +4,28 @@
 
 package org.jetbrains.amper.frontend.contexts
 
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.ContextsInheritance.Result.INDETERMINATE
 import org.jetbrains.amper.frontend.contexts.ContextsInheritance.Result.IS_LESS_SPECIFIC
 import org.jetbrains.amper.frontend.contexts.ContextsInheritance.Result.IS_MORE_SPECIFIC
 import org.jetbrains.amper.frontend.contexts.ContextsInheritance.Result.SAME
-import java.nio.file.Path
-import kotlin.io.path.absolute
 
 
-class PathCtx(path: Path, override val trace: Trace? = null) : Context {
-    val path: Path = path.absolute().normalize()
+class PathCtx(val path: VirtualFile, override val trace: Trace? = null) : Context {
     override fun withoutTrace() = PathCtx(path)
-    override fun toString() = path.toString()
+    override fun toString() = path.path
 }
 
 /**
  * Interpret contexts as paths and make inheritance conclusion based on [order] order.
  */
 class PathInheritance(
-    val order: List<Path>,
+    val order: List<VirtualFile>,
 ) : ContextsInheritance<PathCtx> {
-    private fun List<Path>.normalized() = map(Path::absolute).map(Path::normalize)
-    private val orderNormalized = order.normalized()
-    private fun Collection<PathCtx>.paths() = map { it.path }.normalized()
-    private fun Collection<PathCtx>.pathIndices() =
-        paths().map { orderNormalized.indexOf(it) }.filterNot { it == -1 }.sorted()
+    private val orderAsStrings = order.map { it.path }
+    private fun Collection<PathCtx>.pathIndices() = 
+        map { orderAsStrings.indexOf(it.path.path) }.filterNot { it == -1 }.sorted()
 
     override fun Collection<PathCtx>.isMoreSpecificThan(other: Collection<PathCtx>): ContextsInheritance.Result {
         val thisIndices = pathIndices()

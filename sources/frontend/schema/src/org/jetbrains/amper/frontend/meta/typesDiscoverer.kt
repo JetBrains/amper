@@ -6,20 +6,21 @@ package org.jetbrains.amper.frontend.meta
 
 import org.jetbrains.amper.frontend.api.PropertyMeta
 import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.types.allSchemaProperties
+import org.jetbrains.amper.frontend.types.allSealedSubclasses
 import org.jetbrains.amper.frontend.types.isCollection
+import org.jetbrains.amper.frontend.types.isEnum
 import org.jetbrains.amper.frontend.types.isMap
 import org.jetbrains.amper.frontend.types.isScalar
 import org.jetbrains.amper.frontend.types.isSchemaNode
 import org.jetbrains.amper.frontend.types.isSealed
+import org.jetbrains.amper.frontend.types.isTraceableEnum
 import org.jetbrains.amper.frontend.types.isTraceablePath
 import org.jetbrains.amper.frontend.types.kClass
-import org.jetbrains.amper.frontend.types.allSealedSubclasses
-import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.types.AmperTypes
-import org.jetbrains.amper.frontend.types.isEnum
-import org.jetbrains.amper.frontend.types.isTraceableEnum
-import java.util.Properties
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createInstance
@@ -32,7 +33,7 @@ val ATypesDiscoverer = DefaultAmperTypesDiscoverer()
  * Discovering all schema-defined properties and types.
  */
 open class DefaultAmperTypesDiscoverer : AmperTypes() {
-    private val discoveredTypes = mutableMapOf<KType, AmperType>()
+    private val discoveredTypes = ConcurrentHashMap<KType, AmperType>()
 
     private val amperCL = this::class.java.classLoader
 

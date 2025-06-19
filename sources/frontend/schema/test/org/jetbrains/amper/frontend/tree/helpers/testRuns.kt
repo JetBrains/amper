@@ -11,13 +11,10 @@ import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.readWithTemplates
 import org.jetbrains.amper.frontend.api.PropertyMeta
 import org.jetbrains.amper.frontend.api.trace
-import org.jetbrains.amper.frontend.types.kClass
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
-import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.meta.DefaultAmperTypesDiscoverer
-import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.helper.BaseFrontendTestRun
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
@@ -25,9 +22,13 @@ import org.jetbrains.amper.frontend.schema.helper.annotateTextWithDiagnostics
 import org.jetbrains.amper.frontend.schema.helper.removeDiagnosticAnnotations
 import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.jsonDump
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
+import org.jetbrains.amper.frontend.types.AmperTypes
+import org.jetbrains.amper.frontend.types.kClass
+import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.golden.readContentsAndReplace
 import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import java.nio.file.Path
@@ -123,16 +124,20 @@ internal val readModule: BuildCtx.(VirtualFile) -> TreeValue<*> = {
 }
 
 // Helper function read the module and refine it with selected contexts.
-internal fun readAndRefineModule(contexts: Contexts): BuildCtx.(VirtualFile) -> TreeValue<*> = {
+internal fun readAndRefineModule(
+    contexts: Contexts,
+    withDefaults: Boolean = false,
+): BuildCtx.(VirtualFile) -> TreeValue<*> = {
     val minimalModule = tryReadMinimalModule(it)!!
-    val resultTree = readTree(it, moduleAType) ?: fail("No tree for $it")
-    (resultTree as MergedTree).refineTree(contexts, minimalModule.combinedInheritance)
+    var tree: MergedTree = readTree(it, moduleAType) as? MergedTree ?: fail("No tree for $it")
+    tree = if (withDefaults) tree.appendDefaultValues() else tree
+    tree.refineTree(contexts, minimalModule.combinedInheritance)
 }
 
 // Helper function read the module with templates and refine it with selected contexts.
-internal fun readAndRefineModuleWithTemplates(contexts: (Path) -> Contexts): BuildCtx.(VirtualFile) -> TreeValue<*> = {
+internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Contexts): BuildCtx.(VirtualFile) -> TreeValue<*> = {
     val minimalModule = tryReadMinimalModule(it)!!
-    val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it.toNioPath(), it.asPsi().trace)) ?: fail("No tree for $it")
+    val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().trace)) ?: fail("No tree for $it")
     val resultTree = treeMerger.mergeTrees(ownedTrees)
-    resultTree.refineTree(contexts(it.toNioPath()), minimalModule.combinedInheritance)
+    resultTree.refineTree(contexts(it), minimalModule.combinedInheritance)
 }

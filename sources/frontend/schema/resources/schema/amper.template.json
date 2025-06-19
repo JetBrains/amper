@@ -12,9 +12,6 @@
     "CatalogBomDependency": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
@@ -23,15 +20,15 @@
               "additionalProperties": false
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
     "ExternalMavenBomDependency": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
@@ -40,28 +37,20 @@
               "additionalProperties": false
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
     "CatalogDependency": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
             "^.*$": {
               "anyOf": [
-                {
-                  "enum": [
-                    "exported",
-                    "compile-only",
-                    "runtime-only",
-                    "all"
-                  ]
-                },
                 {
                   "type": "object",
                   "additionalProperties": false,
@@ -79,41 +68,35 @@
                       ],
                       "x-intellij-enum-order-sensitive": true,
                       "x-intellij-html-description": "When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)",
-                      "title": "When the dependency should be used. Read more about the dependency scopes",
-                      "x-intellij-metadata": {
-                        "aliases": [
-                          "compileOnly",
-                          "runtimeOnly"
-                        ]
-                      }
+                      "title": "When the dependency should be used. Read more about the dependency scopes"
                     }
                   }
+                },
+                {
+                  "enum": [
+                    "exported",
+                    "compile-only",
+                    "runtime-only",
+                    "all"
+                  ]
                 }
               ]
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
     "ExternalMavenDependency": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
             "^.*$": {
               "anyOf": [
-                {
-                  "enum": [
-                    "exported",
-                    "compile-only",
-                    "runtime-only",
-                    "all"
-                  ]
-                },
                 {
                   "type": "object",
                   "additionalProperties": false,
@@ -131,41 +114,35 @@
                       ],
                       "x-intellij-enum-order-sensitive": true,
                       "x-intellij-html-description": "When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)",
-                      "title": "When the dependency should be used. Read more about the dependency scopes",
-                      "x-intellij-metadata": {
-                        "aliases": [
-                          "compileOnly",
-                          "runtimeOnly"
-                        ]
-                      }
+                      "title": "When the dependency should be used. Read more about the dependency scopes"
                     }
                   }
+                },
+                {
+                  "enum": [
+                    "exported",
+                    "compile-only",
+                    "runtime-only",
+                    "all"
+                  ]
                 }
               ]
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
     "InternalDependency": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
             "^.*$": {
               "anyOf": [
-                {
-                  "enum": [
-                    "exported",
-                    "compile-only",
-                    "runtime-only",
-                    "all"
-                  ]
-                },
                 {
                   "type": "object",
                   "additionalProperties": false,
@@ -183,19 +160,24 @@
                       ],
                       "x-intellij-enum-order-sensitive": true,
                       "x-intellij-html-description": "When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)",
-                      "title": "When the dependency should be used. Read more about the dependency scopes",
-                      "x-intellij-metadata": {
-                        "aliases": [
-                          "compileOnly",
-                          "runtimeOnly"
-                        ]
-                      }
+                      "title": "When the dependency should be used. Read more about the dependency scopes"
                     }
                   }
+                },
+                {
+                  "enum": [
+                    "exported",
+                    "compile-only",
+                    "runtime-only",
+                    "all"
+                  ]
                 }
               ]
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
@@ -222,9 +204,6 @@
     },
     "Repository": {
       "anyOf": [
-        {
-          "enum": []
-        },
         {
           "type": "object",
           "additionalProperties": false,
@@ -255,16 +234,14 @@
               "title": "The url of the repository"
             }
           }
+        },
+        {
+          "enum": []
         }
       ]
     },
     "ParcelizeSettings": {
       "anyOf": [
-        {
-          "enum": [
-            "enabled"
-          ]
-        },
         {
           "type": "object",
           "additionalProperties": false,
@@ -284,6 +261,11 @@
               "title": "Whether to enable Parcelize. When enabled, an implementation of the `Parcelable` interface is automatically generated for classes annotated with `@Parcelize`"
             }
           }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
       ]
     },
@@ -323,11 +305,6 @@
     "AndroidSigningSettings": {
       "anyOf": [
         {
-          "enum": [
-            "enabled"
-          ]
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -347,6 +324,11 @@
               }
             }
           }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
       ]
     },
@@ -681,15 +663,24 @@
       }
     },
     "ComposeExperimentalHotReloadSettings": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "x-intellij-html-description": "Enable hot reload",
-          "title": "Enable hot reload"
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "x-intellij-html-description": "Enable hot reload",
+              "title": "Enable hot reload"
+            }
+          }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
-      }
+      ]
     },
     "ComposeExperimentalSettings": {
       "type": "object",
@@ -724,11 +715,6 @@
     "ComposeSettings": {
       "anyOf": [
         {
-          "enum": [
-            "enabled"
-          ]
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -753,6 +739,11 @@
               "title": "The Compose plugin version"
             }
           }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
       ]
     },
@@ -805,9 +796,6 @@
     "CatalogJavaAnnotationProcessorDeclaration": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
@@ -816,15 +804,15 @@
               "additionalProperties": false
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
     "MavenJavaAnnotationProcessorDeclaration": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
@@ -833,15 +821,15 @@
               "additionalProperties": false
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
     "ModuleJavaAnnotationProcessorDeclaration": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
@@ -850,6 +838,9 @@
               "additionalProperties": false
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
@@ -1037,9 +1028,6 @@
     "CatalogKspProcessorDeclaration": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
@@ -1048,15 +1036,15 @@
               "additionalProperties": false
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
     "MavenKspProcessorDeclaration": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
@@ -1065,15 +1053,15 @@
               "additionalProperties": false
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
     "ModuleKspProcessorDeclaration": {
       "anyOf": [
         {
-          "type": "string"
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
@@ -1082,6 +1070,9 @@
               "additionalProperties": false
             }
           }
+        },
+        {
+          "type": "string"
         }
       ]
     },
@@ -1177,18 +1168,6 @@
     "SerializationSettings": {
       "anyOf": [
         {
-          "enum": [
-            "enabled",
-            "json",
-            "json-okio",
-            "hocon",
-            "protobuf",
-            "cbor",
-            "properties",
-            "none"
-          ]
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -1200,6 +1179,11 @@
             "format": {
               "anyOf": [
                 {
+                  "type": "string",
+                  "x-intellij-html-description": "The [kotlinx.serialization format](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md) to use, such as `json`. When set, the corresponding `kotlinx-serialization-<format>` library is automatically added to dependencies. When null, no format dependency is automatically added. Prefer using the built-in catalog dependencies for this, as it gives control over the 'scope' and 'exported' properties.",
+                  "title": "The kotlinx.serialization format to use, such as `json`. When set, the corresponding `kotlinx-serialization-<format>` library is automatically added to dependencies. When null, no format dependency is automatically added. Prefer using the built-in catalog dependencies for this, as it gives control over the 'scope' and 'exported' properties"
+                },
+                {
                   "enum": [
                     "json",
                     "json-okio",
@@ -1210,11 +1194,6 @@
                     "none"
                   ],
                   "x-intellij-enum-order-sensitive": true
-                },
-                {
-                  "type": "string",
-                  "x-intellij-html-description": "The [kotlinx.serialization format](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md) to use, such as `json`. When set, the corresponding `kotlinx-serialization-<format>` library is automatically added to dependencies. When null, no format dependency is automatically added. Prefer using the built-in catalog dependencies for this, as it gives control over the 'scope' and 'exported' properties.",
-                  "title": "The kotlinx.serialization format to use, such as `json`. When set, the corresponding `kotlinx-serialization-<format>` library is automatically added to dependencies. When null, no format dependency is automatically added. Prefer using the built-in catalog dependencies for this, as it gives control over the 'scope' and 'exported' properties"
                 }
               ]
             },
@@ -1224,6 +1203,18 @@
               "title": "The version of the kotlinx.serialization core and format libraries to use"
             }
           }
+        },
+        {
+          "enum": [
+            "enabled",
+            "json",
+            "json-okio",
+            "hocon",
+            "protobuf",
+            "cbor",
+            "properties",
+            "none"
+          ]
         }
       ]
     },
@@ -1399,11 +1390,6 @@
     "KoverSettings": {
       "anyOf": [
         {
-          "enum": [
-            "enabled"
-          ]
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -1419,16 +1405,16 @@
               "$ref": "#/$defs/KoverXmlSettings"
             }
           }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
       ]
     },
     "KtorSettings": {
       "anyOf": [
-        {
-          "enum": [
-            "enabled"
-          ]
-        },
         {
           "type": "object",
           "additionalProperties": false,
@@ -1444,16 +1430,16 @@
               "title": "Ktor version"
             }
           }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
       ]
     },
     "LombokSettings": {
       "anyOf": [
-        {
-          "enum": [
-            "enabled"
-          ]
-        },
         {
           "type": "object",
           "additionalProperties": false,
@@ -1464,6 +1450,11 @@
               "title": "Enable Lombok"
             }
           }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
       ]
     },
@@ -1507,11 +1498,6 @@
     "SpringBootSettings": {
       "anyOf": [
         {
-          "enum": [
-            "enabled"
-          ]
-        },
-        {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -1526,6 +1512,11 @@
               "title": "Spring Boot version"
             }
           }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
       ]
     },

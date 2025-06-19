@@ -65,6 +65,13 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
         )
     )
     
+    @Test
+    fun `defaults for no value are correctly added`() = testRefineModule(
+        "defaults-for-no-value",
+        selectedContexts = platformCtxs("jvm"),
+        withDefaults = true,
+    )
+    
     private fun platformCtxs(vararg values: String) = 
         values.map { PlatformCtx(it, null) }.toSet()
 }

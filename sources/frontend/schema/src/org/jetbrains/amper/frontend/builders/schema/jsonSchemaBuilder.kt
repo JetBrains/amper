@@ -10,6 +10,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
+import org.jetbrains.amper.frontend.builders.schema.SingleATypeSchemaBuilder.withExtras
 import org.jetbrains.amper.frontend.meta.ATypesVisitor
 import org.jetbrains.amper.frontend.meta.collectReferencedObjects
 import org.jetbrains.amper.frontend.types.AmperTypes
@@ -48,6 +49,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
     /**
      * Generate a corresponding JSON schema [JsonElement] for the specified [AmperTypes.Object].
      */
+    // TODO Add ad-hock check for aliases field.
     fun asSchemaObject(root: AmperTypes.Object): JsonElement {
         // Create a JSON element describing the selected property.
         fun AmperTypes.Property.propDesc() = type.accept().withExtras(this).wrapKnownValues(this)
@@ -80,7 +82,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
         // Must provide some of the other parameters of the object.
         else if (otherNotOptional) withConstructor
         // Can instantiate an object just by specifying ctor arg (e.g. dependency just by GAV).
-        else AnyOfElement(ScalarElement("string"), withConstructor)
+        else AnyOfElement(withConstructor, ScalarElement("string"))
     }
 
     /**
@@ -121,7 +123,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
     private fun JsonElement.wrapKnownValues(prop: AmperTypes.Property): JsonElement {
         val knownValues = prop.meta.knownStringValues
         return if (knownValues?.isNotEmpty() == true) AnyOfElement(
-            EnumElement(knownValues).`x-intellij-enum-order-sensitive`(true), this
+            this, EnumElement(knownValues).`x-intellij-enum-order-sensitive`(true)
         ) else this
     }
 
@@ -143,8 +145,8 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
                 .filter { it.meta.type.isString || it.meta.type.isTraceableString }
                 .flatMap { it.meta.knownStringValues.orEmpty() }
             AnyOfElement(
-                EnumElement(booleanShorthands.toSet() + enumShorthands + stringShorthands),
                 this,
+                EnumElement(booleanShorthands.toSet() + enumShorthands + stringShorthands),
             )
         } else this
     }

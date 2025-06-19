@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.NotResolvedModule
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.annotations.Nls
@@ -24,6 +25,7 @@ object ModuleDependencyDoesntHaveNeededPlatformsFactory : AomSingleModuleDiagnos
 
     context(ProblemReporterContext)
     override fun AmperModule.analyze() {
+        val reportedPlaces = mutableSetOf<Trace?>()
         for (fragment in fragments) {
             val fragmentPlatforms = fragment.platforms
             val localDependencies = fragment.externalDependencies.filterIsInstance<LocalModuleDependency>()
@@ -32,7 +34,7 @@ object ModuleDependencyDoesntHaveNeededPlatformsFactory : AomSingleModuleDiagnos
                 if (localDependency.module is NotResolvedModule) continue
 
                 val localDependencyPlatforms = localDependency.module.leafPlatforms
-                if (fragmentPlatforms.any { it !in localDependencyPlatforms }) {
+                if (fragmentPlatforms.any { it !in localDependencyPlatforms } && reportedPlaces.add(localDependency.trace)) {
                     problemReporter.reportMessage(
                         ModuleDependencyDoesntHaveNeededPlatforms(localDependency, fragment)
                     )

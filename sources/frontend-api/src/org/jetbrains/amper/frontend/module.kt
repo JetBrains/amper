@@ -87,6 +87,7 @@ data class MetaModulePart(
 /**
  * Just an aggregator for fragments and artifacts.
  */
+// TODO Add trace.
 interface AmperModule {
     /**
      * To reference module somehow in output.

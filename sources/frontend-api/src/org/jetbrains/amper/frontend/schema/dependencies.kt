@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -28,7 +27,7 @@ enum class DependencyScope(
 }
 
 // TODO Break this hierarchy into two:
-//  - DependencyNotation: MavenNotation, LocalNotation, CatalogNotation (in future replaced as just reference)
+//  - DependencyNotation: MavenNotation, CatalogNotation, LocalNotation (in future replaced as just reference)
 //  - Dependency: ScopedDependency, BomDependency (if we need any special meaning here for Bom).
 //  .
 //  Also, by breaking this hierarchy we can replace KspDependencies by just notation.
@@ -41,8 +40,7 @@ sealed class ScopedDependency : Dependency() {
     @Shorthand
     @SchemaDoc("Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)")
     var exported by value(false)
-
-    @Aliases("compileOnly", "runtimeOnly")
+    
     @Shorthand
     @SchemaDoc("When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)")
     var scope by value(DependencyScope.ALL)

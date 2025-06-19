@@ -9,6 +9,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.PsiFile
@@ -96,7 +97,7 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
         private val pathType = Path::class.starProjectedType
     }
 
-    private val baseDir = params.file.parent.toNioPath()
+    private val baseDir = params.file.parent
     private val contextsStack = Stack<Contexts>().apply { push(params.initialContexts) }
     private val types = Stack<AmperType>().apply { push(params.initialType) }
     private var currentValue: TreeValue<Owned>? = null
@@ -159,8 +160,9 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
     /**
      * Try to resolve an absolute path and return `null` if `part` is invalid.
      */
-    private fun Path.resolveOrNull(part: String): Path? =
-        part.toNioPathOrNull()?.let { resolve(it).absolute().normalize() }
+    // FIXME VirtualFile vs Path.
+    private fun VirtualFile.resolveOrNull(part: String): Path? =
+        part.toNioPathOrNull()?.let { toNioPathOrNull()?.resolve(it)?.absolute()?.normalize() }
 
     private fun String.splitByCamelHumps() = sequence {
         onEach { if (it.isUpperCase()) yield(' ') }.forEach { yield(it.lowercase()) }

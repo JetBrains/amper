@@ -13,26 +13,21 @@ import org.jetbrains.amper.frontend.types.AmperTypes
 
 
 context(BuildCtx)
-internal fun TreeValue<Merged>.appendDefaultValues() = DefaultsAppender(types).visitValue(this)!!
+internal fun TreeValue<Merged>.appendDefaultValues() = 
+    DefaultsAppender.visitValue(this)!!
+        .let { treeMerger.mergeTrees(listOf(it as MapLikeValue<Owned>)) }
 
 /**
  * Visitor that is adding default leaves with special [DefaultTrace] trace and default values to the tree.
- *
- * // FIXME That is not 100% true, need to rethink/rewrite.
- * Note: Since this visitor is duplicating intermediate properties so it does not change [Merged] state of the tree.
  */
-private class DefaultsAppender(
-    val types: AmperTypes,
-) : TreeTransformer<Merged>() {
+private object DefaultsAppender : TreeTransformer<Merged>() {
     override fun visitMapValue(value: MapLikeValue<Merged>): MergedTree? {
         val aObject = value.type?.asSafely<AmperTypes.Object>() ?: return super.visitMapValue(value)
-        val emptyContextLeavesKeys = value.children.filter { it.value.contexts.isEmpty() }.map { it.key }.toSet()
 
         // Note: We are using special [DefaultCtxs] that has the least possible priority during merge.
         val toAddDefaults: MapLikeChildren<Merged> =
-            aObject.properties.filter { it.meta.name !in emptyContextLeavesKeys }.mapNotNull out@{
-                val default = it.meta.default
-                when (default) {
+            aObject.properties.mapNotNull out@{
+                when (val default = it.meta.default) {
                     // Default as a reference creates a reference value to a referenced property.
                     is Default.Dependent<*, *> -> ReferenceProperty(
                         it,
@@ -66,41 +61,49 @@ private class DefaultsAppender(
             }
 
         return if (toAddDefaults.isEmpty()) super.visitMapValue(value)
-        else value.copy(children = value.children.plus(toAddDefaults).visitAll())
+        else {
+            val extendedToAddDefaults = toAddDefaults.visitAll()
+            val childrenWithDefaults = with(DefaultsRootsDiscoverer)  { value.children.visitAll() }
+            value.copy(children = childrenWithDefaults + extendedToAddDefaults)
+        }
     }
+}
 
-    /**
-     * Construct a default value tree from the passed value.
-     */
-    private fun defaultValueFrom(value: Any, type: AmperTypes.AmperType): MergedTree = when {
-        type is AmperTypes.Map && value is Map<*, *> -> MapLikeValue(
-            children = value
-                .mapNotNull {
-                    MapLikeValue.Property(
-                        it.key.toString(),
-                        DefaultTrace,
-                        defaultValueFrom(it.value ?: return@mapNotNull null, type.valueType),
-                        null,
-                    )
-                },
-            trace = DefaultTrace,
-            contexts = DefaultCtxs,
-            type = null,
-        )
+private object DefaultsRootsDiscoverer : TreeTransformer<Merged>() {
+    override fun visitListValue(value: ListValue<Merged>) = DefaultsAppender.visitValue(value)
+}
 
-        type is AmperTypes.List && value is List<*> -> ListValue(
-            children = value.mapNotNull { defaultValueFrom(it ?: return@mapNotNull null, type.valueType) },
-            trace = DefaultTrace,
-            contexts = DefaultCtxs,
-        )
+/**
+ * Construct a default value tree from the passed value.
+ */
+private fun defaultValueFrom(value: Any, type: AmperTypes.AmperType): MergedTree = when {
+    type is AmperTypes.Map && value is Map<*, *> -> MapLikeValue(
+        children = value
+            .mapNotNull {
+                MapLikeValue.Property(
+                    it.key.toString(),
+                    DefaultTrace,
+                    defaultValueFrom(it.value ?: return@mapNotNull null, type.valueType),
+                    null,
+                )
+            },
+        trace = DefaultTrace,
+        contexts = DefaultCtxs,
+        type = null,
+    )
 
-        type is AmperTypes.Scalar -> ScalarValue(
-            value = value,
-            trace = DefaultTrace,
-            contexts = DefaultCtxs,
-        )
+    type is AmperTypes.List && value is List<*> -> ListValue(
+        children = value.mapNotNull { defaultValueFrom(it ?: return@mapNotNull null, type.valueType) },
+        trace = DefaultTrace,
+        contexts = DefaultCtxs,
+    )
 
-        // TODO Report.
-        else -> error("Not matching type: $type")
-    }
+    type is AmperTypes.Scalar -> ScalarValue(
+        value = value,
+        trace = DefaultTrace,
+        contexts = DefaultCtxs,
+    )
+
+    // TODO Report.
+    else -> error("Not matching type: $type")
 }

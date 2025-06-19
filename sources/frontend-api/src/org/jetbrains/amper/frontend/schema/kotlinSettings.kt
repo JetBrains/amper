@@ -125,11 +125,10 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)")
     var progressiveMode by value(false)
 
-    // TODO Replace with enum
-//    @SchemaDoc("")
+    // TODO Add doc
+    // @SchemaDoc("")
     var languageFeatures by nullableValue<List<TraceableString>>()
-
-    // TODO Replace with enum
+    
     @SchemaDoc("Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name")
     var optIns by nullableValue<List<TraceableString>>()
 

@@ -5,10 +5,10 @@
 package org.jetbrains.amper.frontend.tree.helpers
 
 
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.test.golden.GoldenTest
-import java.nio.file.Path
 
 
 /**
@@ -34,12 +34,13 @@ fun GoldenTest.testRefineModule(
     selectedContexts: Contexts,
     types: AmperTypes = TestAmperTypesDiscoverer(),
     expectPostfix: String = ".result.json",
+    withDefaults: Boolean = false,
 ) = TreeTestRun(
     caseName = caseName,
     base = baseTestResourcesPath(),
     types = types,
     expectPostfix = expectPostfix,
-    treeBuilder = readAndRefineModule(selectedContexts),
+    treeBuilder = readAndRefineModule(selectedContexts, withDefaults),
 ).doTest()
 
 /**
@@ -47,7 +48,7 @@ fun GoldenTest.testRefineModule(
  */
 fun GoldenTest.testRefineModuleWithTemplates(
     caseName: String,
-    selectedContexts: (Path) -> Contexts,
+    selectedContexts: (VirtualFile) -> Contexts,
     types: AmperTypes = TestAmperTypesDiscoverer(),
     expectPostfix: String = ".result.json",
 ) = TreeTestRun(

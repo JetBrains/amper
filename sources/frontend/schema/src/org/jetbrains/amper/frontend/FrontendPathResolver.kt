@@ -48,4 +48,10 @@ class FrontendPathResolver(
             ) { "Virtual file by path $path doesn't exist" }
         })
     }
+    
+    fun loadVirtualFileOrNull(path: Path): VirtualFile? {
+        project
+        val application = ApplicationManager.getApplication()
+        return application.runReadAction(Computable { VirtualFileManager.getInstance().findFileByNioPath(path) })
+    }
 }

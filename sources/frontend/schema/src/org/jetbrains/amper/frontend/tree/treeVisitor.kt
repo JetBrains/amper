@@ -86,6 +86,6 @@ abstract class TreeTransformer<TS : TreeState> : TreeVisitor<TreeValue<TS>?, TS>
         mapNotNull(::visitValue)
 
     @JvmName("acceptAllMapLikeChildren")
-    protected fun MapLikeChildren<TS>.visitAll(): MapLikeChildren<TS> =
+    fun MapLikeChildren<TS>.visitAll(): MapLikeChildren<TS> =
         mapNotNull { it.copy(value = visitValue(it.value) ?: return@mapNotNull null) }
 }

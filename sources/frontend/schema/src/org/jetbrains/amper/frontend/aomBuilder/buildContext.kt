@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
-import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.meta.ATypesDiscoverer
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
@@ -22,6 +21,7 @@ import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.TreeMerger
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.types.AmperTypes
 import java.nio.file.Path
 
 
@@ -55,7 +55,7 @@ internal data class BuildCtx(
     // TODO Properly handle null cases of `loadVirtualFile`.
     fun VirtualFile.asPsi(): PsiFile = pathResolver.toPsiFile(this) ?: error("No $this file")
     fun Path.asPsi(): PsiFile = pathResolver.toPsiFile(pathResolver.loadVirtualFile(this@asPsi)) ?: error("No $this file")
-    fun Path.asVirtual(): VirtualFile = pathResolver.loadVirtualFile(this)
+    fun Path.asVirtualOrNull() = pathResolver.loadVirtualFileOrNull(this)
 }
 
 internal data class ModuleBuildCtx(

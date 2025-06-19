@@ -6,30 +6,30 @@ package org.jetbrains.amper.frontend.contexts
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.BuildProblemImpl
-import org.jetbrains.amper.core.messages.WholeFileBuildProblemSource
-import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.CollectingOnlyProblemReporterCtx
+import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
+import org.jetbrains.amper.core.messages.WholeFileBuildProblemSource
 import org.jetbrains.amper.core.messages.replayProblemsTo
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.leaves
-import org.jetbrains.amper.frontend.schema.ModuleProduct
-import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.RefinedTree
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.get
-import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.tree.onlyMapLike
 import org.jetbrains.amper.frontend.tree.isEmptyOrNoValue
+import org.jetbrains.amper.frontend.tree.onlyMapLike
+import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.trivialMerge
 import org.jetbrains.amper.frontend.tree.values
@@ -63,7 +63,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             type = types<MinimalModule>(),
             reportUnknowns = false,
         )
-        
+
         // We need to resolve defaults for the tree.
         val moduleTree = rawModuleTree
             ?.trivialMerge()
@@ -122,7 +122,8 @@ internal class MinimalModuleHolder(
     val pathInheritance by lazy {
         // Order first by files and then by platforms.
         val appliedTemplates = module.apply?.map { it.value }.orEmpty()
-        val filesOrder = appliedTemplates + listOf(moduleFilePath.toNioPath())
+        val filesOrder = appliedTemplates.mapNotNull { buildCtx.pathResolver.loadVirtualFileOrNull(it) } +
+                listOf(moduleFilePath)
         PathInheritance(filesOrder)
     }
 

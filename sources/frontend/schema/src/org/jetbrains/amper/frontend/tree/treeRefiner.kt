@@ -107,11 +107,12 @@ class RefineRequest(
             val noValues = filter { it.value is NoValue<*> }.refineOrReduceByKeys { it.first() }
 
             // Group the result.
-            val refinedProperties = keyValuesMerged + mapsMerged + listsMerged + noValues
+            val refinedProperties = keyValuesMerged + mapsMerged + listsMerged
 
-            // Restore order.
+            // Restore order. Also, ignore NoValues if anything is overwriting them.
             val unordered = refinedProperties.associateBy { it.key }
-            return map { it.key }.distinct().map { unordered.getValue(it) }
+            val unorderedNoValue = noValues.associateBy { it.key }
+            return map { it.key }.distinct().map { unordered[it] ?: unorderedNoValue[it]!! }
         }
 
     /**

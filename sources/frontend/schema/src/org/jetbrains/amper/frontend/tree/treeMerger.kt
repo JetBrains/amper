@@ -49,8 +49,6 @@ class TreeMerger() {
         val (mapLike, other) = allChildren.partitionMapLike()
         val newChildren = mapLike.mergeProperties() + other.map { it.mergeSingle() }
         val firstNonDefault = trees.firstOrNull { it.trace !is DefaultTrace } ?: firstTree
-        // FIXME This is a hack for a pack of diagnostics.
-        //    Should rewrite these diagnostics as [IsmDiagnosticFactory]. 
         return firstNonDefault.copy(children = newChildren, contexts = EmptyContexts)
     }
 

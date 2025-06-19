@@ -1,0 +1,101 @@
+{
+  "product" : {
+    "type" : "jvm/app"
+  },
+  "module" : {
+    "layout(DefaultCtx)" : "AMPER(DefaultCtx)"
+  },
+  "settings" : {
+    "android" : {
+      "parcelize" : {
+        "additionalAnnotations(DefaultCtx)" : ,
+        "enabled(DefaultCtx)" : "false(DefaultCtx)"
+      },
+      "resourcePackaging" : {
+        "excludes(DefaultCtx)" : ,
+        "merges(DefaultCtx)" : ,
+        "pickFirsts(DefaultCtx)" :
+      },
+      "signing" : {
+        "enabled(DefaultCtx)" : "false(DefaultCtx)",
+        "propertiesFile(DefaultCtx)" : "../../keystore.properties(DefaultCtx)"
+      },
+      "applicationId(DefaultCtx)" : "namespace(DefaultCtx)",
+      "compileSdk(DefaultCtx)" : "VERSION_35(DefaultCtx)",
+      "minSdk(DefaultCtx)" : "VERSION_21(DefaultCtx)",
+      "namespace(DefaultCtx)" : "org.example.namespace(DefaultCtx)",
+      "targetSdk(DefaultCtx)" : "compileSdk(DefaultCtx)",
+      "versionCode(DefaultCtx)" : "1(DefaultCtx)",
+      "versionName(DefaultCtx)" : "unspecified(DefaultCtx)"
+    },
+    "compose" : {
+      "experimental" : {
+        "hotReload" : {
+          "enabled(DefaultCtx)" : "false(DefaultCtx)"
+        }
+      },
+      "resources" : {
+        "enabled(DefaultCtx)" : "false(DefaultCtx)",
+        "exposedAccessors(DefaultCtx)" : "false(DefaultCtx)",
+        "packageName(DefaultCtx)" : "(DefaultCtx)"
+      },
+      "enabled(DefaultCtx)" : "false(DefaultCtx)"
+    },
+    "ios" : {
+      "framework" : {
+        "basename(DefaultCtx)" : "kotlin(DefaultCtx)",
+        "isStatic(DefaultCtx)" : "false(DefaultCtx)"
+      }
+    },
+    "java" : {
+      "annotationProcessing" : {
+        "processorOptions" : ,
+        "processors(DefaultCtx)" :
+      }
+    },
+    "jvm" : {
+      "test" : {
+        "systemProperties" : ,
+        "freeJvmArgs(DefaultCtx)" :
+      },
+      "release(DefaultCtx)" : "VERSION_17(DefaultCtx)",
+      "runtimeClasspathMode(DefaultCtx)" : "JARS(DefaultCtx)",
+      "storeParameterNames(DefaultCtx)" : "false(DefaultCtx)"
+    },
+    "kotlin" : {
+      "allOpen" : {
+        "enabled(DefaultCtx)" : "false(DefaultCtx)"
+      },
+      "ksp" : {
+        "processorOptions" : ,
+        "processors(DefaultCtx)" : ,
+        "version(DefaultCtx)" : "2.1.21-2.0.1(DefaultCtx)"
+      },
+      "noArg" : {
+        "enabled(DefaultCtx)" : "false(DefaultCtx)",
+        "invokeInitializers(DefaultCtx)" : "false(DefaultCtx)"
+      },
+      "serialization" : {
+        "version(DefaultCtx)" : "1.8.0(DefaultCtx)"
+      },
+      "allWarningsAsErrors(DefaultCtx)" : "false(DefaultCtx)",
+      "apiVersion(DefaultCtx)" : "languageVersion(DefaultCtx)",
+      "languageVersion(DefaultCtx)" : "2.1(DefaultCtx)",
+      "progressiveMode(DefaultCtx)" : "false(DefaultCtx)",
+      "suppressWarnings(DefaultCtx)" : "false(DefaultCtx)",
+      "verbose(DefaultCtx)" : "false(DefaultCtx)"
+    },
+    "ktor" : {
+      "enabled(DefaultCtx)" : "false(DefaultCtx)",
+      "version(DefaultCtx)" : "3.1.1(DefaultCtx)"
+    },
+    "lombok" : {
+      "enabled(DefaultCtx)" : "false(DefaultCtx)"
+    },
+    "springBoot" : {
+      "enabled(DefaultCtx)" : "false(DefaultCtx)",
+      "version(DefaultCtx)" : "3.4.3(DefaultCtx)"
+    },
+    "junit(DefaultCtx)" : "JUNIT5(DefaultCtx)"
+  }
+}

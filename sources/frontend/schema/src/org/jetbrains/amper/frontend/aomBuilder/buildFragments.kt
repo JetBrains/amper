@@ -195,7 +195,7 @@ internal fun BuildCtx.createFragments(
         val testCtx = if (isTest) setOf(TestCtx) else EmptyContexts
         val selectedContexts = testCtx +
                 platforms.map { PlatformCtx(it.pretty) } +
-                PathCtx(ctx.moduleFile.toNioPath())
+                PathCtx(ctx.moduleFile)
         val refinedTree = ctx.refiner.refineTree(ctx.mergedTree, selectedContexts)
         val refinedModule = createSchemaNode<Module>(refinedTree)
         val refinedSettings = refinedModule.settings

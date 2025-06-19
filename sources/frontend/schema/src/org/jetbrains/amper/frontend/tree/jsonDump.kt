@@ -9,7 +9,6 @@ import org.jetbrains.amper.frontend.contexts.Context
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import java.nio.file.Path
 import kotlin.io.path.absolute
-import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
 
 
@@ -22,9 +21,9 @@ fun TreeValue<*>.jsonDump(
     contextsFilter: (Any) -> Boolean = { true },
 ): String {
     val normalizedRoot = root.absolute().normalize()
-    fun Path.normalizedPath(): String = this.relativeTo(normalizedRoot).toString().replace('\\', '/')
-    
-    fun Context.pathCtxString() = if (this is PathCtx) path.normalizedPath() else null
+    fun Path.normalizedPath(): String = absolute().relativeTo(normalizedRoot).toString().replace('\\', '/')
+
+    fun Context.pathCtxString() = if (this is PathCtx) path.toNioPath().normalizedPath() else null
     fun TreeValue<*>.contextStr() = contexts
         .filter(contextsFilter).ifEmpty { null }
         ?.joinToString(",", "(", ")") { it.pathCtxString() ?: it.toString() }

@@ -84,7 +84,7 @@ internal fun doBuild(
 internal fun BuildCtx.readModuleMergedTree(
     moduleFile: VirtualFile
 ): ModuleBuildCtx? {
-    val moduleCtx = PathCtx(moduleFile.toNioPath(), moduleFile.asPsi().trace)
+    val moduleCtx = PathCtx(moduleFile, moduleFile.asPsi().trace)
 
     // Read the initial module file.
     val minimalModule = tryReadMinimalModule(moduleFile) ?: return null
@@ -136,7 +136,8 @@ internal fun BuildCtx.readWithTemplates(
 ): List<MapLikeValue<Owned>>? {
     val moduleTree = readTree(mPath, moduleAType, moduleCtx) ?: return null
     return listOf(moduleTree) + minimalModule.appliedTemplates.mapNotNull {
-        readTree(it.asVirtual(), templateAType, PathCtx(it, it.asVirtual().asPsi().trace))
+        val templateVirtual = it.asVirtualOrNull() ?: return@mapNotNull null
+        readTree(templateVirtual, templateAType, PathCtx(templateVirtual, templateVirtual.asPsi().trace))
     }
 }
 
