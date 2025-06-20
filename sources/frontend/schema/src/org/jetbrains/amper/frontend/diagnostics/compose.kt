@@ -31,7 +31,7 @@ object InconsistentComposeVersion : AomModelDiagnosticFactory {
 
         val mismatchedComposeSettings = modules
             .map { it.rootFragment.settings.compose }
-            .filter { it.version != null && it.version != chosenComposeVersionForModel }
+            .filter { it.version != chosenComposeVersionForModel }
 
         mismatchedComposeSettings.forEach {
             SchemaBundle.reportBundleError(
@@ -52,7 +52,7 @@ object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
         val reportedPlaces = mutableSetOf<Trace?>()
         fragments.forEach { fragment ->
             val settings = fragment.settings.compose
-            if (settings.version != null && !settings.enabled) {
+            if (settings.enabled) {
                 val versionProp = settings::version
                 val trace = versionProp.valueBase?.trace
                 if (!versionProp.isDefault && reportedPlaces.add(trace))

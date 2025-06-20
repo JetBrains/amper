@@ -39,7 +39,8 @@
         "exposedAccessors(DefaultCtx)" : "false(DefaultCtx)",
         "packageName(DefaultCtx)" : "(DefaultCtx)"
       },
-      "enabled(DefaultCtx)" : "false(DefaultCtx)"
+      "enabled(DefaultCtx)" : "false(DefaultCtx)",
+      "version(DefaultCtx)" : "1.8.0(DefaultCtx)"
     },
     "ios" : {
       "framework" : {

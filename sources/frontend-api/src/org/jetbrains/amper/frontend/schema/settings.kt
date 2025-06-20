@@ -91,7 +91,7 @@ class ComposeSettings : SchemaNode() {
     var enabled by value(default = false)
 
     @SchemaDoc("The Compose plugin version")
-    var version by nullableValue<String>("Built-in Compose version") { UsedVersions.composeVersion.takeIf { enabled } }
+    var version by value(UsedVersions.composeVersion)
 
     @SchemaDoc("Compose Resources settings")
     var resources by value(::ComposeResourcesSettings)

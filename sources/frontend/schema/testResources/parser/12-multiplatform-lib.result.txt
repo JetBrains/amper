@@ -45,9 +45,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -178,9 +178,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -307,9 +307,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -439,9 +439,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -567,9 +567,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -698,9 +698,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -827,9 +827,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -956,9 +956,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -1088,9 +1088,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -1220,9 +1220,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -1349,9 +1349,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -1481,9 +1481,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -1610,9 +1610,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -1741,9 +1741,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -1870,9 +1870,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -2002,9 +2002,9 @@ Fragments:
         resources: <default> {
           enabled: <default> false
           exposedAccessors: <default> false
-          packageName: <default> 
+          packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {

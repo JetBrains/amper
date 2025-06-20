@@ -2,4 +2,4 @@ product: jvm/app
 
 settings:
   compose:
-    <![Warning] Compose version is specified, but Compose is disabled!>version: 1.6.2<!>
+    version: 1.6.2

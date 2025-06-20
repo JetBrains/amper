@@ -13,5 +13,5 @@ import org.jetbrains.amper.frontend.Model
 fun chooseComposeVersion(model: Model) = model.modules
     .map { it.rootFragment.settings.compose }
     .filter { it.enabled }
-    .mapNotNull { it.version }
+    .map { it.version }
     .maxByOrNull { ComparableVersion(it) }
