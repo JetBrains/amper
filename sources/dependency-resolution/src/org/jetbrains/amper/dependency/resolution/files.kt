@@ -1300,7 +1300,10 @@ class SnapshotDependencyFile(
             if (mavenMetadataLocal.versioning.snapshot.localCopy != true) return@withContext false
 
             val lastUpdated = mavenMetadataLocal.versioning.snapshotVersions?.snapshotVersions
-                ?.find { it.extension == extension.substringBefore('.') } // pom.sha512 -> pom
+                ?.find {
+                    it.extension == extension.substringBefore('.')                                           // pom.sha512 -> pom
+                            && (it.classifier == null || nameWithoutExtension.endsWith("-${it.classifier}"))
+                }
                 ?.updated
                 ?: return@withContext false
 
@@ -1314,13 +1317,12 @@ class SnapshotDependencyFile(
             }
 
             val actualLastUpdated = LocalDateTime.ofInstant(path.getLastModifiedTime().toInstant(), ZoneId.of("UTC"))
+            val actualLastUpdatedSeconds = LocalDateTime.of(
+                actualLastUpdated.year, actualLastUpdated.monthValue, actualLastUpdated.dayOfMonth,
+                actualLastUpdated.hour, actualLastUpdated.minute, actualLastUpdated.second
+            )
 
-            actualLastUpdated.year == lastUpdateFromMavenMetadata.year
-                    && actualLastUpdated.month == lastUpdateFromMavenMetadata.month
-                    && actualLastUpdated.dayOfMonth == lastUpdateFromMavenMetadata.dayOfMonth
-                    && actualLastUpdated.hour == lastUpdateFromMavenMetadata.hour
-                    && actualLastUpdated.minute == lastUpdateFromMavenMetadata.minute
-                    && actualLastUpdated.second == lastUpdateFromMavenMetadata.second
+            actualLastUpdatedSeconds <= lastUpdateFromMavenMetadata
         }
     }
 

@@ -9,6 +9,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleDiagnosticDescriptor
+import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
@@ -253,15 +254,21 @@ abstract class BaseDRTest {
             .filterIsInstance<MavenDependencyNode>()
             .flatMap { it.dependency.files(withSources) }
             .filterNot { !checkAutoAddedDocumentation && it.isAutoAddedDocumentation }
-            .mapNotNull { runBlocking { it.getPath() } }
-            .sortedBy { it.name }
+            .mapNotNull { file -> runBlocking { file.getPath()?.let { file to it } } }
+            .sortedBy { it.second.name }
             .toSet()
             .let {
-                assertEqualsWithDiff(files, it.map { file -> file.name })
+                assertEqualsWithDiff(files, it.map { file -> file.second.name })
                 if (checkExistence) {
                     it.forEach {
-                        check(it.exists()) {
-                            "File $it was returned from dependency resolution, but is missing on disk"
+                        val file = it.first
+                        val filePath = it.second
+                        check(filePath.exists()) {
+                            SimpleMessage(
+                                text = "File '$filePath' was returned from dependency resolution, but is missing on disk",
+                                id = "File is missing on disk",
+                                childMessages = file.diagnosticsReporter.getMessages(),
+                            ).detailedMessage
                         }
                     }
                 }
