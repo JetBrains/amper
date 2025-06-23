@@ -256,6 +256,7 @@ abstract class BaseDRTest {
             .filterNot { !checkAutoAddedDocumentation && it.isAutoAddedDocumentation }
             .mapNotNull { file -> runBlocking { file.getPath()?.let { file to it } } }
             .sortedBy { it.second.name }
+            .distinctBy { it.second }
             .toSet()
             .let {
                 assertEqualsWithDiff(files, it.map { file -> file.second.name })

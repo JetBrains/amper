@@ -1,0 +1,4 @@
+root
+╰─── com.jetbrains.intellij.platform:core-impl:252.23309-EAP-CANDIDATE-SNAPSHOT
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0-RC2
+          ╰─── org.jetbrains:annotations:13.0
