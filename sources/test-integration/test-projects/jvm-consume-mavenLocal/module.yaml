@@ -1,0 +1,14 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+repositories:
+  - id: mavenLocal
+    url: mavenLocal
+    resolve: true
+
+dependencies:
+  # from mavenLocal
+  - amper.test.jvm-publish-multimodule:main-lib:1.2.3
+
