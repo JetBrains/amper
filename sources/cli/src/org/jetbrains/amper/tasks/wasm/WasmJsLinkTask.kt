@@ -6,33 +6,39 @@ package org.jetbrains.amper.tasks.wasm
 
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
+import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
-import org.jetbrains.amper.compilation.downloadNativeCompiler
-import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
+import org.jetbrains.amper.compilation.kotlinModuleName
+import org.jetbrains.amper.compilation.kotlinWasmJsCompilerArgs
 import org.jetbrains.amper.compilation.mergedKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
-import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.jvm.Jdk
+import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.processes.LoggingProcessOutputListener
+import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.identificationPhrase
-import org.jetbrains.amper.tasks.ios.ManageXCodeProjectTask
-import org.jetbrains.amper.tasks.native.NativeCompileKlibTask
 import org.jetbrains.amper.tasks.native.filterKLibs
+import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
 class WasmJsLinkTask(
@@ -52,17 +58,19 @@ class WasmJsLinkTask(
     /**
      * Task names that produce klibs that need to be exposed as API in the resulting artifact.
      */
-    val exportedKLibTaskNames: Set<TaskName>,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
-): BuildTask {
+) : BuildTask {
     init {
         require(platform.isLeaf)
-        require(platform.isDescendantOf(Platform.NATIVE))
-        require(compilationType != KotlinCompilationType.LIBRARY)
+        require(platform.isDescendantOf(Platform.WASM))
+        require(compilationType == KotlinCompilationType.BINARY)
     }
 
-    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): Result {
+    override suspend fun run(
+        dependenciesResult: List<TaskResult>,
+        executionContext: TaskGraphExecutionContext
+    ): Result {
         val fragments = module.fragments.filter {
             it.platforms.contains(platform) && it.isTest == isTest
         }
@@ -72,90 +80,51 @@ class WasmJsLinkTask(
 
         val externalKLibs = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
-            .flatMap { it.compileClasspath } // runtime dependencies including transitive
+            .flatMap { it.runtimeClasspath } // runtime dependencies including transitive
             .distinct()
             .filterKLibs()
             .toList()
 
         val includeArtifact = dependenciesResult
-            .filterIsInstance<NativeCompileKlibTask.Result>()
+            .filterIsInstance<WasmJsCompileKlibTask.Result>()
             .firstOrNull { it.taskName == compileKLibTaskName }
             ?.compiledKlib
             ?: error("The result of the klib compilation task (${compileKLibTaskName.name}) was not found")
 
         val compileKLibDependencies = dependenciesResult
-            .filterIsInstance<NativeCompileKlibTask.Result>()
+            .filterIsInstance<WasmJsCompileKlibTask.Result>()
             .filter { it.taskName != compileKLibTaskName }
 
-        val exportedKLibDependencies = compileKLibDependencies
-            .filter { it.taskName in exportedKLibTaskNames }
-        check(exportedKLibDependencies.size == exportedKLibTaskNames.size)
-
         val compileKLibs = compileKLibDependencies.map { it.compiledKlib }
-        val exportedKLibs = exportedKLibDependencies.map { it.compiledKlib }
 
         // TODO kotlin version settings
         val kotlinVersion = UsedVersions.kotlinVersion
         val kotlinUserSettings = fragments.mergedKotlinSettings()
 
-        logger.debug("native link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
-
-        val entryPoints = if (module.type.isApplication()) {
-            fragments.mapNotNull { it.settings.native?.entryPoint }.distinct()
-        } else emptyList()
-        if (entryPoints.size > 1) {
-            // TODO raise this error in the frontend?
-            userReadableError("Multiple entry points defined in ${fragments.identificationPhrase()}:\n${entryPoints.joinToString("\n")}")
-        }
-        val entryPoint = entryPoints.singleOrNull()
-
-        val binaryOptions = if (compilationType == KotlinCompilationType.IOS_FRAMEWORK) {
-            val appBundleId = dependenciesResult.requireSingleDependency<ManageXCodeProjectTask.Result>()
-                .debugResolvedXcodeSettings.bundleId
-            // Format framework's bundleId based on app's bundleId
-            val frameworkBundleId = "$appBundleId.kotlin.framework"
-            logger.debug("Using framework bundleId: `$frameworkBundleId`")
-            mapOf("bundleId" to frameworkBundleId)
-        } else emptyMap()
+        logger.debug("WasmJS link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
         val configuration: Map<String, String> = mapOf(
             "kotlin.version" to kotlinVersion,
             "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
-            "entry.point" to (entryPoint ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,
-            "binary.options" to Json.encodeToString(binaryOptions),
         )
 
         val inputs = listOf(includeArtifact) + compileKLibs
+
+        val jdk = JdkDownloader.getJdk(userCacheRoot)
+
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val artifactPath = taskOutputRoot.path.resolve(compilationType.outputFilename(module, platform, isTest))
+            val artifactPath = taskOutputRoot.path
 
-            val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
-            val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
-            val args = kotlinNativeCompilerArgs(
+            compileSources(
+                jdk,
+                kotlinVersion = kotlinVersion,
                 kotlinUserSettings = kotlinUserSettings,
-                compilerPlugins = compilerPlugins,
-                entryPoint = entryPoint,
-                libraryPaths = compileKLibs + externalKLibs,
-                exportedLibraryPaths = exportedKLibs,
-                // no need to pass fragments nor sources, we only build from klibs
-                fragments = emptyList(),
-                sourceFiles = emptyList(),
-                additionalSourceRoots = emptyList(),
-                outputPath = artifactPath,
-                compilationType = compilationType,
-                binaryOptions = binaryOptions,
-                include = includeArtifact,
+                librariesPaths = compileKLibs + externalKLibs + listOf(includeArtifact),
+                includeArtifact = includeArtifact,
             )
-
-            if (isTest) {
-                logger.debug("Linking native test executable for module '${module.userReadableName}' on platform '${platform.pretty}'...")
-            } else {
-                logger.info("Linking native '${platform.pretty}' executable for module '${module.userReadableName}'...")
-            }
-            nativeCompiler.compile(args, tempRoot, module)
 
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifactPath))
         }.outputs.single()
@@ -163,6 +132,55 @@ class WasmJsLinkTask(
         return Result(
             linkedBinary = artifact,
         )
+    }
+
+    private suspend fun compileSources(
+        jdk: Jdk,
+        kotlinVersion: String,
+        kotlinUserSettings: KotlinUserSettings,
+        librariesPaths: List<Path>,
+        includeArtifact: Path?,
+    ) {
+        val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(version = kotlinVersion)
+        val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
+        val compilerArgs = kotlinWasmJsCompilerArgs(
+            kotlinUserSettings = kotlinUserSettings,
+            compilerPlugins = compilerPlugins,
+            libraryPaths = librariesPaths,
+            outputPath = taskOutputRoot.path,
+            friendPaths = emptyList(),
+            fragments = emptyList(),
+            sourceFiles = emptyList(),
+            additionalSourceRoots = emptyList(),
+            moduleName = module.kotlinModuleName(isTest),
+            compilationType = compilationType,
+            include = includeArtifact,
+        )
+
+        if (isTest) {
+            logger.debug("Linking wasm js test executable for module '${module.userReadableName}' on platform '${platform.pretty}'...")
+        } else {
+            logger.info("Linking wasm js '${platform.pretty}' executable for module '${module.userReadableName}'...")
+        }
+        spanBuilder("kotlin-wasm-js-link")
+            .setAmperModule(module)
+            .setAttribute("compiler-version", kotlinVersion)
+            .setListAttribute("compiler-args", compilerArgs)
+            .use {
+                logger.info("Linking Kotlin Wasm JS for module '${module.userReadableName}'...")
+                val result = jdk.runJava(
+                    workingDir = Path("."),
+                    mainClass = "org.jetbrains.kotlin.cli.js.K2JSCompiler",
+                    classpath = compilerJars,
+                    programArgs = compilerArgs,
+                    jvmArgs = listOf(),
+                    outputListener = LoggingProcessOutputListener(logger),
+                    tempRoot = tempRoot,
+                )
+                if (result.exitCode != 0) {
+                    userReadableError("Kotlin WasmJS linking failed (see errors above)")
+                }
+            }
     }
 
     class Result(

@@ -12,11 +12,6 @@ import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.getModuleDependencies
-import org.jetbrains.amper.tasks.ios.ManageXCodeProjectTask
-import org.jetbrains.amper.tasks.native.NativeLinkTask
-import org.jetbrains.amper.tasks.native.NativeTaskType
-import org.jetbrains.amper.tasks.native.getNativeLinkTaskDetails
 
 fun ProjectTasksBuilder.setupWasmJsTasks() {
 
@@ -46,9 +41,9 @@ fun ProjectTasksBuilder.setupWasmJsTasks() {
             )
 
             if (needsLinkedExecutable(module, isTest)) {
-                val (linkAppTaskName, compilationType) = getNativeLinkTaskDetails(platform, module, isTest)
+                val linkAppTaskName = WasmJsTaskType.Link.getTaskName(module, platform, isTest)
                 tasks.registerTask(
-                    task = NativeLinkTask(
+                    task = WasmJsLinkTask(
                         module = module,
                         platform = platform,
                         userCacheRoot = context.userCacheRoot,
@@ -57,33 +52,33 @@ fun ProjectTasksBuilder.setupWasmJsTasks() {
                         taskName = linkAppTaskName,
                         tempRoot = context.projectTempRoot,
                         isTest = isTest,
-                        compilationType = compilationType,
+                        compilationType = KotlinCompilationType.BINARY,
                         compileKLibTaskName = compileKLibTaskName,
-                        exportedKLibTaskNames = buildSet {
-                            // Build the exported libraries set for iOS
-                            if (compilationType == KotlinCompilationType.IOS_FRAMEWORK) {
-                                module.getModuleDependencies(
-                                    isTest = false,
-                                    platform = platform,
-                                    dependencyReason = ResolutionScope.COMPILE,
-                                    userCacheRoot = context.userCacheRoot,
-                                ).forEach { dependsOn ->
-                                    add(NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false))
-                                }
-                            }
-                        },
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)
                         add(CommonTaskType.Dependencies.getTaskName(module, platform, false))
                         if (isTest) {
-                            add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
-                        }
-                        if (compilationType == KotlinCompilationType.IOS_FRAMEWORK) {
-                            // Needed for bundleId inference
-                            add(ManageXCodeProjectTask.taskName(module))
+                            add(WasmJsTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
                         }
                     }
+                )
+            }
+        }
+
+    allModules()
+        .alsoPlatforms(Platform.WASM)
+        .alsoTests()
+        .selectModuleDependencies(ResolutionScope.RUNTIME).withEach {
+            tasks.registerDependency(
+                WasmJsTaskType.CompileKLib.getTaskName(module, platform, isTest),
+                WasmJsTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+            )
+
+            if (needsLinkedExecutable(module, isTest)) {
+                tasks.registerDependency(
+                    WasmJsTaskType.Link.getTaskName(module, platform, isTest),
+                    WasmJsTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
                 )
             }
         }

@@ -88,7 +88,14 @@ enum class ProductType(
         "windows/app",
         supportedPlatforms = setOf(Platform.MINGW_X64),
         defaultPlatforms = setOf(Platform.MINGW_X64),
-    );
+    ),
+
+    @SchemaDoc("A wasm JS application")
+    WASM_JS_APP(
+        "wasm-js/app",
+        supportedPlatforms = setOf(Platform.WASM),
+        defaultPlatforms = setOf(Platform.WASM)
+    ),;
 
     fun isLibrary() = this == LIB || this == JVM_AMPER_PLUGIN
     fun isApplication() = !isLibrary()

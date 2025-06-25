@@ -276,6 +276,8 @@ internal fun kotlinWasmJsCompilerArgs(
     sourceFiles: List<Path>,
     additionalSourceRoots: List<SourceRoot>,
     moduleName: String,
+    compilationType: KotlinCompilationType,
+    include: Path?,
 ): List<String> = buildList {
 
     if (friendPaths.isNotEmpty()) {
@@ -294,16 +296,25 @@ internal fun kotlinWasmJsCompilerArgs(
     add("-ir-output-name")
     add(moduleName)
 
+    add("-Xwasm")
+    add("-Xwasm-target=js")
+
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)
     // TODO forbid -d in freeCompilerArgs in the frontend, so it's clearer for the users
     add("-ir-output-dir")
     add(outputPath.pathString)
 
-    add("-Xir-produce-klib-dir")
+    if (compilationType == KotlinCompilationType.BINARY) {
+        add("-Xir-produce-js")
+    } else {
+        add("-Xir-produce-klib-dir")
+    }
 
     add("-libraries")
     add(libraryPaths.joinToString(File.pathSeparator) { it.pathString })
+
+    if (include != null) add("-Xinclude=${include.pathString}")
 
     addAll(sourceFiles.map { it.pathString })
 }

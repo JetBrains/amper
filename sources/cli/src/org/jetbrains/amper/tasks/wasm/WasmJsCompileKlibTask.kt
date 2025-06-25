@@ -9,6 +9,7 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
+import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinModuleName
@@ -209,7 +210,9 @@ class WasmJsCompileKlibTask(
             fragments = fragments,
             sourceFiles = sourceDirectories,
             additionalSourceRoots = additionalSourceRoots,
-            moduleName = module.kotlinModuleName(isTest)
+            moduleName = module.kotlinModuleName(isTest),
+            include = null,
+            compilationType = KotlinCompilationType.LIBRARY,
         )
         spanBuilder("kotlin-wasm-js-compilation")
             .setAmperModule(module)
@@ -228,7 +231,7 @@ class WasmJsCompileKlibTask(
                     tempRoot = tempRoot,
                 )
                 if (result.exitCode != 0) {
-                    userReadableError("Kotlin metadata compilation failed (see errors above)")
+                    userReadableError("Kotlin WasmJS compilation failed (see errors above)")
                 }
             }
     }
