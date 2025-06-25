@@ -265,6 +265,49 @@ internal fun kotlinNativeCompilerArgs(
     }
 }
 
+context(BuildTask)
+internal fun kotlinWasmJsCompilerArgs(
+    kotlinUserSettings: KotlinUserSettings,
+    compilerPlugins: List<CompilerPlugin>,
+    libraryPaths: List<Path>,
+    outputPath: Path,
+    friendPaths: List<Path>,
+    fragments: List<Fragment>,
+    sourceFiles: List<Path>,
+    additionalSourceRoots: List<SourceRoot>,
+    moduleName: String,
+): List<String> = buildList {
+
+    if (friendPaths.isNotEmpty()) {
+        add("-Xfriend-modules=${friendPaths.joinToString(File.pathSeparator)}")
+    }
+
+    // Common args last, because they contain free compiler args
+    addAll(kotlinCommonCompilerArgs(
+        isMultiplatform = true,
+        kotlinUserSettings = kotlinUserSettings,
+        fragments = fragments,
+        additionalSourceRoots = additionalSourceRoots,
+        compilerPlugins = compilerPlugins,
+    ))
+
+    add("-ir-output-name")
+    add(moduleName)
+
+    // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
+    // (specifying -d multiple times generates a warning, and only the last value is used)
+    // TODO forbid -d in freeCompilerArgs in the frontend, so it's clearer for the users
+    add("-ir-output-dir")
+    add(outputPath.pathString)
+
+    add("-Xir-produce-klib-dir")
+
+    add("-libraries")
+    add(libraryPaths.joinToString(File.pathSeparator) { it.pathString })
+
+    addAll(sourceFiles.map { it.pathString })
+}
+
 // https://github.com/JetBrains/kotlin/blob/v1.9.23/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2MetadataCompilerArguments.kt
 internal fun kotlinMetadataCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,

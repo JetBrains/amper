@@ -26,6 +26,7 @@ import org.jetbrains.amper.tasks.custom.setupTasksFromPlugins
 import org.jetbrains.amper.tasks.jvm.setupJvmTasks
 import org.jetbrains.amper.tasks.ksp.setupKspTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
+import org.jetbrains.amper.tasks.wasm.setupWasmJsTasks
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 
@@ -86,6 +87,7 @@ class ProjectTasksBuilder(
         setupJvmTasks()
         setupAndroidTasks()
         setupNativeTasks()
+        setupWasmJsTasks()
         setupIosTasks()
         setupKspTasks()
         setupJavaAnnotationProcessingTasks()

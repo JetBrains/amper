@@ -76,6 +76,7 @@ class ResolveExternalDependenciesTask(
         } else if (resolvedPlatform != ResolutionPlatform.JVM
             && resolvedPlatform != ResolutionPlatform.ANDROID
             && resolvedPlatform.nativeTarget == null
+            && resolvedPlatform != ResolutionPlatform.WASM
         ) {
             logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
             return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList())

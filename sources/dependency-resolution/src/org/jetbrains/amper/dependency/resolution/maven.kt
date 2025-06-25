@@ -16,11 +16,13 @@ import org.jetbrains.amper.dependency.resolution.attributes.Category
 import org.jetbrains.amper.dependency.resolution.attributes.JvmEnvironment
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinNativeTarget
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinPlatformType
+import org.jetbrains.amper.dependency.resolution.attributes.KotlinWasmTarget
 import org.jetbrains.amper.dependency.resolution.attributes.PluginApiVersion
 import org.jetbrains.amper.dependency.resolution.attributes.Usage
 import org.jetbrains.amper.dependency.resolution.attributes.getAttributeValue
 import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinNativeTarget
 import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinPlatformType
+import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinWasmTarget
 import org.jetbrains.amper.dependency.resolution.attributes.hasNoAttribute
 import org.jetbrains.amper.dependency.resolution.attributes.isDocumentation
 import org.jetbrains.amper.dependency.resolution.diagnostics.BomDeclaredAsRegularDependency
@@ -215,9 +217,9 @@ class MavenDependencyNode internal constructor(
      *
      * This method is useful for IDE to find out if the library can be introduced to a module by depending on the
      * original multiplatform library (e.g., if the symbol from the platform-specific part was found).
-     * 
+     *
      * This is the counterpart of [getMavenCoordinatesForPublishing].
-     * 
+     *
      * If the current node is not a platform-specific variant of a KMP library, `null` is returned.
      */
     fun getParentKmpLibraryCoordinates(): MavenCoordinates? {
@@ -1504,6 +1506,7 @@ class MavenDependency internal constructor(
             .variants
             .filter { capabilityMatches(it) }
             .filter { nativeTargetMatches(it, platform) }
+            .filter { wasmJsTargetMatches(it, platform) }
             .filter { categoryMatches(it) }
 
         val validVariants = initiallyFilteredVariants
@@ -1568,6 +1571,11 @@ class MavenDependency internal constructor(
         !variant.hasKotlinPlatformType(PlatformType.NATIVE)
                 || variant.hasNoAttribute(KotlinNativeTarget)
                 || variant.hasKotlinNativeTarget(platform)
+
+    private fun wasmJsTargetMatches(variant: Variant, platform: ResolutionPlatform) =
+        !variant.hasKotlinPlatformType(PlatformType.WASM)
+                || variant.hasNoAttribute(KotlinWasmTarget)
+                || variant.hasKotlinWasmTarget(platform)
 
     private fun categoryMatches(variant: Variant) = variant.isBom() == isBom
 
