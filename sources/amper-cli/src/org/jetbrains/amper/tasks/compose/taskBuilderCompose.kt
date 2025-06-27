@@ -29,7 +29,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
 
         // `expect` is generated in `common` only, while `actual` are generated in the refined fragments.
         //  do not separate `expect`/`actual` if the module only contains a single fragment.
-        val shouldSeparateExpectActual = rootFragment.platforms.size > 1
+        val shouldSeparateExpectActual = module.fragments.size > 1
 
         /*
          The tasks generate code (collectors and Res) if either is true:
