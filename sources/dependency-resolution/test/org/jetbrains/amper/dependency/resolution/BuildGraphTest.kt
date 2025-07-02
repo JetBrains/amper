@@ -29,6 +29,21 @@ class BuildGraphTest : BaseDRTest() {
     override val testDataPath: Path = super.testDataPath / "buildGraph"
 
     /**
+     * This test checks that symbol &oslash; used in pom.xml
+     * (and treated by a parser as a global reference) doesn't break parsing.
+     */
+    @Test
+    fun `org_codehaus_plexus plexus 1_0_4`(testInfo: TestInfo) = runTest {
+        doTest(
+            testInfo,
+            expected = """
+                root
+                ╰─── org.codehaus.plexus:plexus:1.0.4
+            """.trimIndent()
+        )
+    }
+
+    /**
      * This test checks that wrong artifact checksum declared in the Gradle module metadata won't cause DR error if
      * valid checksum is published as a separate file in an external repository.
      *

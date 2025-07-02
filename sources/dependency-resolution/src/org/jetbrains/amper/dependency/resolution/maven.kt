@@ -1641,7 +1641,7 @@ class MavenDependency internal constructor(
         text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter
     ): Project? {
         return try {
-            text.parsePom().resolve(context, level, diagnosticsReporter)
+            parsePom(text).resolve(context, level, diagnosticsReporter)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -1654,6 +1654,12 @@ class MavenDependency internal constructor(
             )
             return null
         }
+    }
+
+    private fun parsePom(text: String): Project = text.sanitizePom().parsePom()
+
+    private fun String.sanitizePom(): String = let {
+        if (group == "org.codehaus.plexus" && module == "plexus") replace("&oslash;", "ø") else it
     }
 
     private suspend fun resolveDependenciesConstraintsUsingPom(
@@ -1698,7 +1704,7 @@ class MavenDependency internal constructor(
         ) {
             val text = parentNode.pom.readText()
             val parentProject =
-                text.parsePom().resolve(context, resolutionLevel, diagnosticsReporter, depth + 1, origin)
+                parsePom(text).resolve(context, resolutionLevel, diagnosticsReporter, depth + 1, origin)
             copy(
                 groupId = groupId ?: parentProject.groupId,
                 artifactId = artifactId ?: parentProject.artifactId,
@@ -1809,7 +1815,7 @@ class MavenDependency internal constructor(
                 if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter)) {
                     val text = dependency.pom.readText()
                     val dependencyProject =
-                        text.parsePom().resolve(context, resolutionLevel, diagnosticsReporter, depth + 1)
+                        parsePom(text).resolve(context, resolutionLevel, diagnosticsReporter, depth + 1)
                     dependencyProject.dependencyManagement
                 } else {
                     null
