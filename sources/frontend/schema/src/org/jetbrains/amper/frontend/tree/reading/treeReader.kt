@@ -30,31 +30,21 @@ import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.PsiReporterCtx
 import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.types.AmperTypes
-import org.jetbrains.amper.frontend.types.AmperTypes.AmperType
-import org.jetbrains.amper.frontend.types.enumValuesOrNull
-import org.jetbrains.amper.frontend.types.isBoolean
-import org.jetbrains.amper.frontend.types.isEnum
-import org.jetbrains.amper.frontend.types.isInt
-import org.jetbrains.amper.frontend.types.isPath
-import org.jetbrains.amper.frontend.types.isString
-import org.jetbrains.amper.frontend.types.isTraceableEnum
-import org.jetbrains.amper.frontend.types.isTraceablePath
-import org.jetbrains.amper.frontend.types.isTraceableString
-import org.jetbrains.amper.frontend.types.kClass
-import org.jetbrains.amper.frontend.types.traceableType
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.SchemaEnumDeclaration
+import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.simpleName
+import org.jetbrains.amper.frontend.types.toEnumConstant
+import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
 import java.nio.file.Path
 import kotlin.io.path.absolute
-import kotlin.reflect.KType
-import kotlin.reflect.full.starProjectedType
-
 
 internal fun BuildCtx.readTree(
     file: VirtualFile,
-    type: AmperTypes.Object,
+    type: SchemaObjectDeclaration,
     vararg contexts: Context,
     reportUnknowns: Boolean = true
 ) = TreeReadRequest(
@@ -71,7 +61,7 @@ internal fun BuildCtx.readTree(
  * values for both [AmperLangTreeReader] and [YamlTreeReader].
  */
 internal data class TreeReadRequest(
-    val initialType: AmperTypes.Object,
+    val initialType: SchemaObjectDeclaration,
     val initialContexts: Contexts,
     val file: VirtualFile,
     val psiFile: PsiFile,
@@ -92,27 +82,22 @@ internal fun TreeReadRequest.readTree(): MapLikeValue<Owned>? =
     })
 
 internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by params.problemCtx, PsiReporterCtx {
-    companion object {
-        private val stringType = String::class.starProjectedType
-        private val pathType = Path::class.starProjectedType
-    }
-
     private val baseDir = params.file.parent
     private val contextsStack = Stack<Contexts>().apply { push(params.initialContexts) }
-    private val types = Stack<AmperType>().apply { push(params.initialType) }
+    private val types = Stack<SchemaType>().apply { push(params.initialType.toType()) }
     private var currentValue: TreeValue<Owned>? = null
     private val currentContexts get() = contextsStack.lastOrNull().orEmpty()
 
     /**
      * Current type that is being read.
      */
-    val currentType: AmperType get() = types.last()
+    val currentType: SchemaType get() = types.last()
 
     // Convention constructor functions that are providing [currentContext].
     fun scalarValue(value: Any, trace: Trace) = ScalarValue<Owned>(value, trace, currentContexts)
     fun listValue(children: List<TreeValue<Owned>>, trace: Trace) = ListValue(children, trace, currentContexts)
     fun mapValue(children: List<MapLikeValue.Property<TreeValue<Owned>>>, trace: Trace) =
-        MapLikeValue(children, trace, currentContexts, currentType.asSafely<AmperTypes.Object>())
+        MapLikeValue(children, trace, currentContexts, (currentType as? SchemaType.ObjectType)?.declaration)
 
     /**
      * Shortcut to catch the key in the trace also.
@@ -137,23 +122,22 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
 
 
     /**
-     * Try to read value of a specified scalar [kType] from the [YAMLScalar] and return `null` if failed.
+     * Try to read value of a specified scalar [type] from the [YAMLScalar] and return `null` if failed.
      */
-    fun tryReadScalar(text: String, kType: KType, origin: PsiElement, report: Boolean = true): Any? {
+    fun tryReadScalar(text: String, type: SchemaType.ScalarType, origin: PsiElement, report: Boolean = true): Any? {
         fun reportIfNeeded(msgId: String) = if (report) origin.reportAndNull(msgId) else null
 
-        @Suppress("UNCHECKED_CAST")
-        fun <T : Any> readAs(newType: KType) = tryReadScalar(text, newType, origin, report) as? T
-        return when {
-            kType.isString -> text
-            kType.isInt -> text.toIntOrNull() ?: reportIfNeeded("validation.expected.integer")
-            kType.isBoolean -> text.toBooleanStrictOrNull() ?: reportIfNeeded("validation.expected.boolean")
-            kType.isPath -> baseDir.resolveOrNull(text) ?: reportIfNeeded("validation.expected.path")
-            kType.isEnum -> tryReadEnum(text, kType, origin, report)
-            kType.isTraceableString -> readAs<String>(stringType)?.asTraceable(origin.trace)
-            kType.isTraceablePath -> readAs<Path>(pathType)?.asTraceable(origin.trace)
-            kType.isTraceableEnum -> readAs<Enum<*>>(kType.traceableType)?.asTraceable(origin.trace)
-            else -> error("Unknown type: $kType while reading \"$text\"")
+        return when(type) {
+            is SchemaType.StringType -> if (type.isTraceableWrapped) text.asTraceable(origin.trace) else text
+            is SchemaType.IntType -> text.toIntOrNull() ?: reportIfNeeded("validation.expected.integer")
+            is SchemaType.BooleanType -> text.toBooleanStrictOrNull() ?: reportIfNeeded("validation.expected.boolean")
+            is SchemaType.PathType -> (baseDir.resolveOrNull(text) ?: reportIfNeeded("validation.expected.path")).let {
+                if (type.isTraceableWrapped) it?.asTraceable(origin.trace) else it
+            }
+            is SchemaType.EnumType -> tryReadEnum(text, type.declaration, origin, report).let {
+                it as Enum<*>?
+                if (type.isTraceableWrapped) it?.asTraceable(origin.trace) else it
+            }
         }
     }
 
@@ -169,22 +153,23 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
     }.joinToString("").trimStart()
 
     /**
-     * Try to read value of a specified enum [kType] from the [YAMLScalar] and return `null` if failed.
+     * Try to read value of a specified [enum] from the [YAMLScalar] and return `null` if failed.
      */
-    private fun tryReadEnum(text: String, kType: KType, origin: PsiElement, report: Boolean): Any? {
-        val values = kType.enumValuesOrNull ?: error("Can't get enum values for type: $kType")
-        return values.firstOrNull { it.schemaValue == text }
+    private fun tryReadEnum(text: String, enum: SchemaEnumDeclaration, origin: PsiElement, report: Boolean): Any? {
+        val values = enum.entries
+        val selectedEntry = values.firstOrNull { it.schemaValue == text }
             ?: if (report) origin.reportAndNull(
                 problemId = "validation.unknown.enum.value",
-                kType.kClass.simpleName?.splitByCamelHumps(),
+                enum.simpleName().splitByCamelHumps(),
                 text,
                 values.joinToString { it.schemaValue },
                 messageKey = if (values.size > 10) "validation.unknown.enum.value.short" else "validation.unknown.enum.value",
                 level = Level.Error,
             ) else null
+        return selectedEntry?.name?.let(enum::toEnumConstant) ?: selectedEntry?.name
     }
 
-    fun <R> withNew(type: AmperType? = null, contexts: Collection<Context> = emptySet(), block: () -> R) =
+    fun <R> withNew(type: SchemaType? = null, contexts: Collection<Context> = emptySet(), block: () -> R) =
         types.pushAndPop(type) {
             val newCtx = currentContexts.map(Context::withoutTrace).plus(contexts).ifEmpty { null }
             this@ReaderCtx.contextsStack.pushAndPop(newCtx, block)

@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.types.getDeclaration
 
 
 context(BuildCtx)
@@ -22,7 +23,7 @@ internal fun TreeValue<Merged>.substituteComposeOsSpecific() =
 internal class ComposeOsSpecificSubstitutor(
     private val buildCtx: BuildCtx
 ) : TreeTransformer<Merged>(), ProblemReporterContext by buildCtx {
-    private val dependencyType = buildCtx.types<ExternalMavenDependency>()
+    private val dependencyType = buildCtx.types.getDeclaration<ExternalMavenDependency>()
     private val coordinatesPName = ExternalMavenDependency::coordinates.name
     private val replacement = "org.jetbrains.compose.desktop:desktop-jvm-${buildCtx.systemInfo.detect().familyArch}:"
 

@@ -13,7 +13,7 @@ import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
-import org.jetbrains.amper.frontend.meta.ATypesDiscoverer
+import org.jetbrains.amper.frontend.meta.DefaultSchemaTypingContext
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
@@ -21,14 +21,15 @@ import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.TreeMerger
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.types.AmperTypes
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.getDeclaration
 import java.nio.file.Path
 
 
 internal fun ProblemReporterContext.BuildCtx(
     catalogProvider: VersionsCatalogProvider,
     treeMerger: TreeMerger = TreeMerger(),
-    types: AmperTypes = ATypesDiscoverer,
+    types: SchemaTypingContext = DefaultSchemaTypingContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
 ) = BuildCtx(
     pathResolver = catalogProvider.frontendPathResolver,
@@ -43,14 +44,14 @@ internal data class BuildCtx(
     val pathResolver: FrontendPathResolver,
     val problemReporterCtx: ProblemReporterContext,
     val treeMerger: TreeMerger = TreeMerger(),
-    val types: AmperTypes = ATypesDiscoverer,
+    val types: SchemaTypingContext = DefaultSchemaTypingContext,
     val catalogFinder: VersionsCatalogProvider? = null,
     val systemInfo: SystemInfo = DefaultSystemInfo,
 ) : ProblemReporterContext by problemReporterCtx {
 
-    val moduleAType = types<Module>()
-    val templateAType = types<Template>()
-    val projectAType = types<Project>()
+    val moduleAType = types.getDeclaration<Module>()
+    val templateAType = types.getDeclaration<Template>()
+    val projectAType = types.getDeclaration<Project>()
 
     // TODO Properly handle null cases of `loadVirtualFile`.
     fun VirtualFile.asPsi(): PsiFile = pathResolver.toPsiFile(this) ?: error("No $this file")

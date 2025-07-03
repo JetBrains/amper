@@ -5,9 +5,9 @@
 package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.frontend.meta.ATypesDiscoverer
 import org.jetbrains.amper.frontend.meta.ATypesVisitor
-import org.jetbrains.amper.frontend.types.AmperTypes
+import org.jetbrains.amper.frontend.meta.DefaultSchemaTypingContext
+import org.jetbrains.amper.frontend.types.SchemaType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.starProjectedType
 
@@ -70,7 +70,7 @@ class NestedCompletionSchemaBuilder internal constructor(
     companion object {
         @UsedInIdePlugin
         fun buildNestedCompletionTree(root: KClass<*>) = NestedCompletionBuilder
-            .visitAType(ATypesDiscoverer[root.starProjectedType])
+            .visitAType(DefaultSchemaTypingContext.getType(root.starProjectedType))
             .let { NestedCompletionSchemaBuilder(NestedCompletionNodeImpl("", it)) }
     }
 }
@@ -78,22 +78,22 @@ class NestedCompletionSchemaBuilder internal constructor(
 internal object NestedCompletionBuilder : ATypesVisitor<List<NestedCompletionNodeImpl>> {
     fun modifiersRegExp(propName: String) = "$propName(@[A-z]+)?"
     private val empty = emptyList<NestedCompletionNodeImpl>()
-    override fun visitEnum(type: AmperTypes.Enum) = empty
-    override fun visitScalar(type: AmperTypes.Scalar) = empty
-    override fun visitPolymorphic(type: AmperTypes.Polymorphic) = empty
-    override fun visitList(type: AmperTypes.List) = empty
-    override fun visitMap(type: AmperTypes.Map) = empty
-    override fun visitObject(type: AmperTypes.Object) =
-        type.properties.flatMap { prop ->
-            if (prop.type !is AmperTypes.Object) return@flatMap listOf()
+    override fun visitEnum(type: SchemaType.EnumType) = empty
+    override fun visitScalar(type: SchemaType.ScalarType) = empty
+    override fun visitPolymorphic(type: SchemaType.VariantType) = empty
+    override fun visitList(type: SchemaType.ListType) = empty
+    override fun visitMap(type: SchemaType.MapType) = empty
+    override fun visitObject(type: SchemaType.ObjectType) =
+        type.declaration.properties.flatMap { prop ->
+            if (prop.type !is SchemaType.ObjectType) return@flatMap listOf()
             val possibleNames = buildList {
-                add(prop.meta.name to false)
+                add(prop.name to false)
                 // Handle modifier-aware properties.
-                if (prop.meta.modifierAware != null) {
-                    add(modifiersRegExp(prop.meta.name) to true)
+                if (prop.isModifierAware) {
+                    add(modifiersRegExp(prop.name) to true)
                     // We add `test-` explicitly because in YAML that is a form of `@test` modifier.
-                    add("test-${prop.meta.name}" to false)
-                    add(modifiersRegExp("test-${prop.meta.name}") to true)
+                    add("test-${prop.name}" to false)
+                    add(modifiersRegExp("test-${prop.name}") to true)
                 }
             }
             // Propagate isolated nodes to the top level completion nodes list

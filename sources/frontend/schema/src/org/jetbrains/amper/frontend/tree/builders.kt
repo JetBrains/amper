@@ -9,23 +9,25 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.DefaultCtxs
-import org.jetbrains.amper.frontend.types.AmperTypes
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.getDeclaration
 import kotlin.reflect.KProperty1
 
 
 fun <R : OwnedTree> syntheticBuilder(
-    types: AmperTypes,
+    types: SchemaTypingContext,
     trace: Trace,
     contexts: Contexts = DefaultCtxs,
     block: SyntheticBuilder.() -> R,
 ) = SyntheticBuilder(types, trace, contexts).run(block)
 
 class SyntheticBuilder(
-    val types: AmperTypes,
+    val types: SchemaTypingContext,
     val trace: Trace,
     val contexts: Contexts,
 ) {
-    inner class MapLikeValueBuilder(val type: AmperTypes.Object, val trace: Trace) {
+    inner class MapLikeValueBuilder(val type: SchemaObjectDeclaration, val trace: Trace) {
         internal val properties = mutableListOf<MapLikeValue.Property<OwnedTree>>()
 
         infix fun KProperty1<out SchemaNode, *>.setTo(value: OwnedTree) =
@@ -40,11 +42,11 @@ class SyntheticBuilder(
             setTo(list(block))
     }
 
-    fun mapLike(type: AmperTypes.Object, block: MapLikeValueBuilder.() -> Unit) =
+    fun mapLike(type: SchemaObjectDeclaration, block: MapLikeValueBuilder.() -> Unit) =
         MapLikeValue(MapLikeValueBuilder(type, trace).apply(block).properties, trace, contexts, type)
 
     inline fun <reified T : SchemaNode> mapLike(noinline block: MapLikeValueBuilder.() -> Unit) =
-        mapLike(types<T>(), block)
+        mapLike(types.getDeclaration<T>(), block)
 
     fun list(block: MutableList<OwnedTree>.() -> Unit) =
         ListValue(mutableListOf<OwnedTree>().apply(block), trace, contexts)

@@ -7,19 +7,12 @@ package org.jetbrains.amper.frontend.api
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
-import org.jetbrains.amper.frontend.types.kClassOrNull
 import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
-import kotlin.reflect.KType
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.jvm.isAccessible
 
 /**
@@ -72,7 +65,9 @@ data class ValueHolder<T>(
  * Class to collect all values registered within it.
  */
 abstract class SchemaNode : Traceable {
+    @IgnoreForSchema
     internal val allValues = mutableListOf<ValueDelegateBase<*>>()
+    @IgnoreForSchema
     val valueHolders: ValueHolders = mutableMapOf()
 
     /**
@@ -127,6 +122,7 @@ abstract class SchemaNode : Traceable {
     fun <T : Any> nullableValue(desc: String? = null, default: () -> T?) =
         SchemaValueProvider(::NullableSchemaValue, Default.Lambda(desc = desc, default))
 
+    @IgnoreForSchema
     override var trace: Trace? = null
         set(value) {
             if (value is PsiTrace) value.psiElement.putUserData(linkedAmperNode, this)
@@ -141,10 +137,6 @@ sealed class Default<out T> {
 
     data class Lambda<T>(val desc: String?, private val getter: () -> T?) : Default<T>() {
         override val value by lazy { getter() }
-        val isCtor by lazy {
-            val getterAsKFunc = getter.asSafely<KFunction<*>>()
-            getterAsKFunc?.returnType?.kClassOrNull?.constructors?.contains(getterAsKFunc) ?: false
-        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -169,69 +161,20 @@ class SchemaValueProvider<T : Any, VT : ValueDelegateBase<*>>(
     }
 }
 
-fun PropertyMeta(name: String, klass: KClass<*>, default: Default<*>? = null) =
-    PropertyMeta(name, klass.starProjectedType, default)
-
-/**
- * Meta-information about schema property.
- */
-open class PropertyMeta(
-    val name: String,
-    val type: KType,
-    val default: Default<*>? = null,
-    // TODO Rename to `isCtorArg`.
-    val isCtorArg: Boolean = false,
-    val hasShorthand: Boolean = false,
-    val aliases: List<String>? = null,
-    val knownStringValues: List<String>? = null,
-    val platformSpecific: PlatformSpecific? = null,
-    val platformAgnostic: PlatformAgnostic? = null,
-    val productTypeSpecific: ProductTypeSpecific? = null,
-    val gradleSpecific: GradleSpecific? = null,
-    val standaloneSpecific: StandaloneSpecific? = null,
-    val modifierAware: ModifierAware? = null,
-    val schemaDoc: SchemaDoc? = null,
-    val kProperty: KProperty<*>? = null,
-) {
-    val isNullable = type.isMarkedNullable
-    val hasDefault = default != null
-    val isValueRequired = !isNullable && !hasDefault
-    val nameAndAliases = aliases.orEmpty() + name
-
-    constructor(property: KProperty<*>, defaultHolder: Default<*>?) : this(
-        property.name,
-        property.returnType,
-        defaultHolder,
-        // FIXME Maybe introduce new annotation with meaningful name, or change this one.
-        property.hasAnnotation<DependencyKey>(),
-        property.hasAnnotation<Shorthand>(),
-        property.findAnnotation<Aliases>()?.values?.distinct(),
-        property.findAnnotation<KnownStringValues>()?.values?.toList(),
-        property.findAnnotation<PlatformSpecific>(),
-        property.findAnnotation<PlatformAgnostic>(),
-        property.findAnnotation<ProductTypeSpecific>(),
-        property.findAnnotation<GradleSpecific>(),
-        property.findAnnotation<StandaloneSpecific>(),
-        property.findAnnotation<ModifierAware>(),
-        property.findAnnotation<SchemaDoc>(),
-        property,
-    )
-}
-
 /**
  * Abstract value that can have a default value.
  */
 sealed class ValueDelegateBase<T>(
     val property: KProperty<*>,
-    default: Default<T>?,
+    val default: Default<T>?,
     valueHolders: ValueHolders,
-) : PropertyMeta(property, default), Traceable, ReadWriteProperty<SchemaNode, T> {
+) : Traceable, ReadWriteProperty<SchemaNode, T> {
     // We are creating lambdas here to prevent misusage of [valueHolders] from [ValueDelegateBase].
-    private val valueGetter: () -> ValueHolder<T>? = { valueHolders[name] as ValueHolder<T>? }
-    private val valueSetter: (ValueHolder<T>?) -> Unit = { if (it != null) valueHolders[name] = it }
+    private val valueGetter: () -> ValueHolder<T>? = { valueHolders[property.name] as ValueHolder<T>? }
+    private val valueSetter: (ValueHolder<T>?) -> Unit = { if (it != null) valueHolders[property.name] = it }
 
     abstract val value: T
-    val unsafe: T? get() = valueGetter()?.value ?: (default?.value as? T)
+    val unsafe: T? get() = valueGetter()?.value ?: default?.value
     val withoutDefault: T? get() = valueGetter()?.value
     val state get() = valueGetter()?.state ?: ValueState.UNSET
 
@@ -313,7 +256,7 @@ abstract class SchemaValuesVisitor {
     }
 
     open fun visitNode(it: SchemaNode) {
-        it.allValues.sortedBy { it.name }.forEach { visit(it) }
+        it.allValues.sortedBy { it.property.name }.forEach { visit(it) }
     }
 
     open fun visitValue(it: ValueDelegateBase<*>) {

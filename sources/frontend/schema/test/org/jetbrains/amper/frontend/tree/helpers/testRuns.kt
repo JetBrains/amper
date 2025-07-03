@@ -9,12 +9,12 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.readWithTemplates
-import org.jetbrains.amper.frontend.api.PropertyMeta
+import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
-import org.jetbrains.amper.frontend.meta.DefaultAmperTypesDiscoverer
+import org.jetbrains.amper.frontend.meta.DefaultSchemaTypingContext
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.helper.BaseFrontendTestRun
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
@@ -26,13 +26,14 @@ import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.jsonDump
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
-import org.jetbrains.amper.frontend.types.AmperTypes
-import org.jetbrains.amper.frontend.types.kClass
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.golden.readContentsAndReplace
 import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import java.nio.file.Path
 import kotlin.io.path.absolute
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -48,7 +49,7 @@ import kotlin.test.fail
 internal open class TreeTestRun(
     caseName: String,
     override val base: Path,
-    protected val types: AmperTypes,
+    protected val types: SchemaTypingContext,
     override val expectPostfix: String,
     protected val treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>?,
     protected val dumpPathContexts: Boolean = false,
@@ -91,7 +92,7 @@ internal open class TreeTestRun(
 internal open class DiagnosticsTreeTestRun(
     caseName: String,
     base: Path,
-    types: AmperTypes,
+    types: SchemaTypingContext,
     treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>?,
     dumpPathContexts: Boolean = false,
 ) : TreeTestRun(caseName, base, types, "", treeBuilder, dumpPathContexts) {
@@ -109,12 +110,11 @@ internal open class DiagnosticsTreeTestRun(
         readContentsAndReplace(expectedPath, base).trimTrailingWhitespacesAndEmptyLines()
 }
 
-internal class TestAmperTypesDiscoverer(
-    vararg customProperties: PropertyMeta,
-) : DefaultAmperTypesDiscoverer() {
-    private val customProperties = customProperties.toList()
-    override fun customProperties(type: KType) =
-        if (type.kClass == Settings::class) customProperties.ifEmpty { super.customProperties(type) }
+internal class TestSchemaTypingContext(
+    private val customSettingsBuilder: SchemaTypingContext.() -> List<SchemaObjectDeclaration.Property> = { emptyList() },
+) : DefaultSchemaTypingContext() {
+    override fun customProperties(type: KClass<out SchemaNode>) =
+        if (type == Settings::class) customSettingsBuilder().ifEmpty { super.customProperties(type) }
         else emptyList()
 }
 

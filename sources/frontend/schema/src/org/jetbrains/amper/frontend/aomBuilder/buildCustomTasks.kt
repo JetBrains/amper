@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.project.customTaskName
 import org.jetbrains.amper.frontend.tree.RefinedTree
+import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import java.nio.file.Path
 import kotlin.io.path.absolute
@@ -49,7 +50,7 @@ internal fun BuildCtx.buildCustomTask(
         return
     }
 
-    val taskTree = readTree(customTaskFile, types<CustomTaskNode>()) ?: return
+    val taskTree = readTree(customTaskFile, types.getDeclaration<CustomTaskNode>()) ?: return
     // We can cast here only because no contexts are available inside the task definition.
     val node = createSchemaNode<CustomTaskNode>(taskTree as RefinedTree)
     val customTask = buildCustomTask(customTaskFile, node, module.module) {

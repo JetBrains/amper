@@ -4,15 +4,16 @@
 
 package org.jetbrains.amper.frontend.tree
 
-import org.jetbrains.amper.frontend.api.PropertyMeta
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
-import org.jetbrains.amper.frontend.tree.helpers.TestAmperTypesDiscoverer
+import org.jetbrains.amper.frontend.tree.helpers.TestSchemaTypingContext
 import org.jetbrains.amper.frontend.tree.helpers.diagnoseModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModule
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModuleWithTemplates
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
@@ -52,17 +53,27 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
     @Test
     fun `read module file with custom properties`() = testModuleRead(
         "with-custom-properties",
-        types = TestAmperTypesDiscoverer(
-            PropertyMeta("myPlugin", CustomPluginSchema::class)
-        )
+        types = TestSchemaTypingContext() {
+            listOf(
+                SchemaObjectDeclaration.Property(
+                    name = "myPlugin",
+                    type = getType<CustomPluginSchema>(),
+                ),
+            )
+        }
     )
 
     @Test
     fun `read module file with custom properties diagnostics`() = diagnoseModuleRead(
         "with-custom-properties-diagnostics",
-        types = TestAmperTypesDiscoverer(
-            PropertyMeta("myPlugin", CustomPluginSchema::class)
-        )
+        types = TestSchemaTypingContext() {
+            listOf(
+                SchemaObjectDeclaration.Property(
+                    name = "myPlugin",
+                    type = getType<CustomPluginSchema>(),
+                ),
+            )
+        }
     )
     
     @Test

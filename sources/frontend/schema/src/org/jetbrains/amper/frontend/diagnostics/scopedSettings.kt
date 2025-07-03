@@ -55,17 +55,19 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
             gradleSpecific()
         } else Unit
 
-        fun contextAgnostic() = prop.pType?.meta?.platformAgnostic?.run {
-            if (prop.contexts.platformCtxs().isNotEmpty()) problemReporter.reportMessage(
-                IncorrectSettingsSection(
-                    prop.value.trace,
-                    "settings.unexpected.context",
-                    level = Level.Error,
+        fun contextAgnostic() {
+            if (prop.pType?.isPlatformAgnostic == true && prop.contexts.platformCtxs().isNotEmpty()) {
+                problemReporter.reportMessage(
+                    IncorrectSettingsSection(
+                        prop.value.trace,
+                        "settings.unexpected.context",
+                        level = Level.Error,
+                    )
                 )
-            )
+            }
         }
 
-        private fun platformSpecific() = prop.pType?.meta?.platformSpecific?.run {
+        private fun platformSpecific() = prop.pType?.specificToPlatforms?.takeIf { it.isNotEmpty() }?.let { platforms ->
             val platformsAndAliases =
                 minimalModule.unwrapAliases + naturalHierarchyExtStr - COMMON.schemaValue
             val propPlatforms = prop.contexts.platformCtxs().flatMap { platformsAndAliases[it.value] ?: emptyList() }.toSet()
@@ -82,7 +84,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
                 )
         }
 
-        private fun productSpecific() = prop.pType?.meta?.productTypeSpecific?.run {
+        private fun productSpecific() = prop.pType?.specificToProducts?.takeIf { it.isNotEmpty() }?.let { productTypes ->
             val usedProductType = minimalModule.product.type
             if (!productTypes.contains(usedProductType)) problemReporter.reportMessage(
                 IncorrectSettingsSection(
@@ -94,7 +96,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
             )
         }
 
-        private fun gradleSpecific() = prop.pType?.meta?.gradleSpecific?.run {
+        private fun gradleSpecific() = prop.pType?.specificToGradleMessage?.let { message ->
             problemReporter.reportMessage(
                 IncorrectSettingsSection(
                     prop.value.trace,

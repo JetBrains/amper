@@ -33,6 +33,7 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.trivialMerge
 import org.jetbrains.amper.frontend.tree.values
+import org.jetbrains.amper.frontend.types.getDeclaration
 
 
 /**
@@ -60,7 +61,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
     return with(copy(problemReporterCtx = reporterCtx)) {
         val rawModuleTree = readTree(
             moduleFilePath,
-            type = types<MinimalModule>(),
+            type = types.getDeclaration<MinimalModule>(),
             reportUnknowns = false,
         )
 

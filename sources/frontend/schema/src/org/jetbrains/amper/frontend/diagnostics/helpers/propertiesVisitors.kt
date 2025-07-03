@@ -18,11 +18,9 @@ import org.jetbrains.amper.frontend.tree.ScalarProperty
 import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.visitMapLikeValues
-import org.jetbrains.amper.frontend.types.isScalar
-import org.jetbrains.amper.frontend.types.kClass
+import org.jetbrains.amper.frontend.types.isSameAs
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.starProjectedType
 
 
 /**
@@ -32,7 +30,6 @@ inline fun <reified T : SchemaNode, reified V> MergedTree.visitScalarProperties(
     vararg properties: KProperty1<T, V>,
     noinline visitSelected: (ScalarProperty<Merged>, V & Any) -> Unit,
 ) {
-    assert(V::class.starProjectedType.isScalar) { "Can only visit scalar properties" }
     ObjectPropertiesVisitorRecurring(
         objectKlass = T::class,
         properties = properties.map { it.name },
@@ -77,20 +74,20 @@ inline fun <reified T : SchemaNode> MergedTree.visitListProperties(
 inline fun <reified T : SchemaNode> MergedTree.visitObjects(
     crossinline block: (MapLikeValue<Merged>) -> Unit
 ) = visitMapLikeValues { 
-    if (it.type?.kType?.kClass == T::class) block(it)
+    if (it.type?.isSameAs<T>() == true) block(it)
 }
 
 /**
  * Visits properties with keys from [properties] in objects with [objectKlass] type.
  */
 class ObjectPropertiesVisitorRecurring(
-    private val objectKlass: KClass<*>,
+    private val objectKlass: KClass<out SchemaNode>,
     private val properties: Collection<String>,
     private val visitSelected: (MapLikeValue.Property<MergedTree>) -> Unit,
 ) : RecurringTreeVisitorUnit<Merged>() {
 
     override fun visitMapValue(value: MapLikeValue<Merged>) {
-        if (value.type?.kType?.kClass == objectKlass) value.children.map { it.doVisitMapProperty() }
+        if (value.type?.isSameAs(objectKlass) == true) value.children.map { it.doVisitMapProperty() }
         else super.visitMapValue(value)
     }
 

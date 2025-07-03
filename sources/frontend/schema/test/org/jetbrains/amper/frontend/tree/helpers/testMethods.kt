@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.tree.helpers
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.contexts.Contexts
-import org.jetbrains.amper.frontend.types.AmperTypes
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.test.golden.GoldenTest
 
 
@@ -16,7 +16,7 @@ import org.jetbrains.amper.test.golden.GoldenTest
  */
 fun GoldenTest.testModuleRead(
     caseName: String,
-    types: AmperTypes = TestAmperTypesDiscoverer(),
+    types: SchemaTypingContext = TestSchemaTypingContext(),
     expectPostfix: String = ".result.json",
 ) = TreeTestRun(
     caseName = caseName,
@@ -32,7 +32,7 @@ fun GoldenTest.testModuleRead(
 fun GoldenTest.testRefineModule(
     caseName: String,
     selectedContexts: Contexts,
-    types: AmperTypes = TestAmperTypesDiscoverer(),
+    types: SchemaTypingContext = TestSchemaTypingContext(),
     expectPostfix: String = ".result.json",
     withDefaults: Boolean = false,
 ) = TreeTestRun(
@@ -49,7 +49,7 @@ fun GoldenTest.testRefineModule(
 fun GoldenTest.testRefineModuleWithTemplates(
     caseName: String,
     selectedContexts: (VirtualFile) -> Contexts,
-    types: AmperTypes = TestAmperTypesDiscoverer(),
+    types: SchemaTypingContext = TestSchemaTypingContext(),
     expectPostfix: String = ".result.json",
 ) = TreeTestRun(
     caseName = caseName,
@@ -65,7 +65,7 @@ fun GoldenTest.testRefineModuleWithTemplates(
  */
 fun GoldenTest.diagnoseModuleRead(
     caseName: String,
-    types: AmperTypes = TestAmperTypesDiscoverer(),
+    types: SchemaTypingContext = TestSchemaTypingContext(),
 ) = DiagnosticsTreeTestRun(
     caseName = caseName,
     base = baseTestResourcesPath(),

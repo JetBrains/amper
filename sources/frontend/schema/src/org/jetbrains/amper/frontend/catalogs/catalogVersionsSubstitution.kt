@@ -10,7 +10,6 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.withComputedValueTrace
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
-import org.jetbrains.amper.frontend.types.AmperTypes
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
@@ -24,7 +23,9 @@ import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asScalar
-import kotlin.reflect.full.starProjectedType
+import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.toType
+import kotlin.reflect.full.createType
 
 
 context(BuildCtx)
@@ -35,17 +36,17 @@ internal class CatalogVersionsSubstitutor(
     private val catalog: VersionCatalog,
     private val buildCtx: BuildCtx,
 ) : TreeTransformer<Merged>(), ProblemReporterContext by buildCtx {
-    inline fun <reified T> aType() = buildCtx.types[T::class.starProjectedType]
+    inline fun <reified T> getType() = buildCtx.types.getType(T::class.createType())
     private val substitutionTypes = mapOf(
-        aType<CatalogDependency>() to aType<ExternalMavenDependency>(),
-        aType<CatalogKspProcessorDeclaration>() to aType<MavenKspProcessorDeclaration>(),
-        aType<CatalogJavaAnnotationProcessorDeclaration>() to aType<MavenJavaAnnotationProcessorDeclaration>(),
-        aType<CatalogBomDependency>() to aType<ExternalMavenBomDependency>(),
+        getType<CatalogDependency>() to getType<ExternalMavenDependency>(),
+        getType<CatalogKspProcessorDeclaration>() to getType<MavenKspProcessorDeclaration>(),
+        getType<CatalogJavaAnnotationProcessorDeclaration>() to getType<MavenJavaAnnotationProcessorDeclaration>(),
+        getType<CatalogBomDependency>() to getType<ExternalMavenBomDependency>(),
     )
 
     override fun visitMapValue(value: MapLikeValue<Merged>): MergedTree? {
-        val valueType = value.type ?: return super.visitMapValue(value)
-        val substituted = substitutionTypes[valueType].asSafely<AmperTypes.Object>() ?: return super.visitMapValue(value)
+        val valueType = value.type?.toType() ?: return super.visitMapValue(value)
+        val substituted = substitutionTypes[valueType] as? SchemaType.ObjectType ?: return super.visitMapValue(value)
         val catalogKeyProp = value.children.singleOrNull { it.key == "catalogKey" } ?: return super.visitMapValue(value)
         // TODO Maybe report here.
         val catalogValue = catalogKeyProp.value.asScalar ?: return null
@@ -56,7 +57,7 @@ internal class CatalogVersionsSubstitutor(
             trace = catalogValue.trace.withComputedValueTrace(found),
         )
         val newChildren = value.children - catalogKeyProp + 
-                MapLikeValue.Property("coordinates", catalogKeyProp.kTrace, newCValue, substituted)
-        return value.copy(children = newChildren, type = substituted)
+                MapLikeValue.Property("coordinates", catalogKeyProp.kTrace, newCValue, substituted.declaration)
+        return value.copy(children = newChildren, type = substituted.declaration)
     }
 }

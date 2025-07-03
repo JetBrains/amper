@@ -4,13 +4,11 @@
 
 package org.jetbrains.amper.frontend.tree
 
-import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.DefaultCtxs
-import org.jetbrains.amper.frontend.types.AmperTypes
-
+import org.jetbrains.amper.frontend.types.SchemaType
 
 context(BuildCtx)
 internal fun TreeValue<Merged>.appendDefaultValues() = 
@@ -22,12 +20,12 @@ internal fun TreeValue<Merged>.appendDefaultValues() =
  */
 private object DefaultsAppender : TreeTransformer<Merged>() {
     override fun visitMapValue(value: MapLikeValue<Merged>): MergedTree? {
-        val aObject = value.type?.asSafely<AmperTypes.Object>() ?: return super.visitMapValue(value)
+        val aObject = value.type ?: return super.visitMapValue(value)
 
         // Note: We are using special [DefaultCtxs] that has the least possible priority during merge.
         val toAddDefaults: MapLikeChildren<Merged> =
             aObject.properties.mapNotNull out@{
-                when (val default = it.meta.default) {
+                when (val default = it.default) {
                     // Default as a reference creates a reference value to a referenced property.
                     is Default.Dependent<*, *> -> ReferenceProperty(
                         it,
@@ -39,7 +37,7 @@ private object DefaultsAppender : TreeTransformer<Merged>() {
 
                     // Default as a static value creates a scalar value.
                     is Default.Static<*> -> MapLikeValue.Property(
-                        it.meta.name,
+                        it.name,
                         DefaultTrace,
                         defaultValueFrom(default.value ?: return@out null, it.type),
                         it,
@@ -52,7 +50,7 @@ private object DefaultsAppender : TreeTransformer<Merged>() {
                         DefaultTrace,
                         DefaultTrace,
                         DefaultCtxs,
-                        it.type as? AmperTypes.Object ?: return@out null,
+                        (it.type as? SchemaType.ObjectType)?.declaration ?: return@out null,
                     )
 
                     // Other cases are unsupported.
@@ -76,8 +74,8 @@ private object DefaultsRootsDiscoverer : TreeTransformer<Merged>() {
 /**
  * Construct a default value tree from the passed value.
  */
-private fun defaultValueFrom(value: Any, type: AmperTypes.AmperType): MergedTree = when {
-    type is AmperTypes.Map && value is Map<*, *> -> MapLikeValue(
+private fun defaultValueFrom(value: Any, type: SchemaType): MergedTree = when {
+    type is SchemaType.MapType && value is Map<*, *> -> MapLikeValue(
         children = value
             .mapNotNull {
                 MapLikeValue.Property(
@@ -92,13 +90,13 @@ private fun defaultValueFrom(value: Any, type: AmperTypes.AmperType): MergedTree
         type = null,
     )
 
-    type is AmperTypes.List && value is List<*> -> ListValue(
-        children = value.mapNotNull { defaultValueFrom(it ?: return@mapNotNull null, type.valueType) },
+    type is SchemaType.ListType && value is List<*> -> ListValue(
+        children = value.mapNotNull { defaultValueFrom(it ?: return@mapNotNull null, type.elementType) },
         trace = DefaultTrace,
         contexts = DefaultCtxs,
     )
 
-    type is AmperTypes.Scalar -> ScalarValue(
+    type is SchemaType.ScalarType -> ScalarValue(
         value = value,
         trace = DefaultTrace,
         contexts = DefaultCtxs,

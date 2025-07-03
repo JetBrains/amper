@@ -4,46 +4,50 @@
 
 package org.jetbrains.amper.frontend.meta
 
-import org.jetbrains.amper.frontend.types.AmperTypes
-
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.toType
 
 /**
- * Basic visitor for [AmperTypes].
+ * Basic visitor for [SchemaTypingContext].
  */
 interface ATypesVisitor<R> {
-    fun AmperTypes.AmperType.accept(): R = visitAType(this)
-    fun visitAType(type: AmperTypes.AmperType): R = when (type) {
-        is AmperTypes.Enum -> visitEnum(type)
-        is AmperTypes.Scalar -> visitScalar(type)
-        is AmperTypes.Map -> visitMap(type)
-        is AmperTypes.List -> visitList(type)
-        is AmperTypes.Polymorphic -> visitPolymorphic(type)
-        is AmperTypes.Object -> visitObject(type)
+    fun SchemaType.accept(): R = visitAType(this)
+    fun visitAType(type: SchemaType): R = when (type) {
+        is SchemaType.EnumType -> visitEnum(type)
+        is SchemaType.ScalarType -> visitScalar(type)  // FIXME: but scalar can be enum
+        is SchemaType.MapType -> visitMap(type)
+        is SchemaType.ListType -> visitList(type)
+        is SchemaType.VariantType -> visitPolymorphic(type)
+        is SchemaType.ObjectType -> visitObject(type)
     }
 
-    fun visitEnum(type: AmperTypes.Enum): R
-    fun visitScalar(type: AmperTypes.Scalar): R
-    fun visitMap(type: AmperTypes.Map): R
-    fun visitList(type: AmperTypes.List): R
-    fun visitPolymorphic(type: AmperTypes.Polymorphic): R
-    fun visitObject(type: AmperTypes.Object): R
+    fun visitEnum(type: SchemaType.EnumType): R
+    fun visitScalar(type: SchemaType.ScalarType): R
+    fun visitMap(type: SchemaType.MapType): R
+    fun visitList(type: SchemaType.ListType): R
+    fun visitPolymorphic(type: SchemaType.VariantType): R
+    fun visitObject(type: SchemaType.ObjectType): R
 }
 
 /**
- * Collect all referenced [AmperTypes.Object]s starting from the given [root].
+ * Collect all referenced [SchemaTypingContext.Object]s starting from the given [root].
  */
-fun collectReferencedObjects(root: AmperTypes.AmperType) = AObjectRecursiveCollector().visitAType(root)
-private class AObjectRecursiveCollector : ATypesVisitor<List<AmperTypes.Object>> {
-    private val visited = mutableSetOf<AmperTypes.AmperType>()
-    private val empty = emptyList<AmperTypes.Object>()
+fun collectReferencedObjects(root: SchemaObjectDeclaration) = AObjectRecursiveCollector().visitAType(root.toType())
+private class AObjectRecursiveCollector : ATypesVisitor<List<SchemaType.ObjectType>> {
+    private val visited = mutableSetOf<SchemaType>()
+    private val empty = emptyList<SchemaType.ObjectType>()
     
     // Rough recursion prevention.
-    override fun visitAType(type: AmperTypes.AmperType) = if (visited.add(type)) super.visitAType(type) else empty
+    override fun visitAType(type: SchemaType) = if (visited.add(type)) super.visitAType(type) else empty
     
-    override fun visitEnum(type: AmperTypes.Enum) = empty
-    override fun visitScalar(type: AmperTypes.Scalar) = empty
-    override fun visitMap(type: AmperTypes.Map) = type.valueType.accept()
-    override fun visitList(type: AmperTypes.List) = type.valueType.accept()
-    override fun visitPolymorphic(type: AmperTypes.Polymorphic) = type.inheritors.flatMap { it.accept() }
-    override fun visitObject(type: AmperTypes.Object) = type.properties.flatMap { it.type.accept() } + type
+    override fun visitEnum(type: SchemaType.EnumType) = empty
+    override fun visitScalar(type: SchemaType.ScalarType) = empty
+    override fun visitMap(type: SchemaType.MapType) = type.valueType.accept()
+    override fun visitList(type: SchemaType.ListType) = type.elementType.accept()
+    override fun visitPolymorphic(type: SchemaType.VariantType) = type.declaration.variants.flatMap {
+        it.toType().accept()
+    }
+    override fun visitObject(type: SchemaType.ObjectType) = type.declaration.properties.flatMap { it.type.accept() } + type
 }

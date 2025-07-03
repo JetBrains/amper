@@ -131,3 +131,10 @@ annotation class KnownStringValues(vararg val values: String)
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Aliases(vararg val values: String)
+
+/**
+ * Properties annotated with this are ignored in [SchemaNode] in terms of schema generation.
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class IgnoreForSchema
