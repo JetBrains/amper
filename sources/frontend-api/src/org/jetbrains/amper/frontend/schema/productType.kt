@@ -7,10 +7,10 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
@@ -95,6 +95,13 @@ enum class ProductType(
         "wasm-js/app",
         supportedPlatforms = setOf(Platform.WASM),
         defaultPlatforms = setOf(Platform.WASM)
+    ),
+
+    @SchemaDoc("A JavaScript application")
+    JS_APP(
+        "js/app",
+        supportedPlatforms = setOf(Platform.JS),
+        defaultPlatforms = setOf(Platform.JS)
     ),;
 
     fun isLibrary() = this == LIB || this == JVM_AMPER_PLUGIN

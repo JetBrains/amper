@@ -2,7 +2,7 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tasks.wasm
+package org.jetbrains.amper.tasks.js
 
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -13,15 +13,15 @@ import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 
-fun ProjectTasksBuilder.setupWasmJsTasks() {
+fun ProjectTasksBuilder.setupJsTasks() {
 
     allModules()
-        .alsoPlatforms(Platform.WASM)
+        .alsoPlatforms(Platform.JS)
         .alsoTests()
         .withEach {
-            val compileKLibTaskName = WasmJsTaskType.CompileKLib.getTaskName(module, platform, isTest)
+            val compileKLibTaskName = JsTaskType.CompileKLib.getTaskName(module, platform, isTest)
             tasks.registerTask(
-                task = WasmJsCompileKlibTask(
+                task = JsCompileKlibTask(
                     module = module,
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
@@ -35,15 +35,15 @@ fun ProjectTasksBuilder.setupWasmJsTasks() {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
                     if (isTest) {
                         // todo (AB) : Check if this is required for test KLib compilation
-                        add(WasmJsTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
+                        add(JsTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
                     }
                 },
             )
 
             if (needsLinkedExecutable(module, isTest)) {
-                val linkAppTaskName = WasmJsTaskType.Link.getTaskName(module, platform, isTest)
+                val linkAppTaskName = JsTaskType.Link.getTaskName(module, platform, isTest)
                 tasks.registerTask(
-                    task = WasmJsLinkTask(
+                    task = JsLinkTask(
                         module = module,
                         platform = platform,
                         userCacheRoot = context.userCacheRoot,
@@ -59,7 +59,7 @@ fun ProjectTasksBuilder.setupWasmJsTasks() {
                         add(compileKLibTaskName)
                         add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
                         if (isTest) {
-                            add(WasmJsTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
+                            add(JsTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
                         }
                     }
                 )
@@ -67,18 +67,18 @@ fun ProjectTasksBuilder.setupWasmJsTasks() {
         }
 
     allModules()
-        .alsoPlatforms(Platform.WASM)
+        .alsoPlatforms(Platform.JS)
         .alsoTests()
         .selectModuleDependencies(ResolutionScope.RUNTIME).withEach {
             tasks.registerDependency(
-                WasmJsTaskType.CompileKLib.getTaskName(module, platform, isTest),
-                WasmJsTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+                JsTaskType.CompileKLib.getTaskName(module, platform, isTest),
+                JsTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
             )
 
             if (needsLinkedExecutable(module, isTest)) {
                 tasks.registerDependency(
-                    WasmJsTaskType.Link.getTaskName(module, platform, isTest),
-                    WasmJsTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+                    JsTaskType.Link.getTaskName(module, platform, isTest),
+                    JsTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
                 )
             }
         }
@@ -87,7 +87,7 @@ fun ProjectTasksBuilder.setupWasmJsTasks() {
 private fun needsLinkedExecutable(module: AmperModule, isTest: Boolean) =
     module.type.isApplication() || isTest
 
-enum class WasmJsTaskType(override val prefix: String) : PlatformTaskType {
+enum class JsTaskType(override val prefix: String) : PlatformTaskType {
     CompileKLib("compile"),
     Link("link"),
 }

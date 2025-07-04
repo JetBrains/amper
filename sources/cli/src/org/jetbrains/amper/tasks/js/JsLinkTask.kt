@@ -2,14 +2,14 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tasks.wasm
+package org.jetbrains.amper.tasks.js
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.CompilerPlugin
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.KotlinUserSettings
-import org.jetbrains.amper.compilation.kotlinWasmJsCompilerArgs
+import org.jetbrains.amper.compilation.kotlinJsCompilerArgs
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
@@ -18,10 +18,10 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
-import org.jetbrains.amper.tasks.web.WebCompileKlibTask
+import org.jetbrains.amper.tasks.web.WebLinkTask
 import java.nio.file.Path
 
-class WasmJsCompileKlibTask(
+class JsLinkTask(
     module: AmperModule,
     platform: Platform,
     userCacheRoot: AmperUserCacheRoot,
@@ -30,9 +30,11 @@ class WasmJsCompileKlibTask(
     taskName: TaskName,
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
+    compilationType: KotlinCompilationType,
+    compileKLibTaskName: TaskName,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
-) : WebCompileKlibTask(
+) : WebLinkTask(
     module,
     platform,
     userCacheRoot,
@@ -41,10 +43,12 @@ class WasmJsCompileKlibTask(
     taskName,
     tempRoot,
     isTest,
+    compilationType,
+    compileKLibTaskName,
     kotlinArtifactsDownloader,
 ) {
     override val expectedPlatform: Platform
-        get() = Platform.WASM
+        get() = Platform.JS
 
     override fun kotlinCompilerArgs(
         kotlinUserSettings: KotlinUserSettings,
@@ -59,7 +63,7 @@ class WasmJsCompileKlibTask(
         compilationType: KotlinCompilationType,
         include: Path?
     ): List<String> =
-        kotlinWasmJsCompilerArgs(
+        kotlinJsCompilerArgs(
             kotlinUserSettings,
             compilerPlugins,
             libraryPaths,

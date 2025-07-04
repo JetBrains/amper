@@ -252,6 +252,7 @@ private fun Fragment.inferredTestDependencies(): List<MavenDependency> = buildLi
 private fun ValueDelegateBase<String>.asTraceableString() = TraceableString(value, trace)
 
 private fun Platform.supportsJvmTestFrameworks() = this == Platform.JVM || this == Platform.ANDROID
+private fun Platform.supportsWebTestFrameworks() = this == Platform.JS || this == Platform.WASM
 
 private val MavenDependencyBase.groupAndArtifact: String
     get() {

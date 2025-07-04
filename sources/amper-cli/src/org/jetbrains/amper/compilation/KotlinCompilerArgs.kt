@@ -279,25 +279,95 @@ internal fun kotlinWasmJsCompilerArgs(
     compilationType: KotlinCompilationType,
     include: Path?,
 ): List<String> = buildList {
+    add("-Xwasm")
+    add("-Xwasm-target=js")
+
+    addAll(
+        kotlinWebCompilerArgs(
+            kotlinUserSettings,
+            compilerPlugins,
+            libraryPaths,
+            outputPath,
+            friendPaths,
+            fragments,
+            sourceFiles,
+            additionalSourceRoots,
+            moduleName,
+            compilationType,
+            include,
+        )
+    )
+}
+
+context(BuildTask)
+internal fun kotlinJsCompilerArgs(
+    kotlinUserSettings: KotlinUserSettings,
+    compilerPlugins: List<CompilerPlugin>,
+    libraryPaths: List<Path>,
+    outputPath: Path,
+    friendPaths: List<Path>,
+    fragments: List<Fragment>,
+    sourceFiles: List<Path>,
+    additionalSourceRoots: List<SourceRoot>,
+    moduleName: String,
+    compilationType: KotlinCompilationType,
+    include: Path?,
+): List<String> = buildList {
+    add("-Xir-minimized-member-names")
+    add("-module-kind=es")
+    add("-Xir-dce")
+
+    addAll(
+        kotlinWebCompilerArgs(
+            kotlinUserSettings,
+            compilerPlugins,
+            libraryPaths,
+            outputPath,
+            friendPaths,
+            fragments,
+            sourceFiles,
+            additionalSourceRoots,
+            moduleName,
+            compilationType,
+            include,
+        )
+    )
+}
+
+context(BuildTask)
+private fun kotlinWebCompilerArgs(
+    kotlinUserSettings: KotlinUserSettings,
+    compilerPlugins: List<CompilerPlugin>,
+    libraryPaths: List<Path>,
+    outputPath: Path,
+    friendPaths: List<Path>,
+    fragments: List<Fragment>,
+    sourceFiles: List<Path>,
+    additionalSourceRoots: List<SourceRoot>,
+    moduleName: String,
+    compilationType: KotlinCompilationType,
+    include: Path?,
+): List<String> = buildList {
 
     if (friendPaths.isNotEmpty()) {
         add("-Xfriend-modules=${friendPaths.joinToString(File.pathSeparator)}")
     }
 
     // Common args last, because they contain free compiler args
-    addAll(kotlinCommonCompilerArgs(
-        isMultiplatform = true,
-        kotlinUserSettings = kotlinUserSettings,
-        fragments = fragments,
-        additionalSourceRoots = additionalSourceRoots,
-        compilerPlugins = compilerPlugins,
-    ))
+    addAll(
+        kotlinCommonCompilerArgs(
+            isMultiplatform = true,
+            kotlinUserSettings = kotlinUserSettings,
+            fragments = fragments,
+            additionalSourceRoots = additionalSourceRoots,
+            compilerPlugins = compilerPlugins,
+        )
+    )
 
     add("-ir-output-name")
     add(moduleName)
 
-    add("-Xwasm")
-    add("-Xwasm-target=js")
+    add("-Xir-dce")
 
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)
