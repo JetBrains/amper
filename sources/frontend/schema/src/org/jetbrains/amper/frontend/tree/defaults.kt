@@ -8,22 +8,22 @@ import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.DefaultCtxs
+import org.jetbrains.amper.frontend.tree.DefaultsRootsDiscoverer.visitAll
 import org.jetbrains.amper.frontend.types.SchemaType
-
 context(BuildCtx)
-internal fun TreeValue<Merged>.appendDefaultValues() = 
-    DefaultsAppender.visitValue(this)!!
-        .let { treeMerger.mergeTrees(listOf(it as MapLikeValue<Owned>)) }
+internal fun TreeValue<Merged>.appendDefaultValues() =
+    DefaultsAppender.visitValue(this as TreeValue<TreeState>)!!
+        .let { treeMerger.mergeTrees(listOf(it as MapLikeValue<*>)) }
 
 /**
  * Visitor that is adding default leaves with special [DefaultTrace] trace and default values to the tree.
  */
-private object DefaultsAppender : TreeTransformer<Merged>() {
-    override fun visitMapValue(value: MapLikeValue<Merged>): MergedTree? {
+private object DefaultsAppender : TreeTransformer<TreeState>() {
+    override fun visitMapValue(value: MapLikeValue<TreeState>): TreeValue<TreeState>? {
         val aObject = value.type ?: return super.visitMapValue(value)
 
         // Note: We are using special [DefaultCtxs] that has the least possible priority during merge.
-        val toAddDefaults: MapLikeChildren<Merged> =
+        val toAddDefaults: MapLikeChildren<out TreeState> =
             aObject.properties.mapNotNull out@{
                 when (val default = it.default) {
                     // Default as a reference creates a reference value to a referenced property.
@@ -60,22 +60,28 @@ private object DefaultsAppender : TreeTransformer<Merged>() {
 
         return if (toAddDefaults.isEmpty()) super.visitMapValue(value)
         else {
-            val extendedToAddDefaults = toAddDefaults.visitAll()
-            val childrenWithDefaults = with(DefaultsRootsDiscoverer)  { value.children.visitAll() }
-            value.copy(children = childrenWithDefaults + extendedToAddDefaults)
+            val extendedToAddDefaults = (toAddDefaults as MapLikeChildren<TreeState>).visitAll()
+            val childrenWithDefaults = with(DefaultsRootsDiscoverer) { value.children.visitAll() }
+            // We can't guarantee any tree contract here, so we have to create an Owned value.
+            Owned(
+                children = (childrenWithDefaults + extendedToAddDefaults) as MapLikeChildren<Owned>,
+                type = value.type,
+                trace = value.trace,
+                contexts = value.contexts,
+            ) as TreeValue<TreeState>
         }
     }
 }
 
-private object DefaultsRootsDiscoverer : TreeTransformer<Merged>() {
-    override fun visitListValue(value: ListValue<Merged>) = DefaultsAppender.visitValue(value)
+private object DefaultsRootsDiscoverer : TreeTransformer<TreeState>() {
+    override fun visitListValue(value: ListValue<TreeState>) = DefaultsAppender.visitValue(value)
 }
 
 /**
  * Construct a default value tree from the passed value.
  */
-private fun defaultValueFrom(value: Any, type: SchemaType): MergedTree = when {
-    type is SchemaType.MapType && value is Map<*, *> -> MapLikeValue(
+private fun defaultValueFrom(value: Any, type: SchemaType): OwnedTree = when {
+    type is SchemaType.MapType && value is Map<*, *> -> Owned(
         children = value
             .mapNotNull {
                 MapLikeValue.Property(

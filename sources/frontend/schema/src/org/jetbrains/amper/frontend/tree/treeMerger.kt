@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.tree
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 
-
 /**
  * This is a class responsible for merging several trees into one, moving [MapLikeValue.Property]s
  * as low in the final tree as possible.
@@ -38,44 +37,54 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
 class TreeMerger() {
 
     @Suppress("UNCHECKED_CAST")
-    fun mergeTrees(trees: List<MapLikeValue<Owned>>) = doMergeTrees(trees) as MapLikeValue<Merged>
+    fun mergeTrees(trees: List<MapLikeValue<*>>) = doMergeTrees(trees)
+
+    @Suppress("UNCHECKED_CAST")
+    fun mergeTrees(tree: MapLikeValue<*>) = tree.mergeSingle()
 
     // TODO Optimize; Do not copy when it is unnecessary.
-    private fun doMergeTrees(trees: List<MapLikeValue<Owned>>): MapLikeValue<Owned> {
-        if (trees.size == 1) return trees.first().mergeSingle() as MapLikeValue<Owned>
+    private fun doMergeTrees(trees: List<MapLikeValue<*>>): MapLikeValue<Merged> {
+        if (trees.size == 1) return trees.first().mergeSingle() as MapLikeValue<Merged>
         val firstTree = trees.first()
         // TODO Maybe check that we are merging (or within same hierarchy) types?
         val allChildren = trees.flatMap { it.children }
         val (mapLike, other) = allChildren.partitionMapLike()
-        val newChildren = mapLike.mergeProperties() + other.map { it.mergeSingle() }
+        val otherMerged = other.map { it.mergeSingle() }
+        val mapLikeMerged = mapLike.mergeProperties().associateBy { it.key }
         val firstNonDefault = trees.firstOrNull { it.trace !is DefaultTrace } ?: firstTree
-        return firstNonDefault.copy(children = newChildren, contexts = EmptyContexts)
+        return Merged(
+            mapLikeChildren = mapLikeMerged,
+            otherChildren = otherMerged,
+            type = firstNonDefault.type,
+            trace = firstNonDefault.trace,
+            contexts = EmptyContexts,
+        )
     }
 
     // TODO Optimize; Do not copy when it is unnecessary.
-    private fun OwnedTree.mergeSingle(): OwnedTree = when (this) {
-        is ScalarValue, is ReferenceValue, is NoValue<*> -> this
-        is ListValue -> copy(children = children.map { it.mergeSingle() })
+    private fun TreeValue<*>.mergeSingle(): MergedTree = when (this) {
+        is ScalarValue, is ReferenceValue, is NoValue<*> -> this as MergedTree
+        is ListValue -> ListValue(children.map { it.mergeSingle() }, trace, contexts) as MergedTree
         is MapLikeValue -> {
             val (mapLike, other) = children.partitionMapLike()
-            val newChildren = mapLike.mergeProperties() + other.map { it.mergeSingle() }
-            copy(children = newChildren, contexts = EmptyContexts)
+            val mapLikeMerged = mapLike.mergeProperties().associateBy { it.key }
+            val otherMerged = other.map { it.mergeSingle() }
+            Merged(mapLikeMerged, otherMerged, type, trace, EmptyContexts)
         }
     }
 
-    private fun MapLikeValue.Property<OwnedTree>.mergeSingle() = 
-        copy(value = value.mergeSingle())
+    private fun MapLikeValue.Property<*>.mergeSingle() =
+        MapLikeValue.Property(key, kTrace, value.mergeSingle(), pType)
 
-    private fun List<MapProperty<Owned>>.mergeProperties() =
-        groupBy { it.key }.map { (key, group) ->
-            val pType = group.first().pType // Every group has at least one element.
-            val kTrace = group.first().kTrace //FIXME Need to figure out what trace is in the merged property.
-            MapProperty(key, kTrace, doMergeTrees(group.map { it.value }), pType)
-        }
+    private fun List<MapProperty<*>>.mergeProperties() = groupBy { it.key }.map { (key, group) ->
+        val pType = group.first().pType // Every group has at least one element.
+        val kTrace = group.first().kTrace //FIXME Need to figure out what trace is in the merged property.
+        MapProperty(key, kTrace, doMergeTrees(group.map { it.value }), pType)
+    }
 
     @Suppress("UNCHECKED_CAST")
-    private fun List<MapLikeValue.Property<OwnedTree>>.partitionMapLike() = run {
-        val mapLikeChildren = filter { it.value is MapLikeValue<*> } as List<MapProperty<Owned>>
+    private fun List<MapLikeValue.Property<*>>.partitionMapLike() = run {
+        val mapLikeChildren = filter { it.value is MapLikeValue<*> } as List<MapProperty<*>>
         val otherChildren = filter { it.value !is MapLikeValue<*> }
         mapLikeChildren to otherChildren
     }

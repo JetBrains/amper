@@ -198,15 +198,13 @@ internal fun BuildCtx.createFragments(
                 PathCtx(ctx.moduleFile)
         val refinedTree = ctx.refiner.refineTree(ctx.mergedTree, selectedContexts)
         val refinedModule = createSchemaNode<Module>(refinedTree)
-        val refinedSettings = refinedModule.settings
-        val refinedDependencies = refinedModule.dependencies.orEmpty()
         val fragmentCtor = if (isLeaf) ::DefaultLeafFragment else ::DefaultFragment
         return fragmentCtor(
             this,
             ctx.module,
             isTest,
-            refinedDependencies.mapNotNull { resolveDependency(it) },
-            refinedSettings,
+            refinedModule.dependencies.orEmpty().mapNotNull { resolveDependency(it) },
+            refinedModule.settings,
             ctx.moduleFile,
         )
     }

@@ -17,20 +17,12 @@ import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asMapLike
-import org.jetbrains.amper.frontend.tree.asOwned
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
-
 context(BuildCtx)
-internal fun TreeValue<Merged>.configureLombokDefaults(
-    moduleCtxModule: Module,
-) = if (moduleCtxModule.settings.lombok.enabled)
-    treeMerger.mergeTrees(
-        listOfNotNull(
-            asOwned().asMapLike,
-            lombokAnnotationProcessorDefaultsTree()
-        )
-    ) else this
+internal fun TreeValue<Merged>.configureLombokDefaults(moduleCtxModule: Module) =
+    if (moduleCtxModule.settings.lombok.enabled)
+        treeMerger.mergeTrees(listOfNotNull(asMapLike, lombokAnnotationProcessorDefaultsTree())) else this
 
 private fun BuildCtx.lombokAnnotationProcessorDefaultsTree() =
     syntheticBuilder<MapLikeValue<Owned>>(types, DefaultTrace) {

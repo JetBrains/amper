@@ -12,44 +12,9 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.contexts.WithContexts
 import org.jetbrains.amper.frontend.tree.MapLikeValue.Property
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.aliased
 import kotlin.reflect.KProperty1
-
-
-/**
- * This is a hint to limit compile time [TreeValue] usage.
- */
-sealed interface TreeState
-
-/**
- * This is a tree read from a single file (template/module).
- * See `treeReader.kt`.
- */
-object Owned : TreeState
-typealias OwnedTree = TreeValue<Owned>
-
-@Suppress("UNCHECKED_CAST")
-fun TreeValue<*>.asOwned() = this as OwnedTree
-
-/**
- * This is a tree merged from several files.
- * See: `treeMerger.kt`.
- */
-object Merged : TreeState
-typealias MergedTree = TreeValue<Merged>
-
-@Suppress("UNCHECKED_CAST")
-fun OwnedTree.trivialMerge() = this as MergedTree
-
-/**
- * This is a tree that is refined.
- * See: [TreeRefiner].
- */
-object Refined : TreeState
-typealias RefinedTree = TreeValue<Refined>
-
-@Suppress("UNCHECKED_CAST")
-fun OwnedTree.trivialRefine() = this as RefinedTree
 
 /**
  * This a value tree node base class.
@@ -147,19 +112,25 @@ data class ListValue<TS : TreeState>(
 inline val <TS : TreeState> TreeValue<TS>.asList get() = asSafely<ListValue<TS>>()
 
 /**
- * This is a map-like node in a value tree that is holding either a non-typed map or a 
+ * This is a map-like node in a value tree that is holding either a non-typed map or a
  * typed object, which is determined by [type] field.
- * 
- * The key difference from other nodes is that children of this one are named 
+ *
+ * The key difference from other nodes is that children of this one are named
  * properties (with their own traces). The contexts of the property are equivalent to the
  * contexts of its value.
  */
-data class MapLikeValue<TS : TreeState>(
-    val children: MapLikeChildren<TS>,
-    override val trace: Trace,
-    override val contexts: Contexts,
-    val type: SchemaObjectDeclaration?,
-) : TreeValue<TS> {
+interface MapLikeValue<TS : TreeState> : TreeValue<TS> {
+    val children: MapLikeChildren<TS>
+    val type: SchemaObjectDeclaration?
+
+    fun copy(
+        children: MapLikeChildren<TS> = this.children,
+        type: SchemaObjectDeclaration? = this.type,
+        trace: Trace = this.trace,
+        contexts: Contexts = this.contexts,
+    ): MapLikeValue<TS>
+
+    override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
     data class Property<out T : TreeValue<*>>(
         val key: String,
         val kTrace: Trace,
@@ -168,28 +139,28 @@ data class MapLikeValue<TS : TreeState>(
     ) : WithContexts {
         constructor(key: String, kTrace: Trace, value: T, parentType: SchemaObjectDeclaration) :
                 this(key, kTrace, value, parentType.aliased()[key])
-
+        
         constructor(value: T, kTrace: Trace, pType: SchemaObjectDeclaration.Property) :
                 this(pType.name, kTrace, value, pType)
 
         override val contexts get() = value.contexts
+
+        fun <R : TreeValue<*>> copy(newValue: R) = Property(key, kTrace, newValue, pType)
     }
-
-    override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
-
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : TreeValue<TS>> copy(
-        trace: Trace = this.trace,
-        contexts: Contexts = this.contexts,
-        type: SchemaObjectDeclaration? = this.type,
-        crossinline transform: (key: String, pValue: T, old: Property<TreeValue<TS>>) -> MapLikeChildren<TS>?,
-    ) = MapLikeValue(
-        children = children.flatMap { if (it.value is T) transform(it.key, it.value, it).orEmpty() else listOf(it) },
-        trace = trace,
-        contexts = contexts,
-        type = type,
-    )
 }
+
+@Suppress("UNCHECKED_CAST")
+inline fun <TS : TreeState, reified T : TreeValue<TS>> MapLikeValue<TS>.copy(
+    trace: Trace = this.trace,
+    contexts: Contexts = this.contexts,
+    type: SchemaObjectDeclaration? = this.type,
+    crossinline transform: (key: String, pValue: T, old: Property<TreeValue<TS>>) -> MapLikeChildren<TS>?,
+) = copy(
+    children = children.flatMap { if (it.value is T) transform(it.key, it.value, it).orEmpty() else listOf(it) },
+    trace = trace,
+    contexts = contexts,
+    type = type,
+)
 
 // Convenient aliases for typed map-like nodes.
 typealias MapProperty<TS> = Property<MapLikeValue<TS>>
@@ -208,36 +179,51 @@ inline val <TS : TreeState> List<Property<TreeValue<TS>>>.values get() = map { i
 operator fun <TS : TreeState> MapLikeValue<TS>.get(key: String) = children.filter { it.key == key }
 operator fun <TS : TreeState> List<MapLikeValue<TS>>.get(key: String) = flatMap { it[key] }
 operator fun <TS : TreeState> MapLikeValue<TS>.get(prop: KProperty1<*, *>) = this[prop.name]
-fun MapLikeValue<Refined>.single(key: String) = this[key].single()
+fun Refined.single(key: String) = refinedChildren[key]
 
 // MapLikeValue.Property constructors.
 
 /** Constructs a [MapLikeValue.Property] instance with [ScalarValue] inside. */
 @Suppress("FunctionName")
-fun <TS : TreeState> ScalarProperty(
+fun ScalarProperty(
     aProp: SchemaObjectDeclaration.Property,
     kTrace: Trace,
     value: Any,
     trace: Trace,
     contexts: Contexts,
-) = ScalarProperty<TS>(aProp.name, kTrace, ScalarValue(value, trace, contexts), aProp)
+) = ScalarProperty<Owned>(
+    key = aProp.name,
+    kTrace = kTrace,
+    value = ScalarValue(value, trace, contexts),
+    pType = aProp,
+)
 
 /** Constructs a [MapLikeValue.Property] instance with [ReferenceValue] inside. */
 @Suppress("FunctionName")
-fun <TS : TreeState> ReferenceProperty(
+fun ReferenceProperty(
     aProp: SchemaObjectDeclaration.Property,
     kTrace: Trace,
     referencedPath: String,
     trace: Trace,
-    contexts: Contexts
-) = ReferenceProperty<TS>(aProp.name, kTrace, ReferenceValue(referencedPath, trace, contexts), aProp)
+    contexts: Contexts,
+) = ReferenceProperty<Owned>(
+    key = aProp.name,
+    kTrace = kTrace,
+    value = ReferenceValue(referencedPath, trace, contexts),
+    pType = aProp,
+)
 
 /** Constructs a [MapLikeValue.Property] instance with [ReferenceValue] inside. */
 @Suppress("FunctionName")
-fun <TS : TreeState> MapProperty(
+fun MapProperty(
     aProp: SchemaObjectDeclaration.Property,
     kTrace: Trace,
     trace: Trace,
     contexts: Contexts,
     type: SchemaObjectDeclaration?,
-) = MapProperty<TS>(aProp.name, kTrace, MapLikeValue(emptyList(), trace, contexts, type), aProp)
+) = MapProperty(
+    key = aProp.name,
+    kTrace = kTrace,
+    value = Owned(emptyList(), type, trace, contexts),
+    pType = aProp,
+)

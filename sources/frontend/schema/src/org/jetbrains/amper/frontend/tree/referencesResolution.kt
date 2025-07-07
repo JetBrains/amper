@@ -9,8 +9,6 @@ import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.TrivialTraceable
 import org.jetbrains.amper.frontend.api.withComputedValueTrace
 import org.jetbrains.amper.frontend.contexts.DefaultCtx
-import org.jetbrains.amper.frontend.contexts.EmptyContexts
-
 
 context(ProblemReporterContext)
 fun MergedTree.resolveReferences() =
@@ -29,15 +27,15 @@ class TreeReferencesResolver(
     }
 
     override fun visitMapValue(value: MapLikeValue<Merged>): MergedTree? {
-        val substituted = value.copy<ReferenceValue<Merged>> { _, v, oldProp ->
+        val substituted = value.copy<Merged, ReferenceValue<Merged>> { _, v, oldProp ->
             substitute(v)?.map { resolvedVal ->
                 // We are basically copying the reference and substituting the referenced value in each copy.
                 oldProp.copy(
                     value = resolvedVal,
                     kTrace = oldProp.kTrace.withComputedValueTrace(TrivialTraceable(resolvedVal.trace)),
-                )    
+                )
             }
-             
+
         }
         return super.visitMapValue(substituted)
     }

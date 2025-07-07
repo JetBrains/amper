@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-import com.intellij.openapi.util.NlsSafe
 import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
 import org.jetbrains.amper.core.messages.Level
@@ -17,12 +16,11 @@ import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.collectScalarPropertiesWithOwners
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.single
-
 
 private const val DiagnosticId = "setting.value.overrides.nothing"
 
@@ -43,11 +41,11 @@ class UselessSettingValue(
             // TODO There an optimization can be made.
             //  We may not refine for all used contexts - only for most specific ones.
             group.forEach { (owner, scalarProp) ->
-                val refined = refiner.refineTree(owner, scalarProp.value.contexts) as MapLikeValue
+                val refined = refiner.refineTree(owner, scalarProp.value.contexts) as Refined
 
                 // Since there is at least one value assignment,
                 // we can safely assume that after refinement it is exactly single.
-                val refinedProp = refined.single(scalarProp.key).value
+                val refinedProp = refined.single(scalarProp.key)?.value ?: return@forEach
                 refinedProp.trace.precedingValuesSequence
                     .firstOrNull()
                     ?.takeIf { it.scalarValue<Any>() == refinedProp.scalarValue<Any>() }

@@ -14,7 +14,6 @@ import org.jetbrains.amper.frontend.contexts.defaultContextsInheritance
 import org.jetbrains.amper.frontend.contexts.sameOrMoreSpecific
 import org.jetbrains.annotations.TestOnly
 
-
 /**
  * This is a class responsible for refining [TreeValue] values for a specified [Contexts].
  * Consider the following example:
@@ -38,13 +37,17 @@ class TreeRefiner(
     private val contextComparator: ContextsInheritance<Context> = defaultContextsInheritance,
 ) {
     @Suppress("UNCHECKED_CAST")
-    fun refineTree(tree: TreeValue<Merged>, selectedContexts: Contexts) =
-        RefineRequest(selectedContexts, contextComparator).refine(tree) as TreeValue<Refined>
+    fun refineTree(
+        tree: TreeValue<Merged>, 
+        selectedContexts: Contexts
+    ): RefinedTree = RefineRequest(selectedContexts, contextComparator).refine(tree)
 }
 
 @TestOnly
-internal fun TreeValue<Merged>.refineTree(selectedContexts: Contexts, contextComparator: ContextsInheritance<Context>) =
-    RefineRequest(selectedContexts, contextComparator).refine(this) as TreeValue<Refined>
+internal fun TreeValue<*>.refineTree(
+    selectedContexts: Contexts,
+    contextComparator: ContextsInheritance<Context>,
+): RefinedTree = RefineRequest(selectedContexts, contextComparator).refine(this)
 
 class RefineRequest(
     private val selectedContexts: Contexts,
@@ -56,55 +59,71 @@ class RefineRequest(
      * with merged nodes.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : TreeValue<Merged>> refine(node: T): T {
-        val node = node as TreeValue<Merged>
+    fun refine(node: TreeValue<*>): RefinedTree {
         return when (node) {
-            is ListValue -> node.copy(children = node.children.filterByContexts().map(::refine)) as T
-            is MapLikeValue -> node.copy(children = node.children.refineProperties()) as T
-            is ScalarOrReference -> node as T
-            is NoValue<*> -> node as T
+            is ListValue -> ListValue(
+                children = node.children.filterByContexts().map(::refine),
+                trace = node.trace,
+                contexts = node.contexts,
+            )
+            is MapLikeValue -> Refined(
+                node.children.refineProperties(),
+                type = node.type,
+                trace = node.trace,
+                contexts = node.contexts,
+            )
+            is ScalarOrReference -> node as RefinedTree
+            is NoValue<*> -> node as RefinedTree
         }
     }
 
     /**
      * Merge named properties, comparing them by their contexts and by their name.
      */
-    private fun List<MapLikeValue.Property<TreeValue<Merged>>>.refineProperties(): List<MapLikeValue.Property<TreeValue<Merged>>> =
+    private fun List<MapLikeValue.Property<TreeValue<*>>>.refineProperties(): Map<String, MapLikeValue.Property<TreeValue<Refined>>> =
         filterByContexts().run {
             // Do actual overriding for key-value pairs.
-            val keyValuesMerged = filterPropValueIs<ScalarOrReference<Merged>>().refineOrReduceByKeys {
-                it.sortedWith(::compareAndReport).reduceProperties { first, second ->
-                    val newTrace = second.trace.withPrecedingValue(first)
-                    when (second) {
-                        is ScalarValue -> second.copy(second.value, newTrace)
-                        is ReferenceValue -> second.copy(second.value, newTrace)
+            val keyValuesMerged = filterPropValueIs<ScalarOrReference<*>>()
+                .refineOrReduceByKeys {
+                    it.sortedWith(::compareAndReport).reduceProperties { first, second ->
+                        val newTrace = second.trace.withPrecedingValue(first)
+                        val newValue = when (second) {
+                            is ScalarValue -> second.copy(second.value, newTrace)
+                            is ReferenceValue -> second.copy(second.value, newTrace)
+                        }
+                        newValue as ScalarOrReference<Refined>
                     }
                 }
-            }
 
             // Concatenate list nodes.
-            val listsMerged = filterPropValueIs<ListValue<Merged>>().refineOrReduceByKeys {
-                it.sortedWith(::compareAndReport).reduceProperties { first, second ->
-                    second.copy(
-                        children = first.children.plus(second.children).filterByContexts().map(::refine),
-                        trace = second.trace.withPrecedingValue(first),
-                    )
+            val listsMerged = filterPropValueIs<ListValue<*>>()
+                .refineOrReduceByKeys {
+                    it.sortedWith(::compareAndReport).reduceProperties { first, second ->
+                        ListValue(
+                            children = first.children.plus(second.children).filterByContexts().map(::refine),
+                            trace = second.trace.withPrecedingValue(first),
+                            contexts = second.contexts,
+                        )
+                    }
                 }
-            }
 
             // Call recursive merge for mapping nodes.
             // Note: We dont need to sort here because the order is relevant only for leaves or for lists.
-            val mapsMerged = filterPropValueIs<MapLikeValue<Merged>>().refineOrReduceByKeys {
-                it.reduceProperties { first, second ->
-                    second.copy(
-                        children = (first.children + second.children).refineProperties(),
-                        trace = second.trace.withPrecedingValue(first),
-                    )
+            val mapsMerged = filterPropValueIs<MapLikeValue<*>>()
+                .refineOrReduceByKeys {
+                    it.reduceProperties { first, second ->
+                        Refined(
+                            refinedChildren = (first.children + second.children).refineProperties(),
+                            type = second.type,
+                            trace = second.trace.withPrecedingValue(first),
+                            contexts = second.contexts,
+                        )
+                    }
                 }
-            }
 
             // For no value properties, just pick the first one.
-            val noValues = filter { it.value is NoValue<*> }.refineOrReduceByKeys { it.first() }
+            val noValues = filter { it.value is NoValue<*> }
+                .refineOrReduceByKeys { it.first() as MapLikeValue.Property<RefinedTree> }
 
             // Group the result.
             val refinedProperties = keyValuesMerged + mapsMerged + listsMerged
@@ -112,7 +131,7 @@ class RefineRequest(
             // Restore order. Also, ignore NoValues if anything is overwriting them.
             val unordered = refinedProperties.associateBy { it.key }
             val unorderedNoValue = noValues.associateBy { it.key }
-            return map { it.key }.distinct().map { unordered[it] ?: unorderedNoValue[it]!! }
+            return map { it.key }.distinct().associateWith { unordered[it] ?: unorderedNoValue[it]!! }
         }
 
     /**
@@ -126,19 +145,24 @@ class RefineRequest(
             0
         }
 
-    private fun <T : TreeValue<Merged>> List<MapLikeValue.Property<T>>.reduceProperties(block: (T, T) -> T) =
-        reduce { first, second -> second.copy(second.key, second.kTrace, block(first.value, second.value)) }
+    // Do not call on collections without at least two elements.
+    private fun <T : TreeValue<*>, R : T> List<MapLikeValue.Property<T>>.reduceProperties(block: (T, T) -> R): MapLikeValue.Property<R> {
+        val initial = this[1].copy(newValue = block(this[0].value, this[1].value))
+        return drop(2).fold(initial) { first, second ->
+            second.copy(newValue = block(first.value, second.value))
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : TreeValue<Merged>> List<MapLikeValue.Property<*>>.filterPropValueIs() =
+    private inline fun <reified T : TreeValue<*>> List<MapLikeValue.Property<*>>.filterPropValueIs() =
         filter { it.value is T } as List<MapLikeValue.Property<T>>
 
     /**
      * Refines the element if it is single or applies [reduce] to a collection of properties grouped by keys.
      */
-    private fun <T : MapLikeValue.Property<TreeValue<Merged>>> List<T>.refineOrReduceByKeys(reduce: (List<T>) -> T) =
+    private fun <T : MapLikeValue.Property<TreeValue<*>>> List<T>.refineOrReduceByKeys(reduce: (List<T>) -> MapLikeValue.Property<RefinedTree>) =
         groupBy { it.key }.values.map { props ->
-            props.singleOrNull()?.let { it.copy(value = refine(it.value)) }
+            props.singleOrNull()?.let { MapLikeValue.Property(it.key, it.kTrace, refine(it.value), it.pType) }
                 ?: props.filterByContexts().let(reduce)
         }
 

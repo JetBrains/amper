@@ -31,7 +31,6 @@ import org.jetbrains.amper.frontend.tree.isEmptyOrNoValue
 import org.jetbrains.amper.frontend.tree.onlyMapLike
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
-import org.jetbrains.amper.frontend.tree.trivialMerge
 import org.jetbrains.amper.frontend.tree.values
 import org.jetbrains.amper.frontend.types.getDeclaration
 
@@ -67,7 +66,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
 
         // We need to resolve defaults for the tree.
         val moduleTree = rawModuleTree
-            ?.trivialMerge()
+            ?.let { treeMerger.mergeTrees(it) }
             ?.appendDefaultValues()
             ?.resolveReferences() as? MapLikeValue<Merged>
 

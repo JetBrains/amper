@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.getDeclaration
 
 
@@ -33,7 +34,7 @@ internal class ComposeOsSpecificSubstitutor(
 
     override fun visitMapValue(value: MapLikeValue<Merged>) =
         if (value.type != dependencyType) super.visitMapValue(value)
-        else value.copy<ScalarValue<Merged>> { key, pValue, old ->
+        else value.copy<Merged, ScalarValue<Merged>> { key, pValue, old ->
             pValue.value.asSafely<String>()
                 .takeIf { key == coordinatesPName }
                 ?.let { old.copy(value = pValue.copy(value = it.doReplace())) }

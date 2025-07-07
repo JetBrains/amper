@@ -75,7 +75,7 @@ internal fun TreeReadRequest.readTree(): MapLikeValue<Owned>? =
         when (psiFile.language) {
 //        is AmperLanguage -> AmperLangTreeReader(this).read()
             is YAMLLanguage -> YamlTreeReader(this).read()
-                ?: MapLikeValue(emptyList(), psiFile.trace, initialContexts, initialType)
+                ?: Owned(emptyList(), initialType, psiFile.trace, initialContexts)
 
             else -> error("Unsupported language: ${psiFile.language}")
         }
@@ -97,7 +97,7 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
     fun scalarValue(value: Any, trace: Trace) = ScalarValue<Owned>(value, trace, currentContexts)
     fun listValue(children: List<TreeValue<Owned>>, trace: Trace) = ListValue(children, trace, currentContexts)
     fun mapValue(children: List<MapLikeValue.Property<TreeValue<Owned>>>, trace: Trace) =
-        MapLikeValue(children, trace, currentContexts, (currentType as? SchemaType.ObjectType)?.declaration)
+        Owned(children, (currentType as? SchemaType.ObjectType)?.declaration, trace, currentContexts)
 
     /**
      * Shortcut to catch the key in the trace also.

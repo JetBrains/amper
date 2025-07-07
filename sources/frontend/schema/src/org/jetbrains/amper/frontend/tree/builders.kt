@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree
 
-
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.Contexts
@@ -13,7 +12,6 @@ import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.getDeclaration
 import kotlin.reflect.KProperty1
-
 
 fun <R : OwnedTree> syntheticBuilder(
     types: SchemaTypingContext,
@@ -43,7 +41,7 @@ class SyntheticBuilder(
     }
 
     fun mapLike(type: SchemaObjectDeclaration, block: MapLikeValueBuilder.() -> Unit) =
-        MapLikeValue(MapLikeValueBuilder(type, trace).apply(block).properties, trace, contexts, type)
+        Owned(MapLikeValueBuilder(type, trace).apply(block).properties, type, trace, contexts)
 
     inline fun <reified T : SchemaNode> mapLike(noinline block: MapLikeValueBuilder.() -> Unit) =
         mapLike(types.getDeclaration<T>(), block)
