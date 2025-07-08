@@ -23,7 +23,7 @@ private object DefaultsAppender : TreeTransformer<TreeState>() {
         val aObject = value.type ?: return super.visitMapValue(value)
 
         // Note: We are using special [DefaultCtxs] that has the least possible priority during merge.
-        val toAddDefaults: MapLikeChildren<out TreeState> =
+        val toAddDefaults: MapLikeChildren<TreeState> =
             aObject.properties.mapNotNull out@{
                 when (val default = it.default) {
                     // Default as a reference creates a reference value to a referenced property.

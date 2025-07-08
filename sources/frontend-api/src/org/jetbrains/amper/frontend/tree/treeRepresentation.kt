@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.contexts.WithContexts
 import org.jetbrains.amper.frontend.tree.MapLikeValue.Property
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
-import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.aliased
 import kotlin.reflect.KProperty1
 
@@ -20,7 +19,7 @@ import kotlin.reflect.KProperty1
  * This a value tree node base class.
  * Basically, every tree node must contain contexts and a trace.
  */
-sealed interface TreeValue<TS : TreeState> : WithContexts {
+sealed interface TreeValue<out TS : TreeState> : WithContexts {
     val trace: Trace
     override val contexts: Contexts
 
@@ -32,7 +31,7 @@ sealed interface TreeValue<TS : TreeState> : WithContexts {
 
 val TreeValue<*>.isDefault get() = trace is DefaultTrace
 
-sealed interface ScalarOrReference<TS : TreeState> : TreeValue<TS> {
+sealed interface ScalarOrReference<out TS : TreeState> : TreeValue<TS> {
     val value: Any
 }
 
@@ -62,7 +61,7 @@ fun <TS : TreeState> List<TreeValue<TS>>.isEmptyOrNoValue() = isEmpty() || all {
 /**
  * This is a scalar value tree node. E.g., string, boolean, enum or path.
  */
-data class ScalarValue<TS : TreeState>(
+data class ScalarValue<out TS : TreeState>(
     override val value: Any,
     override val trace: Trace,
     override val contexts: Contexts,
@@ -77,7 +76,7 @@ inline fun <reified T : Any> TreeValue<*>.scalarValueOr(block: () -> T) = scalar
 /**
  * This is a reference value tree node, pointing to some subtree.
  */
-data class ReferenceValue<TS : TreeState>(
+data class ReferenceValue<out TS : TreeState>(
     override val value: String,
     override val trace: Trace,
     override val contexts: Contexts,
