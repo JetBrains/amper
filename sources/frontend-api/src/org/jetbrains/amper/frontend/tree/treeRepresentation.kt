@@ -97,7 +97,6 @@ data class ListValue<TS : TreeState>(
 ) : TreeValue<TS> {
     override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
 
-    @Suppress("UNCHECKED_CAST")
     inline fun <reified T : TreeValue<TS>> copy(
         trace: Trace = this.trace,
         contexts: Contexts = this.contexts,
@@ -149,7 +148,6 @@ interface MapLikeValue<TS : TreeState> : TreeValue<TS> {
     }
 }
 
-@Suppress("UNCHECKED_CAST")
 inline fun <TS : TreeState, reified T : TreeValue<TS>> MapLikeValue<TS>.copy(
     trace: Trace = this.trace,
     contexts: Contexts = this.contexts,

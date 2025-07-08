@@ -91,7 +91,6 @@ class ObjectPropertiesVisitorRecurring(
         else super.visitMapValue(value)
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun MapLikeValue.Property<MergedTree>.doVisitMapProperty() =
         if (key in properties) visitSelected(this)
         else visitValue(value)

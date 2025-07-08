@@ -36,10 +36,8 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
  */
 class TreeMerger() {
 
-    @Suppress("UNCHECKED_CAST")
     fun mergeTrees(trees: List<MapLikeValue<*>>) = doMergeTrees(trees)
 
-    @Suppress("UNCHECKED_CAST")
     fun mergeTrees(tree: MapLikeValue<*>) = tree.mergeSingle()
 
     // TODO Optimize; Do not copy when it is unnecessary.

@@ -36,7 +36,6 @@ import org.jetbrains.annotations.TestOnly
 class TreeRefiner(
     private val contextComparator: ContextsInheritance<Context> = defaultContextsInheritance,
 ) {
-    @Suppress("UNCHECKED_CAST")
     fun refineTree(
         tree: TreeValue<Merged>, 
         selectedContexts: Contexts

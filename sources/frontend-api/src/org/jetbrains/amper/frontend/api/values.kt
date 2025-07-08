@@ -139,7 +139,6 @@ sealed class Default<out T> {
         override val value by lazy { getter() }
     }
 
-    @Suppress("UNCHECKED_CAST")
     data class Dependent<T, V>(
         val desc: String,
         val property: KProperty0<T>,
