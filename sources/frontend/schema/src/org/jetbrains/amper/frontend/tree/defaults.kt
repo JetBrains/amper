@@ -8,11 +8,11 @@ import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.DefaultCtxs
-import org.jetbrains.amper.frontend.tree.DefaultsRootsDiscoverer.visitAll
 import org.jetbrains.amper.frontend.types.SchemaType
+
 context(BuildCtx)
 internal fun TreeValue<Merged>.appendDefaultValues() =
-    DefaultsAppender.visitValue(this as TreeValue<TreeState>)!!
+    DefaultsAppender.visitValue(this)!!
         .let { treeMerger.mergeTrees(listOf(it as MapLikeValue<*>)) }
 
 /**
@@ -60,7 +60,7 @@ private object DefaultsAppender : TreeTransformer<TreeState>() {
 
         return if (toAddDefaults.isEmpty()) super.visitMapValue(value)
         else {
-            val extendedToAddDefaults = (toAddDefaults as MapLikeChildren<TreeState>).visitAll()
+            val extendedToAddDefaults = toAddDefaults.visitAll()
             val childrenWithDefaults = with(DefaultsRootsDiscoverer) { value.children.visitAll() }
             // We can't guarantee any tree contract here, so we have to create an Owned value.
             Owned(
@@ -68,7 +68,7 @@ private object DefaultsAppender : TreeTransformer<TreeState>() {
                 type = value.type,
                 trace = value.trace,
                 contexts = value.contexts,
-            ) as TreeValue<TreeState>
+            )
         }
     }
 }

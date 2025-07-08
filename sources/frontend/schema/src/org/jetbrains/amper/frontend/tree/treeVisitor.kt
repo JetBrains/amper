@@ -75,7 +75,7 @@ fun <TS : TreeState> TreeValue<TS>.visitMapLikeValues(block: (MapLikeValue<TS>) 
  * FIXME Optimize - do not copy if the children had not changed.
  */
 abstract class TreeTransformer<TS : TreeState> : TreeVisitor<TreeValue<TS>?, TS> {
-    override fun visitNoValue(value: NoValue): TreeValue<TS>? = value as TreeValue<TS>
+    override fun visitNoValue(value: NoValue): TreeValue<TS>? = value
     override fun visitScalarValue(value: ScalarValue<TS>): TreeValue<TS>? = value
     override fun visitReferenceValue(value: ReferenceValue<TS>): TreeValue<TS>? = value
     override fun visitListValue(value: ListValue<TS>): TreeValue<TS>? = value.copy(children = value.children.visitAll())
