@@ -6,7 +6,6 @@ package org.jetbrains.amper.dependency.resolution
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
-import io.opentelemetry.api.internal.ApiUsageLogger
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.SpanContext
@@ -240,24 +239,19 @@ class NoopSpanBuilder : SpanBuilder {
     private var spanContext: SpanContext? = null
 
     override fun startSpan(): Span? {
-        if (this.spanContext == null) {
-            this.spanContext = Span.current().getSpanContext()
+        if (spanContext == null) {
+            spanContext = Span.current().spanContext
         }
-        return Span.wrap(this.spanContext!!)
+        return Span.wrap(spanContext!!)
     }
 
     override fun setParent(context: io.opentelemetry.context.Context): NoopSpanBuilder {
-        if (context == null) {
-            ApiUsageLogger.log("context is null")
-            return this
-        } else {
-            this.spanContext = Span.fromContext(context).getSpanContext()
-            return this
-        }
+        spanContext = Span.fromContext(context).spanContext
+        return this
     }
 
     override fun setNoParent(): NoopSpanBuilder {
-        this.spanContext = SpanContext.getInvalid()
+        spanContext = SpanContext.getInvalid()
         return this
     }
 
