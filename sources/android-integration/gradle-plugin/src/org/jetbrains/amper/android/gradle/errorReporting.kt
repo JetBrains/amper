@@ -17,11 +17,6 @@ internal class SLF4JProblemReporterContext : ProblemReporterContext {
 }
 
 internal class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::class.java) : CollectingProblemReporter() {
-    companion object {
-        private const val ERROR_PREFIX = "  - "
-        private const val ERROR_INDENT = "    "
-    }
-
     private val logger = LoggerFactory.getLogger(loggerClass)
 
     override fun doReportMessage(message: BuildProblem) {
