@@ -45,7 +45,7 @@ private fun Fragment.allFragmentDependencies(
     traverseTypes: Set<FragmentDependencyType>? = null,
 ): Sequence<FragmentLink> = sequence {
     val traversed = hashSetOf<FragmentLink>()
-    val stack = ArrayList<FragmentLink>(fragmentDependencies)
+    val stack = ArrayList(fragmentDependencies)
     while (stack.isNotEmpty()) {
         val link = stack.removeLast()
         if (traverseTypes != null && link.type !in traverseTypes) continue

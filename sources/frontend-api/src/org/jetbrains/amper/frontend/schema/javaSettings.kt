@@ -119,7 +119,7 @@ class JvmSettings : SchemaNode() {
             "Second, it limits the Java platform APIs available to Kotlin and Java sources. " +
             "Third, it limits the Java language constructs in Java sources. " +
             "If this is set to null, these constraints are not applied and the compiler defaults are used.")
-    var release by nullableValue<JavaVersion>(JavaVersion.VERSION_17) // TODO discuss the default
+    var release by nullableValue(JavaVersion.VERSION_17) // TODO discuss the default
 
     @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application")
     @ProductTypeSpecific(ProductType.JVM_APP)

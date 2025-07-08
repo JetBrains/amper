@@ -324,7 +324,7 @@ private class ConflictResolver(
                 }
             }
             .awaitAll()
-            .flatten<DependencyNode>()
+            .flatten()
             .also {
                 unregisterOrphanNodes(it)
                 conflictedKeys.clear()

@@ -167,7 +167,7 @@ private fun AndroidProject.taskList(
         for (variant in variants.filter { it.name == buildType.value }) {
             val taskName = when (buildRequest.phase) {
                 AndroidBuildRequest.Phase.Prepare -> {
-                    val processResourcesProviderData = connection.model<ProcessResourcesProviderData>(ProcessResourcesProviderData::class.java).get()
+                    val processResourcesProviderData = connection.model(ProcessResourcesProviderData::class.java).get()
                     processResourcesProviderData.data[projectPath]?.get(variant.name)
                         ?: error("Incorrect ProcessResourcesProviderData for variant: ${variant.displayName}, data: $processResourcesProviderData")
                 }

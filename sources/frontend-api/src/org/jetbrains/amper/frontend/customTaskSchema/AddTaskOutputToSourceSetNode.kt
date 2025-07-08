@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.customTaskSchema
@@ -9,7 +9,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 
 @SchemaDoc("Add folder from ")
 class AddTaskOutputToSourceSetNode: SchemaNode() {
-    var sourceSet by value<CustomTaskSourceSetType>(CustomTaskSourceSetType.SOURCES)
+    var sourceSet by value(CustomTaskSourceSetType.SOURCES)
 
     @SchemaDoc("Use this folder from task output to add to sources of current module")
     var taskOutputSubFolder by value<String>()
