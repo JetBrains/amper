@@ -128,19 +128,19 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             val path = (module.buildDir / signing.propertiesFile.pathString).normalize().absolute()
             if (path.exists()) {
                 val keystoreProperties = path.readProperties()
-                androidExtension.signingConfigs {
-                    it.create(SIGNING_CONFIG_NAME) {
+                androidExtension.signingConfigs { configs ->
+                    configs.create(SIGNING_CONFIG_NAME) { config ->
                         keystoreProperties.storeFile?.let { storeFile ->
-                            it.storeFile = (module.buildDir / Path(storeFile)).toFile()
+                            config.storeFile = (module.buildDir / Path(storeFile)).toFile()
                         }
                         keystoreProperties.storePassword?.let { storePassword ->
-                            it.storePassword = storePassword
+                            config.storePassword = storePassword
                         }
                         keystoreProperties.keyAlias?.let { keyAlias ->
-                            it.keyAlias = keyAlias
+                            config.keyAlias = keyAlias
                         }
                         keystoreProperties.keyPassword?.let { keyPassword ->
-                            it.keyPassword = keyPassword
+                            config.keyPassword = keyPassword
                         }
                     }
                 }
@@ -176,17 +176,17 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             pickFirsts.addAll(resourcePackaging.pickFirsts.map { it.value })
         }
 
-        androidExtension.buildTypes {
-            it.getByName("release") {
-                it.proguardFiles(
+        androidExtension.buildTypes { types ->
+            types.getByName("release") { release ->
+                release.proguardFiles(
                     androidExtension.getDefaultProguardFile("proguard-android-optimize.txt"),
                     (module.buildDir / "proguard-rules.pro").toFile()
                 )
-                it.isDebuggable = false
-                it.isMinifyEnabled = true
-                it.isShrinkResources = true
+                release.isDebuggable = false
+                release.isMinifyEnabled = true
+                release.isShrinkResources = true
                 androidExtension.signingConfigs.findByName(SIGNING_CONFIG_NAME)?.let { signing ->
-                    it.signingConfig = signing
+                    release.signingConfig = signing
                 }
             }
         }
@@ -230,7 +230,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
                         .asSequence()
                         .filterIsInstance<LocalModuleDependency>()
                         .map { it.module }
-                        .filter { it.artifacts.any { Platform.ANDROID in it.platforms } }
+                        .filter { it.artifacts.any { artifact -> Platform.ANDROID in artifact.platforms } }
                         .mapNotNull { project.gradle.moduleFilePathToProject[it.buildDir] }
                         .filter { it in requestedModules }
                         .toList()
@@ -270,7 +270,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
 
         settings.gradle.beforeProject { project ->
             adjustXmlFactories()
-            settings.gradle.projectPathToModule[project.path]?.let { module ->
+            settings.gradle.projectPathToModule[project.path]?.let {
                 project.plugins.apply(AmperAndroidIntegrationProjectPlugin::class.java)
             }
         }
@@ -296,7 +296,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
             .filter {
                 val productTypeIsAndroidApp = it.type == ProductType.ANDROID_APP
                 val productTypeIsLib = it.type == ProductType.LIB
-                val platformsContainAndroid = it.artifacts.any { it.platforms.contains(Platform.ANDROID) }
+                val platformsContainAndroid = it.artifacts.any { artifact -> artifact.platforms.contains(Platform.ANDROID) }
                 productTypeIsAndroidApp || productTypeIsLib && platformsContainAndroid
             }
             .sortedBy { it.buildFile }
