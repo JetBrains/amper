@@ -87,8 +87,8 @@ class RefineRequest(
                     it.sortedWith(::compareAndReport).reduceProperties { first, second ->
                         val newTrace = second.trace.withPrecedingValue(first)
                         val newValue = when (second) {
-                            is ScalarValue -> second.copy(second.value, newTrace)
-                            is ReferenceValue -> second.copy(second.value, newTrace)
+                            is ScalarValue -> second.copy(value = second.value, trace = newTrace)
+                            is ReferenceValue -> second.copy(value = second.value, trace = newTrace)
                         }
                         newValue as ScalarOrReference<Refined>
                     }

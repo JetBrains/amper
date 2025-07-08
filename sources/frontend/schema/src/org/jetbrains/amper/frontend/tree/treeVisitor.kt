@@ -78,8 +78,8 @@ abstract class TreeTransformer<TS : TreeState> : TreeVisitor<TreeValue<TS>?, TS>
     override fun visitNoValue(value: NoValue): TreeValue<TS>? = value as TreeValue<TS>
     override fun visitScalarValue(value: ScalarValue<TS>): TreeValue<TS>? = value
     override fun visitReferenceValue(value: ReferenceValue<TS>): TreeValue<TS>? = value
-    override fun visitListValue(value: ListValue<TS>): TreeValue<TS>? = value.copy(value.children.visitAll())
-    override fun visitMapValue(value: MapLikeValue<TS>): TreeValue<TS>? = value.copy(value.children.visitAll())
+    override fun visitListValue(value: ListValue<TS>): TreeValue<TS>? = value.copy(children = value.children.visitAll())
+    override fun visitMapValue(value: MapLikeValue<TS>): TreeValue<TS>? = value.copy(children = value.children.visitAll())
 
     @JvmName("acceptAllList")
     protected fun List<TreeValue<TS>>.visitAll(): List<TreeValue<TS>> =
