@@ -56,7 +56,7 @@ fun TreeValue<*>.jsonDump(
                 else append("\"$value${contextStr()}\"")
             }
 
-            is NoValue<*> -> append("")
+            is NoValue -> append("")
         }
     }
 

@@ -107,7 +107,7 @@ private typealias ScalarPropertiesWithOwner = List<ScalarPropertyWithOwner>
 
 private object AllScalarPropertiesCollector : RecurringTreeVisitor<ScalarPropertiesWithOwner, Merged>() {
     override fun visitScalarValue(value: ScalarValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
-    override fun visitNoValue(value: NoValue<*>) = emptyList<ScalarPropertyWithOwner>()
+    override fun visitNoValue(value: NoValue) = emptyList<ScalarPropertyWithOwner>()
     override fun visitReferenceValue(value: ReferenceValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
     override fun aggregate(value: MergedTree, childResults: List<ScalarPropertiesWithOwner>) = childResults.flatten()
     override fun visitMapValue(value: MapLikeValue<Merged>) = super.visitMapValue(value) +

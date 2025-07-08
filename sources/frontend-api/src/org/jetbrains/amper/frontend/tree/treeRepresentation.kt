@@ -38,25 +38,14 @@ sealed interface ScalarOrReference<out TS : TreeState> : TreeValue<TS> {
 /**
  * Represent no set value. E.g. `foo: ` in YAML.
  */
-abstract class NoValue<TS : TreeState> private constructor() : TreeValue<TreeState> {
-    companion object : NoValue<TreeState>()
-
+object NoValue : TreeValue<Nothing> {
     override val trace = DefaultTrace // FIXME Add NoTrace object?
     override val contexts = EmptyContexts
     override fun withContexts(contexts: Contexts) = NoValue
 }
 
-@Suppress("UNCHECKED_CAST")
-val NoValue<*>.merged get() = this as TreeValue<Merged>
-
-@Suppress("UNCHECKED_CAST")
-val NoValue<*>.owned get() = this as TreeValue<Owned>
-
-@Suppress("UNCHECKED_CAST")
-val NoValue<*>.refined get() = this as TreeValue<Refined>
-
 /** Convenient shortcut to check results of [MapLikeValue.get]*/
-fun <TS : TreeState> List<TreeValue<TS>>.isEmptyOrNoValue() = isEmpty() || all { it is NoValue<*> }
+fun <TS : TreeState> List<TreeValue<TS>>.isEmptyOrNoValue() = isEmpty() || all { it is NoValue }
 
 /**
  * This is a scalar value tree node. E.g., string, boolean, enum or path.

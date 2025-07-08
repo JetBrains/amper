@@ -72,7 +72,7 @@ class RefineRequest(
                 contexts = node.contexts,
             )
             is ScalarOrReference -> node as RefinedTree
-            is NoValue<*> -> node as RefinedTree
+            is NoValue -> node
         }
     }
 
@@ -121,7 +121,7 @@ class RefineRequest(
                 }
 
             // For no value properties, just pick the first one.
-            val noValues = filter { it.value is NoValue<*> }
+            val noValues = filter { it.value is NoValue }
                 .refineOrReduceByKeys { it.first() as MapLikeValue.Property<RefinedTree> }
 
             // Group the result.

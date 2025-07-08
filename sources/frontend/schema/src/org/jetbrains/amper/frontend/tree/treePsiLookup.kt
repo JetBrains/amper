@@ -27,7 +27,7 @@ class TreePsiLookupVisitor<TS : TreeState>(
     override fun visitScalarValue(value: ScalarValue<TS>) = value.checkSelf()
     override fun visitReferenceValue(value: ReferenceValue<TS>) = value.checkSelf()
 
-    override fun visitNoValue(value: NoValue<*>) = null
+    override fun visitNoValue(value: NoValue) = null
 
     private fun TreeValue<TS>.checkSelf() = if (trace.extractPsiElementOrNull()?.contains(lookup) == true) this else null
     private operator fun PsiElement.contains(element: PsiElement) = textRange.contains(element.textRange)

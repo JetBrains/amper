@@ -33,7 +33,6 @@ import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.tree.owned
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.aliased
@@ -266,7 +265,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
                 MapLikeValue.Property(
                     adjustedKey,
                     (it.key ?: it).asTrace(),
-                    it.value?.acceptAndGet() ?: NoValue.owned,
+                    it.value?.acceptAndGet() ?: NoValue,
                     pType,
                 )
             }
