@@ -23,6 +23,7 @@ import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException
+import kotlin.io.path.createDirectories
 import kotlin.io.path.relativeTo
 import com.intellij.openapi.project.Project as IJProject
 
@@ -32,6 +33,7 @@ private val amperProjectFileNames = setOf("project.yaml", "project.amper")
 class StandaloneAmperProjectContext(
     override val frontendPathResolver: FrontendPathResolver,
     override val projectRootDir: VirtualFile,
+    projectBuildDir: Path?,
     override val amperModuleFiles: List<VirtualFile>,
 ) : AmperProjectContext {
 
@@ -40,6 +42,10 @@ class StandaloneAmperProjectContext(
             .map { it.parent }
             .flatMap { it.children.toList() }
             .filter { it.isAmperCustomTaskFile() }
+    }
+
+    override val projectBuildDir: Path by lazy {
+        (projectBuildDir ?: projectRootDir.toNioPath().resolve("build")).createDirectories()
     }
 
     override fun getCatalogPathFor(file: VirtualFile): VirtualFile? =
@@ -65,22 +71,27 @@ class StandaloneAmperProjectContext(
         @UsedInIdePlugin
         fun find(start: VirtualFile, project: IJProject? = null): StandaloneAmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
-            return find(start, frontendPathResolver)
+            return find(start, null, frontendPathResolver)
         }
 
         /**
          * Does the same as [find] above, but accepts [Path] that it resolves to [VirtualFile] beforehand.
          */
         context(ProblemReporterContext)
-        fun find(start: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
+        fun find(
+            start: Path,
+            buildDir: Path?,
+            project: IJProject? = null,
+        ): StandaloneAmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
             val startVirtualFile = frontendPathResolver.loadVirtualFile(start)
-            return find(startVirtualFile, frontendPathResolver)
+            return find(startVirtualFile, buildDir, frontendPathResolver)
         }
 
         context(ProblemReporterContext)
         private fun find(
             virtualFile: VirtualFile,
+            buildDir: Path?,
             frontendPathResolver: FrontendPathResolver
         ): StandaloneAmperProjectContext? {
             val result = preSearchProjectRoot(start = virtualFile) ?: return null
@@ -88,7 +99,7 @@ class StandaloneAmperProjectContext(
             val potentialContext = spanBuilder("Create candidate project context")
                 .setAttribute("potential-root", result.potentialRoot.presentableUrl)
                 .useWithoutCoroutines {
-                    create(result.potentialRoot, frontendPathResolver)
+                    create(result.potentialRoot, buildDir, frontendPathResolver)
                         ?: error("potentialRoot should point to a valid project root")
                 }
 
@@ -99,6 +110,7 @@ class StandaloneAmperProjectContext(
                 return StandaloneAmperProjectContext(
                     frontendPathResolver = frontendPathResolver,
                     projectRootDir = result.startModuleFile.parent,
+                    projectBuildDir = buildDir,
                     amperModuleFiles = listOf(result.startModuleFile),
                 )
             }
@@ -114,9 +126,17 @@ class StandaloneAmperProjectContext(
          * created.
          */
         context(ProblemReporterContext)
-        fun create(rootDir: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
+        fun create(
+            rootDir: Path,
+            buildDir: Path?,
+            project: IJProject? = null,
+        ): StandaloneAmperProjectContext? {
             val pathResolver = FrontendPathResolver(project = project)
-            return create(pathResolver.loadVirtualFile(rootDir), pathResolver)
+            return create(
+                rootDir = pathResolver.loadVirtualFile(rootDir),
+                buildDir = buildDir,
+                frontendPathResolver = pathResolver,
+            )
         }
 
         /**
@@ -129,6 +149,7 @@ class StandaloneAmperProjectContext(
         context(ProblemReporterContext)
         internal fun create(
             rootDir: VirtualFile,
+            buildDir: Path?,
             frontendPathResolver: FrontendPathResolver
         ): StandaloneAmperProjectContext? {
             val rootModuleFile = rootDir.findChildMatchingAnyOf(amperModuleFileNames)
@@ -151,6 +172,7 @@ class StandaloneAmperProjectContext(
             return StandaloneAmperProjectContext(
                 frontendPathResolver = frontendPathResolver,
                 projectRootDir = rootDir,
+                projectBuildDir = buildDir,
                 amperModuleFiles = amperModuleFiles,
             )
         }

@@ -118,7 +118,7 @@ class AmperProjectStructureTest {
     }
 
     private fun readAmperProjectModel(): Model = with(SimpleProblemReporterContext(CollectingProblemReporter())) {
-        val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, project = null)
+        val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, buildDir = null, project = null)
             ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
         SchemaBasedModelImport.getModel(projectContext).get()
     }

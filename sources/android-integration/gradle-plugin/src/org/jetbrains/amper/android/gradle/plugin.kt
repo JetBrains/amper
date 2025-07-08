@@ -284,7 +284,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         //   Some pieces of data might even have already been resolved/changed in the Amper CLI, such as dependencies.
         //   and in that case we wouldn't want Gradle to re-read the Amper model files and get it wrong.
         //   Also, it would avoid parsing all modules files in the entire project for each delegated Gradle build.
-        val projectContext = StandaloneAmperProjectContext.create(projectRoot, project = null)
+        val projectContext = StandaloneAmperProjectContext.create(projectRoot, buildDir = null, project = null)
             ?: error("Invalid project root passed to the delegated Android Gradle build: $projectRoot")
         val model = SchemaBasedModelImport.getModel(projectContext).get()
 

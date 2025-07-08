@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.project
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
+import java.nio.file.Path
 
 /**
  * Contains information about the project as a whole.
@@ -16,6 +17,11 @@ interface AmperProjectContext : VersionsCatalogProvider {
      * This directory contains either a project file, or a module file, or both.
      */
     val projectRootDir: VirtualFile
+
+    /**
+     * This is the build directory of the project.
+     */
+    val projectBuildDir: Path
 
     /**
      * The paths to all Amper module files that belong to this project.

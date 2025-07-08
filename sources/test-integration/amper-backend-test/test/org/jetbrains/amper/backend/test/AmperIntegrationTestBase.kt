@@ -72,7 +72,7 @@ abstract class AmperIntegrationTestBase {
         return CliContext.create(
             explicitProjectRoot = projectRoot,
             userCacheRoot = userCacheRoot,
-            explicitBuildOutputRoot = buildDir,
+            explicitBuildRoot = buildDir,
             runSettings = AllRunSettings(programArgs = programArgs),
             commandName = "integration-test-base",
             androidHomeRoot = androidHomeRoot,

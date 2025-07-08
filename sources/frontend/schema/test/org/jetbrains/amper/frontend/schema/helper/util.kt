@@ -34,6 +34,7 @@ open class TestProjectContext(
     override val frontendPathResolver: FrontendPathResolver,
 ) : AmperProjectContext {
     override val amperCustomTaskFiles: List<VirtualFile> = emptyList()
+    override val projectBuildDir: Path get() = projectRootDir.toNioPath()
     val path2catalog: MutableMap<VirtualFile, VirtualFile> = mutableMapOf()
     override fun getCatalogPathFor(file: VirtualFile): VirtualFile? = path2catalog[file]
 }

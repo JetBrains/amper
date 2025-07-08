@@ -75,6 +75,7 @@ fun diagnoseAmperProjectFile(projectFile: PsiFile, problemReporter: ProblemRepor
     with(SimpleProblemReporterContext(problemReporter)) {
         StandaloneAmperProjectContext.create(
             rootDir = projectFile.virtualFile.parent,
+            buildDir = null,
             frontendPathResolver = FrontendPathResolver(project = projectFile.project),
         )
     }

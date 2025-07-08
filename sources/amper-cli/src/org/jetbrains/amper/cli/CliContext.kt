@@ -54,7 +54,7 @@ class CliContext private constructor(
         suspend fun create(
             explicitProjectRoot: Path?,
             runSettings: AllRunSettings = AllRunSettings(),
-            explicitBuildOutputRoot: Path?,
+            explicitBuildRoot: Path? = null,
             userCacheRoot: AmperUserCacheRoot,
             commandName: String,
             terminal: Terminal,
@@ -66,7 +66,10 @@ class CliContext private constructor(
 
             val amperProjectContext = spanBuilder("Create Amper project context").use {
                 with(CliProblemReporterContext) {
-                    createProjectContext(explicitProjectRoot?.toAbsolutePath()).also {
+                    createProjectContext(
+                        explicitProjectRoot = explicitProjectRoot?.toAbsolutePath(),
+                        explicitBuildRoot = explicitBuildRoot,
+                    ).also {
                         if (problemReporter.wereProblemsReported()) {
                             userReadableError("aborting because there were errors in the Amper project file, please see above")
                         }
@@ -74,17 +77,23 @@ class CliContext private constructor(
                 }
             }
 
-            val rootPath = amperProjectContext.projectRootDir.toNioPath()
+            val buildOutputRootNotNull = amperProjectContext.projectBuildDir
 
-            val buildOutputDir = explicitBuildOutputRoot?.toAbsolutePath() ?: rootPath.resolve("build")
+            val tempDir = buildOutputRootNotNull.resolve("temp").also { it.createDirectories() }
 
-            val tempDir = buildOutputDir.resolve("temp")
+            val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
+            val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
+            val logsDir = buildOutputRootNotNull
+                .resolve("logs")
+                .resolve("amper_${currentTimestamp}_${pid}_$currentTopLevelCommand")
+                .also { it.createDirectories() }
 
             return CliContext(
                 commandName = commandName,
                 projectContext = amperProjectContext,
-                buildOutputRoot = AmperBuildOutputRoot(buildOutputDir.createDirectories()),
-                projectTempRoot = AmperProjectTempRoot(tempDir.createDirectories()),
+                buildOutputRoot = AmperBuildOutputRoot(buildOutputRootNotNull),
+                projectTempRoot = AmperProjectTempRoot(tempDir),
+                buildLogsRoot = AmperBuildLogsRoot(logsDir),
                 userCacheRoot = userCacheRoot,
                 runSettings = runSettings,
                 terminal = terminal,
@@ -105,20 +114,25 @@ class CliContext private constructor(
 }
 
 context(ProblemReporterContext)
-private fun createProjectContext(explicitProjectRoot: Path?): StandaloneAmperProjectContext =
+private fun createProjectContext(
+    explicitProjectRoot: Path?,
+    explicitBuildRoot: Path?,
+): StandaloneAmperProjectContext =
     if (explicitProjectRoot != null) {
-        StandaloneAmperProjectContext.create(explicitProjectRoot)
+        StandaloneAmperProjectContext.create(explicitProjectRoot, explicitBuildRoot)
             ?: userReadableError(
                 "The given path '$explicitProjectRoot' is not a valid Amper project root directory. " +
                         "Make sure you have a project file or a module file at the root of your Amper project."
             )
     } else {
-        StandaloneAmperProjectContext.find(start = Path(System.getProperty("user.dir")))
-            ?: userReadableError(
-                "No Amper project found in the current directory or above. " +
-                        "Make sure you have a project file or a module file at the root of your Amper project, " +
-                        "or specify --root explicitly to run tasks for a project located elsewhere."
-            )
+        StandaloneAmperProjectContext.find(
+            start = Path(System.getProperty("user.dir")),
+            buildDir = explicitBuildRoot,
+        ) ?: userReadableError(
+            "No Amper project found in the current directory or above. " +
+                    "Make sure you have a project file or a module file at the root of your Amper project, " +
+                    "or specify --root explicitly to run tasks for a project located elsewhere."
+        )
     }
 
 data class AmperBuildOutputRoot(val path: Path) {

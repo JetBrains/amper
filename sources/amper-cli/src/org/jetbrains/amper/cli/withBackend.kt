@@ -64,8 +64,8 @@ internal suspend fun <T> withBackend(
 
         val cliContext = spanBuilder("Create CLI context").use {
             CliContext.create(
-                explicitProjectRoot = commonOptions.explicitProjectRoot,
-                explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
+                explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
+                explicitBuildRoot = commonOptions.buildOutputRoot?.createDirectories()?.toAbsolutePath(),
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 commandName = commandName,
                 runSettings = runSettings,
