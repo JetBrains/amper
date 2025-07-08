@@ -24,6 +24,7 @@ class ResolvedAmperDependency(private val project: Project, private val flatDepe
 
     override fun getVersion(): String = flatDependency.version
 
+    @Deprecated("Deprecated in Java")
     override fun contentEquals(dependency: Dependency): Boolean = dependency.group == flatDependency.group && dependency.name == flatDependency.artifact && dependency.version == flatDependency.version
 
     override fun copy(): Dependency = ResolvedAmperDependency(project, flatDependency)
@@ -34,11 +35,14 @@ class ResolvedAmperDependency(private val project: Project, private val flatDepe
         this._reason = reason
     }
 
+    @Deprecated("Deprecated in Java")
     override fun getBuildDependencies(): TaskDependency = DefaultTaskDependencyFactory.withNoAssociatedProject().visitingDependencies {
     }
 
+    @Deprecated("Deprecated in Java")
     override fun resolve(): MutableSet<File> = mutableSetOf(flatDependency.path.toFile())
 
+    @Deprecated("Deprecated in Java")
     override fun resolve(transitive: Boolean): MutableSet<File> = mutableSetOf(flatDependency.path.toFile())
 
     override fun getTargetComponentId(): ComponentIdentifier = OpaqueComponentArtifactIdentifier(flatDependency.path.toFile())
