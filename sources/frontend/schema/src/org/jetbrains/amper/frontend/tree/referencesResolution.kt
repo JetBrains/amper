@@ -19,7 +19,7 @@ class TreeReferencesResolver(
 ) : TreeTransformer<Merged>(), ProblemReporterContext by reporterCtx, TreeValueReporterCtx {
     val currentPath = ArrayDeque<MergedTree>()
 
-    override fun visitValue(value: TreeValue<Merged>) = try {
+    override fun visitValue(value: TreeValue<Merged>): TreeValue<Merged>? = try {
         currentPath.addFirst(value)
         super.visitValue(value)
     } finally {

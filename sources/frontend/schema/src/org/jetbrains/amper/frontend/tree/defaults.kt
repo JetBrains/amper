@@ -11,7 +11,7 @@ import org.jetbrains.amper.frontend.contexts.DefaultCtxs
 import org.jetbrains.amper.frontend.types.SchemaType
 
 context(BuildCtx)
-internal fun TreeValue<Merged>.appendDefaultValues() =
+internal fun TreeValue<Merged>.appendDefaultValues(): MapLikeValue<Merged> =
     DefaultsAppender.visitValue(this)!!
         .let { treeMerger.mergeTrees(listOf(it as MapLikeValue<*>)) }
 
@@ -74,7 +74,7 @@ private object DefaultsAppender : TreeTransformer<TreeState>() {
 }
 
 private object DefaultsRootsDiscoverer : TreeTransformer<TreeState>() {
-    override fun visitListValue(value: ListValue<TreeState>) = DefaultsAppender.visitValue(value)
+    override fun visitListValue(value: ListValue<TreeState>): TreeValue<TreeState>? = DefaultsAppender.visitValue(value)
 }
 
 /**

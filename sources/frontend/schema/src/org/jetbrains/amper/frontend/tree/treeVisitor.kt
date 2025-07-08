@@ -17,7 +17,7 @@ private fun <R, TS : TreeState> TreeVisitor<R, TS>.accept(value: TreeValue<TS>):
  * A generic [TreeValue] visitor capable of returning a result of type [R].
  */
 interface TreeVisitor<R, TS : TreeState> {
-    fun visitValue(value: TreeValue<TS>) = accept(value)
+    fun visitValue(value: TreeValue<TS>): R = accept(value)
     fun visitScalarValue(value: ScalarValue<TS>): R
     fun visitNoValue(value: NoValue): R
     fun visitReferenceValue(value: ReferenceValue<TS>): R
