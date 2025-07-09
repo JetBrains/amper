@@ -60,7 +60,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         when (val type = currentType) {
             is SchemaType.MapType -> tryReadAsMap(type, mapping.keyValues, mapping) // TODO Report if failed to read.
             is SchemaType.ObjectType -> tryReadAsObject(type, mapping.keyValues, mapping) // TODO Report if failed to read.
-            is SchemaType.VariantType -> tryReadAsPolyFromKeyValues(type, mapping.keyValues) // TODO Report if failed to read.
+            is SchemaType.VariantType -> tryReadAsPolyFromMapping(type, mapping) // TODO Report if failed to read.
             else -> null // TODO Report.
         }
     }
@@ -103,11 +103,25 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         element.acceptChildren(this)
     }
 
-    private fun ReaderCtx.tryReadAsPolyFromKeyValues(type: SchemaType.VariantType, keyValues: Collection<YAMLKeyValue>) =
-        keyValues.singleOrNull()?.let {
+    private fun ReaderCtx.tryReadAsPolyFromMapping(
+        type: SchemaType.VariantType,
+        mapping: YAMLMapping,
+    ): MapLikeValue<Owned>? {
+        mapping.tag?.let { tag ->
+            val explicitVariant = tag.text.removePrefix("!")
+            type.declaration.variants.find {
+                it.qualifiedName == explicitVariant
+            }?.let { variant ->
+                return withNew(variant.toType()) {
+                    tryReadAsObject(variant.toType(), mapping.keyValues, mapping)
+                }
+            }
+        }
+        return mapping.keyValues.singleOrNull()?.let {
             val (keyText, contexts) = extractContexts(it)
             withNew(contexts = contexts) { tryReadAsPolyDependency(type, keyText, it) }
         }
+    }
 
     private fun ReaderCtx.tryReadAsPolyFromScalar(type: SchemaType.VariantType, scalar: YAMLScalar) =
         tryReadAsPolyDependency(type, scalar.textValue, scalar)
