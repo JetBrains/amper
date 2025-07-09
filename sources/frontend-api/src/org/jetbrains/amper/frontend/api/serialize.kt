@@ -15,12 +15,13 @@ annotation class UnstableSchemaApi
  * The format is human-readable but not strictly defined.
  */
 @UnstableSchemaApi
-fun SchemaNode.toStringRepresentation(): String = allValues
-    .sortedBy { it.property.name }
+fun SchemaNode.toStringRepresentation(): String = valueHolders
+    .entries
+    .sortedBy { (k, _) -> k }
     .joinToString(
         prefix = "{",
         postfix = "}",
-        transform = { "${it.property.name}: ${serializeToJsonLike(it.value)}" },
+        transform = { (k, v) -> "$k: ${serializeToJsonLike(v.value)}" },
     )
 
 @UnstableSchemaApi
