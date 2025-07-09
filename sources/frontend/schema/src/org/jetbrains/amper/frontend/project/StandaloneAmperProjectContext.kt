@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException
@@ -35,6 +36,7 @@ class StandaloneAmperProjectContext(
     override val projectRootDir: VirtualFile,
     projectBuildDir: Path?,
     override val amperModuleFiles: List<VirtualFile>,
+    override val pluginDependencies: List<InternalDependency>,
 ) : AmperProjectContext {
 
     override val amperCustomTaskFiles: List<VirtualFile> by lazy {
@@ -112,6 +114,7 @@ class StandaloneAmperProjectContext(
                     projectRootDir = result.startModuleFile.parent,
                     projectBuildDir = buildDir,
                     amperModuleFiles = listOf(result.startModuleFile),
+                    pluginDependencies = emptyList(), // no plugins for the single-module project.
                 )
             }
             return potentialContext
@@ -158,6 +161,10 @@ class StandaloneAmperProjectContext(
             if (rootModuleFile == null && amperProject == null) {
                 return null
             }
+
+            val pluginDependencies = amperProject?.plugins ?: emptyList()
+            // TODO: report non-internal dependencies (for now)
+
             val explicitProjectModuleFiles = amperProject?.modulePaths(rootDir) ?: emptyList()
             val amperModuleFiles = listOfNotNull(rootModuleFile) + explicitProjectModuleFiles
             if (amperModuleFiles.isEmpty()) {
@@ -174,6 +181,7 @@ class StandaloneAmperProjectContext(
                 projectRootDir = rootDir,
                 projectBuildDir = buildDir,
                 amperModuleFiles = amperModuleFiles,
+                pluginDependencies = pluginDependencies.filterIsInstance<InternalDependency>(),
             )
         }
     }

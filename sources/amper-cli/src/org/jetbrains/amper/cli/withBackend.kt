@@ -17,6 +17,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.commands.RootCommand
+import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.core.telemetry.spanBuilder
@@ -94,6 +95,8 @@ internal suspend fun <T> withBackend(
                 }
             }
         }
+
+        preparePlugins(context = cliContext)
 
         val backend = AmperBackend(
             context = cliContext,

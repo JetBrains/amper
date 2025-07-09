@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
+import org.jetbrains.amper.frontend.schema.InternalDependency
 import java.nio.file.Path
 
 /**
@@ -31,6 +32,9 @@ internal class SingleModuleProjectContextForIde(
 
     override val projectBuildDir: Path
         get() = error("The project build directory is undefined for a single-module context")
+
+    override val pluginDependencies: List<InternalDependency>
+        get() = emptyList()
 
     override val amperCustomTaskFiles: List<VirtualFile> = emptyList()
 }

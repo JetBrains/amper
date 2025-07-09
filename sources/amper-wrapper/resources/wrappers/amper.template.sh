@@ -296,6 +296,7 @@ set -- \
     "-ea" \
     "-XX:+EnableDynamicAgentLoading" \
     "-Damper.wrapper.dist.sha256=$amper_sha256" \
+    "-Damper.dist.path=$amper_target_dir" \
     "-Damper.wrapper.path=$wrapper_path" \
     "$@"
 

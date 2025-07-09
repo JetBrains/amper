@@ -295,5 +295,6 @@ jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
 # shellcheck disable=SC2086
 time "$java_exe" \
   "-Damper.wrapper.path=$wrapper_path" \
+  "-Damper.dist.path=$script_dir/build/tasks/_amper-cli_unpackedDist/dist" \
   $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt \
   "--build-output=build-from-sources" "$@"

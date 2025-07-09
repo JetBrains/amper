@@ -1,0 +1,15 @@
+product:
+  type: lib
+  platforms: [jvm]
+
+apply:
+  - ../../common.module-template.yaml
+
+settings:
+  kotlin:
+    serialization: json
+
+dependencies:
+  - ../extensibility-api
+  - ../extensibility-schema-model
+  - com.google.devtools.ksp:symbol-processing-api:2.1.21-2.0.1

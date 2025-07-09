@@ -9,12 +9,14 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.ModifierAware
+import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.plugins.PluginDeclarationSchema
 import java.nio.file.Path
 
 
@@ -53,6 +55,9 @@ class Module : Base() {
 
     @SchemaDoc("Configures various aspects of the module, such as file layout")
     var module by value(::Meta)
+
+    @ProductTypeSpecific(ProductType.JVM_AMPER_PLUGIN)
+    var plugin by nullableValue<PluginDeclarationSchema>()  // FIXME: should not be nullable
 }
 
 class Repository : SchemaNode() {

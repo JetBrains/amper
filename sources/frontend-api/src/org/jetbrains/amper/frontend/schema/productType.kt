@@ -47,6 +47,13 @@ enum class ProductType(
         defaultPlatforms = setOf(Platform.JVM)
     ),
 
+    @SchemaDoc("An Amper plugin")
+    JVM_AMPER_PLUGIN(
+        "jvm/amper-plugin",
+        supportedPlatforms = setOf(Platform.JVM),
+        defaultPlatforms = setOf(Platform.JVM),
+    ),
+
     @SchemaDoc("An Android VM application")
     ANDROID_APP(
         "android/app",
@@ -82,7 +89,7 @@ enum class ProductType(
         defaultPlatforms = setOf(Platform.MINGW_X64),
     );
 
-    fun isLibrary() = this == LIB
+    fun isLibrary() = this == LIB || this == JVM_AMPER_PLUGIN
     fun isApplication() = !isLibrary()
     override fun toString() = value
     override val schemaValue: String = value

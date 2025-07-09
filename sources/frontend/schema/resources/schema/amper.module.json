@@ -29,6 +29,27 @@
         }
       }
     },
+    "PluginDeclarationSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-intellij-html-description": "Plugin description. Can be used by tooling to provide documentation on plugin references in configuration files.",
+          "title": "Plugin description. Can be used by tooling to provide documentation on plugin references in configuration files"
+        },
+        "id": {
+          "type": "string",
+          "x-intellij-html-description": "Plugin id that is going to be used to refer to the plugin in the configuration files",
+          "title": "Plugin id that is going to be used to refer to the plugin in the configuration files"
+        },
+        "schemaExtensionClassName": {
+          "type": "string",
+          "x-intellij-html-description": "Fully qualified name of the @Schema-annotated interface to be used as plugin configuration. This interface can't come from a dependency, it must be declared in the source directory.",
+          "title": "Fully qualified name of the @Schema-annotated interface to be used as plugin configuration. This interface can't come from a dependency, it must be declared in the source directory"
+        }
+      }
+    },
     "ModuleProduct": {
       "anyOf": [
         {
@@ -72,6 +93,7 @@
               "enum": [
                 "lib",
                 "jvm/app",
+                "jvm/amper-plugin",
                 "android/app",
                 "ios/app",
                 "macos/app",
@@ -81,6 +103,7 @@
               "x-intellij-enum-metadata": {
                 "lib": "A reusable library which could be used as dependency by other modules in the codebase",
                 "jvm/app": "A JVM console or desktop application",
+                "jvm/amper-plugin": "An Amper plugin",
                 "android/app": "An Android VM application",
                 "ios/app": "An iOS application",
                 "macos/app": "A native macOS application",
@@ -104,6 +127,7 @@
             "lib",
             "app",
             "jvm/app",
+            "jvm/amper-plugin",
             "android/app",
             "ios/app",
             "macos/app",
@@ -1829,6 +1853,9 @@
           "$ref": "#/$defs/Meta",
           "x-intellij-html-description": "Configures various aspects of the module, such as file layout",
           "title": "Configures various aspects of the module, such as file layout"
+        },
+        "plugin": {
+          "$ref": "#/$defs/PluginDeclarationSchema"
         },
         "product": {
           "$ref": "#/$defs/ModuleProduct",

@@ -21,4 +21,7 @@ class Project : SchemaNode() {
                 "`./libs/bar/module.yaml` (if these module files exist)."
     )
     var modules by value<List<TraceableString>>(default = emptyList())
+
+    // TODO: doc
+    var plugins by value<List<Dependency>>(default = emptyList())
 }

@@ -1,4 +1,5 @@
 module (isRegExp=false,isolated=false)
+plugin (isRegExp=false,isolated=false)
 product (isRegExp=false,isolated=false)
 settings (isRegExp=false,isolated=false)
   android (isRegExp=false,isolated=false)

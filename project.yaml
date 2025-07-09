@@ -20,6 +20,8 @@ modules:
   - sources/core-intellij
   - sources/dependency-resolution
   - sources/extensibility/extensibility-api
+  - sources/extensibility/extensibility-schema-model
+  - sources/extensibility/schema-instrumentator
   - sources/frontend-api
   - sources/frontend/dr
   - sources/frontend/plain/amper-psi

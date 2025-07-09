@@ -7,6 +7,7 @@ package org.jetbrains.amper.cli.commands.tools
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import org.jetbrains.amper.cli.commands.AmperSubcommand
+import org.jetbrains.amper.cli.commands.PreparePluginsCommand
 
 internal class ToolCommand : AmperSubcommand(name = "tool") {
 
@@ -16,6 +17,7 @@ internal class ToolCommand : AmperSubcommand(name = "tool") {
             JdkToolCommand(),
             KeystoreToolCommand(),
             XCodeIntegrationCommand(),
+            PreparePluginsCommand(),
         )
     }
 

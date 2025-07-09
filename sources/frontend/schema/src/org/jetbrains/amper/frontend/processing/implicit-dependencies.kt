@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.processing
 
+import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.Fragment
@@ -22,6 +23,8 @@ import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.catalogs.library
 import org.jetbrains.amper.frontend.schema.JUnitVersion
+import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 import org.jetbrains.amper.frontend.toClassBasedSet
 
@@ -210,6 +213,13 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         add(springBootStarterDependency(springBootVersion))
         add(kotlinReflect)
     }
+
+    if (module.type == ProductType.JVM_AMPER_PLUGIN) {
+        // TODO: It'd be better to have some builtin dependency that resolves to a jar inside Amper distribution.
+        add(MavenDependency(
+            coordinates = library("org.jetbrains.amper:extensibility-api", AmperBuild.mavenVersion)
+        ))
+    }
 }
 
 private fun getSource(versionValue: ValueDelegateBase<*>?, enabledValue: ValueDelegateBase<*>?): ValueDelegateBase<*>? {
@@ -257,19 +267,34 @@ private val MavenDependencyBase.groupAndArtifact: String
     }
 
 private fun RepositoriesModulePart.withImplicitMavenRepositories(fragments: List<Fragment>): ModulePart<*> {
-    val isHotReloadRuntimeApiPresent = fragments
-        .flatMap { it.externalDependencies }
-        .filterIsInstance<MavenDependency>()
-        .any { it.groupAndArtifact == "org.jetbrains.compose.hot-reload:hot-reload-runtime-api" }
-    if (!isHotReloadRuntimeApiPresent) {
-        return this
+    val repositories = buildList {
+        addAll(mavenRepositories)
+        val isHotReloadRuntimeApiPresent = fragments
+            .flatMap { it.externalDependencies }
+            .filterIsInstance<MavenDependency>()
+            .any { it.groupAndArtifact == "org.jetbrains.compose.hot-reload:hot-reload-runtime-api" }
+        if (isHotReloadRuntimeApiPresent) {
+            add(RepositoriesModulePart.Repository(
+                id = "amper-hot-reload-dev",
+                url = "https://packages.jetbrains.team/maven/p/amper/compose-hot-reload",
+            ))
+        }
+
+        if (fragments.first().module.type == ProductType.JVM_AMPER_PLUGIN) {
+            if (AmperBuild.isSNAPSHOT) {
+                add(RepositoriesModulePart.Repository(
+                    id = "maven-local-resolve",
+                    url = SpecialMavenLocalUrl,
+                ))
+            } else {
+                add(RepositoriesModulePart.Repository(
+                    id = "amper-maven",
+                    url = "https://packages.jetbrains.team/maven/p/amper/amper",
+                ))
+            }
+        }
     }
     return RepositoriesModulePart(
-        mavenRepositories = mavenRepositories + RepositoriesModulePart.Repository(
-            id = "amper-hot-reload-dev",
-            url = "https://packages.jetbrains.team/maven/p/amper/compose-hot-reload",
-            publish = false,
-            resolve = true,
-        )
+        mavenRepositories = repositories,
     )
 }
