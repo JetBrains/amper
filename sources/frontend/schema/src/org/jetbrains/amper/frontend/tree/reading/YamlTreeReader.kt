@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.tree.reading
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
+import com.intellij.util.runIf
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.asTrace
@@ -32,6 +33,7 @@ import org.jetbrains.amper.frontend.schema.ModuleKspProcessorDeclaration
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.Owned
+import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
@@ -88,11 +90,12 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
     }
 
     override fun visitScalar(scalar: YAMLScalar) = ctx.readCurrent {
-        tryReadAsShorthand(scalar)
+        runIf(params.parseReferences) { tryReadAsReference(scalar) }
+            ?: tryReadAsShorthand(scalar)
             ?: when (val type = currentType) {
                 is SchemaType.VariantType -> tryReadAsPolyFromScalar(type, scalar)
                 is SchemaType.ScalarType -> tryReadScalar(scalar.textValue, type, scalar)
-                    // We explicitly here construct trace from that parent to catch also the key. 
+                    // We explicitly here construct trace from that parent to catch also the key.
                     ?.let { scalarValue(it, scalar.parentOrSelfTrace()) }
                 else -> error("Unknown type: $type while reading \"${scalar.textValue}\"")
             }
@@ -304,4 +307,31 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
             .map { PlatformCtx(it, keyValue.trace) }
             .toSet()
     }
+
+    private fun ReaderCtx.tryReadAsReference(
+        scalar: YAMLScalar,
+    ) : ReferenceValue<Owned>? = ReferenceSyntax.matchEntire(scalar.textValue)?.let { referenceMatch ->
+        val reference = referenceMatch.groups["reference"]!!.value
+        // Poor man's string interpolation
+        val prefix = referenceMatch.groups["prefix"]!!.value
+        val suffix = referenceMatch.groups["suffix"]!!.value
+        if (prefix.isNotEmpty() || suffix.isNotEmpty()) {
+            val supportsInterpolation = when(currentType) {
+                is SchemaType.PathType, is SchemaType.StringType -> true
+                else -> false
+            }
+            if (!supportsInterpolation) {
+                SchemaBundle.reportBundleError(scalar, "string.interpolation.unsupported")
+            }
+        }
+        referenceValue(
+            value = reference,
+            trace = scalar.parentOrSelfTrace(),
+            prefix = prefix,
+            suffix = suffix,
+            type = currentType,
+        )
+    }
 }
+
+private val ReferenceSyntax = """(?<prefix>.*?)\$\{(?<reference>.*?)\}(?<suffix>.*)""".toRegex()

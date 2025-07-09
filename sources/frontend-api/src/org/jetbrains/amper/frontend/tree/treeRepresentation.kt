@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.contexts.WithContexts
 import org.jetbrains.amper.frontend.tree.MapLikeValue.Property
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.aliased
 import kotlin.reflect.KProperty1
 
@@ -69,6 +70,9 @@ data class ReferenceValue<out TS : TreeState>(
     override val value: String,
     override val trace: Trace,
     override val contexts: Contexts,
+    val prefix: String = "",
+    val suffix: String = "",
+    val type: SchemaType,
 ) : ScalarOrReference<TS> {
     /** Convenient alias */
     val referencedPath get() = value
@@ -195,7 +199,7 @@ fun ReferenceProperty(
 ) = ReferenceProperty<Owned>(
     key = aProp.name,
     kTrace = kTrace,
-    value = ReferenceValue(referencedPath, trace, contexts),
+    value = ReferenceValue(referencedPath, trace, contexts, type = aProp.type),
     pType = aProp,
 )
 

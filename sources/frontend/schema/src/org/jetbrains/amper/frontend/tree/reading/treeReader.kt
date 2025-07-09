@@ -28,6 +28,7 @@ import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.PsiReporterCtx
+import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
@@ -46,14 +47,16 @@ internal fun BuildCtx.readTree(
     file: VirtualFile,
     type: SchemaObjectDeclaration,
     vararg contexts: Context,
-    reportUnknowns: Boolean = true
+    reportUnknowns: Boolean = true,
+    parseReferences: Boolean = false,
 ) = TreeReadRequest(
     initialType = type,
     initialContexts = contexts.toSet(),
     file = file,
     psiFile = file.asPsi(),
     problemCtx = this,
-    reportUnknowns = reportUnknowns
+    reportUnknowns = reportUnknowns,
+    parseReferences = parseReferences,
 ).readTree()
 
 /**
@@ -67,6 +70,7 @@ internal data class TreeReadRequest(
     val psiFile: PsiFile,
     val problemCtx: ProblemReporterContext,
     val reportUnknowns: Boolean,
+    val parseReferences: Boolean,
 )
 
 // TODO Do we need the read action here?
@@ -98,6 +102,8 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
     fun listValue(children: List<TreeValue<Owned>>, trace: Trace) = ListValue(children, trace, currentContexts)
     fun mapValue(children: List<MapLikeValue.Property<TreeValue<Owned>>>, trace: Trace) =
         Owned(children, (currentType as? SchemaType.ObjectType)?.declaration, trace, currentContexts)
+    fun referenceValue(value: String, trace: Trace, prefix: String, suffix: String, type: SchemaType) =
+        ReferenceValue<Owned>(value, trace, currentContexts, prefix = prefix, suffix = suffix, type = type)
 
     /**
      * Shortcut to catch the key in the trace also.
