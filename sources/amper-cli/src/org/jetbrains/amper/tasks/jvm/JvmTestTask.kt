@@ -201,7 +201,7 @@ class JvmTestTask(
             cleanDirectory(launcherDir) // we don't want to keep old dependencies that were potentially removed
             val jarNames = classpathList.lines()
             jarNames.forEach { jarName ->
-                val jarResource = javaClass.getResourceAsStream("/junit-listeners/$jarName")
+                val jarResource = javaClass.getResourceAsStream("/junit-listeners/lib/$jarName")
                     ?: error("Cannot find JUnit listeners jar in resources: $jarName")
                 jarResource.use {
                     launcherDir.resolve(jarName).outputStream().use { out ->
