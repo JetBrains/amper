@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isParentOf
+import org.jetbrains.amper.frontend.project.getTaskOutputRoot
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
@@ -21,6 +22,7 @@ import org.jetbrains.amper.tasks.compose.setupComposeTasks
 import org.jetbrains.amper.tasks.custom.setupCustomTasks
 import org.jetbrains.amper.tasks.ios.setupIosTasks
 import org.jetbrains.amper.java.setupJavaAnnotationProcessingTasks
+import org.jetbrains.amper.tasks.custom.setupTasksFromPlugins
 import org.jetbrains.amper.tasks.jvm.setupJvmTasks
 import org.jetbrains.amper.tasks.ksp.setupKspTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
@@ -90,6 +92,7 @@ class ProjectTasksBuilder(
         setupComposeTasks()
         setupCustomTaskDependencies()
         setupCustomTasks()
+        setupTasksFromPlugins()
         return tasks.build()
     }
 
@@ -144,6 +147,6 @@ class ProjectTasksBuilder(
          * task properties, or module properties
          */
         fun CliContext.getTaskOutputPath(taskName: TaskName): TaskOutputRoot =
-            TaskOutputRoot(path = buildOutputRoot.path / "tasks" / taskName.name.replace(":", "_"))
+            TaskOutputRoot(path = projectContext.getTaskOutputRoot(taskName))
     }
 }
