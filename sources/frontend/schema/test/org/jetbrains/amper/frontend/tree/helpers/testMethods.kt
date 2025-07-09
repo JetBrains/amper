@@ -16,7 +16,7 @@ import org.jetbrains.amper.test.golden.GoldenTest
  */
 fun GoldenTest.testModuleRead(
     caseName: String,
-    types: SchemaTypingContext = TestSchemaTypingContext(),
+    types: SchemaTypingContext = SchemaTypingContext(),
     expectPostfix: String = ".result.json",
 ) = TreeTestRun(
     caseName = caseName,
@@ -32,7 +32,7 @@ fun GoldenTest.testModuleRead(
 fun GoldenTest.testRefineModule(
     caseName: String,
     selectedContexts: Contexts,
-    types: SchemaTypingContext = TestSchemaTypingContext(),
+    types: SchemaTypingContext = SchemaTypingContext(),
     expectPostfix: String = ".result.json",
     withDefaults: Boolean = false,
 ) = TreeTestRun(
@@ -49,7 +49,7 @@ fun GoldenTest.testRefineModule(
 fun GoldenTest.testRefineModuleWithTemplates(
     caseName: String,
     selectedContexts: (VirtualFile) -> Contexts,
-    types: SchemaTypingContext = TestSchemaTypingContext(),
+    types: SchemaTypingContext = SchemaTypingContext(),
     expectPostfix: String = ".result.json",
 ) = TreeTestRun(
     caseName = caseName,
@@ -65,7 +65,7 @@ fun GoldenTest.testRefineModuleWithTemplates(
  */
 fun GoldenTest.diagnoseModuleRead(
     caseName: String,
-    types: SchemaTypingContext = TestSchemaTypingContext(),
+    types: SchemaTypingContext = SchemaTypingContext(),
 ) = DiagnosticsTreeTestRun(
     caseName = caseName,
     base = baseTestResourcesPath(),

@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 
 interface SchemaObjectDeclaration : SchemaTypeDeclaration {
     val properties: List<Property>
-    val backingReflectionClass: KClass<out SchemaNode>?
+    fun createInstance(): SchemaNode
 
     data class Property(
         val name: String,

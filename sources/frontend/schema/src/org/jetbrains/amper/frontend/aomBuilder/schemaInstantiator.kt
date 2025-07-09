@@ -25,7 +25,6 @@ import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.frontend.types.isValueRequired
 import org.jetbrains.amper.frontend.types.nameAndAliases
 import org.jetbrains.amper.frontend.types.toType
-import kotlin.reflect.full.createInstance
 
 /**
  * Instantiate requested [T] and fill its properties from the [node].
@@ -120,8 +119,7 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
             else -> error("Expected `AObject` or `APolymorphic` but got `$currentType` instead.")
         }
 
-        val kClass = checkNotNull(valueType).backingReflectionClass ?: SchemaNode::class
-        return kClass.createInstance().also {
+        return checkNotNull(valueType).createInstance().also {
             // We can safely cast here, because [currentValue] is [MapValue], but smart cast cannot
             // raise type deduction to the class from property.
             @Suppress("UNCHECKED_CAST")

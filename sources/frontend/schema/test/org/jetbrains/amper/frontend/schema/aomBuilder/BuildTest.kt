@@ -20,9 +20,9 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.parseStringWithReferences
-import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.test.golden.TestProblemReporterContext
+import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -109,6 +109,8 @@ class BuildTest {
         override val usedTemplates: List<VirtualFile>
             get() = throw UnsupportedOperationException()
         override val customTasks: List<CustomTaskDescription>
+            get() = throw UnsupportedOperationException()
+        override val tasksFromPlugins: List<TaskFromPluginDescription>
             get() = throw UnsupportedOperationException()
     }
 

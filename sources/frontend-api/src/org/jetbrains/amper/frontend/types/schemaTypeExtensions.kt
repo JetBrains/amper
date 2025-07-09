@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.types
 
 import org.jetbrains.amper.frontend.api.SchemaNode
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
 
 fun SchemaTypeDeclaration.simpleName() = qualifiedName.substringAfterLast('.')
 
@@ -25,11 +24,3 @@ fun SchemaObjectDeclaration.hasShorthands() = properties.any { it.hasShorthand }
 fun SchemaObjectDeclaration.Property.nameAndAliases() = aliases + name
 
 fun SchemaObjectDeclaration.Property.isValueRequired() = !type.isMarkedNullable && default == null
-
-fun SchemaEnumDeclaration.toEnumConstant(name: String): Enum<*>? = backingReflectionClass
-    ?.java?.enumConstants?.find { it.name == name }
-
-inline fun <reified T> SchemaTypingContext.getType() = this.getType(T::class.createType())
-
-inline fun <reified T : SchemaNode> SchemaTypingContext.getDeclaration() =
-    (getType<T>() as SchemaType.ObjectType).declaration

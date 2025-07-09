@@ -9,6 +9,7 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.core.withEach
+import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.MavenDependency
@@ -26,6 +27,7 @@ import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.MergedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
 import org.jetbrains.amper.frontend.processing.configureHotReloadDefaults
 import org.jetbrains.amper.frontend.processing.configureLombokDefaults
@@ -56,7 +58,14 @@ context(ProblemReporterContext)
 internal fun doBuild(
     projectContext: AmperProjectContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
-): List<AmperModule>? = with(BuildCtx(projectContext, systemInfo = systemInfo)) {
+    pluginData: List<PluginData> = projectContext.loadPreparedPluginData(),
+): List<AmperModule>? = with(
+    BuildCtx(
+        catalogProvider = projectContext,
+        types = SchemaTypingContext(pluginData),
+        systemInfo = systemInfo,
+    )
+) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
     val rawModules = projectContext.amperModuleFiles.mapNotNull { readModuleMergedTree(it) }
 
@@ -71,6 +80,9 @@ internal fun doBuild(
 
     // Build custom tasks for relevant modules.
     projectContext.amperCustomTaskFiles.forEach { buildCustomTask(it, result) }
+
+    // Load plugins that exist in the project
+    buildPlugins(pluginData, projectContext, result)
 
     // Perform diagnostics.
     AomSingleModuleDiagnosticFactories.withEach { result.forEach { it.module.analyze() } }
@@ -125,6 +137,7 @@ internal fun BuildCtx.readModuleMergedTree(
         refiner = refiner,
         catalog = chosenCatalog,
         moduleCtxModule = commonModule,
+        commonTree = commonTree,
         buildCtx = this,
     )
 }

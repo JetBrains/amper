@@ -4,12 +4,10 @@
 
 package org.jetbrains.amper.frontend.types
 
-import kotlin.reflect.KClass
-
 interface SchemaEnumDeclaration : SchemaTypeDeclaration {
     val entries: List<EnumEntry>
     val isOrderSensitive: Boolean
-    val backingReflectionClass: KClass<out Enum<*>>?
+    fun toEnumConstant(name: String): Any
 
     data class EnumEntry(
         val name: String,

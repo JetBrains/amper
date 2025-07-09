@@ -31,6 +31,9 @@ class SyntheticBuilder(
         infix fun KProperty1<out SchemaNode, *>.setTo(value: OwnedTree) =
             properties.add(MapLikeValue.Property(name, trace, value, type))
 
+        infix fun String.setTo(value: OwnedTree) =
+            properties.add(MapLikeValue.Property(this, trace, value, type))
+
         @JvmName("invokeMapLike")
         inline operator fun <reified T : SchemaNode> KProperty1<out SchemaNode, T>.invoke(noinline block: MapLikeValueBuilder.() -> Unit) =
             setTo(mapLike<T>(block))
@@ -48,6 +51,20 @@ class SyntheticBuilder(
 
     fun list(block: MutableList<OwnedTree>.() -> Unit) =
         ListValue(mutableListOf<OwnedTree>().apply(block), trace, contexts)
+
+    fun map(block: MutableMap<String, OwnedTree>.() -> Unit) = Owned(
+        children = mutableMapOf<String, OwnedTree>().apply(block).map { (k, v) ->
+            MapLikeValue.Property(
+                key = k,
+                kTrace = trace,
+                value = v,
+                pType = null,
+            )
+        },
+        trace = trace,
+        contexts = contexts,
+        type = null,
+    )
 
     fun scalar(value: Any) = ScalarValue<Owned>(value, trace, contexts)
 }

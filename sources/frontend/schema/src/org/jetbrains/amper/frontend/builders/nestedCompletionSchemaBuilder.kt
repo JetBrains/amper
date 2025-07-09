@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.meta.ATypesVisitor
-import org.jetbrains.amper.frontend.meta.DefaultSchemaTypingContext
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.SchemaType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.starProjectedType
@@ -70,7 +70,7 @@ class NestedCompletionSchemaBuilder internal constructor(
     companion object {
         @UsedInIdePlugin
         fun buildNestedCompletionTree(root: KClass<*>) = NestedCompletionBuilder
-            .visitAType(DefaultSchemaTypingContext.getType(root.starProjectedType))
+            .visitAType(SchemaTypingContext(emptyList()).getType(root.starProjectedType))
             .let { NestedCompletionSchemaBuilder(NestedCompletionNodeImpl("", it)) }
     }
 }

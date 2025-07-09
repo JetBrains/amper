@@ -4,16 +4,16 @@
 
 package org.jetbrains.amper.frontend.tree
 
+import org.jetbrains.amper.plugins.schema.model.SchemaName
+import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
-import org.jetbrains.amper.frontend.tree.helpers.TestSchemaTypingContext
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.tree.helpers.diagnoseModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModule
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModuleWithTemplates
-import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
-import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
@@ -53,27 +53,55 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
     @Test
     fun `read module file with custom properties`() = testModuleRead(
         "with-custom-properties",
-        types = TestSchemaTypingContext() {
-            listOf(
-                SchemaObjectDeclaration.Property(
-                    name = "myPlugin",
-                    type = getType<CustomPluginSchema>(),
+        types = SchemaTypingContext(
+            pluginData = listOf(PluginData(
+                id = PluginData.Id("myPlugin"),
+                pluginModuleRoot = ".",
+                moduleExtensionSchemaName = SchemaName("com.example.CustomPluginSchema"),
+                classTypes = listOf(
+                    PluginData.ClassData(
+                        name = SchemaName("com.example.CustomPluginSchema"),
+                        properties = listOf(
+                            PluginData.ClassData.Property(
+                                name = "foo",
+                                type = PluginData.Type.IntType(),
+                            ),
+                            PluginData.ClassData.Property(
+                                name = "bar",
+                                type = PluginData.Type.StringType(),
+                            ),
+                        )
+                    )
                 ),
-            )
-        }
+            ))
+        )
     )
 
     @Test
     fun `read module file with custom properties diagnostics`() = diagnoseModuleRead(
         "with-custom-properties-diagnostics",
-        types = TestSchemaTypingContext() {
-            listOf(
-                SchemaObjectDeclaration.Property(
-                    name = "myPlugin",
-                    type = getType<CustomPluginSchema>(),
+        types = SchemaTypingContext(
+            pluginData = listOf(PluginData(
+                id = PluginData.Id("myPlugin"),
+                pluginModuleRoot = ".",
+                moduleExtensionSchemaName = SchemaName("com.example.CustomPluginSchema"),
+                classTypes = listOf(
+                    PluginData.ClassData(
+                        name = SchemaName("com.example.CustomPluginSchema"),
+                        properties = listOf(
+                            PluginData.ClassData.Property(
+                                name = "foo",
+                                type = PluginData.Type.IntType(),
+                            ),
+                            PluginData.ClassData.Property(
+                                name = "bar",
+                                type = PluginData.Type.StringType(),
+                            ),
+                        )
+                    )
                 ),
-            )
-        }
+            ))
+        )
     )
     
     @Test

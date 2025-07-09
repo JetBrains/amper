@@ -9,13 +9,10 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.readWithTemplates
-import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
-import org.jetbrains.amper.frontend.meta.DefaultSchemaTypingContext
-import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.helper.BaseFrontendTestRun
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
 import org.jetbrains.amper.frontend.schema.helper.annotateTextWithDiagnostics
@@ -27,14 +24,11 @@ import org.jetbrains.amper.frontend.tree.jsonDump
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.golden.readContentsAndReplace
 import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import java.nio.file.Path
 import kotlin.io.path.absolute
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -108,14 +102,6 @@ internal open class DiagnosticsTreeTestRun(
 
     override fun GoldenTest.getExpectContent(expectedPath: Path) =
         readContentsAndReplace(expectedPath, base).trimTrailingWhitespacesAndEmptyLines()
-}
-
-internal class TestSchemaTypingContext(
-    private val customSettingsBuilder: SchemaTypingContext.() -> List<SchemaObjectDeclaration.Property> = { emptyList() },
-) : DefaultSchemaTypingContext() {
-    override fun customProperties(type: KClass<out SchemaNode>) =
-        if (type == Settings::class) customSettingsBuilder().ifEmpty { super.customProperties(type) }
-        else emptyList()
 }
 
 // Helper function to just read the module.

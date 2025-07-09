@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.aomBuilder
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
 import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.Artifact
@@ -28,7 +27,9 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
+import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import java.nio.file.Path
 import kotlin.io.path.pathString
 
@@ -48,6 +49,7 @@ internal open class DefaultModule(
     override var fragments = emptyList<Fragment>()
     override var artifacts = emptyList<Artifact>()
     override var customTasks = emptyList<CustomTaskDescription>()
+    override var tasksFromPlugins = emptyList<TaskFromPluginDescription>()
 }
 
 class DefaultPublishArtifactFromCustomTask(
@@ -79,6 +81,25 @@ class DefaultCustomTaskDescription(
     override val addToModuleRootsFromCustomTask: List<AddToModuleRootsFromCustomTask>,
 ) : CustomTaskDescription
 
+class DefaultTaskFromPluginDescription(
+    override val name: TaskName,
+    override val actionClassJvmName: String,
+    override val actionFunctionJvmName: String,
+    override val actionArguments: Map<String, Any?>,
+    override val explicitDependsOn: List<String>,
+    override val inputs: List<Path>,
+    override val outputs: List<Path>,
+    override val codeSource: AmperModule,
+    override val pluginId: String,
+    override val outputMarks: List<TaskFromPluginDescription.OutputMark>
+) : TaskFromPluginDescription {
+    class OutputMark(
+        override val path: Path,
+        override val kind: GeneratedPathKind,
+        override val associateWith: Fragment,
+    ) : TaskFromPluginDescription.OutputMark
+}
+
 /**
  * Special kind of module that appears only on
  * internal module resolve failure.
@@ -101,18 +122,6 @@ class DefaultArtifact(
     override val isTest: Boolean,
 ) : Artifact {
     override val platforms = fragments.flatMap { it.platforms }.toSet()
-}
-
-class DumbGradleModule(val gradleBuildFile: VirtualFile) : AmperModule {
-    override val userReadableName = gradleBuildFile.parent.name
-    override val type = ProductType.LIB
-    override val source = AmperModuleFileSource(gradleBuildFile.toNioPath())
-    override val fragments = listOf<Fragment>()
-    override val artifacts = listOf<Artifact>()
-    override val parts = classBasedSet<ModulePart<*>>()
-    override val usedCatalog = null
-    override val usedTemplates = emptyList<VirtualFile>()
-    override val customTasks: List<CustomTaskDescription> = emptyList()
 }
 
 // TODO Should it be data class?

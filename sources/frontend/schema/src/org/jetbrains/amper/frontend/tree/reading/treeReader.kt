@@ -35,7 +35,6 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaEnumDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.simpleName
-import org.jetbrains.amper.frontend.types.toEnumConstant
 import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.psi.YAMLKeyValue
@@ -141,8 +140,10 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
                 if (type.isTraceableWrapped) it?.asTraceable(origin.trace) else it
             }
             is SchemaType.EnumType -> tryReadEnum(text, type.declaration, origin, report).let {
-                it as Enum<*>?
-                if (type.isTraceableWrapped) it?.asTraceable(origin.trace) else it
+                if (type.isTraceableWrapped) {
+                    it as Enum<*>?
+                    it?.asTraceable(origin.trace)
+                } else it
             }
         }
     }

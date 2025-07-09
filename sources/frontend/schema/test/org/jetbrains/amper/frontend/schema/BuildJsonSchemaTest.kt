@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.builders.schema.jsonSchemaString
-import org.jetbrains.amper.frontend.meta.DefaultSchemaTypingContext
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.schema.helper.doTestWithInput
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.test.golden.GoldenTestBase
@@ -17,15 +17,15 @@ class BuildJsonSchemaTest : GoldenTestBase() {
 
     @Test
     fun `build module schema`() =
-        doTest("amper.module") { jsonSchemaString(DefaultSchemaTypingContext.getDeclaration<Module>()) }
+        doTest("amper.module") { jsonSchemaString(SchemaTypingContext().getDeclaration<Module>()) }
 
     @Test
     fun `build template schema`() =
-        doTest("amper.template") { jsonSchemaString(DefaultSchemaTypingContext.getDeclaration<Template>()) }
+        doTest("amper.template") { jsonSchemaString(SchemaTypingContext().getDeclaration<Template>()) }
 
     @Test
     fun `build project schema`() =
-        doTest("amper.project") { jsonSchemaString(DefaultSchemaTypingContext.getDeclaration<Project>()) }
+        doTest("amper.project") { jsonSchemaString(SchemaTypingContext().getDeclaration<Project>()) }
 
     private fun doTest(caseName: String, input: () -> String) =
         doTestWithInput(caseName, ".json", Path("resources") / "schema", input)
