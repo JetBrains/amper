@@ -1,0 +1,13 @@
+product: 
+  type: jvm/app
+
+settings:
+  build-konfig:
+    enabled: true  # synthetic property
+    packageName: "com.example"
+    objectName: Konfig
+    visibility: internal
+    config:
+      VERSION: 1.0
+      ID: "chair-red-dog"
+  hello: enabled # shorthand

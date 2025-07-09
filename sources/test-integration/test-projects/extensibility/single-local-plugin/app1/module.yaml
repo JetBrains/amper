@@ -1,0 +1,12 @@
+product: 
+  type: jvm/app
+
+settings:
+  build-konfig: # plugin-id
+    enabled: true  # synthetic property
+    packageName: "com.example"
+    objectName: Konfig
+    visibility: internal
+    config:
+      VERSION: 1.0+hello
+      ID: "table-green-geese"

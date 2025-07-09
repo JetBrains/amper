@@ -1,0 +1,6 @@
+product: 
+  type: jvm/app
+
+settings:
+  publishing:
+    version: 1.0+hello

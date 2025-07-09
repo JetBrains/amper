@@ -1,0 +1,19 @@
+# --- phantom tree
+
+# module:
+#   configuration: <from module.yaml:settings.<plugin-id>>
+
+# --- real tree
+tasks:
+  generate-konfig:
+    # taskDir: <set automatically>
+    action: !org.jetbrains.amper.plugins.buildkonfig.generateKonfig
+      config: ${module.configuration}
+      outputDir: ${taskDir}  # can be made default to `${taskDir}`?
+    markOutputsAs:
+      - path: ${action.outputDir} # physical reference
+        kind: kotlin-sources
+  
+  print-generated-sources:
+    action: !org.jetbrains.amper.plugins.buildkonfig.printSources
+      directory: ${generate-konfig.action.outputDir}

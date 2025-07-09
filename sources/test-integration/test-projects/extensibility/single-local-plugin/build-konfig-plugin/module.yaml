@@ -1,0 +1,11 @@
+product:
+  type: jvm/amper-plugin
+
+plugin:
+  id: build-konfig
+  description: |
+    Generates the Kotlin object with all the supplied properties (String)
+  schemaExtensionClassName: org.jetbrains.amper.plugins.buildkonfig.Schema1
+
+dependencies:
+  - com.squareup:kotlinpoet:2.2.0

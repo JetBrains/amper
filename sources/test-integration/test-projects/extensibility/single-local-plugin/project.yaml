@@ -1,0 +1,7 @@
+modules:
+  - app1
+  - app2
+  - build-konfig-plugin
+
+plugins:
+  - ./build-konfig-plugin
