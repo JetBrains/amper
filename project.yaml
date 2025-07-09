@@ -19,6 +19,7 @@ modules:
   - sources/core
   - sources/core-intellij
   - sources/dependency-resolution
+  - sources/extensibility/extensibility-api
   - sources/frontend-api
   - sources/frontend/dr
   - sources/frontend/plain/amper-psi
