@@ -7,6 +7,9 @@ package org.jetbrains.amper.tasks.jvm
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.composehotreload.recompiler.ENV_AMPER_BUILD_ROOT
+import org.jetbrains.amper.composehotreload.recompiler.ENV_AMPER_BUILD_TASK
+import org.jetbrains.amper.composehotreload.recompiler.ENV_AMPER_SERVER_PORT
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
@@ -67,10 +70,6 @@ class JvmHotRunTask(
             add("-Dcompose.reload.devToolsTransparencyEnabled=true")
             add("-Dcompose.reload.dirtyResolveDepthLimit=5")
             add("-Dcompose.reload.virtualMethodResolveEnabled=true")
-            add("-Dcompose.reload.buildSystem=Amper")
-            add("-Damper.build.root=${projectRoot.path}")
-            add("-Damper.server.command=server")
-            add("-Damper.server.port=$portAvailable")
             add("-Damper.build.task=${HotReloadTaskType.Reload.getTaskName(module, platform, isTest = false).name}")
         }
 
@@ -103,4 +102,10 @@ class JvmHotRunTask(
     override suspend fun getJdk(): Jdk {
         return JdkDownloader.getJbr(userCacheRoot)
     }
+
+    override fun getEnvironment(dependenciesResult: List<TaskResult>): Map<String, String> = mapOf(
+        ENV_AMPER_SERVER_PORT to portAvailable.toString(),
+        ENV_AMPER_BUILD_TASK to HotReloadTaskType.Reload.getTaskName(module, platform, isTest = false).name,
+        ENV_AMPER_BUILD_ROOT to projectRoot.path.pathString,
+    )
 }

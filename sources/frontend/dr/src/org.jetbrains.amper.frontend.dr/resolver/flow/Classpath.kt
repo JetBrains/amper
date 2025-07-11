@@ -199,7 +199,6 @@ internal class Classpath(
                     ResolutionScope.COMPILE -> true
                     // BOM affects the runtime classpath of the module and all its consumers
                     ResolutionScope.RUNTIME -> true
-                    ResolutionScope.DEV -> true
                 }
             }
         }
@@ -217,7 +216,6 @@ internal class Classpath(
             // runtime-only dependencies are not included in the compilation classpath graph
             ResolutionScope.COMPILE -> compile && (directDependencies || exported || (flowType.includeNonExportedNative && platforms.all { it.nativeTarget != null } ))
             ResolutionScope.RUNTIME -> runtime
-            ResolutionScope.DEV -> runtime
         }
 
     /**

@@ -28,7 +28,6 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.workingDir
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.Path
 
 abstract class AbstractJvmRunTask(
     override val taskName: TaskName,
@@ -41,9 +40,11 @@ abstract class AbstractJvmRunTask(
     protected val executeOnChangedInputs: ExecuteOnChangedInputs?,
 ) : RunTask {
     override val platform = Platform.JVM
-
     protected val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
+
     protected val logger = LoggerFactory.getLogger(javaClass)
+
+    protected open fun getEnvironment(dependenciesResult: List<TaskResult>): Map<String, String> = emptyMap()
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         DeadLockMonitor.disable()
@@ -57,6 +58,7 @@ abstract class AbstractJvmRunTask(
             outputListener = PrintToTerminalProcessOutputListener(terminal),
             tempRoot = tempRoot,
             input = ProcessInput.Inherit,
+            environment = getEnvironment(dependenciesResult),
         )
 
         val message = "Process exited with exit code ${result.exitCode}"

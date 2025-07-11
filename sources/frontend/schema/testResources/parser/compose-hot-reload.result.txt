@@ -1,7 +1,7 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta01-143, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta03, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src
@@ -131,7 +131,7 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta01-143, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta03, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
@@ -263,7 +263,7 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta01-143, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta03, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
@@ -394,7 +394,7 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta01-143, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta03, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)

@@ -15,6 +15,7 @@ modules:
   - sources/android-integration/android-sdk-detector
   - sources/android-integration/gradle-plugin
   - sources/android-integration/runner
+  - sources/compose-hot-reload-recompiler-extension
   - sources/core
   - sources/core-intellij
   - sources/dependency-resolution

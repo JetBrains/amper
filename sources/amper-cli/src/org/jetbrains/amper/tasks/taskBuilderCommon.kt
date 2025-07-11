@@ -47,7 +47,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                 else -> module.buildDependenciesGraph(
                     isTest,
                     platform,
-                    if (!isHotReloadEnabledFor(module)) ResolutionScope.RUNTIME else ResolutionScope.DEV,
+                    ResolutionScope.RUNTIME,
                     context.userCacheRoot
                 )
             }

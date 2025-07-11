@@ -16,6 +16,7 @@ dependencies:
   - ../frontend-api: exported
   - ../frontend/schema
   - ../frontend/dr
+  - ../compose-hot-reload-recompiler-extension
   - ../libraries/async-processes
   - ../libraries/compose-resources
   - ../libraries/concurrency

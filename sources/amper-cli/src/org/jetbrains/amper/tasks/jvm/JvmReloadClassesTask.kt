@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.jvm
 
+import org.jetbrains.amper.composehotreload.recompiler.ENV_COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
@@ -19,20 +20,21 @@ import org.jetbrains.compose.reload.orchestration.sendBlocking
 import org.slf4j.LoggerFactory
 import java.io.File
 
-private const val ENV_COMPOSE_RELOAD_ORCHESTRATION_PORT = "COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT"
-
 val logger = LoggerFactory.getLogger("JvmReloadClassesTask")
 
 class JvmReloadClassesTask(override val taskName: TaskName) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
+    override suspend fun run(
+        dependenciesResult: List<TaskResult>,
+        executionContext: TaskGraphExecutionContext,
+    ): TaskResult {
 
-        val orchestrationPort = System.getenv(ENV_COMPOSE_RELOAD_ORCHESTRATION_PORT)
-            ?: error("$ENV_COMPOSE_RELOAD_ORCHESTRATION_PORT environment variable is not set")
+        val orchestrationPort = System.getenv(ENV_COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT)
+            ?: error("$ENV_COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT environment variable is not set")
 
         val port = try {
             orchestrationPort.toInt()
         } catch (_: NumberFormatException) {
-            error("$ENV_COMPOSE_RELOAD_ORCHESTRATION_PORT environment variable has incorrect value: $orchestrationPort")
+            error("$ENV_COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT environment variable has incorrect value: $orchestrationPort")
         }
 
         val changes = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().flatMap { it.changes }

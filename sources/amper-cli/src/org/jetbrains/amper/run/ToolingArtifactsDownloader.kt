@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.run
 
+import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -18,6 +19,7 @@ import org.jetbrains.amper.resolver.MavenResolver
 import java.nio.file.Path
 
 val GOOGLE_REPOSITORY = MavenRepository("https://maven.google.com")
+val AMPER_DEV_REPOSITORY = MavenRepository("https://packages.jetbrains.team/maven/p/amper/amper")
 
 class ToolingArtifactsDownloader(
     userCacheRoot: AmperUserCacheRoot,
@@ -28,44 +30,38 @@ class ToolingArtifactsDownloader(
 
     suspend fun downloadHotReloadAgent(): List<Path> =
         downloadToolingArtifacts(
-            listOf("org.jetbrains.compose.hot-reload:hot-reload-agent:${UsedVersions.hotReloadVersion}"),
             listOf(
-                MavenRepository("https://packages.jetbrains.team/maven/p/amper/compose-hot-reload"),
-                MavenCentral,
-            )
+                "org.jetbrains.compose.hot-reload:hot-reload-agent:${UsedVersions.hotReloadVersion}",
+                "org.jetbrains.compose.hot-reload:hot-reload-runtime-jvm:${UsedVersions.hotReloadVersion}",
+            ),
         )
 
     suspend fun downloadDevTools(): List<Path> = downloadToolingArtifacts(
         listOf(
             "org.jetbrains.compose.hot-reload:hot-reload-devtools:${UsedVersions.hotReloadVersion}",
             "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}",
+            "org.jetbrains.amper:compose-hot-reload-recompiler-extension:${AmperBuild.mavenVersion}"
         ),
-        listOf(
-            MavenRepository("https://packages.jetbrains.team/maven/p/amper/compose-hot-reload"),
-            MavenCentral,
-            GOOGLE_REPOSITORY,
-        )
+        listOf(MavenCentral, GOOGLE_REPOSITORY, AMPER_DEV_REPOSITORY)
     )
 
     suspend fun downloadComposeDesktop(): List<Path> = downloadToolingArtifacts(
         listOf("org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}"),
-        listOf(
-            MavenCentral,
-            GOOGLE_REPOSITORY,
-        )
+        listOf(MavenCentral, GOOGLE_REPOSITORY)
     )
 
     suspend fun downloadSlf4jApi(): List<Path> = downloadToolingArtifacts(
         listOf("org.slf4j:slf4j-api:${UsedVersions.slf4jVersion}"),
-        listOf(MavenCentral, MavenLocal)
     )
 
     suspend fun downloadSpringBootLoader(): Path = downloadToolingArtifacts(
-        listOf("org.springframework.boot:spring-boot-loader:${UsedVersions.springBootVersion}"),
-        listOf(MavenCentral, MavenLocal)
+        listOf("org.springframework.boot:spring-boot-loader:${UsedVersions.springBootVersion}")
     ).single()
 
-    private suspend fun downloadToolingArtifacts(coordinates: List<String>, repositories: List<Repository>): List<Path> =
+    private suspend fun downloadToolingArtifacts(
+        coordinates: List<String>,
+        repositories: List<Repository> = listOf(MavenCentral),
+    ): List<Path> =
         executeOnChangedInputs.execute("resolve-$coordinates", emptyMap(), emptyList()) {
             val resolved = mavenResolver.resolve(
                 coordinates = coordinates,

@@ -8,7 +8,7 @@ clikt = "5.0.3"
 eclipse-jgit = "7.2.1.202505142326-r"
 google-services = "4.4.2"
 gradle-api = "8.11.1"
-hot-reload-version = "1.0.0-beta01-143" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
+hot-reload-version = "1.0.0-beta03" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
 intellij-platform = "251.23774.435"
@@ -54,6 +54,7 @@ google-services-gradle-plugin =  { module = "com.google.gms:google-services", ve
 gradle-api =  { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api" }
 gradle-toolingApi = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-api" }
 hot-reload-core = { module = "org.jetbrains.compose.hot-reload:hot-reload-core", version.ref = "hot-reload-version" }
+hot-reload-devtools-api = { module = "org.jetbrains.compose.hot-reload:hot-reload-devtools-api", version.ref = "hot-reload-version" }
 hot-reload-orchestration = { module = "org.jetbrains.compose.hot-reload:hot-reload-orchestration", version.ref = "hot-reload-version" }
 intellij-amper-xcodemodel = { module = "com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed", version.ref = "intellij-xcodemodel" }
 intellij-deps-asyncProfiler = { module = "org.jetbrains.intellij.deps:async-profiler", version.ref = "intellij-async-profiler" }
