@@ -19,10 +19,23 @@ import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.sse.*
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.slf4j.MDCContext
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.cli.UserReadableError
+import org.jetbrains.amper.cli.logging.ServerWriter
+import org.jetbrains.amper.cli.logging.sessionIdKey
+import org.jetbrains.amper.cli.logging.useKey
+import org.jetbrains.amper.cli.logging.useServerValue
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.TaskName
+import org.slf4j.MDC
+import org.tinylog.Level
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Serializable
 data class Task(val taskHierarchy: List<String>)
@@ -37,9 +50,21 @@ internal class ServerCommand : AmperSubcommand(name = "server") {
         .int(acceptsValueWithoutName = true)
         .default(defaultPort)
 
+    private val logLevel by option("-l", "--log-level", help = "The task log level")
+        .choiceWithTypoSuggestion(
+            mapOf(
+                "debug" to Level.DEBUG,
+                "info" to Level.INFO,
+                "warn" to Level.WARN,
+                "error" to Level.ERROR,
+                "off" to Level.OFF,
+            ), ignoreCase = true
+        ).default(Level.INFO)
+
     override fun help(context: Context): String =
         "Start a server that accepts tasks from Amper and runs them. The server runs on port $defaultPort by default."
 
+    @OptIn(ExperimentalUuidApi::class)
     override suspend fun run() {
         withBackend(commonOptions, commandName, terminal) { backend ->
             embeddedServer(Netty, port = port) {
@@ -48,16 +73,39 @@ internal class ServerCommand : AmperSubcommand(name = "server") {
                 routing {
                     route("/task", HttpMethod.Post) {
                         sse {
+                            val requestId = Uuid.random().toHexString()
+                            MDC.put(useKey, useServerValue)
+                            MDC.put(sessionIdKey, requestId)
                             val task = call.receive<Task>()
+
+                            launch {
+                                ServerWriter.logFlow
+                                    .filter { it.uuid == requestId }
+                                    .map { it.entry }
+                                    .filter { it.level.ordinal >= logLevel.ordinal }
+                                    .collect {
+                                        send(
+                                            ServerSentEvent(
+                                                it.message,
+                                                it.level.name.lowercase(),
+                                                "log"
+                                            )
+                                        )
+                                    }
+                            }
+
                             runCatching {
                                 send(
                                     ServerSentEvent(
                                         "Build started",
-                                        "info",
-                                        "info"
+                                        "event",
+                                        "event"
                                     )
                                 )
-                                backend.runTask(task = TaskName.fromHierarchy(task.taskHierarchy))
+
+                                withContext(MDCContext()) {
+                                    backend.runTask(task = TaskName.fromHierarchy(task.taskHierarchy))
+                                }
                             }.onFailure { e ->
                                 when (e) {
                                     is UserReadableError -> {
@@ -76,8 +124,8 @@ internal class ServerCommand : AmperSubcommand(name = "server") {
                             send(
                                 ServerSentEvent(
                                     "Build finished",
-                                    "info",
-                                    "info"
+                                    "event",
+                                    "event"
                                 )
                             )
 
