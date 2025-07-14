@@ -41,6 +41,7 @@ import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import java.net.Socket
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
@@ -139,8 +140,8 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
     private suspend fun findTraceFiles(): List<Path> = coroutineScope {
         val logsRootDir = try {
             val context = CliContext.create(
-                explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
-                explicitBuildRoot = commonOptions.buildOutputRoot?.createDirectories()?.toAbsolutePath(),
+                explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
+                explicitBuildRoot = commonOptions.explicitBuildOutputRoot?.createDirectories()?.toAbsolutePath(),
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 commandName = commandName,
                 terminal = terminal,

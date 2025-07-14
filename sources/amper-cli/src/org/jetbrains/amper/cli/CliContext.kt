@@ -8,10 +8,10 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.tasks.AllRunSettings
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import java.text.SimpleDateFormat
@@ -60,9 +60,7 @@ class CliContext private constructor(
             terminal: Terminal,
             androidHomeRoot: AndroidHomeRoot? = null,
         ): CliContext {
-            require(commandName.isNotBlank()) {
-                "currentTopLevelCommand should not be blank"
-            }
+            require(commandName.isNotBlank()) { "commandName should not be blank" }
 
             val amperProjectContext = spanBuilder("Create Amper project context").use {
                 with(CliProblemReporterContext) {
@@ -81,19 +79,11 @@ class CliContext private constructor(
 
             val tempDir = buildOutputRootNotNull.resolve("temp").also { it.createDirectories() }
 
-            val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
-            val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
-            val logsDir = buildOutputRootNotNull
-                .resolve("logs")
-                .resolve("amper_${currentTimestamp}_${pid}_$currentTopLevelCommand")
-                .also { it.createDirectories() }
-
             return CliContext(
                 commandName = commandName,
                 projectContext = amperProjectContext,
                 buildOutputRoot = AmperBuildOutputRoot(buildOutputRootNotNull),
                 projectTempRoot = AmperProjectTempRoot(tempDir),
-                buildLogsRoot = AmperBuildLogsRoot(logsDir),
                 userCacheRoot = userCacheRoot,
                 runSettings = runSettings,
                 terminal = terminal,

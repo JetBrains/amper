@@ -29,6 +29,7 @@ import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
 import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.io.path.createDirectories
 
 private val backendInitialized = AtomicReference<Throwable>(null)
 
@@ -65,8 +66,8 @@ internal suspend fun <T> withBackend(
 
         val cliContext = spanBuilder("Create CLI context").use {
             CliContext.create(
-                explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
-                explicitBuildRoot = commonOptions.buildOutputRoot?.createDirectories()?.toAbsolutePath(),
+                explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
+                explicitBuildRoot = commonOptions.explicitBuildOutputRoot?.createDirectories()?.toAbsolutePath(),
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 commandName = commandName,
                 runSettings = runSettings,

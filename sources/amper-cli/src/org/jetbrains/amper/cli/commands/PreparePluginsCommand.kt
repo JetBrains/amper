@@ -19,16 +19,15 @@ internal class PreparePluginsCommand : AmperSubcommand(name = "prepare-plugins")
 
     override suspend fun run() = coroutineScope {
         val context = CliContext.create(
-            explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
-            explicitBuildRoot = commonOptions.buildOutputRoot?.createDirectories()?.toAbsolutePath(),
+            explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
+            explicitBuildRoot = commonOptions.explicitBuildOutputRoot?.createDirectories()?.toAbsolutePath(),
             userCacheRoot = commonOptions.sharedCachesRoot,
-            currentTopLevelCommand = commandName,
+            commandName = commandName,
             runSettings = AllRunSettings(),
-            backgroundScope = this,
             terminal = terminal,
         )
-        TelemetryEnvironment.setLogsRootDirectory(context.buildLogsRoot)
-        LoggingInitializer.setupFileLogging(context.buildLogsRoot)
+        TelemetryEnvironment.setLogsRootDirectory(context.currentLogsRoot)
+        LoggingInitializer.setupFileLogging(context.currentLogsRoot)
 
         preparePlugins(context)
     }

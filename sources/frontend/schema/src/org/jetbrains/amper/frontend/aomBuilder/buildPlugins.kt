@@ -31,6 +31,7 @@ import org.jetbrains.amper.frontend.tree.TreeVisitor
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
+import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.single
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 import org.jetbrains.amper.frontend.types.getDeclaration
@@ -145,9 +146,8 @@ private class PluginTreeReader(
         val moduleRootDir = module.module.source.moduleDir ?: return null
         val pluginConfiguration = module.commonTree.asMapLikeAndGet("settings")?.asMapLikeAndGet(pluginId.value)
 
-        val enabled = pluginConfiguration?.asMapLikeAndGet("enabled") ?: return null
-        if ((enabled as ScalarValue<*>).value != true)
-            return null
+        val enabled = pluginConfiguration?.asMapLikeAndGet("enabled")?.scalarValue<Boolean>()
+        if (enabled != true) return null
 
         val taskDirs = (pluginTree.asMapLikeAndGet("tasks") as? Refined)
             ?.refinedChildren
