@@ -60,6 +60,8 @@ import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.isDirectory
@@ -98,7 +100,7 @@ internal class JvmCompileTask(
         isTest = isTest,
         buildType = buildType,
     )
-    
+
     private val additionalKotlinJavaSourceDirs by Selectors.fromMatchingFragments(
         type = KotlinJavaSourceDirArtifact::class,
         module = module,
@@ -114,8 +116,11 @@ internal class JvmCompileTask(
         hasPlatforms = setOf(platform),
         quantifier = Quantifier.AnyOrNone,
     )
-    
+
     val taskOutputRoot get() = compiledJvmClassesPath.path
+
+    private val compilerOutputRoot = taskOutputRoot / "output"
+    private val jicDataDir = taskOutputRoot / "jic-data"
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         require(fragments.isNotEmpty()) {
@@ -180,8 +185,15 @@ internal class JvmCompileTask(
         val inputFiles = sources + resources + classpath + javaAnnotationProcessorClasspath
 
         val result = incrementalCache.execute(taskName.name, inputValues, inputFiles) {
-            cleanDirectory(taskOutputRoot)
             cleanDirectory(javaAnnotationProcessorsGeneratedDir)
+            if (!shouldCompileJavaIncrementally()) {
+                cleanDirectory(taskOutputRoot)
+                compilerOutputRoot.createDirectories()
+            }
+            else {
+                compilerOutputRoot.createDirectories()
+                jicDataDir.createDirectories()
+            }
 
             val nonEmptySourceDirs = sources
                 .filter {
@@ -194,7 +206,7 @@ internal class JvmCompileTask(
                 }
 
             val outputPaths = mutableListOf<Path>()
-            outputPaths.add(taskOutputRoot.toAbsolutePath())
+            outputPaths.add(compilerOutputRoot.toAbsolutePath())
 
             if (nonEmptySourceDirs.isNotEmpty()) {
                 compileSources(
@@ -218,19 +230,22 @@ internal class JvmCompileTask(
             val presentResources = resources.filter { it.exists() }
             for (resource in presentResources) {
                 val dest = if (resource.isDirectory()) {
-                    taskOutputRoot
+                    compilerOutputRoot
                 } else {
-                    taskOutputRoot.resolve(resource.fileName)
+                    compilerOutputRoot / resource.fileName
                 }
                 logger.debug("Copying resources from '{}' to '{}'...", resource, dest)
-                BuildPrimitives.copy(from = resource, to = dest)
+
+                // if we compile incrementally, then we don't clean the output dir => overwrite instead of failing that a file exists
+                val overwrite = shouldCompileJavaIncrementally()
+                BuildPrimitives.copy(from = resource, to = dest, overwrite = overwrite)
             }
 
             return@execute IncrementalCache.ExecutionResult(outputPaths)
         }
 
         return Result(
-            classesOutputRoot = taskOutputRoot.toAbsolutePath(),
+            classesOutputRoot = compilerOutputRoot.toAbsolutePath(),
             module = module,
             isTest = isTest,
             changes = result.changes,
@@ -275,7 +290,7 @@ internal class JvmCompileTask(
         }
 
         if (javaFilesToCompile.isNotEmpty()) {
-            val kotlinClassesPath = listOf(taskOutputRoot)
+            val kotlinClassesPath = listOf(compilerOutputRoot)
             compileJavaSources(
                 jdk = jdk,
                 userSettings = userSettings,
@@ -321,7 +336,7 @@ internal class JvmCompileTask(
             userSettings = userSettings,
             classpath = classpath,
             jdkHome = jdk.homeDir,
-            outputPath = taskOutputRoot,
+            outputPath = compilerOutputRoot,
             compilerPlugins = compilerPlugins,
             fragments = fragments,
             additionalSourceRoots = additionalSourceRoots,
@@ -368,7 +383,8 @@ internal class JvmCompileTask(
         tempRoot: AmperProjectTempRoot,
         processorGeneratedDir: Path,
     ) {
-        val javacArgs = buildList {
+        // javac arguments that are common for plain javac and JIC
+        val commonArgs = buildList {
             if (userSettings.jvmRelease != null) {
                 add("--release")
                 add(userSettings.jvmRelease.releaseNumber.toString())
@@ -377,9 +393,6 @@ internal class JvmCompileTask(
             if (userSettings.java.parameters) {
                 add("-parameters")
             }
-
-            add("-classpath")
-            add(classpath.joinToString(File.pathSeparator))
 
             // necessary for reproducible source jars across OS-es
             add("-encoding")
@@ -392,6 +405,38 @@ internal class JvmCompileTask(
                 val annotationProcessorArgs = buildAnnotationProcessorArgs(userSettings.java, processorClasspath, processorGeneratedDir)
                 addAll(annotationProcessorArgs)
             }
+        }
+
+        val freeCompilerArgs = userSettings.java.freeCompilerArgs
+
+        val success = if (shouldCompileJavaIncrementally()) {
+            val jicJavacArgs = commonArgs + freeCompilerArgs
+            spanBuilder("JIC").use {
+                compileJavaWithJic(
+                    jdk, module, isTest, javaSourceFiles, jicJavacArgs, compilerOutputRoot, jicDataDir, classpath, logger
+                )
+            }
+        } else {
+            compileJavaWithPlainJavac(tempRoot, jdk, commonArgs, classpath, freeCompilerArgs, javaSourceFiles)
+        }
+        if (!success) {
+            userReadableError("Java compilation failed (see errors above)")
+        }
+    }
+
+    private suspend fun compileJavaWithPlainJavac(
+        tempRoot: AmperProjectTempRoot,
+        jdk: Jdk,
+        commonJavacArgs: List<String>,
+        classpath: List<Path>,
+        freeCompilerArgs: List<String>,
+        javaSourceFiles: List<Path>,
+    ): Boolean {
+        val plainJavacArgs = buildList {
+            addAll(commonJavacArgs)
+
+            add("-classpath")
+            add(classpath.joinToString(File.pathSeparator))
 
             // https://blog.ltgt.net/most-build-tools-misuse-javac/
             // we compile module by module, so we don't need javac lookup into other modules
@@ -400,17 +445,17 @@ internal class JvmCompileTask(
             add("-implicit:none")
 
             add("-d")
-            add(taskOutputRoot.pathString)
+            add(compilerOutputRoot.pathString)
 
-            addAll(userSettings.java.freeCompilerArgs)
+            addAll(freeCompilerArgs)
 
             addAll(javaSourceFiles.map { it.pathString })
         }
 
-        val exitCode = withJavaArgFile(tempRoot, javacArgs) { argsFile ->
+        val exitCode = withJavaArgFile(tempRoot, plainJavacArgs) { argsFile ->
             val result = spanBuilder("javac")
                 .setAmperModule(module)
-                .setListAttribute("args", javacArgs)
+                .setListAttribute("args", plainJavacArgs)
                 .setAttribute("jdk-home", jdk.homeDir.pathString)
                 .setAttribute("version", jdk.version)
                 .use { span ->
@@ -423,10 +468,11 @@ internal class JvmCompileTask(
                 }
             result.exitCode
         }
+        return exitCode == 0
+    }
 
-        if (exitCode != 0) {
-            userReadableError("Java compilation failed (see errors above)")
-        }
+    fun shouldCompileJavaIncrementally() : Boolean {
+        return System.getProperty("org.jetbrains.amper.jic").toBoolean()
     }
 
     class Result(

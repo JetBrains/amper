@@ -1,0 +1,11 @@
+product: jvm/lib
+
+apply:
+  - ../../common.module-template.yaml
+
+dependencies:
+  - $kotlin.serialization.core
+
+settings:
+  kotlin:
+    serialization: json

@@ -1,0 +1,9 @@
+product:
+  type: jvm/app
+
+dependencies:
+  - ../lib
+
+settings:
+  jvm:
+    mainClass: com.Main
