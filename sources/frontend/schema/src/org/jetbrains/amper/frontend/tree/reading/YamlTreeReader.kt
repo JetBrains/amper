@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.api.trace
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
 import org.jetbrains.amper.frontend.contexts.TestCtx
@@ -296,10 +297,12 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         val multipleQualifiers = ctxStr.split("+")
         // Currently, multiple modifiers are not supported by AOM.
         // TODO Rethink - is it true?
-        if (multipleQualifiers.size > 1) SchemaBundle.reportBundleError(
-            keyValue.key!!,
-            "multiple.qualifiers.are.unsupported"
-        )
+        if (multipleQualifiers.size > 1) {
+            problemReporter.reportBundleError(
+                source = keyValue.key?.asBuildProblemSource() ?: error("Missing 'key' in YAMLKeyValue element"),
+                messageKey = "multiple.qualifiers.are.unsupported",
+            )
+        }
         return readKey to multipleQualifiers
             .map(String::trim)
             .filter { it.isNotEmpty() }
@@ -321,7 +324,10 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
                 else -> false
             }
             if (!supportsInterpolation) {
-                SchemaBundle.reportBundleError(scalar, "string.interpolation.unsupported")
+                problemReporter.reportBundleError(
+                    source = scalar.asBuildProblemSource(),
+                    messageKey = "string.interpolation.unsupported",
+                )
             }
         }
         referenceValue(

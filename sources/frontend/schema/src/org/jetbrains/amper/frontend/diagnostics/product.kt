@@ -7,10 +7,10 @@ package org.jetbrains.amper.frontend.diagnostics
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceableEnum
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitProduct
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
@@ -27,14 +27,12 @@ object LibShouldHavePlatforms : MergedTreeDiagnostic {
         root.visitProduct { (typeValue, type, _, _, platforms) ->
             val isYaml = typeValue.trace.extractPsiElementOrNull()?.parent is YAMLPsiElement
             if (type == ProductType.LIB && platforms == null) {
-                with(problemReporter.asContext()) {
-                    SchemaBundle.reportBundleError(
-                        trace = typeValue.trace,
-                        messageKey = if (isYaml) diagnosticId else "product.type.does.not.have.default.platforms.amperlang",
-                        ProductType.LIB.schemaValue,
-                        level = Level.Fatal,
-                    )
-                }
+                problemReporter.reportBundleError(
+                    source = typeValue.trace.asBuildProblemSource(),
+                    messageKey = if (isYaml) diagnosticId else "product.type.does.not.have.default.platforms.amperlang",
+                    ProductType.LIB.schemaValue,
+                    level = Level.Fatal,
+                )
             }
         }
 }
@@ -47,15 +45,13 @@ object ProductPlatformIsUnsupported : MergedTreeDiagnostic {
             platformsRaw?.forEach {
                 val platform = it.scalarValue<TraceableEnum<Platform>>()?.value ?: return@forEach
                 if (platform !in type.supportedPlatforms) {
-                    with(problemReporter.asContext()) {
-                        SchemaBundle.reportBundleError(
-                            trace = it.trace,
-                            messageKey = diagnosticId,
-                            type.schemaValue,
-                            platform.pretty,
-                            type.supportedPlatforms.joinToString { it.pretty },
-                        )
-                    }
+                    problemReporter.reportBundleError(
+                        source = it.trace.asBuildProblemSource(),
+                        messageKey = diagnosticId,
+                        type.schemaValue,
+                        platform.pretty,
+                        type.supportedPlatforms.joinToString { it.pretty },
+                    )
                 }
             }
         }
@@ -67,13 +63,11 @@ object ProductPlatformsShouldNotBeEmpty : MergedTreeDiagnostic {
     override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitProduct { (_, _, platformsValue, _, platforms) ->
             if (platforms?.isEmpty() == true) {
-                with(problemReporter.asContext()) {
-                    SchemaBundle.reportBundleError(
-                        trace = platformsValue?.trace ?: return@visitProduct,
-                        messageKey = diagnosticId,
-                        level = Level.Fatal,
-                    )
-                }
+                problemReporter.reportBundleError(
+                    source = (platformsValue?.trace ?: return@visitProduct).asBuildProblemSource(),
+                    messageKey = diagnosticId,
+                    level = Level.Fatal,
+                )
             }
         }
 }

@@ -6,11 +6,11 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.unsafe
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitMapLikeProperties
 import org.jetbrains.amper.frontend.leaves
@@ -30,9 +30,11 @@ object AliasesDontUseUndeclaredPlatform : MergedTreeDiagnostic {
             aliasesRaw.children.flatMap { it.value.asList?.children.orEmpty() }.forEach { it ->
                 val platform = it.scalarValue<TraceableEnum<Platform>>()?.value ?: return@forEach
                 if (platform !in declaredPlatforms) {
-                    with(problemReporter.asContext()) {
-                        SchemaBundle.reportBundleError(it.trace, diagnosticId, platform.pretty)
-                    }
+                    problemReporter.reportBundleError(
+                        source = it.trace.asBuildProblemSource(),
+                        messageKey = diagnosticId,
+                        platform.pretty,
+                    )
                 }
             }
         }
@@ -52,14 +54,12 @@ object AliasesAreNotIntersectingWithNaturalHierarchy : MergedTreeDiagnostic {
                     ?.mapNotNull { it.scalarValue<TraceableEnum<Platform>>() }?.leaves ?: return@forEach
                 val similar = nhEntries.firstOrNull { aliasPlatforms == it.value }
                 if (similar != null) {
-                    with(problemReporter.asContext()) {
-                        SchemaBundle.reportBundleError(
-                            aliasValue.trace,
-                            diagnosticId,
-                            aliasName,
-                            similar.key.pretty,
-                        )
-                    }
+                    problemReporter.reportBundleError(
+                        source = aliasValue.trace.asBuildProblemSource(),
+                        messageKey = diagnosticId,
+                        aliasName,
+                        similar.key.pretty,
+                    )
                 }
             }
         }

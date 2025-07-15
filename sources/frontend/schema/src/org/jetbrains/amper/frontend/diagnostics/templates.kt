@@ -6,9 +6,9 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceablePath
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitListProperties
 import org.jetbrains.amper.frontend.reportBundleError
@@ -30,12 +30,10 @@ object TemplateNameWithoutPostfix : MergedTreeDiagnostic {
                     template.extension != "amper" &&
                     !template.pathString.endsWith(".module-template.yaml")
                 ) {
-                    with(problemReporter.asContext()) {
-                        SchemaBundle.reportBundleError(
-                            tValue.trace,
-                            diagnosticId,
-                        )
-                    }
+                    problemReporter.reportBundleError(
+                        source = tValue.trace.asBuildProblemSource(),
+                        messageKey = diagnosticId,
+                    )
                 }
             }
         }
@@ -49,13 +47,11 @@ object UnresolvedTemplate : MergedTreeDiagnostic {
         root.visitListProperties(Module::apply) { _, templatesRaw ->
             templatesRaw.children.map { it to it.scalarValue<TraceablePath>()?.value }.forEach { (tValue, template) ->
                 if (template != null && !template.exists()) {
-                    with(problemReporter.asContext()) {
-                        SchemaBundle.reportBundleError(
-                            tValue.trace,
-                            diagnosticId,
-                            template,
-                        )
-                    }
+                    problemReporter.reportBundleError(
+                        source = tValue.trace.asBuildProblemSource(),
+                        messageKey = diagnosticId,
+                        template,
+                    )
                 }
             }
         }

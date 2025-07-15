@@ -9,7 +9,6 @@ import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 
-
 /**
  * Version catalog. Currently, it supports only maven dependencies.
  */
@@ -37,14 +36,14 @@ interface VersionCatalog {
     fun findInCatalogWithReport(key: String, keyTrace: Trace?): TraceableString? {
         val value = findInCatalog(key)
         if (value == null && keyTrace is PsiTrace) {
-            SchemaBundle.reportBundleError(
-                node = keyTrace.psiElement,
+            problemReporter.reportBundleError(
+                source = keyTrace.psiElement.asBuildProblemSource(),
                 messageKey = when {
                     key.startsWith("compose.") -> "compose.is.disabled"
                     key.startsWith("kotlin.serialization.") -> "kotlin.serialization.is.disabled"
                     else -> "no.catalog.value"
                 },
-                key
+                key,
             )
         }
         return value

@@ -9,7 +9,6 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.SchemaBundle
@@ -17,11 +16,11 @@ import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.reportBundleError
 import kotlin.reflect.KProperty0
-
 
 object InconsistentComposeVersion : AomModelDiagnosticFactory {
     const val diagnosticId: BuildProblemId = "inconsistent.compose.versions"
@@ -33,15 +32,14 @@ object InconsistentComposeVersion : AomModelDiagnosticFactory {
             .map { it.rootFragment.settings.compose }
             .filter { it.version != chosenComposeVersionForModel }
 
-        with(problemReporter.asContext()) {
-            mismatchedComposeSettings.forEach {
-                SchemaBundle.reportBundleError(
-                    property = if (!it::version.isDefault) it::version else it::enabled,
-                    messageKey = diagnosticId,
-                    chosenComposeVersionForModel,
-                    level = Level.Fatal,
-                )
-            }
+        mismatchedComposeSettings.forEach {
+            val sourceProperty = if (!it::version.isDefault) it::version else it::enabled
+            problemReporter.reportBundleError(
+                source = sourceProperty.asBuildProblemSource(),
+                messageKey = diagnosticId,
+                chosenComposeVersionForModel,
+                level = Level.Fatal,
+            )
         }
     }
 }

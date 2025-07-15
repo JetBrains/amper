@@ -6,107 +6,58 @@ package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.BuildProblemImpl
+import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.LineAndColumn
 import org.jetbrains.amper.core.messages.LineAndColumnRange
 import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
-import org.jetbrains.annotations.Nls
 import kotlin.reflect.KProperty0
 
 object SchemaBundle : MessageBundle("messages.SchemaBundle")
 
-context(ProblemReporterContext)
-fun MessageBundle.reportBundleError(
-    property: KProperty0<*>,
-    messageKey: String,
-    vararg arguments: Any,
-    level: Level = Level.Error,
-): Nothing? = reportBundleError(
-    value = property.valueBase,
-    messageKey = messageKey,
-    *arguments,
-    level = level,
-)
-
-context(ProblemReporterContext)
-fun MessageBundle.reportBundleError(
-    value: Traceable?,
-    messageKey: String,
-    vararg arguments: Any,
-    level: Level = Level.Error,
-) = reportBundleError(
-        trace = value?.trace,
-        messageKey = messageKey,
-        *arguments,
-        level = level,
-    )
-
-context(ProblemReporterContext)
-fun MessageBundle.reportBundleError(
-    trace: Trace?,
-    messageKey: String,
-    vararg arguments: Any,
-    level: Level = Level.Error,
-): Nothing? {
-    val psiElement = trace?.extractPsiElementOrNull()
-    return when {
-        psiElement != null -> reportBundleError(
-            node = psiElement,
-            messageKey = messageKey,
-            *arguments,
-            level = level,
-        )
-
-        else -> reportError(
-            message = message(messageKey, *arguments),
-            level = level,
-            node = null as PsiElement?,
-            buildProblemId = messageKey,
-        )
-    }
-}
-
-context(ProblemReporterContext)
-fun MessageBundle.reportBundleError(
-    node: PsiElement,
+/**
+ * Reports a problem using a localized message from the given [bundle] with the given [messageKey] and [arguments].
+ * It will be reported at the given [source] location.
+ */
+fun ProblemReporter.reportBundleError(
+    source: BuildProblemSource,
     messageKey: String,
     vararg arguments: Any?,
+    bundle: MessageBundle = SchemaBundle,
+    buildProblemId: String = messageKey,
     level: Level = Level.Error,
-): Nothing? = reportError(
-    message = message(messageKey, *arguments),
-    level = level,
-    node = node,
-    buildProblemId = messageKey,
-)
-
-context(ProblemReporterContext)
-@OptIn(NonIdealDiagnostic::class)
-private fun reportError(
-    message: @Nls String,
-    level: Level = Level.Error,
-    node: PsiElement? = null,
-    buildProblemId: BuildProblemId,
-): Nothing? {
-    problemReporter.reportMessage(
+) {
+    reportMessage(
         BuildProblemImpl(
-            buildProblemId,
-            source = node?.let(::PsiBuildProblemSource) ?: GlobalBuildProblemSource,
-            message,
-            level,
+            buildProblemId = buildProblemId,
+            source = source,
+            message = bundle.message(messageKey, *arguments),
+            level = level,
         )
     )
-    return null
 }
+
+fun KProperty0<*>.asBuildProblemSource(): BuildProblemSource = valueBase?.trace?.asBuildProblemSource()
+    ?: error("Cannot get BuildProblemSource for property $name ($this) because it's not a value delegate")
+
+fun Traceable.asBuildProblemSource(): BuildProblemSource =
+    (trace ?: error("Cannot get BuildProblemSource for this Traceable ($this) because it has no trace"))
+        .asBuildProblemSource()
+
+@OptIn(NonIdealDiagnostic::class)
+fun Trace.asBuildProblemSource(): BuildProblemSource = extractPsiElementOrNull()?.asBuildProblemSource()
+    ?: GlobalBuildProblemSource
+
+fun PsiElement.asBuildProblemSource(): BuildProblemSource = PsiBuildProblemSource(this)
 
 fun getLineAndColumnRangeInPsiFile(node: PsiElement): LineAndColumnRange {
     val document: Document = node.containingFile.viewProvider.document

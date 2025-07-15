@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ModuleProduct
@@ -81,12 +82,13 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
                 )
             )
         // Check if there is no "product.type" section (also, when type section has not value).
-        else if (moduleTree["product"].values.onlyMapLike["type"].values.isEmptyOrNoValue())
-            SchemaBundle.reportBundleError(
-                moduleTree["product"].first().kTrace,
-                "product.not.defined",
+        else if (moduleTree["product"].values.onlyMapLike["type"].values.isEmptyOrNoValue()) {
+            problemReporter.reportBundleError(
+                source = moduleTree["product"].first().kTrace.asBuildProblemSource(),
+                messageKey = "product.not.defined",
                 level = Level.Fatal,
             )
+        }
 
         if (reporterCtx.hasFatal) {
             // Rewind errors to the upper reporting context if something fatal had happened.

@@ -6,19 +6,16 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
 import org.jetbrains.amper.frontend.diagnostics.helpers.extractKeyElement
-import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.OwnedTree
 import org.jetbrains.amper.frontend.tree.visitValues
-
 
 object UnknownQualifiers : OwnedTreeDiagnostic {
 
@@ -29,20 +26,18 @@ object UnknownQualifiers : OwnedTreeDiagnostic {
     override fun analyze(root: OwnedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         val knownAliases = minimalModule.aliases?.keys.orEmpty()
         val knownModifiers = knownAliases + knownPlatforms
-        with(problemReporter.asContext()) {
-            root.visitValues { value ->
-                value.contexts
-                    .filterIsInstance<PlatformCtx>().filter { it.trace != null }
-                    .filter { it.value !in knownModifiers }
-                    .forEach {
-                        SchemaBundle.reportBundleError(
-                            node = it.trace?.extractPsiElementOrNull()?.extractKeyElement()
-                                ?: return@forEach, // Skip for unknown places.
-                            messageKey = "product.unknown.qualifier",
-                            it.value,
-                        )
-                    }
-            }
+        root.visitValues { value ->
+            value.contexts
+                .filterIsInstance<PlatformCtx>().filter { it.trace != null }
+                .filter { it.value !in knownModifiers }
+                .forEach {
+                    problemReporter.reportBundleError(
+                        source = it.trace?.extractPsiElementOrNull()?.extractKeyElement()?.asBuildProblemSource()
+                            ?: return@forEach, // Skip for unknown places.
+                        messageKey = "product.unknown.qualifier",
+                        it.value,
+                    )
+                }
         }
     }
 }

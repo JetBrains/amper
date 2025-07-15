@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
@@ -53,24 +54,28 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                 // FIXME Access to the file in a more safe way.
                 val credPair = repository.credentials?.let { credentials ->
                     if (!credentials.file.exists()) {
-                        SchemaBundle.reportBundleError(
-                            property = credentials::file,
+                        problemReporter.reportBundleError(
+                            source = credentials::file.asBuildProblemSource(),
                             messageKey = "credentials.file.does.not.exist",
-                            credentials.file.normalize()
+                            credentials.file.normalize(),
                         )
                         return@let null
                     } else {
                         val credentialProperties = credentials.file.readProperties()
 
-                        fun getCredProperty(keyProperty: KProperty0<String>): String? =
-                            credentialProperties.getProperty(keyProperty.get())
-                                ?: SchemaBundle.reportBundleError(
-                                    property = keyProperty,
+                        fun getCredProperty(keyProperty: KProperty0<String>): String? {
+                            val property = credentialProperties.getProperty(keyProperty.get())
+                            if (property == null) {
+                                problemReporter.reportBundleError(
+                                    source = keyProperty.asBuildProblemSource(),
                                     messageKey = "credentials.file.does.not.have.key",
                                     credentials.file.normalize(),
                                     keyProperty.get(),
                                     credentialProperties.keys.joinToString(),
                                 )
+                            }
+                            return property
+                        }
 
                         getCredProperty(credentials::usernameKey) to getCredProperty(credentials::passwordKey)
                     }

@@ -10,17 +10,21 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import io.opentelemetry.api.common.Attributes
 import org.jetbrains.amper.core.UsedInIdePlugin
+import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.readProject
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
+import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext.Companion.find
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.schema.Project
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException
@@ -150,6 +154,7 @@ class StandaloneAmperProjectContext(
          * The given [frontendPathResolver] is used to resolve virtual files and PSI files.
          */
         context(ProblemReporterContext)
+        @OptIn(NonIdealDiagnostic::class)
         internal fun create(
             rootDir: VirtualFile,
             buildDir: Path?,
@@ -168,8 +173,8 @@ class StandaloneAmperProjectContext(
             val explicitProjectModuleFiles = amperProject?.modulePaths(rootDir) ?: emptyList()
             val amperModuleFiles = listOfNotNull(rootModuleFile) + explicitProjectModuleFiles
             if (amperModuleFiles.isEmpty()) {
-                SchemaBundle.reportBundleError(
-                    value = amperProject,
+                problemReporter.reportBundleError(
+                    source = amperProject?.asBuildProblemSource() ?: GlobalBuildProblemSource,
                     messageKey = "project.has.no.modules",
                     rootDir.presentableUrl,
                     level = Level.Warning,
@@ -267,8 +272,8 @@ context(ProblemReporterContext)
 private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableString): VirtualFile? {
     val moduleDir = findFileByRelativePath(relativeModulePath.value)
     if (moduleDir == null) {
-        SchemaBundle.reportBundleError(
-            value = relativeModulePath,
+        problemReporter.reportBundleError(
+            source = relativeModulePath.asBuildProblemSource(),
             messageKey = "project.module.path.0.unresolved",
             relativeModulePath.value,
             level = Level.Error,
@@ -276,8 +281,8 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
         return null
     }
     if (!moduleDir.isDirectory) {
-        SchemaBundle.reportBundleError(
-            value = relativeModulePath,
+        problemReporter.reportBundleError(
+            source = relativeModulePath.asBuildProblemSource(),
             messageKey = "project.module.path.0.is.not.a.directory",
             relativeModulePath.value,
             level = Level.Error,
@@ -286,8 +291,8 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
     }
     val moduleFile = moduleDir.findChildMatchingAnyOf(amperModuleFileNames)
     if (moduleFile == null) {
-        SchemaBundle.reportBundleError(
-            value = relativeModulePath,
+        problemReporter.reportBundleError(
+            source = relativeModulePath.asBuildProblemSource(),
             messageKey = "project.module.dir.0.has.no.module.file",
             relativeModulePath.value,
             level = Level.Error,
@@ -295,16 +300,16 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
         return null
     }
     if (moduleDir.url == url) {
-        SchemaBundle.reportBundleError(
-            value = relativeModulePath,
+        problemReporter.reportBundleError(
+            source = relativeModulePath.asBuildProblemSource(),
             messageKey = "project.module.root.is.included.by.default",
             level = Level.Redundancy,
         )
         return null
     }
     if (!VfsUtilCore.isAncestor(this, moduleDir, false)) {
-        SchemaBundle.reportBundleError(
-            value = relativeModulePath,
+        problemReporter.reportBundleError(
+            source = relativeModulePath.asBuildProblemSource(),
             messageKey = "project.module.dir.0.is.not.under.root",
             relativeModulePath.value,
             level = Level.Error,
@@ -325,8 +330,8 @@ private fun VirtualFile.resolveModuleFilesRecursively(moduleDirGlob: TraceableSt
         return emptyList()
     }
     if ("**" in moduleDirGlob.value) {
-        SchemaBundle.reportBundleError(
-            value = moduleDirGlob,
+        problemReporter.reportBundleError(
+            source = moduleDirGlob.asBuildProblemSource(),
             messageKey = "project.module.glob.0.double.star.not.supported",
             moduleDirGlob.value,
             level = Level.Error,
@@ -335,8 +340,8 @@ private fun VirtualFile.resolveModuleFilesRecursively(moduleDirGlob: TraceableSt
     }
     val matchingModuleFiles = this.findAllDescendantsMatching(glob = moduleFilesGlob)
     if (matchingModuleFiles.isEmpty()) {
-        SchemaBundle.reportBundleError(
-            value = moduleDirGlob,
+        problemReporter.reportBundleError(
+            source = moduleDirGlob.asBuildProblemSource(),
             messageKey = "project.module.glob.0.matches.nothing",
             moduleDirGlob.value,
             level = Level.Redundancy,
@@ -353,8 +358,8 @@ private fun reportInvalidGlob(moduleDirGlob: TraceableString, generatedModuleFil
         // If the user glob succeeds on its own, we have a bug in our code which creates an invalid glob for module files
         error("Invalid glob '$generatedModuleFilesGlob' constructed internally for a valid user-provided glob '${moduleDirGlob.value}'")
     } catch (e: PatternSyntaxException) {
-        SchemaBundle.reportBundleError(
-            value = moduleDirGlob,
+        problemReporter.reportBundleError(
+            source = moduleDirGlob.asBuildProblemSource(),
             messageKey = "project.module.glob.0.is.invalid.1",
             moduleDirGlob.value,
             e.message ?: "(no additional information)",
