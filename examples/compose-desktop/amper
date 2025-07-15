@@ -16,9 +16,9 @@
 set -e -u
 
 # The version of the Amper distribution to provision and use
-amper_version=0.8.0-dev-2945
+amper_version=0.8.0-dev-2949
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=a224eae716904c3290e51e1d0965cec70f2b81fa37802d21dd723891396beab9
+amper_sha256=93b0ba3dd1d1aa1ff7a89006d0ccfe7d73d8bd02e691b8b3eb1769010da26986
 
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
@@ -296,6 +296,7 @@ set -- \
     "-ea" \
     "-XX:+EnableDynamicAgentLoading" \
     "-Damper.wrapper.dist.sha256=$amper_sha256" \
+    "-Damper.dist.path=$amper_target_dir" \
     "-Damper.wrapper.path=$wrapper_path" \
     "$@"
 
