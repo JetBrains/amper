@@ -5,7 +5,6 @@
 package org.jetbrains.amper.android.gradle
 
 import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -16,15 +15,19 @@ internal class SLF4JProblemReporterContext : ProblemReporterContext {
     override val problemReporter: SLF4JProblemReporter = SLF4JProblemReporter(AmperAndroidIntegrationSettingsPlugin::class.java)
 }
 
-internal class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::class.java) : CollectingProblemReporter() {
+internal class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::class.java) : ProblemReporter {
     private val logger = LoggerFactory.getLogger(loggerClass)
+    override var hasFatal: Boolean = false
 
-    override fun doReportMessage(message: BuildProblem) {
+    override fun reportMessage(message: BuildProblem) {
         when (message.level) {
+            Level.Redundancy -> logger.info(renderMessage(message))
             Level.Warning -> logger.warn(renderMessage(message))
             Level.Error -> logger.error(renderMessage(message))
-            Level.Fatal -> logger.error(renderMessage(message))
-            Level.Redundancy -> logger.info(renderMessage(message))
+            Level.Fatal -> {
+                logger.error(renderMessage(message))
+                hasFatal = true
+            }
         }
     }
 }
