@@ -5,7 +5,8 @@
 package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
+import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.contexts.MinimalModule
@@ -19,31 +20,43 @@ import kotlin.io.path.extension
 import kotlin.io.path.pathString
 
 object TemplateNameWithoutPostfix : MergedTreeDiagnostic {
+
     override val diagnosticId: BuildProblemId = "template.name.without.postfix"
-    override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) =
+
+    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitListProperties(Module::apply) { _, templatesRaw ->
             templatesRaw.children.map { it to it.scalarValue<TraceablePath>()?.value }.forEach { (tValue, template) ->
                 if (template?.exists() == true &&
                     template.extension != "amper" &&
                     !template.pathString.endsWith(".module-template.yaml")
-                ) SchemaBundle.reportBundleError(
-                    tValue.trace,
-                    diagnosticId,
-                )
+                ) {
+                    with(problemReporter.asContext()) {
+                        SchemaBundle.reportBundleError(
+                            tValue.trace,
+                            diagnosticId,
+                        )
+                    }
+                }
             }
         }
 }
 
 object UnresolvedTemplate : MergedTreeDiagnostic {
+
     override val diagnosticId: BuildProblemId = "unresolved.template"
-    override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) =
+
+    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitListProperties(Module::apply) { _, templatesRaw ->
             templatesRaw.children.map { it to it.scalarValue<TraceablePath>()?.value }.forEach { (tValue, template) ->
-                if (template != null && !template.exists()) SchemaBundle.reportBundleError(
-                    tValue.trace,
-                    diagnosticId,
-                    template,
-                )
+                if (template != null && !template.exists()) {
+                    with(problemReporter.asContext()) {
+                        SchemaBundle.reportBundleError(
+                            tValue.trace,
+                            diagnosticId,
+                            template,
+                        )
+                    }
+                }
             }
         }
 }

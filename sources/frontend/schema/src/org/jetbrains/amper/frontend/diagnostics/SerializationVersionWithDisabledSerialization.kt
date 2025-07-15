@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
@@ -22,9 +22,9 @@ import kotlin.reflect.KProperty0
 object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "serialization.version.without.serialization"
 
-    context(ProblemReporterContext) override fun AmperModule.analyze() {
+    override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace?>()
-        fragments.forEach { fragment ->
+        module.fragments.forEach { fragment ->
             val settings = fragment.settings.kotlin.serialization
             val versionProp = settings::version
             if (!versionProp.isDefault && !settings.enabled) {

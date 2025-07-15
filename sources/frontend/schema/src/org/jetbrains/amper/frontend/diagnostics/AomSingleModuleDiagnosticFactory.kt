@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 
 /**
@@ -21,6 +21,8 @@ import org.jetbrains.amper.frontend.AmperModule
 interface AomSingleModuleDiagnosticFactory {
     val diagnosticId: BuildProblemId
 
-    context(ProblemReporterContext)
-    fun AmperModule.analyze()
+    /**
+     * Analyzes the given [module] and reports any problems using the given [problemReporter].
+     */
+    fun analyze(module: AmperModule, problemReporter: ProblemReporter)
 }

@@ -25,6 +25,14 @@ interface ProblemReporterContext {
     val hasFatal: Boolean get() = problemReporter.hasFatal
 }
 
+/**
+ * Temporary workaround to bridge calls from places that have a [ProblemReporter] to legacy places that expect a
+ * [ProblemReporterContext].
+ */
+fun ProblemReporter.asContext() = object : ProblemReporterContext {
+    override val problemReporter = this@asContext
+}
+
 // TODO: Can be refactored to the reporter chain to avoid inheritance.
 // Note: This class is not thread-safe.
 // Problems collecting might misbehave when used from multiple threads (e.g. in Gradle).

@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.diagnostics
 import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
@@ -32,7 +32,7 @@ class UselessSettingValue(
     }
     override val diagnosticId = DiagnosticId
 
-    override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) {
+    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         // TODO There an optimization can be made.
         //  Here we can group by not by key name, but by key path.
         val groupedScalars = root.collectScalarPropertiesWithOwners().groupBy { it.second.key }.map { (_, it) -> it }

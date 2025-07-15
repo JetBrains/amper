@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
@@ -43,9 +43,9 @@ class AndroidVersionShouldBeAtLeastMinSdk(
 object AndroidVersionShouldBeAtLeastMinSdkFactory : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "android.version.should.be.at.least.min.sdk"
 
-    context(ProblemReporterContext) override fun AmperModule.analyze() {
+    override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace?>()
-        fragments.forEach { fragment ->
+        module.fragments.forEach { fragment ->
             val settings = fragment.settings.android
             val usedVersions = listOf(settings::compileSdk, settings::maxSdk, settings::targetSdk).filter { it.get() != null }
             val minSdkVersion = settings.minSdk

@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
@@ -61,9 +61,9 @@ class ModuleDependencySelfProblem(
 }
 
 object ModuleDependencyLoopFactory : AomModelDiagnosticFactory {
-    context(ProblemReporterContext)
-    override fun Model.analyze() {
-        val graph: Map<AmperModule, List<LocalModuleDependency>> = modules.associateWith { node ->
+
+    override fun analyze(model: Model, problemReporter: ProblemReporter) {
+        val graph: Map<AmperModule, List<LocalModuleDependency>> = model.modules.associateWith { node ->
             node.fragments
                 .asSequence()
                 .sortedByDescending { it.platforms.size }  // more common - first

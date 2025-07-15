@@ -6,7 +6,8 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
+import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceableEnum
@@ -21,32 +22,40 @@ import org.jetbrains.yaml.psi.YAMLPsiElement
 
 object LibShouldHavePlatforms : MergedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "product.type.does.not.have.default.platforms"
-    override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) =
+
+    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitProduct { (typeValue, type, _, _, platforms) ->
             val isYaml = typeValue.trace.extractPsiElementOrNull()?.parent is YAMLPsiElement
-            if (type == ProductType.LIB && platforms == null) SchemaBundle.reportBundleError(
-                trace = typeValue.trace,
-                messageKey = if (isYaml) diagnosticId else "product.type.does.not.have.default.platforms.amperlang",
-                ProductType.LIB.schemaValue,
-                level = Level.Fatal,
-            )
+            if (type == ProductType.LIB && platforms == null) {
+                with(problemReporter.asContext()) {
+                    SchemaBundle.reportBundleError(
+                        trace = typeValue.trace,
+                        messageKey = if (isYaml) diagnosticId else "product.type.does.not.have.default.platforms.amperlang",
+                        ProductType.LIB.schemaValue,
+                        level = Level.Fatal,
+                    )
+                }
+            }
         }
 }
 
 object ProductPlatformIsUnsupported : MergedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "product.unsupported.platform"
-    override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) =
+
+    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitProduct { (_, type, _, platformsRaw, _) ->
             platformsRaw?.forEach {
                 val platform = it.scalarValue<TraceableEnum<Platform>>()?.value ?: return@forEach
                 if (platform !in type.supportedPlatforms) {
-                    SchemaBundle.reportBundleError(
-                        trace = it.trace,
-                        messageKey = diagnosticId,
-                        type.schemaValue,
-                        platform.pretty,
-                        type.supportedPlatforms.joinToString { it.pretty },
-                    )
+                    with(problemReporter.asContext()) {
+                        SchemaBundle.reportBundleError(
+                            trace = it.trace,
+                            messageKey = diagnosticId,
+                            type.schemaValue,
+                            platform.pretty,
+                            type.supportedPlatforms.joinToString { it.pretty },
+                        )
+                    }
                 }
             }
         }
@@ -54,12 +63,17 @@ object ProductPlatformIsUnsupported : MergedTreeDiagnostic {
 
 object ProductPlatformsShouldNotBeEmpty : MergedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "product.platforms.should.not.be.empty"
-    override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) =
+
+    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitProduct { (_, _, platformsValue, _, platforms) ->
-            if (platforms?.isEmpty() == true) SchemaBundle.reportBundleError(
-                trace = platformsValue?.trace ?: return@visitProduct,
-                messageKey = diagnosticId,
-                level = Level.Fatal,
-            )
+            if (platforms?.isEmpty() == true) {
+                with(problemReporter.asContext()) {
+                    SchemaBundle.reportBundleError(
+                        trace = platformsValue?.trace ?: return@visitProduct,
+                        messageKey = diagnosticId,
+                        level = Level.Fatal,
+                    )
+                }
+            }
         }
 }

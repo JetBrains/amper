@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeRefiner
@@ -18,7 +18,8 @@ import org.jetbrains.amper.frontend.tree.TreeRefiner
  */
 interface MergedTreeDiagnostic {
     val diagnosticId: BuildProblemId
-    fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule): Unit?
+
+    fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter): Unit?
 }
 
 /**

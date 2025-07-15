@@ -8,7 +8,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
+import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.SchemaBundle
@@ -25,21 +26,22 @@ import kotlin.reflect.KProperty0
 object InconsistentComposeVersion : AomModelDiagnosticFactory {
     const val diagnosticId: BuildProblemId = "inconsistent.compose.versions"
 
-    context(ProblemReporterContext)
-    override fun Model.analyze() {
-        val chosenComposeVersionForModel = chooseComposeVersion(this) ?: return
+    override fun analyze(model: Model, problemReporter: ProblemReporter) {
+        val chosenComposeVersionForModel = chooseComposeVersion(model) ?: return
 
-        val mismatchedComposeSettings = modules
+        val mismatchedComposeSettings = model.modules
             .map { it.rootFragment.settings.compose }
             .filter { it.version != chosenComposeVersionForModel }
 
-        mismatchedComposeSettings.forEach {
-            SchemaBundle.reportBundleError(
-                property = if (!it::version.isDefault) it::version else it::enabled,
-                messageKey = diagnosticId,
-                chosenComposeVersionForModel,
-                level = Level.Fatal,
-            )
+        with(problemReporter.asContext()) {
+            mismatchedComposeSettings.forEach {
+                SchemaBundle.reportBundleError(
+                    property = if (!it::version.isDefault) it::version else it::enabled,
+                    messageKey = diagnosticId,
+                    chosenComposeVersionForModel,
+                    level = Level.Fatal,
+                )
+            }
         }
     }
 }
@@ -47,10 +49,9 @@ object InconsistentComposeVersion : AomModelDiagnosticFactory {
 object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "compose.version.without.compose"
 
-    context(ProblemReporterContext)
-    override fun AmperModule.analyze() {
+    override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace?>()
-        fragments.forEach { fragment ->
+        module.fragments.forEach { fragment ->
             val settings = fragment.settings.compose
             if (settings.enabled) {
                 val versionProp = settings::version

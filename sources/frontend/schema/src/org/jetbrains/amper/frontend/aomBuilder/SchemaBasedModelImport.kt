@@ -33,9 +33,7 @@ object SchemaBasedModelImport : ModelInit {
         val resultModules = doBuild(projectContext)
             ?: return amperFailure()
         val model = DefaultModel(projectContext.projectRootDir.toNioPath(), resultModules)
-        AomModelDiagnosticFactories.forEach { diagnostic ->
-            with(diagnostic) { model.analyze() }
-        }
+        AomModelDiagnosticFactories.forEach { it.analyze(model, problemReporter) }
         return model.asAmperSuccess()
     }
 

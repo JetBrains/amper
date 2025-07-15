@@ -5,7 +5,8 @@
 package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
+import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.contexts.MinimalModule
@@ -20,23 +21,28 @@ import org.jetbrains.amper.frontend.tree.visitValues
 
 
 object UnknownQualifiers : OwnedTreeDiagnostic {
+
     override val diagnosticId: BuildProblemId = "product.unknown.qualifiers"
+
     private val knownPlatforms = Platform.values.map { it.schemaValue }
-    override fun ProblemReporterContext.analyze(root: OwnedTree, minimalModule: MinimalModule) {
+
+    override fun analyze(root: OwnedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         val knownAliases = minimalModule.aliases?.keys.orEmpty()
         val knownModifiers = knownAliases + knownPlatforms
-        root.visitValues { value ->
-            value.contexts
-                .filterIsInstance<PlatformCtx>().filter { it.trace != null }
-                .filter { it.value !in knownModifiers }
-                .forEach {
-                    SchemaBundle.reportBundleError(
-                        node = it.trace?.extractPsiElementOrNull()?.extractKeyElement()
-                            ?: return@forEach, // Skip for unknown places.
-                        messageKey = "product.unknown.qualifier",
-                        it.value,
-                    )
-                }
+        with(problemReporter.asContext()) {
+            root.visitValues { value ->
+                value.contexts
+                    .filterIsInstance<PlatformCtx>().filter { it.trace != null }
+                    .filter { it.value !in knownModifiers }
+                    .forEach {
+                        SchemaBundle.reportBundleError(
+                            node = it.trace?.extractPsiElementOrNull()?.extractKeyElement()
+                                ?: return@forEach, // Skip for unknown places.
+                            messageKey = "product.unknown.qualifier",
+                            it.value,
+                        )
+                    }
+            }
         }
     }
 }

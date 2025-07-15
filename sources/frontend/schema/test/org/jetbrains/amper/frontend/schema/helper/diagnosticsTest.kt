@@ -57,7 +57,7 @@ class DiagnosticsTestRun(
             val resultModules = doBuild(projectContext, systemInfo) ?: return@with
             val model = DefaultModel(projectContext.projectRootDir.toNioPath(), resultModules)
             AomModelDiagnosticFactories.forEach { diagnostic ->
-                with(diagnostic) { model.analyze() }
+                diagnostic.analyze(model, problemReporter)
             }
         }
         // Collect errors.

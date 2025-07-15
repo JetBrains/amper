@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
@@ -23,10 +23,9 @@ import org.jetbrains.annotations.Nls
 object ModuleDependencyDoesntHaveNeededPlatformsFactory : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = ModuleDependencyDoesntHaveNeededPlatforms.ID
 
-    context(ProblemReporterContext)
-    override fun AmperModule.analyze() {
+    override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace?>()
-        for (fragment in fragments) {
+        for (fragment in module.fragments) {
             val fragmentPlatforms = fragment.platforms
             val localDependencies = fragment.externalDependencies.filterIsInstance<LocalModuleDependency>()
             for (localDependency in localDependencies) {

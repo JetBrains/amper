@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.withEach
 import org.jetbrains.amper.frontend.Platform.COMMON
@@ -37,16 +38,16 @@ private val naturalHierarchyExtStr = naturalHierarchyExt.mapKeys { it.key.schema
 object IncorrectSettingsLocation : OwnedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "settings.incorrect.section"
 
-    override fun ProblemReporterContext.analyze(root: OwnedTree, minimalModule: MinimalModule) =
+    override fun analyze(root: OwnedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitMapLikeValues {
-            it.children.withEach { PropertyCheck(this@analyze, minimalModule, this).doCheck() }
+            it.children.withEach { PropertyCheck(problemReporter, minimalModule, this).doCheck() }
         }
 
     private class PropertyCheck(
-        ctx: ProblemReporterContext,
+        override val problemReporter: ProblemReporter,
         val minimalModule: MinimalModule,
         val prop: MapLikeValue.Property<*>,
-    ) : ProblemReporterContext by ctx {
+    ) : ProblemReporterContext {
 
         fun doCheck() = if (prop.value.trace !is DefaultTrace) {
             contextAgnostic()

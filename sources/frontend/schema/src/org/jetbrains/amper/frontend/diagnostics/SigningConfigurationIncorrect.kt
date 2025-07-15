@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.diagnostics
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
@@ -28,22 +28,26 @@ import kotlin.io.path.notExists
 import kotlin.reflect.KProperty0
 
 abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory {
-    context(ProblemReporterContext)
-    override fun AmperModule.analyze() {
-        if (type == ProductType.ANDROID_APP) {
-            source.moduleDir?.let { moduleDir ->
-                fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->
+
+    override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
+        if (module.type == ProductType.ANDROID_APP) {
+            module.source.moduleDir?.let { moduleDir ->
+                module.fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->
                     val android = fragment.settings.android
                     val signing = android.signing
                     if (signing.enabled) {
-                        analyze(moduleDir, android)
+                        analyze(moduleDir, android, problemReporter)
                     }
                 }
             }
         }
     }
 
-    protected abstract fun ProblemReporterContext.analyze(moduleDir: Path, android: AndroidSettings)
+    /**
+     * Analyzes the given [android] settings of the module at [moduleDir] and reports any problems using the given
+     * [problemReporter].
+     */
+    protected abstract fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter)
 
     protected val AndroidSettings.targetProperty: KProperty0<*>
         get() {
@@ -65,9 +69,8 @@ abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory 
 }
 
 object SigningEnabledWithoutPropertiesFileFactory : SigningConfigurationIncorrect() {
-    override fun ProblemReporterContext.analyze(
-        moduleDir: Path, android: AndroidSettings
-    ) {
+
+    override fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter) {
         val signing = android.signing
         val propertiesFile = moduleDir / signing.propertiesFile
         if (propertiesFile.notExists()) {
@@ -83,9 +86,8 @@ object SigningEnabledWithoutPropertiesFileFactory : SigningConfigurationIncorrec
 }
 
 object KeystorePropertiesDoesNotContainKeyFactory : SigningConfigurationIncorrect() {
-    override fun ProblemReporterContext.analyze(
-        moduleDir: Path, android: AndroidSettings
-    ) {
+
+    override fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter) {
         val signing = android.signing
         val propertiesFile = moduleDir / signing.propertiesFile
         if (propertiesFile.exists()) {
@@ -106,9 +108,8 @@ object KeystorePropertiesDoesNotContainKeyFactory : SigningConfigurationIncorrec
 }
 
 object MandatoryFieldInPropertiesFileMustBePresentFactory : SigningConfigurationIncorrect() {
-    override fun ProblemReporterContext.analyze(
-        moduleDir: Path, android: AndroidSettings
-    ) {
+
+    override fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter) {
         val signing = android.signing
         val propertiesFile = moduleDir / signing.propertiesFile
         if (propertiesFile.exists()) {
@@ -131,7 +132,8 @@ object MandatoryFieldInPropertiesFileMustBePresentFactory : SigningConfiguration
 }
 
 object KeystoreMustExistFactory : SigningConfigurationIncorrect() {
-    override fun ProblemReporterContext.analyze(moduleDir: Path, android: AndroidSettings) {
+
+    override fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter) {
         val signing = android.signing
         val propertiesFile = moduleDir / signing.propertiesFile
         if (propertiesFile.exists()) {

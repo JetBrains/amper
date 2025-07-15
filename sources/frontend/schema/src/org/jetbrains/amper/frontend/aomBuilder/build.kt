@@ -85,7 +85,7 @@ internal fun doBuild(
     buildPlugins(pluginData, projectContext, result)
 
     // Perform diagnostics.
-    AomSingleModuleDiagnosticFactories.withEach { result.forEach { it.module.analyze() } }
+    AomSingleModuleDiagnosticFactories.withEach { result.forEach { analyze(it.module, problemReporter) } }
 
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
@@ -107,7 +107,7 @@ internal fun BuildCtx.readModuleMergedTree(
     val ownedTrees = readWithTemplates(minimalModule, moduleFile, moduleCtx) ?: return null
 
     // Perform diagnostics for owned trees.
-    OwnedTreeDiagnostics.withEach { ownedTrees.forEach { analyze(it, minimalModule.module) } }
+    OwnedTreeDiagnostics.withEach { ownedTrees.forEach { analyze(root = it, minimalModule.module, problemReporter) } }
 
     // Merge owned trees (see [TreeMerger]) and preprocess them.
     val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
@@ -129,7 +129,7 @@ internal fun BuildCtx.readModuleMergedTree(
         .configureLombokDefaults(commonModule)
 
     // Perform diagnostics for the merged tree.
-    MergedTreeDiagnostics(refiner).withEach { analyze(processedTree, minimalModule.module) }
+    MergedTreeDiagnostics(refiner).withEach { analyze(processedTree, minimalModule.module, problemReporter) }
     
     return ModuleBuildCtx(
         moduleFile = moduleFile,

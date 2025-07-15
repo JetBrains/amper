@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.tree.OwnedTree
 
@@ -17,7 +17,8 @@ import org.jetbrains.amper.frontend.tree.OwnedTree
  */
 interface OwnedTreeDiagnostic {
     val diagnosticId: BuildProblemId
-    fun ProblemReporterContext.analyze(root: OwnedTree, minimalModule: MinimalModule): Unit?
+
+    fun analyze(root: OwnedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter): Unit?
 }
 
 /**

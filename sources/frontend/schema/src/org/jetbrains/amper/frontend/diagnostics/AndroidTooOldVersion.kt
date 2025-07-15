@@ -7,8 +7,7 @@ package org.jetbrains.amper.frontend.diagnostics
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.MessageBundle
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitScalarProperties
@@ -28,9 +27,12 @@ class AndroidTooOldVersion(
 }
 
 object AndroidTooOldVersionFactory : MergedTreeDiagnostic {
+
     private val MINIMAL_ANDROID_VERSION = AndroidVersion.VERSION_21
+
     override val diagnosticId: BuildProblemId = "too.old.android.version"
-    override fun ProblemReporterContext.analyze(root: MergedTree, minimalModule: MinimalModule) =
+
+    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter)  =
         root.visitScalarProperties<AndroidSettings, AndroidVersion?>(
             AndroidSettings::compileSdk,
             AndroidSettings::minSdk,
