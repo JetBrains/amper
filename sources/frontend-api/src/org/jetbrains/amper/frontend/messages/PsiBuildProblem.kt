@@ -9,6 +9,8 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
@@ -49,7 +51,8 @@ fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? {
 
 fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
     is PsiTrace -> psiElement
-    else -> computedValueTrace?.extractPsiElementOrNull()
+    is BuiltinCatalogTrace,
+    is DefaultTrace -> computedValueTrace?.extractPsiElementOrNull()
 }
 
 fun Traceable.extractPsiElementOrNull(): PsiElement? = 
