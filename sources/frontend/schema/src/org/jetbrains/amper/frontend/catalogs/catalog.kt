@@ -19,8 +19,8 @@ import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
-import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
+import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Settings
 
 
@@ -69,13 +69,10 @@ private fun ProblemReporterContext.version(version: TraceableVersion, fallbackVe
     //  that's why we cannot provide a precise validation for non-empty strings
     return if (!version.value.isEmpty()) version
     else {
-        problemReporter.reportMessage(
-            BuildProblemImpl(
-                "empty.version.string",
-                version.trace?.extractPsiElementOrNull()?.let { it1 -> PsiBuildProblemSource(it1) }
-                    ?: GlobalBuildProblemSource,
-                SchemaBundle.message("empty.version.string"),
-                Level.Error))
+        problemReporter.reportBundleError(
+            source = version.asBuildProblemSource(),
+            messageKey = "empty.version.string",
+        )
         // fallback to avoid double errors
         TraceableString(fallbackVersion)
     }

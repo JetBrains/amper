@@ -5,14 +5,12 @@
 package org.jetbrains.amper.frontend.contexts
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.CollectingOnlyProblemReporterCtx
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.WholeFileBuildProblemSource
 import org.jetbrains.amper.core.messages.replayProblemsTo
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.Aliases
@@ -34,7 +32,6 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.values
 import org.jetbrains.amper.frontend.types.getDeclaration
-
 
 /**
  * Internal schema to read fields, which are crucial for contexts generation.
@@ -71,18 +68,15 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             ?.appendDefaultValues()
             ?.resolveReferences() as? MapLikeValue<Merged>
 
-        // Check if there is no "product" section.
-        if (moduleTree == null || moduleTree["product"].isEmpty())
-            problemReporter.reportMessage(
-                BuildProblemImpl(
-                    buildProblemId = "product.not.defined",
-                    source = WholeFileBuildProblemSource(moduleFilePath.toNioPath()),
-                    message = SchemaBundle.message("product.not.defined.empty"),
-                    level = Level.Fatal,
-                )
+        // Check if there is no "product" or "product.type" section.
+        if (moduleTree == null || moduleTree["product"].isEmpty()) {
+            problemReporter.reportBundleError(
+                source = WholeFileBuildProblemSource(moduleFilePath.toNioPath()),
+                messageKey = "product.not.defined.empty",
+                buildProblemId = "product.not.defined",
+                level = Level.Fatal,
             )
-        // Check if there is no "product.type" section (also, when type section has not value).
-        else if (moduleTree["product"].values.onlyMapLike["type"].values.isEmptyOrNoValue()) {
+        } else if (moduleTree["product"].values.onlyMapLike["type"].values.isEmptyOrNoValue()) {
             problemReporter.reportBundleError(
                 source = moduleTree["product"].first().kTrace.asBuildProblemSource(),
                 messageKey = "product.not.defined",

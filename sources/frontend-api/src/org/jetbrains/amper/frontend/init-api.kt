@@ -7,14 +7,11 @@ package org.jetbrains.amper.frontend
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.amperFailure
-import org.jetbrains.amper.core.flatMap
-import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.schema.Template
-import java.nio.file.Path
 import java.util.*
 
 interface ModelInit {
@@ -28,13 +25,11 @@ interface ModelInit {
         private fun load(loader: ClassLoader): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }
             if (services.isEmpty()) {
-                problemReporter.reportMessage(
-                    BuildProblemImpl(
-                        buildProblemId = "no.model.init.service.found",
-                        source = GlobalBuildProblemSource,
-                        message = FrontendApiBundle.message("no.model.init.service.found"),
-                        level = Level.Fatal,
-                    )
+                problemReporter.reportBundleError(
+                    source = GlobalBuildProblemSource,
+                    messageKey = "no.model.init.services.found",
+                    bundle = FrontendApiBundle,
+                    level = Level.Fatal,
                 )
                 return amperFailure()
             }
@@ -45,13 +40,12 @@ interface ModelInit {
 
             val service = services[modelName]
             return if (service == null) {
-                problemReporter.reportMessage(
-                    BuildProblemImpl(
-                        buildProblemId = "model.not.found",
-                        source = GlobalBuildProblemSource,
-                        message = FrontendApiBundle.message("model.not.found", modelName),
-                        level = Level.Fatal,
-                    )
+                problemReporter.reportBundleError(
+                    source = GlobalBuildProblemSource,
+                    messageKey = "model.not.found",
+                    modelName,
+                    bundle = FrontendApiBundle,
+                    level = Level.Fatal,
                 )
                 amperFailure()
             } else {
