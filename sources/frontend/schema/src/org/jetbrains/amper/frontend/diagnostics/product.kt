@@ -8,7 +8,6 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.MinimalModule

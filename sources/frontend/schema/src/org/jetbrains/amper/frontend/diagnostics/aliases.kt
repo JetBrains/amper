@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.diagnostics
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.asBuildProblemSource

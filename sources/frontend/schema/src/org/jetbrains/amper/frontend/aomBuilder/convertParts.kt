@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.MetaModulePart
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.reportBundleError

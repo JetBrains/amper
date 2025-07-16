@@ -16,7 +16,6 @@ import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.readProject
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource

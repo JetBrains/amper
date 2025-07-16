@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.MinimalModule

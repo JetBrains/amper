@@ -8,14 +8,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.UsedVersions.logbackVersion
-import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
-import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
