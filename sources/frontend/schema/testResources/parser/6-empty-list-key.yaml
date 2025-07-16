@@ -3,4 +3,4 @@ product:
 
   platforms: [jvm]
 
-dependencies:
+<![Error] Expected a collection>dependencies:<!>

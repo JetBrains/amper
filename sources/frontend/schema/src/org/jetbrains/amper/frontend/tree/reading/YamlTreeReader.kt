@@ -283,7 +283,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
                 MapLikeValue.Property(
                     adjustedKey,
                     (it.key ?: it).asTrace(),
-                    it.value?.acceptAndGet() ?: NoValue,
+                    it.value?.acceptAndGet() ?: NoValue(trace = (it.value ?: it).asTrace()),
                     pType,
                 )
             }

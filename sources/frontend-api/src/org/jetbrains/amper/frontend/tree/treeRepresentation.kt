@@ -39,10 +39,15 @@ sealed interface ScalarOrReference<out TS : TreeState> : TreeValue<TS> {
 /**
  * Represent no set value. E.g. `foo: ` in YAML.
  */
-object NoValue : TreeValue<Nothing> {
-    override val trace = DefaultTrace // FIXME Add NoTrace object?
+class NoValue(
+    /**
+     * If there is no PSI element at all for the (absent) value, this trace points to the key-value element that
+     * contains no value (E.g. `foo: ` in YAML).
+     */
+    override val trace: Trace,
+) : TreeValue<Nothing> {
     override val contexts = EmptyContexts
-    override fun withContexts(contexts: Contexts) = NoValue
+    override fun withContexts(contexts: Contexts) = this
 }
 
 /** Convenient shortcut to check results of [MapLikeValue.get]*/
