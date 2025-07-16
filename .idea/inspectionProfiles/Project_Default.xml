@@ -1,7 +1,6 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
-    <inspection_tool class="42f05b18-4baf-36db-9e61-eb192afd03a9" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ConvertCallChainIntoSequence" enabled="true" level="INFORMATION" enabled_by_default="true" />
     <inspection_tool class="CustomRegExpInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myConfigurations">
@@ -54,6 +53,9 @@
           </RegExpInspectionConfiguration>
         </list>
       </option>
+    </inspection_tool>
+    <inspection_tool class="ObsoleteCollection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoreRequiredObsoleteCollectionTypes" value="true" />
     </inspection_tool>
     <inspection_tool class="ReplacePrintlnWithLogging" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES">
       <scope name="Production" level="WARNING" enabled="true" />
@@ -127,5 +129,8 @@
       <scope name="Production" level="WARNING" enabled="true" />
     </inspection_tool>
     <inspection_tool class="TestOnlyProblems" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="UsagesOfObsoleteApi" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="UseOfObsoleteAssert" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="UseOfObsoleteDateTimeApi" enabled="true" level="WARNING" enabled_by_default="true" />
   </profile>
 </component>
