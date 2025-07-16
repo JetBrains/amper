@@ -52,7 +52,7 @@ internal open class TreeTestRun(
     protected val diagnostics get() = ctx.problemReporter.getDiagnostics()
 
     protected val buildCtx = BuildCtx(
-        problemReporterCtx = ctx,
+        problemReporter = ctx.problemReporter,
         types = types,
         pathResolver = FrontendPathResolver(
             transformPsiFile = PsiFile::removeDiagnosticAnnotations,

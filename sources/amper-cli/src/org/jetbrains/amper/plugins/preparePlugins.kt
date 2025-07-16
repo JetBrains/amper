@@ -6,7 +6,7 @@ package org.jetbrains.amper.plugins
 
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.cli.CliProblemReporterContext
+import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.frontend.plugins.tryReadMinimalPluginModule
 import org.jetbrains.amper.frontend.project.pluginInternalSchemaDirectory
@@ -40,7 +40,7 @@ suspend fun preparePlugins(
             ?: userReadableError("Unable to resolve plugin ${dep.path}, ensure such module exists in the project")
 
         val pluginModule = tryReadMinimalPluginModule(
-            problemReporterContext = CliProblemReporterContext,
+            problemReporter = CliProblemReporter,
             frontendPathResolver = context.projectContext.frontendPathResolver,
             moduleFilePath = pluginModuleFile,
         ) ?: userReadableError("Unable to parse ${pluginModuleFile.path} for the plugin")

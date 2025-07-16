@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.plugins
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
@@ -24,11 +24,11 @@ class MinimalPluginModule : SchemaNode() {
 }
 
 fun tryReadMinimalPluginModule(
-    problemReporterContext: ProblemReporterContext,
+    problemReporter: ProblemReporter,
     frontendPathResolver: FrontendPathResolver,
     moduleFilePath: VirtualFile,
 ) : MinimalPluginModule? {
-    return with(BuildCtx(frontendPathResolver, problemReporterContext)) {
+    return with(BuildCtx(frontendPathResolver, problemReporter)) {
         val pluginModuleTree = readTree(
             file = moduleFilePath,
             type = types.getDeclaration<MinimalPluginModule>(),

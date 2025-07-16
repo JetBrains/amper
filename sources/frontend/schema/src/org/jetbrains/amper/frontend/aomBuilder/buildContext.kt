@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
@@ -25,7 +26,6 @@ import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import java.nio.file.Path
 
-
 internal fun ProblemReporterContext.BuildCtx(
     catalogProvider: VersionsCatalogProvider,
     treeMerger: TreeMerger = TreeMerger(),
@@ -33,7 +33,7 @@ internal fun ProblemReporterContext.BuildCtx(
     systemInfo: SystemInfo = DefaultSystemInfo,
 ) = BuildCtx(
     pathResolver = catalogProvider.frontendPathResolver,
-    problemReporterCtx = this,
+    problemReporter = problemReporter,
     treeMerger = treeMerger,
     types = types,
     catalogFinder = catalogProvider,
@@ -42,12 +42,12 @@ internal fun ProblemReporterContext.BuildCtx(
 
 internal data class BuildCtx(
     val pathResolver: FrontendPathResolver,
-    val problemReporterCtx: ProblemReporterContext,
+    override val problemReporter: ProblemReporter,
     val treeMerger: TreeMerger = TreeMerger(),
     val types: SchemaTypingContext = SchemaTypingContext(emptyList()),
     val catalogFinder: VersionsCatalogProvider? = null,
     val systemInfo: SystemInfo = DefaultSystemInfo,
-) : ProblemReporterContext by problemReporterCtx {
+) : ProblemReporterContext {
 
     val moduleAType = types.getDeclaration<Module>()
     val templateAType = types.getDeclaration<Template>()

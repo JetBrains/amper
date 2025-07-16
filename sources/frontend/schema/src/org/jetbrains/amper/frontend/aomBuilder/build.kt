@@ -191,7 +191,6 @@ private fun createArtifacts(
 /**
  * Resolve internal modules against known ones by path.
  */
-context(ProblemReporterContext)
 private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): Notation? =
     when (this) {
         is ExternalMavenDependency -> MavenDependency(

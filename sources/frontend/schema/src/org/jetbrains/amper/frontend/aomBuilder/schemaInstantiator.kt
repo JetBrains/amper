@@ -5,22 +5,23 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.util.asSafely
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueHolder
 import org.jetbrains.amper.frontend.api.ValueState
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.RefinedTree
 import org.jetbrains.amper.frontend.tree.ScalarValue
-import org.jetbrains.amper.frontend.tree.TreeValueReporterCtx
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.frontend.types.isValueRequired
 import org.jetbrains.amper.frontend.types.nameAndAliases
@@ -30,26 +31,25 @@ import org.jetbrains.amper.frontend.types.toType
  * Instantiate requested [T] and fill its properties from the [node].
  */
 internal inline fun <reified T : SchemaNode> BuildCtx.createSchemaNode(node: RefinedTree) =
-    InstantiationCtx(this, types, types.getType<T>(), node).createSchemaNode() as T
+    InstantiationCtx(problemReporter, types, types.getType<T>(), node).createSchemaNode() as T
 
 internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
-    private val reporterCtx: ProblemReporterContext,
+    private val problemReporter: ProblemReporter,
     private val types: SchemaTypingContext,
     val currentType: T,
     val currentValue: V,
     val parents: List<RefinedTree> = emptyList(),
-) : ProblemReporterContext by reporterCtx, TreeValueReporterCtx {
-
+) {
     /**
      * Create new factory with new class.
      */
-    private fun <N : SchemaType> newCtx(type: N) = InstantiationCtx(reporterCtx, types, type, currentValue, parents)
+    private fun <N : SchemaType> newCtx(type: N) = InstantiationCtx(problemReporter, types, type, currentValue, parents)
 
     /**
      * Create new factory with new current node.
      */
     private fun <N : RefinedTree> N.newCtx(block: InstantiationCtx<N, T>.() -> Unit = {}) =
-        InstantiationCtx(reporterCtx, types, currentType, this, parents + currentValue).apply(block)
+        InstantiationCtx(problemReporter, types, currentType, this, parents + currentValue).apply(block)
 
     /**
      * Create [currentType] instance and fill its properties from [currentValue].
@@ -60,8 +60,9 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
         declaration.properties.forEach { prop ->
             val child = prop.nameAndAliases().firstNotNullOfOrNull { currentValue.asMap[it] }
             if (child == null && prop.isValueRequired()) {
-                currentValue.reportAndNull(
-                    problemId = "validation.missing.value",
+                problemReporter.reportBundleError(
+                    source = currentValue.trace.asBuildProblemSource(),
+                    messageKey = "validation.missing.value",
                     prop.name,
                 )
                 error("No node for prop ${prop.name}")
@@ -81,9 +82,10 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
         if (value is String && prop.type is SchemaType.StringType &&
             prop.knownStringValues.isNotEmpty() && value !in prop.knownStringValues
         ) {
-            currentValue.reportAndNull(
-                problemId = "validation.not.within.known.values",
-                prop.knownStringValues.joinToString()
+            problemReporter.reportBundleError(
+                source = currentValue.trace.asBuildProblemSource(),
+                messageKey = "validation.not.within.known.values",
+                prop.knownStringValues.joinToString(),
             )
         }
         val currentPsi = currentValue.psiElement
@@ -132,7 +134,14 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
      */
     private fun readValue(type: SchemaType): Any? = when (type) {
         is SchemaType.MapType -> currentValue.asSafely<MapLikeValue<Refined>>()
-            .also { if (it == null) currentValue.reportAndNull("validation.expected.map") }
+            .also {
+                if (it == null) {
+                    problemReporter.reportBundleError(
+                        source = currentValue.trace.asBuildProblemSource(),
+                        messageKey = "validation.expected.map",
+                    )
+                }
+            }
             ?.children?.associate {
                 val key = if (type.keyType.isTraceableWrapped) {
                     TraceableString(it.key).apply { trace = it.kTrace }
@@ -141,7 +150,14 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
             }
 
         is SchemaType.ListType -> currentValue.asSafely<ListValue<Refined>>()
-            .also { if (it == null) currentValue.reportAndNull("validation.expected.collection") }
+            .also {
+                if (it == null) {
+                    problemReporter.reportBundleError(
+                        source = currentValue.trace.asBuildProblemSource(),
+                        messageKey = "validation.expected.collection",
+                    )
+                }
+            }
             ?.children?.map { it.newCtx().readValue(type.elementType) }
 
         // Reporting should happen when we are reading the tree.

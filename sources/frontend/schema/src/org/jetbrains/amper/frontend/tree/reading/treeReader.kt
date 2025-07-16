@@ -15,24 +15,24 @@ import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.PsiFile
 import com.intellij.util.asSafely
 import com.intellij.util.containers.Stack
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.trace
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Context
 import org.jetbrains.amper.frontend.contexts.Contexts
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Owned
-import org.jetbrains.amper.frontend.tree.PsiReporterCtx
 import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaEnumDeclaration
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.simpleName
 import org.jetbrains.amper.frontend.types.toType
@@ -53,7 +53,7 @@ internal fun BuildCtx.readTree(
     initialContexts = contexts.toSet(),
     file = file,
     psiFile = file.asPsi(),
-    problemCtx = this,
+    problemReporter = problemReporter,
     reportUnknowns = reportUnknowns,
     parseReferences = parseReferences,
 ).readTree()
@@ -67,7 +67,7 @@ internal data class TreeReadRequest(
     val initialContexts: Contexts,
     val file: VirtualFile,
     val psiFile: PsiFile,
-    val problemCtx: ProblemReporterContext,
+    val problemReporter: ProblemReporter,
     val reportUnknowns: Boolean,
     val parseReferences: Boolean,
 )
@@ -84,7 +84,8 @@ internal fun TreeReadRequest.readTree(): MapLikeValue<Owned>? =
         }
     })
 
-internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by params.problemCtx, PsiReporterCtx {
+internal class ReaderCtx(params: TreeReadRequest) {
+    val problemReporter = params.problemReporter
     private val baseDir = params.file.parent
     private val contextsStack = Stack<Contexts>().apply { push(params.initialContexts) }
     private val types = Stack<SchemaType>().apply { push(params.initialType.toType()) }
@@ -125,12 +126,16 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
         currentValue = null
     }
 
-
     /**
-     * Try to read value of a specified scalar [type] from the [YAMLScalar] and return `null` if failed.
+     * Try to read a value of the specified scalar [type] from the given [text] and return `null` if failed.
      */
     fun tryReadScalar(text: String, type: SchemaType.ScalarType, origin: PsiElement, report: Boolean = true): Any? {
-        fun reportIfNeeded(msgId: String) = if (report) origin.reportAndNull(msgId) else null
+        fun reportIfNeeded(msgId: String): Nothing? {
+            if (report) {
+                problemReporter.reportBundleError(source = origin.asBuildProblemSource(), messageKey = msgId)
+            }
+            return null
+        }
 
         return when(type) {
             is SchemaType.StringType -> if (type.isTraceableWrapped) text.asTraceable(origin.trace) else text
@@ -165,14 +170,16 @@ internal class ReaderCtx(params: TreeReadRequest) : ProblemReporterContext by pa
     private fun tryReadEnum(text: String, enum: SchemaEnumDeclaration, origin: PsiElement, report: Boolean): Any? {
         val values = enum.entries
         val selectedEntry = values.firstOrNull { it.schemaValue == text }
-            ?: if (report) origin.reportAndNull(
-                problemId = "validation.unknown.enum.value",
+        if (selectedEntry == null && report) {
+            problemReporter.reportBundleError(
+                source = origin.asBuildProblemSource(),
+                messageKey = if (values.size > 10) "validation.unknown.enum.value.short" else "validation.unknown.enum.value",
                 enum.simpleName().splitByCamelHumps(),
                 text,
                 values.joinToString { it.schemaValue },
-                messageKey = if (values.size > 10) "validation.unknown.enum.value.short" else "validation.unknown.enum.value",
-                level = Level.Error,
-            ) else null
+                buildProblemId = "validation.unknown.enum.value",
+            )
+        }
         return selectedEntry?.name?.let(enum::toEnumConstant) ?: selectedEntry?.name
     }
 

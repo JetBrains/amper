@@ -8,7 +8,6 @@ import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
 import com.intellij.util.runIf
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.api.trace
@@ -237,7 +236,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
             if (pType is SchemaType.BooleanType && scalar.textValue in it.nameAndAliases()) true to it
             // `kotlin.serialization: json` means that we should set the `serialization.format` setting as `json`.
             else if (pType is SchemaType.StringType || pType is SchemaType.EnumType)
-                tryReadScalar(scalar.textValue, pType, scalar, false)?.to(it)
+                tryReadScalar(scalar.textValue, pType, scalar, report = false)?.to(it)
             else null
         }
         // TODO Maybe we need to rework shorthands completely.
@@ -257,10 +256,17 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
 
     private fun ReaderCtx.tryReadAsObject(type: SchemaType.ObjectType, keyValues: Collection<YAMLKeyValue>, origin: PsiElement) =
         tryReadAsObjectOrMap(keyValues, origin) out@{ pName, pOrigin ->
-            val prop = type.declaration.aliased()[pName] ?: return@out if (params.reportUnknowns) pOrigin.reportAndNull(
-                "unknown.property",
-                pName
-            ) else null
+            val prop = type.declaration.aliased()[pName]
+            if (prop == null) {
+                if (params.reportUnknowns) {
+                    problemReporter.reportBundleError(
+                        source = pOrigin.asBuildProblemSource(),
+                        messageKey = "unknown.property",
+                        pName,
+                    )
+                }
+                return@out null
+            }
             prop.type to prop
         }
 

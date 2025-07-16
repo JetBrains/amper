@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree
 
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.TrivialTraceable
 import org.jetbrains.amper.frontend.api.withComputedValueTrace
@@ -12,22 +11,21 @@ import org.jetbrains.amper.frontend.contexts.DefaultCtx
 import org.jetbrains.amper.frontend.types.SchemaType
 import kotlin.io.path.Path
 
-context(ProblemReporterContext)
 fun MergedTree.resolveReferences(): TreeValue<Merged> {
     var value: TreeValue<Merged> = this
     var resolver: TreeReferencesResolver
     do {
-        resolver = TreeReferencesResolver(this@ProblemReporterContext)
+        resolver = TreeReferencesResolver()
         value = resolver.visitValue(value)!!
     } while (resolver.referencesResolved > 0)
     // TODO: Check if there are yet unresolved references. It means that there are cycles in the referencing.
     return value
 }
 
-private class TreeReferencesResolver(
-    reporterCtx: ProblemReporterContext,
-) : TreeTransformer<Merged>(), ProblemReporterContext by reporterCtx, TreeValueReporterCtx {
-    val currentPath = ArrayDeque<MergedTree>()
+private class TreeReferencesResolver : TreeTransformer<Merged>() {
+
+    private val currentPath = ArrayDeque<MergedTree>()
+
     var referencesResolved = 0
         private set
 

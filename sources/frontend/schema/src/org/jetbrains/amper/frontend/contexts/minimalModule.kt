@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.contexts
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.CollectingOnlyProblemReporterCtx
+import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.WholeFileBuildProblemSource
@@ -54,8 +54,8 @@ internal val defaultContextsInheritance by lazy {
 
 @OptIn(NonIdealDiagnostic::class)
 internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
-    val reporterCtx = CollectingOnlyProblemReporterCtx()
-    return with(copy(problemReporterCtx = reporterCtx)) {
+    val collectingReporter = CollectingProblemReporter()
+    return with(copy(problemReporter = collectingReporter)) {
         val rawModuleTree = readTree(
             moduleFilePath,
             type = types.getDeclaration<MinimalModule>(),
@@ -84,10 +84,10 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             )
         }
 
-        if (reporterCtx.hasFatal) {
+        if (collectingReporter.hasFatal) {
             // Rewind errors to the upper reporting context if something fatal had happened.
             // Otherwise, we will read the file again and report.
-            reporterCtx.replayProblemsTo(this@tryReadMinimalModule.problemReporterCtx)
+            collectingReporter.replayProblemsTo(this@tryReadMinimalModule.problemReporter)
             return null
         }
 

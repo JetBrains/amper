@@ -31,7 +31,7 @@ private class ConvertTestRun(
                 intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
             )
             val inputFile = pathResolver.loadVirtualFile(inputPath)
-            val buildCtx = BuildCtx(pathResolver, ctx)
+            val buildCtx = BuildCtx(pathResolver, ctx.problemReporter)
             with(buildCtx) {
                 val tree = readTree(inputFile, moduleAType) ?: error("No tree for $inputFile")
                 createSchemaNode<Module>(tree as MapLikeValue<Refined>)

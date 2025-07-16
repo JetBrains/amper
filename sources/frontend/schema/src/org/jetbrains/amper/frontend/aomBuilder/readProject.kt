@@ -19,7 +19,7 @@ fun readProject(
     resolver: FrontendPathResolver,
     projectFile: VirtualFile
 ): Project? =
-    with(BuildCtx(resolver, this@ProblemReporterContext)) {
+    with(BuildCtx(resolver, problemReporter)) {
         val projectTree = readTree(projectFile, projectAType) ?: return null
         val refiner = TreeRefiner()
         // We can cast here because there is only one project file, thus no need to merge.
