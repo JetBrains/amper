@@ -1,4 +1,35 @@
-product:
-  type: lib
-  platforms: [ jvm ]
+product: jvm/lib
 
+apply:
+  - ../../common.module-template.yaml
+
+repositories:
+  - id: ijSnapshots
+    url: https://www.jetbrains.com/intellij-repository/snapshots
+
+dependencies:
+  - ../intellij-build-zip
+
+  - $libs.kotlinx.coroutines.core
+  - $libs.opentelemetry.api
+  - $libs.intellij.platform.util
+  - $libs.intellij.platform.core
+  - $libs.slf4j.api
+
+  #  JPS
+  # NB: these SNAPSHOT dependencies are not real SNAPSHOTS, they do not change in time
+  # TODO: replace with release dependencies after the release of 2025.3
+  - com.jetbrains.intellij.platform:jps-build-dependency-graph:253.25908.13-EAP-SNAPSHOT
+  - com.jetbrains.intellij.platform:jps-build-javac-rt:253.25908.13-EAP-SNAPSHOT
+  - com.jetbrains.intellij.idea:jps-standalone:253.18871
+  - org.jetbrains.jps:jps-javac-extension:10
+
+  #  helper libraries
+  - com.h2database:h2-mvstore:2.3.232
+  - com.dynatrace.hash4j:hash4j:0.22.0
+  - org.jetbrains.intellij.deps:asm-all:9.6.1
+  - org.jetbrains.kotlin:kotlin-metadata-jvm:2.2.0-RC
+  - com.github.ben-manes.caffeine:caffeine:3.2.0
+  - jaxen:jaxen:1.2.0
+  - com.thoughtworks.qdox:qdox:2.2.0
+  - org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18
