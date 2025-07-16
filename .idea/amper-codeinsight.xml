@@ -3,6 +3,16 @@
   <component name="AmperCodeInsightSettings">
     <option name="ignoredModules">
       <list>
+        <option value="examples/compose-android" />
+        <option value="examples/compose-android" />
+        <option value="examples/compose-desktop" />
+        <option value="examples/compose-ios" />
+        <option value="examples/compose-multiplatform" />
+        <option value="examples/jvm" />
+        <option value="examples/ktor-simplest-sample" />
+        <option value="examples/new-project-template" />
+        <option value="examples/spring-petclinic" />
+        <option value="examples/spring-petclinic-kotlin" />
         <option value="migrated-projects/KaMPKit/shared" />
         <option value="sources/amper-backend-test/testData/projects/android/appcompat" />
         <option value="sources/amper-backend-test/testData/projects/android/parcelize" />
