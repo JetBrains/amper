@@ -4,7 +4,6 @@ package com.intellij.tools.build.bazel.jvmIncBuilder;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.CompositeZipOutputBuilder;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.Utils;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.ZipOutputBuilderImpl;
-import com.intellij.tools.build.bazel.jvmIncBuilder.impl.forms.FormBinding;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.graph.PersistentMVStoreMapletFactory;
 import com.intellij.tools.build.bazel.jvmIncBuilder.instrumentation.InstrumentationClassFinder;
 import com.sun.nio.file.ExtendedOpenOption;
@@ -33,7 +32,6 @@ public class StorageManager implements CloseableExt {
   private ZipOutputBuilderImpl myAbiOutputBuilder;
   private CompositeZipOutputBuilder myComposite;
   private InstrumentationClassFinder myInstrumentationClassFinder;
-  private FormBinding myFormBinding;
 
   private final MVStore myDataSwapStore;
 
@@ -90,14 +88,6 @@ public class StorageManager implements CloseableExt {
 
   public <K, V> Map<K, V> createOffHeapMap(String name) {
     return myDataSwapStore.openMap(name);
-  }
-
-  public FormBinding getFormsBinding() throws Exception {
-    FormBinding binding = myFormBinding;
-    if (binding == null) {
-      myFormBinding = binding = FormBinding.create(myContext);
-    }
-    return binding;
   }
 
   public BuildContext getContext() {
