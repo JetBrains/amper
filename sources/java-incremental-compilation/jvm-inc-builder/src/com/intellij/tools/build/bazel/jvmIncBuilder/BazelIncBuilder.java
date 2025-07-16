@@ -2,7 +2,6 @@
 package com.intellij.tools.build.bazel.jvmIncBuilder;
 
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.*;
-import com.intellij.tools.build.bazel.jvmIncBuilder.impl.forms.FormBinding;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.graph.DeltaView;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.graph.LibraryGraphLoader;
 import com.intellij.tools.build.bazel.jvmIncBuilder.runner.CompilerRunner;
@@ -123,16 +122,6 @@ public class BazelIncBuilder {
                   LOG.log(Level.WARNING, "Problems loading dependency graph, recompiling whole target " + context.getTargetName(), e);
                   srcSnapshotDelta.markRecompileAll();
                   context.report(Message.create(null, Message.Kind.WARNING, e));
-                }
-              }
-            }
-
-            // for all modified forms ensure sources bound to forms are marked for recompilation
-            if (!srcSnapshotDelta.isRecompileAll()) {
-              Iterator<@NotNull NodeSource> modifiedForms = filter(srcSnapshotDelta.getModified(), FormBinding::isForm).iterator();
-              if (modifiedForms.hasNext()) {
-                for (NodeSource source : FormsCompiler.findBoundSources(storageManager, collect(modifiedForms, new ArrayList<>()))) {
-                  srcSnapshotDelta.markRecompile(source);
                 }
               }
             }
