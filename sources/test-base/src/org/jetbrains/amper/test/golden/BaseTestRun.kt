@@ -5,9 +5,7 @@
 package org.jetbrains.amper.test.golden
 
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.CollectingOnlyProblemReporterCtx
 import org.jetbrains.amper.test.assertEqualsIgnoreLineSeparator
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -23,7 +21,7 @@ abstract class BaseTestRun(
     open val base: Path get() = Path("testResources")
     open val expectPostfix: String = ".result.txt"
 
-    protected val ctx = TestProblemReporterContext()
+    protected val ctx = CollectingOnlyProblemReporterCtx()
 
     abstract fun GoldenTest.getInputContent(inputPath: Path): String
 
@@ -31,12 +29,10 @@ abstract class BaseTestRun(
         expectedPath.readText().replaceDefaultVersions()
 
     context(GoldenTest)
-    protected fun doTest(expect: Path, input: Path = expect) = with(ctx) {
+    protected fun doTest(expect: Path, input: Path = expect) {
         val inputContent = getInputContent(input)
         val expectContent = getExpectContent(expect)
-        assertEqualsIgnoreLineSeparator(
-            expectContent, inputContent, expect
-        )
+        return assertEqualsIgnoreLineSeparator(expectContent, inputContent, expect)
     }
 
     context(GoldenTest)
@@ -47,11 +43,3 @@ abstract class BaseTestRun(
 fun String.replaceDefaultVersions() = this
     .replace("#kotlinVersion", UsedVersions.kotlinVersion)
     .replace("#composeDefaultVersion", UsedVersions.composeVersion)
-
-class TestProblemReporter : CollectingProblemReporter() {
-    override fun doReportMessage(message: BuildProblem) {}
-}
-
-class TestProblemReporterContext : ProblemReporterContext {
-    override val problemReporter: TestProblemReporter = TestProblemReporter()
-}

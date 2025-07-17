@@ -7,6 +7,8 @@ package org.jetbrains.amper.frontend.valueTracking
 import com.intellij.openapi.util.io.findOrCreateFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.parentOfType
+import org.jetbrains.amper.core.messages.CollectingProblemReporter
+import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
@@ -15,7 +17,6 @@ import org.jetbrains.amper.frontend.api.precedingValuesSequence
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
 import org.jetbrains.amper.frontend.schema.helper.TestProjectContext
 import org.jetbrains.amper.test.golden.GoldenTestBase
-import org.jetbrains.amper.test.golden.TestProblemReporterContext
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
@@ -71,9 +72,9 @@ class LinkedValuesTest : GoldenTestBase(Path("testResources") / "valueTracking")
         val buildDirFile = ctx.loadVirtualFile(buildDir)
         val inputFile = ctx.loadVirtualFile(inputFilePath)
         val testProjectContext = TestProjectContext(buildDirFile, listOf(inputFile), ctx)
-        val problemCtx = TestProblemReporterContext()
-        with(problemCtx) { doBuild(testProjectContext, DefaultSystemInfo) }
-        val errorDiagnostics = problemCtx.problemReporter.getDiagnostics()
+        val problemReporter = CollectingProblemReporter()
+        with(problemReporter.asContext()) { doBuild(testProjectContext, DefaultSystemInfo) }
+        val errorDiagnostics = problemReporter.getDiagnostics()
         assertTrue(errorDiagnostics.isEmpty(), "Expected no problems, but got: $errorDiagnostics")
 
         // Get psi element at the caret.

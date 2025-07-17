@@ -33,21 +33,21 @@ fun ProblemReporter.asContext() = object : ProblemReporterContext {
     override val problemReporter = this@asContext
 }
 
+/**
+ * A [ProblemReporter] that collects problems so they can be queried later.
+ */
 // TODO: Can be refactored to the reporter chain to avoid inheritance.
 // Note: This class is not thread-safe.
 // Problems collecting might misbehave when used from multiple threads (e.g. in Gradle).
-open class CollectingProblemReporter : ProblemReporter {
+class CollectingProblemReporter : ProblemReporter {
     override val hasFatal get() = problems.any { it.level == Level.Fatal }
 
     private val myProblems = mutableListOf<BuildProblem>()
     val problems: List<BuildProblem> by ::myProblems
 
-    final override fun reportMessage(message: BuildProblem) {
+    override fun reportMessage(message: BuildProblem) {
         myProblems.add(message)
-        doReportMessage(message)
     }
-
-    protected open fun doReportMessage(message: BuildProblem) = Unit
 
     fun getDiagnostics(vararg levels: Level = arrayOf(Level.Error, Level.Fatal)): List<BuildProblem> =
         myProblems.filter { levels.contains(it.level) }

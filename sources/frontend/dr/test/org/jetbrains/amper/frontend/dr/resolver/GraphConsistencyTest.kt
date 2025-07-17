@@ -4,9 +4,6 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
-import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Model
@@ -61,8 +58,4 @@ class GraphConsistencyTest {
             }
         }
     }
-}
-
-class TestProblemReporter : CollectingProblemReporter() {
-    override fun doReportMessage(message: BuildProblem) {}
 }

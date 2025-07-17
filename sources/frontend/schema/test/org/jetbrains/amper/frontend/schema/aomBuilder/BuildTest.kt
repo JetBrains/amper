@@ -5,24 +5,25 @@
 package org.jetbrains.amper.frontend.schema.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
+import org.jetbrains.amper.core.messages.asContext
+import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.CompositeStringPart
 import org.jetbrains.amper.frontend.CompositeStringPart.Literal
 import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.KnownModuleProperty
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleSource
+import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.parseStringWithReferences
-import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.test.golden.TestProblemReporterContext
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -63,32 +64,32 @@ class BuildTest {
 
     @OptIn(NonIdealDiagnostic::class)
     private fun checkParse(value: String, vararg expectedParts: CompositeStringPart) {
-        val reporter = TestProblemReporterContext()
-        with(reporter) {
-            val actual = parseStringWithReferences(value, GlobalBuildProblemSource, moduleResolver)
-            val problems = reporter.problemReporter.getDiagnostics(Level.Warning)
-            if (problems.isNotEmpty()) {
-                fail("Parsing of '$value' failed:\n" +
-                        problems.joinToString("\n") { it.message })
-            }
-
-            assertEquals(
-                expectedParts.toList(), actual.parts,
-                message = "Parse assertion for string: $value",
-            )
+        val problemReporter = CollectingProblemReporter()
+        val actual = with(problemReporter.asContext()) {
+            parseStringWithReferences(value, GlobalBuildProblemSource, moduleResolver)
         }
+        val problems = problemReporter.getDiagnostics(Level.Warning)
+        if (problems.isNotEmpty()) {
+            fail("Parsing of '$value' failed:\n" +
+                    problems.joinToString("\n") { it.message })
+        }
+
+        assertEquals(
+            expectedParts.toList(), actual.parts,
+            message = "Parse assertion for string: $value",
+        )
     }
 
     @OptIn(NonIdealDiagnostic::class)
     private fun checkParseErrors(value: String, vararg message: String) {
         require(message.isNotEmpty())
 
-        val reporter = TestProblemReporterContext()
-        with(reporter) {
+        val problemReporter = CollectingProblemReporter()
+        with(problemReporter.asContext()) {
             parseStringWithReferences(value, GlobalBuildProblemSource, moduleResolver)
-            val problems = reporter.problemReporter.getDiagnostics(*Level.entries.toTypedArray()).map { it.message }
-            assertEquals(message.toList(), problems)
         }
+        val problems = problemReporter.getDiagnostics(*Level.entries.toTypedArray()).map { it.message }
+        assertEquals(message.toList(), problems)
     }
 
     private class MockModule() : AmperModule {
