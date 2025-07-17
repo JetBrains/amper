@@ -24,7 +24,7 @@ enum class Platform(
 
     JS(COMMON, isLeaf = true),
     JVM(COMMON, isLeaf = true),
-    WASM(COMMON, isLeaf = true),
+    WASM_JS(COMMON, isLeaf = true),
     ANDROID(COMMON, isLeaf = true),
     NATIVE(COMMON),
 

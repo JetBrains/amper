@@ -251,7 +251,7 @@ internal interface KspJsConfig : KspConfig {
 
 enum class WebBackend(val argValue: String) {
     JS("JS"),
-    WASM("WASM");
+    WASM_JS("WASM");
 }
 
 internal interface KspCommonConfig : KspConfig {

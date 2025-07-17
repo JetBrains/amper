@@ -46,7 +46,10 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         .setAttribute("user-cache-root", userCacheRoot.path.pathString)
         .setAttribute("scope", scope.name)
         .setAttribute("platform", platform.name)
-        .also { builder -> platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) } }
+        .also { builder ->
+            platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) }
+            platform.wasmTarget?.let { builder.setAttribute("wasmTarget", it) }
+        }
         .use {
             val context = Context {
                 this.cache = getAmperFileCacheBuilder(userCacheRoot)
@@ -78,6 +81,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         .also { builder -> root.children.firstOrNull()?.let{
             builder.setAttribute("repositories", it.context.settings.repositories.joinToString(" "))
             it.context.settings.platforms.singleOrNull()?.nativeTarget?.let { builder.setAttribute("nativeTarget", it) }
+            it.context.settings.platforms.singleOrNull()?.wasmTarget?.let { builder.setAttribute("wasmTarget", it) }
         }}
         .use { span ->
             with(moduleDependenciesResolver) {

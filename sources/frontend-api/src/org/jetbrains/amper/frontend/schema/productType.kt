@@ -93,8 +93,8 @@ enum class ProductType(
     @SchemaDoc("A wasm JS application")
     WASM_JS_APP(
         "wasm-js/app",
-        supportedPlatforms = setOf(Platform.WASM),
-        defaultPlatforms = setOf(Platform.WASM)
+        supportedPlatforms = setOf(Platform.WASM_JS),
+        defaultPlatforms = setOf(Platform.WASM_JS)
     ),
 
     @SchemaDoc("A JavaScript application")

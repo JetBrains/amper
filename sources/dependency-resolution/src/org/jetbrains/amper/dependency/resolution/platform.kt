@@ -4,12 +4,12 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.jetbrains.amper.dependency.resolution.attributes.JvmEnvironment
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinPlatformType
 import org.jetbrains.amper.dependency.resolution.attributes.getAttributeValue
 import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinPlatformType
 import org.jetbrains.amper.dependency.resolution.attributes.hasNoAttribute
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 
 /**
  * This enum contains leaf platforms, dependencies resolution could be requested for.
@@ -27,7 +27,7 @@ enum class ResolutionPlatform(
     ANDROID (PlatformType.ANDROID_JVM),
     COMMON (PlatformType.COMMON),
     JS (PlatformType.JS),
-    WASM(PlatformType.WASM),
+    WASM_JS(PlatformType.WASM),
 
     // LINUX -> NATIVE
     LINUX_X64(PlatformType.NATIVE),
@@ -63,6 +63,7 @@ enum class ResolutionPlatform(
     ANDROID_NATIVE_X86(PlatformType.NATIVE);
 
     val nativeTarget: String? = if (type == PlatformType.NATIVE) name.lowercase() else null
+    val wasmTarget: String? = if (type == PlatformType.WASM) name.lowercase().substringAfter("_") else null
 
     // TODO Copy pasted from Platform
     private val prettyRegex = "_.".toRegex()

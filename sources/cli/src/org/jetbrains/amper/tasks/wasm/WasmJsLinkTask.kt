@@ -48,7 +48,7 @@ class WasmJsLinkTask(
     kotlinArtifactsDownloader,
 ) {
     override val expectedPlatform: Platform
-        get() = Platform.WASM
+        get() = Platform.WASM_JS
 
     override fun kotlinCompilerArgs(
         kotlinUserSettings: KotlinUserSettings,

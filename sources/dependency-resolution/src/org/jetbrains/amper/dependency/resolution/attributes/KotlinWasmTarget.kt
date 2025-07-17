@@ -12,17 +12,16 @@ sealed class KotlinWasmTarget(override val value: String) : AttributeValue {
         override val name: String = "org.jetbrains.kotlin.wasm.target"
 
         override fun fromString(value: String): KotlinWasmTarget {
-            return if (value == "js") {
-                Known("js")
-            } else Unknown(value)
+            return ResolutionPlatform.entries.firstOrNull { it.wasmTarget == value }
+                ?.let(::Known) ?: Unknown(value)
         }
     }
 
-    class Known(value: String) : KotlinWasmTarget(checkNotNull(value))
+    class Known(val platform: ResolutionPlatform) : KotlinWasmTarget(checkNotNull(platform.wasmTarget))
     class Unknown(value: String) : KotlinWasmTarget(value)
 }
 
 internal fun Variant.hasKotlinWasmTarget(platform: ResolutionPlatform): Boolean {
     val attribute = getAttributeValue(KotlinWasmTarget)
-    return attribute is KotlinWasmTarget.Known && attribute.value == "js"
+    return attribute is KotlinWasmTarget.Known && attribute.platform == platform
 }

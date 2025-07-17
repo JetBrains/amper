@@ -204,7 +204,7 @@ internal class KspTask(
             KspCompilationType.JS -> KspJsConfig(kspOutputPaths, compilationSettings) {
                 sharedConfig()
                 backend = when (platform) {
-                    Platform.WASM -> WebBackend.WASM
+                    Platform.WASM_JS -> WebBackend.WASM_JS
                     Platform.JS -> WebBackend.JS
                     else -> error("Unsupported platform $platform for KSP JS compilation")
                 }

@@ -17,7 +17,7 @@ enum class KspCompilationType(val kspMainClassFqn: String) {
             Platform.COMMON -> Common // TODO should we use common for native source sets with multiple targets?
 
             Platform.JS,
-            Platform.WASM -> JS
+            Platform.WASM_JS -> JS
 
             Platform.JVM,
             Platform.ANDROID -> JVM

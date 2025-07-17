@@ -16,7 +16,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 fun ProjectTasksBuilder.setupWasmJsTasks() {
 
     allModules()
-        .alsoPlatforms(Platform.WASM)
+        .alsoPlatforms(Platform.WASM_JS)
         .alsoTests()
         .withEach {
             val compileKLibTaskName = WasmJsTaskType.CompileKLib.getTaskName(module, platform, isTest)
@@ -67,7 +67,7 @@ fun ProjectTasksBuilder.setupWasmJsTasks() {
         }
 
     allModules()
-        .alsoPlatforms(Platform.WASM)
+        .alsoPlatforms(Platform.WASM_JS)
         .alsoTests()
         .selectModuleDependencies(ResolutionScope.RUNTIME).withEach {
             tasks.registerDependency(

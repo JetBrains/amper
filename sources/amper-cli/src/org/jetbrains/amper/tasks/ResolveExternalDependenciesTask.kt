@@ -76,8 +76,8 @@ class ResolveExternalDependenciesTask(
         } else if (resolvedPlatform != ResolutionPlatform.JVM
             && resolvedPlatform != ResolutionPlatform.ANDROID
             && resolvedPlatform.nativeTarget == null
-            && resolvedPlatform != ResolutionPlatform.WASM
             && resolvedPlatform != ResolutionPlatform.JS
+            && resolvedPlatform.wasmTarget == null
         ) {
             logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
             return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList())
@@ -96,6 +96,9 @@ class ResolveExternalDependenciesTask(
                 resolvedPlatform.nativeTarget?.let { target ->
                     it.setAttribute("native-target", target)
                 }
+                resolvedPlatform.wasmTarget?.let { target ->
+                    it.setAttribute("wasm-target", target)
+                }
             }
             .setAttribute("native-target", resolvedPlatform.type.value)
             .setAttribute("user-cache-root", userCacheRoot.path.pathString)
@@ -104,7 +107,9 @@ class ResolveExternalDependenciesTask(
                     "resolve dependencies ${module.userReadableName} -- " +
                             "${fragments.userReadableList()} -- " +
                             "${compileDependencyCoordinates.joinToString(" ")} -- " +
-                            "resolvePlatform=${resolvedPlatform.type.value} nativeTarget=${resolvedPlatform.nativeTarget}"
+                            "resolvePlatform=${resolvedPlatform.type.value} " +
+                            "nativeTarget=${resolvedPlatform.nativeTarget} " +
+                            "wasmTarget=${resolvedPlatform.wasmTarget}"
                 )
 
                 val configuration = mapOf(
@@ -114,6 +119,7 @@ class ResolveExternalDependenciesTask(
                     "repositories" to repositories.joinToString("|"),
                     "resolvePlatform" to resolvedPlatform.type.value,
                     "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
+                    "resolveWasmTarget" to (resolvedPlatform.wasmTarget ?: ""),
                 )
 
                 val result = try {
@@ -165,7 +171,8 @@ class ResolveExternalDependenciesTask(
                                     compileDependencyCoordinates.joinToString("\n").prependIndent("  ")
                                 }\n" +
                                 "platform: $resolvedPlatform" +
-                                (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: ""), t)
+                                (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: "") +
+                                (resolvedPlatform.wasmTarget?.let { "\nwasmTarget: $it" } ?: ""), t)
                     }
 
                     throw t
@@ -183,7 +190,9 @@ class ResolveExternalDependenciesTask(
                 logger.debug("resolve dependencies ${module.userReadableName} -- " +
                         "${fragments.userReadableList()} -- " +
                         "${compileDependencyCoordinates.joinToString(" ")} -- " +
-                        "resolvePlatform=$resolvedPlatform nativeTarget=${resolvedPlatform.nativeTarget}\n" +
+                        "resolvePlatform=$resolvedPlatform " +
+                        "nativeTarget=${resolvedPlatform.nativeTarget}\n" +
+                        "wasmTarget=${resolvedPlatform.wasmTarget}\n" +
                         "${repositories.joinToString(" ")} resolved to:\n${
                             compileClasspath.joinToString("\n") {
                                 "  " + it.relativeToOrSelf(
