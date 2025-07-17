@@ -24,11 +24,13 @@ class ProjectFileTest : AmperCliTestBase() {
         val r = runCli(testProject("simple-multiplatform-cli"), "show", "modules")
 
         assertModulesList(r, listOf(
+            "js-cli",
             "jvm-cli",
             "linux-cli",
             "macos-cli",
             "shared",
             "utils",
+            "wasm-js-cli",
             "windows-cli",
         ))
     }

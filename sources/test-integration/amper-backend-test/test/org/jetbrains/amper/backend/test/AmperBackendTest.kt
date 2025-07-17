@@ -67,6 +67,10 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         backend.runTask(sourcesJarMingwX64Task)
         val sourcesJarMacosArm64Task = TaskName(":shared:sourcesJarMacosArm64")
         backend.runTask(sourcesJarMacosArm64Task)
+        val sourcesJarJsTask = TaskName(":shared:sourcesJarJs")
+        backend.runTask(sourcesJarJsTask)
+        val sourcesJarWasmJsTask = TaskName(":shared:sourcesJarWasmJs")
+        backend.runTask(sourcesJarWasmJsTask)
 
         assertJarFileEntries(
             jarPath = backend.context.taskOutputPath(sourcesJarJvm) / "shared-jvm-sources.jar",
@@ -127,6 +131,30 @@ class AmperBackendTest : AmperIntegrationTestBase() {
                 "commonMain/program2.kt",
                 "macosMain/",
                 "macosMain/World.kt",
+            )
+        )
+        assertJarFileEntries(
+            jarPath = backend.context.taskOutputPath(sourcesJarJsTask) / "shared-js-sources.jar",
+            expectedEntries = listOf(
+                "META-INF/MANIFEST.MF",
+                "commonMain/",
+                "commonMain/World.kt",
+                "commonMain/program1.kt",
+                "commonMain/program2.kt",
+                "jsMain/",
+                "jsMain/World.kt",
+            )
+        )
+        assertJarFileEntries(
+            jarPath = backend.context.taskOutputPath(sourcesJarWasmJsTask) / "shared-wasmjs-sources.jar",
+            expectedEntries = listOf(
+                "META-INF/MANIFEST.MF",
+                "commonMain/",
+                "commonMain/World.kt",
+                "commonMain/program1.kt",
+                "commonMain/program2.kt",
+                "wasmJsMain/",
+                "wasmJsMain/World.kt",
             )
         )
     }
