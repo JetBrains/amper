@@ -1996,6 +1996,221 @@ Fragments:
       }
     }
 
+  js
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+    Src folder: src@js
+    Fragment dependencies:
+      common (REFINE)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
+        signing: <default> {
+          enabled: <default> false
+          propertiesFile: <default> keystore.properties
+        }
+        targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
+      }
+      compose: <default> {
+        enabled: <default> false
+        experimental: <default> {
+          hotReload: <default> {
+            enabled: <default> false
+          }
+        }
+        resources: <default> {
+          exposedAccessors: <default> false
+          packageName: <default>
+        }
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT5
+      jvm: <default> {
+        mainClass: <default> null
+        parameters: <default> false
+        release: <default> VERSION_17
+        test: <default> {
+          freeJvmArgs: <default> [
+          ]
+          systemProperties: <default> {
+          }
+        }
+      }
+      kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 2.1
+        debug: <default> true
+        freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.1.20-1.0.31
+        }
+        languageFeatures: <default> null
+        languageVersion: <default> 2.1
+        linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.8.0
+        }
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
+      native: <default> null
+      publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
+    }
+
+  jsTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+    Src folder: test@js
+    Fragment dependencies:
+      commonTest (REFINE)
+      js (FRIEND)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
+        signing: <default> {
+          enabled: <default> false
+          propertiesFile: <default> keystore.properties
+        }
+        targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
+      }
+      compose: <default> {
+        enabled: <default> false
+        experimental: <default> {
+          hotReload: <default> {
+            enabled: <default> false
+          }
+        }
+        resources: <default> {
+          exposedAccessors: <default> false
+          packageName: <default>
+        }
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT5
+      jvm: <default> {
+        mainClass: <default> null
+        parameters: <default> false
+        release: <default> VERSION_17
+        test: <default> {
+          freeJvmArgs: <default> [
+          ]
+          systemProperties: <default> {
+          }
+        }
+      }
+      kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 2.1
+        debug: <default> true
+        freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.1.20-1.0.31
+        }
+        languageFeatures: <default> null
+        languageVersion: <default> 2.1
+        linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.8.0
+        }
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
+      native: <default> null
+      publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
+    }
+
   native
     External dependencies:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -2162,6 +2377,221 @@ Fragments:
           ]
           enabled: <default> false
         }
+        signing: <default> {
+          enabled: <default> false
+          propertiesFile: <default> keystore.properties
+        }
+        targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
+      }
+      compose: <default> {
+        enabled: <default> false
+        experimental: <default> {
+          hotReload: <default> {
+            enabled: <default> false
+          }
+        }
+        resources: <default> {
+          exposedAccessors: <default> false
+          packageName: <default>
+        }
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT5
+      jvm: <default> {
+        mainClass: <default> null
+        parameters: <default> false
+        release: <default> VERSION_17
+        test: <default> {
+          freeJvmArgs: <default> [
+          ]
+          systemProperties: <default> {
+          }
+        }
+      }
+      kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 2.1
+        debug: <default> true
+        freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.1.20-1.0.31
+        }
+        languageFeatures: <default> null
+        languageVersion: <default> 2.1
+        linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.8.0
+        }
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
+      native: <default> null
+      publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
+    }
+
+  wasmJs
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+    Src folder: src@wasmJs
+    Fragment dependencies:
+      common (REFINE)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
+        signing: <default> {
+          enabled: <default> false
+          propertiesFile: <default> keystore.properties
+        }
+        targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
+      }
+      compose: <default> {
+        enabled: <default> false
+        experimental: <default> {
+          hotReload: <default> {
+            enabled: <default> false
+          }
+        }
+        resources: <default> {
+          exposedAccessors: <default> false
+          packageName: <default>
+        }
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT5
+      jvm: <default> {
+        mainClass: <default> null
+        parameters: <default> false
+        release: <default> VERSION_17
+        test: <default> {
+          freeJvmArgs: <default> [
+          ]
+          systemProperties: <default> {
+          }
+        }
+      }
+      kotlin: <default> {
+        allOpen: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          presets: <default> null
+        }
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 2.1
+        debug: <default> true
+        freeCompilerArgs: <default> null
+        ksp: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+          version: <default> 2.1.20-1.0.31
+        }
+        languageFeatures: <default> null
+        languageVersion: <default> 2.1
+        linkerOpts: <default> null
+        noArg: <default> {
+          annotations: <default> null
+          enabled: <default> false
+          invokeInitializers: <default> false
+          presets: <default> null
+        }
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> {
+          enabled: <default> false
+          format: <default> null
+          version: <default> 1.8.0
+        }
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      ktor: <default> {
+        enabled: <default> false
+        version: <default> 3.1.1
+      }
+      native: <default> null
+      publishing: <default> null
+      springBoot: <default> {
+        enabled: <default> false
+        version: <default> 3.4.3
+      }
+    }
+
+  wasmJsTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+    Src folder: test@wasmJs
+    Fragment dependencies:
+      commonTest (REFINE)
+      wasmJs (FRIEND)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        parcelize: <default> {
+          additionalAnnotations: <default> [
+          ]
+          enabled: <default> false
+        }
         resourcePackaging: <default> {
           excludes: <default> [
           ]
@@ -2314,6 +2744,22 @@ Artifacts:
   [IOS_X64]
     Fragments:
       iosX64Test
+  isTest: false
+  [JS]
+    Fragments:
+      js
+  isTest: true
+  [JS]
+    Fragments:
+      jsTest
+  isTest: false
+  [WASM_JS]
+    Fragments:
+      wasmJs
+  isTest: true
+  [WASM_JS]
+    Fragments:
+      wasmJsTest
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2
