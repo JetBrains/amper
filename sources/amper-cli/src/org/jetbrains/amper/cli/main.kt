@@ -64,7 +64,6 @@ suspend fun main(args: Array<String>) {
         exitProcess(e.exitCode)
     } catch (e: Exception) {
         printInternalError(e)
-        e.printStackTrace()
         exitProcess(1)
     }
 }
