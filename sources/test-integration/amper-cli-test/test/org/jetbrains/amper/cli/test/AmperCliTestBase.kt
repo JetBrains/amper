@@ -23,14 +23,12 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.pathString
 
-abstract class AmperCliTestBase : AmperCliWithWrapperTestBase(), GoldenTest {
+abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     @RegisterExtension
     private val tempDirExtension = TempDirExtension()
 
     protected val tempRoot: Path
         get() = tempDirExtension.path
-
-    override fun buildDir(): Path = tempRoot
 
     companion object {
         /**
