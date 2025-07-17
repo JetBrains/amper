@@ -43,7 +43,7 @@ fun main(args: Array<String>) {
         runWithoutGlobalGitConfig {
             Git.open(gitRoot.toFile()).use { git ->
                 val repo = git.repository
-                val head = repo.getReflogReader("HEAD").lastEntry
+                val head = repo.refDatabase.getReflogReader("HEAD").lastEntry
                 val shortHash = repo.newObjectReader().use { it.abbreviate(head.newId).name() }
                 properties["commitHash"] = head.newId.name
                 properties["commitShortHash"] = shortHash
