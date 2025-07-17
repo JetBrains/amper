@@ -8,7 +8,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.get
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.NoopProblemReporter
 import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.dependency.resolution.DependencyNode
@@ -36,9 +35,9 @@ internal fun DependencyNode.fragmentDeps(module: String, fragment: String) =
 
 internal fun getTestProjectModel(testProjectName: String, testDataRoot: Path): Model {
     val projectPath = testDataRoot.resolve(testProjectName)
-    val aom = with(CollectingProblemReporter().asContext()) {
-        val amperProjectContext =
-            StandaloneAmperProjectContext.create(projectPath, null) ?: fail("Fails to create test project context")
+    val aom = with(NoopProblemReporter.asContext()) {
+        val amperProjectContext = StandaloneAmperProjectContext.create(projectPath, null)
+            ?: fail("Failed to create test project context")
         SchemaBasedModelImport.getModel(amperProjectContext).get()
     }
     return aom

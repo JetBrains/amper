@@ -34,6 +34,14 @@ fun ProblemReporter.asContext() = object : ProblemReporterContext {
 }
 
 /**
+ * A [ProblemReporter] that does nothing.
+ */
+object NoopProblemReporter : ProblemReporter {
+    override val hasFatal get() = false
+    override fun reportMessage(message: BuildProblem) = Unit
+}
+
+/**
  * A [ProblemReporter] that collects problems so they can be queried later.
  */
 // TODO: Can be refactored to the reporter chain to avoid inheritance.

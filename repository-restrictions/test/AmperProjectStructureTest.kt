@@ -7,9 +7,8 @@ import com.charleskorn.kaml.decodeFromStream
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.core.get
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.NoopProblemReporter
+import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
@@ -117,7 +116,7 @@ class AmperProjectStructureTest {
         }
     }
 
-    private fun readAmperProjectModel(): Model = with(SimpleProblemReporterContext(CollectingProblemReporter())) {
+    private fun readAmperProjectModel(): Model = with(NoopProblemReporter.asContext()) {
         val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, buildDir = null, project = null)
             ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
         SchemaBasedModelImport.getModel(projectContext).get()
@@ -200,5 +199,3 @@ class AmperProjectStructureTest {
         return amperVersion
     }
 }
-
-private class SimpleProblemReporterContext(override val problemReporter: ProblemReporter) : ProblemReporterContext
