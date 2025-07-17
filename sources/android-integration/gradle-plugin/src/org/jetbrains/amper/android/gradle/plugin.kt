@@ -21,6 +21,8 @@ import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.MockableJarModelBuilder
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
 import org.jetbrains.amper.core.get
+import org.jetbrains.amper.core.messages.NoopProblemReporter
+import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
@@ -257,7 +259,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
 
 class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val toolingModelBuilderRegistry: ToolingModelBuilderRegistry) :
     Plugin<Settings> {
-    override fun apply(settings: Settings) = with(SLF4JProblemReporterContext()) {
+    override fun apply(settings: Settings) {
         toolingModelBuilderRegistry.register(ProcessResourcesProviderTaskNameToolingModelBuilder())
         toolingModelBuilderRegistry.register(MockableJarModelBuilder())
         val extension = settings.extensions.create("androidData", AmperAndroidIntegrationExtension::class.java)
@@ -276,7 +278,6 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         }
     }
 
-    context(SLF4JProblemReporterContext)
     private fun initProjects(projectRoot: Path, settings: Settings) {
         // TODO Instead of importing the Amper model, we could pass the information we need from the Amper CLI.
         //   The interface between the Amper CLI and the Gradle delegate project would be more clearly defined,
@@ -284,9 +285,12 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         //   Some pieces of data might even have already been resolved/changed in the Amper CLI, such as dependencies.
         //   and in that case we wouldn't want Gradle to re-read the Amper model files and get it wrong.
         //   Also, it would avoid parsing all modules files in the entire project for each delegated Gradle build.
-        val projectContext = StandaloneAmperProjectContext.create(projectRoot, buildDir = null, project = null)
-            ?: error("Invalid project root passed to the delegated Android Gradle build: $projectRoot")
-        val model = SchemaBasedModelImport.getModel(projectContext).get()
+        // Problems are already reported when running the Amper CLI, so we shouldn't report them again
+        val model = with(NoopProblemReporter.asContext()) {
+            val projectContext = StandaloneAmperProjectContext.create(projectRoot, buildDir = null, project = null)
+                ?: error("Invalid project root passed to the delegated Android Gradle build: $projectRoot")
+            SchemaBasedModelImport.getModel(projectContext).get()
+        }
 
         settings.gradle.knownModel = model
 
