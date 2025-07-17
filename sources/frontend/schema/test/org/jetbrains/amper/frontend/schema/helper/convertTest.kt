@@ -14,14 +14,13 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.test.golden.GoldenTest
 import java.nio.file.Path
 
-fun GoldenTest.convertTest(caseName: String, expectedErrors: String = "", expectedModule: Module? = null) =
-    ConvertTestRun(caseName, expectedErrors, baseTestResourcesPath(), expectedModule).doTest()
+fun GoldenTest.convertTest(caseName: String, expectedErrors: String = "") =
+    ConvertTestRun(caseName, expectedErrors, baseTestResourcesPath()).doTest()
 
 private class ConvertTestRun(
     caseName: String,
     private val expectedErrors: String = "",
     override val base: Path,
-    private val expectedModule: Module? = null
 ) : BaseFrontendTestRun(caseName) {
 
     override val expectPostfix = ".yaml"
@@ -31,7 +30,6 @@ private class ConvertTestRun(
             val pathResolver = FrontendPathResolver(
                 intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
             )
-            val inputParentFile = pathResolver.loadVirtualFile(inputPath.parent)
             val inputFile = pathResolver.loadVirtualFile(inputPath)
             val buildCtx = BuildCtx(pathResolver, ctx)
             with(buildCtx) {
@@ -40,7 +38,6 @@ private class ConvertTestRun(
             }
         }
         TestTraceValidationVisitor().visit(module)
-//        expectedModule?.accept(EqualsVisitor(module))
         return ctx.problemReporter.getDiagnostics().joinToString { it.message }
     }
 
