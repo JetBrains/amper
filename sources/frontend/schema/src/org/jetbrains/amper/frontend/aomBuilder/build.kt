@@ -5,11 +5,10 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.core.withEach
-import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.MavenDependency
@@ -27,7 +26,6 @@ import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.MergedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
 import org.jetbrains.amper.frontend.processing.configureHotReloadDefaults
 import org.jetbrains.amper.frontend.processing.configureLombokDefaults
@@ -47,14 +45,15 @@ import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.plugins.schema.model.PluginData
 import java.nio.file.Path
 import kotlin.io.path.name
-
 
 /**
  * AOM build function, introduced for testing.
  */
-context(ProblemReporterContext)
+context(problemReporter: ProblemReporter)
 internal fun doBuild(
     projectContext: AmperProjectContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
@@ -93,6 +92,7 @@ internal fun doBuild(
     return result.map { it.module }
 }
 
+context(problemReporter: ProblemReporter)
 internal fun BuildCtx.readModuleMergedTree(
     moduleFile: VirtualFile
 ): ModuleBuildCtx? {
@@ -157,6 +157,7 @@ internal fun BuildCtx.readWithTemplates(
 /**
  * Build and resolve internal module dependencies.
  */
+context(_: ProblemReporter)
 private fun BuildCtx.buildAmperModules(
     modules: List<ModuleBuildCtx>,
 ): List<ModuleBuildCtx> {

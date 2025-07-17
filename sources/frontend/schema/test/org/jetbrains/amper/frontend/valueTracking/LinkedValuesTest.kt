@@ -8,7 +8,6 @@ import com.intellij.openapi.util.io.findOrCreateFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.parentOfType
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
-import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
@@ -73,7 +72,7 @@ class LinkedValuesTest : GoldenTestBase(Path("testResources") / "valueTracking")
         val inputFile = ctx.loadVirtualFile(inputFilePath)
         val testProjectContext = TestProjectContext(buildDirFile, listOf(inputFile), ctx)
         val problemReporter = CollectingProblemReporter()
-        with(problemReporter.asContext()) { doBuild(testProjectContext, DefaultSystemInfo) }
+        with(problemReporter) { doBuild(testProjectContext, DefaultSystemInfo) }
         val errorDiagnostics = problemReporter.getDiagnostics()
         assertTrue(errorDiagnostics.isEmpty(), "Expected no problems, but got: $errorDiagnostics")
 

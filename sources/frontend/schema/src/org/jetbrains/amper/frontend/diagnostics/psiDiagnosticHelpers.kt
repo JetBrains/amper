@@ -8,7 +8,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
@@ -33,7 +32,7 @@ fun diagnoseAmperModuleFile(
     projectContext: AmperProjectContext,
 ) {
     val singleModuleContext = projectContext.asSingleModule(moduleFile = moduleFile.virtualFile)
-    with(SimpleProblemReporterContext(problemReporter)) {
+    with(problemReporter) {
         // doBuild takes care of ISM diagnostics and single-module diagnostics
         doBuild(singleModuleContext)
     }
@@ -61,7 +60,7 @@ fun diagnoseAmperTemplateFile(
     projectContext: AmperProjectContext,
 ) {
     with(FrontendPathResolver(project = templateFile.project)) {
-        with(SimpleProblemReporterContext(problemReporter)) {
+        with(problemReporter) {
             readTemplate(projectContext, templateFile.virtualFile)
         }
     }
@@ -72,7 +71,7 @@ fun diagnoseAmperTemplateFile(
  */
 @UsedInIdePlugin
 fun diagnoseAmperProjectFile(projectFile: PsiFile, problemReporter: ProblemReporter) {
-    with(SimpleProblemReporterContext(problemReporter)) {
+    with(problemReporter) {
         StandaloneAmperProjectContext.create(
             rootDir = projectFile.virtualFile.parent,
             buildDir = null,
@@ -96,10 +95,8 @@ fun readAmperModuleTree(
 ): MergedTreeHolder? {
     val pathResolver = FrontendPathResolver(moduleFile.project)
     val projectCtx = SingleModuleProjectContextForIde(moduleFile.virtualFile, pathResolver)
-    return with(SimpleProblemReporterContext(problemReporter)) {
+    return with(problemReporter) {
         val (_, tree, refiner) = BuildCtx(projectCtx).readModuleMergedTree(moduleFile.virtualFile) ?: return null
         MergedTreeHolder(tree, refiner)
     }
 }
-
-private class SimpleProblemReporterContext(override val problemReporter: ProblemReporter) : ProblemReporterContext

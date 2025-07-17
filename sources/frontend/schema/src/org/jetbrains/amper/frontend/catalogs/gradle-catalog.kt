@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.catalogs
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.childrenOfType
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.PsiTrace
@@ -62,8 +61,7 @@ private class TomlCatalog(
  * 1. `[versions]` and `[libraries]` sections, no `[plugins]` or `[bundles]`
  * 2. versions or version refs, no version constraints
  */
-context(ProblemReporterContext)
-fun FrontendPathResolver.parseGradleVersionCatalog(
+internal fun FrontendPathResolver.parseGradleVersionCatalog(
     catalogFile: VirtualFile
 ): VersionCatalog? {
     val psiFile = toPsiFile(catalogFile) as? TomlFile ?: return null
@@ -75,7 +73,6 @@ fun FrontendPathResolver.parseGradleVersionCatalog(
  * Get `[libraries]` table, parse it and normalize libraries aliases
  * to match "libs.my.lib" format.
  */
-context(ProblemReporterContext)
 private fun TomlFile.parseCatalogLibraries(): Map<String, TomlLibraryDefinition>? {
     fun String.normalizeLibraryKey() = "libs." + replace("-", ".").replace("_", ".")
 

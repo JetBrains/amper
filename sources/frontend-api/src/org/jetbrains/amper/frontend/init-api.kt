@@ -10,7 +10,7 @@ import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.schema.Template
 import java.util.*
 
@@ -20,7 +20,7 @@ interface ModelInit {
 
         const val MODEL_NAME_PROPERTY = "org.jetbrains.amper.model.type"
 
-        context(ProblemReporterContext)
+        context(problemReporter: ProblemReporter)
         @OptIn(NonIdealDiagnostic::class)
         private fun load(loader: ClassLoader): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }

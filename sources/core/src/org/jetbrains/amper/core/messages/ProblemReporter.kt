@@ -16,6 +16,7 @@ interface ProblemReporter {
     fun reportMessage(message: BuildProblem)
 }
 
+@Deprecated("Use ProblemReporter directly as a context parameter")
 interface ProblemReporterContext {
     val problemReporter: ProblemReporter
 
@@ -23,14 +24,6 @@ interface ProblemReporterContext {
      * See [ProblemReporter.hasFatal]
      */
     val hasFatal: Boolean get() = problemReporter.hasFatal
-}
-
-/**
- * Temporary workaround to bridge calls from places that have a [ProblemReporter] to legacy places that expect a
- * [ProblemReporterContext].
- */
-fun ProblemReporter.asContext() = object : ProblemReporterContext {
-    override val problemReporter = this@asContext
 }
 
 /**
@@ -62,22 +55,9 @@ class CollectingProblemReporter : ProblemReporter {
 }
 
 /**
- * Problem reporter context that collects problems only without any additional actions.
- */
-class CollectingOnlyProblemReporterCtx : ProblemReporterContext {
-    override val problemReporter = CollectingProblemReporter()
-}
-
-/**
- * Report all collected problems from the current context to `other`.
- */
-fun CollectingOnlyProblemReporterCtx.replayProblemsTo(other: ProblemReporterContext) = 
-    problemReporter.replayProblemsTo(other.problemReporter)
-
-/**
  * Report all collected problems from the current reporter to `other`.
  */
-fun CollectingProblemReporter.replayProblemsTo(other: ProblemReporter) = 
+fun CollectingProblemReporter.replayProblemsTo(other: ProblemReporter) =
     problems.forEach { other.reportMessage(it) }
 
 @OptIn(NonIdealDiagnostic::class)

@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.catalogs
 
 import com.intellij.util.asSafely
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.withComputedValueTrace
@@ -17,25 +16,24 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
-import org.jetbrains.amper.frontend.tree.TreeTransformer
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.TreeTransformer
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asScalar
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.toType
 import kotlin.reflect.full.createType
 
-
-context(BuildCtx)
+context(buildCtx: BuildCtx)
 internal fun TreeValue<Merged>.substituteCatalogDependencies(catalog: VersionCatalog) =
-    CatalogVersionsSubstitutor(catalog, this@BuildCtx).visitValue(this)!!
+    CatalogVersionsSubstitutor(catalog, buildCtx).visitValue(this)!!
 
 internal class CatalogVersionsSubstitutor(
     private val catalog: VersionCatalog,
     private val buildCtx: BuildCtx,
-) : TreeTransformer<Merged>(), ProblemReporterContext by buildCtx {
+) : TreeTransformer<Merged>() {
     inline fun <reified T> getType() = buildCtx.types.getType(T::class.createType())
     private val substitutionTypes = mapOf(
         getType<CatalogDependency>() to getType<ExternalMavenDependency>(),
@@ -51,7 +49,9 @@ internal class CatalogVersionsSubstitutor(
         // TODO Maybe report here.
         val catalogValue = catalogKeyProp.value.asScalar ?: return null
         val catalogKey = catalogValue.value.asSafely<String>() ?: return null
-        val found = catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogValue.trace) ?: return null
+        val found = with(buildCtx.problemReporter) {
+            catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogValue.trace) ?: return null
+        }
         val newCValue = catalogValue.copy(
             value = found.value, 
             trace = catalogValue.trace.withComputedValueTrace(found),

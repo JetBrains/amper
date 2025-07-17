@@ -26,19 +26,19 @@ private class ConvertTestRun(
     override val expectPostfix = ".yaml"
 
     override fun GoldenTest.getInputContent(inputPath: Path): String {
-        val module = with(ctx) {
+        val module = with(problemReporter) {
             val pathResolver = FrontendPathResolver(
                 intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
             )
             val inputFile = pathResolver.loadVirtualFile(inputPath)
-            val buildCtx = BuildCtx(pathResolver, ctx.problemReporter)
+            val buildCtx = BuildCtx(pathResolver, problemReporter)
             with(buildCtx) {
                 val tree = readTree(inputFile, moduleAType) ?: error("No tree for $inputFile")
                 createSchemaNode<Module>(tree as MapLikeValue<Refined>)
             }
         }
         TestTraceValidationVisitor().visit(module)
-        return ctx.problemReporter.getDiagnostics().joinToString { it.message }
+        return problemReporter.getDiagnostics().joinToString { it.message }
     }
 
     override fun GoldenTest.getExpectContent(expectedPath: Path) = expectedErrors

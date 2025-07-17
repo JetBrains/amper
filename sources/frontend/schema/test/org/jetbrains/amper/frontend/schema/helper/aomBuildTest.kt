@@ -41,10 +41,10 @@ open class BuildAomTestRun(
         val fioCtx = TestProjectContext(buildDirFile, listOf(inputFile), readCtx)
         fioCtx.adjustCtx()
 
-        val module = with(ctx) { doBuild(fioCtx, systemInfo)?.first() }
+        val module = with(problemReporter) { doBuild(fioCtx, systemInfo)?.first() }
 
         // Check errors absence.
-        with(ctx) {
+        with(problemReporter) {
             if (expectedError == null) {
                 assert(problemReporter.getDiagnostics().isEmpty()) {
                     "Expected no errors, but got ${

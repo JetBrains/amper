@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend
 
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -32,7 +32,7 @@ interface VersionCatalog {
     /**
      * Get dependency notation by key. Reports on a missing value.
      */
-    context(ProblemReporterContext)
+    context(problemReporter: ProblemReporter)
     fun findInCatalogWithReport(key: String, keyTrace: Trace?): TraceableString? {
         val value = findInCatalog(key)
         if (value == null && keyTrace is PsiTrace) {

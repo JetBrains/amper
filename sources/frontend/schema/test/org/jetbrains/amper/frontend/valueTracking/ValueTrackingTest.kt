@@ -76,7 +76,7 @@ private class TrackingTestRun(
         val inputFile = readCtx.loadVirtualFile(inputPath)
         val psiFile = readCtx.toPsiFile(inputFile) ?: error("no psi file")
 
-        with(ctx) { doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), DefaultSystemInfo) }
+        with(problemReporter) { doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), DefaultSystemInfo) }
         val queriedNode = psiFile.descendants().filterIsInstance<PsiNamedElement>().firstOrNull { it.name == propertyName }!!
         val linkedValue = queriedNode.getUserData(linkedAmperValue)
         return tracesInfo(linkedValue, psiFile, null, emptySet(), TracesPresentation.Tests)

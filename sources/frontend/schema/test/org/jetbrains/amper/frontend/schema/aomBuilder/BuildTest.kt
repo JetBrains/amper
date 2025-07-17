@@ -9,7 +9,6 @@ import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.Artifact
@@ -65,7 +64,7 @@ class BuildTest {
     @OptIn(NonIdealDiagnostic::class)
     private fun checkParse(value: String, vararg expectedParts: CompositeStringPart) {
         val problemReporter = CollectingProblemReporter()
-        val actual = with(problemReporter.asContext()) {
+        val actual = with(problemReporter) {
             parseStringWithReferences(value, GlobalBuildProblemSource, moduleResolver)
         }
         val problems = problemReporter.getDiagnostics(Level.Warning)
@@ -85,7 +84,7 @@ class BuildTest {
         require(message.isNotEmpty())
 
         val problemReporter = CollectingProblemReporter()
-        with(problemReporter.asContext()) {
+        with(problemReporter) {
             parseStringWithReferences(value, GlobalBuildProblemSource, moduleResolver)
         }
         val problems = problemReporter.getDiagnostics(*Level.entries.toTypedArray()).map { it.message }

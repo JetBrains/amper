@@ -10,11 +10,8 @@ import com.github.ajalt.mordant.rendering.TextAlign
 import com.github.ajalt.mordant.rendering.Whitespace
 import com.github.ajalt.mordant.terminal.info
 import com.github.ajalt.mordant.widgets.Text
-import org.jetbrains.amper.cli.CliProblemReporterContext
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.withBackend
-import org.jetbrains.amper.core.get
-import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.valueTracking.TracesPresentation
 import org.jetbrains.amper.frontend.valueTracking.compositeValueTracesInfo
 

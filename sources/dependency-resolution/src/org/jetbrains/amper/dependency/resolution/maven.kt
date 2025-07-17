@@ -962,7 +962,7 @@ class MavenDependency internal constructor(
         context: Context,
         diagnosticsReporter: DiagnosticReporter
     ): MavenDependency {
-        val dependency = this@Dependency
+        val dependency = this
         return toMavenDependency(context) { reason ->
             val coordinates = this@MavenDependency.coordinates
             val dependency = "${dependency.group}:${dependency.module}"

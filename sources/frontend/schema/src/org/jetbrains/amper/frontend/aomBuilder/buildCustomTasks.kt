@@ -12,7 +12,6 @@ import org.jetbrains.amper.core.messages.FileBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.messages.WholeFileBuildProblemSource
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.AmperModule
@@ -27,12 +26,11 @@ import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.project.customTaskName
 import org.jetbrains.amper.frontend.tree.RefinedTree
-import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.frontend.tree.reading.readTree
+import org.jetbrains.amper.frontend.types.getDeclaration
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.pathString
-
 
 @OptIn(NonIdealDiagnostic::class)
 internal fun BuildCtx.buildCustomTask(
@@ -53,15 +51,18 @@ internal fun BuildCtx.buildCustomTask(
     val taskTree = readTree(customTaskFile, types.getDeclaration<CustomTaskNode>()) ?: return
     // We can cast here only because no contexts are available inside the task definition.
     val node = createSchemaNode<CustomTaskNode>(taskTree as RefinedTree)
-    val customTask = buildCustomTask(customTaskFile, node, module.module) {
-        val modulePathPart = it.toNioPathOrNull() ?: return@buildCustomTask null
-        module.moduleDirPath.resolve(modulePathPart).absolute().normalize().let(dir2module::get)?.module
-    } ?: return
+    val customTask = with(problemReporter) {
+        buildCustomTask(customTaskFile, node, module.module) {
+            val modulePathPart = it.toNioPathOrNull() ?: return@buildCustomTask null
+            module.moduleDirPath.resolve(modulePathPart).absolute().normalize().let(dir2module::get)?.module
+        } ?: return
+    }
 
     module.module.customTasks += customTask
 }
 
-private fun BuildCtx.buildCustomTask(
+context(problemReporter: ProblemReporter)
+private fun buildCustomTask(
     virtualFile: VirtualFile,
     node: CustomTaskNode,
     module: AmperModule,
@@ -134,7 +135,8 @@ private val unresolvedReferenceRegex2 = Regex("\\\\\\\\\\$")
 
 // TODO: This is not a real parser and it won't provide a good IDE support either
 // Please decide on an appropriate references syntax and rewrite
-internal fun ProblemReporterContext.parseStringWithReferences(
+context(problemReporter: ProblemReporter)
+internal fun parseStringWithReferences(
     value: String,
     source: BuildProblemSource,
     moduleResolver: (String) -> AmperModule?,

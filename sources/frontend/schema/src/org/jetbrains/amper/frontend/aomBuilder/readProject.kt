@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.schema.Project
@@ -13,9 +13,8 @@ import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
 
-
-context(ProblemReporterContext)
-fun readProject(
+context(problemReporter: ProblemReporter)
+internal fun readProject(
     resolver: FrontendPathResolver,
     projectFile: VirtualFile
 ): Project? =

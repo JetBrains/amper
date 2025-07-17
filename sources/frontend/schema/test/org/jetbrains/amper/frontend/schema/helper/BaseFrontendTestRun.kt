@@ -20,7 +20,7 @@ abstract class BaseFrontendTestRun(
 
     open val expectAmperPostfix: String = ".result.amper.txt"
 
-    context(GoldenTest)
+    context(_: GoldenTest)
     override fun doTest() {
         doTest(base / "$caseName$expectPostfix", base / "$caseName$inputPostfix")
 

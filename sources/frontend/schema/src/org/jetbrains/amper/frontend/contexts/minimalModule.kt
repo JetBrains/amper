@@ -70,14 +70,14 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
 
         // Check if there is no "product" or "product.type" section.
         if (moduleTree == null || moduleTree["product"].isEmpty()) {
-            problemReporter.reportBundleError(
+            collectingReporter.reportBundleError(
                 source = WholeFileBuildProblemSource(moduleFilePath.toNioPath()),
                 messageKey = "product.not.defined.empty",
                 buildProblemId = "product.not.defined",
                 level = Level.Fatal,
             )
         } else if (moduleTree["product"].values.onlyMapLike["type"].values.isEmptyOrNoValue()) {
-            problemReporter.reportBundleError(
+            collectingReporter.reportBundleError(
                 source = moduleTree["product"].first().kTrace.asBuildProblemSource(),
                 messageKey = "product.not.defined",
                 level = Level.Fatal,
@@ -85,18 +85,18 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
         }
 
         if (collectingReporter.hasFatal) {
-            // Rewind errors to the upper reporting context if something fatal had happened.
+            // Replay errors to the original reporter if something fatal had happened.
             // Otherwise, we will read the file again and report.
             collectingReporter.replayProblemsTo(this@tryReadMinimalModule.problemReporter)
             return null
         }
 
         MinimalModuleHolder(
-            moduleFilePath,
-            this,
+            moduleFilePath = moduleFilePath,
+            buildCtx = this,
             // We can cast here because we know that minimal module
             // properties should be used outside any context.
-            createSchemaNode<MinimalModule>(moduleTree as RefinedTree)
+            module = createSchemaNode<MinimalModule>(moduleTree as RefinedTree)
         )
     }
 }

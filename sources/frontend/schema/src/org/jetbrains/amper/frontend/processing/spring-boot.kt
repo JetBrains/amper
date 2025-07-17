@@ -23,10 +23,13 @@ import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
-context(BuildCtx)
+context(buildCtx: BuildCtx)
 internal fun TreeValue<Merged>.configureSpringBootDefaults(moduleCtxModule: Module) =
-    if (moduleCtxModule.settings.springBoot.enabled)
-        treeMerger.mergeTrees(listOfNotNull(asMapLike, springBootDefaultsTree())) else this
+    if (moduleCtxModule.settings.springBoot.enabled) {
+        buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.springBootDefaultsTree()))
+    } else {
+        this
+    }
 
 private fun BuildCtx.springBootDefaultsTree() = syntheticBuilder<MapLikeValue<Owned>>(types, DefaultTrace) {
     mapLike<Module> {

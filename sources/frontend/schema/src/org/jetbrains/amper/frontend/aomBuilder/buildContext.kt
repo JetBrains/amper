@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.aomBuilder
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.AmperModuleFileSource
@@ -26,7 +25,8 @@ import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import java.nio.file.Path
 
-internal fun ProblemReporterContext.BuildCtx(
+context(problemReporter: ProblemReporter)
+internal fun BuildCtx(
     catalogProvider: VersionsCatalogProvider,
     treeMerger: TreeMerger = TreeMerger(),
     types: SchemaTypingContext = SchemaTypingContext(emptyList()),
@@ -42,13 +42,12 @@ internal fun ProblemReporterContext.BuildCtx(
 
 internal data class BuildCtx(
     val pathResolver: FrontendPathResolver,
-    override val problemReporter: ProblemReporter,
+    val problemReporter: ProblemReporter,
     val treeMerger: TreeMerger = TreeMerger(),
     val types: SchemaTypingContext = SchemaTypingContext(emptyList()),
     val catalogFinder: VersionsCatalogProvider? = null,
     val systemInfo: SystemInfo = DefaultSystemInfo,
-) : ProblemReporterContext {
-
+) {
     val moduleAType = types.getDeclaration<Module>()
     val templateAType = types.getDeclaration<Template>()
     val projectAType = types.getDeclaration<Project>()
@@ -73,7 +72,7 @@ internal data class ModuleBuildCtx(
     val moduleCtxModule: Module,
 ) {
     val module by lazy {
-        with(buildCtx) {
+        with(buildCtx.problemReporter) {
             DefaultModule(
                 userReadableName = moduleFile.parent.name,
                 type = moduleCtxModule.product.type,

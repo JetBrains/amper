@@ -10,10 +10,9 @@ import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.DefaultCtxs
 import org.jetbrains.amper.frontend.types.SchemaType
 
-context(BuildCtx)
+context(buildCtx: BuildCtx)
 internal fun TreeValue<Merged>.appendDefaultValues(): MapLikeValue<Merged> =
-    DefaultsAppender.visitValue(this)!!
-        .let { treeMerger.mergeTrees(listOf(it as MapLikeValue<*>)) }
+    DefaultsAppender.visitValue(this)!!.let { buildCtx.treeMerger.mergeTrees(listOf(it as MapLikeValue<*>)) }
 
 /**
  * Visitor that is adding default leaves with special [DefaultTrace] trace and default values to the tree.

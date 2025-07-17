@@ -53,13 +53,13 @@ class AmperBackend(
      */
     val backgroundScope: CoroutineScope,
 ) {
-    private val resolvedModel: Model = with(CliProblemReporterContext) {
+    private val resolvedModel: Model = with(CliProblemReporter) {
         val model = spanBuilder("Read model from Amper files")
             .setAttribute("root", context.projectRoot.path.pathString)
             .useWithoutCoroutines {
                 when (val result = SchemaBasedModelImport.getModel(context.projectContext)) {
                     is Result.Failure -> {
-                        if (problemReporter.wereProblemsReported()) {
+                        if (wereProblemsReported()) {
                             userReadableError("failed to read Amper model, refer to the errors above")
                         }
                         else throw result.exception
@@ -68,7 +68,7 @@ class AmperBackend(
                 }
             }
 
-        if (problemReporter.wereProblemsReported()) {
+        if (wereProblemsReported()) {
             userReadableError("failed to read Amper model, refer to the errors above")
         }
 

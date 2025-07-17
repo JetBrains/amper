@@ -10,16 +10,16 @@ import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.asAmperSuccess
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
-import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.SingleModuleProjectContextForIde
-import java.nio.file.Path
 
 // The ServiceLoader mechanism requires a no-arg constructor, which doesn't work with Kotlin objects.
 // This proxy allows to provide an instantiable class that delegates everything to the SchemaBasedModelImport object.
@@ -28,7 +28,7 @@ internal class SchemaBasedModelImportServiceProxy : ModelInit by SchemaBasedMode
 object SchemaBasedModelImport : ModelInit {
     override val name = "schema-based"
 
-    context(ProblemReporterContext)
+    context(problemReporter: ProblemReporter)
     fun getModel(projectContext: AmperProjectContext): Result<Model> {
         val resultModules = doBuild(projectContext)
             ?: return amperFailure()
@@ -45,7 +45,7 @@ object SchemaBasedModelImport : ModelInit {
      * Since this is mostly used for diagnostics reported via the [ProblemReporterContext], the unresolved references
      * are usually ignored.
      */
-    context(ProblemReporterContext)
+    context(_: ProblemReporter)
     @Deprecated(
         message = "This returns a partially incorrect module with unresolved references to other modules. " +
             "Also, custom tasks and version catalog references might be incorrect. " +
@@ -68,7 +68,7 @@ object SchemaBasedModelImport : ModelInit {
     /**
      * Processes the given [templatePsiFile] and reports issues via the [ProblemReporterContext].
      */
-    context(ProblemReporterContext)
+    context(_: ProblemReporter)
     @Deprecated(
         message = "This returns a template with potentially incorrect version catalog references." +
                 "Prefer using diagnoseAmperTemplateFile() with a real project context.",

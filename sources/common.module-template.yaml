@@ -45,9 +45,7 @@ settings:
     freeCompilerArgs:
       - -Xrender-internal-diagnostic-names
       - -Xconsistent-data-class-copy-visibility
-      - -Xcontext-receivers
-      # we are aware and will change context receivers to context parameters after the frontend refactoring
-      - -Xsuppress-warning=CONTEXT_RECEIVERS_DEPRECATED
+      - -Xcontext-parameters
     optIns:
       - kotlin.io.path.ExperimentalPathApi
       - kotlin.contracts.ExperimentalContracts

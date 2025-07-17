@@ -22,7 +22,6 @@ import org.jetbrains.amper.android.gradle.tooling.MockableJarModelBuilder
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.messages.NoopProblemReporter
-import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
@@ -286,7 +285,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         //   and in that case we wouldn't want Gradle to re-read the Amper model files and get it wrong.
         //   Also, it would avoid parsing all modules files in the entire project for each delegated Gradle build.
         // Problems are already reported when running the Amper CLI, so we shouldn't report them again
-        val model = with(NoopProblemReporter.asContext()) {
+        val model = with(NoopProblemReporter) {
             val projectContext = StandaloneAmperProjectContext.create(projectRoot, buildDir = null, project = null)
                 ?: error("Invalid project root passed to the delegated Android Gradle build: $projectRoot")
             SchemaBasedModelImport.getModel(projectContext).get()

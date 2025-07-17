@@ -17,12 +17,15 @@ import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
-context(BuildCtx)
+context(buildCtx: BuildCtx)
 internal fun TreeValue<Merged>.configureHotReloadDefaults(commonModule: Module) =
-    if (commonModule.settings.compose.enabled && commonModule.settings.compose.experimental.hotReload.enabled)
-        treeMerger.mergeTrees(listOfNotNull(asMapLike, hotReloadDefaulsTree())) else this
+    if (commonModule.settings.compose.enabled && commonModule.settings.compose.experimental.hotReload.enabled) {
+        buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.hotReloadDefaultTree()))
+    } else {
+        this
+    }
 
-private fun BuildCtx.hotReloadDefaulsTree() = syntheticBuilder<MapLikeValue<Owned>>(types, DefaultTrace) {
+private fun BuildCtx.hotReloadDefaultTree() = syntheticBuilder<MapLikeValue<Owned>>(types, DefaultTrace) {
     mapLike<Module> {
         Module::settings {
             Settings::jvm {

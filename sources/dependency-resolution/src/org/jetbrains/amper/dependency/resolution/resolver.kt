@@ -101,7 +101,7 @@ class Resolver {
     /**
      * Launches a new coroutine to resolve this [DependencyNode], keeping track of the resolution job in the node cache.
      */
-    context(CoroutineScope)
+    context(coroutineScope: CoroutineScope)
     private fun DependencyNode.launchRecursiveResolution(
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
@@ -111,7 +111,7 @@ class Resolver {
         // If a conflict causes the cancellation of all jobs, and this cancellation happens between the moment when the new
         // job is launched and the moment it is registered for tracking, we could miss the cancellation.
         // This is ok because the launched job will then check for conflicts and end almost immediately.
-        val job = launch {
+        val job = coroutineScope.launch {
             resolveRecursively(level, conflictResolver, resolvedNodes, transitive)
         }
         // This ensures the job is removed from the list upon completion even in cases where it is canceled
@@ -122,7 +122,6 @@ class Resolver {
         resolutionJobs.add(job)
     }
 
-    context(CoroutineScope)
     private suspend fun DependencyNode.resolveRecursively(
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,

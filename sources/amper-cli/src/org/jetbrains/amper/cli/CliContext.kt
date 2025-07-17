@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
@@ -63,12 +63,12 @@ class CliContext private constructor(
             require(commandName.isNotBlank()) { "commandName should not be blank" }
 
             val amperProjectContext = spanBuilder("Create Amper project context").use {
-                with(CliProblemReporterContext) {
+                with(CliProblemReporter) {
                     createProjectContext(
                         explicitProjectRoot = explicitProjectRoot?.toAbsolutePath(),
                         explicitBuildRoot = explicitBuildRoot,
                     ).also {
-                        if (problemReporter.wereProblemsReported()) {
+                        if (wereProblemsReported()) {
                             userReadableError("aborting because there were errors in the Amper project file, please see above")
                         }
                     }
@@ -103,7 +103,7 @@ class CliContext private constructor(
     }
 }
 
-context(ProblemReporterContext)
+context(_: ProblemReporter)
 private fun createProjectContext(
     explicitProjectRoot: Path?,
     explicitBuildRoot: Path?,

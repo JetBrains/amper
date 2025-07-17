@@ -5,7 +5,7 @@
 package org.jetbrains.amper.test.golden
 
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.messages.CollectingOnlyProblemReporterCtx
+import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.test.assertEqualsIgnoreLineSeparator
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -21,21 +21,21 @@ abstract class BaseTestRun(
     open val base: Path get() = Path("testResources")
     open val expectPostfix: String = ".result.txt"
 
-    protected val ctx = CollectingOnlyProblemReporterCtx()
+    protected val problemReporter = CollectingProblemReporter()
 
     abstract fun GoldenTest.getInputContent(inputPath: Path): String
 
     open fun GoldenTest.getExpectContent(expectedPath: Path): String =
         expectedPath.readText().replaceDefaultVersions()
 
-    context(GoldenTest)
+    context(goldenTest: GoldenTest)
     protected fun doTest(expect: Path, input: Path = expect) {
-        val inputContent = getInputContent(input)
-        val expectContent = getExpectContent(expect)
+        val inputContent = goldenTest.getInputContent(input)
+        val expectContent = goldenTest.getExpectContent(expect)
         return assertEqualsIgnoreLineSeparator(expectContent, inputContent, expect)
     }
 
-    context(GoldenTest)
+    context(_: GoldenTest)
     open fun doTest() = doTest(expect = base / "$caseName$expectPostfix")
 
 }

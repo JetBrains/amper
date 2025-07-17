@@ -8,9 +8,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.UsedVersions.logbackVersion
-import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.VersionCatalog
@@ -23,7 +22,6 @@ import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Settings
 
-
 /**
  * Try to find gradle catalog and compose it with built-in catalog.
  */
@@ -31,13 +29,16 @@ internal fun BuildCtx.tryGetCatalogFor(
     file: VirtualFile, settings: Settings?,
 ): VersionCatalog {
     val gradleCatalog = catalogFinder?.getCatalogPathFor(file)?.let { pathResolver.parseGradleVersionCatalog(it) }
-    return addBuiltInCatalog(settings, gradleCatalog)
+    return with(problemReporter) {
+        addBuiltInCatalog(settings, gradleCatalog)
+    }
 }
 
 /**
  * Try to get used version catalog.
  */
-private fun ProblemReporterContext.addBuiltInCatalog(
+context(problemReporter: ProblemReporter)
+private fun addBuiltInCatalog(
     settings: Settings?, otherCatalog: VersionCatalog? = null,
 ): VersionCatalog {
     val compose = settings?.compose
@@ -63,8 +64,9 @@ private fun ProblemReporterContext.addBuiltInCatalog(
     return compositeCatalog
 }
 
+context(problemReporter: ProblemReporter)
 @OptIn(NonIdealDiagnostic::class)
-private fun ProblemReporterContext.version(version: TraceableVersion, fallbackVersion: String): TraceableString {
+private fun version(version: TraceableVersion, fallbackVersion: String): TraceableString {
     // we validate the version only for emptiness because maven artifacts allow any string as a version
     //  that's why we cannot provide a precise validation for non-empty strings
     return if (!version.value.isEmpty()) version

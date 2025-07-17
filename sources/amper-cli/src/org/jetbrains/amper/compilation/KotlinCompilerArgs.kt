@@ -169,7 +169,7 @@ enum class KotlinCompilationType(val argName: String) {
 internal fun AmperModule.kotlinModuleName(isTest: Boolean) =
     if (isTest) userReadableName + "_test" else userReadableName
 
-context(BuildTask)
+context(task: BuildTask)
 internal fun kotlinNativeCompilerArgs(
     buildType: BuildType,
     kotlinUserSettings: KotlinUserSettings,
@@ -199,13 +199,13 @@ internal fun kotlinNativeCompilerArgs(
 
     // TODO full module path including entire hierarchy? -Xshort-module-name)
     add("-module-name")
-    add(compilationType.moduleName(module, isTest))
+    add(compilationType.moduleName(task.module, task.isTest))
 
     add("-target")
-    add(platform.nameForCompiler)
+    add(task.platform.nameForCompiler)
 
     if (compilationType != KotlinCompilationType.LIBRARY) {
-        if (isTest) {
+        if (task.isTest) {
             add("-generate-test-runner")
         } else {
             if (entryPoint != null) {

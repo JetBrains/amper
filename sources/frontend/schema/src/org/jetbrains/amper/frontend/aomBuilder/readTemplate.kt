@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
@@ -16,8 +16,7 @@ import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
 
-
-context(ProblemReporterContext)
+context(problemReporter: ProblemReporter)
 fun readTemplate(
     catalogFinder: VersionsCatalogProvider,
     templateFile: VirtualFile,

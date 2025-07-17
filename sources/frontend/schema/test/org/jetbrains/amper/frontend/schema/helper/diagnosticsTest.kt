@@ -51,7 +51,7 @@ class DiagnosticsTestRun(
         val cleared = readCtx.toPsiFile(inputFile)!!.text
         val additionalFiles = additionalPaths.map { readCtx.loadVirtualFile((base / it).absolute()) }
 
-        with(ctx) {
+        with(problemReporter) {
             val moduleFiles = listOf(inputFile).plus(additionalFiles).sortedBy { it.path }
             val projectContext = TestProjectContext(buildDirFile, moduleFiles, readCtx)
             val resultModules = doBuild(projectContext, systemInfo) ?: return@with
@@ -61,7 +61,7 @@ class DiagnosticsTestRun(
             }
         }
         // Collect errors.
-        val errors = with(ctx) { problemReporter.getDiagnostics(*levels) }
+        val errors = with(problemReporter) { problemReporter.getDiagnostics(*levels) }
         val annotated = annotateTextWithDiagnostics(inputPath.absolute(), cleared, errors) {
             it.replace(buildDir().absolutePathString() + File.separator, "")
         }

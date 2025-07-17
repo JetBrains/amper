@@ -8,7 +8,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.messages.NoopProblemReporter
-import org.jetbrains.amper.core.messages.asContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
@@ -116,7 +115,7 @@ class AmperProjectStructureTest {
         }
     }
 
-    private fun readAmperProjectModel(): Model = with(NoopProblemReporter.asContext()) {
+    private fun readAmperProjectModel(): Model = with(NoopProblemReporter) {
         val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, buildDir = null, project = null)
             ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
         SchemaBasedModelImport.getModel(projectContext).get()

@@ -13,7 +13,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.readProject
@@ -72,7 +72,7 @@ class StandaloneAmperProjectContext(
          *
          * The given IntelliJ [project] is used to access the VFS. If null, a mock project will be created.
          */
-        context(ProblemReporterContext)
+        context(_: ProblemReporter)
         @UsedInIdePlugin
         fun find(start: VirtualFile, project: IJProject? = null): StandaloneAmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
@@ -82,7 +82,7 @@ class StandaloneAmperProjectContext(
         /**
          * Does the same as [find] above, but accepts [Path] that it resolves to [VirtualFile] beforehand.
          */
-        context(ProblemReporterContext)
+        context(_: ProblemReporter)
         fun find(
             start: Path,
             buildDir: Path?,
@@ -93,7 +93,7 @@ class StandaloneAmperProjectContext(
             return find(startVirtualFile, buildDir, frontendPathResolver)
         }
 
-        context(ProblemReporterContext)
+        context(_: ProblemReporter)
         private fun find(
             virtualFile: VirtualFile,
             buildDir: Path?,
@@ -131,7 +131,7 @@ class StandaloneAmperProjectContext(
          * The given IntelliJ [project] is used to resolve virtual files and PSI files. If null, a mock project is
          * created.
          */
-        context(ProblemReporterContext)
+        context(_: ProblemReporter)
         fun create(
             rootDir: Path,
             buildDir: Path?,
@@ -152,7 +152,7 @@ class StandaloneAmperProjectContext(
          *
          * The given [frontendPathResolver] is used to resolve virtual files and PSI files.
          */
-        context(ProblemReporterContext)
+        context(problemReporter: ProblemReporter)
         @OptIn(NonIdealDiagnostic::class)
         internal fun create(
             rootDir: VirtualFile,
@@ -240,15 +240,15 @@ private fun preSearchProjectRoot(start: VirtualFile): RootSearchResult? = spanBu
         null // neither project nor module file found
     }
 
-context(ProblemReporterContext, FrontendPathResolver)
+context(_: ProblemReporter, frontendPathResolver: FrontendPathResolver)
 private fun parseAmperProject(projectRootDir: VirtualFile): Project? {
     val projectFile = projectRootDir.findChildMatchingAnyOf(amperProjectFileNames) ?: return null
     return spanBuilder("Parse Amper project file")
         .setAttribute("project-file", projectFile.path)
-        .useWithoutCoroutines { readProject(this@FrontendPathResolver, projectFile) }
+        .useWithoutCoroutines { readProject(frontendPathResolver, projectFile) }
 }
 
-context(ProblemReporterContext)
+context(_: ProblemReporter)
 private fun Project.modulePaths(projectRootDir: VirtualFile): List<VirtualFile> =
     spanBuilder("Resolve module paths from project file")
         .setAttribute("module-count", modules.size.toString())
@@ -258,7 +258,7 @@ private fun Project.modulePaths(projectRootDir: VirtualFile): List<VirtualFile> 
                 .distinct() // TODO report error/warning for duplicates
         }
 
-context(ProblemReporterContext)
+context(_: ProblemReporter)
 private fun VirtualFile.resolveMatchingModuleFiles(relativeModulePathOrGlob: TraceableString): List<VirtualFile> {
     // avoid walking the file tree if it's just a plain path (not a glob)
     if (!relativeModulePathOrGlob.value.hasGlobCharacters()) {
@@ -267,7 +267,7 @@ private fun VirtualFile.resolveMatchingModuleFiles(relativeModulePathOrGlob: Tra
     return resolveModuleFilesRecursively(relativeModulePathOrGlob)
 }
 
-context(ProblemReporterContext)
+context(problemReporter: ProblemReporter)
 private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableString): VirtualFile? {
     val moduleDir = findFileByRelativePath(relativeModulePath.value)
     if (moduleDir == null) {
@@ -318,13 +318,13 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
     return moduleFile
 }
 
-context(ProblemReporterContext)
+context(problemReporter: ProblemReporter)
 private fun VirtualFile.resolveModuleFilesRecursively(moduleDirGlob: TraceableString): List<VirtualFile> {
     val moduleFileNamesCommaSeparated = amperModuleFileNames.joinToString(",")
     val moduleFilesGlobPattern = "${moduleDirGlob.value}/{$moduleFileNamesCommaSeparated}"
     val moduleFilesGlob = try {
         Glob(moduleFilesGlobPattern)
-    } catch (e: PatternSyntaxException) {
+    } catch (_: PatternSyntaxException) {
         reportInvalidGlob(moduleDirGlob, moduleFilesGlobPattern)
         return emptyList()
     }
@@ -349,7 +349,7 @@ private fun VirtualFile.resolveModuleFilesRecursively(moduleDirGlob: TraceableSt
     return matchingModuleFiles
 }
 
-context(ProblemReporterContext)
+context(problemReporter: ProblemReporter)
 private fun reportInvalidGlob(moduleDirGlob: TraceableString, generatedModuleFilesGlob: String) {
     try {
         // we want to generate a glob syntax error for the exact user-provided string, not our own construction

@@ -49,10 +49,10 @@ internal open class TreeTestRun(
     protected val dumpPathContexts: Boolean = false,
 ) : BaseFrontendTestRun(caseName) {
 
-    protected val diagnostics get() = ctx.problemReporter.getDiagnostics()
+    protected val diagnostics get() = problemReporter.getDiagnostics()
 
     protected val buildCtx = BuildCtx(
-        problemReporter = ctx.problemReporter,
+        problemReporter = problemReporter,
         types = types,
         pathResolver = FrontendPathResolver(
             transformPsiFile = PsiFile::removeDiagnosticAnnotations,

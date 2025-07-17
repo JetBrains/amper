@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.Layout
@@ -30,7 +30,7 @@ private val defaultMavenRepositories = listOf(
 
 // FIXME Need to get rid of this `ModulePart` convention and 
 //  replace it by direct settings reading.
-context(ProblemReporterContext)
+context(problemReporter: ProblemReporter)
 fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
     val parts = classBasedSet<ModulePart<*>>()
 
