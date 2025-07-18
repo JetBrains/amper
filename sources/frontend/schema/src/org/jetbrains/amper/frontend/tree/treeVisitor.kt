@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree
 
-
 private fun <R, TS : TreeState> TreeVisitor<R, TS>.accept(value: TreeValue<TS>): R = when (value) {
     is ListValue<TS> -> visitListValue(value)
     is MapLikeValue<TS> -> visitMapValue(value)
@@ -69,23 +68,71 @@ fun <TS : TreeState> TreeValue<TS>.visitMapLikeValues(block: (MapLikeValue<TS>) 
         override fun visitMapValue(value: MapLikeValue<TS>) = block(value).also { super.visitMapValue(value) }
     }.visitValue(this)
 
+sealed interface TransformResult<out T>
+class Changed<T>(val value: T) : TransformResult<T>
+object NotChanged : TransformResult<Nothing>
+object Removed : TransformResult<Nothing>
+
+private fun <T, R> TransformResult<T>.mapIfChanged(block: (T) -> R): TransformResult<R> =
+    when (this@mapIfChanged) {
+        is Changed<T> -> Changed(block(value))
+        is NotChanged -> this
+        is Removed -> this
+    }
+
 /**
  * [TreeVisitor] implementation that is copying the tree on each node if a replacement is provided by
  * a respective `visit*` method.
- * FIXME Optimize - do not copy if the children had not changed.
+ *
+ * Each visit method returns `null` if nothing had changed, or transformed tree value.
+ *
+ * To remove a property from `MapLikeValue` or an element from `ListValue` one should
+ * override `visitMapValue` or `visitListValue` respectively or return [NoValue].
  */
-abstract class TreeTransformer<TS : TreeState> : TreeVisitor<TreeValue<TS>?, TS> {
-    override fun visitNoValue(value: NoValue): TreeValue<TS>? = value
-    override fun visitScalarValue(value: ScalarValue<TS>): TreeValue<TS>? = value
-    override fun visitReferenceValue(value: ReferenceValue<TS>): TreeValue<TS>? = value
-    override fun visitListValue(value: ListValue<TS>): TreeValue<TS>? = value.copy(children = value.children.visitAll())
-    override fun visitMapValue(value: MapLikeValue<TS>): TreeValue<TS>? = value.copy(children = value.children.visitAll())
+abstract class TreeTransformer<TS : TreeState> : TreeVisitor<TransformResult<TreeValue<TS>>, TS> {
+    /**
+     * Return `null` if value was removed or intact/changed value instead.
+     */
+    fun transform(value: TreeValue<TS>): TreeValue<TS>? =
+        when (val transformed = visitValue(value)) {
+            is Changed -> transformed.value
+            NotChanged -> value
+            Removed -> null
+        }
+
+    override fun visitNoValue(value: NoValue) = NotChanged
+    override fun visitScalarValue(value: ScalarValue<TS>) = NotChanged
+    override fun visitReferenceValue(value: ReferenceValue<TS>) = NotChanged
+
+    override fun visitListValue(value: ListValue<TS>): TransformResult<TreeValue<TS>> =
+        value.children.visitAll().mapIfChanged { value.copy(children = it) }
+
+    override fun visitMapValue(value: MapLikeValue<TS>) =
+        value.children.visitAll().mapIfChanged { value.copy(children = it) }
 
     @JvmName("acceptAllList")
-    protected fun List<TreeValue<TS>>.visitAll(): List<TreeValue<TS>> =
-        mapNotNull(::visitValue)
+    fun List<TreeValue<TS>>.visitAll(): TransformResult<List<TreeValue<TS>>> {
+        val childrenTransformed = map { visitValue(it) }
+        return if (childrenTransformed.all { it === NotChanged }) NotChanged
+        else childrenTransformed.mapIndexedNotNull { i, it ->
+            when (it) {
+                is Changed -> it.value
+                NotChanged -> this[i]
+                Removed -> null
+            }
+        }.let(::Changed)
+    }
 
     @JvmName("acceptAllMapLikeChildren")
-    fun MapLikeChildren<TS>.visitAll(): MapLikeChildren<TS> =
-        mapNotNull { it.copy(value = visitValue(it.value) ?: return@mapNotNull null) }
+    fun MapLikeChildren<TS>.visitAll(): TransformResult<MapLikeChildren<TS>> {
+        val childrenTransformed = map { visitValue(it.value) }
+        return if (childrenTransformed.all { it === NotChanged }) NotChanged
+        else childrenTransformed.mapIndexedNotNull { i, it ->
+            when (it) {
+                is Changed -> this[i].copy(newValue = it.value)
+                NotChanged -> this[i]
+                Removed -> null
+            }
+        }.let(::Changed)
+    }
 }

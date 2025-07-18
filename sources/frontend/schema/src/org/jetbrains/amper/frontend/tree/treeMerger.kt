@@ -36,9 +36,9 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
  */
 class TreeMerger() {
 
-    fun mergeTrees(trees: List<MapLikeValue<*>>) = doMergeTrees(trees)
+    fun mergeTrees(trees: List<MapLikeValue<*>>): Merged = doMergeTrees(trees) as Merged
 
-    fun mergeTrees(tree: MapLikeValue<*>) = tree.mergeSingle()
+    fun mergeTrees(tree: MapLikeValue<*>): Merged = tree.mergeSingle() as Merged
 
     // TODO Optimize; Do not copy when it is unnecessary.
     private fun doMergeTrees(trees: List<MapLikeValue<*>>): MapLikeValue<Merged> {

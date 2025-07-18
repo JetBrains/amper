@@ -22,14 +22,14 @@ fun readTemplate(
     templateFile: VirtualFile,
 ): ModelInit.TemplateHolder? = with(BuildCtx(catalogFinder)) {
     val templateTree = readTree(templateFile, templateAType) ?: return null
+    val mergedTemplateTree = treeMerger.mergeTrees(templateTree)
     val refiner = TreeRefiner()
     // We can cast here, since we are not merging templates for now.
     // NOTE: That will change when nested templated will be allowed.
-    val noContextsTree = refiner.refineTree(templateTree as MergedTree, EmptyContexts)
+    val noContextsTree = refiner.refineTree(mergedTemplateTree, EmptyContexts)
     val noContextsTemplate = createSchemaNode<Template>(noContextsTree)
     val catalog = tryGetCatalogFor(templateFile, noContextsTemplate.settings)
-    // TODO Check if return null is good here.
-    val substituted = templateTree.substituteCatalogDependencies(catalog) ?: return null
+    val substituted = mergedTemplateTree.substituteCatalogDependencies(catalog)
     val substitutedRefined = refiner.refineTree(substituted, EmptyContexts)
     val readTemplate = createSchemaNode<Template>(substitutedRefined)
     ModelInit.TemplateHolder(readTemplate, catalog)

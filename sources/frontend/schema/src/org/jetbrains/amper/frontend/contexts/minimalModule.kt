@@ -22,12 +22,10 @@ import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Merged
-import org.jetbrains.amper.frontend.tree.RefinedTree
+import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.isEmptyOrNoValue
-import org.jetbrains.amper.frontend.tree.onlyMapLike
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.values
@@ -66,19 +64,24 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
         val moduleTree = rawModuleTree
             ?.let { treeMerger.mergeTrees(it) }
             ?.appendDefaultValues()
-            ?.resolveReferences() as? MapLikeValue<Merged>
+            ?.resolveReferences()
 
-        // Check if there is no "product" or "product.type" section.
-        if (moduleTree == null || moduleTree["product"].isEmpty()) {
+        val productProperty = moduleTree?.children?.firstOrNull { it.key == "product" }
+        val possibleTypes = (productProperty?.value as? MapLikeValue)?.get("type")?.values
+
+        // Check if there is "product" section.
+        if (moduleTree == null || productProperty == null) {
             collectingReporter.reportBundleError(
                 source = WholeFileBuildProblemSource(moduleFilePath.toNioPath()),
                 messageKey = "product.not.defined.empty",
                 buildProblemId = "product.not.defined",
                 level = Level.Fatal,
             )
-        } else if (moduleTree["product"].values.onlyMapLike["type"].values.isEmptyOrNoValue()) {
+        }
+        // Check if product types are present.
+        else if (possibleTypes == null || possibleTypes.isEmptyOrNoValue()) {
             collectingReporter.reportBundleError(
-                source = moduleTree["product"].first().kTrace.asBuildProblemSource(),
+                source = productProperty.kTrace.asBuildProblemSource(),
                 messageKey = "product.not.defined",
                 level = Level.Fatal,
             )
@@ -91,12 +94,14 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             return null
         }
 
+        val refined = TreeRefiner().refineTree(moduleTree!!, EmptyContexts)
+
         MinimalModuleHolder(
             moduleFilePath = moduleFilePath,
-            buildCtx = this,
+            buildCtx = this@tryReadMinimalModule,
             // We can cast here because we know that minimal module
             // properties should be used outside any context.
-            module = createSchemaNode<MinimalModule>(moduleTree as RefinedTree)
+            module = createSchemaNode<MinimalModule>(refined)
         )
     }
 }

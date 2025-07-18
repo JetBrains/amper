@@ -45,6 +45,7 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
         selectedContexts = { platformCtxs("jvm") + PathCtx(it, null) },
     )
 
+    @Suppress("unused")
     class CustomPluginSchema : SchemaNode() {
         val foo: Int by value()
         val bar: String by value()

@@ -16,19 +16,22 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
+import org.jetbrains.amper.frontend.tree.Changed
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
-import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.NotChanged
+import org.jetbrains.amper.frontend.tree.Removed
+import org.jetbrains.amper.frontend.tree.TransformResult
 import org.jetbrains.amper.frontend.tree.TreeTransformer
-import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asScalar
+import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.toType
 import kotlin.reflect.full.createType
 
 context(buildCtx: BuildCtx)
-internal fun TreeValue<Merged>.substituteCatalogDependencies(catalog: VersionCatalog) =
-    CatalogVersionsSubstitutor(catalog, buildCtx).visitValue(this)!!
+internal fun Merged.substituteCatalogDependencies(catalog: VersionCatalog) =
+    CatalogVersionsSubstitutor(catalog, buildCtx).transform(this) as? Merged ?: this
 
 internal class CatalogVersionsSubstitutor(
     private val catalog: VersionCatalog,
@@ -42,22 +45,24 @@ internal class CatalogVersionsSubstitutor(
         getType<CatalogBomDependency>() to getType<ExternalMavenBomDependency>(),
     )
 
-    override fun visitMapValue(value: MapLikeValue<Merged>): MergedTree? {
+    override fun visitMapValue(value: MapLikeValue<Merged>): TransformResult<MapLikeValue<Merged>> {
+        // Here we don't know what kind of node we are visiting, so we have to use `super`.
         val valueType = value.type?.toType() ?: return super.visitMapValue(value)
         val substituted = substitutionTypes[valueType] as? SchemaType.ObjectType ?: return super.visitMapValue(value)
-        val catalogKeyProp = value.children.singleOrNull { it.key == "catalogKey" } ?: return super.visitMapValue(value)
+        // Here we know that we have the right node (one of the dependencies), so we can return `NotChanged`.
+        val catalogKeyProp = value.children.singleOrNull { it.key == "catalogKey" } ?: return NotChanged
         // TODO Maybe report here.
-        val catalogValue = catalogKeyProp.value.asScalar ?: return null
-        val catalogKey = catalogValue.value.asSafely<String>() ?: return null
+        val catalogValue = catalogKeyProp.value.asScalar ?: return Removed
+        val catalogKey = catalogValue.value.asSafely<String>() ?: return Removed
         val found = with(buildCtx.problemReporter) {
-            catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogValue.trace) ?: return null
+            catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogValue.trace) ?: return Removed
         }
         val newCValue = catalogValue.copy(
-            value = found.value, 
+            value = found.value,
             trace = catalogValue.trace.withComputedValueTrace(found),
         )
-        val newChildren = value.children - catalogKeyProp + 
+        val newChildren = value.children - catalogKeyProp +
                 MapLikeValue.Property("coordinates", catalogKeyProp.kTrace, newCValue, substituted.declaration)
-        return value.copy(children = newChildren, type = substituted.declaration)
+        return Changed(value.copy(children = newChildren, type = substituted.declaration))
     }
 }

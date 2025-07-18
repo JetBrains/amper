@@ -146,7 +146,7 @@ internal fun BuildCtx.readWithTemplates(
     minimalModule: MinimalModuleHolder,
     mPath: VirtualFile,
     moduleCtx: PathCtx,
-): List<MapLikeValue<Owned>>? {
+): List<MapLikeValue<*>>? {
     val moduleTree = readTree(mPath, moduleAType, moduleCtx) ?: return null
     return listOf(moduleTree) + minimalModule.appliedTemplates.mapNotNull {
         val templateVirtual = it.asVirtualOrNull() ?: return@mapNotNull null

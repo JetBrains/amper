@@ -9,7 +9,6 @@ import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.schema.Project
-import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
 
@@ -20,8 +19,6 @@ internal fun readProject(
 ): Project? =
     with(BuildCtx(resolver, problemReporter)) {
         val projectTree = readTree(projectFile, projectAType) ?: return null
-        val refiner = TreeRefiner()
-        // We can cast here because there is only one project file, thus no need to merge.
-        val noContextsTree = refiner.refineTree(projectTree as MergedTree, EmptyContexts)
+        val noContextsTree = TreeRefiner().refineTree(projectTree, EmptyContexts)
         createSchemaNode<Project>(noContextsTree)
     }

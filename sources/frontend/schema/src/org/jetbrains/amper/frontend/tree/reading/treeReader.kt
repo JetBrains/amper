@@ -73,7 +73,7 @@ internal data class TreeReadRequest(
 )
 
 // TODO Do we need the read action here?
-internal fun TreeReadRequest.readTree(): MapLikeValue<Owned>? =
+internal fun TreeReadRequest.readTree(): MapLikeValue<*>? =
     ApplicationManager.getApplication().runReadAction(Computable {
         when (psiFile.language) {
 //        is AmperLanguage -> AmperLangTreeReader(this).read()
@@ -89,7 +89,7 @@ internal class ReaderCtx(params: TreeReadRequest) {
     private val baseDir = params.file.parent
     private val contextsStack = Stack<Contexts>().apply { push(params.initialContexts) }
     private val types = Stack<SchemaType>().apply { push(params.initialType.toType()) }
-    private var currentValue: TreeValue<Owned>? = null
+    private var currentValue: TreeValue<*>? = null
     private val currentContexts get() = contextsStack.lastOrNull().orEmpty()
 
     /**
@@ -99,8 +99,8 @@ internal class ReaderCtx(params: TreeReadRequest) {
 
     // Convention constructor functions that are providing [currentContext].
     fun scalarValue(value: Any, trace: Trace) = ScalarValue<Owned>(value, trace, currentContexts)
-    fun listValue(children: List<TreeValue<Owned>>, trace: Trace) = ListValue(children, trace, currentContexts)
-    fun mapValue(children: List<MapLikeValue.Property<TreeValue<Owned>>>, trace: Trace) =
+    fun listValue(children: List<TreeValue<*>>, trace: Trace) = ListValue(children, trace, currentContexts)
+    fun mapValue(children: List<MapLikeValue.Property<TreeValue<*>>>, trace: Trace) =
         Owned(children, (currentType as? SchemaType.ObjectType)?.declaration, trace, currentContexts)
     fun referenceValue(value: String, trace: Trace, prefix: String, suffix: String, type: SchemaType) =
         ReferenceValue<Owned>(value, trace, currentContexts, prefix = prefix, suffix = suffix, type = type)
@@ -113,7 +113,7 @@ internal class ReaderCtx(params: TreeReadRequest) {
     /**
      * Execute [block] and change [currentValue] to its return value.
      */
-    fun readCurrent(block: ReaderCtx.() -> TreeValue<Owned>?) =
+    fun readCurrent(block: ReaderCtx.() -> TreeValue<*>?) =
         run(block).let { currentValue = it }
 
     /**

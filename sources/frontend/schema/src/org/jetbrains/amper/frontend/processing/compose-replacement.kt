@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.processing
 import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.tree.Changed
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.ScalarValue
@@ -16,7 +17,8 @@ import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.getDeclaration
 
 context(buildCtx: BuildCtx)
-internal fun TreeValue<Merged>.substituteComposeOsSpecific() = ComposeOsSpecificSubstitutor(buildCtx).visitValue(this)!!
+internal fun Merged.substituteComposeOsSpecific() = 
+    ComposeOsSpecificSubstitutor(buildCtx).transform(this) as? Merged ?: this
 
 internal class ComposeOsSpecificSubstitutor(buildCtx: BuildCtx) : TreeTransformer<Merged>() {
 
@@ -35,5 +37,5 @@ internal class ComposeOsSpecificSubstitutor(buildCtx: BuildCtx) : TreeTransforme
                 .takeIf { key == coordinatesPName }
                 ?.let { old.copy(value = pValue.copy(value = it.doReplace())) }
                 .let { listOf(it ?: old) }
-        }
+        }.let(::Changed)
 }

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.Contexts
+import org.jetbrains.amper.frontend.tree.MapLikeValue.Property
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 
 /**
@@ -13,60 +14,80 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
  */
 sealed interface TreeState
 
-typealias OwnedTree = TreeValue<Owned>
+typealias OwnedTree = TreeValue<TreeState>
 
 class Owned(
-    override val children: MapLikeChildren<Owned>,
+    override val children: MapLikeChildren<TreeState>,
     override val type: SchemaObjectDeclaration?,
     override val trace: Trace,
     override val contexts: Contexts,
-) : MapLikeValue<Owned>, TreeState {
-    override fun copy(
-        children: MapLikeChildren<Owned>,
-        type: SchemaObjectDeclaration?,
-        trace: Trace,
-        contexts: Contexts,
-    ) = Owned(children, type, trace, contexts)
-}
+) : MapLikeValue<TreeState>, TreeState
 
 typealias MergedTree = TreeValue<Merged>
 
 class Merged(
-    val mapLikeChildren: Map<String, MapLikeValue.Property<TreeValue<Merged>>>,
+    val mapLikeChildren: Map<String, Property<TreeValue<Merged>>>,
     val otherChildren: MapLikeChildren<Merged>,
     override val type: SchemaObjectDeclaration?,
     override val trace: Trace,
     override val contexts: Contexts,
 ) : MapLikeValue<Merged>, TreeState {
-    override val children get() = mapLikeChildren.values + otherChildren
-    
-    override fun copy(
-        children: MapLikeChildren<Merged>,
-        type: SchemaObjectDeclaration?,
-        trace: Trace,
-        contexts: Contexts,
-    ): Merged {
-        val (mapLike, other) = children.partition { it.value is MapLikeValue<Merged> }
-        assert(mapLike.map { it.key }.distinct().size == mapLike.size) { "Duplicate keys found during copying" }
-        val mapLikeAssociated = mapLike.associateBy { it.key }
-        return Merged(mapLikeAssociated, other, type, trace, contexts)
-    }
+    override val children = mapLikeChildren.values + otherChildren
 }
 
 typealias RefinedTree = TreeValue<Refined>
 
 class Refined(
-    val refinedChildren: Map<String, MapLikeValue.Property<TreeValue<Refined>>>,
+    val refinedChildren: Map<String, Property<TreeValue<Refined>>>,
     override val type: SchemaObjectDeclaration?,
     override val trace: Trace,
     override val contexts: Contexts,
 ) : MapLikeValue<Refined>, TreeState {
-    override val children get() = refinedChildren.values.toList()
-    
-    override fun copy(
-        children: MapLikeChildren<Refined>,
-        type: SchemaObjectDeclaration?,
-        trace: Trace,
-        contexts: Contexts,
-    ) = Refined(children.associateBy { it.key }, type, trace, contexts)
+    override val children = refinedChildren.values.toList()
 }
+
+/**
+ * Utility copy method that is aware of `MapLikeValue` hierarchy.
+ */
+fun <TS : TreeState> MapLikeValue<TS>.copy(
+    children: MapLikeChildren<TS> = this.children,
+    type: SchemaObjectDeclaration? = this.type,
+    trace: Trace = this.trace,
+    contexts: Contexts = this.contexts,
+): MapLikeValue<TS> = when (this) {
+    is Owned -> Owned(
+        children = children,
+        type = type,
+        trace = trace,
+        contexts = contexts
+    )
+    is Merged -> Merged(
+        mapLikeChildren = (children as MapLikeChildren<Merged>).filter { it.value is MapLikeValue<*> }.associateBy { it.key },
+        otherChildren = children.filter { it.value !is MapLikeValue<*> },
+        type = type,
+        trace = trace,
+        contexts = contexts
+    )
+    is Refined -> Refined(
+        refinedChildren = (children as MapLikeChildren<Refined>).associateBy { it.key },
+        type = type,
+        trace = trace,
+        contexts = contexts
+    )
+    else -> error("Unreachable")
+} as MapLikeValue<TS>
+
+/**
+ * Utility copy method that can copy only child properties with a matching value type.
+ */
+inline fun <TS : TreeState, reified T : TreeValue<TS>> MapLikeValue<TS>.copy(
+    trace: Trace = this.trace,
+    contexts: Contexts = this.contexts,
+    type: SchemaObjectDeclaration? = this.type,
+    crossinline transform: (key: String, pValue: T, old: Property<TreeValue<TS>>) -> MapLikeChildren<TS>?,
+) = copy(
+    children = children.flatMap { if (it.value is T) transform(it.key, it.value, it).orEmpty() else listOf(it) },
+    trace = trace,
+    contexts = contexts,
+    type = type,
+)

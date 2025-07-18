@@ -60,7 +60,7 @@ internal data class BuildCtx(
 
 internal data class ModuleBuildCtx(
     val moduleFile: VirtualFile,
-    val mergedTree: TreeValue<Merged>,
+    val mergedTree: Merged,
     val refiner: TreeRefiner,
     val catalog: VersionCatalog,
     val buildCtx: BuildCtx,

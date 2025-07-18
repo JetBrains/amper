@@ -35,9 +35,7 @@ fun tryReadMinimalPluginModule(
             reportUnknowns = false,
         ) ?: return null
         val refiner = TreeRefiner()
-        // We can cast here because there is only one project file, thus no need to merge.
-        @Suppress("UNCHECKED_CAST")
-        val noContextsTree = refiner.refineTree(pluginModuleTree as MergedTree, EmptyContexts)
+        val noContextsTree = refiner.refineTree(pluginModuleTree, EmptyContexts)
         createSchemaNode<MinimalPluginModule>(noContextsTree)
     }
 }

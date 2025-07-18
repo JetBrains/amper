@@ -37,16 +37,16 @@ class TreeRefiner(
     private val contextComparator: ContextsInheritance<Context> = defaultContextsInheritance,
 ) {
     fun refineTree(
-        tree: TreeValue<Merged>, 
-        selectedContexts: Contexts
-    ): RefinedTree = RefineRequest(selectedContexts, contextComparator).refine(tree)
+        tree: MapLikeValue<*>,
+        selectedContexts: Contexts,
+    ): Refined = RefineRequest(selectedContexts, contextComparator).refine(tree) as Refined
 }
 
 @TestOnly
-internal fun TreeValue<*>.refineTree(
+internal fun MapLikeValue<*>.refineTree(
     selectedContexts: Contexts,
     contextComparator: ContextsInheritance<Context>,
-): RefinedTree = RefineRequest(selectedContexts, contextComparator).refine(this)
+): Refined = RefineRequest(selectedContexts, contextComparator).refine(this) as Refined
 
 class RefineRequest(
     private val selectedContexts: Contexts,
@@ -58,7 +58,7 @@ class RefineRequest(
      * with merged nodes.
      */
     @Suppress("UNCHECKED_CAST")
-    fun refine(node: TreeValue<*>): RefinedTree {
+    fun refine(node: TreeValue<*>): TreeValue<Refined> {
         return when (node) {
             is ListValue -> ListValue(
                 children = node.children.filterByContexts().map(::refine),
@@ -71,7 +71,7 @@ class RefineRequest(
                 trace = node.trace,
                 contexts = node.contexts,
             )
-            is ScalarOrReference -> node as RefinedTree
+            is ScalarOrReference -> node as TreeValue<Refined>
             is NoValue -> node
         }
     }
@@ -120,9 +120,9 @@ class RefineRequest(
                     }
                 }
 
-            // For no value properties, just pick the first one.
+            // For no value properties, just pick the first one (copy for the sake of type safety).
             val noValues = filter { it.value is NoValue }
-                .refineOrReduceByKeys { it.first() as MapLikeValue.Property<RefinedTree> }
+                .refineOrReduceByKeys { MapLikeValue.Property(it.first(), NoValue(it.first().value.trace)) }
 
             // Group the result.
             val refinedProperties = keyValuesMerged + mapsMerged + listsMerged
@@ -159,9 +159,9 @@ class RefineRequest(
     /**
      * Refines the element if it is single or applies [reduce] to a collection of properties grouped by keys.
      */
-    private fun <T : MapLikeValue.Property<TreeValue<*>>> List<T>.refineOrReduceByKeys(reduce: (List<T>) -> MapLikeValue.Property<RefinedTree>) =
+    private fun <T : MapLikeValue.Property<TreeValue<*>>> List<T>.refineOrReduceByKeys(reduce: (List<T>) -> MapLikeValue.Property<TreeValue<Refined>>) =
         groupBy { it.key }.values.map { props ->
-            props.singleOrNull()?.let { MapLikeValue.Property(it.key, it.kTrace, refine(it.value), it.pType) }
+            props.singleOrNull()?.let { MapLikeValue.Property(it, refine(it.value)) }
                 ?: props.filterByContexts().let(reduce)
         }
 

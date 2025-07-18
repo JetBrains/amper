@@ -115,9 +115,10 @@ internal fun readAndRefineModule(
     withDefaults: Boolean = false,
 ): BuildCtx.(VirtualFile) -> TreeValue<*> = {
     val minimalModule = tryReadMinimalModule(it)!!
-    var tree: MergedTree = readTree(it, moduleAType) as? MergedTree ?: fail("No tree for $it")
-    tree = if (withDefaults) tree.appendDefaultValues() else tree
-    tree.refineTree(contexts, minimalModule.combinedInheritance)
+    val tree = readTree(it, moduleAType) ?: fail("No tree for $it")
+    var merged = treeMerger.mergeTrees(tree)
+    merged = if (withDefaults) merged.appendDefaultValues() else merged
+    merged.refineTree(contexts, minimalModule.combinedInheritance)
 }
 
 // Helper function read the module with templates and refine it with selected contexts.

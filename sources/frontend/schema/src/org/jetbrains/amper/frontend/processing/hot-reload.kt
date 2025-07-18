@@ -13,20 +13,20 @@ import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.Owned
-import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 context(buildCtx: BuildCtx)
-internal fun TreeValue<Merged>.configureHotReloadDefaults(commonModule: Module) =
+internal fun Merged.configureHotReloadDefaults(commonModule: Module) =
     if (commonModule.settings.compose.enabled && commonModule.settings.compose.experimental.hotReload.enabled) {
         buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.hotReloadDefaultTree()))
-    } else {
+    } 
+    else {
         this
     }
 
-private fun BuildCtx.hotReloadDefaultTree() = syntheticBuilder<MapLikeValue<Owned>>(types, DefaultTrace) {
-    mapLike<Module> {
+private fun BuildCtx.hotReloadDefaultTree() = syntheticBuilder(types, DefaultTrace) {
+    `object`<Module> {
         Module::settings {
             Settings::jvm {
                 JvmSettings::runtimeClasspathMode setTo scalar(DependencyMode.CLASSES)

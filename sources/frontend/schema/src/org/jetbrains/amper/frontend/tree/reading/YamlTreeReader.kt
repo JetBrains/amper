@@ -109,7 +109,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
     private fun ReaderCtx.tryReadAsPolyFromMapping(
         type: SchemaType.VariantType,
         mapping: YAMLMapping,
-    ): MapLikeValue<Owned>? {
+    ): MapLikeValue<*>? {
         mapping.tag?.let { tag ->
             val explicitVariant = tag.text.removePrefix("!")
             type.declaration.variants.find {
@@ -153,7 +153,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         type: SchemaType.VariantType,
         keyText: String,
         currentElement: PsiElement,
-    ): MapLikeValue<Owned>? {
+    ): MapLikeValue<*>? {
         // Currently, the only discriminator property is one marked with [DependencyKey].
         // Thus, object type resolving is now hardcoded only for dependencies.
         if (!type.declaration.variants.all { it.properties.singleOrNull { it.isCtorArg } != null })
@@ -206,7 +206,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         ctorElement: PsiElement,
         parentElement: PsiElement,
         childElement: PsiElement? = null,
-    ): MapLikeValue<Owned>? {
+    ): MapLikeValue<*>? {
         // FIXME Replace all errors with reports.
         val ctorProperty = type.declaration.properties.singleOrNull { it.isCtorArg } ?: error("Should be unreachable")
         val ctorScalar = tryReadScalar(ctorText, ctorProperty.type as SchemaType.ScalarType, ctorElement) ?: return null
@@ -218,7 +218,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         }
     }
 
-    private fun ReaderCtx.tryReadAsShorthand(scalar: YAMLScalar): TreeValue<Owned>? {
+    private fun ReaderCtx.tryReadAsShorthand(scalar: YAMLScalar): TreeValue<*>? {
         val lastObjectDeclaration = (currentType as? SchemaType.ObjectType)?.declaration ?: return null
         if (!lastObjectDeclaration.hasShorthands()) return null
         val shorthandAware = lastObjectDeclaration.properties.filter { it.hasShorthand }.sortedBy {
@@ -279,7 +279,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         keyValues: Collection<YAMLKeyValue>,
         origin: PsiElement,
         childType: (String, PsiElement) -> Pair<SchemaType, SchemaObjectDeclaration.Property?>?,
-    ): MapLikeValue<Owned> {
+    ): MapLikeValue<*> {
         val properties = keyValues.mapNotNull {
             val (key, contexts) = extractContexts(it)
             val (adjustedKey, testCtxNeeded) = knownTestBlocks.getOrElse(key) { key to false }

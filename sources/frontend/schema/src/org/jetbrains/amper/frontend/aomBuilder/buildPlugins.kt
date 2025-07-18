@@ -6,28 +6,19 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
-import org.jetbrains.amper.frontend.project.AmperProjectContext
-import org.jetbrains.amper.frontend.project.pluginInternalSchemaDirectory
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.Task
+import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.getTaskOutputRoot
-import org.jetbrains.amper.frontend.tree.ListValue
+import org.jetbrains.amper.frontend.project.pluginInternalSchemaDirectory
 import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.NoValue
-import org.jetbrains.amper.frontend.tree.Owned
-import org.jetbrains.amper.frontend.tree.OwnedTree
-import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.Refined
-import org.jetbrains.amper.frontend.tree.RefinedTree
-import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.tree.TreeVisitor
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
@@ -35,9 +26,8 @@ import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.single
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.plugins.schema.model.PluginData
 import java.nio.file.Path
-import kotlin.collections.iterator
-import kotlin.collections.orEmpty
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
@@ -91,7 +81,7 @@ internal fun BuildCtx.buildPlugins(
             moduleBuildCtx.module.tasksFromPlugins += DefaultTaskFromPluginDescription(
                 name = pluginTaskNameFor(moduleBuildCtx.module, plugin.pluginId, name),
                 actionFunctionJvmName = task.action.jvmFunctionName,
-                actionClassJvmName =  task.action.jvmOwnerClassName,
+                actionClassJvmName = task.action.jvmOwnerClassName,
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
                 explicitDependsOn = task.dependsOnSideEffectsOf,
                 inputs = task.action.inputPropertyNames.mapNotNull { task.action[it] as Path? },
@@ -157,16 +147,16 @@ private class PluginTreeReader(
 
         // Build a tree with computed "reference-only" values.
         val referenceValuesTree = syntheticBuilder(buildCtx.types, DefaultTrace) {
-            mapLike<PluginYamlRoot> {
+            `object`<PluginYamlRoot> {
                 "module" setTo map {
-                    put("configuration", pluginConfiguration.convertToOwned())
-                    put("rootDir", scalar(moduleRootDir))
+                    "configuration" setTo pluginConfiguration
+                    "rootDir" setTo scalar(moduleRootDir)
                 }
                 PluginYamlRoot::tasks setTo map {
                     for ((taskName, taskBuildRoot) in taskDirs) {
-                        put(taskName, mapLike<Task> {
+                        taskName setTo `object`<Task> {
                             "taskDir" setTo scalar(taskBuildRoot)
-                        })
+                        }
                     }
                 }
             }
@@ -182,33 +172,6 @@ private class PluginTreeReader(
     private fun TreeValue<Refined>.asMapLikeAndGet(property: String): TreeValue<Refined>? {
         return (this as? Refined)?.single(property)?.value
     }
-}
-
-@Suppress("UNCHECKED_CAST")
-private fun RefinedTree.convertToOwned(): OwnedTree {
-    val visitor = object : TreeVisitor<OwnedTree, Refined> {
-        override fun visitScalarValue(value: ScalarValue<Refined>) = value as ScalarValue<Owned>
-        override fun visitNoValue(value: NoValue) = value as OwnedTree
-        override fun visitReferenceValue(value: ReferenceValue<Refined>) = value as OwnedTree
-        override fun visitListValue(value: ListValue<Refined>) = ListValue(
-            children = value.children.map { it.convertToOwned() },
-            trace = value.trace,
-            contexts = value.contexts,
-        )
-        override fun visitMapValue(value: MapLikeValue<Refined>) = Owned(
-            children = value.children.map { MapLikeValue.Property(
-                key = it.key,
-                kTrace = it.kTrace,
-                value = it.value.convertToOwned(),
-                pType = it.pType,
-            )
-            },
-            type = value.type,
-            trace = value.trace,
-            contexts = value.contexts,
-        )
-    }
-    return visitor.visitValue(this)
 }
 
 private fun pluginTaskNameFor(module: AmperModule, pluginId: PluginData.Id, name: String) =

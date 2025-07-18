@@ -115,17 +115,9 @@ inline val <TS : TreeState> TreeValue<TS>.asList get() = asSafely<ListValue<TS>>
  * properties (with their own traces). The contexts of the property are equivalent to the
  * contexts of its value.
  */
-interface MapLikeValue<TS : TreeState> : TreeValue<TS> {
+interface MapLikeValue<out TS : TreeState> : TreeValue<TS> {
     val children: MapLikeChildren<TS>
     val type: SchemaObjectDeclaration?
-
-    fun copy(
-        children: MapLikeChildren<TS> = this.children,
-        type: SchemaObjectDeclaration? = this.type,
-        trace: Trace = this.trace,
-        contexts: Contexts = this.contexts,
-    ): MapLikeValue<TS>
-
     override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
     data class Property<out T : TreeValue<*>>(
         val key: String,
@@ -138,24 +130,16 @@ interface MapLikeValue<TS : TreeState> : TreeValue<TS> {
         
         constructor(value: T, kTrace: Trace, pType: SchemaObjectDeclaration.Property) :
                 this(pType.name, kTrace, value, pType)
+        
+        // This constructor is needed to change the type of the value while copying.
+        constructor(other: Property<*>, value: T) :
+                this(other.key, other.kTrace, value, other.pType)
 
         override val contexts get() = value.contexts
 
         fun <R : TreeValue<*>> copy(newValue: R) = Property(key, kTrace, newValue, pType)
     }
 }
-
-inline fun <TS : TreeState, reified T : TreeValue<TS>> MapLikeValue<TS>.copy(
-    trace: Trace = this.trace,
-    contexts: Contexts = this.contexts,
-    type: SchemaObjectDeclaration? = this.type,
-    crossinline transform: (key: String, pValue: T, old: Property<TreeValue<TS>>) -> MapLikeChildren<TS>?,
-) = copy(
-    children = children.flatMap { if (it.value is T) transform(it.key, it.value, it).orEmpty() else listOf(it) },
-    trace = trace,
-    contexts = contexts,
-    type = type,
-)
 
 // Convenient aliases for typed map-like nodes.
 typealias MapProperty<TS> = Property<MapLikeValue<TS>>
@@ -167,7 +151,6 @@ typealias MapLikeChildren<TS> = List<Property<TreeValue<TS>>>
 fun <TS : TreeState> MapLikeValue<TS>.get(key: String, type: SchemaObjectDeclaration.Property?) =
     children.filter { it.key == key && it.pType == type }
 inline val <TS : TreeState> TreeValue<TS>.asMapLike get() = asSafely<MapLikeValue<TS>>()
-inline val <TS : TreeState> List<TreeValue<TS>>.onlyMapLike get() = mapNotNull { it.asMapLike }
 inline val <TS : TreeState> List<Property<TreeValue<TS>>>.values get() = map { it.value }
 
 // Convenient accessors for named properties.

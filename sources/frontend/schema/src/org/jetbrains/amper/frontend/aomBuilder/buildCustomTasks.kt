@@ -22,10 +22,11 @@ import org.jetbrains.amper.frontend.KnownCurrentTaskProperty
 import org.jetbrains.amper.frontend.KnownModuleProperty
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.project.customTaskName
-import org.jetbrains.amper.frontend.tree.RefinedTree
+import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.getDeclaration
 import java.nio.file.Path
@@ -49,8 +50,10 @@ internal fun BuildCtx.buildCustomTask(
     }
 
     val taskTree = readTree(customTaskFile, types.getDeclaration<CustomTaskNode>()) ?: return
+    val refined = TreeRefiner().refineTree(taskTree, EmptyContexts)
+    
     // We can cast here only because no contexts are available inside the task definition.
-    val node = createSchemaNode<CustomTaskNode>(taskTree as RefinedTree)
+    val node = createSchemaNode<CustomTaskNode>(refined)
     val customTask = with(problemReporter) {
         buildCustomTask(customTaskFile, node, module.module) {
             val modulePathPart = it.toNioPathOrNull() ?: return@buildCustomTask null

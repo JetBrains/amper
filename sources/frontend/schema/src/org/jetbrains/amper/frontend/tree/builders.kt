@@ -8,12 +8,12 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.DefaultCtxs
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import kotlin.reflect.KProperty1
 
-fun <R : OwnedTree> syntheticBuilder(
+fun <R : TreeValue<*>> syntheticBuilder(
     types: SchemaTypingContext,
     trace: Trace,
     contexts: Contexts = DefaultCtxs,
@@ -25,46 +25,39 @@ class SyntheticBuilder(
     val trace: Trace,
     val contexts: Contexts,
 ) {
-    inner class MapLikeValueBuilder(val type: SchemaObjectDeclaration, val trace: Trace) {
-        internal val properties = mutableListOf<MapLikeValue.Property<OwnedTree>>()
+    inner class MapLikeValueBuilder(
+        val trace: Trace,
+        val type: SchemaObjectDeclaration? = null,
+    ) {
+        internal val properties = mutableListOf<MapLikeValue.Property<*>>()
 
-        infix fun KProperty1<out SchemaNode, *>.setTo(value: OwnedTree) =
-            properties.add(MapLikeValue.Property(name, trace, value, type))
+        infix fun KProperty1<out SchemaNode, *>.setTo(value: TreeValue<*>) =
+            name.setTo(value)
 
-        infix fun String.setTo(value: OwnedTree) =
-            properties.add(MapLikeValue.Property(this, trace, value, type))
+        infix fun String.setTo(value: TreeValue<*>) =
+            if (type != null) properties += MapLikeValue.Property(this, trace, value, type)
+            else properties += MapLikeValue.Property(this, trace, value, null)
 
         @JvmName("invokeMapLike")
         inline operator fun <reified T : SchemaNode> KProperty1<out SchemaNode, T>.invoke(noinline block: MapLikeValueBuilder.() -> Unit) =
-            setTo(mapLike<T>(block))
+            setTo(`object`<T>(block))
 
         @JvmName("invokeList")
-        operator fun KProperty1<out SchemaNode, List<*>?>.invoke(block: MutableList<OwnedTree>.() -> Unit) =
+        operator fun KProperty1<out SchemaNode, List<*>?>.invoke(block: MutableList<TreeValue<*>>.() -> Unit) =
             setTo(list(block))
     }
 
-    fun mapLike(type: SchemaObjectDeclaration, block: MapLikeValueBuilder.() -> Unit) =
-        Owned(MapLikeValueBuilder(type, trace).apply(block).properties, type, trace, contexts)
+    fun `object`(type: SchemaObjectDeclaration, block: MapLikeValueBuilder.() -> Unit) =
+        Owned(MapLikeValueBuilder(trace, type).apply(block).properties, type, trace, contexts)
 
-    inline fun <reified T : SchemaNode> mapLike(noinline block: MapLikeValueBuilder.() -> Unit) =
-        mapLike(types.getDeclaration<T>(), block)
+    inline fun <reified T : SchemaNode> `object`(noinline block: MapLikeValueBuilder.() -> Unit) =
+        `object`(types.getDeclaration<T>(), block)
 
-    fun list(block: MutableList<OwnedTree>.() -> Unit) =
-        ListValue(mutableListOf<OwnedTree>().apply(block), trace, contexts)
+    fun map(block: MapLikeValueBuilder.() -> Unit) =
+        Owned(MapLikeValueBuilder(trace).apply(block).properties, null, trace, contexts)
 
-    fun map(block: MutableMap<String, OwnedTree>.() -> Unit) = Owned(
-        children = mutableMapOf<String, OwnedTree>().apply(block).map { (k, v) ->
-            MapLikeValue.Property(
-                key = k,
-                kTrace = trace,
-                value = v,
-                pType = null,
-            )
-        },
-        trace = trace,
-        contexts = contexts,
-        type = null,
-    )
+    fun list(block: MutableList<TreeValue<*>>.() -> Unit) =
+        ListValue(mutableListOf<TreeValue<*>>().apply(block), trace, contexts)
 
     fun scalar(value: Any) = ScalarValue<Owned>(value, trace, contexts)
 }
