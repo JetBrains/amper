@@ -1,5 +1,8 @@
 product: jvm/app
 
+apply:
+  - ../../sources/common.module-template.yaml
+
 dependencies:
   - ../../sources/amper-project-templates/amper-project-template-resources
 

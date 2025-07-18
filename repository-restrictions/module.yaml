@@ -2,14 +2,14 @@ product:
   type: lib
   platforms: [ jvm ]
 
+apply:
+  - ../sources/common.module-template.yaml
+
 test-dependencies:
   - ../sources/test-base
   - ../sources/core
   - ../sources/frontend/schema
   - $libs.charleskorn.kaml
-
-apply:
-  - ../sources/common.module-template.yaml
 
 settings:
   kotlin:

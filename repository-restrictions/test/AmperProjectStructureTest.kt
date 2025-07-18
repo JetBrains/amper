@@ -53,6 +53,22 @@ class AmperProjectStructureTest {
     }
 
     @Test
+    fun `all modules apply the common template`() {
+        val modulesWithMissingTemplate = readAmperProjectModel().modules.filterNot { it.hasCommonTemplate() }
+        if (modulesWithMissingTemplate.isNotEmpty()) {
+            val modulesList = modulesWithMissingTemplate.joinToString("\n") { "- ${it.userReadableName}" }
+            fail("All modules in the Amper project should apply the common template. " +
+                    "It's missing in the following modules:\n$modulesList")
+        }
+    }
+
+    private fun AmperModule.hasCommonTemplate(): Boolean {
+        // For some reason using any method of VirtualFile leads to a dependency error.
+        // Using toString() is fine, though.
+        return usedTemplates.any { "$it".endsWith("common.module-template.yaml") }
+    }
+
+    @Test
     fun `Amper-agnostic library modules don't use the word Amper`() = runTest {
         val invalidLines = readAmperProjectModel()
             .modules
