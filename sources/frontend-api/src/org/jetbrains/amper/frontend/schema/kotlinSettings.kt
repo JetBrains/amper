@@ -25,14 +25,15 @@ enum class KotlinVersion(override val schemaValue: String, override val outdated
     Kotlin12("1.2", outdated = true),
     Kotlin13("1.3", outdated = true),
     Kotlin14("1.4", outdated = true),
-    Kotlin15("1.5", outdated = true), // no longer supported in Kotlin 2.1.10
-    Kotlin16("1.6"),
-    Kotlin17("1.7"),
-    Kotlin18("1.8"),
-    Kotlin19("1.9"),
+    Kotlin15("1.5", outdated = true),
+    Kotlin16("1.6", outdated = true),
+    Kotlin17("1.7", outdated = true),
+    Kotlin18("1.8", outdated = true), // deprecated in 2.2
+    Kotlin19("1.9", outdated = true), // deprecated in 2.2
     Kotlin20("2.0"),
     Kotlin21("2.1"),
-    Kotlin22("2.2"), // already supported (experimental) in Kotlin 2.1.10
+    Kotlin22("2.2"),
+    Kotlin23("2.3"), // experimental in 2.2
     ;
 
     override fun toString(): String = schemaValue
@@ -90,7 +91,7 @@ class KotlinSettings : SchemaNode() {
 
     @Aliases("language-version", "version")
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
-    var languageVersion by value(KotlinVersion.Kotlin21)
+    var languageVersion by value(KotlinVersion.Kotlin22)
 
     @Aliases("api-version", "sdkVersion")
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")

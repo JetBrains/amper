@@ -3,9 +3,9 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
@@ -86,7 +86,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: {
@@ -102,7 +102,7 @@ Fragments:
           version: 1.9.20-1.0.24
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -141,10 +141,10 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: test@android
     Fragment dependencies:
       commonTest (REFINE)
@@ -226,7 +226,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: {
@@ -242,7 +242,7 @@ Fragments:
           version: 1.9.20-1.0.24
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -281,9 +281,9 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -363,7 +363,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: {
@@ -379,7 +379,7 @@ Fragments:
           version: 1.9.20-1.0.24
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -418,10 +418,10 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -502,7 +502,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: {
@@ -518,7 +518,7 @@ Fragments:
           version: 1.9.20-1.0.24
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null

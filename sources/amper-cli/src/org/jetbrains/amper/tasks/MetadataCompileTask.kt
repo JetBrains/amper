@@ -170,7 +170,8 @@ internal class MetadataCompileTask(
             friendPaths = friendPaths,
             refinesPaths = refinesPaths,
             fragments = listOf(fragment),
-            sourceFiles = sourceDirectories,
+            // in Kotlin >= 2.2, we need to list all source files (not just dirs)
+            sourceFiles = sourceDirectories.flatMap { it.walk() }.toList(),
             additionalSourceRoots = additionalSourceRoots,
         )
         spanBuilder("kotlin-metadata-compilation")

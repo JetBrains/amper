@@ -21,8 +21,14 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
+import kotlin.io.path.exists
+import kotlin.io.path.extension
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
+import kotlin.io.path.walk
 import kotlin.io.path.writeText
+
+internal val validSourceFileExtensions = setOf("kt", "java")
 
 private fun kotlinCommonCompilerArgs(
     isMultiplatform: Boolean,
@@ -35,17 +41,22 @@ private fun kotlinCommonCompilerArgs(
         add("-Xmulti-platform")
 
         if (kotlinUserSettings.languageVersion >= KotlinVersion.Kotlin20) {
+            val additionalSourceRootsByFragmentName = additionalSourceRoots.groupBy(
+                keySelector = { it.fragmentName },
+                valueTransform = { it.path },
+            )
             fragments.forEach { fragment ->
                 add("-Xfragments=${fragment.name}")
-                add("-Xfragment-sources=${fragment.name}:${fragment.src}")
 
                 fragment.fragmentDependencies.filter { it.type == FragmentDependencyType.REFINE }.forEach {
                     add("-Xfragment-refines=${fragment.name}:${it.target.name}")
                 }
-            }
-            // for generated sources that must be associated with existing fragments
-            additionalSourceRoots.forEach { sourceRoot ->
-                add("-Xfragment-sources=${sourceRoot.fragmentName}:${sourceRoot.path.absolutePathString()}")
+
+                // for generated sources that must be associated with existing fragments
+                val additionalFragmentSrcRoots = additionalSourceRootsByFragmentName[fragment.name] ?: emptyList()
+                fragment.allSourceFiles(additionalFragmentSrcRoots).forEach { sourceFile ->
+                    add("-Xfragment-sources=${fragment.name}:$sourceFile")
+                }
             }
         }
     }
@@ -96,6 +107,13 @@ private fun kotlinCommonCompilerArgs(
     }
 }
 
+private fun Fragment.allSourceFiles(additionalSourceRoots: List<Path>): List<Path> =
+    (listOf(src) + additionalSourceRoots).flatMap { srcRoot ->
+        // In Kotlin >= 2.2, we need to list all source files (not just dirs).
+        // Also, we don't want swift or plist files here
+        srcRoot.walk().filter { it.extension in validSourceFileExtensions }
+    }
+
 internal fun kotlinJvmCompilerArgs(
     isMultiplatform: Boolean,
     userSettings: CompilationUserSettings,
@@ -118,6 +136,13 @@ internal fun kotlinJvmCompilerArgs(
         // KT-34277 Kotlinc processes -Xfriend-paths differently for Javascript vs. JVM, using different list separators
         // https://github.com/JetBrains/kotlin/blob/4964ee12a994bc846ecdb4810486aaf659be00db/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2JVMCompilerArguments.kt#L531
         add("-Xfriend-paths=${friendPaths.joinToString(",")}")
+    }
+
+    // FIXME remove in Kotlin 2.2.20 (this is needed only in 2.2.0, not before, not after)
+    val javaSourceRoots = (fragments.map { it.src } + additionalSourceRoots.map { it.path })
+        .filter { it.exists() && it.listDirectoryEntries().isNotEmpty() }
+    javaSourceRoots.forEach {
+        add("-Xjava-source-roots=${it.pathString}")
     }
 
     // Common args last, because they contain free compiler args

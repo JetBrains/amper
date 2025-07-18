@@ -12,6 +12,7 @@ import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
 import org.jetbrains.amper.compilation.mergedKotlinSettings
+import org.jetbrains.amper.compilation.validSourceFileExtensions
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
@@ -34,9 +35,9 @@ import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.isDirectory
-import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.extension
 import kotlin.io.path.pathString
+import kotlin.io.path.walk
 
 internal class NativeCompileKlibTask(
     override val module: AmperModule,
@@ -120,8 +121,12 @@ internal class NativeCompileKlibTask(
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val existingSourceRoots = sources.filter { it.isDirectory() && it.listDirectoryEntries().isNotEmpty() }
-            if (existingSourceRoots.isEmpty()) {
+            // in Kotlin >= 2.2, we need to list all source files (not just dirs)
+            val sourceFiles = sources.flatMap { dir ->
+                // konanc only accepts *.kt files, and we need to align with fragment arguments
+                dir.walk().filter { it.extension in validSourceFileExtensions }
+            }
+            if (sourceFiles.isEmpty()) {
                 logger.info("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
                 return@execute ExecuteOnChangedInputs.ExecutionResult(emptyList())
             }
@@ -140,7 +145,7 @@ internal class NativeCompileKlibTask(
                 libraryPaths = libraryPaths,
                 exportedLibraryPaths = emptyList(),
                 fragments = fragments,
-                sourceFiles = existingSourceRoots,
+                sourceFiles = sourceFiles,
                 additionalSourceRoots = additionalSources,
                 outputPath = artifact,
                 compilationType = KotlinCompilationType.LIBRARY,

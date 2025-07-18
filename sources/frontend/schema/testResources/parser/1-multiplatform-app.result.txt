@@ -5,9 +5,9 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.google.dagger:dagger:2.28.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@android
     Fragment dependencies:
@@ -89,7 +89,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -100,7 +100,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -141,10 +141,10 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.google.dagger:dagger:2.28.3, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test@android
@@ -228,7 +228,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -239,7 +239,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -279,7 +279,7 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@apple
     Fragment dependencies:
@@ -361,7 +361,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -372,7 +372,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -412,8 +412,8 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test@apple
@@ -497,7 +497,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -508,7 +508,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -547,7 +547,7 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -628,7 +628,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -639,7 +639,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -678,8 +678,8 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test
@@ -762,7 +762,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -773,7 +773,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -813,7 +813,7 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
@@ -895,7 +895,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -906,7 +906,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -946,7 +946,7 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@iosArm64
     Fragment dependencies:
@@ -1028,7 +1028,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1039,7 +1039,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1079,8 +1079,8 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test@iosArm64
@@ -1164,7 +1164,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1175,7 +1175,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1215,7 +1215,7 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@iosSimulatorArm64
     Fragment dependencies:
@@ -1297,7 +1297,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1308,7 +1308,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1348,8 +1348,8 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test@iosSimulatorArm64
@@ -1433,7 +1433,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1444,7 +1444,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1484,8 +1484,8 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test@ios
@@ -1569,7 +1569,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1580,7 +1580,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1620,7 +1620,7 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@iosX64
     Fragment dependencies:
@@ -1702,7 +1702,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1713,7 +1713,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1753,8 +1753,8 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test@iosX64
@@ -1838,7 +1838,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1849,7 +1849,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1889,7 +1889,7 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@native
     Fragment dependencies:
@@ -1971,7 +1971,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1982,7 +1982,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -2022,8 +2022,8 @@ Fragments:
       MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test@native
@@ -2107,7 +2107,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -2118,7 +2118,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null

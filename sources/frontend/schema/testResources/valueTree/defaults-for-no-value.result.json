@@ -81,7 +81,7 @@
       },
       "allWarningsAsErrors(DefaultCtx)" : "false(DefaultCtx)",
       "apiVersion(DefaultCtx)" : "languageVersion(DefaultCtx)",
-      "languageVersion(DefaultCtx)" : "2.1(DefaultCtx)",
+      "languageVersion(DefaultCtx)" : "2.2(DefaultCtx)",
       "progressiveMode(DefaultCtx)" : "false(DefaultCtx)",
       "suppressWarnings(DefaultCtx)" : "false(DefaultCtx)",
       "verbose(DefaultCtx)" : "false(DefaultCtx)"

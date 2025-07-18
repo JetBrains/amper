@@ -38,7 +38,7 @@ val amperInternalJbrVersion = "21.0.6-b895.97"
  * Make sure we respect the constraints of the Android Gradle plugin (used internally in delegated Gradle builds).
  * See the [compatiblity table](https://developer.android.com/build/kotlin-support).
  */
-val kotlinVersion = "2.1.20"
+val kotlinVersion = "2.2.0" // /!\ Remember to update the KotlinVersion enum with outdated/experimental versions
 
 val composeVersion = "1.8.0"
 val hotReloadVersion = "1.0.0-beta03"

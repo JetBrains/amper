@@ -1,7 +1,7 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.8.0, compile=true, runtime=true, exported=false)
     Src folder: src
@@ -83,7 +83,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -131,8 +131,8 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.8.0, compile=true, runtime=true, exported=false)
     Src folder: test
@@ -215,7 +215,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -263,7 +263,7 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.8.0, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
@@ -346,7 +346,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -394,8 +394,8 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.8.0, compile=true, runtime=true, exported=false)
     Src folder: test@jvm
@@ -479,7 +479,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {

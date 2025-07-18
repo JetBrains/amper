@@ -1362,13 +1362,10 @@
         },
         "apiVersion": {
           "enum": [
+            "2.3",
             "2.2",
             "2.1",
-            "2.0",
-            "1.9",
-            "1.8",
-            "1.7",
-            "1.6"
+            "2.0"
           ],
           "x-intellij-enum-order-sensitive": true,
           "x-intellij-html-description": "Allow using declarations only from the specified version of Kotlin bundled libraries",
@@ -1413,13 +1410,10 @@
         },
         "languageVersion": {
           "enum": [
+            "2.3",
             "2.2",
             "2.1",
-            "2.0",
-            "1.9",
-            "1.8",
-            "1.7",
-            "1.6"
+            "2.0"
           ],
           "x-intellij-enum-order-sensitive": true,
           "x-intellij-html-description": "Source compatibility with the specified version of Kotlin",

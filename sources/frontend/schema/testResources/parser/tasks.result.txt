@@ -1,7 +1,7 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -81,7 +81,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -92,7 +92,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -129,8 +129,8 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -211,7 +211,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -222,7 +222,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -259,7 +259,7 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -340,7 +340,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -351,7 +351,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -388,8 +388,8 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)
@@ -471,7 +471,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -482,7 +482,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null

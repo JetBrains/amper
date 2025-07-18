@@ -88,7 +88,7 @@ class AmperBuildTest : AmperCliTestBase() {
 
         assertEquals("""
             ERROR: Task ':shared:compileJvm' failed: Kotlin compilation failed:
-            e: $file:2:26 Unresolved reference 'XXXX'.
+            $file:2:26 Unresolved reference 'XXXX'.
         """.trimIndent(), lastLines.joinToString("\n"))
     }
 

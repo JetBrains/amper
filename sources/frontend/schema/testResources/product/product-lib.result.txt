@@ -1,7 +1,7 @@
 Fragments:
   apple
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: src@apple
     Fragment dependencies:
       native (REFINE)
@@ -82,7 +82,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -93,7 +93,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -130,9 +130,9 @@ Fragments:
 
   appleTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: test@apple
     Fragment dependencies:
       nativeTest (REFINE)
@@ -214,7 +214,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -225,7 +225,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -262,7 +262,7 @@ Fragments:
 
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -342,7 +342,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -353,7 +353,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -390,9 +390,9 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -473,7 +473,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -484,7 +484,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -521,7 +521,7 @@ Fragments:
 
   ios
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
       apple (REFINE)
@@ -602,7 +602,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -613,7 +613,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -650,7 +650,7 @@ Fragments:
 
   iosArm64
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: src@iosArm64
     Fragment dependencies:
       ios (REFINE)
@@ -731,7 +731,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -742,7 +742,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -779,9 +779,9 @@ Fragments:
 
   iosArm64Test
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: test@iosArm64
     Fragment dependencies:
       iosTest (REFINE)
@@ -863,7 +863,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -874,7 +874,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -911,9 +911,9 @@ Fragments:
 
   iosTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: test@ios
     Fragment dependencies:
       appleTest (REFINE)
@@ -995,7 +995,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1006,7 +1006,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1043,7 +1043,7 @@ Fragments:
 
   native
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: src@native
     Fragment dependencies:
       common (REFINE)
@@ -1124,7 +1124,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1135,7 +1135,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1172,9 +1172,9 @@ Fragments:
 
   nativeTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
     Src folder: test@native
     Fragment dependencies:
       commonTest (REFINE)
@@ -1256,7 +1256,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1267,7 +1267,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null

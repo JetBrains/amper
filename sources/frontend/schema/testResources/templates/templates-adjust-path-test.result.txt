@@ -3,7 +3,7 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src@apple
     Fragment dependencies:
@@ -85,7 +85,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -96,7 +96,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -135,9 +135,9 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test@apple
     Fragment dependencies:
@@ -220,7 +220,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -231,7 +231,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -270,7 +270,7 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -351,7 +351,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -362,7 +362,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -401,9 +401,9 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
@@ -485,7 +485,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -496,7 +496,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -535,7 +535,7 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
@@ -617,7 +617,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -628,7 +628,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -667,7 +667,7 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src@iosArm64
     Fragment dependencies:
@@ -749,7 +749,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -760,7 +760,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -799,9 +799,9 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test@iosArm64
     Fragment dependencies:
@@ -884,7 +884,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -895,7 +895,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -934,9 +934,9 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test@ios
     Fragment dependencies:
@@ -1019,7 +1019,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1030,7 +1030,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1069,7 +1069,7 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src@native
     Fragment dependencies:
@@ -1151,7 +1151,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1162,7 +1162,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -1201,9 +1201,9 @@ Fragments:
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.1.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: test@native
     Fragment dependencies:
@@ -1286,7 +1286,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.1
+        apiVersion: <default> 2.2
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -1297,7 +1297,7 @@ Fragments:
           version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.1
+        languageVersion: <default> 2.2
         linkerOpts: <default> null
         noArg: <default> {
           annotations: <default> null

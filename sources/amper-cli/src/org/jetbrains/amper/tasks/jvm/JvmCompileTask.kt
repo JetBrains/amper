@@ -237,8 +237,9 @@ internal class JvmCompileTask(
         }
 
         val sourcesFiles = sourceDirectories.flatMap { it.walk() }
-
         val kotlinFilesToCompile = sourcesFiles.filter { it.extension == "kt" }
+        val javaFilesToCompile = sourcesFiles.filter { it.extension == "java" }
+
         if (kotlinFilesToCompile.isNotEmpty()) {
             // Enable multi-platform support only if targeting other than JVM platforms
             // or having a common and JVM fragments (like src and src@jvm directories)
@@ -250,13 +251,12 @@ internal class JvmCompileTask(
                 isMultiplatform = isMultiplatform,
                 classpath = classpath,
                 jdk = jdk,
-                sourceDirectories = sourceDirectories,
+                sourceFiles = kotlinFilesToCompile + javaFilesToCompile,
                 additionalSourceRoots = additionalSources,
                 friendPaths = friendPaths,
             )
         }
 
-        val javaFilesToCompile = sourcesFiles.filter { it.extension == "java" }
         if (javaFilesToCompile.isNotEmpty()) {
             val kotlinClassesPath = listOf(taskOutputRoot.path)
             val javacSuccess = compileJavaSources(
@@ -279,7 +279,7 @@ internal class JvmCompileTask(
         isMultiplatform: Boolean,
         classpath: List<Path>,
         jdk: Jdk,
-        sourceDirectories: List<Path>,
+        sourceFiles: List<Path>,
         additionalSourceRoots: List<SourceRoot>,
         friendPaths: List<Path>,
     ) {
@@ -315,7 +315,7 @@ internal class JvmCompileTask(
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
             .setAmperModule(module)
             .setFragments(fragments)
-            .setListAttribute("source-dirs", sourceDirectories.map { it.pathString })
+            .setListAttribute("source-files", sourceFiles.map { it.pathString })
             .setListAttribute("compiler-args", compilerArgs)
             .setAttribute("compiler-version", compilerVersion)
             .use {
@@ -326,7 +326,7 @@ internal class JvmCompileTask(
                     projectId = projectId,
                     strategyConfig = executionConfig,
                     compilationConfig = compilationConfig,
-                    sources = sourceDirectories.map { it.toFile() },
+                    sources = sourceFiles.map { it.toFile() },
                     arguments = compilerArgs,
                 )
 

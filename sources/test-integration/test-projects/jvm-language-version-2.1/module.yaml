@@ -3,4 +3,4 @@ product:
 
 settings:
   kotlin:
-    languageVersion: 1.9
+    languageVersion: 2.1

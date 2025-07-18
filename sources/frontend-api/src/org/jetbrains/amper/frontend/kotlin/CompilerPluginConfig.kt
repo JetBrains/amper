@@ -109,7 +109,6 @@ data class ComposeCompilerPluginConfig(val kotlinVersion: String) : CompilerPlug
     override val id = "androidx.compose.compiler.plugins.kotlin"
     override val options = listOf(
         // added for hot reload
-        Option(name = "featureFlag", value = "OptimizeNonSkippingGroups"),
         Option(name = "generateFunctionKeyMetaAnnotations", value = "true"),
         Option(name = "sourceInformation", value = "true"),
     )

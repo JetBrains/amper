@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnspecifiedDependencyVersion
@@ -50,15 +51,15 @@ class BomTest: BaseModuleDrTest() {
                 │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
                 ├─── app:common:com.fasterxml.jackson:jackson-bom:2.18.3
                 │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ├─── app:common:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20
+                ├─── app:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
                 │         ╰─── org.jetbrains:annotations:13.0
                 ├─── app:jvm:com.fasterxml.jackson.core:jackson-annotations:unspecified
                 │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3 (*)
                 ├─── app:jvm:com.fasterxml.jackson:jackson-bom:2.18.3
                 │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ╰─── app:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.1.20, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 (*)
+                ╰─── app:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
             """.trimIndent(),
         )
 
@@ -66,7 +67,7 @@ class BomTest: BaseModuleDrTest() {
             listOf(
                 "annotations-13.0.jar",
                 "jackson-annotations-2.18.3.jar",
-                "kotlin-stdlib-2.1.20.jar",
+                "kotlin-stdlib-${UsedVersions.kotlinVersion}.jar",
             ),
             jvmAppDeps
         )

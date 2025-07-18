@@ -78,8 +78,8 @@ class SmokeTest : AmperCliTestBase() {
         val runResult = runCli(projectRoot = projectRoot, "run")
         // testing some default compiler arguments
         runResult.readTelemetrySpans().assertKotlinJvmCompilationSpan {
-            hasCompilerArgument("-language-version=2.1")
-            hasCompilerArgument("-api-version=2.1")
+            hasCompilerArgument("-language-version=2.2")
+            hasCompilerArgument("-api-version=2.2")
             hasCompilerArgument("-Xjdk-release=17")
         }
         runResult.assertStdoutContains("Hello, World")
