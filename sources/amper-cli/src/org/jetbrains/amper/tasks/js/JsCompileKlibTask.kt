@@ -2,14 +2,14 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tasks.wasm
+package org.jetbrains.amper.tasks.js
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.compilation.CompilerPlugin
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.KotlinUserSettings
-import org.jetbrains.amper.compilation.kotlinWasmJsCompilerArgs
+import org.jetbrains.amper.compilation.ResolvedCompilerPlugin
+import org.jetbrains.amper.compilation.kotlinJsCompilerArgs
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
@@ -19,9 +19,10 @@ import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.web.WebCompileKlibTask
+import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 
-class WasmJsCompileKlibTask(
+internal class JsCompileKlibTask(
     module: AmperModule,
     platform: Platform,
     userCacheRoot: AmperUserCacheRoot,
@@ -30,6 +31,7 @@ class WasmJsCompileKlibTask(
     taskName: TaskName,
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
+    buildType: BuildType? = null,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ) : WebCompileKlibTask(
@@ -41,14 +43,15 @@ class WasmJsCompileKlibTask(
     taskName,
     tempRoot,
     isTest,
+    buildType,
     kotlinArtifactsDownloader,
 ) {
     override val expectedPlatform: Platform
-        get() = Platform.WASM_JS
+        get() = Platform.JS
 
     override fun kotlinCompilerArgs(
         kotlinUserSettings: KotlinUserSettings,
-        compilerPlugins: List<CompilerPlugin>,
+        compilerPlugins: List<ResolvedCompilerPlugin>,
         libraryPaths: List<Path>,
         outputPath: Path,
         friendPaths: List<Path>,
@@ -57,19 +60,18 @@ class WasmJsCompileKlibTask(
         additionalSourceRoots: List<SourceRoot>,
         moduleName: String,
         compilationType: KotlinCompilationType,
-        include: Path?
-    ): List<String> =
-        kotlinWasmJsCompilerArgs(
-            kotlinUserSettings,
-            compilerPlugins,
-            libraryPaths,
-            outputPath,
-            friendPaths,
-            fragments,
-            sourceFiles,
-            additionalSourceRoots,
-            moduleName,
-            compilationType,
-            include,
-        )
+        include: Path?,
+    ): List<String> = kotlinJsCompilerArgs(
+        kotlinUserSettings,
+        compilerPlugins,
+        libraryPaths,
+        outputPath,
+        friendPaths,
+        fragments,
+        sourceFiles,
+        additionalSourceRoots,
+        moduleName,
+        compilationType,
+        include,
+    )
 }

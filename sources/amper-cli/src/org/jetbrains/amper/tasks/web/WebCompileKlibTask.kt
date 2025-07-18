@@ -8,10 +8,10 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.compilation.CompilerPlugin
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.KotlinUserSettings
+import org.jetbrains.amper.compilation.ResolvedCompilerPlugin
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinModuleName
 import org.jetbrains.amper.compilation.mergedKotlinSettings
@@ -27,8 +27,8 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.jvm.Jdk
-import org.jetbrains.amper.jvm.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.Jdk
+import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -42,6 +42,7 @@ import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.native.filterKLibs
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
+import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -50,7 +51,7 @@ import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 
-abstract class WebCompileKlibTask(
+internal abstract class WebCompileKlibTask(
     override val module: AmperModule,
     override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
@@ -59,6 +60,7 @@ abstract class WebCompileKlibTask(
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
+    override val buildType: BuildType? = null,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ) : ArtifactTaskBase(), BuildTask {
@@ -80,7 +82,7 @@ abstract class WebCompileKlibTask(
 
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
-        executionContext: TaskGraphExecutionContext
+        executionContext: TaskGraphExecutionContext,
     ): TaskResult {
         val fragments = module.fragments.filter {
             it.platforms.contains(platform) && it.isTest == isTest
@@ -199,8 +201,7 @@ abstract class WebCompileKlibTask(
     ) {
         val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(version = kotlinVersion)
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
-            kotlinVersion = kotlinVersion,
-            kotlinUserSettings = kotlinUserSettings,
+            plugins = kotlinUserSettings.compilerPlugins,
         )
 
         val compilerArgs = kotlinCompilerArgs(
@@ -240,7 +241,7 @@ abstract class WebCompileKlibTask(
 
     internal abstract fun kotlinCompilerArgs(
         kotlinUserSettings: KotlinUserSettings,
-        compilerPlugins: List<CompilerPlugin>,
+        compilerPlugins: List<ResolvedCompilerPlugin>,
         libraryPaths: List<Path>,
         outputPath: Path,
         friendPaths: List<Path>,

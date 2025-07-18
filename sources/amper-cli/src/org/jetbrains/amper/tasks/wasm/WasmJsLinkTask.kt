@@ -5,10 +5,10 @@
 package org.jetbrains.amper.tasks.wasm
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.compilation.CompilerPlugin
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.KotlinUserSettings
+import org.jetbrains.amper.compilation.ResolvedCompilerPlugin
 import org.jetbrains.amper.compilation.kotlinWasmJsCompilerArgs
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
@@ -19,9 +19,10 @@ import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.web.WebLinkTask
+import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 
-class WasmJsLinkTask(
+internal class WasmJsLinkTask(
     module: AmperModule,
     platform: Platform,
     userCacheRoot: AmperUserCacheRoot,
@@ -30,6 +31,7 @@ class WasmJsLinkTask(
     taskName: TaskName,
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
+    buildType: BuildType? = null,
     compilationType: KotlinCompilationType,
     compileKLibTaskName: TaskName,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
@@ -43,6 +45,7 @@ class WasmJsLinkTask(
     taskName,
     tempRoot,
     isTest,
+    buildType,
     compilationType,
     compileKLibTaskName,
     kotlinArtifactsDownloader,
@@ -52,7 +55,7 @@ class WasmJsLinkTask(
 
     override fun kotlinCompilerArgs(
         kotlinUserSettings: KotlinUserSettings,
-        compilerPlugins: List<CompilerPlugin>,
+        compilerPlugins: List<ResolvedCompilerPlugin>,
         libraryPaths: List<Path>,
         outputPath: Path,
         friendPaths: List<Path>,
@@ -61,7 +64,7 @@ class WasmJsLinkTask(
         additionalSourceRoots: List<SourceRoot>,
         moduleName: String,
         compilationType: KotlinCompilationType,
-        include: Path?
+        include: Path?,
     ): List<String> =
         kotlinWasmJsCompilerArgs(
             kotlinUserSettings,

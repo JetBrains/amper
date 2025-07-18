@@ -818,7 +818,7 @@ class MavenDependency internal constructor(
                         diagnosticsReporter
                     ) ?: (null to null)
 
-                if(kotlinMetadataVariant != null && kmpMetadataFile != null) {
+                if (kotlinMetadataVariant != null && kmpMetadataFile != null) {
                     resolveKmpLibrary(
                         kmpMetadataFile,
                         context,
@@ -893,7 +893,12 @@ class MavenDependency internal constructor(
             PlatformType.JVM -> ResolutionPlatform.JVM
             PlatformType.ANDROID_JVM -> ResolutionPlatform.ANDROID
             PlatformType.JS -> ResolutionPlatform.JS
-            PlatformType.WASM -> ResolutionPlatform.WASM
+            PlatformType.WASM -> {
+                val wasmTarget =
+                    variant.getAttributeValue(KotlinWasmTarget) as? KotlinWasmTarget.Known ?: return null
+                wasmTarget.platform
+            }
+
             PlatformType.NATIVE -> {
                 val nativeTarget =
                     variant.getAttributeValue(KotlinNativeTarget) as? KotlinNativeTarget.Known ?: return null
@@ -1914,7 +1919,8 @@ class MavenDependency internal constructor(
                                 async(Dispatchers.IO) {
                                     context.spanBuilder("toDependencyFile")
                                         .use {
-                                            val sourceSetName = sourceSetsFile.settings[KmpSourceSetName] ?: return@use null
+                                            val sourceSetName =
+                                                sourceSetsFile.settings[KmpSourceSetName] ?: return@use null
                                             val moduleMetadata =
                                                 moduleMetadata ?: error("moduleMetadata wasn't initialized")
 

@@ -1998,7 +1998,10 @@ Fragments:
 
   js
     External dependencies:
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@js
     Fragment dependencies:
       common (REFINE)
@@ -2013,6 +2016,14 @@ Fragments:
           additionalAnnotations: <default> [
           ]
           enabled: <default> false
+        }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
         }
         signing: <default> {
           enabled: <default> false
@@ -2030,10 +2041,11 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -2042,11 +2054,20 @@ Fragments:
         }
         teamId: <default> null
       }
+      java: <default> {
+        annotationProcessing: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+        }
+      }
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
-        parameters: <default> false
         release: <default> VERSION_17
+        runtimeClasspathMode: <default> JARS
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -2062,14 +2083,14 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
           }
           processors: <default> [
           ]
-          version: <default> 2.1.20-1.0.31
+          version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -2081,6 +2102,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -2095,6 +2117,9 @@ Fragments:
         enabled: <default> false
         version: <default> 3.1.1
       }
+      lombok: <default> {
+        enabled: <default> false
+      }
       native: <default> null
       publishing: <default> null
       springBoot: <default> {
@@ -2105,7 +2130,11 @@ Fragments:
 
   jsTest
     External dependencies:
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test@js
     Fragment dependencies:
       commonTest (REFINE)
@@ -2122,6 +2151,14 @@ Fragments:
           ]
           enabled: <default> false
         }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -2138,10 +2175,11 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -2150,11 +2188,20 @@ Fragments:
         }
         teamId: <default> null
       }
+      java: <default> {
+        annotationProcessing: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+        }
+      }
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
-        parameters: <default> false
         release: <default> VERSION_17
+        runtimeClasspathMode: <default> JARS
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -2170,14 +2217,14 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
           }
           processors: <default> [
           ]
-          version: <default> 2.1.20-1.0.31
+          version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -2189,6 +2236,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -2202,6 +2250,9 @@ Fragments:
       ktor: <default> {
         enabled: <default> false
         version: <default> 3.1.1
+      }
+      lombok: <default> {
+        enabled: <default> false
       }
       native: <default> null
       publishing: <default> null
@@ -2377,6 +2428,14 @@ Fragments:
           ]
           enabled: <default> false
         }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -2393,10 +2452,11 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -2405,11 +2465,20 @@ Fragments:
         }
         teamId: <default> null
       }
+      java: <default> {
+        annotationProcessing: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+        }
+      }
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
-        parameters: <default> false
         release: <default> VERSION_17
+        runtimeClasspathMode: <default> JARS
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -2425,14 +2494,14 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
           }
           processors: <default> [
           ]
-          version: <default> 2.1.20-1.0.31
+          version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -2444,6 +2513,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -2458,6 +2528,9 @@ Fragments:
         enabled: <default> false
         version: <default> 3.1.1
       }
+      lombok: <default> {
+        enabled: <default> false
+      }
       native: <default> null
       publishing: <default> null
       springBoot: <default> {
@@ -2468,7 +2541,10 @@ Fragments:
 
   wasmJs
     External dependencies:
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@wasmJs
     Fragment dependencies:
       common (REFINE)
@@ -2484,6 +2560,14 @@ Fragments:
           ]
           enabled: <default> false
         }
+        resourcePackaging: <default> {
+          excludes: <default> [
+          ]
+          merges: <default> [
+          ]
+          pickFirsts: <default> [
+          ]
+        }
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
@@ -2500,10 +2584,11 @@ Fragments:
           }
         }
         resources: <default> {
+          enabled: <default> false
           exposedAccessors: <default> false
           packageName: <default>
         }
-        version: <default> null
+        version: <default> 1.8.0
       }
       ios: <default> {
         framework: <default> {
@@ -2512,11 +2597,20 @@ Fragments:
         }
         teamId: <default> null
       }
+      java: <default> {
+        annotationProcessing: <default> {
+          processorOptions: <default> {
+          }
+          processors: <default> [
+          ]
+        }
+      }
       junit: <default> JUNIT5
       jvm: <default> {
         mainClass: <default> null
-        parameters: <default> false
         release: <default> VERSION_17
+        runtimeClasspathMode: <default> JARS
+        storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
           ]
@@ -2532,14 +2626,14 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> 2.1
-        debug: <default> true
+        debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
           processorOptions: <default> {
           }
           processors: <default> [
           ]
-          version: <default> 2.1.20-1.0.31
+          version: <default> 2.1.21-2.0.1
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.1
@@ -2551,6 +2645,7 @@ Fragments:
           presets: <default> null
         }
         optIns: <default> null
+        optimization: <default> null
         progressiveMode: <default> false
         serialization: <default> {
           enabled: <default> false
@@ -2565,6 +2660,9 @@ Fragments:
         enabled: <default> false
         version: <default> 3.1.1
       }
+      lombok: <default> {
+        enabled: <default> false
+      }
       native: <default> null
       publishing: <default> null
       springBoot: <default> {
@@ -2575,7 +2673,11 @@ Fragments:
 
   wasmJsTest
     External dependencies:
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.1.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: test@wasmJs
     Fragment dependencies:
       commonTest (REFINE)

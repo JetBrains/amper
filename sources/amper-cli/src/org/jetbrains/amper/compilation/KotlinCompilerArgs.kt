@@ -268,7 +268,7 @@ internal fun kotlinNativeCompilerArgs(
 context(BuildTask)
 internal fun kotlinWasmJsCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
-    compilerPlugins: List<CompilerPlugin>,
+    compilerPlugins: List<ResolvedCompilerPlugin>,
     libraryPaths: List<Path>,
     outputPath: Path,
     friendPaths: List<Path>,
@@ -302,7 +302,7 @@ internal fun kotlinWasmJsCompilerArgs(
 context(BuildTask)
 internal fun kotlinJsCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
-    compilerPlugins: List<CompilerPlugin>,
+    compilerPlugins: List<ResolvedCompilerPlugin>,
     libraryPaths: List<Path>,
     outputPath: Path,
     friendPaths: List<Path>,
@@ -337,7 +337,7 @@ internal fun kotlinJsCompilerArgs(
 context(BuildTask)
 private fun kotlinWebCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
-    compilerPlugins: List<CompilerPlugin>,
+    compilerPlugins: List<ResolvedCompilerPlugin>,
     libraryPaths: List<Path>,
     outputPath: Path,
     friendPaths: List<Path>,
