@@ -46,6 +46,7 @@ settings:
       - -Xconsistent-data-class-copy-visibility
       - -Xcontext-parameters
       - -Xrender-internal-diagnostic-names
+      - -Wextra
     optIns:
       - kotlin.contracts.ExperimentalContracts
       - kotlin.io.path.ExperimentalPathApi
