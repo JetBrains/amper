@@ -43,9 +43,9 @@ settings:
 
   kotlin:
     freeCompilerArgs:
-      - -Xrender-internal-diagnostic-names
       - -Xconsistent-data-class-copy-visibility
       - -Xcontext-parameters
+      - -Xrender-internal-diagnostic-names
     optIns:
-      - kotlin.io.path.ExperimentalPathApi
       - kotlin.contracts.ExperimentalContracts
+      - kotlin.io.path.ExperimentalPathApi
