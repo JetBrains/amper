@@ -73,15 +73,12 @@ private fun version(version: TraceableVersion, fallbackVersion: String): Traceab
     }
 }
 
-open class PredefinedCatalog(
+private open class PredefinedCatalog(
     override val entries: Map<String, TraceableString>
 ) : VersionCatalog {
     override val isPhysical: Boolean = false
 
-    constructor(builder: MutableMap<String, TraceableString>.() -> Unit)
-            : this(buildMap(builder)) {
-
-    }
+    constructor(builder: MutableMap<String, TraceableString>.() -> Unit) : this(buildMap(builder))
 
     override fun findInCatalog(key: String): TraceableString? = entries[key]
 }
@@ -89,7 +86,7 @@ open class PredefinedCatalog(
 /**
  * Composition of multiple version catalogs with priority for first declared.
  */
-class CompositeVersionCatalog(
+private class CompositeVersionCatalog(
     private val catalogs: List<VersionCatalog>
 ) : VersionCatalog {
 
@@ -104,8 +101,7 @@ class CompositeVersionCatalog(
     override fun findInCatalog(key: String) = catalogs.firstNotNullOfOrNull { it.findInCatalog(key) }
 }
 
-
-class BuiltInCatalog(
+private class BuiltInCatalog(
     serializationVersion: TraceableString?,
     composeVersion: TraceableString?,
     ktorVersion: TraceableString?,
@@ -486,15 +482,15 @@ class BuiltInCatalog(
     }
 }
 
-fun library(groupAndModule: String, version: TraceableString): TraceableString =
+internal fun library(groupAndModule: String, version: TraceableString): TraceableString =
     TraceableString("$groupAndModule:${version.value}").apply {
         trace = BuiltinCatalogTrace(EmptyCatalog, computedValueTrace = version)
     }
 
-fun library(groupAndModule: String, version: String): TraceableString =
+internal fun library(groupAndModule: String, version: String): TraceableString =
     TraceableString("$groupAndModule:$version").apply { trace = BuiltinCatalogTrace(EmptyCatalog, null) }
 
-fun library(groupAndModule: String): TraceableString =
+private fun library(groupAndModule: String): TraceableString =
     TraceableString(groupAndModule).apply { trace = BuiltinCatalogTrace(EmptyCatalog, null) }
 
 private object EmptyCatalog : VersionCatalog {
