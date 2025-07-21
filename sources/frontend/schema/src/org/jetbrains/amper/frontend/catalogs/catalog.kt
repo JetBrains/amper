@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.catalogs
 
-import com.intellij.openapi.vfs.VirtualFile
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.UsedVersions.logbackVersion
@@ -13,7 +12,6 @@ import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.VersionCatalog
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
@@ -22,27 +20,11 @@ import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Settings
 
-/**
- * Try to find gradle catalog and compose it with built-in catalog.
- */
-internal fun BuildCtx.tryGetCatalogFor(
-    file: VirtualFile, settings: Settings,
-): VersionCatalog {
-    val gradleCatalog = catalogFinder?.getCatalogPathFor(file)?.let { pathResolver.parseGradleVersionCatalog(it) }
-    return with(problemReporter) {
-        addBuiltInCatalog(settings, gradleCatalog)
-    }
-}
-
-/**
- * Try to get used version catalog.
- */
-context(problemReporter: ProblemReporter)
-private fun addBuiltInCatalog(settings: Settings, otherCatalog: VersionCatalog? = null): VersionCatalog =
-    CompositeVersionCatalog(listOfNotNull(otherCatalog) + settings.builtInCatalog())
+internal operator fun VersionCatalog?.plus(other: VersionCatalog) =
+    if (this == null) other else CompositeVersionCatalog(listOf(this, other))
 
 context(problemReporter: ProblemReporter)
-private fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
+internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
     serializationVersion = kotlin.serialization.takeIf { it.enabled }?.version
         ?.let { TraceableVersion(it, kotlin.serialization::version.valueBase!!) }
         ?.let { version(it, UsedVersions.kotlinxSerializationVersion) },

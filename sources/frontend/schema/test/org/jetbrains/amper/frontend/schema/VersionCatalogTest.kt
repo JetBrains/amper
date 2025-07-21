@@ -1,9 +1,10 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.catalogs.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.schema.helper.aomTest
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
 import org.jetbrains.amper.test.golden.GoldenTestBase
@@ -26,8 +27,8 @@ internal class VersionCatalogTest : GoldenTestBase(Path("testResources") / "cata
     @Test
     fun `check simple gradle catalog`() {
         aomTest("simple-gradle-version-catalog") {
-            path2catalog[amperModuleFiles.first()] =
-                frontendPathResolver.loadVirtualFile(baseTestResourcesPath / "simple-gradle-version-catalog.toml")
+            val catalogFile = frontendPathResolver.loadVirtualFile(baseTestResourcesPath / "simple-gradle-version-catalog.toml")
+            projectVersionsCatalog = frontendPathResolver.parseGradleVersionCatalog(catalogFile)
         }
     }
 }

@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
+import org.jetbrains.amper.frontend.catalogs.IncorrectCatalogDetection
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.SingleModuleProjectContextForIde
@@ -45,6 +46,7 @@ object SchemaBasedModelImport : ModelInit {
      * are usually ignored.
      */
     context(_: ProblemReporter)
+    @IncorrectCatalogDetection
     @Deprecated(
         message = "This returns a partially incorrect module with unresolved references to other modules. " +
             "Also, custom tasks and version catalog references might be incorrect. " +
@@ -67,17 +69,20 @@ object SchemaBasedModelImport : ModelInit {
     /**
      * Processes the given [templatePsiFile] and reports issues via the [ProblemReporter].
      */
-    context(_: ProblemReporter)
+    context(problemReporter: ProblemReporter)
+    @IncorrectCatalogDetection
     @Deprecated(
         message = "This returns a template with potentially incorrect version catalog references." +
                 "Prefer using diagnoseAmperTemplateFile() with a real project context.",
         replaceWith = ReplaceWith(
-            expression = "diagnoseAmperTemplateFile(modulePsiFile, this@ProblemReporterContext.problemReporter, context)",
+            expression = "diagnoseAmperTemplateFile(modulePsiFile, problemReporter, context)",
             imports = ["org.jetbrains.amper.frontend.diagnostics.diagnoseAmperTemplateFile"],
         ),
     )
     @UsedInIdePlugin
-    fun getTemplate(templatePsiFile: PsiFile, project: Project): ModelInit.TemplateHolder? {
-        return readTemplate(GradleVersionsCatalogFinder(FrontendPathResolver(project = project)), templatePsiFile.virtualFile)
-    }
+    fun getTemplate(templatePsiFile: PsiFile, project: Project): ModelInit.TemplateHolder? =
+        with(FrontendPathResolver(project = project)) {
+            val catalog = GradleVersionsCatalogFinder.findGradleVersionCatalogUpTheTreeFrom(templatePsiFile.virtualFile)
+            readTemplate(templateFile = templatePsiFile.virtualFile, projectVersionCatalog = catalog)
+        }
 }

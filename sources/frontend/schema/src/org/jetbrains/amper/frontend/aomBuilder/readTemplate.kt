@@ -6,21 +6,22 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.ProblemReporter
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.ModelInit
-import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
+import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
-import org.jetbrains.amper.frontend.catalogs.tryGetCatalogFor
+import org.jetbrains.amper.frontend.catalogs.builtInCatalog
+import org.jetbrains.amper.frontend.catalogs.plus
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
 
-context(problemReporter: ProblemReporter)
+context(problemReporter: ProblemReporter, frontendPathResolver: FrontendPathResolver)
 fun readTemplate(
-    catalogFinder: VersionsCatalogProvider,
     templateFile: VirtualFile,
-): ModelInit.TemplateHolder? = with(BuildCtx(catalogFinder)) {
+    projectVersionCatalog: VersionCatalog?,
+): ModelInit.TemplateHolder? = with(BuildCtx(pathResolver = frontendPathResolver, problemReporter = problemReporter)) {
     val templateTree = readTree(templateFile, templateAType) ?: return null
     val mergedTemplateTree = treeMerger.mergeTrees(templateTree)
     val refiner = TreeRefiner()
@@ -28,7 +29,7 @@ fun readTemplate(
     // NOTE: That will change when nested templated will be allowed.
     val noContextsTree = refiner.refineTree(mergedTemplateTree, EmptyContexts)
     val noContextsTemplate = createSchemaNode<Template>(noContextsTree)
-    val catalog = tryGetCatalogFor(templateFile, noContextsTemplate.settings)
+    val catalog = projectVersionCatalog + noContextsTemplate.settings.builtInCatalog()
     val substituted = mergedTemplateTree.substituteCatalogDependencies(catalog)
     val substitutedRefined = refiner.refineTree(substituted, EmptyContexts)
     val readTemplate = createSchemaNode<Template>(substitutedRefined)

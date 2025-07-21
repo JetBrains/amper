@@ -14,7 +14,6 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.asBuildProblemSource
-import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
@@ -28,27 +27,11 @@ import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import java.nio.file.Path
 
-context(problemReporter: ProblemReporter)
-internal fun BuildCtx(
-    catalogProvider: VersionsCatalogProvider,
-    treeMerger: TreeMerger = TreeMerger(),
-    types: SchemaTypingContext = SchemaTypingContext(emptyList()),
-    systemInfo: SystemInfo = DefaultSystemInfo,
-) = BuildCtx(
-    pathResolver = catalogProvider.frontendPathResolver,
-    problemReporter = problemReporter,
-    treeMerger = treeMerger,
-    types = types,
-    catalogFinder = catalogProvider,
-    systemInfo = systemInfo,
-)
-
 internal data class BuildCtx(
     val pathResolver: FrontendPathResolver,
     val problemReporter: ProblemReporter,
     val treeMerger: TreeMerger = TreeMerger(),
     val types: SchemaTypingContext = SchemaTypingContext(emptyList()),
-    val catalogFinder: VersionsCatalogProvider? = null,
     val systemInfo: SystemInfo = DefaultSystemInfo,
 ) {
     val moduleAType = types.getDeclaration<Module>()

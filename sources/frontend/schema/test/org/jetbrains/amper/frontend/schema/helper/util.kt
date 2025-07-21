@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema.helper
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.test.golden.GoldenTest
@@ -36,6 +37,5 @@ open class TestProjectContext(
     override val amperCustomTaskFiles: List<VirtualFile> = emptyList()
     override val pluginDependencies: List<InternalDependency> = emptyList()
     override val projectBuildDir: Path get() = projectRootDir.toNioPath()
-    val path2catalog: MutableMap<VirtualFile, VirtualFile> = mutableMapOf()
-    override fun getCatalogPathFor(file: VirtualFile): VirtualFile? = path2catalog[file]
+    override var projectVersionsCatalog: VersionCatalog? = null
 }

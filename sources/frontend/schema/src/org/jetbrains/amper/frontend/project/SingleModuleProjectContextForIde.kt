@@ -6,18 +6,25 @@ package org.jetbrains.amper.frontend.project
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
-import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
+import org.jetbrains.amper.frontend.catalogs.IncorrectCatalogDetection
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import java.nio.file.Path
 
 /**
  * This is a hack to analyze a single module from a wider project, to get diagnostics in the IDE editor.
  */
+@Deprecated(
+    message = "This context is incomplete. It's missing custom tasks and plugins, and infers a potentially incorrect " +
+            "version catalog. Also, when parsing this single module, all references to other modules will be invalid." +
+            " Prefer using a real project context, e.g. with one of the StandaloneAmperProjectContext.find() methods.",
+)
+@IncorrectCatalogDetection
 internal class SingleModuleProjectContextForIde(
     moduleFile: VirtualFile,
     override val frontendPathResolver: FrontendPathResolver,
-) : AmperProjectContext, VersionsCatalogProvider by GradleVersionsCatalogFinder(FrontendPathResolver()) {
+) : AmperProjectContext {
 
     init {
         require(moduleFile.name in amperModuleFileNames) {
@@ -37,4 +44,10 @@ internal class SingleModuleProjectContextForIde(
         get() = emptyList()
 
     override val amperCustomTaskFiles: List<VirtualFile> = emptyList()
+
+    override val projectVersionsCatalog: VersionCatalog? by lazy {
+        with(frontendPathResolver) {
+            GradleVersionsCatalogFinder.findGradleVersionCatalogUpTheTreeFrom(moduleFile)
+        }
+    }
 }

@@ -16,6 +16,7 @@ import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.readProject
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
@@ -53,8 +54,11 @@ class StandaloneAmperProjectContext(
         (projectBuildDir ?: projectRootDir.toNioPath().resolve("build")).createDirectories()
     }
 
-    override fun getCatalogPathFor(file: VirtualFile): VirtualFile? =
-        GradleVersionsCatalogFinder.findDefaultCatalogIn(projectRootDir)
+    override val projectVersionsCatalog: VersionCatalog? by lazy {
+        with(frontendPathResolver) {
+            GradleVersionsCatalogFinder.getDefaultCatalogFrom(projectRootDir)
+        }
+    }
 
     companion object {
         /**

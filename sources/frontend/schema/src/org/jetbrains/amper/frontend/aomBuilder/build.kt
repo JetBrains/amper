@@ -13,13 +13,15 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Notation
+import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
-import org.jetbrains.amper.frontend.catalogs.tryGetCatalogFor
+import org.jetbrains.amper.frontend.catalogs.builtInCatalog
+import org.jetbrains.amper.frontend.catalogs.plus
 import org.jetbrains.amper.frontend.contexts.MinimalModuleHolder
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
@@ -40,7 +42,6 @@ import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
@@ -60,13 +61,16 @@ internal fun doBuild(
     pluginData: List<PluginData> = projectContext.loadPreparedPluginData(),
 ): List<AmperModule>? = with(
     BuildCtx(
-        catalogProvider = projectContext,
+        pathResolver = projectContext.frontendPathResolver,
+        problemReporter = problemReporter,
         types = SchemaTypingContext(pluginData),
         systemInfo = systemInfo,
     )
 ) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
-    val rawModules = projectContext.amperModuleFiles.mapNotNull { readModuleMergedTree(it) }
+    val rawModules = projectContext.amperModuleFiles.mapNotNull {
+        readModuleMergedTree(it, projectContext.projectVersionsCatalog)
+    }
 
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
@@ -94,7 +98,8 @@ internal fun doBuild(
 
 context(problemReporter: ProblemReporter)
 internal fun BuildCtx.readModuleMergedTree(
-    moduleFile: VirtualFile
+    moduleFile: VirtualFile,
+    projectVersionsCatalog: VersionCatalog?,
 ): ModuleBuildCtx? {
     val moduleCtx = PathCtx(moduleFile, moduleFile.asPsi().trace)
 
@@ -119,10 +124,10 @@ internal fun BuildCtx.readModuleMergedTree(
     val refiner = TreeRefiner(minimalModule.combinedInheritance)
     val commonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
     val commonModule = createSchemaNode<Module>(commonTree)
-    val chosenCatalog = tryGetCatalogFor(moduleFile, commonModule.settings)
+    val effectiveCatalog = projectVersionsCatalog + commonModule.settings.builtInCatalog()
 
     val processedTree = preProcessedTree
-        .substituteCatalogDependencies(chosenCatalog)
+        .substituteCatalogDependencies(effectiveCatalog)
         .substituteComposeOsSpecific()
         .configureSpringBootDefaults(commonModule)
         .configureHotReloadDefaults(commonModule)
@@ -135,7 +140,7 @@ internal fun BuildCtx.readModuleMergedTree(
         moduleFile = moduleFile,
         mergedTree = processedTree,
         refiner = refiner,
-        catalog = chosenCatalog,
+        catalog = effectiveCatalog,
         moduleCtxModule = commonModule,
         commonTree = commonTree,
         buildCtx = this,

@@ -10,7 +10,8 @@ import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.readModuleMergedTree
-import org.jetbrains.amper.frontend.project.SingleModuleProjectContextForIde
+import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
+import org.jetbrains.amper.frontend.catalogs.IncorrectCatalogDetection
 import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 
@@ -22,15 +23,17 @@ data class MergedTreeHolder(
 /**
  * Reads the merged tree of an Amper module file and returns it with the corresponding [TreeRefiner].
  */
+@IncorrectCatalogDetection
 @UsedInIdePlugin
-fun readAmperModuleTree(
-    moduleFile: PsiFile,
-    problemReporter: ProblemReporter,
-): MergedTreeHolder? {
+fun readAmperModuleTree(moduleFile: PsiFile, problemReporter: ProblemReporter): MergedTreeHolder? {
     val pathResolver = FrontendPathResolver(moduleFile.project)
-    val projectCtx = SingleModuleProjectContextForIde(moduleFile.virtualFile, pathResolver)
+    val projectVersionsCatalog = with(pathResolver) {
+        GradleVersionsCatalogFinder.findGradleVersionCatalogUpTheTreeFrom(moduleFile.virtualFile)
+    }
+    val buildCtx = BuildCtx(pathResolver = pathResolver, problemReporter = problemReporter)
     return with(problemReporter) {
-        val (_, tree, refiner) = BuildCtx(projectCtx).readModuleMergedTree(moduleFile.virtualFile) ?: return null
+        val (_, tree, refiner) = buildCtx.readModuleMergedTree(moduleFile.virtualFile, projectVersionsCatalog)
+            ?: return null
         MergedTreeHolder(tree, refiner)
     }
 }
