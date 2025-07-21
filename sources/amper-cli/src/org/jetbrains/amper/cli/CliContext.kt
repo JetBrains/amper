@@ -54,7 +54,7 @@ class CliContext private constructor(
         suspend fun create(
             explicitProjectRoot: Path?,
             runSettings: AllRunSettings = AllRunSettings(),
-            explicitBuildRoot: Path? = null,
+            explicitBuildOutputRoot: Path?,
             userCacheRoot: AmperUserCacheRoot,
             commandName: String,
             terminal: Terminal,
@@ -66,7 +66,7 @@ class CliContext private constructor(
                 with(CliProblemReporter) {
                     createProjectContext(
                         explicitProjectRoot = explicitProjectRoot?.toAbsolutePath(),
-                        explicitBuildRoot = explicitBuildRoot,
+                        explicitBuildRoot = explicitBuildOutputRoot,
                     ).also {
                         if (wereProblemsReported()) {
                             userReadableError("aborting because there were errors in the Amper project file, please see above")
@@ -75,15 +75,13 @@ class CliContext private constructor(
                 }
             }
 
-            val buildOutputRootNotNull = amperProjectContext.projectBuildDir
-
-            val tempDir = buildOutputRootNotNull.resolve("temp").also { it.createDirectories() }
+            val tempDir = amperProjectContext.projectBuildDir.resolve("temp")
 
             return CliContext(
                 commandName = commandName,
                 projectContext = amperProjectContext,
-                buildOutputRoot = AmperBuildOutputRoot(buildOutputRootNotNull),
-                projectTempRoot = AmperProjectTempRoot(tempDir),
+                buildOutputRoot = AmperBuildOutputRoot(amperProjectContext.projectBuildDir.createDirectories()),
+                projectTempRoot = AmperProjectTempRoot(tempDir.createDirectories()),
                 userCacheRoot = userCacheRoot,
                 runSettings = runSettings,
                 terminal = terminal,

@@ -4,16 +4,15 @@
 
 package org.jetbrains.amper.frontend.tree
 
-import org.jetbrains.amper.plugins.schema.model.SchemaName
-import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.tree.helpers.diagnoseModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testModuleRead
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModule
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModuleWithTemplates
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
@@ -55,26 +54,7 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
     fun `read module file with custom properties`() = testModuleRead(
         "with-custom-properties",
         types = SchemaTypingContext(
-            pluginData = listOf(PluginData(
-                id = PluginData.Id("myPlugin"),
-                pluginModuleRoot = ".",
-                moduleExtensionSchemaName = SchemaName("com.example.CustomPluginSchema"),
-                classTypes = listOf(
-                    PluginData.ClassData(
-                        name = SchemaName("com.example.CustomPluginSchema"),
-                        properties = listOf(
-                            PluginData.ClassData.Property(
-                                name = "foo",
-                                type = PluginData.Type.IntType(),
-                            ),
-                            PluginData.ClassData.Property(
-                                name = "bar",
-                                type = PluginData.Type.StringType(),
-                            ),
-                        )
-                    )
-                ),
-            ))
+            pluginData = testPluginData(),
         )
     )
 
@@ -82,29 +62,10 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
     fun `read module file with custom properties diagnostics`() = diagnoseModuleRead(
         "with-custom-properties-diagnostics",
         types = SchemaTypingContext(
-            pluginData = listOf(PluginData(
-                id = PluginData.Id("myPlugin"),
-                pluginModuleRoot = ".",
-                moduleExtensionSchemaName = SchemaName("com.example.CustomPluginSchema"),
-                classTypes = listOf(
-                    PluginData.ClassData(
-                        name = SchemaName("com.example.CustomPluginSchema"),
-                        properties = listOf(
-                            PluginData.ClassData.Property(
-                                name = "foo",
-                                type = PluginData.Type.IntType(),
-                            ),
-                            PluginData.ClassData.Property(
-                                name = "bar",
-                                type = PluginData.Type.StringType(),
-                            ),
-                        )
-                    )
-                ),
-            ))
+            pluginData = testPluginData(),
         )
     )
-    
+
     @Test
     fun `defaults for no value are correctly added`() = testRefineModule(
         "defaults-for-no-value",
@@ -114,4 +75,27 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
     
     private fun platformCtxs(vararg values: String) = 
         values.map { PlatformCtx(it, null) }.toSet()
+
+    private fun testPluginData(): List<PluginData> = listOf(
+        PluginData(
+            id = PluginData.Id("myPlugin"),
+            pluginModuleRoot = ".",
+            moduleExtensionSchemaName = PluginData.SchemaName("com.example.CustomPluginSchema"),
+            classTypes = listOf(
+                PluginData.ClassData(
+                    name = PluginData.SchemaName("com.example.CustomPluginSchema"),
+                    properties = listOf(
+                        PluginData.ClassData.Property(
+                            name = "foo",
+                            type = PluginData.Type.IntType(),
+                        ),
+                        PluginData.ClassData.Property(
+                            name = "bar",
+                            type = PluginData.Type.StringType(),
+                        ),
+                    )
+                )
+            ),
+        )
+    )
 }

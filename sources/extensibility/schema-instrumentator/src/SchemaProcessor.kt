@@ -16,7 +16,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import org.jetbrains.amper.Schema
 import org.jetbrains.amper.TaskAction
-import org.jetbrains.amper.plugins.schema.model.SchemaName
 import org.jetbrains.amper.plugins.schema.model.PluginData
 
 class SchemaProcessor(
@@ -53,7 +52,7 @@ class SchemaProcessor(
             enumTypes = builder.allEnums(),
             classTypes = builder.allSchemas(),
             tasks = tasks,
-            moduleExtensionSchemaName = moduleExtensionSchemaName?.let(::SchemaName),
+            moduleExtensionSchemaName = moduleExtensionSchemaName?.let(PluginData::SchemaName),
             description = description,
             pluginModuleRoot = pluginModuleRoot,
         )

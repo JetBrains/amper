@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.Task
+import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.getTaskOutputRoot
 import org.jetbrains.amper.frontend.project.pluginInternalSchemaDirectory
@@ -28,7 +29,6 @@ import org.jetbrains.amper.frontend.tree.syntheticBuilder
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
@@ -51,7 +51,7 @@ internal fun BuildCtx.buildPlugins(
 ) {
     val plugins = buildList {
         for (pluginData in pluginData) {
-            val pluginModuleRoot = projectContext.projectRootDir.toNioPath() / pluginData.pluginModuleRoot.let(::Path)
+            val pluginModuleRoot = projectContext.projectRootDir.toNioPath() / pluginData.pluginModuleRoot
 
             val pluginModule = result.first {
                 it.moduleFile.parent.toNioPath() == pluginModuleRoot
@@ -78,6 +78,19 @@ internal fun BuildCtx.buildPlugins(
             module = moduleBuildCtx,
         ) ?: continue
         for ((name, task) in appliedPlugin.tasks) {
+            val outputsToMarks = task.action.outputPropertyNames
+                .mapNotNull { task.action[it] as Path? }
+                .associateWith { path ->
+                    task.markOutputsAs.find { it.path == path }
+                }.mapValues { (_, mark) ->
+                    mark ?: return@mapValues null
+                    TaskFromPluginDescription.OutputMark(
+                        kind = mark.kind,
+                        associateWith = moduleBuildCtx.module.fragments.first {
+                            it.isTest == mark.fragment.isTest && it.modifier == mark.fragment.modifier
+                        }
+                    )
+                }
             moduleBuildCtx.module.tasksFromPlugins += DefaultTaskFromPluginDescription(
                 name = pluginTaskNameFor(moduleBuildCtx.module, plugin.pluginId, name),
                 actionFunctionJvmName = task.action.jvmFunctionName,
@@ -85,19 +98,8 @@ internal fun BuildCtx.buildPlugins(
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
                 explicitDependsOn = task.dependsOnSideEffectsOf,
                 inputs = task.action.inputPropertyNames.mapNotNull { task.action[it] as Path? },
-                outputs = task.action.outputPropertyNames.mapNotNull { task.action[it] as Path? },
+                outputs = outputsToMarks,
                 codeSource = plugin.pluginModule,
-                pluginId = plugin.pluginId.value,
-                outputMarks = task.markOutputsAs.map { generates ->
-                    DefaultTaskFromPluginDescription.OutputMark(
-                        path = generates.path,
-                        kind = generates.kind,
-                        associateWith = moduleBuildCtx.module.fragments.first {
-                            it.isTest == generates.fragment.isTest &&
-                                    it.modifier == generates.fragment.modifier
-                        },
-                    )
-                }
             )
         }
     }
@@ -111,7 +113,7 @@ private class PluginTreeReader(
     parentBuildCtx: BuildCtx,
 ) {
     private val treeRefiner = TreeRefiner()
-    val buildCtx = parentBuildCtx.copy(
+    private val buildCtx = parentBuildCtx.copy(
         types = parentBuildCtx.types.getPluginContext(pluginId),
     )
 

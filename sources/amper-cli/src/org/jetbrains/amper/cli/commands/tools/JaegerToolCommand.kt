@@ -41,7 +41,6 @@ import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import java.net.Socket
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
@@ -141,7 +140,7 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
         val logsRootDir = try {
             val context = CliContext.create(
                 explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
-                explicitBuildRoot = commonOptions.explicitBuildOutputRoot?.createDirectories()?.toAbsolutePath(),
+                explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot?.toAbsolutePath(),
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 commandName = commandName,
                 terminal = terminal,

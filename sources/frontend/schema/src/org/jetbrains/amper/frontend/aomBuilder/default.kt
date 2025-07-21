@@ -27,9 +27,8 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
-import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
-import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
+import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 import kotlin.io.path.pathString
 
@@ -88,17 +87,9 @@ class DefaultTaskFromPluginDescription(
     override val actionArguments: Map<String, Any?>,
     override val explicitDependsOn: List<String>,
     override val inputs: List<Path>,
-    override val outputs: List<Path>,
+    override val outputs: Map<Path, TaskFromPluginDescription.OutputMark?>,
     override val codeSource: AmperModule,
-    override val pluginId: String,
-    override val outputMarks: List<TaskFromPluginDescription.OutputMark>
-) : TaskFromPluginDescription {
-    class OutputMark(
-        override val path: Path,
-        override val kind: GeneratedPathKind,
-        override val associateWith: Fragment,
-    ) : TaskFromPluginDescription.OutputMark
-}
+) : TaskFromPluginDescription
 
 /**
  * Special kind of module that appears only on

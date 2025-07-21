@@ -24,8 +24,6 @@ import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.TaskAction
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.plugins.schema.model.PluginData
-import org.jetbrains.amper.plugins.schema.model.SchemaName
-import org.jetbrains.amper.plugins.schema.model.TaskInfo
 import java.lang.reflect.Field
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
@@ -88,7 +86,7 @@ private class PluginAwareSchemaTypingDeclarations(
             variants[it.id / TaskActionSchemaName] =
                 SyntheticVariantDeclaration(
                     qualifiedName = TaskActionSchemaName.qualifiedName,
-                    variants = it.tasks.map<TaskInfo, ExternalObjectDeclaration> { taskInfo ->
+                    variants = it.tasks.map { taskInfo ->
                         ExternalObjectDeclaration(
                             pluginId = it.id,
                             data = taskInfo.syntheticType,
@@ -196,13 +194,13 @@ private class PluginAwareSchemaTypingDeclarations(
 @JvmInline
 private value class DeclarationKey private constructor(private val key: String) {
     constructor(kClass: KClass<*>) : this(checkNotNull(kClass.qualifiedName))
-    constructor(pluginId: PluginData.Id, qualifiedName: SchemaName)
+    constructor(pluginId: PluginData.Id, qualifiedName: PluginData.SchemaName)
             : this("${pluginId.value}/${qualifiedName.qualifiedName}")
     constructor(pluginId: PluginData.Id, kClass: KClass<*>)
             : this("${pluginId.value}/${kClass.qualifiedName}")
 }
 
-private operator fun PluginData.Id.div(schemaName: SchemaName) = DeclarationKey(this, schemaName)
+private operator fun PluginData.Id.div(schemaName: PluginData.SchemaName) = DeclarationKey(this, schemaName)
 
 private class PluginSpecificTypingContext(
     val pluginId: PluginData.Id,
@@ -411,5 +409,5 @@ private open class DefaultSchemaTypingContext(
     }
 }
 
-private val TaskActionSchemaName = SchemaName(TaskAction::class.qualifiedName!!)
-private val StubSchemaName = SchemaName("Stub")
+private val TaskActionSchemaName = PluginData.SchemaName(TaskAction::class.qualifiedName!!)
+private val StubSchemaName = PluginData.SchemaName("Stub")

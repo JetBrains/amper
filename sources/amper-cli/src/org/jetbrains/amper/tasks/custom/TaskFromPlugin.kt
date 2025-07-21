@@ -10,10 +10,10 @@ import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.UnstableSchemaApi
 import org.jetbrains.amper.frontend.api.toStringRepresentation
+import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.tasks.EmptyTaskResult
@@ -67,7 +67,6 @@ class TaskFromPlugin(
         }
 
     override val produces: List<Artifact> = description.outputs
-        .associateWith { output -> description.outputMarks.find { it.path == output } }
         .map { (output, mark) ->
             when (mark?.kind) {
                 null -> ExternalTaskRawArtifact(output)

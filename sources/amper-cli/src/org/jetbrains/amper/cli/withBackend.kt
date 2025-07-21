@@ -17,7 +17,6 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.commands.RootCommand
-import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.core.telemetry.spanBuilder
@@ -25,11 +24,11 @@ import org.jetbrains.amper.diagnostics.AsyncProfilerMode
 import org.jetbrains.amper.diagnostics.CoroutinesDebug
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskExecutor
+import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
 import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.io.path.createDirectories
 
 private val backendInitialized = AtomicReference<Throwable>(null)
 
@@ -67,7 +66,7 @@ internal suspend fun <T> withBackend(
         val cliContext = spanBuilder("Create CLI context").use {
             CliContext.create(
                 explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
-                explicitBuildRoot = commonOptions.explicitBuildOutputRoot?.createDirectories()?.toAbsolutePath(),
+                explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot?.toAbsolutePath(),
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 commandName = commandName,
                 runSettings = runSettings,

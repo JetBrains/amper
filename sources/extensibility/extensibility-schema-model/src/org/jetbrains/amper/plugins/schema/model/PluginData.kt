@@ -7,6 +7,15 @@ package org.jetbrains.amper.plugins.schema.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Contains all the knowledge about a plugin that is required for the frontend to function.
+ *
+ * - This includes the general plugin information: [id], [pluginModuleRoot], [description]
+ * - Information about the `module.yaml` schema extension for the plugin:
+ *   [moduleExtensionSchemaName] (may be absent if plugin has no user configuration).
+ * - Schema types descriptions: [enumTypes], [classTypes]
+ * - Information about tasks registration: [tasks], also depend on the types information.
+ */
 @Serializable
 data class PluginData(
     val id: Id,
@@ -21,6 +30,12 @@ data class PluginData(
         require(moduleExtensionSchemaName == null ||
                 classTypes.any { it.name == moduleExtensionSchemaName })
     }
+
+    @Serializable
+    @JvmInline
+    value class SchemaName(
+        val qualifiedName: String,
+    )
 
     @Serializable
     @JvmInline
@@ -111,5 +126,22 @@ data class PluginData(
             val schemaName: SchemaName,
             override val isNullable: Boolean = false,
         ) : Type
+    }
+
+    @Serializable
+    data class TaskInfo(
+        /**
+         * An "imaginary" class type that holds all the task's named parameters.
+         * It's used to configure the task in the frontend.
+         */
+        val syntheticType: ClassData,
+        val jvmFunctionClassName: String,
+        val jvmFunctionName: String,
+        val inputPropertyNames: List<String> = emptyList(),
+        val outputPropertyNames: List<String> = emptyList(),
+    ) {
+        init {
+            require(inputPropertyNames.intersect(outputPropertyNames).isEmpty())
+        }
     }
 }

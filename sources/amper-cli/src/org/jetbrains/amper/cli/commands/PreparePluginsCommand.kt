@@ -5,22 +5,23 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.terminal
-import kotlinx.coroutines.coroutineScope
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.tasks.AllRunSettings
-import kotlin.io.path.createDirectories
 
+/**
+ * Command to be invoked by the tooling (IDE) to ensure the plugin information is valid and ready.
+ */
 internal class PreparePluginsCommand : AmperSubcommand(name = "prepare-plugins") {
     override val hiddenFromHelp: Boolean
         get() = true
 
-    override suspend fun run() = coroutineScope {
+    override suspend fun run() {
         val context = CliContext.create(
             explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
-            explicitBuildRoot = commonOptions.explicitBuildOutputRoot?.createDirectories()?.toAbsolutePath(),
+            explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot?.toAbsolutePath(),
             userCacheRoot = commonOptions.sharedCachesRoot,
             commandName = commandName,
             runSettings = AllRunSettings(),

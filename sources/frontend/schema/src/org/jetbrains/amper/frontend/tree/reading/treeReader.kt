@@ -146,8 +146,7 @@ internal class ReaderCtx(params: TreeReadRequest) {
             }
             is SchemaType.EnumType -> tryReadEnum(text, type.declaration, origin, report).let {
                 if (type.isTraceableWrapped) {
-                    it as Enum<*>?
-                    it?.asTraceable(origin.trace)
+                    (it as Enum<*>?)?.asTraceable(origin.trace)
                 } else it
             }
         }

@@ -21,9 +21,7 @@ import com.google.devtools.ksp.symbol.Origin
 import org.jetbrains.amper.Input
 import org.jetbrains.amper.Output
 import org.jetbrains.amper.Schema
-import org.jetbrains.amper.plugins.schema.model.SchemaName
 import org.jetbrains.amper.plugins.schema.model.PluginData
-import org.jetbrains.amper.plugins.schema.model.TaskInfo
 
 @OptIn(KspExperimental::class)
 class SchemaBuilder(
@@ -47,7 +45,7 @@ class SchemaBuilder(
         val qualifiedName = checkNotNull(declaration.qualifiedName).asString()
         return enums.getOrPut(qualifiedName) {
             PluginData.EnumData(
-                schemaName = SchemaName(qualifiedName),
+                schemaName = PluginData.SchemaName(qualifiedName),
                 entries = declaration.declarations
                     .filterIsInstance<KSClassDeclaration>()
                     .filter { it.classKind == ClassKind.ENUM_ENTRY }
@@ -62,7 +60,7 @@ class SchemaBuilder(
         }.let { PluginData.Type.EnumType(schemaName = it.schemaName, isNullable = false) }
     }
 
-    fun addTask(declaration: KSFunctionDeclaration): TaskInfo? {
+    fun addTask(declaration: KSFunctionDeclaration): PluginData.TaskInfo? {
         if (declaration.parentDeclaration != null) {
             return null.also { logger.error("task action must be a top-level function", declaration) }
         }
@@ -113,9 +111,9 @@ class SchemaBuilder(
             )
         }
 
-        return TaskInfo(
+        return PluginData.TaskInfo(
             syntheticType = PluginData.ClassData(
-                name = SchemaName(qualifiedName),
+                name = PluginData.SchemaName(qualifiedName),
                 properties = properties,
                 doc = declaration.docString,
             ),
@@ -141,7 +139,7 @@ class SchemaBuilder(
         }
 
         if (schemaSource.typeParameters.isNotEmpty()) {
-            return null.also { logger.error("generic schema is not supported", schemaSource) }
+            return null.also { logger.error("Generic schema is not supported", schemaSource) }
         }
 
         val mixins = schemaSource.superTypes
@@ -149,7 +147,7 @@ class SchemaBuilder(
             .mapNotNull { it.resolveToSchemaType() }  // nulls will be reported within
             .mapNotNull {
                 (it as? PluginData.Type.ObjectType)?.resolve() ?: null.also {
-                    logger.error("schema can only have another schemas as superinterfaces", schemaSource)
+                    logger.error("Schema can only have another schemas as superinterfaces", schemaSource)
                 }
             }
             .toList()
@@ -158,47 +156,52 @@ class SchemaBuilder(
             logger.error("Function declarations are not permitted inside the schema", forbidden)
         }
 
-        val properties = mixins
-            .flatMap { it.properties }
-            .plus(
-                schemaSource.getDeclaredProperties().filter(fun(property: KSPropertyDeclaration): Boolean {
-                    if (property.isMutable) {
-                        logger.error("Mutable properties are not supported inside @SchemaExtension", property)
-                        return false
-                    }
-                    if (property.extensionReceiver != null) {
-                        logger.error("Extension properties are not supported inside @SchemaExtension", property)
-                        return false
-                    }
-                    if (!property.isAbstract()) {
-                        logger.error(
-                            "Default property implementations are not supported inside @SchemaExtension",
-                            property
-                        )
-                        return false
-                    }
-                    if (isPrimarySchema && property.simpleName.asString() == "enabled") {
-                        logger.error(
-                            "`enabled` property name is reserved for the implicit property that is used to enable " +
-                                    "the plugin in a module. Use a different name if there is a need to enable some " +
-                                    "additional plugin functionality.", property
-                        )
-                        return false
-                    }
+        val inheritedProperties = mixins.flatMap { it.properties }
 
-                    return true
-                }).mapNotNull {
-                    PluginData.ClassData.Property(
-                        name = it.simpleName.asString(),
-                        type = it.type.resolveToSchemaType() ?: return@mapNotNull null,
-                        doc = it.docString?.trim(),
-                    )
-                }
-            ).distinctBy { it.name }
+        fun filterAndReportProperty(property: KSPropertyDeclaration): Boolean {
+            val name = property.simpleName.asString()
+            if (inheritedProperties.any { it.name == name }) {
+                logger.error("overriding properties is not supported inside @SchemaExtension", property)
+                return false
+            }
+            if (property.isMutable) {
+                logger.error("Mutable properties are not supported inside @SchemaExtension", property)
+                return false
+            }
+            if (property.extensionReceiver != null) {
+                logger.error("Extension properties are not supported inside @SchemaExtension", property)
+                return false
+            }
+            if (!property.isAbstract()) {
+                logger.error(
+                    "Default property implementations are not supported inside @SchemaExtension",
+                    property
+                )
+                return false
+            }
+            if (isPrimarySchema && name == "enabled") {
+                logger.error(
+                    "`enabled` property name is reserved for the implicit property that is used to enable " +
+                            "the plugin in a module. Use a different name if there is a need to enable some " +
+                            "additional plugin functionality.", property
+                )
+                return false
+            }
+
+            return true
+        }
+
+        val properties = schemaSource.getDeclaredProperties().filter(::filterAndReportProperty).mapNotNull {
+            PluginData.ClassData.Property(
+                name = it.simpleName.asString(),
+                type = it.type.resolveToSchemaType() ?: return@mapNotNull null,
+                doc = it.docString?.trim(),
+            )
+        }
 
         return PluginData.ClassData(
-            name = SchemaName(qualifiedName),
-            properties = properties,
+            name = PluginData.SchemaName(qualifiedName),
+            properties = inheritedProperties + properties,
             doc = schemaSource.docString,
         )
     }

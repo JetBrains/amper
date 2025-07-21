@@ -12,11 +12,14 @@ import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.schema.ModuleProduct
-import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.getDeclaration
 
+/**
+ * Needed by the `preparePlugins` stage to read the plugin information from the local plugin module, before the full
+ * schema for `module.yaml` is available. This is required because the full schema depends on the plugins schema.
+ */
 class MinimalPluginModule : SchemaNode() {
     var product by value<ModuleProduct>()
 
