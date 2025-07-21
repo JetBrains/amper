@@ -105,7 +105,7 @@ context(_: ProblemReporter)
 private fun createProjectContext(
     explicitProjectRoot: Path?,
     explicitBuildRoot: Path?,
-): StandaloneAmperProjectContext =
+): AmperProjectContext =
     if (explicitProjectRoot != null) {
         StandaloneAmperProjectContext.create(explicitProjectRoot, explicitBuildRoot)
             ?: userReadableError(

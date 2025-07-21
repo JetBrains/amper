@@ -74,7 +74,7 @@ class StandaloneAmperProjectContext(
          */
         context(_: ProblemReporter)
         @UsedInIdePlugin
-        fun find(start: VirtualFile, project: IJProject? = null): StandaloneAmperProjectContext? {
+        fun find(start: VirtualFile, project: IJProject? = null): AmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
             return find(start, null, frontendPathResolver)
         }
@@ -87,7 +87,7 @@ class StandaloneAmperProjectContext(
             start: Path,
             buildDir: Path?,
             project: IJProject? = null,
-        ): StandaloneAmperProjectContext? {
+        ): AmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
             val startVirtualFile = frontendPathResolver.loadVirtualFile(start)
             return find(startVirtualFile, buildDir, frontendPathResolver)
@@ -98,7 +98,7 @@ class StandaloneAmperProjectContext(
             virtualFile: VirtualFile,
             buildDir: Path?,
             frontendPathResolver: FrontendPathResolver
-        ): StandaloneAmperProjectContext? {
+        ): AmperProjectContext? {
             val result = preSearchProjectRoot(start = virtualFile) ?: return null
 
             val potentialContext = spanBuilder("Create candidate project context")
@@ -136,7 +136,7 @@ class StandaloneAmperProjectContext(
             rootDir: Path,
             buildDir: Path?,
             project: IJProject? = null,
-        ): StandaloneAmperProjectContext? {
+        ): AmperProjectContext? {
             val pathResolver = FrontendPathResolver(project = project)
             return create(
                 rootDir = pathResolver.loadVirtualFile(rootDir),
@@ -158,7 +158,7 @@ class StandaloneAmperProjectContext(
             rootDir: VirtualFile,
             buildDir: Path?,
             frontendPathResolver: FrontendPathResolver
-        ): StandaloneAmperProjectContext? {
+        ): AmperProjectContext? {
             val rootModuleFile = rootDir.findChildMatchingAnyOf(amperModuleFileNames)
             val amperProject = with(frontendPathResolver) { parseAmperProject(rootDir) }
 
