@@ -113,6 +113,11 @@ internal class JvmCompileTask(
             ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.Result::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
 
         val compileModuleDependencies = dependenciesResult.filterIsInstance<Result>()
+        val javaAnnotationProcessorClasspath = dependenciesResult
+            .filterIsInstance<JavaAnnotationProcessorClasspathTask.Result>()
+            .singleOrNull()
+            ?.processorClasspath
+            ?: emptyList()
 
         val productionJvmCompileResult = if (isTest) {
             compileModuleDependencies.firstOrNull { it.module == module && !it.isTest }
@@ -149,7 +154,7 @@ internal class JvmCompileTask(
 
         val sources = fragments.map { it.src.toAbsolutePath() } + additionalSources.map { it.path }
         val resources = fragments.map { it.resourcesPath.toAbsolutePath() } + additionalResources.map { it.path }
-        val inputs = sources + resources + classpath
+        val inputs = sources + resources + classpath + javaAnnotationProcessorClasspath
 
         val result = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
@@ -173,8 +178,8 @@ internal class JvmCompileTask(
                     userSettings = userSettings,
                     classpath = classpath,
                     friendPaths = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
+                    javaAnnotationProcessorClasspath = javaAnnotationProcessorClasspath,
                     tempRoot = tempRoot,
-                    dependenciesResult = dependenciesResult,
                 )
             } else {
                 logger.info("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
@@ -210,8 +215,8 @@ internal class JvmCompileTask(
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
         friendPaths: List<Path>,
+        javaAnnotationProcessorClasspath: List<Path>,
         tempRoot: AmperProjectTempRoot,
-        dependenciesResult: List<TaskResult>,
     ) {
         for (friendPath in friendPaths) {
             require(classpath.contains(friendPath)) {
@@ -246,9 +251,9 @@ internal class JvmCompileTask(
                 jdk = jdk,
                 userSettings = userSettings,
                 classpath = classpath + kotlinClassesPath,
+                processorClasspath = javaAnnotationProcessorClasspath,
                 javaSourceFiles = javaFilesToCompile,
                 tempRoot = tempRoot,
-                dependenciesResult = dependenciesResult,
             )
             if (!javacSuccess) {
                 userReadableError("Java compilation failed (see errors above)")
@@ -330,9 +335,9 @@ internal class JvmCompileTask(
         jdk: Jdk,
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
+        processorClasspath: List<Path>,
         javaSourceFiles: List<Path>,
         tempRoot: AmperProjectTempRoot,
-        dependenciesResult: List<TaskResult>,
     ): Boolean {
         val javacArgs = buildList {
             if (userSettings.jvmRelease != null) {
@@ -354,13 +359,12 @@ internal class JvmCompileTask(
             // TODO Should we move settings.kotlin.debug to settings.jvm.debug and use it here?
             add("-g")
 
-            val processorClasspathResult = dependenciesResult.filterIsInstance<JavaAnnotationProcessorClasspathTask.Result>().singleOrNull()
-            if (processorClasspathResult?.processorClasspath?.isNotEmpty() == true) {
+            if (processorClasspath.isNotEmpty()) {
                 val generatedSourcesDir = fragments.firstOrNull()?.javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)
                     ?: taskOutputRoot.path.resolve("generated-sources")
 
                 add("-processorpath")
-                add(processorClasspathResult.processorClasspath.joinToString(File.pathSeparator))
+                add(processorClasspath.joinToString(File.pathSeparator))
 
                 // Add generated sources directory
                 add("-s")
