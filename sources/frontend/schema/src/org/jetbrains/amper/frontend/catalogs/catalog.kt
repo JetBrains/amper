@@ -26,7 +26,7 @@ import org.jetbrains.amper.frontend.schema.Settings
  * Try to find gradle catalog and compose it with built-in catalog.
  */
 internal fun BuildCtx.tryGetCatalogFor(
-    file: VirtualFile, settings: Settings?,
+    file: VirtualFile, settings: Settings,
 ): VersionCatalog {
     val gradleCatalog = catalogFinder?.getCatalogPathFor(file)?.let { pathResolver.parseGradleVersionCatalog(it) }
     return with(problemReporter) {
@@ -38,31 +38,24 @@ internal fun BuildCtx.tryGetCatalogFor(
  * Try to get used version catalog.
  */
 context(problemReporter: ProblemReporter)
-private fun addBuiltInCatalog(
-    settings: Settings?, otherCatalog: VersionCatalog? = null,
-): VersionCatalog {
-    val compose = settings?.compose
-    val serialization = settings?.kotlin?.serialization
-    val ktor = settings?.ktor
-    val springBoot = settings?.springBoot
-    val builtInCatalog = BuiltInCatalog(
-        serializationVersion = serialization?.takeIf { it.enabled }?.version
-            ?.let { TraceableVersion(it, serialization::version.valueBase!!) }
-            ?.let { version(it, UsedVersions.kotlinxSerializationVersion) },
-        composeVersion = compose?.takeIf { it.enabled }?.version
-            ?.let { TraceableVersion(it, compose::version.valueBase!!) }
-            ?.let { version(it, UsedVersions.composeVersion) },
-        ktorVersion = ktor?.takeIf { it.enabled }?.version
-            ?.let { TraceableVersion(it, ktor::version.valueBase!!) }
-            ?.let { version(it, UsedVersions.ktorVersion) },
-        springBootVersion = springBoot?.takeIf { it.enabled }?.version
-            ?.let { TraceableVersion(it, springBoot::version.valueBase!!) }
-            ?.let { version(it, UsedVersions.springBootVersion) },
-    )
-    val catalogs = otherCatalog?.let { listOf(it) }.orEmpty() + builtInCatalog
-    val compositeCatalog = CompositeVersionCatalog(catalogs)
-    return compositeCatalog
-}
+private fun addBuiltInCatalog(settings: Settings, otherCatalog: VersionCatalog? = null): VersionCatalog =
+    CompositeVersionCatalog(listOfNotNull(otherCatalog) + settings.builtInCatalog())
+
+context(problemReporter: ProblemReporter)
+private fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
+    serializationVersion = kotlin.serialization.takeIf { it.enabled }?.version
+        ?.let { TraceableVersion(it, kotlin.serialization::version.valueBase!!) }
+        ?.let { version(it, UsedVersions.kotlinxSerializationVersion) },
+    composeVersion = compose.takeIf { it.enabled }?.version
+        ?.let { TraceableVersion(it, compose::version.valueBase!!) }
+        ?.let { version(it, UsedVersions.composeVersion) },
+    ktorVersion = ktor.takeIf { it.enabled }?.version
+        ?.let { TraceableVersion(it, ktor::version.valueBase!!) }
+        ?.let { version(it, UsedVersions.ktorVersion) },
+    springBootVersion = springBoot.takeIf { it.enabled }?.version
+        ?.let { TraceableVersion(it, springBoot::version.valueBase!!) }
+        ?.let { version(it, UsedVersions.springBootVersion) },
+)
 
 context(problemReporter: ProblemReporter)
 @OptIn(NonIdealDiagnostic::class)
