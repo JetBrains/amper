@@ -29,7 +29,12 @@ import kotlin.test.fail
 class AmperBuildTest : AmperCliTestBase() {
 
     @Test
-    fun `build command produces a jar for jvm`() = runSlowTest {
+    fun `build command succeeds in jvm-default-compiler-settings`() = runSlowTest {
+        runCli(projectRoot = testProject("jvm-default-compiler-settings"), "build")
+    }
+
+    @Test
+    fun `build command produces a jar for jvm in kmp project`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("multiplatform-input"),
             "build", "-p", "jvm",
