@@ -88,11 +88,11 @@ class AllOpenSettings : SchemaNode() {
 
 class KotlinSettings : SchemaNode() {
 
-    @Aliases("version")
+    @Aliases("language-version", "version")
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
     var languageVersion by value(KotlinVersion.Kotlin21)
 
-    @Aliases("sdkVersion")
+    @Aliases("api-version", "sdkVersion")
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")
     var apiVersion by dependentValue(::languageVersion)
 
@@ -102,6 +102,7 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly")
     var freeCompilerArgs by nullableValue<List<TraceableString>>()
 
+    @Aliases("nowarn")
     @SchemaDoc("Suppress the compiler from displaying warnings during compilation")
     var suppressWarnings by value(false)
 

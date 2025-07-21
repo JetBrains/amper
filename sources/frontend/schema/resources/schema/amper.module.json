@@ -1375,6 +1375,7 @@
           "title": "Allow using declarations only from the specified version of Kotlin bundled libraries",
           "x-intellij-metadata": {
             "aliases": [
+              "api-version",
               "sdkVersion"
             ]
           }
@@ -1425,6 +1426,7 @@
           "title": "Source compatibility with the specified version of Kotlin",
           "x-intellij-metadata": {
             "aliases": [
+              "language-version",
               "version"
             ]
           }
@@ -1473,7 +1475,12 @@
         "suppressWarnings": {
           "type": "boolean",
           "x-intellij-html-description": "Suppress the compiler from displaying warnings during compilation",
-          "title": "Suppress the compiler from displaying warnings during compilation"
+          "title": "Suppress the compiler from displaying warnings during compilation",
+          "x-intellij-metadata": {
+            "aliases": [
+              "nowarn"
+            ]
+          }
         },
         "verbose": {
           "type": "boolean",
