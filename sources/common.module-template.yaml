@@ -43,6 +43,7 @@ settings:
 
   kotlin:
     freeCompilerArgs:
+      - -progressive
       - -Xconsistent-data-class-copy-visibility
       - -Xcontext-parameters
       - -Xrender-internal-diagnostic-names
