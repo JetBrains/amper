@@ -11,7 +11,6 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Model
@@ -42,7 +41,7 @@ object SchemaBasedModelImport : ModelInit {
      * This is a hack to analyze a single module from a wider project, to get diagnostics in the IDE editor.
      *
      * The returned module is parsed, and all templates resolved, but dependencies on other modules are unresolved.
-     * Since this is mostly used for diagnostics reported via the [ProblemReporterContext], the unresolved references
+     * Since this is mostly used for diagnostics reported via the [ProblemReporter], the unresolved references
      * are usually ignored.
      */
     context(_: ProblemReporter)
@@ -51,7 +50,7 @@ object SchemaBasedModelImport : ModelInit {
             "Also, custom tasks and version catalog references might be incorrect. " +
             "Prefer using diagnoseAmperModuleFile() with a real project context.",
         replaceWith = ReplaceWith(
-            expression = "diagnoseAmperModuleFile(modulePsiFile, this@ProblemReporterContext.problemReporter, context)",
+            expression = "diagnoseAmperModuleFile(modulePsiFile, problemReporter, context)",
             imports = ["org.jetbrains.amper.frontend.diagnostics.diagnoseAmperModuleFile"],
         ),
     )
@@ -66,7 +65,7 @@ object SchemaBasedModelImport : ModelInit {
     }
 
     /**
-     * Processes the given [templatePsiFile] and reports issues via the [ProblemReporterContext].
+     * Processes the given [templatePsiFile] and reports issues via the [ProblemReporter].
      */
     context(_: ProblemReporter)
     @Deprecated(

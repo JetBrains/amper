@@ -16,16 +16,6 @@ interface ProblemReporter {
     fun reportMessage(message: BuildProblem)
 }
 
-@Deprecated("Use ProblemReporter directly as a context parameter")
-interface ProblemReporterContext {
-    val problemReporter: ProblemReporter
-
-    /**
-     * See [ProblemReporter.hasFatal]
-     */
-    val hasFatal: Boolean get() = problemReporter.hasFatal
-}
-
 /**
  * A [ProblemReporter] that does nothing.
  */
@@ -36,10 +26,10 @@ object NoopProblemReporter : ProblemReporter {
 
 /**
  * A [ProblemReporter] that collects problems so they can be queried later.
+ *
+ * Note: This class is not thread-safe. Problems collecting might misbehave when used from multiple threads
+ * (e.g. in Gradle).
  */
-// TODO: Can be refactored to the reporter chain to avoid inheritance.
-// Note: This class is not thread-safe.
-// Problems collecting might misbehave when used from multiple threads (e.g. in Gradle).
 class CollectingProblemReporter : ProblemReporter {
     override val hasFatal get() = problems.any { it.level == Level.Fatal }
 
@@ -55,7 +45,7 @@ class CollectingProblemReporter : ProblemReporter {
 }
 
 /**
- * Report all collected problems from the current reporter to `other`.
+ * Report all collected problems from the current reporter to the given [other] reporter.
  */
 fun CollectingProblemReporter.replayProblemsTo(other: ProblemReporter) =
     problems.forEach { other.reportMessage(it) }

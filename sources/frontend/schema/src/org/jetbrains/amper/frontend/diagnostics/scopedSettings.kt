@@ -9,7 +9,6 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.withEach
 import org.jetbrains.amper.frontend.Platform.COMMON
 import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchy
@@ -44,11 +43,10 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
         }
 
     private class PropertyCheck(
-        override val problemReporter: ProblemReporter,
+        val problemReporter: ProblemReporter,
         val minimalModule: MinimalModule,
         val prop: MapLikeValue.Property<*>,
-    ) : ProblemReporterContext {
-
+    ) {
         fun doCheck() = if (prop.value.trace !is DefaultTrace) {
             contextAgnostic()
             platformSpecific()
