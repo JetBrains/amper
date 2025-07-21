@@ -42,8 +42,8 @@ settings:
     version: 1.0-SNAPSHOT
 
   kotlin:
+    progressiveMode: true
     freeCompilerArgs:
-      - -progressive
       - -Xconsistent-data-class-copy-visibility
       - -Xcontext-parameters
       - -Xrender-internal-diagnostic-names
