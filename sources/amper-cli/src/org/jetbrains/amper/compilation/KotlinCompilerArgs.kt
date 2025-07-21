@@ -50,11 +50,8 @@ private fun kotlinCommonCompilerArgs(
         }
     }
 
-    add("-language-version")
-    add(kotlinUserSettings.languageVersion.schemaValue)
-
-    add("-api-version")
-    add(kotlinUserSettings.apiVersion.schemaValue)
+    add("-language-version=${kotlinUserSettings.languageVersion.schemaValue}")
+    add("-api-version=${kotlinUserSettings.apiVersion.schemaValue}")
 
     if (kotlinUserSettings.allWarningsAsErrors) {
         add("-Werror")
@@ -72,8 +69,7 @@ private fun kotlinCommonCompilerArgs(
         add("-java-parameters")
     }
     kotlinUserSettings.optIns.forEach {
-        add("-opt-in")
-        add(it)
+        add("-opt-in=$it")
     }
     kotlinUserSettings.languageFeatures.forEach {
         add("-XXLanguage:+$it")
@@ -114,13 +110,8 @@ internal fun kotlinJvmCompilerArgs(
     if (userSettings.jvmRelease != null) {
         add("-Xjdk-release=${userSettings.jvmRelease.releaseNumber}")
     }
-
-    add("-jdk-home")
-    add(jdkHome.pathString)
-
-    add("-classpath")
-    add(classpath.joinToString(File.pathSeparator))
-
+    add("-jdk-home=${jdkHome.pathString}")
+    add("-classpath=${classpath.joinToString(File.pathSeparator)}")
     add("-no-stdlib") // that is specifically for the JVM
 
     if (friendPaths.isNotEmpty()) {
@@ -141,8 +132,7 @@ internal fun kotlinJvmCompilerArgs(
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)
     // TODO forbid -d in freeCompilerArgs in the frontend, so it's clearer for the users
-    add("-d")
-    add(outputPath.pathString)
+    add("-d=${outputPath.pathString}")
 }
 
 enum class KotlinCompilationType(val argName: String) {
@@ -191,26 +181,19 @@ internal fun kotlinNativeCompilerArgs(
     if (kotlinUserSettings.optimization ?: (buildType == BuildType.Release)) {
         add("-opt")
     }
-
     add("-ea")
-
-    add("-produce")
-    add(compilationType.argName)
+    add("-produce=${compilationType.argName}")
+    add("-target=${task.platform.nameForCompiler}")
 
     // TODO full module path including entire hierarchy? -Xshort-module-name)
-    add("-module-name")
-    add(compilationType.moduleName(task.module, task.isTest))
-
-    add("-target")
-    add(task.platform.nameForCompiler)
+    add("-module-name=${compilationType.moduleName(task.module, task.isTest)}")
 
     if (compilationType != KotlinCompilationType.LIBRARY) {
         if (task.isTest) {
             add("-generate-test-runner")
         } else {
             if (entryPoint != null) {
-                add("-entry")
-                add(entryPoint)
+                add("-entry=$entryPoint")
             }
         }
     }
@@ -225,8 +208,7 @@ internal fun kotlinNativeCompilerArgs(
     }
 
     libraryPaths.forEach {
-        add("-library")
-        add(it.pathString)
+        add("-library=${it.pathString}")
     }
 
     exportedLibraryPaths.forEach {
@@ -246,8 +228,7 @@ internal fun kotlinNativeCompilerArgs(
 
     // -output is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // TODO forbid -output in freeCompilerArgs in the frontend, so it's clearer for the users
-    add("-output")
-    add(outputPath.pathString)
+    add("-output=${outputPath.pathString}")
 
     // Skip adding sources to `IOS_FRAMEWORK`, since it will use `-Xinclude` argument instead.
     if (compilationType != KotlinCompilationType.IOS_FRAMEWORK) {
@@ -269,11 +250,8 @@ internal fun kotlinMetadataCompilerArgs(
     additionalSourceRoots: List<SourceRoot>,
 ): List<String> = buildList {
     // TODO full module path including entire hierarchy? -Xshort-module-name)
-    add("-module-name")
-    add(moduleName)
-
-    add("-classpath")
-    add(classpath.joinToString(File.pathSeparator))
+    add("-module-name=$moduleName")
+    add("-classpath=${classpath.joinToString(File.pathSeparator)}")
 
     if (friendPaths.isNotEmpty()) {
         // KT-34277 Kotlinc processes -Xfriend-paths differently for Javascript vs. JVM, using different list separators
@@ -297,8 +275,7 @@ internal fun kotlinMetadataCompilerArgs(
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)
     // TODO forbid -d in freeCompilerArgs in the frontend, so it's clearer for the users
-    add("-d")
-    add(outputPath.pathString)
+    add("-d=${outputPath.pathString}")
 
     addAll(sourceFiles.map { it.pathString })
 }

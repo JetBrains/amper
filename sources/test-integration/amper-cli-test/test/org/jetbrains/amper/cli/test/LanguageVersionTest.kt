@@ -30,7 +30,7 @@ class LanguageVersionTest : AmperCliTestBase() {
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
         result.readTelemetrySpans().assertKotlinJvmCompilationSpan {
-            hasCompilerArgument("-language-version", "1.9")
+            hasCompilerArgument("-language-version=1.9")
             hasAmperModule("jvm-language-version-1.9")
         }
         result.assertLogContains(text = "main.kt:1:10 Parameter 'args' is never used", level = Level.WARN)
@@ -44,7 +44,7 @@ class LanguageVersionTest : AmperCliTestBase() {
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
         result.readTelemetrySpans().assertKotlinJvmCompilationSpan {
-            hasCompilerArgument("-language-version", "2.0")
+            hasCompilerArgument("-language-version=2.0")
             hasAmperModule("jvm-language-version-2.0")
         }
     }
@@ -54,7 +54,7 @@ class LanguageVersionTest : AmperCliTestBase() {
         val result = runCli(projectRoot = testProject("native-language-version-1.9"), "build")
 
         result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
-            hasCompilerArgument("-language-version", "1.9")
+            hasCompilerArgument("-language-version=1.9")
         }
     }
 
@@ -63,7 +63,7 @@ class LanguageVersionTest : AmperCliTestBase() {
         val result = runCli(projectRoot = testProject("native-language-version-2.0"), "build")
 
         result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
-            hasCompilerArgument("-language-version", "2.0")
+            hasCompilerArgument("-language-version=2.0")
         }
     }
 
@@ -76,7 +76,7 @@ class LanguageVersionTest : AmperCliTestBase() {
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
         result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
-            hasCompilerArgument("-language-version", "1.9")
+            hasCompilerArgument("-language-version=1.9")
         }
     }
 
@@ -89,7 +89,7 @@ class LanguageVersionTest : AmperCliTestBase() {
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
         result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
-            hasCompilerArgument("-language-version", "2.0")
+            hasCompilerArgument("-language-version=2.0")
         }
     }
 
@@ -104,10 +104,10 @@ class LanguageVersionTest : AmperCliTestBase() {
 
         result.withTelemetrySpans {
             assertEachKotlinJvmCompilationSpan {
-                hasCompilerArgument("-language-version", "1.9")
+                hasCompilerArgument("-language-version=1.9")
             }
             assertEachKotlinNativeCompilationSpan {
-                hasCompilerArgument("-language-version", "1.9")
+                hasCompilerArgument("-language-version=1.9")
             }
         }
     }
@@ -118,10 +118,10 @@ class LanguageVersionTest : AmperCliTestBase() {
 
         result.withTelemetrySpans {
             assertEachKotlinJvmCompilationSpan {
-                hasCompilerArgument("-language-version", "2.0")
+                hasCompilerArgument("-language-version=2.0")
             }
             assertEachKotlinNativeCompilationSpan {
-                hasCompilerArgument("-language-version", "2.0")
+                hasCompilerArgument("-language-version=2.0")
             }
         }
     }
