@@ -37,21 +37,3 @@ object TemplateNameWithoutPostfix : MergedTreeDiagnostic {
             }
         }
 }
-
-object UnresolvedTemplate : MergedTreeDiagnostic {
-
-    override val diagnosticId: BuildProblemId = "unresolved.template"
-
-    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
-        root.visitListProperties(Module::apply) { _, templatesRaw ->
-            templatesRaw.children.map { it to it.scalarValue<TraceablePath>()?.value }.forEach { (tValue, template) ->
-                if (template != null && !template.exists()) {
-                    problemReporter.reportBundleError(
-                        source = tValue.trace.asBuildProblemSource(),
-                        messageKey = diagnosticId,
-                        template,
-                    )
-                }
-            }
-        }
-}

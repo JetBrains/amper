@@ -12,7 +12,10 @@ import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.api.TraceablePath
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
@@ -78,10 +81,28 @@ internal data class ModuleBuildCtx(
                 type = moduleCtxModule.product.type,
                 source = AmperModuleFileSource(moduleFile.toNioPath()),
                 usedCatalog = catalog,
-                usedTemplates = moduleCtxModule.apply?.map { buildCtx.pathResolver.loadVirtualFile(it.value) }.orEmpty(),
+                usedTemplates = moduleCtxModule.apply?.mapNotNull(::readTemplateFromPath).orEmpty(),
                 parts = moduleCtxModule.convertModuleParts(),
             )
         }
+    }
+
+    /**
+     * TODO: A better solution would be to allow marking Paths in the tree as "should exist" and provide a general
+     *   diagnostic allowing to check that during the tree analysis. This diagnostic, however, should have its message
+     *   customizable.
+     */
+    private fun readTemplateFromPath(templatePath: TraceablePath): VirtualFile? {
+        val path = buildCtx.pathResolver.loadVirtualFileOrNull(templatePath.value)
+        if (path == null) {
+            val relativePath = moduleFile.parent.toNioPath().relativize(templatePath.value)
+            buildCtx.problemReporter.reportBundleError(
+                source = templatePath.asBuildProblemSource(),
+                messageKey = "unresolved.template",
+                relativePath,
+            )
+        }
+        return path
     }
 }
 

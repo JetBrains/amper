@@ -31,7 +31,6 @@ fun MergedTreeDiagnostics(refiner: TreeRefiner) = listOf(
     ProductPlatformIsUnsupported,
     ProductPlatformsShouldNotBeEmpty,
     TemplateNameWithoutPostfix,
-    UnresolvedTemplate,
     AliasesDontUseUndeclaredPlatform,
     AliasesAreNotIntersectingWithNaturalHierarchy,
     UselessSettingValue(refiner),

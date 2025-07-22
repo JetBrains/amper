@@ -1,0 +1,4 @@
+product: jvm/app
+
+apply:
+  - <![Error] Template names should have a '.module-template.yaml' suffix. Skipping the suffix might result in incorrect functioning of Amper.!>template.yaml<!>
