@@ -16,9 +16,9 @@ context(problemReporter: ProblemReporter)
 internal fun readProject(
     resolver: FrontendPathResolver,
     projectFile: VirtualFile
-): Project? =
+): Project =
     with(BuildCtx(resolver, problemReporter)) {
-        val projectTree = readTree(projectFile, projectAType) ?: return null
+        val projectTree = readTree(projectFile, projectAType)
         val noContextsTree = TreeRefiner().refineTree(projectTree, EmptyContexts)
         createSchemaNode<Project>(noContextsTree)
     }

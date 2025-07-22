@@ -49,7 +49,7 @@ internal fun BuildCtx.buildCustomTask(
         return
     }
 
-    val taskTree = readTree(customTaskFile, types.getDeclaration<CustomTaskNode>()) ?: return
+    val taskTree = readTree(customTaskFile, types.getDeclaration<CustomTaskNode>())
     val refined = TreeRefiner().refineTree(taskTree, EmptyContexts)
     
     // We can cast here only because no contexts are available inside the task definition.

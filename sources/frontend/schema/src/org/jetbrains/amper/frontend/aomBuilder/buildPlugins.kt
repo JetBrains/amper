@@ -125,7 +125,7 @@ private class PluginTreeReader(
             type = declaration,
             reportUnknowns = true,
             parseReferences = true,
-        ) ?: throw error("Unable to read the plugin `$pluginId` from ${pluginFile.path}")
+        )
 
         treeMerger.mergeTrees(tree)
             .appendDefaultValues()

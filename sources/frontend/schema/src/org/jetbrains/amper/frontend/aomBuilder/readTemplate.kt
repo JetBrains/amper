@@ -18,13 +18,14 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 
 /**
  * Reads the effective [VersionCatalog] for the given [templateFile].
+ *
  * This is a combination of the project catalog and the built-in catalogs provided by the enabled toolchains.
  */
 context(problemReporter: ProblemReporter)
 @UsedInIdePlugin
-fun AmperProjectContext.readEffectiveCatalogForTemplate(templateFile: VirtualFile): VersionCatalog? =
+fun AmperProjectContext.readEffectiveCatalogForTemplate(templateFile: VirtualFile): VersionCatalog =
     with(BuildCtx(pathResolver = frontendPathResolver, problemReporter = problemReporter)) {
-        val templateTree = readTree(file = templateFile, type = templateAType) ?: return null
+        val templateTree = readTree(file = templateFile, type = templateAType)
         val mergedTemplateTree = treeMerger.mergeTrees(templateTree)
         val refiner = TreeRefiner()
         // We can cast here, since we are not merging templates for now.

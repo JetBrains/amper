@@ -61,16 +61,15 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
         )
 
         // We need to resolve defaults for the tree.
-        val moduleTree = rawModuleTree
-            ?.let { treeMerger.mergeTrees(it) }
-            ?.appendDefaultValues()
-            ?.resolveReferences()
+        val moduleTree = treeMerger.mergeTrees(rawModuleTree)
+            .appendDefaultValues()
+            .resolveReferences()
 
-        val productProperty = moduleTree?.children?.firstOrNull { it.key == "product" }
+        val productProperty = moduleTree.children.firstOrNull { it.key == "product" }
         val possibleTypes = (productProperty?.value as? MapLikeValue)?.get("type")?.values
 
         // Check if there is "product" section.
-        if (moduleTree == null || productProperty == null) {
+        if (productProperty == null) {
             collectingReporter.reportBundleError(
                 source = WholeFileBuildProblemSource(moduleFilePath.toNioPath()),
                 messageKey = "product.not.defined.empty",
@@ -94,7 +93,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             return null
         }
 
-        val refined = TreeRefiner().refineTree(moduleTree!!, EmptyContexts)
+        val refined = TreeRefiner().refineTree(moduleTree, EmptyContexts)
 
         MinimalModuleHolder(
             moduleFilePath = moduleFilePath,

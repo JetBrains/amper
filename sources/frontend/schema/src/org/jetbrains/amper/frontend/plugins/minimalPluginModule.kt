@@ -30,13 +30,13 @@ fun tryReadMinimalPluginModule(
     problemReporter: ProblemReporter,
     frontendPathResolver: FrontendPathResolver,
     moduleFilePath: VirtualFile,
-) : MinimalPluginModule? {
+) : MinimalPluginModule {
     return with(BuildCtx(frontendPathResolver, problemReporter)) {
         val pluginModuleTree = readTree(
             file = moduleFilePath,
             type = types.getDeclaration<MinimalPluginModule>(),
             reportUnknowns = false,
-        ) ?: return null
+        )
         val refiner = TreeRefiner()
         val noContextsTree = refiner.refineTree(pluginModuleTree, EmptyContexts)
         createSchemaNode<MinimalPluginModule>(noContextsTree)

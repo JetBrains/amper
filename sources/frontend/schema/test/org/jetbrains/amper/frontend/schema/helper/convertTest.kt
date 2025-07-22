@@ -33,7 +33,7 @@ private class ConvertTestRun(
             val inputFile = pathResolver.loadVirtualFile(inputPath)
             val buildCtx = BuildCtx(pathResolver, problemReporter)
             with(buildCtx) {
-                val tree = readTree(inputFile, moduleAType) ?: error("No tree for $inputFile")
+                val tree = readTree(inputFile, moduleAType)
                 createSchemaNode<Module>(tree as MapLikeValue<Refined>)
             }
         }

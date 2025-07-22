@@ -48,7 +48,7 @@ internal fun BuildCtx.readTree(
     vararg contexts: Context,
     reportUnknowns: Boolean = true,
     parseReferences: Boolean = false,
-) = TreeReadRequest(
+): MapLikeValue<*> = TreeReadRequest(
     initialType = type,
     initialContexts = contexts.toSet(),
     file = file,
@@ -73,7 +73,7 @@ internal data class TreeReadRequest(
 )
 
 // TODO Do we need the read action here?
-internal fun TreeReadRequest.readTree(): MapLikeValue<*>? =
+internal fun TreeReadRequest.readTree(): MapLikeValue<*> =
     ApplicationManager.getApplication().runReadAction(Computable {
         when (psiFile.language) {
 //        is AmperLanguage -> AmperLangTreeReader(this).read()

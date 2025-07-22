@@ -44,7 +44,7 @@ internal open class TreeTestRun(
     override val base: Path,
     protected val types: SchemaTypingContext,
     override val expectPostfix: String,
-    protected val treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>?,
+    protected val treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>,
     protected val dumpPathContexts: Boolean = false,
 ) : BaseFrontendTestRun(caseName) {
 
@@ -86,7 +86,7 @@ internal open class DiagnosticsTreeTestRun(
     caseName: String,
     base: Path,
     types: SchemaTypingContext,
-    treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>?,
+    treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>,
     dumpPathContexts: Boolean = false,
 ) : TreeTestRun(caseName, base, types, "", treeBuilder, dumpPathContexts) {
 
@@ -108,9 +108,7 @@ internal open class DiagnosticsTreeTestRun(
 }
 
 // Helper function to just read the module.
-internal val readModule: BuildCtx.(VirtualFile) -> TreeValue<*> = {
-    readTree(it, moduleAType) ?: fail("No tree for $it")
-}
+internal val readModule: BuildCtx.(VirtualFile) -> TreeValue<*> = { readTree(it, moduleAType) }
 
 // Helper function read the module and refine it with selected contexts.
 internal fun readAndRefineModule(
@@ -118,7 +116,7 @@ internal fun readAndRefineModule(
     withDefaults: Boolean = false,
 ): BuildCtx.(VirtualFile) -> TreeValue<*> = {
     val minimalModule = tryReadMinimalModule(it)!!
-    val tree = readTree(it, moduleAType) ?: fail("No tree for $it")
+    val tree = readTree(it, moduleAType)
     var merged = treeMerger.mergeTrees(tree)
     merged = if (withDefaults) merged.appendDefaultValues() else merged
     merged.refineTree(contexts, minimalModule.combinedInheritance)
@@ -127,7 +125,7 @@ internal fun readAndRefineModule(
 // Helper function read the module with templates and refine it with selected contexts.
 internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Contexts): BuildCtx.(VirtualFile) -> TreeValue<*> = {
     val minimalModule = tryReadMinimalModule(it)!!
-    val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().trace)) ?: fail("No tree for $it")
+    val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().trace))
     val resultTree = treeMerger.mergeTrees(ownedTrees)
     resultTree.refineTree(contexts(it), minimalModule.combinedInheritance)
 }
