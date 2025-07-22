@@ -61,7 +61,7 @@ class DiagnosticsTestRun(
             }
         }
         // Collect errors.
-        val errors = with(problemReporter) { problemReporter.getDiagnostics(*levels) }
+        val errors = problemReporter.getDiagnostics(*levels)
         val annotated = annotateTextWithDiagnostics(inputPath.absolute(), cleared, errors) {
             it.replace(buildDir().absolutePathString() + File.separator, "")
         }
