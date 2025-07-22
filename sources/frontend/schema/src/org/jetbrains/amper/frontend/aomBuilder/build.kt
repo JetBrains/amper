@@ -12,6 +12,7 @@ import org.jetbrains.amper.core.withEach
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -19,12 +20,13 @@ import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withTraceFrom
-import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
 import org.jetbrains.amper.frontend.catalogs.plus
+import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
 import org.jetbrains.amper.frontend.contexts.MinimalModuleHolder
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
+import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.MergedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
@@ -50,6 +52,22 @@ import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import java.nio.file.Path
 import kotlin.io.path.name
+
+/**
+ * Parses the configuration files of this [AmperProjectContext] and builds the project model.
+ *
+ * All errors and warnings are reported to the given [problemReporter].
+ *
+ * If a fatal error occurs, the model cannot be built, and thus the method returns null. It's up to the consumer to
+ * handle the fatal errors.
+ */
+context(problemReporter: ProblemReporter)
+fun AmperProjectContext.readProjectModel(): Model? {
+    val resultModules = doBuild(this@readProjectModel) ?: return null
+    val model = DefaultModel(projectRootDir.toNioPath(), resultModules)
+    AomModelDiagnosticFactories.forEach { it.analyze(model, problemReporter) }
+    return model
+}
 
 /**
  * AOM build function, introduced for testing.

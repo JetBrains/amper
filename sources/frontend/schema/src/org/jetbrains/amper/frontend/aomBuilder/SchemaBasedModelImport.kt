@@ -17,7 +17,6 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.catalogs.IncorrectCatalogDetection
-import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.SingleModuleProjectContextForIde
 
@@ -29,31 +28,44 @@ object SchemaBasedModelImport : ModelInit {
     override val name = "schema-based"
 
     context(problemReporter: ProblemReporter)
-    fun getModel(projectContext: AmperProjectContext): Result<Model> {
-        val resultModules = doBuild(projectContext)
-            ?: return amperFailure()
-        val model = DefaultModel(projectContext.projectRootDir.toNioPath(), resultModules)
-        AomModelDiagnosticFactories.forEach { it.analyze(model, problemReporter) }
-        return model.asAmperSuccess()
-    }
+    @Deprecated(
+        message = "This method is superseded by the simpler AmperProjectContext.readProjectModel().",
+        replaceWith = ReplaceWith(
+            expression = "projectContext.readProjectModel()?.asAmperSuccess() ?: amperFailure()",
+            imports = [
+                "org.jetbrains.amper.core.amperFailure",
+                "org.jetbrains.amper.core.asAmperSuccess",
+                "org.jetbrains.amper.frontend.aomBuilder.readProjectModel",
+            ],
+        ),
+    )
+    @UsedInIdePlugin
+    fun getModel(projectContext: AmperProjectContext): Result<Model> =
+        projectContext.readProjectModel()?.asAmperSuccess() ?: amperFailure()
 
-    // TODO find a better way to do this in the IDE
     /**
-     * This is a hack to analyze a single module from a wider project, to get diagnostics in the IDE editor.
-     *
-     * The returned module is parsed, and all templates resolved, but dependencies on other modules are unresolved.
-     * Since this is mostly used for diagnostics reported via the [ProblemReporter], the unresolved references
-     * are usually ignored.
+     * Creates an [AmperProjectContext] starting from the given [modulePsiFile], reads the project model,
+     * and gets the [AmperModule] that was read from the given [modulePsiFile] in this model.
      */
-    context(_: ProblemReporter)
+    context(problemReporter: ProblemReporter)
     @IncorrectCatalogDetection
     @Deprecated(
         message = "This returns a partially incorrect module with unresolved references to other modules. " +
-            "Also, custom tasks and version catalog references might be incorrect. " +
-            "Prefer using diagnoseAmperModuleFile() with a real project context.",
+                "Also, custom tasks and version catalog references might be incorrect. " +
+                "Prefer using a real project context, reading the full model, and selecting the module.",
         replaceWith = ReplaceWith(
-            expression = "diagnoseAmperModuleFile(modulePsiFile, problemReporter, context)",
-            imports = ["org.jetbrains.amper.frontend.diagnostics.diagnoseAmperModuleFile"],
+            expression = "StandaloneAmperProjectContext.find(modulePsiFile.virtualFile, project)" +
+                    "?.readProjectModel()" +
+                    "?.getModule(modulePsiFile.virtualFile)" +
+                    "?.asAmperSuccess()" +
+                    " ?: amperFailure()",
+            imports = [
+                "org.jetbrains.amper.core.amperFailure",
+                "org.jetbrains.amper.core.asAmperSuccess",
+                "org.jetbrains.amper.frontend.aomBuilder.readProjectModel",
+                "org.jetbrains.amper.frontend.getModule",
+                "org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext",
+            ],
         ),
     )
     @UsedInIdePlugin
@@ -73,11 +85,8 @@ object SchemaBasedModelImport : ModelInit {
     @IncorrectCatalogDetection
     @Deprecated(
         message = "This returns a template with potentially incorrect version catalog references." +
-                "Prefer using diagnoseAmperTemplateFile() with a real project context.",
-        replaceWith = ReplaceWith(
-            expression = "diagnoseAmperTemplateFile(modulePsiFile, problemReporter, context)",
-            imports = ["org.jetbrains.amper.frontend.diagnostics.diagnoseAmperTemplateFile"],
-        ),
+                "Prefer using a real project context. If you're only interested in the version catalog, " +
+                "use AmperProjectContext.readEffectiveCatalogForTemplate(templateFile).",
     )
     @UsedInIdePlugin
     fun getTemplate(templatePsiFile: PsiFile, project: Project): ModelInit.TemplateHolder? =

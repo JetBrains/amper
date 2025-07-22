@@ -30,7 +30,7 @@ import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.android.findAndroidManifestFragment
-import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
+import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.keyAlias
@@ -288,7 +288,9 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         val model = with(NoopProblemReporter) {
             val projectContext = StandaloneAmperProjectContext.create(projectRoot, buildDir = null, project = null)
                 ?: error("Invalid project root passed to the delegated Android Gradle build: $projectRoot")
-            SchemaBasedModelImport.getModel(projectContext).get()
+            projectContext.readProjectModel()
+                ?: error("Failed to read Amper project model from the delegated Android Gradle build. " +
+                        "This should never happen because fatal errors should have failed the Amper build earlier.")
         }
 
         settings.gradle.knownModel = model

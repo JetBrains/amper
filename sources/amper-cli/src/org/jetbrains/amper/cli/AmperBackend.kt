@@ -25,7 +25,7 @@ import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
+import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -57,18 +57,9 @@ class AmperBackend(
         val model = spanBuilder("Read model from Amper files")
             .setAttribute("root", context.projectRoot.path.pathString)
             .useWithoutCoroutines {
-                when (val result = SchemaBasedModelImport.getModel(context.projectContext)) {
-                    is Result.Failure -> {
-                        if (wereProblemsReported()) {
-                            userReadableError("failed to read Amper model, refer to the errors above")
-                        }
-                        else throw result.exception
-                    }
-                    is Result.Success -> result.value
-                }
+                context.projectContext.readProjectModel()
             }
-
-        if (wereProblemsReported()) {
+        if (model == null || wereProblemsReported()) {
             userReadableError("failed to read Amper model, refer to the errors above")
         }
 

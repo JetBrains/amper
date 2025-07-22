@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
+import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.test.Dirs
 import java.nio.file.FileVisitResult
@@ -134,7 +134,8 @@ class AmperProjectStructureTest {
     private fun readAmperProjectModel(): Model = with(NoopProblemReporter) {
         val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, buildDir = null, project = null)
             ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
-        SchemaBasedModelImport.getModel(projectContext).get()
+        projectContext.readProjectModel()
+            ?: error("Couldn't read Amper's project model")
     }
 
     private fun AmperModule.nonLibraryDependencies(includeTestDeps: Boolean = true): List<String> = fragments

@@ -7,11 +7,10 @@ package org.jetbrains.amper.frontend.dr.resolver
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.messages.NoopProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
+import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import java.nio.file.Path
 import kotlin.test.assertIs
@@ -37,7 +36,8 @@ internal fun getTestProjectModel(testProjectName: String, testDataRoot: Path): M
     val aom = with(NoopProblemReporter) {
         val amperProjectContext = StandaloneAmperProjectContext.create(projectPath, null)
             ?: fail("Failed to create test project context")
-        SchemaBasedModelImport.getModel(amperProjectContext).get()
+        amperProjectContext.readProjectModel()
+            ?: fail("Failed to read Amper's project model")
     }
     return aom
 }
