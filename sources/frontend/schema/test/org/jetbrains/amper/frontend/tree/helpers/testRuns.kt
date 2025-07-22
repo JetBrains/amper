@@ -17,7 +17,6 @@ import org.jetbrains.amper.frontend.schema.helper.BaseFrontendTestRun
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
 import org.jetbrains.amper.frontend.schema.helper.annotateTextWithDiagnostics
 import org.jetbrains.amper.frontend.schema.helper.removeDiagnosticAnnotations
-import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.jsonDump
@@ -80,7 +79,7 @@ internal open class TreeTestRun(
 /**
  * Test run that:
  * 1. Reads [TreeValue] with [treeBuilder].
- * 2. Marks the psi text with diagnostics.
+ * 2. Marks the PSI text with diagnostics.
  * 3. Compares the result with input.
  */
 internal open class DiagnosticsTreeTestRun(
@@ -94,9 +93,13 @@ internal open class DiagnosticsTreeTestRun(
     override val expectPostfix: String = ".yaml"
     override val expectAmperPostfix: String = ".amper"
 
-    override fun GoldenTest.getInputContent(inputPath: Path): String = with(buildCtx) {
+    override fun GoldenTest.getInputContent(inputPath: Path): String {
+        // Read tree to fill the diagnostics
         doReadTree(inputPath)
-        annotateTextWithDiagnostics(inputPath, inputPath.asPsi().text!!, diagnostics) { it }
+
+        val virtualFile = buildCtx.pathResolver.loadVirtualFile(inputPath)
+        val psiFile = buildCtx.pathResolver.toPsiFile(virtualFile) ?: fail("PSI file for $inputPath not found")
+        return annotateTextWithDiagnostics(inputPath, psiFile.text, diagnostics) { it }
             .trimTrailingWhitespacesAndEmptyLines()
     }
 

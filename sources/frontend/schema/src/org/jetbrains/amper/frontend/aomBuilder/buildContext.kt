@@ -57,7 +57,6 @@ internal data class BuildCtx(
 
     // TODO Properly handle null cases of `loadVirtualFile`.
     fun VirtualFile.asPsi(): PsiFile = pathResolver.toPsiFile(this) ?: error("No $this file")
-    fun Path.asPsi(): PsiFile = pathResolver.toPsiFile(pathResolver.loadVirtualFile(this@asPsi)) ?: error("No $this file")
     fun Path.asVirtualOrNull() = pathResolver.loadVirtualFileOrNull(this)
 }
 
