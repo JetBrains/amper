@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.api.Artifact
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
@@ -49,11 +50,17 @@ class TaskFromPlugin(
         override val path: Path,
     ) : ExternalTaskArtifact
 
-    class ExternalTaskGeneratedKotlinSourcesArtifact(
+    class ExternalTaskGeneratedKotlinJavaSourcesArtifact(
         buildOutputRoot: AmperBuildOutputRoot,
         fragment: Fragment,
         path: Path,
     ) : KotlinJavaSourceDirArtifact(buildOutputRoot, fragment, path), ExternalTaskArtifact
+
+    class ExternalTaskGeneratedJvmResourcesArtifact(
+        buildOutputRoot: AmperBuildOutputRoot,
+        fragment: Fragment,
+        path: Path,
+    ) : JvmResourcesDirArtifact(buildOutputRoot, fragment, path), ExternalTaskArtifact
 
     override val consumes: List<ArtifactSelector<*, *>> = description.inputs
         .map { it }
@@ -70,14 +77,17 @@ class TaskFromPlugin(
         .map { (output, mark) ->
             when (mark?.kind) {
                 null -> ExternalTaskRawArtifact(output)
-                GeneratedPathKind.KotlinSources -> ExternalTaskGeneratedKotlinSourcesArtifact(
+                GeneratedPathKind.KotlinSources,
+                GeneratedPathKind.JavaSources -> ExternalTaskGeneratedKotlinJavaSourcesArtifact(
                     buildOutputRoot = buildOutputRoot,
                     fragment = mark.associateWith,
                     path = output,
                 )
-                GeneratedPathKind.JavaSources,
-                GeneratedPathKind.JvmResources,
-                    -> throw UnsupportedOperationException("${mark.kind} is not yet supported!")
+                GeneratedPathKind.JvmResources -> ExternalTaskGeneratedJvmResourcesArtifact(
+                    buildOutputRoot = buildOutputRoot,
+                    fragment = mark.associateWith,
+                    path = output,
+                )
             }
         }
 
