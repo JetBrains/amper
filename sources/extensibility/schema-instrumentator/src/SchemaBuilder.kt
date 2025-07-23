@@ -62,19 +62,19 @@ class SchemaBuilder(
 
     fun addTask(declaration: KSFunctionDeclaration): PluginData.TaskInfo? {
         if (declaration.parentDeclaration != null) {
-            return null.also { logger.error("task action must be a top-level function", declaration) }
+            return null.also { logger.error("Task action must be a top-level function", declaration) }
         }
         if (declaration.extensionReceiver != null) {
-            return null.also { logger.error("task actions can't be extension functions", declaration) }
+            return null.also { logger.error("Task actions can't be extension functions", declaration) }
         }
         if (Modifier.SUSPEND in declaration.modifiers) {
-            return null.also { logger.error("task actions can't be suspend functions", declaration) }
+            return null.also { logger.error("Task actions can't be suspend functions", declaration) }
         }
         if (Modifier.INLINE in declaration.modifiers) {
-            return null.also { logger.error("task actions can't be inline functions", declaration) }
+            return null.also { logger.error("Task actions can't be inline functions", declaration) }
         }
         val qualifiedName = declaration.qualifiedName?.asString() ?: return null.also {
-            logger.error("task action must have a name", declaration)
+            logger.error("Task action must have a name", declaration)
         }
 
         val docLines = declaration.docString?.lines()
@@ -161,7 +161,7 @@ class SchemaBuilder(
         fun filterAndReportProperty(property: KSPropertyDeclaration): Boolean {
             val name = property.simpleName.asString()
             if (inheritedProperties.any { it.name == name }) {
-                logger.error("overriding properties is not supported inside @SchemaExtension", property)
+                logger.error("Overriding properties is not supported inside @SchemaExtension", property)
                 return false
             }
             if (property.isMutable) {
