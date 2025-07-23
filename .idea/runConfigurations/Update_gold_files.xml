@@ -2,6 +2,8 @@
   <configuration default="false" name="Update gold files" type="KotlinStandaloneScriptRunConfigurationType">
     <shortenClasspath name="NONE" />
     <option name="filePath" value="$PROJECT_DIR$/updateGoldFiles.main.kts" />
-    <method v="2" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Sync versions" run_configuration_type="KotlinStandaloneScriptRunConfigurationType" />
+    </method>
   </configuration>
 </component>
