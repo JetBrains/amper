@@ -126,23 +126,6 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                             }
                         )
                     }
-
-                    fragments.forEach { fragment ->
-                        tasks.registerDependency(
-                            taskName = CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
-                            dependsOn = JvmFragmentTaskType.PrepareComposeResources.getTaskName(fragment),
-                        )
-                    }
-                }
-            }
-
-            // custom task roots
-            // TODO: Remove once fully migrated to artifacts
-            module.customTasks.forEach { customTask ->
-                customTask.addToModuleRootsFromCustomTask.forEach { add ->
-                    if (platform.pathToParent.contains(add.platform) && isTest == add.isTest) {
-                        tasks.registerDependency(compileTaskName, dependsOn = customTask.name)
-                    }
                 }
             }
         }
@@ -155,8 +138,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     task = JvmComposeResourcesTask(
                         taskName = prepareForJvm,
                         fragment = fragment,
-                        taskOutputRoot = context.getTaskOutputPath(prepareForJvm),
-                        executeOnChangedInputs = executeOnChangedInputs,
+                        buildOutputRoot = context.buildOutputRoot,
                     ),
                 )
             }

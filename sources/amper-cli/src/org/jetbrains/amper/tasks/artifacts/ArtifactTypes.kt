@@ -78,3 +78,12 @@ open class KotlinJavaSourceDirArtifact(
     fragment: Fragment,
     override val conventionPath: Path? = null,
 ) : FragmentScopedArtifact(buildOutputRoot, fragment)
+
+/**
+ * JVM resources directory tree.
+ */
+open class JvmResourcesDirArtifact(
+    buildOutputRoot: AmperBuildOutputRoot,
+    fragment: Fragment,
+    override val conventionPath: Path? = null,
+) : FragmentScopedArtifact(buildOutputRoot, fragment)

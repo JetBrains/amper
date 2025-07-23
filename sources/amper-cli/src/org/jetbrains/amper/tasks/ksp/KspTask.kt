@@ -39,12 +39,11 @@ import org.jetbrains.amper.ksp.downloadKspJars
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.settings.unanimousSetting
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
-import org.jetbrains.amper.tasks.AdditionalResourcesProvider
-import org.jetbrains.amper.tasks.AdditionalResourcesProvider.ResourceRoot
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
+import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
@@ -105,6 +104,12 @@ internal class KspTask(
         conventionPath = leafFragment.kspGeneratedJavaSourcesPath(buildOutputRoot.path),
     )
 
+    private val generatedJvmResourcesDir by JvmResourcesDirArtifact(
+        buildOutputRoot,
+        fragment = leafFragment,
+        conventionPath = leafFragment.kspGeneratedResourcesPath(buildOutputRoot.path),
+    )
+
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
@@ -136,7 +141,7 @@ internal class KspTask(
             // For outputs, we need to follow the conventions so the IDE can import files seamlessly
             kotlinSourcesDir = generatedKotlinSourceDir.path,
             javaSourcesDir = generatedJavaSourceDir.path,
-            resourcesDir = leafFragment.kspGeneratedResourcesPath(buildOutputRoot.path),
+            resourcesDir = generatedJvmResourcesDir.path,
             classesDir = leafFragment.kspGeneratedClassesPath(buildOutputRoot.path),
         )
         ksp.runKsp(
@@ -148,7 +153,6 @@ internal class KspTask(
         )
 
         return Result(
-            resourceRoots = listOf(ResourceRoot(leafFragment.name, kspOutputs.resourcesDir)),
             compileClasspath = listOf(kspOutputs.classesDir),
         )
     }
@@ -240,9 +244,8 @@ internal class KspTask(
     }
 
     class Result(
-        override val resourceRoots: List<ResourceRoot>,
         override val compileClasspath: List<Path>,
-    ) : TaskResult, AdditionalResourcesProvider, AdditionalClasspathProvider
+    ) : TaskResult, AdditionalClasspathProvider
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(KspTask::class.java)

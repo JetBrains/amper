@@ -34,24 +34,23 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.javaAnnotationProcessingGeneratedSourcesPath
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.java.JavaAnnotationProcessorClasspathTask
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.withJavaArgFile
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
-import org.jetbrains.amper.tasks.AdditionalResourcesProvider
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
+import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
-import org.jetbrains.amper.tasks.resourcesFor
-import org.jetbrains.amper.java.JavaAnnotationProcessorClasspathTask
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
@@ -100,6 +99,14 @@ internal class JvmCompileTask(
         quantifier = Quantifier.AnyOrNone,
     )
 
+    private val additionalResourcesDirs by Selectors.fromMatchingFragments(
+        type = JvmResourcesDirArtifact::class,
+        module = module,
+        isTest = isTest,
+        hasPlatforms = setOf(platform),
+        quantifier = Quantifier.AnyOrNone,
+    )
+
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         require(fragments.isNotEmpty()) {
             "fragments list is empty for jvm compile task, module=${module.userReadableName}"
@@ -139,7 +146,12 @@ internal class JvmCompileTask(
             )
         }
 
-        val additionalResources = dependenciesResult.filterIsInstance<AdditionalResourcesProvider>().resourcesFor(fragments)
+        val additionalResources = additionalResourcesDirs.map { artifact ->
+            SourceRoot(
+                fragmentName = artifact.fragmentName,
+                path = artifact.path,
+            )
+        }
 
         // TODO settings
         val jdk = JdkDownloader.getJdk(userCacheRoot)

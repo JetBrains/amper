@@ -24,9 +24,9 @@ import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
-import org.jetbrains.amper.tasks.AdditionalResourcesProvider
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.api.Artifact
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
-import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.pathString
 
@@ -54,13 +53,19 @@ internal class CustomTask(
     override val consumes get() = emptyList<Nothing>()
 
     override val produces: List<Artifact> = custom.addToModuleRootsFromCustomTask
-        .filter { it.type == AddToModuleRootsFromCustomTask.Type.SOURCES }
         .map {
-            KotlinJavaSourceDirArtifact(
-                buildOutputRoot,
-                fragment = it.resolveFragment(),
-                conventionPath = it.resolvePath(),
-            )
+            when(it.type) {
+                AddToModuleRootsFromCustomTask.Type.RESOURCES -> JvmResourcesDirArtifact(
+                    buildOutputRoot,
+                    fragment = it.resolveFragment(),
+                    conventionPath = it.resolvePath(),
+                )
+                AddToModuleRootsFromCustomTask.Type.SOURCES -> KotlinJavaSourceDirArtifact(
+                    buildOutputRoot,
+                    fragment = it.resolveFragment(),
+                    conventionPath = it.resolvePath(),
+                )
+            }
         }
 
     override fun injectConsumes(artifacts: Map<ArtifactSelector<*, *>, List<Artifact>>) = Unit
@@ -106,22 +111,6 @@ internal class CustomTask(
             userReadableError(message)
         }
 
-        val additionalResources = mutableListOf<AdditionalResourcesProvider.ResourceRoot>()
-        custom.addToModuleRootsFromCustomTask.forEach { addToSourceSet ->
-            val path = addToSourceSet.resolvePath()
-            if (!path.exists()) {
-                userReadableError("After running a custom task '${custom.name.name}' output file or folder '$path'" +
-                        "is not found, but required for module source sets")
-            }
-            val fragment = addToSourceSet.resolveFragment()
-            when (addToSourceSet.type) {
-                AddToModuleRootsFromCustomTask.Type.SOURCES -> Unit // Handled as an artifact
-                AddToModuleRootsFromCustomTask.Type.RESOURCES -> additionalResources.add(
-                    AdditionalResourcesProvider.ResourceRoot(fragmentName = fragment.name, path = path)
-                )
-            }
-        }
-
         custom.publishArtifacts.forEach { publish ->
             // TODO wildcard matching support?
             val path = taskOutputRoot.path.resolve(publish.pathWildcard).normalize()
@@ -140,7 +129,6 @@ internal class CustomTask(
         return Result(
             outputDirectory = taskOutputRoot.path,
             artifactsToPublish = custom.publishArtifacts,
-            resourceRoots = additionalResources,
         )
     }
 
@@ -213,8 +201,7 @@ internal class CustomTask(
     class Result(
         val outputDirectory: Path,
         val artifactsToPublish: List<PublishArtifactFromCustomTask>,
-        override val resourceRoots: List<AdditionalResourcesProvider.ResourceRoot>,
-    ): TaskResult, AdditionalResourcesProvider
+    ): TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }
