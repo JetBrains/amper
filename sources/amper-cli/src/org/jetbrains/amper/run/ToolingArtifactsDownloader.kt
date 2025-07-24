@@ -39,7 +39,7 @@ class ToolingArtifactsDownloader(
         listOf(
             "org.jetbrains.compose.hot-reload:hot-reload-devtools:${UsedVersions.hotReloadVersion}",
             "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}",
-            "org.jetbrains.amper:compose-hot-reload-recompiler-extension:${AmperBuild.mavenVersion}"
+            "org.jetbrains.amper:amper-compose-hot-reload-recompiler-extension:${AmperBuild.mavenVersion}"
         ),
         listOf(MavenCentral, GOOGLE_REPOSITORY, AMPER_DEV_REPOSITORY)
     )

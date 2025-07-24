@@ -7,6 +7,7 @@ modules:
   - repository-restrictions
   - sources/amper-build-info
   - sources/amper-cli
+  - sources/amper-compose-hot-reload-recompiler-extension
   - sources/amper-jdk-provisioning
   - sources/amper-junit-listeners
   - sources/amper-project-templates
@@ -16,7 +17,6 @@ modules:
   - sources/android-integration/amper-android-gradle-plugin
   - sources/android-integration/amper-android-runner
   - sources/android-integration/amper-android-sdk-detector
-  - sources/compose-hot-reload-recompiler-extension
   - sources/core
   - sources/core-intellij
   - sources/dependency-resolution
