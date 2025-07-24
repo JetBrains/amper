@@ -4,30 +4,37 @@
 
 package org.jetbrains.amper.test
 
+import kotlin.io.path.Path
+import kotlin.io.path.exists
+import kotlin.io.path.readText
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.text.get
 
 abstract class MessagesConventionsTest(private val bundleName: String) {
     @Test
     fun messagesAreSortedAlphabetically() {
-        val bundleText = javaClass.getResource("/messages/$bundleName.properties")?.readText()
-            ?: error("$bundleName.properties not found")
+        val bundlePath = Path("resources/messages/$bundleName.properties").takeIf { it.exists() }
+        val bundleText = bundlePath?.readText()?.trim() ?: error("$bundleName.properties file not found")
 
-        // we don't parse this as Properties object because we would lose the order
-        val keys = bundleText
-            .replace("\\\r\n", "")
-            .replace("\\\r", "")
-            .replace("\\\n", "")
-            .lines()
+        // We don't parse this as a Properties object because we will lose the order.
+        val keyValueLines = buildList<StringBuilder> {
+            bundleText.lines().forEach {
+                if (lastOrNull()?.endsWith('\\') != true) add(StringBuilder().append(it))
+                else last().append("\n$it")
+            }
+        }
+
+        val sorted = keyValueLines
+            .map { it.toString() }
             .filter { it.isNotEmpty() }
-            .map { parsePropertyKey(it) }
+            .sortedBy { parsePropertyKey(it) }
+            .joinToString("\n")
 
-        assertEquals(keys.sorted(), keys, "$bundleName.properties should be sorted alphabetically (to avoid git conflicts, and for easier navigability of the file)")
+        assertEqualsIgnoreLineSeparator(bundleText, sorted, bundlePath)
     }
 }
 
-private val singleLinePropertyRegex = Regex("(?<key>[^=]+)=(?<value>.*)")
+private val singleLinePropertyRegex = Regex("(?<key>[^=]+)=(?<value>.*)", RegexOption.DOT_MATCHES_ALL)
 
 private fun parsePropertyKey(line: String): String {
     val match = singleLinePropertyRegex.matchEntire(line)
