@@ -11,27 +11,37 @@ sealed interface SchemaType {
 
     data class BooleanType(
         override val isMarkedNullable: Boolean = false,
-    ) : ScalarType
+    ) : ScalarType {
+        override fun toString() = "boolean"
+    }
 
     data class IntType(
         override val isMarkedNullable: Boolean = false,
-    ) : ScalarType
+    ) : ScalarType {
+        override fun toString() = "int"
+    }
 
     data class StringType(
         override val isMarkedNullable: Boolean = false,
         val isTraceableWrapped: Boolean = false,
-    ) : ScalarType
+    ) : ScalarType {
+        override fun toString() = "string"
+    }
 
     data class PathType(
         override val isMarkedNullable: Boolean = false,
         val isTraceableWrapped: Boolean = false,
-    ) : ScalarType
+    ) : ScalarType {
+        override fun toString() = "path"
+    }
 
     data class EnumType(
         val declaration: SchemaEnumDeclaration,
         val isTraceableWrapped: Boolean = false,
         override val isMarkedNullable: Boolean = false,
-    ) : ScalarType
+    ) : ScalarType {
+        override fun toString() = declaration.qualifiedName.substringAfterLast(".")
+    }
 
     data class ObjectType(
         val declaration: SchemaObjectDeclaration,

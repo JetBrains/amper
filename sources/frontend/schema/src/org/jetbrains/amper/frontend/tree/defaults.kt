@@ -38,7 +38,7 @@ private object DefaultsAppender : TreeTransformer<TreeState>() {
                     is Default.Static<*> -> MapLikeValue.Property(
                         it.name,
                         DefaultTrace,
-                        defaultValueFrom(default.value ?: return@out null, it.type),
+                        defaultValueFrom(default.value ?: return@out null, it.type) ?: return@out null,
                         it,
                     )
 
@@ -63,7 +63,7 @@ private object DefaultsAppender : TreeTransformer<TreeState>() {
         extendedDefaults = (extendedDefaults.visitAll() as? Changed)?.value ?: extendedDefaults
 
         // If children visit had returned `null` - then there are no defaults in them - thus we are keeping originals.
-        val childrenWithDefaults = with(DefaultsRootsDiscoverer) { value.children.visitAll() as? Changed }?.value 
+        val childrenWithDefaults = with(DefaultsRootsDiscoverer) { value.children.visitAll() as? Changed }?.value
             ?: value.children
 
         // We can't guarantee any tree contract here, so we have to create an Owned value.
@@ -85,14 +85,15 @@ private object DefaultsRootsDiscoverer : TreeTransformer<TreeState>() {
 /**
  * Construct a default value tree from the passed value.
  */
-private fun defaultValueFrom(value: Any, type: SchemaType): TreeValue<TreeState> = when {
+private fun defaultValueFrom(value: Any, type: SchemaType): TreeValue<TreeState>? = when {
     type is SchemaType.MapType && value is Map<*, *> -> Owned(
         children = value
             .mapNotNull {
                 MapLikeValue.Property(
                     key = it.key.toString(),
                     kTrace = DefaultTrace,
-                    value = defaultValueFrom(it.value ?: return@mapNotNull null, type.valueType),
+                    value = defaultValueFrom(it.value ?: return@mapNotNull null, type.valueType)
+                        ?: return@mapNotNull null,
                     pType = null,
                 )
             },
@@ -113,6 +114,6 @@ private fun defaultValueFrom(value: Any, type: SchemaType): TreeValue<TreeState>
         contexts = DefaultCtxs,
     )
 
-    // TODO Report.
-    else -> error("Not matching type: $type")
+    // TODO AMPER-4516 Report.
+    else -> null
 }

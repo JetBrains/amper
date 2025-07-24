@@ -14,7 +14,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.PsiFile
 import com.intellij.util.asSafely
-import com.intellij.util.containers.Stack
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Trace
@@ -76,7 +75,6 @@ internal data class TreeReadRequest(
 internal fun TreeReadRequest.readTree(): MapLikeValue<*> =
     ApplicationManager.getApplication().runReadAction(Computable {
         when (psiFile.language) {
-//        is AmperLanguage -> AmperLangTreeReader(this).read()
             is YAMLLanguage -> YamlTreeReader(this).read()
                 ?: Owned(emptyList(), initialType, psiFile.trace, initialContexts)
 
@@ -87,8 +85,8 @@ internal fun TreeReadRequest.readTree(): MapLikeValue<*> =
 internal class ReaderCtx(params: TreeReadRequest) {
     val problemReporter = params.problemReporter
     private val baseDir = params.file.parent
-    private val contextsStack = Stack<Contexts>().apply { push(params.initialContexts) }
-    private val types = Stack<SchemaType>().apply { push(params.initialType.toType()) }
+    private val contextsStack = ArrayDeque<Contexts>().apply { addLast(params.initialContexts) }
+    private val types = ArrayDeque<SchemaType>().apply { addLast(params.initialType.toType()) }
     private var currentValue: TreeValue<*>? = null
     private val currentContexts get() = contextsStack.lastOrNull().orEmpty()
 
@@ -188,11 +186,11 @@ internal class ReaderCtx(params: TreeReadRequest) {
             this@ReaderCtx.contextsStack.pushAndPop(newCtx, block)
         }
 
-    private inline fun <T : Any, R> Stack<T>.pushAndPop(value: T?, block: () -> R) =
+    private inline fun <T : Any, R> ArrayDeque<T>.pushAndPop(value: T?, block: () -> R) =
         if (value == null) block() else try {
-            push(value)
+            addLast(value)
             block()
         } finally {
-            pop()
+            removeLast()
         }
 }

@@ -77,10 +77,13 @@ private class TreeReferencesResolver : TreeTransformer<Merged>() {
     private fun substitute(value: ReferenceValue<Merged>): List<MergedTree>? {
         val refPath = value.referencedPath.split(".")
         val refStart = refPath.first()
-        val resolutionRoot = currentPath.firstOrNull { !it.asMapLike?.get(refStart).isNullOrEmpty() }
-            ?: return null // TODO Report here we had not found any referenced value.
-        var resolved = refPath.fold(listOf(resolutionRoot), ::resolveReferencePart)
+        
+        // TODO AMPER-4516 Report here we had not found resolution root.
+        val resolutionRoot = currentPath.firstOrNull { !it.asMapLike?.get(refStart).isNullOrEmpty() } ?: return null
 
+        // TODO AMPER-4516 Report here if we hadn't found any referenced value, if reference is not optional.
+        var resolved = refPath.fold(listOf(resolutionRoot), ::resolveReferencePart)
+        
         if (value.prefix.isNotEmpty() || value.suffix.isNotEmpty()) {
             resolved = resolved.map {
                 // Do poor man's string interpolation
@@ -100,15 +103,14 @@ private class TreeReferencesResolver : TreeTransformer<Merged>() {
             resolved = resolved.map { it.withContexts(it.contexts + DefaultCtx) }
         }
 
-        return resolved
+        return resolved.takeIf { it.isNotEmpty() }
     }
 
     // TODO Check that reference value will be resolved correctly for each context combination, from
     // TODO where the referenced value could come from.
+    // TODO AMPER-4516 Report if we are trying to go through non-existing property, while resolving the reference.
     private fun resolveReferencePart(roots: List<MergedTree>, singleRef: String) =
-        roots.flatMap {
-            it.asMapLike?.get(singleRef)?.values ?: error("Unable to resolve $singleRef in $roots")
-        } // TODO Report here we had not found any referenced value.
+        roots.mapNotNull { it.asMapLike?.get(singleRef)?.values }.flatten()
 }
 
 private fun MergedTree.areThereAnyReferences() = AreThereAnyReferences.visitValue(this)

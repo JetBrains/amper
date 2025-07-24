@@ -60,10 +60,17 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
 
     override fun visitMapping(mapping: YAMLMapping) = ctx.readCurrent {
         when (val type = currentType) {
-            is SchemaType.MapType -> tryReadAsMap(type, mapping.keyValues, mapping) // TODO Report if failed to read.
-            is SchemaType.ObjectType -> tryReadAsObject(type, mapping.keyValues, mapping) // TODO Report if failed to read.
-            is SchemaType.VariantType -> tryReadAsPolyFromMapping(type, mapping) // TODO Report if failed to read.
-            else -> null // TODO Report.
+            is SchemaType.MapType -> tryReadAsMap(type, mapping.keyValues, mapping)
+            is SchemaType.ObjectType -> tryReadAsObject(type, mapping.keyValues, mapping)
+            is SchemaType.VariantType -> tryReadAsPolyFromMapping(type, mapping)
+            else -> {
+                problemReporter.reportBundleError(
+                    source = mapping.asBuildProblemSource(),
+                    messageKey = "unexpected.yaml.node.type",
+                    "mapping", type.toString(),
+                )
+                null
+            }
         }
     }
 
@@ -78,14 +85,20 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
      */
     override fun visitSequence(sequence: YAMLSequence) = ctx.readCurrent {
         when (val type = currentType) {
-            is SchemaType.ListType -> tryReadAsList(type, sequence) // TODO Report if failed to read.
+            is SchemaType.ListType -> tryReadAsList(type, sequence)
             is SchemaType.MapType -> sequence.items.mapNotNull { it.value }
                 .filterIsInstance<YAMLMapping>()
                 .mapNotNull { it.keyValues.singleOrNull() }
                 .takeIf { sequence.items.size == it.size }
                 ?.let { tryReadAsMap(type, it, sequence) }
-
-            else -> null // TODO Report wrong type.
+            else -> {
+                problemReporter.reportBundleError(
+                    source = sequence.asBuildProblemSource(),
+                    messageKey = "unexpected.yaml.node.type",
+                    "sequence", type.toString()
+                )
+                null
+            }
         }
     }
 
@@ -97,7 +110,14 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
                 is SchemaType.ScalarType -> tryReadScalar(scalar.textValue, type, scalar)
                     // We explicitly here construct trace from that parent to catch also the key.
                     ?.let { scalarValue(it, scalar.parentOrSelfTrace()) }
-                else -> error("Unknown type: $type while reading \"${scalar.textValue}\"")
+                else -> {
+                    problemReporter.reportBundleError(
+                        source = scalar.asBuildProblemSource(),
+                        messageKey = "unexpected.yaml.node.type",
+                        "scalar", type.toString()
+                    )
+                    null
+                }
             }
     }
 
@@ -131,18 +151,17 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
 
     // Triple elements order matters!
     private val supportedPolyTypes = mapOf(
-        "plain" to Triple(
+        Dependency::class.qualifiedName to Triple(
             InternalDependency::class,
             CatalogDependency::class,
             ExternalMavenDependency::class
         ),
-        "ksp" to Triple(
+        KspProcessorDeclaration::class.qualifiedName to Triple(
             ModuleKspProcessorDeclaration::class,
             CatalogKspProcessorDeclaration::class,
             MavenKspProcessorDeclaration::class
         ),
-        // Java annotation processors.
-        "jap" to Triple(
+        JavaAnnotationProcessorDeclaration::class.qualifiedName to Triple(
             ModuleJavaAnnotationProcessorDeclaration::class,
             CatalogJavaAnnotationProcessorDeclaration::class,
             MavenJavaAnnotationProcessorDeclaration::class,
@@ -154,20 +173,21 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         keyText: String,
         currentElement: PsiElement,
     ): MapLikeValue<*>? {
-        // Currently, the only discriminator property is one marked with [DependencyKey].
-        // Thus, object type resolving is now hardcoded only for dependencies.
+        // Currently, the only discriminator property is one marked with [DependencyKey] within all dependencies.
         if (!type.declaration.variants.all { it.properties.singleOrNull { it.isCtorArg } != null })
-            return null // TODO Report other than dependencies are unsupported.
+            return null
 
-        val (moduleDepType, catalogDepType, plainDepType) = when {
-            type.declaration.isSameAs<Dependency>() -> supportedPolyTypes.getValue("plain")
-            type.declaration.isSameAs<KspProcessorDeclaration>() -> supportedPolyTypes.getValue("ksp")
-            type.declaration.isSameAs<JavaAnnotationProcessorDeclaration>() -> supportedPolyTypes.getValue("jap")
-            else -> error("Unsupported type: $type")
+        val (moduleDepType, catalogDepType, plainDepType) = supportedPolyTypes[type.declaration.qualifiedName] ?: run {
+            problemReporter.reportBundleError(
+                source = currentElement.asBuildProblemSource(),
+                messageKey = "unexpected.poly.type",
+                type.declaration.qualifiedName,
+            )
+            return null
         }
 
         fun SchemaType.VariantType.findInheritor(klass: KClass<out SchemaNode>) =
-            declaration.variants.singleOrNull { it.isSameAs(klass) }?.toType()
+            declaration.variants.single { it.isSameAs(klass) }.toType()
 
         data class Grouped(
             val type: SchemaType.ObjectType,
@@ -178,29 +198,34 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
 
         // TODO Need to rethink this from AmperLang constructors perspective.
         val (newType, ctorText, ctorElement, childElement) = if (keyText == "bom" && type.declaration.isSameAs<Dependency>()) {
-            // TODO Report.
-            val notationElement = currentElement.asSafely<YAMLKeyValue>()?.value?.asSafely<YAMLScalar>() ?: return null
+            val notationElement = currentElement.asSafely<YAMLKeyValue>()?.value?.asSafely<YAMLScalar>() ?: run {
+                problemReporter.reportBundleError(
+                    source = currentElement.asBuildProblemSource(),
+                    messageKey = "unexpected.bom.dependency.structure",
+                )
+                return null
+            }
             val notation = notationElement.text
             val type = when {
                 notation.startsWith("$") -> type.findInheritor(CatalogBomDependency::class)
                 else -> type.findInheritor(ExternalMavenBomDependency::class)
-            } ?: error("Should be unreachable")
+            }
             Grouped(type, notation, notationElement, null)
         } else {
             val type = when {
                 keyText.startsWith(".") -> type.findInheritor(moduleDepType)
                 keyText.startsWith("$") -> type.findInheritor(catalogDepType)
                 else -> type.findInheritor(plainDepType)
-            } ?: error("Should be unreachable")
+            }
             // Ctor can be just a YAMLScalar, thus we can't tell here for sure.
             val ctorElement = currentElement.asSafely<YAMLKeyValue>()?.key ?: currentElement
             Grouped(type, keyText, ctorElement, currentElement.asSafely<YAMLKeyValue>()?.value)
         }
 
-        return doTryReadAsPoly(newType, ctorText, ctorElement, currentElement, childElement)
+        return doTryReadAsPolyDependency(newType, ctorText, ctorElement, currentElement, childElement)
     }
 
-    private fun ReaderCtx.doTryReadAsPoly(
+    private fun ReaderCtx.doTryReadAsPolyDependency(
         type: SchemaType.ObjectType,
         ctorText: String,
         ctorElement: PsiElement,
@@ -208,7 +233,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         childElement: PsiElement? = null,
     ): MapLikeValue<*>? {
         // FIXME Replace all errors with reports.
-        val ctorProperty = type.declaration.properties.singleOrNull { it.isCtorArg } ?: error("Should be unreachable")
+        val ctorProperty = type.declaration.properties.single { it.isCtorArg }
         val ctorScalar = tryReadScalar(ctorText, ctorProperty.type as SchemaType.ScalarType, ctorElement) ?: return null
         val ctorValue = scalarValue(ctorScalar, ctorElement.trace)
         return withNew(type) {
@@ -222,7 +247,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         val lastObjectDeclaration = (currentType as? SchemaType.ObjectType)?.declaration ?: return null
         if (!lastObjectDeclaration.hasShorthands()) return null
         val shorthandAware = lastObjectDeclaration.properties.filter { it.hasShorthand }.sortedBy {
-            when(it.type) {
+            when (it.type) {
                 // Booleans have priority.
                 is SchemaType.BooleanType -> 0
                 is SchemaType.EnumType -> 1
@@ -230,7 +255,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
             }
         }
 
-        val candidates = shorthandAware.mapNotNull {
+        val readShorthand = shorthandAware.firstNotNullOfOrNull {
             // `compose: enabled` means that we should set `compose.enabled` setting as `true`.
             val pType = it.type
             if (pType is SchemaType.BooleanType && scalar.textValue in it.nameAndAliases()) true to it
@@ -239,36 +264,41 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
                 tryReadScalar(scalar.textValue, pType, scalar, report = false)?.to(it)
             else null
         }
-        // TODO Maybe we need to rework shorthands completely.
-        val readShorthand = candidates.firstOrNull()
-        return if (readShorthand != null) {
-            val value = scalarValue(readShorthand.first, scalar.asTrace())
-            mapValue(listOf(MapLikeValue.Property(value, scalar.asTrace(), readShorthand.second)), scalar.asTrace())
-        } else null
+
+        return readShorthand?.let {
+            val value = scalarValue(it.first, scalar.asTrace())
+            mapValue(listOf(MapLikeValue.Property(value, scalar.asTrace(), it.second)), scalar.asTrace())
+        }
     }
 
     private fun ReaderCtx.tryReadAsList(type: SchemaType.ListType, sequence: YAMLSequence) = sequence.items
         .mapNotNull { withNew(type = type.elementType) { it.value?.acceptAndGet() } }
         .let { listValue(it, sequence.parentOrSelfTrace()) }
 
-    private fun ReaderCtx.tryReadAsMap(type: SchemaType.MapType, keyValues: Collection<YAMLKeyValue>, origin: PsiElement) =
-        tryReadAsObjectOrMap(keyValues, origin) { pName, _ -> type.valueType to null }
+    private fun ReaderCtx.tryReadAsMap(
+        type: SchemaType.MapType,
+        keyValues: Collection<YAMLKeyValue>,
+        origin: PsiElement,
+    ) = tryReadAsObjectOrMap(keyValues, origin) { _, _ -> type.valueType to null }
 
-    private fun ReaderCtx.tryReadAsObject(type: SchemaType.ObjectType, keyValues: Collection<YAMLKeyValue>, origin: PsiElement) =
-        tryReadAsObjectOrMap(keyValues, origin) out@{ pName, pOrigin ->
-            val prop = type.declaration.aliased()[pName]
-            if (prop == null) {
-                if (params.reportUnknowns) {
-                    problemReporter.reportBundleError(
-                        source = pOrigin.asBuildProblemSource(),
-                        messageKey = "unknown.property",
-                        pName,
-                    )
-                }
-                return@out null
+    private fun ReaderCtx.tryReadAsObject(
+        type: SchemaType.ObjectType,
+        keyValues: Collection<YAMLKeyValue>,
+        origin: PsiElement,
+    ) = tryReadAsObjectOrMap(keyValues, origin) out@{ pName, pOrigin ->
+        val prop = type.declaration.aliased()[pName]
+        if (prop == null) {
+            if (params.reportUnknowns) {
+                problemReporter.reportBundleError(
+                    source = pOrigin.asBuildProblemSource(),
+                    messageKey = "unknown.property",
+                    pName,
+                )
             }
-            prop.type to prop
+            return@out null
         }
+        prop.type to prop
+    }
 
     val knownTestBlocks = mapOf(
         "test-settings" to Pair("settings", true),
@@ -302,7 +332,6 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         val (readKey, ctxStr) = keyValue.keyText.split('@', limit = 2) + ""
         val multipleQualifiers = ctxStr.split("+")
         // Currently, multiple modifiers are not supported by AOM.
-        // TODO Rethink - is it true?
         if (multipleQualifiers.size > 1) {
             problemReporter.reportBundleError(
                 source = keyValue.key?.asBuildProblemSource() ?: error("Missing 'key' in YAMLKeyValue element"),
@@ -319,13 +348,13 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
 
     private fun ReaderCtx.tryReadAsReference(
         scalar: YAMLScalar,
-    ) : ReferenceValue<Owned>? = ReferenceSyntax.matchEntire(scalar.textValue)?.let { referenceMatch ->
+    ): ReferenceValue<Owned>? = ReferenceSyntax.matchEntire(scalar.textValue)?.let { referenceMatch ->
         val reference = referenceMatch.groups["reference"]!!.value
         // Poor man's string interpolation
         val prefix = referenceMatch.groups["prefix"]!!.value
         val suffix = referenceMatch.groups["suffix"]!!.value
         if (prefix.isNotEmpty() || suffix.isNotEmpty()) {
-            val supportsInterpolation = when(currentType) {
+            val supportsInterpolation = when (currentType) {
                 is SchemaType.PathType, is SchemaType.StringType -> true
                 else -> false
             }

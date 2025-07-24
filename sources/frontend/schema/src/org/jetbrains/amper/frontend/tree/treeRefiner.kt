@@ -140,7 +140,7 @@ class RefineRequest(
      */
     fun compareAndReport(first: MapLikeValue.Property<*>, second: MapLikeValue.Property<*>): Int =
         (first.value.contexts.isMoreSpecificThan(second.value.contexts)).asCompareResult ?: run {
-            // TODO Report unable to sort. Maybe even same contexts? See [asCompareResult].
+            // TODO AMPER-4516 Report unable to sort. Maybe even same contexts? See [asCompareResult].
             0
         }
 
