@@ -127,7 +127,7 @@ internal fun BuildCtx.readModuleMergedTree(
     // Read the whole module and used templates.
     // FIXME Read templates by raw access API and then just reuse single read tree both
     //       for module building and minimal module building.
-    val ownedTrees = readWithTemplates(minimalModule, moduleFile, moduleCtx) ?: return null
+    val ownedTrees = readWithTemplates(minimalModule, moduleFile, moduleCtx)
 
     // Perform diagnostics for owned trees.
     OwnedTreeDiagnostics.withEach { ownedTrees.forEach { analyze(root = it, minimalModule.module, problemReporter) } }

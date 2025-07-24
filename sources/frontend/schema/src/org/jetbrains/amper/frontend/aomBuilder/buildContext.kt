@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -26,6 +27,7 @@ import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import java.nio.file.Path
+import kotlin.io.path.pathString
 
 internal data class BuildCtx(
     val pathResolver: FrontendPathResolver,
@@ -37,8 +39,7 @@ internal data class BuildCtx(
     val moduleAType = types.getDeclaration<Module>()
     val templateAType = types.getDeclaration<Template>()
     val projectAType = types.getDeclaration<Project>()
-
-    // TODO Properly handle null cases of `loadVirtualFile`.
+    
     fun VirtualFile.asPsi(): PsiFile = pathResolver.toPsiFile(this) ?: error("No $this file")
     fun Path.asVirtualOrNull() = pathResolver.loadVirtualFileOrNull(this)
 }
@@ -77,11 +78,11 @@ internal data class ModuleBuildCtx(
     private fun readTemplateFromPath(templatePath: TraceablePath): VirtualFile? {
         val path = buildCtx.pathResolver.loadVirtualFileOrNull(templatePath.value)
         if (path == null) {
-            val relativePath = moduleFile.parent.toNioPath().relativize(templatePath.value)
+            val relativePath = moduleFile.parent.toNioPathOrNull()?.relativize(templatePath.value)
             buildCtx.problemReporter.reportBundleError(
                 source = templatePath.asBuildProblemSource(),
                 messageKey = "unresolved.template",
-                relativePath,
+                relativePath ?: templatePath.value.pathString,
             )
         }
         return path
