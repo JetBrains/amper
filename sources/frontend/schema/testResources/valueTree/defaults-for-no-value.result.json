@@ -70,7 +70,7 @@
       "ksp" : {
         "processorOptions" : ,
         "processors(DefaultCtx)" : ,
-        "version(DefaultCtx)" : "2.1.21-2.0.1(DefaultCtx)"
+        "version(DefaultCtx)" : "2.2.0-2.0.2(DefaultCtx)"
       },
       "noArg" : {
         "enabled(DefaultCtx)" : "false(DefaultCtx)",
