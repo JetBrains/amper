@@ -26,8 +26,8 @@ tasks:
   testJvm:
     # To build&publish the :android-integration:gradle-plugin and deps for gradle-backed Android builds
     # To build&publish the CLI distribution and scripts required for wrapper-based tests
-    # To build&publish the extensibility-api.jar for the plugin tests
+    # To build&publish the amper-extensibility-api.jar for the plugin tests
     dependsOn:
       - :gradle-plugin:publishJvmToMavenLocal
       - :amper-cli:publishJvmToMavenLocal
-      - :extensibility-api:publishJvmToMavenLocal
+      - :amper-extensibility-api:publishJvmToMavenLocal

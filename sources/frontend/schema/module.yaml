@@ -14,7 +14,7 @@ settings:
 dependencies:
   - ../../amper-build-info
   - ../../frontend-api: exported
-  - ../../extensibility/extensibility-schema-model
+  - ../../extensibility/amper-extensibility-schema-model: exported
   - ../../core
   - ../../frontend/plain/toml-psi
   - ../../frontend/plain/yaml-psi

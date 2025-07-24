@@ -217,7 +217,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     if (module.type == ProductType.JVM_AMPER_PLUGIN) {
         // TODO: It'd be better to have some builtin dependency that resolves to a jar inside Amper distribution.
         add(MavenDependency(
-            coordinates = library("org.jetbrains.amper:extensibility-api", AmperBuild.mavenVersion)
+            coordinates = library("org.jetbrains.amper:amper-extensibility-api", AmperBuild.mavenVersion)
         ))
     }
 }

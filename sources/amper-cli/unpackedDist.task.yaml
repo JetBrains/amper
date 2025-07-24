@@ -6,5 +6,5 @@ programArguments:
   - --output-dir=${outputDirectory}
   - --target-dir=${outputDirectory}/dist
   - --classpath=${module(.).runtimeClasspathJvm}
-  - --extra-dir=plugins-processor=${module(../extensibility/schema-instrumentator).runtimeClasspathJvm}
-  - --extra-dir=extensibility-api=${module(../extensibility/extensibility-api).runtimeClasspathJvm}
+  - --extra-dir=plugins-processor=${module(../extensibility/amper-schema-instrumentator).runtimeClasspathJvm}
+  - --extra-dir=extensibility-api=${module(../extensibility/amper-extensibility-api).runtimeClasspathJvm}

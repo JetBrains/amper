@@ -10,6 +10,6 @@ settings:
     serialization: json
 
 dependencies:
-  - ../extensibility-api
-  - ../extensibility-schema-model
+  - ../amper-extensibility-api
+  - ../amper-extensibility-schema-model
   - com.google.devtools.ksp:symbol-processing-api:2.1.21-2.0.1
