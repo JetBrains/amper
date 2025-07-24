@@ -9,7 +9,6 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.stdlib.collections.withEach
 import org.jetbrains.amper.frontend.Platform.COMMON
 import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchy
 import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchyExt
@@ -38,8 +37,8 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "settings.incorrect.section"
 
     override fun analyze(root: OwnedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
-        root.visitMapLikeValues {
-            it.children.withEach { PropertyCheck(problemReporter, minimalModule, this).doCheck() }
+        root.visitMapLikeValues { tree ->
+            tree.children.forEach { PropertyCheck(problemReporter, minimalModule, prop = it).doCheck() }
         }
 
     private class PropertyCheck(

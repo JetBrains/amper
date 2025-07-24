@@ -8,7 +8,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.stdlib.collections.withEach
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.MavenDependency
@@ -94,24 +93,26 @@ internal fun doBuild(
     if (problemReporter.hasFatal) return null
 
     // Build [AmperModule]s.
-    val result = buildAmperModules(rawModules)
+    val modules = buildAmperModules(rawModules)
 
     // Do some alterations to the built modules.
-    result.forEach { it.module.addImplicitDependencies() }
+    modules.forEach { it.module.addImplicitDependencies() }
 
     // Build custom tasks for relevant modules.
-    projectContext.amperCustomTaskFiles.forEach { buildCustomTask(it, result) }
+    projectContext.amperCustomTaskFiles.forEach { buildCustomTask(it, modules) }
 
     // Load plugins that exist in the project
-    buildPlugins(pluginData, projectContext, result)
+    buildPlugins(pluginData, projectContext, modules)
 
     // Perform diagnostics.
-    AomSingleModuleDiagnosticFactories.withEach { result.forEach { analyze(it.module, problemReporter) } }
+    AomSingleModuleDiagnosticFactories.forEach { diagnostic ->
+        modules.forEach { diagnostic.analyze(it.module, problemReporter) }
+    }
 
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
 
-    return result.map { it.module }
+    return modules.map { it.module }
 }
 
 context(problemReporter: ProblemReporter)
@@ -130,7 +131,9 @@ internal fun BuildCtx.readModuleMergedTree(
     val ownedTrees = readWithTemplates(minimalModule, moduleFile, moduleCtx)
 
     // Perform diagnostics for owned trees.
-    OwnedTreeDiagnostics.withEach { ownedTrees.forEach { analyze(root = it, minimalModule.module, problemReporter) } }
+    OwnedTreeDiagnostics.forEach { diagnostic ->
+        ownedTrees.forEach { diagnostic.analyze(root = it, minimalModule.module, problemReporter) }
+    }
 
     // Merge owned trees (see [TreeMerger]) and preprocess them.
     val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
@@ -152,7 +155,9 @@ internal fun BuildCtx.readModuleMergedTree(
         .configureLombokDefaults(commonModule)
 
     // Perform diagnostics for the merged tree.
-    MergedTreeDiagnostics(refiner).withEach { analyze(processedTree, minimalModule.module, problemReporter) }
+    MergedTreeDiagnostics(refiner).forEach { diagnostic ->
+        diagnostic.analyze(processedTree, minimalModule.module, problemReporter)
+    }
     
     return ModuleBuildCtx(
         moduleFile = moduleFile,
