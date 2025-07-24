@@ -6,11 +6,14 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.NoopProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
+import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.test.Dirs
@@ -115,6 +118,29 @@ class AmperProjectStructureTest {
                         } + "\n\nRemove these dependencies or move the modules out of the 'libraries' directory.")
         }
     }
+
+    @Test
+    fun `stdlib-extended library module doesn't depend on anything`() = runTest {
+        val stdlibExtendedModule = readAmperProjectModel().modules.find { it.userReadableName == "stdlib-extended" }
+            ?: error("Module 'stdlib-extended' not found, please update this test if it was renamed")
+
+        val deps = stdlibExtendedModule.fragments
+            .filter { !it.isTest }
+            .flatMap { it.externalDependencies }
+            .filter { !it.isKotlinStdlib() }
+        if (deps.isNotEmpty()) {
+            fail(
+                "Module 'stdlib-extended' should only depend on the stdlib, but it depends on these libraries:\n" +
+                        "${deps.joinToString("\n") { "  - $it" }}\n\nPlease remove these dependencies, because this " +
+                        "module is supposed to contain declarations that could in theory be added to the Kotlin stdlib."
+            )
+        }
+    }
+
+    private fun Notation.isKotlinStdlib(): Boolean = this is MavenDependency && isKotlinStdlib()
+
+    private fun MavenDependency.isKotlinStdlib(): Boolean =
+        coordinates.value == "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}"
 
     @Test
     fun `DR module doesn't depend on Amper-aware modules in its production dependencies`() = runTest {

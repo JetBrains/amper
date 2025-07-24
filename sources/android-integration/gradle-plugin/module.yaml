@@ -12,6 +12,7 @@ dependencies:
   - ../../core-intellij
   - ../../frontend-api
   - ../../frontend/schema
+  - ../../libraries/stdlib-extended
   - $libs.android.gradle.plugin
   - $libs.google.services.gradle.plugin
   - $libs.gradle.api: compile-only

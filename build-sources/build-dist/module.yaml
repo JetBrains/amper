@@ -7,5 +7,5 @@ dependencies:
   - ../task-helpers
   - ../../sources/amper-build-info
   - ../../sources/amper-wrapper
-  - ../../sources/core
+  - ../../sources/libraries/stdlib-extended
   - $libs.apacheCommons.compress

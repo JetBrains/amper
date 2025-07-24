@@ -1,0 +1,9 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../../common.module-template.yaml
+
+# There should be no dependencies here, because this library is supposed to contain
+# possible additions to the Kotlin standard library.

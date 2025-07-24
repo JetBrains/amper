@@ -27,6 +27,7 @@ dependencies:
   - ../dependency-resolution
   - ../libraries/async-processes: exported # for ProcessResult in the API
   - ../libraries/incremental-cache
+  - ../libraries/stdlib-extended
   - ../libraries/telemetry
 
 apply:

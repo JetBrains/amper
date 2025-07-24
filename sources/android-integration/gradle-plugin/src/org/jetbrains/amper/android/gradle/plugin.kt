@@ -21,7 +21,6 @@ import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.MockableJarModelBuilder
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
 import org.jetbrains.amper.core.messages.NoopProblemReporter
-import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.LeafFragment
@@ -36,6 +35,7 @@ import org.jetbrains.amper.frontend.schema.keyAlias
 import org.jetbrains.amper.frontend.schema.keyPassword
 import org.jetbrains.amper.frontend.schema.storeFile
 import org.jetbrains.amper.frontend.schema.storePassword
+import org.jetbrains.amper.stdlib.properties.readProperties
 import java.io.File
 import java.nio.file.Path
 import javax.inject.Inject
@@ -49,7 +49,6 @@ import kotlin.io.path.exists
 import kotlin.io.path.isSameFileAs
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
-
 
 interface AmperAndroidIntegrationExtension {
     val jsonData: Property<String>

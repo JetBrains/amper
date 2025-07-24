@@ -22,6 +22,7 @@ dependencies:
   - ../libraries/compose-resources
   - ../libraries/concurrency
   - ../libraries/incremental-cache
+  - ../libraries/stdlib-extended
   - ../libraries/telemetry
   - ../libraries/xcode-model-ext
   - ../android-integration/android-sdk-detector

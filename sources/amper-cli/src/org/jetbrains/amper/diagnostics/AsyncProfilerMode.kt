@@ -8,9 +8,9 @@ import one.profiler.AsyncProfiler
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.stdlib.hashing.sha256String
 import org.slf4j.LoggerFactory
 import kotlin.io.path.createDirectories
 import kotlin.io.path.fileSize

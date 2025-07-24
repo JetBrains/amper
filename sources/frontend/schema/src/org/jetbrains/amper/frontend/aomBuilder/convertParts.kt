@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.MetaModulePart
@@ -16,6 +15,7 @@ import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.stdlib.properties.readProperties
 import kotlin.io.path.exists
 import kotlin.reflect.KProperty0
 

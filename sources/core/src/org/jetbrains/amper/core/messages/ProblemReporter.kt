@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.core.messages
 
-import org.jetbrains.amper.core.forEachEndAware
 import org.jetbrains.annotations.Nls
 
 interface ProblemReporter {
@@ -81,3 +80,6 @@ fun renderMessage(problem: BuildProblem): @Nls String = buildString {
 
     appendSource(problem.source)
 }
+
+private inline fun <T> Collection<T>.forEachEndAware(block: (Boolean, T) -> Unit) =
+    forEachIndexed { index, it -> if (index == size - 1) block(true, it) else block(false, it) }

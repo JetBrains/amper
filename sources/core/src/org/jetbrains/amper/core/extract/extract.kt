@@ -13,9 +13,9 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.jetbrains.amper.concurrency.FileMutexGroup
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.filechannels.readText
 import org.jetbrains.amper.filechannels.writeText
+import org.jetbrains.amper.stdlib.hashing.sha256String
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream

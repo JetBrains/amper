@@ -19,6 +19,7 @@ dependencies:
   - ../../frontend/plain/toml-psi
   - ../../frontend/plain/yaml-psi
   - ../../frontend/plain/amper-psi
+  - ../../libraries/stdlib-extended
   - ../../libraries/telemetry
   - ../../core-intellij
   - ../../android-integration/android-sdk-detector

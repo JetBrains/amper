@@ -35,6 +35,7 @@ modules:
   - sources/libraries/concurrency
   - sources/libraries/incremental-cache
   - sources/libraries/nio-filechannels
+  - sources/libraries/stdlib-extended
   - sources/libraries/telemetry
   - sources/libraries/xcode-model-ext
   - sources/test-base
