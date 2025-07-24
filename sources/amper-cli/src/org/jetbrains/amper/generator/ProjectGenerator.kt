@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.generator
 
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.templates.AmperProjectTemplate
 import org.jetbrains.amper.templates.TemplateFile
 import org.jetbrains.amper.wrapper.AmperWrappers

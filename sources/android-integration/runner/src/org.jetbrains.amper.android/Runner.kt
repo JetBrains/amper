@@ -11,7 +11,7 @@ import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
 import org.gradle.tooling.model.GradleProject
-import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.buildinfo.AmperBuild
 import java.io.BufferedOutputStream
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption.APPEND

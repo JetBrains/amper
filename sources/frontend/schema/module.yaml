@@ -12,6 +12,7 @@ settings:
       format: json
 
 dependencies:
+  - ../../amper-build-info
   - ../../frontend-api: exported
   - ../../extensibility/extensibility-schema-model
   - ../../core

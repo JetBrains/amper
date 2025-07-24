@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.test
 
-import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING

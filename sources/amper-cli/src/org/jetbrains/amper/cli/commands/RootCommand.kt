@@ -17,15 +17,15 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.path
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.AmperVersion
-import org.jetbrains.amper.cli.withShowCommandSuggestions
 import org.jetbrains.amper.cli.commands.show.ShowCommand
 import org.jetbrains.amper.cli.commands.tools.ToolCommand
 import org.jetbrains.amper.cli.createMordantTerminal
 import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.cli.unwrap
-import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.cli.withShowCommandSuggestions
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use

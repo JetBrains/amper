@@ -14,8 +14,8 @@ import io.opentelemetry.sdk.trace.ReadableSpan
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.SpanProcessor
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
-import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.slf4j.LoggerFactory
 import java.io.OutputStream

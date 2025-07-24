@@ -5,6 +5,7 @@ modules:
   - build-sources/generate-template-resources
   - build-sources/task-helpers
   - repository-restrictions
+  - sources/amper-build-info
   - sources/amper-cli
   - sources/amper-jdk-provisioning
   - sources/amper-junit-listeners

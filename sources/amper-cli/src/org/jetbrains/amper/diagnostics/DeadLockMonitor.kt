@@ -11,9 +11,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.logging.LastLogMonitoringWriter
-import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.intellij.ThreadDumper
 import java.io.PrintStream
 import java.text.SimpleDateFormat

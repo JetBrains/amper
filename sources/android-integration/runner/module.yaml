@@ -6,6 +6,7 @@ apply:
   - ../../common.module-template.yaml
 
 dependencies:
+  - ../../amper-build-info
   - ../../core
   - ../android-integration-core: exported
   - $libs.gradle.toolingApi: exported

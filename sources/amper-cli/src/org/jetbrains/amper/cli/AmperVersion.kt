@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.cli
 
-import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.incrementalcache.computeClassPathHash
 import org.jetbrains.amper.telemetry.useWithoutCoroutines

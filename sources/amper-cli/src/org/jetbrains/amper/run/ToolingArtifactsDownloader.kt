@@ -4,11 +4,10 @@
 
 package org.jetbrains.amper.run
 
-import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.dependency.resolution.MavenLocal
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.Repository

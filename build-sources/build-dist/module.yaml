@@ -5,6 +5,7 @@ apply:
 
 dependencies:
   - ../task-helpers
+  - ../../sources/amper-build-info
   - ../../sources/amper-wrapper
   - ../../sources/core
   - $libs.apacheCommons.compress

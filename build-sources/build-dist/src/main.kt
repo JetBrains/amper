@@ -10,7 +10,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
-import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.wrapper.AmperWrappers

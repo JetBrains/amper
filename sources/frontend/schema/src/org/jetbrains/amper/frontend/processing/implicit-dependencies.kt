@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.processing
 
-import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.Fragment
