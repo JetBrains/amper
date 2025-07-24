@@ -6,8 +6,8 @@ apply:
   - ../../common.module-template.yaml
 
 dependencies:
-  - ../android-integration-core
-  - ../android-sdk-detector
+  - ../amper-android-gradle-api
+  - ../amper-android-sdk-detector
   - ../../core
   - ../../core-intellij
   - ../../frontend-api

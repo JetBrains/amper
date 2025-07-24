@@ -19,5 +19,4 @@ apply:
 
 tasks:
   testJvm:
-    # android gradle plugin
-    dependsOn: [ :gradle-plugin:publishJvmToMavenLocal ]
+    dependsOn: [ :amper-android-gradle-plugin:publishJvmToMavenLocal ]

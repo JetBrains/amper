@@ -8,7 +8,7 @@ apply:
 dependencies:
   - ../../amper-build-info
   - ../../libraries/stdlib-extended
-  - ../android-integration-core: exported
+  - ../amper-android-gradle-api: exported
   - $libs.gradle.toolingApi: exported
   - $libs.android.tools.builder.model
 

@@ -139,7 +139,7 @@ if errorlevel 1 goto fail
 
 echo Publishing Amper Android support plugin for delegated Gradle builds...
 rem Amper needs a published Amper Android Gradle plugin support for the delegated Gradle builds
-call amper.bat --log-level=warn publish -m gradle-plugin mavenLocal
+call amper.bat --log-level=warn publish -m amper-android-gradle-plugin mavenLocal
 if errorlevel 1 goto fail
 
 cls

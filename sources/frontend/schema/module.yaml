@@ -13,6 +13,7 @@ settings:
 
 dependencies:
   - ../../amper-build-info
+  - ../../android-integration/amper-android-sdk-detector
   - ../../frontend-api: exported
   - ../../extensibility/amper-extensibility-schema-model: exported
   - ../../core
@@ -22,7 +23,6 @@ dependencies:
   - ../../libraries/stdlib-extended
   - ../../libraries/telemetry
   - ../../core-intellij
-  - ../../android-integration/android-sdk-detector
   - $libs.kotlin.reflect
   - $libs.maven.artifact
   - $libs.intellij.platform.core: exported # because we expose Project in public API

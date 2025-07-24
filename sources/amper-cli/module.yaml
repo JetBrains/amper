@@ -25,8 +25,8 @@ dependencies:
   - ../libraries/stdlib-extended
   - ../libraries/telemetry
   - ../libraries/xcode-model-ext
-  - ../android-integration/android-sdk-detector
-  - ../android-integration/runner
+  - ../android-integration/amper-android-runner
+  - ../android-integration/amper-android-sdk-detector
   - $libs.bouncycastle.bcprov # for keystore generation
   - $libs.bouncycastle.bcpkix # for keystore generation
   - $libs.intellij.amper.xcodemodel

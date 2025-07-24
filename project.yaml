@@ -12,10 +12,10 @@ modules:
   - sources/amper-project-templates
   - sources/amper-project-templates/amper-project-template-resources
   - sources/amper-wrapper
-  - sources/android-integration/android-integration-core
-  - sources/android-integration/android-sdk-detector
-  - sources/android-integration/gradle-plugin
-  - sources/android-integration/runner
+  - sources/android-integration/amper-android-gradle-api
+  - sources/android-integration/amper-android-gradle-plugin
+  - sources/android-integration/amper-android-runner
+  - sources/android-integration/amper-android-sdk-detector
   - sources/compose-hot-reload-recompiler-extension
   - sources/core
   - sources/core-intellij
