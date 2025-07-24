@@ -20,7 +20,6 @@ import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.MockableJarModelBuilder
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
-import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.messages.NoopProblemReporter
 import org.jetbrains.amper.core.properties.readProperties
 import org.jetbrains.amper.frontend.AmperModule

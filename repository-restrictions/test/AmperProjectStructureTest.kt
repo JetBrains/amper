@@ -6,7 +6,6 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
-import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.messages.NoopProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
