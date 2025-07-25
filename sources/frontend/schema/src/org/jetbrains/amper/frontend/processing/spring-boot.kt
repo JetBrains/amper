@@ -6,7 +6,9 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
 import org.jetbrains.amper.frontend.schema.AllOpenSettings
 import org.jetbrains.amper.frontend.schema.DependencyMode
@@ -16,21 +18,20 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.NoArgPreset
 import org.jetbrains.amper.frontend.schema.NoArgSettings
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
-import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 context(buildCtx: BuildCtx)
 internal fun Merged.configureSpringBootDefaults(moduleCtxModule: Module) =
     if (moduleCtxModule.settings.springBoot.enabled) {
-        buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.springBootDefaultsTree())) 
+        val springDefault = DefaultTrace(computedValueTrace = moduleCtxModule.settings.springBoot::enabled.valueBase)
+        buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.springBootDefaultsTree(springDefault)))
    } else {
         this
     }
 
-private fun BuildCtx.springBootDefaultsTree() = syntheticBuilder(types, DefaultTrace) {
+private fun BuildCtx.springBootDefaultsTree(trace: Trace) = syntheticBuilder(types, trace) {
     `object`<Module> {
         Module::settings {
             Settings::kotlin {
@@ -42,7 +43,7 @@ private fun BuildCtx.springBootDefaultsTree() = syntheticBuilder(types, DefaultT
                     NoArgSettings::enabled setTo scalar(true)
                     NoArgSettings::presets { add(scalar(NoArgPreset.Jpa)) }
                 }
-                KotlinSettings::freeCompilerArgs { add(scalar(TraceableString("-Xjsr305=strict"))) }
+                KotlinSettings::freeCompilerArgs { add(scalar(TraceableString("-Xjsr305=strict", trace))) }
             }
             Settings::jvm {
                 JvmSettings::storeParameterNames setTo scalar(true)
