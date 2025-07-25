@@ -288,11 +288,16 @@ abstract class PathAwareSchemaValuesVisitor : SchemaValuesVisitor() {
  * This wrapper allows persisting a trace in such scenarios.
  */
 class TraceableEnum<T : Enum<*>>(value: T) : TraceableValue<T>(value) {
+
     override var trace: Trace? = null
         set(value) {
             if (value is PsiTrace) value.psiElement.putUserData(linkedAmperEnumValue, this.value)
             field = value
         }
+
+    constructor(value: T, trace: Trace) : this(value) {
+        this.trace = trace
+    }
 
     override fun toString(): String = value.toString()
 }

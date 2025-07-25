@@ -125,7 +125,7 @@ data class DefaultLocalModuleDependency(
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
+    override var trace: Trace? = null,
 ) : LocalModuleDependency, DefaultScopedNotation {
-    override var trace: Trace? = null
     override fun toString() = "InternalDependency(module=${path.pathString})"
 }

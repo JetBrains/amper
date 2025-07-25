@@ -30,6 +30,10 @@ sealed interface Trace {
 open class DefaultTrace(
     override val computedValueTrace: Traceable?,
 ) : Trace {
+
+    override fun toString() =
+        if (computedValueTrace != null) "DefaultTrace(computedValueTrace=$computedValueTrace)" else "DefaultTrace"
+
     companion object : DefaultTrace(null)
     override val precedingValue: TreeValue<*>? = null
 }
@@ -85,27 +89,32 @@ interface Traceable {
 /**
  * Basic wrapper for classes that have different trace contract (basically, non nullable).
  */
-open class TrivialTraceable(override var trace: Trace? = null) : Traceable
+open class TrivialTraceable(override var trace: Trace?) : Traceable
 
 /**
  * A value that can persist its trace.
  */
-abstract class TraceableValue<T : Any>(val value: T) : TrivialTraceable() {
+abstract class TraceableValue<T : Any>(val value: T, trace: Trace? = null) : TrivialTraceable(trace) {
     override fun toString() = value.toString()
     override fun hashCode() = value.hashCode()
     override fun equals(other: Any?) = this === other || other?.asSafely<TraceableValue<*>>()?.value == value
 }
 
-open class TraceableString(value: String) : TraceableValue<String>(value)
+open class TraceableString(value: String, trace: Trace?) : TraceableValue<String>(value, trace) {
 
-class TraceableVersion(value: String, source: ValueDelegateBase<*>?) : TraceableString(value) {
-    init {
-        trace = source?.trace
-    }
+    @Deprecated("Prefer passing the trace directly at construction time")
+    constructor(value: String) : this(value, trace = null)
 }
 
-class TraceablePath(value: Path) : TraceableValue<Path>(value)
+class TraceableVersion(value: String, source: ValueDelegateBase<*>?) : TraceableString(value, trace = source?.trace)
 
+class TraceablePath(value: Path, trace: Trace?) : TraceableValue<Path>(value, trace) {
+
+    @Deprecated("Prefer passing the trace directly at construction time")
+    constructor(value: Path) : this(value, trace = null)
+}
+
+@Deprecated("Prefer passing the trace directly at construction time")
 fun <T : Traceable> T.withTraceFrom(other: Traceable?): T = apply { trace = other?.trace }
 
 /**

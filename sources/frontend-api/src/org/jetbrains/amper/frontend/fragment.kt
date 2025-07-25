@@ -190,15 +190,13 @@ data class MavenDependency(
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
-) : MavenDependencyBase, DefaultScopedNotation {
-    override var trace: Trace? = null
-}
+    override var trace: Trace? = null,
+) : MavenDependencyBase, DefaultScopedNotation
 
 data class BomDependency(
     override val coordinates: TraceableString,
-) : MavenDependencyBase {
-    override var trace: Trace? = null
-}
+    override var trace: Trace? = null,
+) : MavenDependencyBase
 
 enum class FragmentDependencyType {
     REFINE, FRIEND,
