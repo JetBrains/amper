@@ -163,7 +163,7 @@ class JvmTestTask(
             .setListAttribute("tests-classpath", userTestRuntimeClasspath.map { it.pathString })
             .setListAttribute("jvm-args", jvmArgs)
             .setListAttribute("junit-args", junitArgs)
-            .use { span ->
+            .use {
                 logger.info("Testing module '${module.userReadableName}' for platform '${platform.pretty}'...")
 
                 DeadLockMonitor.disable()

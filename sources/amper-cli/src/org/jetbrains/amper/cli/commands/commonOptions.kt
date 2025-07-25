@@ -83,7 +83,7 @@ internal fun ParameterHolder.userJvmArgsOption(help: String) = option(UserJvmArg
 
 internal fun String.splitArgsHonoringQuotes(): List<String> {
     val args = mutableListOf<String>()
-    var currentArg = StringBuilder()
+    val currentArg = StringBuilder()
     var inQuotes = false
     var escaping = false
     var hasPendingArg = false

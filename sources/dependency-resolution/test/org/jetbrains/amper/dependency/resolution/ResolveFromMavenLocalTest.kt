@@ -120,7 +120,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
             val repo = MavenLocalRepository()
             kotlin.test.assertEquals(repo.repository, testCacheRoot / "maven")
 
-            val root = checkLocalRepositoryUsage(
+            checkLocalRepositoryUsage(
                 testInfo,
                 "org.jetbrains:dr-snapshot-sample:1.0-SNAPSHOT".toMavenCoordinates(),
                 testCacheRoot,

@@ -195,7 +195,7 @@ class AmperPublishTest : AmperCliTestBase() {
         val mavenLocalForTest = createTempMavenLocalDir()
 
         // Publish 'main-lib' from project 'jvm-publish-multimodule' to mavenLocal
-        val result = runCli(
+        runCli(
             projectRoot = testProject("jvm-publish-multimodule"),
             "publish", "mavenLocal", "--modules=main-lib",
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
