@@ -20,7 +20,6 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.ValueDelegateBase
 import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.catalogs.library
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -57,35 +56,43 @@ private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
 // todo (AB) : Why libraries are crated here insteod of being taken from built-in catalogues?
 private fun kotlinxSerializationCoreDependency(version: TraceableVersion) = MavenDependency(
     coordinates = library("org.jetbrains.kotlinx:kotlinx-serialization-core", version),
-).withTraceFrom(version)
+    trace = version.trace,
+)
 
 private fun kotlinxSerializationFormatDependency(format: String, version: TraceableString) = MavenDependency(
     coordinates = library("org.jetbrains.kotlinx:kotlinx-serialization-$format", version),
-).withTraceFrom(version)
+    trace = version.trace,
+)
 
 private fun composeRuntimeDependency(composeVersion: TraceableString) = MavenDependency(
     coordinates = library("org.jetbrains.compose.runtime:runtime", composeVersion),
-).withTraceFrom(composeVersion)
+    trace = composeVersion.trace,
+)
 
 private fun composeResourcesDependency(composeVersion: TraceableString) = MavenDependency(
     coordinates = library("org.jetbrains.compose.components:components-resources", composeVersion),
-).withTraceFrom(composeVersion)
+    trace = composeVersion.trace,
+)
 
 private fun ktorBomDependency(ktorVersion: TraceableString): BomDependency = BomDependency(
     coordinates = library("io.ktor:ktor-bom", ktorVersion),
-).withTraceFrom(ktorVersion)
+    trace = ktorVersion.trace,
+)
 
 private fun springBootBomDependency(springBootVersion: TraceableString): BomDependency = BomDependency(
     coordinates = library("org.springframework.boot:spring-boot-dependencies", springBootVersion),
-).withTraceFrom(springBootVersion)
+    trace = springBootVersion.trace,
+)
 
 private fun springBootStarterDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
     coordinates = library("org.springframework.boot:spring-boot-starter", springBootVersion),
-).withTraceFrom(springBootVersion)
+    trace = springBootVersion.trace,
+)
 
 private fun springBootStarterTestDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
     coordinates = library("org.springframework.boot:spring-boot-starter-test", springBootVersion),
-).withTraceFrom(springBootVersion)
+    trace = springBootVersion.trace,
+)
 
 
 /**

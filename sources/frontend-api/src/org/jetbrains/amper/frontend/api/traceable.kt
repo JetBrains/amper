@@ -113,13 +113,3 @@ class TraceablePath(value: Path, trace: Trace?) : TraceableValue<Path>(value, tr
     @Deprecated("Prefer passing the trace directly at construction time")
     constructor(value: Path) : this(value, trace = null)
 }
-
-@Deprecated("Prefer passing the trace directly at construction time")
-fun <T : Traceable> T.withTraceFrom(other: Traceable?): T = apply { trace = other?.trace }
-
-/**
- * Adds a trace to this [Traceable] pointing to the given [element], and returns this [Traceable] for chaining.
- * If [element] is null, the trace is set to null.
- */
-// todo (AB) : Remove nullability here.
-fun <T : Traceable> T.applyPsiTrace(element: PsiElement?) = apply { trace = element?.let(::PsiTrace) }

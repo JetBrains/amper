@@ -303,5 +303,5 @@ class TraceableEnum<T : Enum<*>>(value: T) : TraceableValue<T>(value) {
 }
 
 fun <T : Enum<*>> T.asTraceable(trace: Trace? = null) = TraceableEnum(this).apply { this.trace = trace }
-fun Path.asTraceable(trace: Trace? = null) = TraceablePath(this).apply { this.trace = trace }
-fun String.asTraceable(trace: Trace? = null) = TraceableString(this).apply { this.trace = trace }
+fun Path.asTraceable(trace: Trace) = TraceablePath(this, trace)
+fun String.asTraceable(trace: Trace) = TraceableString(this, trace)

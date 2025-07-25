@@ -15,10 +15,8 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
 import org.jetbrains.amper.frontend.catalogs.plus
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
@@ -223,27 +221,27 @@ private fun createArtifacts(
 private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): Notation =
     when (this) {
         is ExternalMavenDependency -> MavenDependency(
-            TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!),
-            scope.compile,
-            scope.runtime,
-            exported,
+            coordinates = TraceableString(coordinates, this::coordinates.valueBase!!.trace),
+            trace = trace,
+            compile = scope.compile,
+            runtime = scope.runtime,
+            exported = exported,
         )
-
         is InternalDependency -> DefaultLocalModuleDependency(
             // Note: we can't really report an error to the problem reporter here, because of the fake single-module
             // analysis that happens in the IDE. When editing a module file, the IDE will use a fake project context
             // that only declares this specific module, and thus all module dependencies are "unresolved".
-            moduleDir2module[path] ?: NotResolvedModule(userReadableName = path.name, invalidPath = path),
-            path,
-            scope.compile,
-            scope.runtime,
-            exported,
+            module = moduleDir2module[path] ?: NotResolvedModule(userReadableName = path.name, invalidPath = path),
+            path = path,
+            trace = trace,
+            compile = scope.compile,
+            runtime = scope.runtime,
+            exported = exported,
         )
-
-        is ExternalMavenBomDependency ->
-            BomDependency(coordinates.asTraceable().withTraceFrom(::coordinates.valueBase))
-
+        is ExternalMavenBomDependency -> BomDependency(
+            coordinates = TraceableString(coordinates, trace = ::coordinates.valueBase?.trace),
+            trace = trace,
+        )
         is CatalogDependency -> error("Catalog dependency must be processed earlier!")
-
         else -> error("Unknown dependency type: ${this::class}")
-    }.withTraceFrom(this)
+    }

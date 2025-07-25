@@ -143,9 +143,7 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
                 }
             }
             ?.children?.associate {
-                val key = if (type.keyType.isTraceableWrapped) {
-                    TraceableString(it.key).apply { trace = it.kTrace }
-                } else it.key
+                val key = if (type.keyType.isTraceableWrapped) TraceableString(it.key, it.kTrace) else it.key
                 key to it.value.newCtx().readValue(type.valueType)
             }
 

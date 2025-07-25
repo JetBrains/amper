@@ -47,8 +47,7 @@ private class TomlCatalog(
     override val entries: Map<String, TraceableString>
         get() = libraries.map {
             val definition = it.value
-            it.key to TraceableString(definition.libraryString)
-                .apply { trace = PsiTrace(definition.element) }
+            it.key to TraceableString(definition.libraryString, trace = PsiTrace(definition.element))
         }.toMap()
 
     override val isPhysical: Boolean = true

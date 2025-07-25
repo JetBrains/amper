@@ -465,15 +465,16 @@ private class BuiltInCatalog(
 }
 
 internal fun library(groupAndModule: String, version: TraceableString): TraceableString =
-    TraceableString("$groupAndModule:${version.value}").apply {
-        trace = BuiltinCatalogTrace(EmptyCatalog, computedValueTrace = version)
-    }
+    TraceableString(
+        value = "$groupAndModule:${version.value}",
+        trace = BuiltinCatalogTrace(EmptyCatalog, computedValueTrace = version),
+    )
 
 internal fun library(groupAndModule: String, version: String): TraceableString =
-    TraceableString("$groupAndModule:$version").apply { trace = BuiltinCatalogTrace(EmptyCatalog, null) }
+    TraceableString("$groupAndModule:$version", trace = BuiltinCatalogTrace(EmptyCatalog, null))
 
 private fun library(groupAndModule: String): TraceableString =
-    TraceableString(groupAndModule).apply { trace = BuiltinCatalogTrace(EmptyCatalog, null) }
+    TraceableString(groupAndModule, trace = BuiltinCatalogTrace(EmptyCatalog, null))
 
 private object EmptyCatalog : VersionCatalog {
     override val entries: Map<String, TraceableString> = emptyMap()
