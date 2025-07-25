@@ -6,26 +6,26 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.schema.DependencyMode
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
-import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 context(buildCtx: BuildCtx)
 internal fun Merged.configureHotReloadDefaults(commonModule: Module) =
     if (commonModule.settings.compose.enabled && commonModule.settings.compose.experimental.hotReload.enabled) {
-        buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.hotReloadDefaultTree()))
-    } 
-    else {
+        val hotReloadDefault = DefaultTrace(computedValueTrace = commonModule.settings.lombok::enabled.valueBase)
+        buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.hotReloadDefaultTree(trace = hotReloadDefault)))
+    } else {
         this
     }
 
-private fun BuildCtx.hotReloadDefaultTree() = syntheticBuilder(types, DefaultTrace) {
+private fun BuildCtx.hotReloadDefaultTree(trace: Trace) = syntheticBuilder(types, trace) {
     `object`<Module> {
         Module::settings {
             Settings::jvm {
