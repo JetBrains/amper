@@ -13,6 +13,7 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.valueBase
@@ -51,7 +52,7 @@ private fun version(version: TraceableVersion, fallbackVersion: String): Traceab
             messageKey = "empty.version.string",
         )
         // fallback to avoid double errors
-        TraceableString(fallbackVersion)
+        TraceableString(fallbackVersion, trace = DefaultTrace)
     }
 }
 
