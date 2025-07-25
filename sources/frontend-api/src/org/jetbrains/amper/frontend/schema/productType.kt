@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -8,13 +8,14 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.asTraceable
-
+import org.jetbrains.amper.frontend.api.valueBase
 
 @SchemaDoc("Defines what should be produced out of the module. Read more about the [product types](#product-types)")
 @EnumValueFilter("obsolete", isNegated = true)
@@ -107,5 +108,9 @@ class ModuleProduct : SchemaNode() {
     var type by value<ProductType>()
 
     @SchemaDoc("What platforms to generate the product for")
-    var platforms by dependentValue(::type) { it?.defaultPlatforms?.toList()?.map(Platform::asTraceable) }
+    var platforms by dependentValue(::type) { productType ->
+        productType?.defaultPlatforms?.toList()?.map { platform ->
+            platform.asTraceable(DefaultTrace(computedValueTrace = ::type.valueBase))
+        }
+    }
 }
