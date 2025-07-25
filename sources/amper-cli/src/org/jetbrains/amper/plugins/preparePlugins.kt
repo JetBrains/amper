@@ -43,7 +43,7 @@ suspend fun preparePlugins(
             problemReporter = CliProblemReporter,
             frontendPathResolver = context.projectContext.frontendPathResolver,
             moduleFilePath = pluginModuleFile,
-        ) ?: userReadableError("Unable to parse ${pluginModuleFile.path} for the plugin")
+        )
 
         if (pluginModule.product.type != ProductType.JVM_AMPER_PLUGIN) {
             userReadableError(
