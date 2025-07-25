@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.messages
 
+import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblem
@@ -15,6 +16,7 @@ import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
+import java.nio.file.Path
 import kotlin.reflect.KProperty0
 
 abstract class PsiBuildProblem(override val level: Level) : BuildProblem {
@@ -63,3 +65,6 @@ fun Traceable.extractPsiElement(): PsiElement =
 
 fun Trace.extractPsiElement(): PsiElement =
     extractPsiElementOrNull() ?: error("Can't extract PSI element from trace $this")
+
+val PsiElement.originalFilePath: Path?
+    get() = containingFile.originalFile.virtualFile?.toNioPathOrNull()

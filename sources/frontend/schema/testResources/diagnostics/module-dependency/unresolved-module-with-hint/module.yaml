@@ -1,0 +1,4 @@
+product: jvm/app
+
+dependencies:
+  - <![Error] Cannot find a module file './module2'. Did you mean './inner/module2'?!>./module2<!>

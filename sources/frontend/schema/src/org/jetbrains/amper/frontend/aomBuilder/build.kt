@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.api.valueBase
@@ -27,6 +28,9 @@ import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.MergedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
+import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDependency
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
+import org.jetbrains.amper.frontend.messages.originalFilePath
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
 import org.jetbrains.amper.frontend.processing.configureHotReloadDefaults
 import org.jetbrains.amper.frontend.processing.configureLombokDefaults
@@ -48,7 +52,9 @@ import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import java.nio.file.Path
+import kotlin.io.path.absolute
 import kotlin.io.path.name
+import kotlin.io.path.relativeTo
 
 /**
  * Parses the configuration files of this [AmperProjectContext] and builds the project model.
@@ -156,7 +162,7 @@ internal fun BuildCtx.readModuleMergedTree(
     MergedTreeDiagnostics(refiner).forEach { diagnostic ->
         diagnostic.analyze(processedTree, minimalModule.module, problemReporter)
     }
-    
+
     return ModuleBuildCtx(
         moduleFile = moduleFile,
         mergedTree = processedTree,
@@ -188,18 +194,21 @@ private fun BuildCtx.buildAmperModules(
     modules: List<ModuleBuildCtx>,
 ): List<ModuleBuildCtx> {
     val dir2module = modules.associate { it.moduleFile.parent.toNioPath() to it.module }
+    val reportedUnresolvedModules = mutableSetOf<Trace>()
 
-    modules.forEach {
+    modules.forEach { module ->
         // Do build seeds and propagate settings.
-        val seeds = it.moduleCtxModule.buildFragmentSeeds()
+        val seeds = module.moduleCtxModule.buildFragmentSeeds()
 
-        val moduleFragments = createFragments(seeds, it) { it.resolveInternalDependency(dir2module) }
+        val moduleFragments = createFragments(seeds, module) {
+            it.resolveInternalDependency(dir2module, reportedUnresolvedModules)
+        }
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
-        it.module.apply {
+        module.module.apply {
             fragments = moduleFragments
-            artifacts = createArtifacts(false, it.module.type, leaves) +
-                    createArtifacts(true, it.module.type, testLeaves)
+            artifacts = createArtifacts(false, module.module.type, leaves) +
+                    createArtifacts(true, module.module.type, testLeaves)
         }
     }
 
@@ -218,30 +227,55 @@ private fun createArtifacts(
 /**
  * Resolve internal modules against known ones by path.
  */
-private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): Notation =
-    when (this) {
-        is ExternalMavenDependency -> MavenDependency(
-            coordinates = TraceableString(coordinates, this::coordinates.valueBase!!.trace),
-            trace = trace,
-            compile = scope.compile,
-            runtime = scope.runtime,
-            exported = exported,
-        )
-        is InternalDependency -> DefaultLocalModuleDependency(
-            // Note: we can't really report an error to the problem reporter here, because of the fake single-module
-            // analysis that happens in the IDE. When editing a module file, the IDE will use a fake project context
-            // that only declares this specific module, and thus all module dependencies are "unresolved".
-            module = moduleDir2module[path] ?: NotResolvedModule(userReadableName = path.name, invalidPath = path),
-            path = path,
-            trace = trace,
-            compile = scope.compile,
-            runtime = scope.runtime,
-            exported = exported,
-        )
-        is ExternalMavenBomDependency -> BomDependency(
-            coordinates = TraceableString(coordinates, trace = ::coordinates.valueBase?.trace),
-            trace = trace,
-        )
-        is CatalogDependency -> error("Catalog dependency must be processed earlier!")
-        else -> error("Unknown dependency type: ${this::class}")
+context(_: ProblemReporter)
+private fun Dependency.resolveInternalDependency(
+    moduleDir2module: Map<Path, AmperModule>,
+    reportedUnresolvedModules: MutableSet<Trace>,
+): Notation = when (this) {
+    is ExternalMavenDependency -> MavenDependency(
+        coordinates = TraceableString(coordinates, this::coordinates.valueBase!!.trace),
+        trace = trace,
+        compile = scope.compile,
+        runtime = scope.runtime,
+        exported = exported,
+    )
+    is InternalDependency -> resolveModuleDependency(trace, moduleDir2module, reportedUnresolvedModules)
+    is ExternalMavenBomDependency -> BomDependency(
+        coordinates = TraceableString(coordinates, trace = ::coordinates.valueBase?.trace),
+        trace = trace,
+    )
+    is CatalogDependency -> error("Catalog dependency must be processed earlier!")
+    else -> error("Unknown dependency type: ${this::class}")
+}
+
+context(problemReporter: ProblemReporter)
+private fun InternalDependency.resolveModuleDependency(
+    trace: Trace?,
+    moduleDir2module: Map<Path, AmperModule>,
+    reportedUnresolvedModules: MutableSet<Trace>,
+): DefaultLocalModuleDependency {
+    val module = moduleDir2module[path]
+    if (module == null) {
+        val trace = this.trace
+        val originalDirectory = trace?.extractPsiElementOrNull()?.originalFilePath?.parent?.absolute()
+        // Do not report the same error twice from different fragments.
+        if (trace != null && originalDirectory != null && reportedUnresolvedModules.add(trace)) {
+            val possibleCorrectPath = moduleDir2module.keys
+                .find { it.name == path.name }
+                ?.relativeTo(originalDirectory)
+
+            problemReporter.reportMessage(
+                UnresolvedModuleDependency(this, originalDirectory, possibleCorrectPath)
+            )
+        }
     }
+
+    return DefaultLocalModuleDependency(
+        module = module ?: NotResolvedModule(userReadableName = path.name, invalidPath = path),
+        path = path,
+        trace = trace,
+        compile = scope.compile,
+        runtime = scope.runtime,
+        exported = exported,
+    )
+}

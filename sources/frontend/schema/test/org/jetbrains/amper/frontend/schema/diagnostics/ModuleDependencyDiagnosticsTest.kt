@@ -51,4 +51,19 @@ class ModuleDependencyDiagnosticsTest : GoldenTestBase(Path("testResources") / "
             ),
         )
     }
+
+    @Test
+    fun `unresolved module`() {
+        diagnosticsTest("unresolved-module/module")
+    }
+
+    @Test
+    fun `unresolved module with hint`() {
+        diagnosticsTest(
+            "unresolved-module-with-hint/module",
+            additionalFiles = listOf(
+                "unresolved-module-with-hint/inner/module2/module.yaml",
+            )
+        )
+    }
 }
