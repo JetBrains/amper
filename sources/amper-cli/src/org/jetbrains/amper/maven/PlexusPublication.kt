@@ -38,10 +38,12 @@ internal fun createPlexusContainer(): PlexusContainer {
 
 private object Slf4jLoggerManager : BaseLoggerManager() {
     init {
-        threshold = Logger.LEVEL_DEBUG
+        // Maven publication logs a TON of things at debug level, which is more like a trace level.
+        // It produces 900MB of debug logs for Amper's own publication. We don't want that even in debug.log.
+        threshold = Logger.LEVEL_INFO
     }
 
-    override fun createLogger(name: String): Logger = object : AbstractLogger(LEVEL_DEBUG, name) {
+    override fun createLogger(name: String): Logger = object : AbstractLogger(LEVEL_INFO, name) {
         private val logger = LoggerFactory.getLogger(name)
 
         override fun debug(message: String, throwable: Throwable?) = logger.debug(message, throwable)
