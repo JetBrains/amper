@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.ancestralPath
 import org.jetbrains.amper.frontend.aomBuilder.DefaultFragment
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.ValueDelegateBase
@@ -42,11 +43,11 @@ private val kotlinReflect = kotlinDependencyOf("kotlin-reflect")
 private val kotlinParcelizeRuntime = kotlinDependencyOf("kotlin-parcelize-runtime")
 
 private val lombokDependency = MavenDependency(
-    coordinates = TraceableString("org.projectlombok:lombok:${UsedVersions.lombokVersion}")
+    coordinates = TraceableString("org.projectlombok:lombok:${UsedVersions.lombokVersion}", DefaultTrace)
 )
 
 private val hotReloadDependency = MavenDependency(
-    coordinates = TraceableString("org.jetbrains.compose.hot-reload:hot-reload-runtime-api:${UsedVersions.hotReloadVersion}")
+    coordinates = TraceableString("org.jetbrains.compose.hot-reload:hot-reload-runtime-api:${UsedVersions.hotReloadVersion}", DefaultTrace)
 )
 
 private fun kotlinDependencyOf(artifactId: String) = MavenDependency(

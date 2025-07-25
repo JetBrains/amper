@@ -485,6 +485,7 @@ private object EmptyCatalog : VersionCatalog {
 
 private fun materialIconsVersion(composeVersion: TraceableString) =
     when {
-        ComparableVersion(composeVersion.value) >= ComparableVersion("1.8.0") -> TraceableString("1.7.3")
+        ComparableVersion(composeVersion.value) >= ComparableVersion("1.8.0") ->
+            TraceableString("1.7.3", DefaultTrace(computedValueTrace = composeVersion))
         else -> composeVersion
     }
