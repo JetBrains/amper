@@ -20,7 +20,7 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.readProject
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
-import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
+import org.jetbrains.amper.frontend.catalogs.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext.Companion.find
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.InternalDependency
@@ -55,8 +55,8 @@ class StandaloneAmperProjectContext(
     }
 
     override val projectVersionsCatalog: VersionCatalog? by lazy {
-        with(frontendPathResolver) {
-            GradleVersionsCatalogFinder.getDefaultCatalogFrom(projectRootDir)
+        projectRootDir.findChild("gradle")?.findChild("libs.versions.toml")?.let { catalogFile ->
+            frontendPathResolver.parseGradleVersionCatalog(catalogFile)
         }
     }
 
