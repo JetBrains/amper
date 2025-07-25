@@ -57,7 +57,7 @@ class InternalDependency : ScopedDependency() {
 
     @SchemaDoc("Dependency [on another module](#module-dependencies) in the codebase")
     @DependencyKey
-    var path by nullableValue<Path>()
+    var path by value<Path>()
 }
 
 class CatalogDependency : ScopedDependency() {

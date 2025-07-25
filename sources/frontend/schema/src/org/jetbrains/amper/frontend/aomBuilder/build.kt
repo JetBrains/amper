@@ -211,7 +211,7 @@ private fun BuildCtx.buildAmperModules(
 private fun createArtifacts(
     isTest: Boolean,
     productType: ProductType,
-    fragments: List<DefaultLeafFragment>
+    fragments: List<DefaultLeafFragment>,
 ): List<DefaultArtifact> = when (productType) {
     ProductType.LIB -> listOf(DefaultArtifact(if (!isTest) "lib" else "testLib", fragments, isTest))
     else -> fragments.map { DefaultArtifact(it.name, listOf(it), isTest) }
@@ -220,7 +220,7 @@ private fun createArtifacts(
 /**
  * Resolve internal modules against known ones by path.
  */
-private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): Notation? =
+private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, AmperModule>): Notation =
     when (this) {
         is ExternalMavenDependency -> MavenDependency(
             TraceableString(coordinates).withTraceFrom(this::coordinates.valueBase!!),
@@ -229,18 +229,16 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Amp
             exported,
         )
 
-        is InternalDependency -> path?.let { path ->
-            DefaultLocalModuleDependency(
-                // Note: we can't really report an error to the problem reporter here, because of the fake single-module
-                // analysis that happens in the IDE. When editing a module file, the IDE will use a fake project context
-                // that only declares this specific module, and thus all module dependencies are "unresolved".
-                moduleDir2module[path] ?: NotResolvedModule(userReadableName = path.name, invalidPath = path),
-                path,
-                scope.compile,
-                scope.runtime,
-                exported,
-            )
-        }
+        is InternalDependency -> DefaultLocalModuleDependency(
+            // Note: we can't really report an error to the problem reporter here, because of the fake single-module
+            // analysis that happens in the IDE. When editing a module file, the IDE will use a fake project context
+            // that only declares this specific module, and thus all module dependencies are "unresolved".
+            moduleDir2module[path] ?: NotResolvedModule(userReadableName = path.name, invalidPath = path),
+            path,
+            scope.compile,
+            scope.runtime,
+            exported,
+        )
 
         is ExternalMavenBomDependency ->
             BomDependency(coordinates.asTraceable().withTraceFrom(::coordinates.valueBase))
@@ -248,4 +246,4 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Amp
         is CatalogDependency -> error("Catalog dependency must be processed earlier!")
 
         else -> error("Unknown dependency type: ${this::class}")
-    }?.withTraceFrom(this)
+    }.withTraceFrom(this)

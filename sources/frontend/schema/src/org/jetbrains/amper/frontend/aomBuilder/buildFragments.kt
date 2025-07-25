@@ -184,7 +184,7 @@ private fun findConventionalPath(buildOutputRoot: Path, genDirs: List<Path>, pat
 internal fun BuildCtx.createFragments(
     seeds: Collection<FragmentSeed>,
     ctx: ModuleBuildCtx,
-    resolveDependency: (Dependency) -> Notation?,
+    resolveDependency: (Dependency) -> Notation,
 ): List<DefaultFragment> {
     data class FragmentBundle(
         val mainFragment: DefaultFragment,
@@ -203,7 +203,7 @@ internal fun BuildCtx.createFragments(
             this,
             ctx.module,
             isTest,
-            refinedModule.dependencies.orEmpty().mapNotNull { resolveDependency(it) },
+            refinedModule.dependencies.orEmpty().map { resolveDependency(it) },
             refinedModule.settings,
             ctx.moduleFile,
         )
