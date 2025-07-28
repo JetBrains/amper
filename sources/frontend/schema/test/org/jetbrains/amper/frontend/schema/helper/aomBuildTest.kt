@@ -44,26 +44,24 @@ open class BuildAomTestRun(
         val module = with(problemReporter) { doBuild(fioCtx, systemInfo)?.first() }
 
         // Check errors absence.
-        with(problemReporter) {
-            if (expectedError == null) {
-                assert(problemReporter.getDiagnostics().isEmpty()) {
-                    "Expected no errors, but got ${
-                        problemReporter.getDiagnostics()
-                            .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t") { it.message }
-                    }"
-                }
-            } else {
-                val diagnostic = problemReporter.getDiagnostics().firstOrNull { it.message == expectedError }
-                assertNotNull(
-                    diagnostic,
-                    "Expected an error $expectedError, but got ${
-                        problemReporter.getDiagnostics()
-                            .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t") { it.message }
-                    }"
-                )
-                // Check that lazily initialized diagnostic source doesn't produce any error
-                problemReporter.getDiagnostics().forEach { (it as? PsiBuildProblem)?.source }
+        if (expectedError == null) {
+            assert(problemReporter.getDiagnostics().isEmpty()) {
+                "Expected no errors, but got ${
+                    problemReporter.getDiagnostics()
+                        .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t") { it.message }
+                }"
             }
+        } else {
+            val diagnostic = problemReporter.getDiagnostics().firstOrNull { it.message == expectedError }
+            assertNotNull(
+                diagnostic,
+                "Expected an error $expectedError, but got ${
+                    problemReporter.getDiagnostics()
+                        .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t") { it.message }
+                }"
+            )
+            // Check that lazily initialized diagnostic source doesn't produce any error
+            problemReporter.getDiagnostics().forEach { (it as? PsiBuildProblem)?.source }
         }
 
         // Return module's textual representation.
