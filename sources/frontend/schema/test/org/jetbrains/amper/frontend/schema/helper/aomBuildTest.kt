@@ -53,13 +53,14 @@ open class BuildAomTestRun(
                     }"
                 }
             } else {
-                val diagnostic = problemReporter.getDiagnostics().firstOrNull() { it.message == expectedError }
-                assertNotNull(diagnostic) {
+                val diagnostic = problemReporter.getDiagnostics().firstOrNull { it.message == expectedError }
+                assertNotNull(
+                    diagnostic,
                     "Expected an error $expectedError, but got ${
                         problemReporter.getDiagnostics()
                             .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t") { it.message }
                     }"
-                }
+                )
                 // Check that lazily initialized diagnostic source doesn't produce any error
                 problemReporter.getDiagnostics().forEach { (it as? PsiBuildProblem)?.source }
             }
