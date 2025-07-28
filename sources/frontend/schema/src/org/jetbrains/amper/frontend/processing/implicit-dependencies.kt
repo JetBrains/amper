@@ -17,84 +17,84 @@ import org.jetbrains.amper.frontend.ancestralPath
 import org.jetbrains.amper.frontend.aomBuilder.DefaultFragment
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.ValueDelegateBase
+import org.jetbrains.amper.frontend.api.derived
 import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.catalogs.library
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 import org.jetbrains.amper.frontend.toClassBasedSet
 
-private val kotlinStdlib = kotlinDependencyOf("kotlin-stdlib")
-private val kotlinStdlibJdk8 = kotlinDependencyOf("kotlin-stdlib-jdk8")
-private val kotlinStdlibJdk7 = kotlinDependencyOf("kotlin-stdlib-jdk7")
-
-private val kotlinTest = kotlinDependencyOf("kotlin-test")
-private val kotlinTestAnnotationsCommon = kotlinDependencyOf("kotlin-test-annotations-common")
-private val kotlinTestJUnit = kotlinDependencyOf("kotlin-test-junit")
-private val kotlinTestJUnit5 = kotlinDependencyOf("kotlin-test-junit5")
-private val kotlinTestTestNG = kotlinDependencyOf("kotlin-test-testng")
-
-private val kotlinReflect = kotlinDependencyOf("kotlin-reflect")
-
-private val kotlinParcelizeRuntime = kotlinDependencyOf("kotlin-parcelize-runtime")
-
-private val lombokDependency = MavenDependency(
-    coordinates = TraceableString("org.projectlombok:lombok:${UsedVersions.lombokVersion}", DefaultTrace)
+private fun kotlinDependencyOf(artifactId: String, dependencyTrace: Trace?) = MavenDependency(
+    coordinates = TraceableString("org.jetbrains.kotlin:$artifactId:${UsedVersions.kotlinVersion}", DefaultTrace),
+    trace = dependencyTrace,
 )
 
-private val hotReloadDependency = MavenDependency(
-    coordinates = TraceableString("org.jetbrains.compose.hot-reload:hot-reload-runtime-api:${UsedVersions.hotReloadVersion}", DefaultTrace)
+private fun lombokDependency(version: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+    coordinates = version.derived { "org.projectlombok:lombok:$it" },
+    trace = dependencyTrace,
 )
 
-private fun kotlinDependencyOf(artifactId: String) = MavenDependency(
-    coordinates = library("org.jetbrains.kotlin:$artifactId", UsedVersions.kotlinVersion),
+private fun hotReloadDependency(version: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+    coordinates = version.derived { "org.jetbrains.compose.hot-reload:hot-reload-runtime-api:$it" },
+    trace = dependencyTrace,
 )
 
-// todo (AB) : Why libraries are crated here insteod of being taken from built-in catalogues?
-private fun kotlinxSerializationCoreDependency(version: TraceableVersion) = MavenDependency(
-    coordinates = library("org.jetbrains.kotlinx:kotlinx-serialization-core", version),
-    trace = version.trace,
+private fun kotlinxSerializationCoreDependency(version: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+    coordinates = version.derived { "org.jetbrains.kotlinx:kotlinx-serialization-core:$it" },
+    trace = dependencyTrace,
 )
 
-private fun kotlinxSerializationFormatDependency(format: String, version: TraceableString) = MavenDependency(
-    coordinates = library("org.jetbrains.kotlinx:kotlinx-serialization-$format", version),
-    trace = version.trace,
+private fun kotlinxSerializationFormatDependency(format: String, version: TraceableString, dependencyTrace: Trace?) =
+    MavenDependency(
+        coordinates = version.derived { "org.jetbrains.kotlinx:kotlinx-serialization-$format:$it" },
+        trace = dependencyTrace,
+    )
+
+private fun composeRuntimeDependency(composeVersion: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+    coordinates = composeVersion.derived { "org.jetbrains.compose.runtime:runtime:$it" },
+    trace = dependencyTrace,
 )
 
-private fun composeRuntimeDependency(composeVersion: TraceableString) = MavenDependency(
-    coordinates = library("org.jetbrains.compose.runtime:runtime", composeVersion),
-    trace = composeVersion.trace,
+private fun composeResourcesDependency(composeVersion: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+    coordinates = composeVersion.derived { "org.jetbrains.compose.components:components-resources:$it" },
+    trace = dependencyTrace,
 )
 
-private fun composeResourcesDependency(composeVersion: TraceableString) = MavenDependency(
-    coordinates = library("org.jetbrains.compose.components:components-resources", composeVersion),
-    trace = composeVersion.trace,
+private fun ktorBomDependency(ktorVersion: TraceableString, dependencyTrace: Trace?): BomDependency = BomDependency(
+    coordinates = ktorVersion.derived { "io.ktor:ktor-bom:$it" },
+    trace = dependencyTrace,
 )
 
-private fun ktorBomDependency(ktorVersion: TraceableString): BomDependency = BomDependency(
-    coordinates = library("io.ktor:ktor-bom", ktorVersion),
-    trace = ktorVersion.trace,
-)
+private fun springBootBomDependency(springBootVersion: TraceableString, dependencyTrace: Trace?): BomDependency =
+    BomDependency(
+        coordinates = springBootVersion.derived { "org.springframework.boot:spring-boot-dependencies:$it" },
+        trace = dependencyTrace,
+    )
 
-private fun springBootBomDependency(springBootVersion: TraceableString): BomDependency = BomDependency(
-    coordinates = library("org.springframework.boot:spring-boot-dependencies", springBootVersion),
-    trace = springBootVersion.trace,
-)
+private fun springBootStarterDependency(springBootVersion: TraceableString, dependencyTrace: Trace?): MavenDependency =
+    MavenDependency(
+        coordinates = TraceableString(
+            value = "org.springframework.boot:spring-boot-starter:${springBootVersion.value}",
+            trace = springBootVersion.trace,
+        ),
+        trace = dependencyTrace,
+    )
 
-private fun springBootStarterDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
-    coordinates = library("org.springframework.boot:spring-boot-starter", springBootVersion),
-    trace = springBootVersion.trace,
-)
-
-private fun springBootStarterTestDependency(springBootVersion: TraceableString): MavenDependency = MavenDependency(
-    coordinates = library("org.springframework.boot:spring-boot-starter-test", springBootVersion),
-    trace = springBootVersion.trace,
-)
-
+private fun springBootStarterTestDependency(
+    springBootVersion: TraceableString,
+    dependencyTrace: Trace?,
+): MavenDependency =
+    MavenDependency(
+        coordinates = TraceableString(
+            value = "org.springframework.boot:spring-boot-starter-test:$springBootVersion",
+            trace = springBootVersion.trace,
+        ),
+        trace = dependencyTrace,
+    )
 
 /**
  * Add automatically-added implicit dependencies to default module impl.
@@ -144,125 +144,112 @@ private fun Fragment.allExternalMavenDependencies() = ancestralPath()
     .filterIsInstance<MavenDependencyBase>()
 
 private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> = buildList {
-    add(kotlinStdlib)
+    add(kotlinDependencyOf("kotlin-stdlib", DefaultTrace))
 
     // hack for avoiding classpath clashes in android dependencies, until DR support dependency constraints from
     // Gradle module metadata
     if (platforms == setOf(Platform.ANDROID)) {
-        add(kotlinStdlibJdk7)
-        add(kotlinStdlibJdk8)
+        add(kotlinDependencyOf("kotlin-stdlib-jdk7", DefaultTrace))
+        add(kotlinDependencyOf("kotlin-stdlib-jdk8", DefaultTrace))
     }
 
     if (settings.compose.enabled && settings.compose.experimental.hotReload.enabled) {
-        add(hotReloadDependency)
+        // TODO should be configurable
+        val hotReloadVersion = TraceableString(UsedVersions.hotReloadVersion, DefaultTrace)
+        val hotReloadEnabledTrace = settings.compose.experimental.hotReload::enabled.valueBase.trace
+        add(hotReloadDependency(hotReloadVersion, hotReloadEnabledTrace))
     }
 
     if (isTest) {
         addAll(inferredTestDependencies())
     }
     if (settings.kotlin.serialization.enabled) {
-        val kotlinSerializationVersion = TraceableVersion(
-            settings.kotlin.serialization.version,
-            getSource(
-                settings.kotlin.serialization::version.valueBase,
-                settings.kotlin.serialization::enabled.valueBase,
-            )
-        )
+        val kotlinSerializationVersion = settings.kotlin.serialization::version.valueBase.asTraceableString()
+        val serializationEnabledTrace = settings.kotlin.serialization::enabled.valueBase.trace
+
         // if kotlinx.serialization plugin is enabled, we need the @Serializable annotation, which is in core
-        add(kotlinxSerializationCoreDependency(kotlinSerializationVersion))
+        add(kotlinxSerializationCoreDependency(kotlinSerializationVersion, dependencyTrace = serializationEnabledTrace))
 
         val format = settings.kotlin.serialization.format
         if (format != null && format != legacySerializationFormatNone) {
-            add(kotlinxSerializationFormatDependency(format, kotlinSerializationVersion))
+            val serializationFormatTrace = settings.kotlin.serialization::format.valueBase.trace
+            add(kotlinxSerializationFormatDependency(
+                format = format,
+                version = kotlinSerializationVersion,
+                dependencyTrace = serializationFormatTrace,
+            ))
         }
     }
     if (settings.android.parcelize.enabled) {
-        add(kotlinParcelizeRuntime)
+        add(kotlinDependencyOf("kotlin-parcelize-runtime", DefaultTrace))
     }
     if (settings.lombok.enabled) {
-        add(lombokDependency)
+        // TODO should be configurable
+        val lombokVersion = TraceableString(UsedVersions.lombokVersion, DefaultTrace)
+        val lombokEnabledTrace = settings.lombok::enabled.valueBase.trace
+        add(lombokDependency(lombokVersion, lombokEnabledTrace))
     }
     if (settings.compose.enabled) {
-        val composeVersion = TraceableVersion(
-            checkNotNull(settings.compose.version),
-            getSource(
-                settings.compose::version.valueBase,
-                settings.compose::enabled.valueBase
-            )
-        )
-        add(composeRuntimeDependency(composeVersion))
+        val composeVersion = settings.compose::version.valueBase.asTraceableString()
+        val composeEnabledTrace = settings.compose::enabled.valueBase.trace
+        add(composeRuntimeDependency(composeVersion, dependencyTrace = composeEnabledTrace))
 
         // Have to add dependency because generated code depends on it
         if (settings.compose.resources.exposedAccessors || module.fragments.any { it.hasAnyComposeResources }) {
-            add(composeResourcesDependency(composeVersion))
+            add(composeResourcesDependency(composeVersion, dependencyTrace = composeEnabledTrace))
         }
     }
 
     if (settings.ktor.enabled) {
-        val ktorVersion = TraceableVersion(
-            checkNotNull(settings.ktor.version),
-            getSource(
-                settings.ktor::version.valueBase,
-                settings.ktor::enabled.valueBase,
-            ),
-        )
-        add(ktorBomDependency(ktorVersion))
+        val ktorVersion = settings.ktor::version.valueBase.asTraceableString()
+        val ktorEnabledTrace = settings.ktor::enabled.valueBase.trace
+        add(ktorBomDependency(ktorVersion, dependencyTrace = ktorEnabledTrace))
     }
 
     if (settings.springBoot.enabled) {
-        val springBootVersion = TraceableVersion(
-            checkNotNull(settings.springBoot.version),
-            getSource(
-                settings.springBoot::version.valueBase,
-                settings.springBoot::enabled.valueBase,
-            ),
-        )
-        add(springBootBomDependency(springBootVersion))
-        add(springBootStarterDependency(springBootVersion))
-        add(kotlinReflect)
+        val springBootVersion = settings.springBoot::version.valueBase.asTraceableString()
+        val springBootEnabledTrace = settings.springBoot::enabled.valueBase.trace
+        add(springBootBomDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
+        add(springBootStarterDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
+        add(kotlinDependencyOf("kotlin-reflect", dependencyTrace = springBootEnabledTrace))
     }
 
     if (module.type == ProductType.JVM_AMPER_PLUGIN) {
         // TODO: It'd be better to have some builtin dependency that resolves to a jar inside Amper distribution.
         add(MavenDependency(
-            coordinates = library("org.jetbrains.amper:amper-extensibility-api", AmperBuild.mavenVersion)
+            coordinates = TraceableString(
+                value = "org.jetbrains.amper:amper-extensibility-api:${AmperBuild.mavenVersion}",
+                trace = DefaultTrace,
+            ),
+            // TODO we should trace to the product type, but we don't seem to have this trace in the AOM
+            trace = DefaultTrace,
         ))
     }
 }
 
-private fun getSource(versionValue: ValueDelegateBase<*>?, enabledValue: ValueDelegateBase<*>?): ValueDelegateBase<*>? {
-    return if (versionValue?.withoutDefault == null) enabledValue else versionValue
-}
-
-
-private fun Fragment.inferredTestDependencies(): List<MavenDependency> {
-    return buildList {
-        if (platforms.size == 1 && platforms.single().supportsJvmTestFrameworks()) {
-            when (settings.junit) {
-                // TODO support kotlin-test-testng?
-                //   For this, we should rename settings.junit -> settings.jvm.testFramework and add the TESTNG value to the enum
-                JUnitVersion.JUNIT4 -> add(kotlinTestJUnit)
-                JUnitVersion.JUNIT5 -> add(kotlinTestJUnit5)
-                JUnitVersion.NONE -> add(kotlinTest)
-            }
-        } else {
-            add(kotlinTest)
-            add(kotlinTestAnnotationsCommon)
+private fun Fragment.inferredTestDependencies(): List<MavenDependency> = buildList {
+    if (platforms.size == 1 && platforms.single().supportsJvmTestFrameworks()) {
+        val junitTrace = settings::junit.valueBase.trace
+        when (settings.junit) {
+            // TODO support kotlin-test-testng?
+            //   For this, we should rename settings.junit -> settings.jvm.testFramework and add the TESTNG value to the enum
+            JUnitVersion.JUNIT4 -> add(kotlinDependencyOf("kotlin-test-junit", junitTrace))
+            JUnitVersion.JUNIT5 -> add(kotlinDependencyOf("kotlin-test-junit5", junitTrace))
+            JUnitVersion.NONE -> add(kotlinDependencyOf("kotlin-test", DefaultTrace))
         }
+    } else {
+        add(kotlinDependencyOf("kotlin-test", DefaultTrace))
+        add(kotlinDependencyOf("kotlin-test-annotations-common", DefaultTrace))
+    }
 
-        if (settings.springBoot.enabled) {
-            val springBootVersion =
-                TraceableVersion(
-                    checkNotNull(settings.springBoot.version),
-                    getSource(
-                        settings.springBoot::version.valueBase,
-                        settings.springBoot::enabled.valueBase,
-                    )
-                )
-            add(springBootStarterTestDependency(springBootVersion))
-        }
+    if (settings.springBoot.enabled) {
+        val springBootVersion = settings.springBoot::version.valueBase.asTraceableString()
+        val springBootEnabledTrace = settings.springBoot::enabled.valueBase.trace
+        add(springBootStarterTestDependency(springBootVersion, springBootEnabledTrace))
     }
 }
+
+private fun ValueDelegateBase<String>.asTraceableString() = TraceableString(value, trace)
 
 private fun Platform.supportsJvmTestFrameworks() = this == Platform.JVM || this == Platform.ANDROID
 

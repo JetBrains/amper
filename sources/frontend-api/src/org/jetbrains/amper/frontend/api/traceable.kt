@@ -105,3 +105,14 @@ open class TraceableString(value: String, trace: Trace?) : TraceableValue<String
 class TraceableVersion(value: String, source: ValueDelegateBase<*>?) : TraceableString(value, trace = source?.trace)
 
 class TraceablePath(value: Path, trace: Trace) : TraceableValue<Path>(value, trace)
+
+/**
+ * Creates a new [TraceableString] with a value computed from this [TraceableString]'s value.
+ * The new trace will be the same as this one.
+ *
+ * TODO should we use a derived trace of a new type like "DerivedTrace" or "ComputedTrace"?
+ */
+fun TraceableString.derived(transform: (String) -> String) = TraceableString(
+    value = transform(value),
+    trace = trace,
+)

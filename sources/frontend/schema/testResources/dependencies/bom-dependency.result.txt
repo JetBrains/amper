@@ -5,9 +5,9 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
@@ -140,10 +140,10 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@android
     Fragment dependencies:
       commonTest (REFINE)
@@ -277,7 +277,7 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@apple
     Fragment dependencies:
       native (REFINE)
@@ -410,9 +410,9 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@apple
     Fragment dependencies:
       nativeTest (REFINE)
@@ -546,7 +546,7 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -678,9 +678,9 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -813,7 +813,7 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@ios
     Fragment dependencies:
       apple (REFINE)
@@ -946,9 +946,9 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@ios
     Fragment dependencies:
       appleTest (REFINE)
@@ -1082,7 +1082,7 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@iosX64
     Fragment dependencies:
       ios (REFINE)
@@ -1215,9 +1215,9 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@iosX64
     Fragment dependencies:
       iosTest (REFINE)
@@ -1351,7 +1351,7 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -1484,8 +1484,8 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)
@@ -1619,7 +1619,7 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@native
     Fragment dependencies:
       common (REFINE)
@@ -1752,9 +1752,9 @@ Fragments:
       BomDependency(coordinates=io.ktor:ktor-bom:2.3.9, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=com.fasterxml.jackson.core:jackson-core, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=io.ktor:ktor-client-core, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@native
     Fragment dependencies:
       commonTest (REFINE)

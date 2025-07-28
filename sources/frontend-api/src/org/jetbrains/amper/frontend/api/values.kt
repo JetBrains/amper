@@ -191,6 +191,8 @@ sealed class ValueDelegateBase<T>(
         get() = valueGetter()?.trace
             ?: default.asSafely<Default.Dependent<*, *>>()?.property?.setAccessible()?.valueBaseOrNull?.let(::DefaultTrace)
         set(value) = run { valueGetter()?.copy(trace = value)?.let(valueSetter) }
+
+    override fun toString(): String = "SchemaValue(property = $property, value = $value)"
 }
 
 private fun <T : KProperty<*>> T.setAccessible() = apply { isAccessible = true }

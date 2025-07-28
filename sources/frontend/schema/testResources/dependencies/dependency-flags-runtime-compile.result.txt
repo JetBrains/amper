@@ -4,7 +4,7 @@ Fragments:
       MavenDependency(coordinates=a, compile=false, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=b, compile=true, runtime=false, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=c, compile=true, runtime=false, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -135,8 +135,8 @@ Fragments:
       MavenDependency(coordinates=a, compile=false, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=b, compile=true, runtime=false, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=c, compile=true, runtime=false, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -268,7 +268,7 @@ Fragments:
       MavenDependency(coordinates=a, compile=false, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=b, compile=true, runtime=false, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=c, compile=true, runtime=false, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -400,8 +400,8 @@ Fragments:
       MavenDependency(coordinates=a, compile=false, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=b, compile=true, runtime=false, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=c, compile=true, runtime=false, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)

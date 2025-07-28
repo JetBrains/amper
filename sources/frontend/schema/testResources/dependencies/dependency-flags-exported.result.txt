@@ -4,9 +4,9 @@ Fragments:
       MavenDependency(coordinates=androidx.activity:activity-compose:1.6.1, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=androidx.core:core-ktx:1.9.0, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
@@ -138,10 +138,10 @@ Fragments:
       MavenDependency(coordinates=androidx.activity:activity-compose:1.6.1, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=androidx.core:core-ktx:1.9.0, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@android
     Fragment dependencies:
       commonTest (REFINE)
@@ -274,9 +274,9 @@ Fragments:
       MavenDependency(coordinates=androidx.activity:activity-compose:1.6.1, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=androidx.core:core-ktx:1.9.0, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -407,10 +407,10 @@ Fragments:
       MavenDependency(coordinates=androidx.activity:activity-compose:1.6.1, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
       MavenDependency(coordinates=androidx.core:core-ktx:1.9.0, compile=true, runtime=true, exported=true, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)

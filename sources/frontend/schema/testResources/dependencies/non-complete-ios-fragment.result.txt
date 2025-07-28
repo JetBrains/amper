@@ -1,10 +1,10 @@
 Fragments:
   android
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
@@ -133,11 +133,11 @@ Fragments:
 
   androidTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@android
     Fragment dependencies:
       commonTest (REFINE)
@@ -268,8 +268,8 @@ Fragments:
   apple
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@apple
     Fragment dependencies:
       native (REFINE)
@@ -399,10 +399,10 @@ Fragments:
   appleTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@apple
     Fragment dependencies:
       nativeTest (REFINE)
@@ -532,8 +532,8 @@ Fragments:
 
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -661,10 +661,10 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -794,8 +794,8 @@ Fragments:
   ios
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@ios
     Fragment dependencies:
       apple (REFINE)
@@ -925,10 +925,10 @@ Fragments:
   iosTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@ios
     Fragment dependencies:
       appleTest (REFINE)
@@ -1059,8 +1059,8 @@ Fragments:
   iosX64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@iosX64
     Fragment dependencies:
       ios (REFINE)
@@ -1190,10 +1190,10 @@ Fragments:
   iosX64Test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@iosX64
     Fragment dependencies:
       iosTest (REFINE)
@@ -1324,8 +1324,8 @@ Fragments:
   native
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: src@native
     Fragment dependencies:
       common (REFINE)
@@ -1455,10 +1455,10 @@ Fragments:
   nativeTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null))
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=null)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, compile=true, runtime=true, exported=false, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null))
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
     Src folder: test@native
     Fragment dependencies:
       commonTest (REFINE)

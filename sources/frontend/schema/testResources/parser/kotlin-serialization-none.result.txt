@@ -1,8 +1,8 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace(computedValueTrace=SchemaValue(property = var org.jetbrains.amper.frontend.schema.SerializationSettings.format: kotlin.String?, value = none)))
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -130,9 +130,9 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace(computedValueTrace=SchemaValue(property = var org.jetbrains.amper.frontend.schema.SerializationSettings.format: kotlin.String?, value = none)))
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -261,8 +261,8 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace(computedValueTrace=SchemaValue(property = var org.jetbrains.amper.frontend.schema.SerializationSettings.format: kotlin.String?, value = none)))
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -391,9 +391,9 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=null)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, compile=true, runtime=true, exported=false, trace=DefaultTrace)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0, compile=true, runtime=true, exported=false, trace=DefaultTrace(computedValueTrace=SchemaValue(property = var org.jetbrains.amper.frontend.schema.SerializationSettings.format: kotlin.String?, value = none)))
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)
