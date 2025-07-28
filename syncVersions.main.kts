@@ -80,6 +80,7 @@ fun updateVersionsCatalog() {
     versionsCatalogToml.replaceFileText { text ->
         text
             .replaceCatalogVersionVariable(variableName = "kotlin", newValue = kotlinVersion)
+            .replaceCatalogVersionVariable(variableName = "ksp", newValue = kspVersion)
             .replaceCatalogVersionVariable(variableName = "hot-reload-version", newValue = hotReloadVersion)
             .replaceCatalogVersionVariable(variableName = "junit-platform", newValue = junitPlatformVersion)
     }

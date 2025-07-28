@@ -12,4 +12,4 @@ settings:
 dependencies:
   - ../amper-extensibility-api
   - ../amper-extensibility-schema-model
-  - com.google.devtools.ksp:symbol-processing-api:2.1.21-2.0.1
+  - $libs.ksp.symbolProcessingApi
