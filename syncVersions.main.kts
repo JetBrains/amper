@@ -31,7 +31,7 @@ val bootstrapAmperVersion = "0.8.0-dev-2990" // AUTO-UPDATED BY THE CI - DO NOT 
  * We need the JBR for 2024.2 to be compatible with glibc 2.17.
  * Check https://github.com/JetBrains/JetBrainsRuntime?tab=readme-ov-file#releases-based-on-jdk-21
  */
-val amperInternalJbrVersion = "21.0.6-b895.97"
+val amperInternalJbrVersion = "21.0.8b1038.68"
 
 /**
  * The Kotlin version used in Amper projects (not customizable yet).
