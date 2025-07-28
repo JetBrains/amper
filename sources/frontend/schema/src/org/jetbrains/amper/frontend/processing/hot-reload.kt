@@ -19,7 +19,7 @@ import org.jetbrains.amper.frontend.tree.syntheticBuilder
 context(buildCtx: BuildCtx)
 internal fun Merged.configureHotReloadDefaults(commonModule: Module) =
     if (commonModule.settings.compose.enabled && commonModule.settings.compose.experimental.hotReload.enabled) {
-        val hotReloadDefault = DefaultTrace(computedValueTrace = commonModule.settings.lombok::enabled.valueBase)
+        val hotReloadDefault = DefaultTrace(computedValueTrace = commonModule.settings.compose.experimental.hotReload::enabled.valueBase)
         buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.hotReloadDefaultTree(trace = hotReloadDefault)))
     } else {
         this
