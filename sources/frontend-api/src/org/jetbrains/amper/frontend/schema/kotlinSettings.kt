@@ -97,9 +97,11 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")
     var apiVersion by dependentValue(::languageVersion)
 
+    @Aliases("Werror")
     @SchemaDoc("Turn any warnings into a compilation error")
     var allWarningsAsErrors by value(false)
 
+    @Aliases("compilation", "arguments", "options")
     @SchemaDoc("Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly")
     var freeCompilerArgs by nullableValue<List<TraceableString>>()
 

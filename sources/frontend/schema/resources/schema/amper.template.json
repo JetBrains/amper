@@ -1235,7 +1235,12 @@
         "allWarningsAsErrors": {
           "type": "boolean",
           "x-intellij-html-description": "Turn any warnings into a compilation error",
-          "title": "Turn any warnings into a compilation error"
+          "title": "Turn any warnings into a compilation error",
+          "x-intellij-metadata": {
+            "aliases": [
+              "Werror"
+            ]
+          }
         },
         "apiVersion": {
           "enum": [
@@ -1271,7 +1276,14 @@
             "type": "string"
           },
           "x-intellij-html-description": "Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly",
-          "title": "Pass any compiler option directly"
+          "title": "Pass any compiler option directly",
+          "x-intellij-metadata": {
+            "aliases": [
+              "compilation",
+              "arguments",
+              "options"
+            ]
+          }
         },
         "ksp": {
           "$ref": "#/$defs/KspSettings",
