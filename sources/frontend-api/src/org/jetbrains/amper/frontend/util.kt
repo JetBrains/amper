@@ -13,20 +13,6 @@ fun String.doCapitalize() = replaceFirstChar { it.titlecase() }
 val AmperModule.mavenRepositories: List<RepositoriesModulePart.Repository>
     get() = parts.find<RepositoriesModulePart>()?.mavenRepositories ?: emptyList()
 
-/**
- * Simple approach to do some action for fragment closure.
- *
- * TODO: maybe generalize [ancestralPath] to use instead of this?
- */
-fun Fragment.allRefinedFragmentDependencies(
-    includeSelf: Boolean = false,
-): Sequence<Fragment> {
-    val allDependencies = allFragmentDependencies(
-        EnumSet.of(FragmentDependencyType.REFINE)
-    ).map { it.target }
-    return if (includeSelf) sequenceOf(this) + allDependencies else allDependencies
-}
-
 fun Fragment.allFragmentDependencies(
     includeSelf: Boolean = false
 ): Sequence<Fragment> {
@@ -88,12 +74,6 @@ fun Fragment.ancestralPath(): Sequence<Fragment> = sequence {
         }
     }
 }
-
-/**
- * Try to set a value to a bind property if the value is not null.
- */
-infix fun <T : Any> KMutableProperty0<T>.trySet(value: T?) =
-    value?.let { set(it) }
 
 /**
  * Simple class to associate enum values by some string key.
