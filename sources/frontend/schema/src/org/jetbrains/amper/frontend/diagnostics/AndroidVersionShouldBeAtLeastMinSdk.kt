@@ -52,7 +52,7 @@ object AndroidVersionShouldBeAtLeastMinSdkFactory : AomSingleModuleDiagnosticFac
             for (versionProp in usedVersions) {
                 val version = versionProp.get() ?: continue
                 if (version >= minSdkVersion) continue
-                if (!reportedPlaces.add(versionProp.valueBase?.trace)) continue
+                if (!reportedPlaces.add(versionProp.valueBase.trace)) continue
 
                 problemReporter.reportMessage(
                     AndroidVersionShouldBeAtLeastMinSdk(

@@ -203,7 +203,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
             checkNotNull(settings.ktor.version),
             getSource(
                 settings.ktor::version.valueBase,
-                settings.ktor::enabled.valueBase
+                settings.ktor::enabled.valueBase,
             ),
         )
         add(ktorBomDependency(ktorVersion))
@@ -214,7 +214,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
             checkNotNull(settings.springBoot.version),
             getSource(
                 settings.springBoot::version.valueBase,
-                settings.springBoot::enabled.valueBase
+                settings.springBoot::enabled.valueBase,
             ),
         )
         add(springBootBomDependency(springBootVersion))

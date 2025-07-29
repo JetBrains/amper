@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.valueBaseOrNull
 import java.nio.file.Path
 import kotlin.reflect.KProperty0
 
@@ -24,16 +25,10 @@ abstract class PsiBuildProblem(override val level: Level) : BuildProblem {
     override val source: BuildProblemSource by lazy { PsiBuildProblemSource(element) }
 }
 
-fun KProperty0<*>.extractPsiElement(): PsiElement {
-    val valueBase = valueBase
-    checkNotNull(valueBase) { "Can't extract PSI element from property $name: it doesn't have ValueBase delegate" }
-    return valueBase.extractPsiElement()
-}
+fun KProperty0<*>.extractPsiElement(): PsiElement = valueBase.extractPsiElement()
 
 @UsedInIdePlugin
-fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? {
-    return valueBase?.extractPsiElementOrNull()
-}
+fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = valueBaseOrNull?.extractPsiElementOrNull()
 
 // FIXME Why do we have this?
 //fun Traceable.extractPsiElement(): PsiElement =

@@ -53,7 +53,7 @@ object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
             val settings = fragment.settings.compose
             if (!settings.enabled) {
                 val versionProp = settings::version
-                val trace = versionProp.valueBase?.trace
+                val trace = versionProp.valueBase.trace
                 if (!versionProp.isDefault && reportedPlaces.add(trace))
                     problemReporter.reportMessage(ComposeVersionWithoutCompose(versionProp))
             }

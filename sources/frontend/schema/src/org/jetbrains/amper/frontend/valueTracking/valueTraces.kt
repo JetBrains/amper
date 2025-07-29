@@ -22,7 +22,7 @@ import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueDelegateBase
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.valueBaseOrNull
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.scalarValue
@@ -103,7 +103,7 @@ private class CollectingVisitor(
                                 if (def is Default.Dependent<*, *>) {
                                     ValueSource.DependentDefault(
                                         def.desc,
-                                        def.property.valueBase?.extractPsiElementOrNull()
+                                        def.property.valueBaseOrNull?.extractPsiElementOrNull()
                                     )
                                 } else ValueSource.Default.takeIf { valueBase.trace == null }
                             },

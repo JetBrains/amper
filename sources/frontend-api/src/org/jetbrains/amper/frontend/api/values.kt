@@ -189,7 +189,7 @@ sealed class ValueDelegateBase<T>(
 
     override var trace: Trace?
         get() = valueGetter()?.trace
-            ?: default.asSafely<Default.Dependent<*, *>>()?.property?.setAccessible()?.valueBase?.let(::DefaultTrace)
+            ?: default.asSafely<Default.Dependent<*, *>>()?.property?.setAccessible()?.valueBaseOrNull?.let(::DefaultTrace)
         set(value) = run { valueGetter()?.copy(trace = value)?.let(valueSetter) }
 }
 
@@ -199,15 +199,26 @@ private fun <T : KProperty<*>> T.setAccessible() = apply { isAccessible = true }
 fun <T, V> KProperty1<T, V>.valueBase(receiver: T): ValueDelegateBase<V>? =
     setAccessible().getDelegate(receiver) as? ValueDelegateBase<V>
 
+/**
+ * Returns the traceable [ValueDelegateBase] of this property, or throws if this property isn't defined with such
+ * delegate. This should be used when this property is a schema property defined with a schema delegate.
+ *
+ * When in doubt, use [valueBaseOrNull] instead to handle the case when there is no delegate.
+ */
 @Suppress("UNCHECKED_CAST")
-val <T> KProperty0<T>.valueBase: ValueDelegateBase<T>?
+val <T> KProperty0<T>.valueBase: ValueDelegateBase<T>
+    get() = setAccessible().getDelegate() as? ValueDelegateBase<T>
+        ?: error("Property $this should have a traceable schema delegate")
+
+@Suppress("UNCHECKED_CAST")
+val <T> KProperty0<T>.valueBaseOrNull: ValueDelegateBase<T>?
     get() = setAccessible().getDelegate() as? ValueDelegateBase<T>
 
-val <T> KProperty0<T>.withoutDefault: T? get() = valueBase?.let { return it.withoutDefault } ?: get()
+val <T> KProperty0<T>.withoutDefault: T? get() = valueBaseOrNull?.let { return it.withoutDefault } ?: get()
 
-val <T> KProperty0<T>.isDefault get() = valueBase?.trace is DefaultTrace
+val <T> KProperty0<T>.isDefault get() = valueBaseOrNull?.trace is DefaultTrace
 
-val <T> KProperty0<T>.unsafe: T? get() = valueBase?.let { return it.unsafe } ?: get()
+val <T> KProperty0<T>.unsafe: T? get() = valueBaseOrNull?.let { return it.unsafe } ?: get()
 
 /**
  * Required (non-null) schema value.

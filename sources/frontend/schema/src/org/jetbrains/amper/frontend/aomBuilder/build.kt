@@ -233,7 +233,7 @@ private fun Dependency.resolveInternalDependency(
     reportedUnresolvedModules: MutableSet<Trace>,
 ): Notation = when (this) {
     is ExternalMavenDependency -> MavenDependency(
-        coordinates = TraceableString(coordinates, this::coordinates.valueBase!!.trace),
+        coordinates = TraceableString(coordinates, this::coordinates.valueBase.trace),
         trace = trace,
         compile = scope.compile,
         runtime = scope.runtime,
@@ -241,7 +241,7 @@ private fun Dependency.resolveInternalDependency(
     )
     is InternalDependency -> resolveModuleDependency(trace, moduleDir2module, reportedUnresolvedModules)
     is ExternalMavenBomDependency -> BomDependency(
-        coordinates = TraceableString(coordinates, trace = ::coordinates.valueBase?.trace),
+        coordinates = TraceableString(coordinates, trace = ::coordinates.valueBase.trace),
         trace = trace,
     )
     is CatalogDependency -> error("Catalog dependency must be processed earlier!")

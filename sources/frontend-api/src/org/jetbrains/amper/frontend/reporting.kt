@@ -17,7 +17,7 @@ import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.valueBaseOrNull
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import kotlin.reflect.KProperty0
@@ -46,7 +46,7 @@ fun ProblemReporter.reportBundleError(
     )
 }
 
-fun KProperty0<*>.asBuildProblemSource(): BuildProblemSource = valueBase?.trace?.asBuildProblemSource()
+fun KProperty0<*>.asBuildProblemSource(): BuildProblemSource = valueBaseOrNull?.trace?.asBuildProblemSource()
     ?: error("Cannot get BuildProblemSource for property $name ($this) because it's not a value delegate")
 
 fun Traceable.asBuildProblemSource(): BuildProblemSource =

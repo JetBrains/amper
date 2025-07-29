@@ -27,16 +27,16 @@ internal operator fun VersionCatalog?.plus(other: VersionCatalog) =
 context(problemReporter: ProblemReporter)
 internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
     serializationVersion = kotlin.serialization.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, kotlin.serialization::version.valueBase!!) }
+        ?.let { TraceableVersion(it, kotlin.serialization::version.valueBase) }
         ?.let { version(it, UsedVersions.kotlinxSerializationVersion) },
     composeVersion = compose.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, compose::version.valueBase!!) }
+        ?.let { TraceableVersion(it, compose::version.valueBase) }
         ?.let { version(it, UsedVersions.composeVersion) },
     ktorVersion = ktor.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, ktor::version.valueBase!!) }
+        ?.let { TraceableVersion(it, ktor::version.valueBase) }
         ?.let { version(it, UsedVersions.ktorVersion) },
     springBootVersion = springBoot.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, springBoot::version.valueBase!!) }
+        ?.let { TraceableVersion(it, springBoot::version.valueBase) }
         ?.let { version(it, UsedVersions.springBootVersion) },
 )
 

@@ -28,7 +28,7 @@ object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnostic
             val settings = fragment.settings.kotlin.serialization
             val versionProp = settings::version
             if (!versionProp.isDefault && !settings.enabled) {
-                if (!reportedPlaces.add(versionProp.valueBase?.trace)) return@forEach
+                if (!reportedPlaces.add(versionProp.valueBase.trace)) return@forEach
                 problemReporter.reportMessage(SerializationVersionWithoutSerialization(versionProp))
             }
         }
