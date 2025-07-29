@@ -52,7 +52,8 @@
       "annotationProcessing" : {
         "processorOptions" : ,
         "processors(DefaultCtx)" :
-      }
+      },
+      "freeCompilerArgs(DefaultCtx)" :
     },
     "jvm" : {
       "test" : {

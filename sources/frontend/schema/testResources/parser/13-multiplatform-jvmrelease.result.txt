@@ -63,6 +63,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: <default> JUNIT5
       jvm: {
@@ -196,6 +198,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: <default> JUNIT5
       jvm: {
@@ -324,6 +328,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: <default> JUNIT5
       jvm: {
@@ -455,6 +461,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: <default> JUNIT5
       jvm: {
@@ -584,6 +592,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: <default> JUNIT5
       jvm: {
@@ -715,6 +725,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: <default> JUNIT5
       jvm: {

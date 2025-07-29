@@ -43,5 +43,5 @@ class CompilationSpanAssertions(
     }
 
     private fun compilerArgAfter(previous: String): String? =
-        compilerArgs.zipWithNext().firstOrNull { it.first == previous }?.second
+        compilerArgs.zipWithNext().lastOrNull { it.first == previous }?.second
 }

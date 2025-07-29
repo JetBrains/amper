@@ -108,6 +108,10 @@ class JavaSettings : SchemaNode() {
 
     @SchemaDoc("Java annotation processing settings")
     var annotationProcessing by value(default = ::JavaAnnotationProcessingSettings)
+
+    @Aliases("compilation", "arguments", "options")
+    @SchemaDoc("Pass any compiler option directly to the Java compiler")
+    var freeCompilerArgs by value<List<TraceableString>>(emptyList())
 }
 
 class JvmSettings : SchemaNode() {

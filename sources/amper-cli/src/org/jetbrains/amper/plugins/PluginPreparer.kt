@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.CompilationUserSettings
+import org.jetbrains.amper.compilation.JavaUserSettings
 import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.SCompilerPluginConfig
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -131,6 +132,10 @@ internal class PluginPreparer(
                             compilerPlugins = emptyList<SCompilerPluginConfig>(),
                         ),
                         jvmRelease = JavaVersion.VERSION_17,
+                        java = JavaUserSettings(
+                            parameters = false,
+                            freeCompilerArgs = emptyList<String>()
+                        )
                     )
                 ) {
                     moduleName = "schema"

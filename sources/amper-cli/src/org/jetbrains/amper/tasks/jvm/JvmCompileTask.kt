@@ -392,11 +392,13 @@ internal class JvmCompileTask(
             // https://blog.ltgt.net/most-build-tools-misuse-javac/
             // we compile module by module, so we don't need javac lookup into other modules
             add("-sourcepath")
-            add("")
+            add(":")
             add("-implicit:none")
 
             add("-d")
             add(taskOutputRoot.path.pathString)
+
+            addAll(userSettings.java.freeCompilerArgs)
 
             addAll(javaSourceFiles.map { it.pathString })
         }

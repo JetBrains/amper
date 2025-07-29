@@ -16,7 +16,7 @@ import org.jetbrains.amper.settings.unanimousSetting
 internal data class CompilationUserSettings(
     val kotlin: KotlinUserSettings,
     val jvmRelease: JavaVersion?,
-    val java: JavaUserSettings = JavaUserSettings(),
+    val java: JavaUserSettings,
 )
 
 @Serializable
@@ -37,7 +37,10 @@ internal data class KotlinUserSettings(
 )
 
 @Serializable
-internal data class JavaUserSettings(val parameters: Boolean = false)
+internal data class JavaUserSettings(
+    val parameters: Boolean = false,
+    val freeCompilerArgs: List<String>,
+)
 
 internal fun List<Fragment>.mergedCompilationSettings(): CompilationUserSettings = CompilationUserSettings(
     kotlin = mergedKotlinSettings(),
@@ -66,6 +69,7 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
 
 private fun List<Fragment>.mergedJavaSettings(): JavaUserSettings = JavaUserSettings(
     parameters = unanimousSetting("jvm.storeParameterNames") { it.jvm.storeParameterNames },
+    freeCompilerArgs = unanimousSetting("java.freeCompilerArgs") { it.java.freeCompilerArgs.map { arg -> arg.value } },
 )
 
 private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T?): T? =

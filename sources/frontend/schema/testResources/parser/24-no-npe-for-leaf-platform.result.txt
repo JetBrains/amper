@@ -66,6 +66,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -218,6 +220,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -365,6 +369,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -515,6 +521,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -661,6 +669,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -810,6 +820,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -957,6 +969,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -1104,6 +1118,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -1254,6 +1270,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -1404,6 +1422,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -1553,6 +1573,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -1700,6 +1722,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -1850,6 +1874,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -2001,6 +2027,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -2148,6 +2176,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {
@@ -2298,6 +2328,8 @@ Fragments:
           processors: <default> [
           ]
         }
+        freeCompilerArgs: <default> [
+        ]
       }
       junit: NONE
       jvm: {

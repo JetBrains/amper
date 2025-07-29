@@ -1025,6 +1025,22 @@
           "$ref": "#/$defs/JavaAnnotationProcessingSettings",
           "x-intellij-html-description": "Java annotation processing settings",
           "title": "Java annotation processing settings"
+        },
+        "freeCompilerArgs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "x-intellij-html-description": "Pass any compiler option directly to the Java compiler",
+          "title": "Pass any compiler option directly to the Java compiler",
+          "x-intellij-metadata": {
+            "aliases": [
+              "compilation",
+              "arguments",
+              "options"
+            ]
+          }
         }
       }
     },

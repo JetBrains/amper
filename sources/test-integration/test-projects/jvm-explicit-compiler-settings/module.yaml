@@ -3,6 +3,13 @@ product: jvm/app
 
 settings:
   kotlin:
-    languageVersion: 1.8
+    languageVersion: 2.2
+    progressiveMode: true
+    verbose: true
+    allWarningsAsErrors: true
+    freeCompilerArgs: [ -Xwarning-level=UNCHECKED_CAST:warning ]
+  java:
+    freeCompilerArgs: [ -encoding, ISO-8859-1 ]
   jvm:
     release: 17
+    storeParameterNames: true
