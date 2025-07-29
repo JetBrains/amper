@@ -239,7 +239,7 @@ private fun Dependency.resolveInternalDependency(
         runtime = scope.runtime,
         exported = exported,
     )
-    is InternalDependency -> resolveModuleDependency(trace, moduleDir2module, reportedUnresolvedModules)
+    is InternalDependency -> resolveModuleDependency(moduleDir2module, reportedUnresolvedModules)
     is ExternalMavenBomDependency -> BomDependency(
         coordinates = TraceableString(coordinates, trace = ::coordinates.valueBase.trace),
         trace = trace,
@@ -250,16 +250,14 @@ private fun Dependency.resolveInternalDependency(
 
 context(problemReporter: ProblemReporter)
 private fun InternalDependency.resolveModuleDependency(
-    trace: Trace?,
     moduleDir2module: Map<Path, AmperModule>,
     reportedUnresolvedModules: MutableSet<Trace>,
 ): DefaultLocalModuleDependency {
     val module = moduleDir2module[path]
     if (module == null) {
-        val trace = this.trace
-        val originalDirectory = trace?.extractPsiElementOrNull()?.originalFilePath?.parent?.absolute()
+        val originalDirectory = trace.extractPsiElementOrNull()?.originalFilePath?.parent?.absolute()
         // Do not report the same error twice from different fragments.
-        if (trace != null && originalDirectory != null && reportedUnresolvedModules.add(trace)) {
+        if (originalDirectory != null && reportedUnresolvedModules.add(trace)) {
             val possibleCorrectPath = moduleDir2module.keys
                 .find { it.name == path.name }
                 ?.relativeTo(originalDirectory)

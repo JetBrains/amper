@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.util.asSafely
 import org.jetbrains.amper.core.messages.ProblemReporter
+import org.jetbrains.amper.frontend.api.InternalTraceSetter
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueHolder
@@ -52,8 +53,9 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
     /**
      * Create [currentType] instance and fill its properties from [currentValue].
      */
+    @OptIn(InternalTraceSetter::class)
     fun createSchemaNode(): Any = tryInstantiate { instance ->
-        instance.trace = currentValue.trace
+        instance.setTrace(currentValue.trace)
         val declaration = currentType.declaration
         declaration.properties.forEach { prop ->
             val child = prop.nameAndAliases().firstNotNullOfOrNull { currentValue.asMap[it] }

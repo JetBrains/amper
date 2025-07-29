@@ -37,6 +37,9 @@ data class ValueHolder<T>(
     val trace: Trace? = null,
 )
 
+@RequiresOptIn
+annotation class InternalTraceSetter
+
 /**
  * Class to collect all values registered within it.
  */
@@ -99,11 +102,17 @@ abstract class SchemaNode : Traceable {
         SchemaValueProvider(::NullableSchemaValue, Default.Lambda(desc = desc, default))
 
     @IgnoreForSchema
-    override var trace: Trace? = null
-        set(value) {
-            if (value is PsiTrace) value.psiElement.putUserData(linkedAmperNode, this)
-            field = value
+    final override lateinit var trace: Trace
+        private set
+
+    // we have to use a setter method because custom var setters are not allowed for lateinit vars
+    @InternalTraceSetter
+    fun setTrace(trace: Trace) {
+        if (trace is PsiTrace) {
+            trace.psiElement.putUserData(linkedAmperNode, this)
         }
+        this.trace = trace
+    }
 }
 
 sealed class Default<out T> {
