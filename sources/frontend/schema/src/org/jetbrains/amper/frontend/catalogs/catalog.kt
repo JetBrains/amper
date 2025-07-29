@@ -449,32 +449,24 @@ private class BuiltInCatalog(
             put("liquibase", library("org.liquibase:liquibase-core"))
             put("flyway", library("org.flywaydb:flyway-core"))
         }
-    }
-    // @formatter:on
-    init {
-        entries.forEach {
-            it.value.trace = (it.value.trace as? BuiltinCatalogTrace)?.copy(catalog = this)
-        }
+        // @formatter:on
     }
 }
 
-internal fun library(groupAndModule: String, version: TraceableString): TraceableString =
+context(catalog: VersionCatalog)
+private fun library(groupAndModule: String, version: TraceableString): TraceableString =
     TraceableString(
         value = "$groupAndModule:${version.value}",
-        trace = BuiltinCatalogTrace(EmptyCatalog, computedValueTrace = version),
+        trace = BuiltinCatalogTrace(catalog, computedValueTrace = version),
     )
 
-internal fun library(groupAndModule: String, version: String): TraceableString =
-    TraceableString("$groupAndModule:$version", trace = BuiltinCatalogTrace(EmptyCatalog, null))
+context(catalog: VersionCatalog)
+private fun library(groupAndModule: String, version: String): TraceableString =
+    TraceableString("$groupAndModule:$version", trace = BuiltinCatalogTrace(catalog))
 
+context(catalog: VersionCatalog)
 private fun library(groupAndModule: String): TraceableString =
-    TraceableString(groupAndModule, trace = BuiltinCatalogTrace(EmptyCatalog, null))
-
-private object EmptyCatalog : VersionCatalog {
-    override val entries: Map<String, TraceableString> = emptyMap()
-    override val isPhysical: Boolean = false
-    override fun findInCatalog(key: String): TraceableString? = null
-}
+    TraceableString(groupAndModule, trace = BuiltinCatalogTrace(catalog))
 
 private fun materialIconsVersion(composeVersion: TraceableString) =
     when {
