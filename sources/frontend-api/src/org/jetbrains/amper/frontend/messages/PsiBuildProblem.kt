@@ -16,7 +16,6 @@ import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.amper.frontend.api.valueBaseOrNull
 import java.nio.file.Path
 import kotlin.reflect.KProperty0
 
@@ -28,7 +27,7 @@ abstract class PsiBuildProblem(override val level: Level) : BuildProblem {
 fun KProperty0<*>.extractPsiElement(): PsiElement = valueBase.extractPsiElement()
 
 @UsedInIdePlugin
-fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = valueBaseOrNull?.extractPsiElementOrNull()
+fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = valueBase.extractPsiElementOrNull()
 
 // FIXME Why do we have this?
 //fun Traceable.extractPsiElement(): PsiElement =
