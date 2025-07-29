@@ -117,11 +117,15 @@ abstract class SchemaNode : Traceable {
 
 sealed class Default<out T> {
     abstract val value: T?
+    abstract val trace: Trace
 
-    data class Static<T>(override val value: T) : Default<T>()
+    data class Static<T>(override val value: T) : Default<T>() {
+        override val trace = DefaultTrace
+    }
 
     data class Lambda<T>(val desc: String?, private val getter: () -> T?) : Default<T>() {
         override val value by lazy { getter() }
+        override val trace = DefaultTrace
     }
 
     data class Dependent<T, V>(
@@ -131,6 +135,11 @@ sealed class Default<out T> {
     ) : Default<V>() {
         override val value by lazy { transformValue?.invoke(property.withoutDefault) }
         val isReference = transformValue == null
+
+        // We need to access property.valueBase lazily because the delegate of the original property might not be
+        // initialized yet. This is the case when the dependent property is declared before the one it depends on in
+        // the schema.
+        override val trace by lazy { DefaultTrace(computedValueTrace = property.valueBase) }
     }
 }
 
@@ -168,9 +177,10 @@ sealed class ValueDelegateBase<T>(
         }
     }
 
-    override val trace: Trace?
+    override val trace: Trace
         get() = valueGetter()?.trace
-            ?: default.asSafely<Default.Dependent<*, *>>()?.property?.setAccessible()?.valueBaseOrNull?.let(::DefaultTrace)
+            ?: default?.trace
+            ?: DefaultTrace // FIXME NullableSchemaValue has a null 'default' instead of a default with null value
 
     override fun toString(): String = "SchemaValue(property = $property, value = $value)"
 }

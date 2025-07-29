@@ -105,7 +105,9 @@ private class CollectingVisitor(
                                         def.desc,
                                         def.property.valueBaseOrNull?.extractPsiElementOrNull()
                                     )
-                                } else ValueSource.Default.takeIf { valueBase.trace == null }
+                                } else {
+                                    ValueSource.Default
+                                }
                             },
                     value,
                     applicablePlatforms,
