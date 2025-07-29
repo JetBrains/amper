@@ -283,10 +283,10 @@ private fun renderTraceableCollection(
             "${presentation.prefix} " +
                     presentation.wrapValue(presentableValue(element, currentFile, presentation)) +
                     (if (presentation != TracesPresentation.CLI || index == it.size - 1) "" else ",") +
-                    ((element as Traceable).trace?.let {
-                        (it as? PsiTrace)?.let { getFileName(it.psiElement, currentFile, presentation) }
-                            ?.let { formatSourceName(it, presentation) }
-                    } ?: "") +
+                    (((element as Traceable).trace as? PsiTrace)
+                        ?.let { getFileName(it.psiElement, currentFile, presentation) }
+                        ?.let { formatSourceName(it, presentation) }
+                     ?: "") +
                     (if (presentation == TracesPresentation.CLI || index == it.size - 1) "" else ",")
         }.joinToString(presentation.sectionSeparator) +
         "${presentation.sectionSeparator}]"

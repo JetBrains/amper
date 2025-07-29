@@ -52,8 +52,7 @@ fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
     is DefaultTrace -> computedValueTrace?.extractPsiElementOrNull()
 }
 
-fun Traceable.extractPsiElementOrNull(): PsiElement? = 
-    trace?.extractPsiElementOrNull()
+fun Traceable.extractPsiElementOrNull(): PsiElement? = trace.extractPsiElementOrNull()
 
 fun Traceable.extractPsiElement(): PsiElement =
     extractPsiElementOrNull() ?: error("Can't extract PSI element from traceable $this")

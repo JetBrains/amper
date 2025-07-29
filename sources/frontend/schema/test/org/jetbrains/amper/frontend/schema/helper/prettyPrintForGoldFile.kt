@@ -181,10 +181,11 @@ private class HumanReadableSerializerVisitor(
     override fun visitValue(it: ValueDelegateBase<*>) {
         builder.append(it.property.name)
         builder.append(": ")
-        val nullableNotSet = it.trace == null && it.property.returnType.isMarkedNullable
         // TODO Remove this hack after removing computable dependant defaults.
         val isDefaultSerialize = it.property == SerializationSettings::enabled && it.trace is DefaultTrace
-        if (it.trace == DefaultTrace || nullableNotSet || isDefaultSerialize) builder.append("<default> ")
+        if (it.trace == DefaultTrace || isDefaultSerialize) {
+            builder.append("<default> ")
+        }
         visit(it.value)
     }
 

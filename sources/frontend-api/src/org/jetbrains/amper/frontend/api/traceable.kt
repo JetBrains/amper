@@ -80,28 +80,28 @@ fun Trace.withComputedValueTrace(computedValueTrace: Traceable?): Trace = when {
  * An entity that can persist its trace.
  */
 interface Traceable {
-    // todo (AB): nullable trace inside Traceable interface doesn't make any sense from the model consumer point of view.
+
     @property:IgnoreForSchema
-    val trace: Trace?
+    val trace: Trace
 }
 
 /**
  * Basic wrapper for classes that have different trace contract (basically, non nullable).
  */
-open class TrivialTraceable(override val trace: Trace?) : Traceable
+open class TrivialTraceable(override val trace: Trace) : Traceable
 
 /**
  * A value that can persist its trace.
  */
-abstract class TraceableValue<T : Any>(val value: T, trace: Trace?) : TrivialTraceable(trace) {
+abstract class TraceableValue<T : Any>(val value: T, trace: Trace) : TrivialTraceable(trace) {
     override fun toString() = value.toString()
     override fun hashCode() = value.hashCode()
     override fun equals(other: Any?) = this === other || other?.asSafely<TraceableValue<*>>()?.value == value
 }
 
-open class TraceableString(value: String, trace: Trace?) : TraceableValue<String>(value, trace)
+open class TraceableString(value: String, trace: Trace) : TraceableValue<String>(value, trace)
 
-class TraceableVersion(value: String, source: ValueDelegateBase<*>?) : TraceableString(value, trace = source?.trace)
+class TraceableVersion(value: String, source: ValueDelegateBase<*>) : TraceableString(value, trace = source.trace)
 
 class TraceablePath(value: Path, trace: Trace) : TraceableValue<Path>(value, trace)
 

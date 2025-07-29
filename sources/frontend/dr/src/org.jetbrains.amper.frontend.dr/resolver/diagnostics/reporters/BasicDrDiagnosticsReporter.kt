@@ -75,7 +75,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
     ) {
         for (directDependency in node.fragmentDependencies) {
             // for every direct module dependency referencing this dependency node
-            val psiElement = directDependency.notation.trace?.extractPsiElementOrNull()
+            val psiElement = directDependency.notation.trace.extractPsiElementOrNull()
 
             if (psiElement != null) {
                 for (message in importantMessages) {

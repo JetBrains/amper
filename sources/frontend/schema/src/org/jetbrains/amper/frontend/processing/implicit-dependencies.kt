@@ -28,54 +28,54 @@ import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLoca
 import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 import org.jetbrains.amper.frontend.toClassBasedSet
 
-private fun kotlinDependencyOf(artifactId: String, dependencyTrace: Trace?) = MavenDependency(
+private fun kotlinDependencyOf(artifactId: String, dependencyTrace: Trace) = MavenDependency(
     coordinates = TraceableString("org.jetbrains.kotlin:$artifactId:${UsedVersions.kotlinVersion}", DefaultTrace),
     trace = dependencyTrace,
 )
 
-private fun lombokDependency(version: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+private fun lombokDependency(version: TraceableString, dependencyTrace: Trace) = MavenDependency(
     coordinates = version.derived { "org.projectlombok:lombok:$it" },
     trace = dependencyTrace,
 )
 
-private fun hotReloadDependency(version: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+private fun hotReloadDependency(version: TraceableString, dependencyTrace: Trace) = MavenDependency(
     coordinates = version.derived { "org.jetbrains.compose.hot-reload:hot-reload-runtime-api:$it" },
     trace = dependencyTrace,
 )
 
-private fun kotlinxSerializationCoreDependency(version: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+private fun kotlinxSerializationCoreDependency(version: TraceableString, dependencyTrace: Trace) = MavenDependency(
     coordinates = version.derived { "org.jetbrains.kotlinx:kotlinx-serialization-core:$it" },
     trace = dependencyTrace,
 )
 
-private fun kotlinxSerializationFormatDependency(format: String, version: TraceableString, dependencyTrace: Trace?) =
+private fun kotlinxSerializationFormatDependency(format: String, version: TraceableString, dependencyTrace: Trace) =
     MavenDependency(
         coordinates = version.derived { "org.jetbrains.kotlinx:kotlinx-serialization-$format:$it" },
         trace = dependencyTrace,
     )
 
-private fun composeRuntimeDependency(composeVersion: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+private fun composeRuntimeDependency(composeVersion: TraceableString, dependencyTrace: Trace) = MavenDependency(
     coordinates = composeVersion.derived { "org.jetbrains.compose.runtime:runtime:$it" },
     trace = dependencyTrace,
 )
 
-private fun composeResourcesDependency(composeVersion: TraceableString, dependencyTrace: Trace?) = MavenDependency(
+private fun composeResourcesDependency(composeVersion: TraceableString, dependencyTrace: Trace) = MavenDependency(
     coordinates = composeVersion.derived { "org.jetbrains.compose.components:components-resources:$it" },
     trace = dependencyTrace,
 )
 
-private fun ktorBomDependency(ktorVersion: TraceableString, dependencyTrace: Trace?): BomDependency = BomDependency(
+private fun ktorBomDependency(ktorVersion: TraceableString, dependencyTrace: Trace): BomDependency = BomDependency(
     coordinates = ktorVersion.derived { "io.ktor:ktor-bom:$it" },
     trace = dependencyTrace,
 )
 
-private fun springBootBomDependency(springBootVersion: TraceableString, dependencyTrace: Trace?): BomDependency =
+private fun springBootBomDependency(springBootVersion: TraceableString, dependencyTrace: Trace): BomDependency =
     BomDependency(
         coordinates = springBootVersion.derived { "org.springframework.boot:spring-boot-dependencies:$it" },
         trace = dependencyTrace,
     )
 
-private fun springBootStarterDependency(springBootVersion: TraceableString, dependencyTrace: Trace?): MavenDependency =
+private fun springBootStarterDependency(springBootVersion: TraceableString, dependencyTrace: Trace): MavenDependency =
     MavenDependency(
         coordinates = TraceableString(
             value = "org.springframework.boot:spring-boot-starter:${springBootVersion.value}",
@@ -86,7 +86,7 @@ private fun springBootStarterDependency(springBootVersion: TraceableString, depe
 
 private fun springBootStarterTestDependency(
     springBootVersion: TraceableString,
-    dependencyTrace: Trace?,
+    dependencyTrace: Trace,
 ): MavenDependency =
     MavenDependency(
         coordinates = TraceableString(
