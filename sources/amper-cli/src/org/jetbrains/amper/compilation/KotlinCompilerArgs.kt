@@ -76,9 +76,6 @@ private fun kotlinCommonCompilerArgs(
     if (kotlinUserSettings.progressiveMode) {
         add("-progressive")
     }
-    if (kotlinUserSettings.storeJavaParameterNames) {
-        add("-java-parameters")
-    }
     kotlinUserSettings.optIns.forEach {
         add("-opt-in=$it")
     }
@@ -145,6 +142,9 @@ internal fun kotlinJvmCompilerArgs(
         add("-Xjava-source-roots=${it.pathString}")
     }
 
+    if (userSettings.kotlin.storeJavaParameterNames) {
+        add("-java-parameters")
+    }
     // Common args last, because they contain free compiler args
     addAll(kotlinCommonCompilerArgs(
         isMultiplatform = isMultiplatform,
