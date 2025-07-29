@@ -13,13 +13,11 @@ fun String.doCapitalize() = replaceFirstChar { it.titlecase() }
 val AmperModule.mavenRepositories: List<RepositoriesModulePart.Repository>
     get() = parts.find<RepositoriesModulePart>()?.mavenRepositories ?: emptyList()
 
-fun Fragment.allFragmentDependencies(
-    includeSelf: Boolean = false
-): Sequence<Fragment> {
-    val allDependencies = allFragmentDependencies(
-        null
-    ).map { it.target }
-    return if (includeSelf) sequenceOf(this) + allDependencies else allDependencies
+fun Fragment.allFragmentDependencies(includeSelf: Boolean = false): Sequence<Fragment> = sequence {
+    if (includeSelf) {
+        yield(this@allFragmentDependencies)
+    }
+    yieldAll(allFragmentDependencies(null).map { it.target })
 }
 
 /**
