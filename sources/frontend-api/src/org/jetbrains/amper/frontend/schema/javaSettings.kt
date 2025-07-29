@@ -125,8 +125,10 @@ class JvmSettings : SchemaNode() {
     @ProductTypeSpecific(ProductType.JVM_APP)
     var mainClass by nullableValue<String>()
 
+    @Aliases("parameters")
     @SchemaDoc("Enables storing formal parameter names of constructors and methods in the generated class files. " +
-            "These can later be accessed using reflection.")
+            "These can later be accessed using reflection. Behind the scenes, this passes the '-parameters' option " +
+            "to the Java compiler, and the '-java-parameters' option to the Kotlin compiler.")
     var storeParameterNames by value(false)
 
     @SchemaDoc("JVM test-specific settings")

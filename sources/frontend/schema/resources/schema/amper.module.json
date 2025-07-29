@@ -1105,8 +1105,13 @@
         },
         "storeParameterNames": {
           "type": "boolean",
-          "x-intellij-html-description": "Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.",
-          "title": "Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection"
+          "x-intellij-html-description": "Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection. Behind the scenes, this passes the '-parameters' option to the Java compiler, and the '-java-parameters' option to the Kotlin compiler.",
+          "title": "Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection. Behind the scenes, this passes the '-parameters' option to the Java compiler, and the '-java-parameters' option to the Kotlin compiler",
+          "x-intellij-metadata": {
+            "aliases": [
+              "parameters"
+            ]
+          }
         },
         "test": {
           "$ref": "#/$defs/JvmTestSettings",
