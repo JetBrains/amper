@@ -159,10 +159,9 @@ sealed class ValueDelegateBase<T>(
         }
     }
 
-    override var trace: Trace?
+    override val trace: Trace?
         get() = valueGetter()?.trace
             ?: default.asSafely<Default.Dependent<*, *>>()?.property?.setAccessible()?.valueBaseOrNull?.let(::DefaultTrace)
-        set(value) = run { valueGetter()?.copy(trace = value)?.let(valueSetter) }
 
     override fun toString(): String = "SchemaValue(property = $property, value = $value)"
 }
@@ -277,12 +276,6 @@ class TraceableEnum<T : Enum<*>>(value: T, trace: Trace) : TraceableValue<T>(val
     init {
         if (trace is PsiTrace) trace.psiElement.putUserData(linkedAmperEnumValue, this.value)
     }
-
-    override var trace: Trace? = null
-        set(value) {
-            if (value is PsiTrace) value.psiElement.putUserData(linkedAmperEnumValue, this.value)
-            field = value
-        }
 
     override fun toString(): String = value.toString()
 }

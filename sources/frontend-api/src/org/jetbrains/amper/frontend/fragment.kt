@@ -187,15 +187,15 @@ sealed interface MavenDependencyBase : Notation {
 
 data class MavenDependency(
     override val coordinates: TraceableString,
+    override val trace: Trace?,
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
-    override var trace: Trace? = null,
 ) : MavenDependencyBase, DefaultScopedNotation
 
 data class BomDependency(
     override val coordinates: TraceableString,
-    override var trace: Trace? = null,
+    override val trace: Trace?,
 ) : MavenDependencyBase
 
 enum class FragmentDependencyType {

@@ -81,15 +81,14 @@ fun Trace.withComputedValueTrace(computedValueTrace: Traceable?): Trace = when {
  */
 interface Traceable {
     // todo (AB): nullable trace inside Traceable interface doesn't make any sense from the model consumer point of view.
-    // todo (AB): it seems this is done mostly because of the trace is initialized (lately), maybe lateinit could be a solution here?
     @property:IgnoreForSchema
-    var trace: Trace?
+    val trace: Trace?
 }
 
 /**
  * Basic wrapper for classes that have different trace contract (basically, non nullable).
  */
-open class TrivialTraceable(override var trace: Trace?) : Traceable
+open class TrivialTraceable(override val trace: Trace?) : Traceable
 
 /**
  * A value that can persist its trace.
