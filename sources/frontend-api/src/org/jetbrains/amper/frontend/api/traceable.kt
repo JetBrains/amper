@@ -94,22 +94,14 @@ open class TrivialTraceable(override var trace: Trace?) : Traceable
 /**
  * A value that can persist its trace.
  */
-abstract class TraceableValue<T : Any>(val value: T, trace: Trace? = null) : TrivialTraceable(trace) {
+abstract class TraceableValue<T : Any>(val value: T, trace: Trace?) : TrivialTraceable(trace) {
     override fun toString() = value.toString()
     override fun hashCode() = value.hashCode()
     override fun equals(other: Any?) = this === other || other?.asSafely<TraceableValue<*>>()?.value == value
 }
 
-open class TraceableString(value: String, trace: Trace?) : TraceableValue<String>(value, trace) {
-
-    @Deprecated("Prefer passing the trace directly at construction time")
-    constructor(value: String) : this(value, trace = null)
-}
+open class TraceableString(value: String, trace: Trace?) : TraceableValue<String>(value, trace)
 
 class TraceableVersion(value: String, source: ValueDelegateBase<*>?) : TraceableString(value, trace = source?.trace)
 
-class TraceablePath(value: Path, trace: Trace?) : TraceableValue<Path>(value, trace) {
-
-    @Deprecated("Prefer passing the trace directly at construction time")
-    constructor(value: Path) : this(value, trace = null)
-}
+class TraceablePath(value: Path, trace: Trace) : TraceableValue<Path>(value, trace)
