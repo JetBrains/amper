@@ -30,34 +30,10 @@ val linkedAmperEnumValue = Key.create<Enum<*>>("org.jetbrains.amper.frontend.lin
  */
 val linkedAmperNode = Key.create<SchemaNode>("org.jetbrains.amper.frontend.linkedNode")
 
-
-enum class ValueState {
-    /**
-     * The value has not been set yet.
-     */
-    UNSET,
-
-    /**
-     * The value has been set explicitly.
-     */
-    EXPLICIT,
-
-    /**
-     * The value has been inherited without merging.
-     */
-    INHERITED,
-
-    /**
-     * The value has been set explicitly and merged with previous one.
-     */
-    MERGED,
-}
-
 typealias ValueHolders = MutableMap<String, ValueHolder<*>>
 
 data class ValueHolder<T>(
     val value: T,
-    val state: ValueState,
     val trace: Trace? = null,
 )
 
@@ -175,17 +151,13 @@ sealed class ValueDelegateBase<T>(
     abstract val value: T
     val unsafe: T? get() = valueGetter()?.value ?: default?.value
     val withoutDefault: T? get() = valueGetter()?.value
-    val state get() = valueGetter()?.state ?: ValueState.UNSET
-
-    /**
-     * Overwrite current value if provided value is not null.
-     */
-    operator fun invoke(newValue: T?, newState: ValueState, newTrace: Trace? = null) =
-        newValue?.let { valueSetter(ValueHolder(it, newState, newTrace ?: newValue.asSafely<Traceable>()?.trace)) }
 
     override fun getValue(thisRef: SchemaNode, property: KProperty<*>) = value
-    override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) =
-        invoke(value, ValueState.EXPLICIT) ?: Unit
+    override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) {
+        if (value != null) {
+            valueSetter(ValueHolder(value, value.asSafely<Traceable>()?.trace))
+        }
+    }
 
     override var trace: Trace?
         get() = valueGetter()?.trace

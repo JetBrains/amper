@@ -10,7 +10,6 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueHolder
-import org.jetbrains.amper.frontend.api.ValueState
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
@@ -88,18 +87,8 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
                 prop.knownStringValues.joinToString(),
             )
         }
-        val currentPsi = currentValue.psiElement
-        val newState = when {
-            currentPsi == null -> ValueState.EXPLICIT
-            // We had to merge; therefore, this node has its own value.
-            currentValue.trace.precedingValue != null -> ValueState.MERGED
 
-            parents.any { it.trace.precedingValue != null } -> ValueState.INHERITED
-            // If none of above conditions are met then node is explicitly set.
-            else -> ValueState.EXPLICIT
-        }
-
-        valueHolders[prop.name] = ValueHolder(value, newState, currentValue.trace)
+        valueHolders[prop.name] = ValueHolder(value, currentValue.trace)
     }
 
     /**
