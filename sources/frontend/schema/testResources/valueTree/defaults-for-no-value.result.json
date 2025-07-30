@@ -77,6 +77,12 @@
         "enabled(DefaultCtx)" : "false(DefaultCtx)",
         "invokeInitializers(DefaultCtx)" : "false(DefaultCtx)"
       },
+      "powerAssert" : {
+        "enabled(DefaultCtx)" : "false(DefaultCtx)",
+        "functions(DefaultCtx)" : [
+          "kotlin.assert(DefaultCtx)"
+        ]
+      },
       "serialization" : {
         "version(DefaultCtx)" : "1.8.0(DefaultCtx)"
       },

@@ -8,12 +8,14 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.StandaloneSpecific
 import org.jetbrains.amper.frontend.api.TraceableString
 
@@ -63,6 +65,7 @@ enum class NoArgPreset(override val schemaValue: String, override val outdated: 
 }
 
 class NoArgSettings : SchemaNode() {
+    @Shorthand
     @SchemaDoc("Enable the Kotlin no-arg compiler plugin")
     var enabled by value(false)
 
@@ -77,6 +80,7 @@ class NoArgSettings : SchemaNode() {
 }
 
 class AllOpenSettings : SchemaNode() {
+    @Shorthand
     @SchemaDoc("Enable the Kotlin all-open compiler plugin")
     var enabled by value(false)
 
@@ -85,6 +89,16 @@ class AllOpenSettings : SchemaNode() {
     
     @SchemaDoc("Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework.")
     var presets by nullableValue<List<AllOpenPreset>>()
+}
+
+class PowerAssertSettings : SchemaNode() {
+    @Shorthand
+    @SchemaDoc("Enable the Kotlin power-assert compiler plugin")
+    var enabled by value(false)
+
+    @SchemaDoc("A list of fully-qualified function names that the Power-assert plugin should transform. " +
+            "If not specified, only kotlin.assert() calls will be transformed by default.")
+    var functions by value(listOf(TraceableString("kotlin.assert", DefaultTrace)))
 }
 
 class KotlinSettings : SchemaNode() {
@@ -145,10 +159,14 @@ class KotlinSettings : SchemaNode() {
     var serialization by value<SerializationSettings>(::SerializationSettings)
     
     @PlatformAgnostic
-    @SchemaDoc("Configure [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html)")
+    @SchemaDoc("Configure the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html)")
     var noArg by value<NoArgSettings>(::NoArgSettings)
     
     @PlatformAgnostic
-    @SchemaDoc("Configure [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)")
+    @SchemaDoc("Configure the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)")
     var allOpen by value<AllOpenSettings>(::AllOpenSettings)
+
+    @PlatformAgnostic
+    @SchemaDoc("Configure the [Kotlin power-assert compiler plugin](https://kotlinlang.org/docs/power-assert.html)")
+    var powerAssert by value<PowerAssertSettings>(::PowerAssertSettings)
 }

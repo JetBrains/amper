@@ -105,6 +105,12 @@ Fragments:
         }
         optIns: <default> null
         optimization: <default> null
+        powerAssert: <default> {
+          enabled: <default> false
+          functions: <default> [
+            - kotlin.assert
+          ]
+        }
         progressiveMode: <default> false
         serialization: {
           enabled: <default> true
@@ -238,6 +244,12 @@ Fragments:
         }
         optIns: <default> null
         optimization: <default> null
+        powerAssert: <default> {
+          enabled: <default> false
+          functions: <default> [
+            - kotlin.assert
+          ]
+        }
         progressiveMode: <default> false
         serialization: {
           enabled: <default> true
@@ -370,6 +382,12 @@ Fragments:
         }
         optIns: <default> null
         optimization: <default> null
+        powerAssert: <default> {
+          enabled: <default> false
+          functions: <default> [
+            - kotlin.assert
+          ]
+        }
         progressiveMode: <default> false
         serialization: {
           enabled: <default> true
@@ -504,6 +522,12 @@ Fragments:
         }
         optIns: <default> null
         optimization: <default> null
+        powerAssert: <default> {
+          enabled: <default> false
+          functions: <default> [
+            - kotlin.assert
+          ]
+        }
         progressiveMode: <default> false
         serialization: {
           enabled: <default> true

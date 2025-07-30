@@ -1,0 +1,7 @@
+product: jvm/app
+
+test-settings:
+  kotlin:
+    powerAssert:
+      enabled: true
+      functions: [ kotlin.assert, kotlin.test.assertEquals ]

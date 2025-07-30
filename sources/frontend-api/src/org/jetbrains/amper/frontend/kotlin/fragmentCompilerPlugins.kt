@@ -56,6 +56,15 @@ fun Settings.compilerPluginsConfigurations(): List<CompilerPluginConfig> = build
         )
     }
 
+    if (kotlin.powerAssert.enabled) {
+        add(
+            PowerAssertCompilerPluginConfig(
+                version = kotlinVersion,
+                functions = kotlin.powerAssert.functions.map { it.value },
+            )
+        )
+    }
+
     if (lombok.enabled) {
         add(LombokCompilerPluginConfig(kotlinVersion = kotlinVersion))
     }

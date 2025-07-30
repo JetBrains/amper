@@ -1,0 +1,5 @@
+product: jvm/app
+
+test-settings:
+  kotlin:
+    powerAssert: enabled

@@ -1137,42 +1137,51 @@
       }
     },
     "AllOpenSettings": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "annotations": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          },
-          "x-intellij-html-description": "List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open.",
-          "title": "List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open"
-        },
-        "enabled": {
-          "type": "boolean",
-          "x-intellij-html-description": "Enable the Kotlin all-open compiler plugin",
-          "title": "Enable the Kotlin all-open compiler plugin"
-        },
-        "presets": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "enum": [
-              "spring",
-              "micronaut",
-              "quarkus"
-            ],
-            "x-intellij-enum-metadata": {
-              "spring": "Automatically adds annotations used by the Spring framework",
-              "micronaut": "Automatically adds annotations used by the Micronaut framework",
-              "quarkus": "Automatically adds annotations used by the Quarkus framework"
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "annotations": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              },
+              "x-intellij-html-description": "List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open.",
+              "title": "List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open"
+            },
+            "enabled": {
+              "type": "boolean",
+              "x-intellij-html-description": "Enable the Kotlin all-open compiler plugin",
+              "title": "Enable the Kotlin all-open compiler plugin"
+            },
+            "presets": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "spring",
+                  "micronaut",
+                  "quarkus"
+                ],
+                "x-intellij-enum-metadata": {
+                  "spring": "Automatically adds annotations used by the Spring framework",
+                  "micronaut": "Automatically adds annotations used by the Micronaut framework",
+                  "quarkus": "Automatically adds annotations used by the Quarkus framework"
+                }
+              },
+              "x-intellij-html-description": "Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework.",
+              "title": "Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework"
             }
-          },
-          "x-intellij-html-description": "Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework.",
-          "title": "Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework"
+          }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
-      }
+      ]
     },
     "CatalogKspProcessorDeclaration": {
       "anyOf": [
@@ -1276,43 +1285,81 @@
       }
     },
     "NoArgSettings": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "annotations": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          },
-          "x-intellij-html-description": "List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated.",
-          "title": "List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated"
-        },
-        "enabled": {
-          "type": "boolean",
-          "x-intellij-html-description": "Enable the Kotlin no-arg compiler plugin",
-          "title": "Enable the Kotlin no-arg compiler plugin"
-        },
-        "invokeInitializers": {
-          "type": "boolean",
-          "x-intellij-html-description": "Whether to call initializers in the synthesized constructor. By default, initializers are not called.",
-          "title": "Whether to call initializers in the synthesized constructor. By default, initializers are not called"
-        },
-        "presets": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "enum": [
-              "jpa"
-            ],
-            "x-intellij-enum-metadata": {
-              "jpa": "Automatically adds no-arg constructors to JPA entity classes"
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "annotations": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              },
+              "x-intellij-html-description": "List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated.",
+              "title": "List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated"
+            },
+            "enabled": {
+              "type": "boolean",
+              "x-intellij-html-description": "Enable the Kotlin no-arg compiler plugin",
+              "title": "Enable the Kotlin no-arg compiler plugin"
+            },
+            "invokeInitializers": {
+              "type": "boolean",
+              "x-intellij-html-description": "Whether to call initializers in the synthesized constructor. By default, initializers are not called.",
+              "title": "Whether to call initializers in the synthesized constructor. By default, initializers are not called"
+            },
+            "presets": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "jpa"
+                ],
+                "x-intellij-enum-metadata": {
+                  "jpa": "Automatically adds no-arg constructors to JPA entity classes"
+                }
+              },
+              "x-intellij-html-description": "Predefined sets of annotations. Currently only 'jpa' preset is supported, which automatically includes JPA entity annotations.",
+              "title": "Predefined sets of annotations. Currently only 'jpa' preset is supported, which automatically includes JPA entity annotations"
             }
-          },
-          "x-intellij-html-description": "Predefined sets of annotations. Currently only 'jpa' preset is supported, which automatically includes JPA entity annotations.",
-          "title": "Predefined sets of annotations. Currently only 'jpa' preset is supported, which automatically includes JPA entity annotations"
+          }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
-      }
+      ]
+    },
+    "PowerAssertSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "x-intellij-html-description": "Enable the Kotlin power-assert compiler plugin",
+              "title": "Enable the Kotlin power-assert compiler plugin"
+            },
+            "functions": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              },
+              "x-intellij-html-description": "A list of fully-qualified function names that the Power-assert plugin should transform. If not specified, only kotlin.assert() calls will be transformed by default.",
+              "title": "A list of fully-qualified function names that the Power-assert plugin should transform. If not specified, only kotlin.assert calls will be transformed by default"
+            }
+          }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
     },
     "SerializationSettings": {
       "anyOf": [
@@ -1373,8 +1420,8 @@
       "properties": {
         "allOpen": {
           "$ref": "#/$defs/AllOpenSettings",
-          "x-intellij-html-description": "Configure [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)",
-          "title": "Configure Kotlin all-open compiler plugin"
+          "x-intellij-html-description": "Configure the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)",
+          "title": "Configure the Kotlin all-open compiler plugin"
         },
         "allWarningsAsErrors": {
           "type": "boolean",
@@ -1467,8 +1514,8 @@
         },
         "noArg": {
           "$ref": "#/$defs/NoArgSettings",
-          "x-intellij-html-description": "Configure [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html)",
-          "title": "Configure Kotlin no-arg compiler plugin"
+          "x-intellij-html-description": "Configure the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html)",
+          "title": "Configure the Kotlin no-arg compiler plugin"
         },
         "optIns": {
           "type": "array",
@@ -1488,6 +1535,11 @@
               "native"
             ]
           }
+        },
+        "powerAssert": {
+          "$ref": "#/$defs/PowerAssertSettings",
+          "x-intellij-html-description": "Configure the [Kotlin power-assert compiler plugin](https://kotlinlang.org/docs/power-assert.html)",
+          "title": "Configure the Kotlin power-assert compiler plugin"
         },
         "progressiveMode": {
           "type": "boolean",

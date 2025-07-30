@@ -88,6 +88,23 @@ data class NoArgCompilerPluginConfig(
     )
 }
 
+data class PowerAssertCompilerPluginConfig(
+    val version: String,
+    val functions: List<String>,
+) : CompilerPluginConfig {
+    // https://github.com/JetBrains/kotlin/blob/4788eb845b46d8639afafa1674f7e81028dcbfb8/plugins/power-assert/power-assert.cli/src/org/jetbrains/kotlin/powerassert/PowerAssertCommandLineProcessor.kt#L28
+    // https://github.com/JetBrains/kotlin/blob/4788eb845b46d8639afafa1674f7e81028dcbfb8/libraries/tools/kotlin-power-assert/src/common/kotlin/org/jetbrains/kotlin/powerassert/gradle/PowerAssertGradlePlugin.kt#L62
+    override val id = "org.jetbrains.kotlin.powerassert"
+    override val options = buildList {
+        addAll(functions.map { Option(name = "function", value = it) })
+    }
+    override val mavenCoordinates = CompilerPluginConfig.MavenCoordinates(
+        groupId = KOTLIN_GROUP_ID,
+        artifactId = "kotlin-power-assert-compiler-plugin-embeddable",
+        version = version,
+    )
+}
+
 data class ParcelizeCompilerPluginConfig(
     val version: String,
     val additionalAnnotations: List<String>,
