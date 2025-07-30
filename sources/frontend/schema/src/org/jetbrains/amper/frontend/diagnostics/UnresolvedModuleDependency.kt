@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.frontend.SchemaBundle
@@ -33,20 +34,24 @@ class UnresolvedModuleDependency(
     override val message: @Nls String
         get() {
             val relativePath = dependency.path.relativeTo(moduleDirectory)
+            val relativePathString = relativePath.formatModulePath()
 
             return if (possibleCorrectPath == null) {
                 SchemaBundle.message(
                     messageKey = "unresolved.module",
-                    relativePath.formatModulePath()
+                    relativePathString
                 )
             } else {
                 SchemaBundle.message(
                     messageKey = "unresolved.module.with.hint",
-                    relativePath.formatModulePath(),
-                    possibleCorrectPath.formatModulePath()
+                    relativePathString,
+                    possibleCorrectPathString,
                 )
             }
         }
+
+    @UsedInIdePlugin
+    val possibleCorrectPathString: String? = possibleCorrectPath?.formatModulePath()
 
     private fun Path.formatModulePath(): String {
         val pathString = pathString
