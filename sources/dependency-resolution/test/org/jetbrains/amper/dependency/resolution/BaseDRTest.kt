@@ -398,7 +398,11 @@ abstract class BaseDRTest {
             severity: Severity = diagnostic.defaultSeverity,
             transitively: Boolean = false
         ) {
-            val nodes = if (transitively) root.distinctBfsSequence() else sequenceOf(root)
+            // TODO remove spread operator hack when classpath issues are fixed
+            //  Kotlin 2.2.0 adds an overload of sequenceOf() taking a single item, but we have an issue with the test
+            //  runtime classpath that puts Kotlin 2.1.20 on the classpath instead 2.2.0, thus NoSuchMethodError.
+            //  This hack forces the use of the vararg overload that existed before.
+            val nodes = if (transitively) root.distinctBfsSequence() else sequenceOf(*arrayOf(root))
             val messages = nodes.flatMap{ it.children.flatMap { it.messages.defaultFilterMessages() } }
             val message = messages.singleOrNull()
             assertNotNull(message, "A single error message is expected, but found: ${messages.toSet()}")
