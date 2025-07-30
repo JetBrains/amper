@@ -32,6 +32,7 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
 import kotlin.test.assertIs
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -265,7 +266,7 @@ abstract class BaseModuleDrTest {
         val message = messages.singleOrNull()
         assertNotNull(message, "A single error message is expected, but found: ${messages.toSet()}")
         assertIs<MessageT>(message, "Unexpected error message")
-        kotlin.test.assertEquals(
+        assertEquals(
             severity,
             message.severity,
             "Unexpected severity of the error message"
@@ -283,12 +284,12 @@ abstract class BaseModuleDrTest {
         val messages = nodes.flatMap{ it.children.flatMap { it.messages.defaultFilterMessages() } }
         val message = messages.singleOrNull()
         assertNotNull(message, "A single error message is expected, but found: ${messages.toSet()}")
-        kotlin.test.assertEquals(
+        assertEquals(
             diagnostic.id,
             message.id,
             "Unexpected error message"
         )
-        kotlin.test.assertEquals(
+        assertEquals(
             severity,
             message.severity,
             "Unexpected severity of the error message"
