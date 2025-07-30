@@ -127,7 +127,7 @@ internal class NativeCompileKlibTask(
                 dir.walk().filter { it.extension in validSourceFileExtensions }
             }
             if (sourceFiles.isEmpty()) {
-                logger.info("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
+                logger.debug("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
                 return@execute ExecuteOnChangedInputs.ExecutionResult(emptyList())
             }
 

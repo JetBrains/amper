@@ -122,7 +122,7 @@ internal class MetadataCompileTask(
                     refinesPaths = refinesPaths,
                 )
             } else {
-                logger.info("No sources were found for ${fragment.identificationPhrase()}, skipping compilation")
+                logger.debug("No sources were found for ${fragment.identificationPhrase()}, skipping compilation")
             }
 
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path.toAbsolutePath()))

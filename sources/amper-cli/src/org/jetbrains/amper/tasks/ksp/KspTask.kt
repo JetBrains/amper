@@ -229,7 +229,7 @@ internal class KspTask(
         executeOnChangedInputs.executeForFiles("${taskName.name}-run-ksp", configuration, inputFiles) {
             kspOutputPaths.outputDirs.forEach(::cleanDirectory)
             if (sources.isEmpty()) {
-                logger.info("No sources were found for ${fragments.identificationPhrase()}, skipping KSP")
+                logger.debug("No sources were found for ${fragments.identificationPhrase()}, skipping KSP")
             } else {
                 logger.info("Running KSP on ${fragments.identificationPhrase()}")
                 run(

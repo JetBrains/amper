@@ -194,7 +194,7 @@ internal class JvmCompileTask(
                     tempRoot = tempRoot,
                 )
             } else {
-                logger.info("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
+                logger.debug("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
             }
 
             val presentResources = resources.filter { it.exists() }
