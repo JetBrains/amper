@@ -85,11 +85,6 @@ internal suspend fun <T> withBackend(
                 DeadLockMonitor.install(cliContext.currentLogsRoot)
                 LoggingInitializer.setupFileLogging(cliContext.currentLogsRoot)
 
-                // TODO output version, os and some env to log file only
-                val printableLogsPath = cliContext.currentLogsRoot.path.toString().replaceWhitespaces()
-                cliContext.terminal.println("Logs are in file://$printableLogsPath")
-                cliContext.terminal.println()
-
                 if (commonOptions.asyncProfiler) {
                     AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.buildOutputRoot)
                 }
@@ -142,8 +137,6 @@ private fun fixSystemOutEncodingOnWindows(terminal: Terminal): Boolean {
 
 private fun CoroutineScope.childScope(name: String): CoroutineScope =
     CoroutineScope(coroutineContext + SupervisorJob(parent = coroutineContext.job) + CoroutineName(name))
-
-private fun String.replaceWhitespaces() = replace(" ", "%20")
 
 private suspend fun cancelAndWaitForScope(scope: CoroutineScope) {
     val normalTerminationMessage = "terminating scope normally"

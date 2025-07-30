@@ -115,12 +115,18 @@ class ProjectFileTest : AmperCliTestBase() {
 
     private fun assertModulesList(modulesCommandResult: AmperCliResult, expectedModules: List<String>) {
         // TODO should we have a machine-readable output format without banner/logs location messages?
-        // Sometimes there are output lines about waiting for other processes or downloading the distribution or JRE.
-        // There are also the output banner and the "logs are there" lines.
-        // There may be empty lines in this first part, and there is always an empty line after the logs location line.
         val modules = modulesCommandResult.stdout.lines()
+            .dropWhile { it.isEmpty() || it.isSporadicWrapperBootstrapMessage() }
             .dropLastWhile { it.isEmpty() }
-            .takeLastWhile { it.isNotEmpty() }
         return assertEquals(expectedModules, modules)
     }
+
+    private val sporadicWrapperBootstrapMessagePrefixes = setOf(
+        "Another Amper instance",
+        "Downloading Amper distribution",
+        "Download complete",
+    )
+
+    private fun String.isSporadicWrapperBootstrapMessage(): Boolean =
+        sporadicWrapperBootstrapMessagePrefixes.any { this.startsWith(it) }
 }
