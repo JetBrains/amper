@@ -14,10 +14,10 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.terminal.prompt
+import com.github.ajalt.mordant.terminal.success
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import org.apache.maven.artifact.versioning.ComparableVersion
-import org.jetbrains.amper.cli.printSuccess
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.httpClient
@@ -142,7 +142,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
                 copyAndReplaceSafely(source = newBatPath, target = amperBatPath)
             }
         }
-        terminal.printSuccess("Update successful")
+        terminal.success("Update successful")
     }
 
     private fun checkNotDirectories(vararg amperScriptPaths: Path) {

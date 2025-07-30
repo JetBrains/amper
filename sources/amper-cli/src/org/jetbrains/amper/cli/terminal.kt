@@ -24,10 +24,3 @@ private fun createAmperTerminalTheme(): Theme = Theme {
     // Markdown blocks are already in a box, so they are visible enough - no need for extra style
     styles["markdown.code.block"] = TextStyle()
 }
-
-/**
- * Prints a message to the console with the 'success' style.
- */
-fun Terminal.printSuccess(message: String) {
-    println(theme.success(message))
-}

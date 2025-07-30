@@ -11,8 +11,8 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.mordant.input.interactiveSelectList
+import com.github.ajalt.mordant.terminal.success
 import com.github.ajalt.mordant.widgets.SelectList
-import org.jetbrains.amper.cli.printSuccess
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.generator.ProjectGenerator
 import org.jetbrains.amper.templates.AmperProjectTemplate
@@ -35,7 +35,7 @@ internal class InitCommand : AmperSubcommand(name = "init") {
 
         ProjectGenerator.initProject(template = selectedTemplate, targetRootDir = targetRootDir)
 
-        terminal.printSuccess("Project successfully generated")
+        terminal.success("Project successfully generated")
         terminal.println()
         val exe = if (OsFamily.current.isWindows) "amper.bat build" else "./amper build"
         terminal.println("Now you may build your project with ${terminal.theme.info(exe)} or open this folder in an " +

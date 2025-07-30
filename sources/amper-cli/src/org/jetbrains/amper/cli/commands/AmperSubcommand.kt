@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli.commands
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.terminal
-import org.jetbrains.amper.cli.printSuccess
+import com.github.ajalt.mordant.terminal.success
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -26,6 +26,6 @@ internal abstract class AmperSubcommand(name: String) : SuspendingCliktCommand(n
      * Prints a message to the console with the 'success' style, and conclusion formatting.
      */
     fun printSuccessfulCommandConclusion(message: String) {
-        terminal.printSuccess(message)
+        terminal.success(message)
     }
 }
