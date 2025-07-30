@@ -44,6 +44,7 @@ settings:
   kotlin:
     progressiveMode: true
     freeCompilerArgs:
+      - -Xannotation-default-target=param-property
       - -Xconsistent-data-class-copy-visibility
       - -Xcontext-parameters
       - -Xrender-internal-diagnostic-names
