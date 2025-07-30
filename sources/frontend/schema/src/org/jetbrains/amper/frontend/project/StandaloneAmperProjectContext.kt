@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.aomBuilder.readProject
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.catalogs.parseGradleVersionCatalog
+import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDeclaration
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext.Companion.find
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.InternalDependency
@@ -275,12 +276,7 @@ context(problemReporter: ProblemReporter)
 private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableString): VirtualFile? {
     val moduleDir = findFileByRelativePath(relativeModulePath.value)
     if (moduleDir == null) {
-        problemReporter.reportBundleError(
-            source = relativeModulePath.asBuildProblemSource(),
-            messageKey = "project.module.path.0.unresolved",
-            relativeModulePath.value,
-            level = Level.Error,
-        )
+        problemReporter.reportMessage(UnresolvedModuleDeclaration(relativeModulePath))
         return null
     }
     if (!moduleDir.isDirectory) {

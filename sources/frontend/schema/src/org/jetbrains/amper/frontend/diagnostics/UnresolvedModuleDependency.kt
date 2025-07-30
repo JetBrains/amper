@@ -22,7 +22,7 @@ class UnresolvedModuleDependency(
     val possibleCorrectPath: Path?,
 ) : PsiBuildProblem(Level.Error) {
     companion object {
-        const val ID = "unresolved.module"
+        const val ID = "unresolved.module.dependency"
     }
 
     override val element: PsiElement

@@ -79,8 +79,8 @@ class ProjectFileTest : AmperCliTestBase() {
         assertContains(r.stdout, "project.yaml:8:5: Glob pattern \"not-a-modul?\" doesn't match any Amper module directory under the project root")
         assertContains(r.stdout, "project.yaml:14:5: The root module is included by default")
 
-        assertContains(r.stderr, "project.yaml:3:5: Unresolved path \"./does-not-exist\"")
-        assertContains(r.stderr, "project.yaml:4:5: Unresolved path \"./does/not/exist\"")
+        assertContains(r.stderr, "project.yaml:3:5: Unresolved module path \"./does-not-exist\"")
+        assertContains(r.stderr, "project.yaml:4:5: Unresolved module path \"./does/not/exist\"")
         assertContains(r.stderr, "project.yaml:5:5: \"not-a-dir\" is not a directory")
         assertContains(r.stderr, "project.yaml:6:5: Directory \"not-a-module\" doesn't contain an Amper module file")
         assertContains(r.stderr, "project.yaml:9:5: Invalid glob pattern \"broken[syntax\": Missing '] near index 12\n" +
