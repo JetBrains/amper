@@ -182,7 +182,8 @@ internal fun BuildCtx.readWithTemplates(
     val moduleTree = readTree(mPath, moduleAType, moduleCtx)
     return listOf(moduleTree) + minimalModule.appliedTemplates.mapNotNull {
         val templateVirtual = it.asVirtualOrNull() ?: return@mapNotNull null
-        readTree(templateVirtual, templateAType, PathCtx(templateVirtual, templateVirtual.asPsi().trace))
+        val psiFile = pathResolver.toPsiFile(templateVirtual) ?: return@mapNotNull null
+        readTree(templateVirtual, templateAType, PathCtx(templateVirtual, psiFile.trace))
     }
 }
 
