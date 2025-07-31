@@ -3,18 +3,29 @@
  */
 package org.jetbrains.amper.frontend.dr.resolver
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.jetbrains.amper.dependency.resolution.Context
+import org.jetbrains.amper.dependency.resolution.DependencyGraphContext
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderPlain
+import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
+import org.jetbrains.amper.dependency.resolution.DependencyNodeWithResolutionContext
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.Key
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
+import org.jetbrains.amper.dependency.resolution.defaultGraphContext
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.LocalModuleDependency
+import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
@@ -36,6 +47,7 @@ data class ResolutionInput(
     val resolutionDepth: ResolutionDepth,
     val resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
     val downloadSources: Boolean = false,
+    val skipIncrementalCache: Boolean= false,
     val fileCacheBuilder: FileCacheBuilder.() -> Unit,
     val spanBuilder: SpanBuilderSource?= null,
 )
@@ -62,15 +74,19 @@ interface ModuleDependenciesResolver {
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         spanBuilder: SpanBuilderSource? = null,
-    ): DependencyNodeHolder
+    ): RootDependencyNodeInput
 
+    /**
+     * @return dependency node representing the root of the resolved graph
+     */
     suspend fun DependencyNodeHolder.resolveDependencies(
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
-        downloadSources: Boolean = false
-    )
+        downloadSources: Boolean = false,
+        skipIncrementalCache: Boolean= false,
+    ): DependencyNode
 
-    suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNodeWithModule
+    suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNode
 
     /**
      * Returned filtered dependencies graph,
@@ -79,7 +95,7 @@ interface ModuleDependenciesResolver {
      * If the resolved dependency version is enforced by constraint, then the path to that constraint is presented
      * in a returned graph together with paths to all versions of this dependency.
      *
-     * Every node of the returned graph is of the type [DependencyNodeWithChildren] holding the corresponding node from the original graph inside.
+     * Every node of the returned graph is of the type [DependencyNode] holding the corresponding node from the original graph inside.
      */
     suspend fun AmperModule.dependencyInsight(
         group: String,
@@ -89,37 +105,89 @@ interface ModuleDependenciesResolver {
 
     fun dependencyInsight(group: String, module: String, node: DependencyNode, resolvedVersionOnly: Boolean = false): DependencyNode
 
-    suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder
+    suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNode
 }
 
-open class DependencyNodeHolderWithNotation(
+abstract class DependencyNodeHolderWithNotation(
     name: String,
-    children: List<DependencyNode>,
+    children: List<DependencyNodeWithResolutionContext>,
     templateContext: Context,
     open val notation: Notation? = null,
-    parentNodes: List<DependencyNode> = emptyList(),
+    parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
 ) : DependencyNodeHolder(name, children, templateContext, parentNodes)
+
+interface ModuleDependencyNode: DependencyNode {
+    val moduleName: String
+    val notation: LocalModuleDependency?
+}
 
 class ModuleDependencyNodeWithModule(
     val module: AmperModule,
     name: String,
-    children: List<DependencyNode>,
+    children: List<DependencyNodeWithResolutionContext>,
     templateContext: Context,
-    override val notation: DefaultScopedNotation? = null,
-    parentNodes: List<DependencyNode> = emptyList(),
-) : DependencyNodeHolderWithNotation(name, children, templateContext, notation, parentNodes = parentNodes)
+    override val notation: LocalModuleDependency? = null,
+    parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
+) : DependencyNodeHolderWithNotation(name, children, templateContext, notation, parentNodes = parentNodes),
+    ModuleDependencyNode
+{
+    override val moduleName = module.userReadableName
 
-class DirectFragmentDependencyNodeHolder(
-    val dependencyNode: DependencyNode,
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+        ModuleDependencyNodeWithModulePlain(module.userReadableName, name, graphContext = graphContext)
+}
+
+@Serializable
+class ModuleDependencyNodeWithModulePlain(
+    override val moduleName: String,
+    val name: String,
+    override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
+    override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
+    @Transient
+    private val graphContext: DependencyGraphContext = defaultGraphContext(),
+): DependencyNodeHolderPlain, ModuleDependencyNode {
+    override val parents: List<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) } }
+    override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
+
+    @Transient
+    override val key: Key<*> = Key<DependencyNodeHolder>(name)
+    override val messages: List<Message> = listOf()
+
+    @Transient
+    override var notation: LocalModuleDependency? = null
+
+    override fun toString() = name
+}
+
+interface DirectFragmentDependencyNode: DependencyNode {
+    val fragmentName: String
+    val dependencyNode: DependencyNode
+    val notation: MavenDependencyBase
+}
+
+internal class DirectFragmentDependencyNodeHolder(
+    override val dependencyNode: DependencyNodeWithResolutionContext,
     val fragment: Fragment,
     templateContext: Context,
-    override val notation: Notation,
-    parentNodes: List<DependencyNode> = emptyList(),
+    override val notation: MavenDependencyBase,
+    parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
     override val messages: List<Message> = emptyList(),
-) : DependencyNodeHolderWithNotation(
+) : DirectFragmentDependencyNode, DependencyNodeHolderWithNotation(
     name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${traceInfo(notation)}",
     listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes
-)
+) {
+    override val fragmentName: String = fragment.name
+
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+        DirectFragmentDependencyNodeHolderPlain(fragment.name, name, messages, graphContext = graphContext)
+
+    override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext) {
+        super.fillEmptyNodePlain(nodePlain, graphContext)
+        (nodePlain as DirectFragmentDependencyNodeHolderPlain).dependencyNodeRef =
+            graphContext.getDependencyNodeReference(dependencyNode)
+                ?: dependencyNode.toSerializableReference(graphContext)
+    }
+}
 
 private fun traceInfo(notation: Notation): String {
     val sourceInfo = when (val trace = notation.trace) {
@@ -132,3 +200,30 @@ private fun traceInfo(notation: Notation): String {
     }
     return sourceInfo?.let { ", $it" } ?: ""
 }
+
+@Serializable
+class DirectFragmentDependencyNodeHolderPlain(
+    override val fragmentName: String,
+    val name: String,
+    override val messages: List<Message>,
+    override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
+    override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
+    @Transient
+    private val graphContext: DependencyGraphContext = defaultGraphContext()
+): DependencyNodeHolderPlain, DirectFragmentDependencyNode {
+    override val parents: List<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) } }
+    override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
+
+    @Transient
+    override val key: Key<*> = Key<DependencyNodeHolder>(name)
+
+    lateinit var dependencyNodeRef: DependencyNodeReference
+
+    @Transient
+    override lateinit var notation: MavenDependencyBase
+
+    override val dependencyNode: DependencyNode by lazy { dependencyNodeRef.toNodePlain(graphContext) }
+
+    override fun toString() = name
+}
+

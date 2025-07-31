@@ -19,9 +19,12 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
+import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
+import org.jetbrains.amper.frontend.dr.resolver.md5
 import org.slf4j.LoggerFactory
+import kotlin.io.path.absolutePathString
 
 /**
  * Performs the resolution of direct module dependencies.
@@ -63,6 +66,10 @@ private val logger = LoggerFactory.getLogger(IdeSync::class.java)
 internal class IdeSync(
     dependenciesFlowType: DependenciesFlowType.IdeSyncType,
 ): AbstractDependenciesFlow<DependenciesFlowType.IdeSyncType>(dependenciesFlowType) {
+
+    override fun resolutionId(modules: List<AmperModule>): String {
+        return "Project compile dependencies: ${flowType.aom.projectRoot.absolutePathString().md5()}"
+    }
 
     override fun directDependenciesGraph(
         module: AmperModule,
@@ -143,12 +150,12 @@ internal class IdeSync(
 
     private fun AmperModule.platforms(): Set<Platform> = fragments.flatMap { it.platforms }.toSet()
 
-    private fun Fragment.hasSinglePlatformDependenciesOnly(moduleDependencies: ModuleDependencyNodeWithModule): Boolean {
+    private fun Fragment.hasSinglePlatformDependenciesOnly(moduleDependencies: ModuleDependencyNode): Boolean {
         if (platforms.size == 1 && module.fragments.all { it.platforms == platforms }) {
             val localModules = moduleDependencies
                 .distinctBfsSequence()
-                .filter { it is ModuleDependencyNodeWithModule && it.notation is LocalModuleDependency }
-                .map { ((it as ModuleDependencyNodeWithModule).notation as LocalModuleDependency).module }
+                .filter { it is ModuleDependencyNode && it.notation is LocalModuleDependency }
+                .map { ((it as ModuleDependencyNode).notation as LocalModuleDependency).module }
                 .toSet()
 
             return localModules.all { it.platforms() == platforms }

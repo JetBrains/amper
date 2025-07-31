@@ -22,14 +22,14 @@ import kotlin.time.Duration.Companion.minutes
  */
 internal fun runSlowTest(testBody: suspend TestScope.() -> Unit) = runTest(timeout = 5.minutes, testBody = testBody)
 
-internal fun DependencyNode.moduleDeps(name: String): ModuleDependencyNodeWithModule = children
-    .filterIsInstance<ModuleDependencyNodeWithModule>()
-    .single { it.module.userReadableName == name }
+internal fun DependencyNode.moduleDeps(name: String): ModuleDependencyNode = children
+    .filterIsInstance<ModuleDependencyNode>()
+    .single { it.moduleName == name }
 
 internal fun DependencyNode.fragmentDeps(module: String, fragment: String) =
     moduleDeps(module).children
-        .filterIsInstance<DirectFragmentDependencyNodeHolder>()
-        .filter { it.fragment.name == fragment }
+        .filterIsInstance<DirectFragmentDependencyNode>()
+        .filter { it.fragmentName == fragment }
 
 internal fun getTestProjectModel(testProjectName: String, testDataRoot: Path): Model {
     val projectPath = testDataRoot.resolve(testProjectName)

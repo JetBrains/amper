@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
@@ -40,7 +39,7 @@ abstract class BaseDRTest {
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
-    ): DependencyNode {
+    ): DependencyNodeHolder {
         val resolver = Resolver()
         resolver.buildGraph(root, ResolutionLevel.NETWORK)
         root.verifyGraphConnectivity()
@@ -82,7 +81,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         spanBuilder: SpanBuilderSource? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
-    ): DependencyNode =
+    ): DependencyNodeHolder =
         context(scope, platform, repositories, cacheBuilder, spanBuilder)
             .use { context ->
                 val root = dependency.toRootNode(context)
@@ -100,7 +99,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         spanBuilder: SpanBuilderSource? = null,
-    ): DependencyNode = doTest(
+    ): DependencyNodeHolder = doTest(
         testInfo,
         listOf(dependency),
         scope,
@@ -123,7 +122,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         spanBuilder: SpanBuilderSource? = null,
-    ): DependencyNode {
+    ): DependencyNodeHolder {
         val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
         return withActualDump(goldenFile) {
             if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
@@ -172,7 +171,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         spanBuilder: SpanBuilderSource? = null,
-    ): DependencyNode = doTestImpl(
+    ): DependencyNodeHolder = doTestImpl(
         testInfo,
         dependency,
         scope,
@@ -220,11 +219,11 @@ abstract class BaseDRTest {
         assertEqualsWithDiff(expected.trimEnd().lines(), root.prettyPrint().trimEnd().lines())
 
     protected fun List<String>.toRootNode(context: Context) =
-        DependencyNodeHolder(name = "root", children = map { it.toMavenNode(context) }, context)
+        RootDependencyNodeInput(children = map { it.toMavenNode(context) }/*, context*/)
 
-    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNode {
+    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeImpl {
         val isBom = artifactId.startsWith("bom:")
-        return MavenDependencyNode(context, groupId, artifactId, version, isBom = isBom)
+        return MavenDependencyNodeImpl(context, groupId, artifactId, version, isBom = isBom)
     }
 
     protected fun String.toMavenCoordinates(): MavenCoordinates {
@@ -235,13 +234,13 @@ abstract class BaseDRTest {
         return MavenCoordinates(group, module, version)
     }
 
-    private fun String.toMavenNode(context: Context): MavenDependencyNode {
+    private fun String.toMavenNode(context: Context): MavenDependencyNodeImpl {
         val isBom = startsWith("bom:")
         val parts = removePrefix("bom:").trim().split(":")
         val group = parts[0]
         val module = parts[1]
         val version = if (parts.size > 2) parts[2] else null
-        return MavenDependencyNode(context, group, module, version, isBom = isBom)
+        return MavenDependencyNodeImpl(context, group, module, version, isBom = isBom)
     }
 
     protected fun assertFiles(
@@ -254,7 +253,7 @@ abstract class BaseDRTest {
             .filterIsInstance<MavenDependencyNode>()
             .flatMap { it.dependency.files(withSources) }
             .filterNot { !checkAutoAddedDocumentation && it.isAutoAddedDocumentation }
-            .mapNotNull { file -> runBlocking { file.getPath()?.let { file to it } } }
+            .mapNotNull { file -> file.path?.let { file to it } }
             .sortedBy { it.second.name }
             .distinctBy { it.second }
             .toSet()
@@ -268,7 +267,9 @@ abstract class BaseDRTest {
                             SimpleMessage(
                                 text = "File '$filePath' was returned from dependency resolution, but is missing on disk",
                                 id = "File is missing on disk",
-                                childMessages = file.diagnosticsReporter.getMessages(),
+                                // todo (AB) : Those messages enrich context of the failure, but those are not
+                                // todo (AB) : available in deserialized graph. It might be better to get messages from dependency node instead
+                                childMessages = (file as? DependencyFileImpl)?.diagnosticsReporter?.getMessages().orEmpty(),
                             ).detailedMessage
                         }
                     }
@@ -293,7 +294,7 @@ abstract class BaseDRTest {
 
     protected suspend fun downloadAndAssertFiles(
         testInfo: TestInfo,
-        root: DependencyNode,
+        root: DependencyNodeHolder,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true,
         verifyMessages: Boolean = false,
@@ -310,7 +311,7 @@ abstract class BaseDRTest {
     }
 
     protected suspend fun downloadAndAssertFiles(
-        files: List<String>, root: DependencyNode, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true,
+        files: List<String>, root: DependencyNodeHolder, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true,
         verifyMessages: Boolean = false, filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ) {
         downloadDependencies(root, withSources, verifyMessages, filterMessages)
@@ -324,7 +325,7 @@ abstract class BaseDRTest {
     }
 
     private suspend fun downloadDependencies(
-        root: DependencyNode,
+        root: DependencyNodeHolder,
         withSources: Boolean,
         verifyMessages: Boolean,
         filterMessages: List<Message>.() -> List<Message>

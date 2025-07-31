@@ -14,11 +14,14 @@ import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.problems.reporting.MessageBundle
+import java.nio.file.InvalidPathException
+import java.security.MessageDigest
+import kotlin.io.path.Path
 
 object FrontendDrBundle : MessageBundle("messages.FrontendDrBundle")
 
-val DependencyNode.fragmentDependencies: List<DirectFragmentDependencyNodeHolder>
-    get() = findParents<DirectFragmentDependencyNodeHolder>()
+val DependencyNode.fragmentDependencies: List<DirectFragmentDependencyNode>
+    get() = findParents<DirectFragmentDependencyNode>()
 
 private inline fun <reified T : DependencyNode> DependencyNode.findParents(): List<T> {
     val result = mutableSetOf<T>()
@@ -73,3 +76,7 @@ fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: Spa
     cache = fileCacheBuilder
     spanBuilder?.let { this.spanBuilder = it }
 }
+
+internal fun String.md5(): String = MessageDigest.getInstance("MD5")
+    .digest(this.toByteArray())
+    .decodeToString()

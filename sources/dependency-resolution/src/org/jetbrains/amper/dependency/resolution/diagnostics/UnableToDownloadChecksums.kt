@@ -4,14 +4,17 @@
 
 package org.jetbrains.amper.dependency.resolution.diagnostics
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependency
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.annotations.Nls
 
+@Serializable
 data class UnableToDownloadChecksums(
     val fileName: String,
-    val dependency: MavenDependency,
+    val coordinates: MavenCoordinates,
     val repositories: List<MavenRepository>,
     val isAutoAddedDocumentation: Boolean = false,
     override val severity: Severity = if (isAutoAddedDocumentation) Severity.INFO else Severity.ERROR,
@@ -22,6 +25,6 @@ data class UnableToDownloadChecksums(
     }
 
     override val id: String = ID
-    override val message: @Nls String = DependencyResolutionBundle.message(id, fileName, dependency)
+    override val message: @Nls String = DependencyResolutionBundle.message(id, fileName, coordinates)
     override val shortMessage: @Nls String = DependencyResolutionBundle.message("unable.to.download.checksums.short", fileName)
 }

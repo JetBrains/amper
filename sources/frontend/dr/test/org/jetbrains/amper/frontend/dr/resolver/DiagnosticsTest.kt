@@ -9,7 +9,10 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
+import org.jetbrains.amper.dependency.resolution.group
+import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.orUnspecified
+import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
@@ -121,7 +124,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
             }
         )
 
-        downloadAndAssertFiles(
+        assertFiles(
             listOf(
                 "annotations-13.0.jar",
                 "apiguardian-api-1.1.2.jar",
@@ -143,7 +146,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
          * This magic number appears because we are diagnosing each fragment (4 fragments total),
          * and each fragment contains 4 incorrect dependencies.
          * 
-         * The common fragment contains incorrect dependencies by definition in module file.
+         * The common fragment contains incorrect dependencies by definition in a module file.
          * More specific fragments contain incorrect dependencies because they were propagated during merge.
          */
         assertEquals(16, buildProblems.size)
@@ -254,7 +257,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
             "Build problem is reported for unexpected dependency")
         assertEquals(buildProblem.level, Level.Warning, "Unexpected build problem level")
 
-        assertNull(buildProblem.dependencyNode.version, "Original version should be left unspecified")
+        assertNull(buildProblem.dependencyNode.originalVersion, "Original version should be left unspecified")
         assertEquals(buildProblem.dependencyNode.versionFromBom, "3.0.2", "Incorrect version resolved from BOM")
         assertEquals(buildProblem.message,
             "Version 3.0.2 of dependency io.ktor:ktor-client-cio-jvm taken from BOM is overridden, the actual version is 3.1.2.",

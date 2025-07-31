@@ -10,6 +10,7 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.SpanContext
 import io.opentelemetry.api.trace.SpanKind
+import kotlinx.serialization.Serializable
 import java.io.Closeable
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
@@ -50,15 +51,15 @@ class Context internal constructor(
      * version. This way, whenever another node is created for the exact same version, it will also benefit from
      * the conflict resolution.
      */
-    private val nodesByMavenDependency: MutableMap<MavenDependency, MavenDependencyNode> = ConcurrentHashMap(),
-    private val constraintsByMavenDependency: MutableMap<MavenDependencyConstraint, MavenDependencyConstraintNode> = ConcurrentHashMap(),
+    private val nodesByMavenDependency: MutableMap<MavenDependencyImpl, MavenDependencyNodeImpl> = ConcurrentHashMap(),
+    private val constraintsByMavenDependency: MutableMap<MavenDependencyConstraintImpl, MavenDependencyConstraintNodeImpl> = ConcurrentHashMap(),
 ) : Closeable {
 
     constructor(block: SettingsBuilder.() -> Unit = {}) : this(SettingsBuilder(block).settings)
 
     val nodeCache: Cache = Cache()
 
-    fun copyWithNewNodeCache(parentNodes: List<DependencyNode>, repositories: List<Repository>? = null): Context =
+    fun copyWithNewNodeCache(parentNodes: List<DependencyNodeWithResolutionContext>, repositories: List<Repository>? = null): Context =
         Context(settings.withRepositories(repositories), resolutionCache, nodesByMavenDependency, constraintsByMavenDependency)
             .apply {
                 nodeParents.addAll(parentNodes)
@@ -78,14 +79,14 @@ class Context internal constructor(
      * might be different from that of the given [dependency], but its "desired" [MavenDependencyNode.version] is
      * guaranteed to match.
      */
-    fun getOrCreateNode(dependency: MavenDependency, parentNode: DependencyNode?): MavenDependencyNode =
+    fun getOrCreateNode(dependency: MavenDependencyImpl, parentNode: DependencyNodeWithResolutionContext?): MavenDependencyNodeImpl =
         nodesByMavenDependency
-            .computeIfAbsent(dependency) { MavenDependencyNode(templateContext = this, dependency) }
+            .computeIfAbsent(dependency) { MavenDependencyNodeImpl(templateContext = this, dependency) }
             .apply { parentNode?.let { context.nodeParents.add(parentNode) } }
 
-    fun getOrCreateConstraintNode(dependencyConstraint: MavenDependencyConstraint, parentNode: DependencyNode?): MavenDependencyConstraintNode =
+    internal fun getOrCreateConstraintNode(dependencyConstraint: MavenDependencyConstraintImpl, parentNode: DependencyNodeWithResolutionContext?): MavenDependencyConstraintNodeImpl =
         constraintsByMavenDependency
-            .computeIfAbsent(dependencyConstraint) { MavenDependencyConstraintNode(templateContext = this, dependencyConstraint) }
+            .computeIfAbsent(dependencyConstraint) { MavenDependencyConstraintNodeImpl(templateContext = this, dependencyConstraint) }
             .apply { parentNode?.let { context.nodeParents.add(parentNode) } }
 
     override fun close() {
@@ -197,19 +198,32 @@ private fun FileCacheBuilder.defaultLocalRepository(cacheRoot: Path) = MavenLoca
  */
 data class Settings(
     val progress: Progress,
-    val scope: ResolutionScope,
-    val platforms: Set<ResolutionPlatform>,
-    val repositories: List<Repository>,
+    override val scope: ResolutionScope,
+    override val platforms: Set<ResolutionPlatform>,
+    override val repositories: List<Repository>,
     val fileCache: FileCache,
     var spanBuilder: SpanBuilderSource,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
-    val dependenciesBlocklist: Set<MavenGroupAndArtifact>,
-)
+    val dependenciesBlocklist: Set<MavenGroupAndArtifact>
+): ResolutionConfig
+
+interface ResolutionConfig {
+    val scope: ResolutionScope
+    val platforms: Set<ResolutionPlatform>
+    val repositories: List<Repository>
+}
 
 data class MavenGroupAndArtifact(
     val group: String,
     val artifactId: String,
 )
+
+@Serializable
+data class ResolutionConfigPlain(
+    override val scope: ResolutionScope,
+    override val platforms: Set<ResolutionPlatform>,
+    override val repositories: List<Repository>
+): ResolutionConfig
 
 /**
  * Defines locations within the resolution session.
@@ -239,13 +253,15 @@ data class FileCache(
  * The parents of the node holding this context.
  */
 // TODO this should probably be an internal property of the dependency node instead of stored in the nodeCache
-val Context.nodeParents: MutableList<DependencyNode>
-    get() = nodeCache.computeIfAbsent(Key<MutableList<DependencyNode>>("parentNodes")) {
+val Context.nodeParents: MutableList<DependencyNodeWithResolutionContext>
+    get() = nodeCache.computeIfAbsent(Key<MutableList<DependencyNodeWithResolutionContext>>("parentNodes")) {
         CopyOnWriteArrayList()
     }
 
+@Serializable
 sealed interface Repository
 
+@Serializable
 data class MavenRepository(
     val url: String,
     val userName: String? = null,
@@ -261,6 +277,7 @@ data class MavenRepository(
     }
 }
 
+@Serializable
 data object MavenLocal : Repository{
     internal const val URL = "mavenLocal"
 

@@ -4,15 +4,23 @@
 
 package org.jetbrains.amper.dependency.resolution.diagnostics
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependency
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.annotations.Nls
 
-class PlatformsAreNotSupported(
-    val dependency: MavenDependency,
+@Serializable
+class PlatformsAreNotSupported private constructor(
+    val coordinates: MavenCoordinates,
+    val requestedPlatforms: Set<ResolutionPlatform>,
     val supportedPlatforms: Set<ResolutionPlatform>,
 ) : Message {
+
+    constructor(dependency: MavenDependency, supportedPlatforms: Set<ResolutionPlatform>)
+            : this(dependency.coordinates, dependency.resolutionConfig.platforms, supportedPlatforms)
+
     companion object {
         const val ID = "platforms.are.not.supported"
     }
@@ -24,10 +32,10 @@ class PlatformsAreNotSupported(
             id,
             unsupportedPlatforms.size,
             unsupportedPlatforms.map(ResolutionPlatform::pretty).sorted().joinToString(),
-            dependency,
+            coordinates,
         )
 
-    override val details: @Nls String?
+    override val details: @Nls String
         get() = buildString {
             append(
                 DependencyResolutionBundle.message(
@@ -37,9 +45,6 @@ class PlatformsAreNotSupported(
                 )
             )
         }
-
-    val requestedPlatforms: Set<ResolutionPlatform>
-        get() = dependency.settings.platforms
 
     val unsupportedPlatforms: Set<ResolutionPlatform>
         get() = requestedPlatforms - supportedPlatforms

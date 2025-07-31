@@ -11,6 +11,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
+import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
@@ -18,7 +19,7 @@ import org.jetbrains.amper.frontend.api.DerivedValueTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableVersion
-import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
+import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.mapLevelToSeverity
@@ -116,7 +117,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
      */
     private fun findVersionDefinition(
         node: DependencyNode,
-        directDependency: DirectFragmentDependencyNodeHolder,
+        directDependency: DirectFragmentDependencyNode,
         dependencyElement: PsiElement,
     ): VersionDefinition? {
         if (node !is MavenDependencyNode) return null
@@ -156,7 +157,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
 class DependencyBuildProblem(
     @field:UsedInIdePlugin
     val problematicDependency: DependencyNode,
-    val directFragmentDependency: DirectFragmentDependencyNodeHolder,
+    val directFragmentDependency: DirectFragmentDependencyNode,
     val errorMessage: Message,
     level: Level,
     @field:UsedInIdePlugin
@@ -217,5 +218,5 @@ class DependencyBuildProblem(
  */
 data class VersionDefinition(val versionElement: PsiElement, val relativePath: String)
 
-internal fun DependencyNode.isTransitiveFor(fragmentDependency: DirectFragmentDependencyNodeHolder): Boolean =
+internal fun DependencyNode.isTransitiveFor(fragmentDependency: DirectFragmentDependencyNode): Boolean =
     this != fragmentDependency && fragmentDependency !in parents

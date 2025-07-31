@@ -14,10 +14,11 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.diagnostics.WithThrowable
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
@@ -42,10 +43,10 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
     ): List<Path> = resolveWithContext(repositories, scope, platform, resolveSourceMoniker) {
-        RootDependencyNodeHolder(
+        RootDependencyNodeInput(
             coordinates.map {
                 val (group, module, version) = it.split(":")
-                MavenDependencyNode(group, module, version, false)
+                MavenDependencyNodeImpl(group, module, version, false)
             },
         )
     }.dependencyPaths()
@@ -60,7 +61,6 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
-        root: Context.() -> DependencyNodeHolder,
     ): DependencyNodeHolder = spanBuilder("mavenResolve")
         .setAttribute("repositories", repositories.joinToString(" "))
         .setAttribute("user-cache-root", userCacheRoot.path.pathString)
@@ -78,14 +78,24 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 this.scope = scope
                 this.platforms = setOf(platform)
             }
-            root(context).apply { resolve(this, resolveSourceMoniker, resolutionDepth) }
+
+            val root = RootDependencyNodeInput(
+                resolutionId = null, // avoid too granular caching
+                children = coordinates.map {
+                    val (group, module, version) = it.split(":")
+                    MavenDependencyNodeImpl(context, group, module, version, false)
+                }
+            )
+
+            val resolvedGraph = resolve(root, resolveSourceMoniker, resolutionDepth)
+            resolvedGraph
         }
 
     suspend fun resolve(
-        root: DependencyNodeHolder,
+        root: RootDependencyNodeInput,
         resolveSourceMoniker: String,
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
-    ) = spanBuilder("mavenResolve")
+    ): DependencyNode = spanBuilder("mavenResolve")
         .setAttribute("coordinates", root.getExternalDependencies().joinToString(" "))
         .also { builder -> root.children.firstOrNull()?.let{
             builder.setAttribute("repositories", it.context.settings.repositories.joinToString(" "))
@@ -93,14 +103,15 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             it.context.settings.platforms.singleOrNull()?.wasmTarget?.let { builder.setAttribute("wasmTarget", it) }
         }}
         .use { span ->
-            with(moduleDependenciesResolver) {
+            val resolvedGraph = with(moduleDependenciesResolver) {
                 root.resolveDependencies(resolutionDepth, downloadSources = false)
             }
 
-            reportDiagnostics(root, span, resolveSourceMoniker)
+            reportDiagnostics(resolvedGraph, span, resolveSourceMoniker)
+            resolvedGraph
         }
 
-    private fun reportDiagnostics(root: DependencyNodeHolder, span: Span, resolveSourceMoniker: String) {
+    private fun reportDiagnostics(root: DependencyNode, span: Span, resolveSourceMoniker: String) {
         val diagnosticsReporter = CollectingProblemReporter()
         collectBuildProblems(root, diagnosticsReporter, Level.Warning)
 
@@ -121,14 +132,15 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                         }
                     }
 
+                    MavenResolverException(buildProblem.message).stackTrace = arrayOf()
+
                     span.recordException(throwable ?: MavenResolverException(buildProblem.message))
                     DoNotLogToTerminalCookie.use {
                         logger.error(buildProblem.message, throwable)
                     }
                 }
 
-                else -> { /* do nothing */
-                }
+                else -> { /* do nothing */ }
             }
         }
 

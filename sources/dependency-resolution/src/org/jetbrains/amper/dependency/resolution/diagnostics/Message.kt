@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.dependency.resolution.diagnostics
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModuleBuilder
+import org.jetbrains.amper.dependency.resolution.AmperDependencyResolutionExceptionSerializable
 import org.jetbrains.annotations.Nls
 
 /**
@@ -66,7 +69,7 @@ private fun WithChildMessages.nestedMessages(level: Int = 1): @Nls String = buil
  * Marks that the [Message] could've been caused by a third-party error or exception.
  */
 interface WithThrowable : Message {
-    val throwable: Throwable?
+    val throwable: AmperDependencyResolutionExceptionSerializable?
 }
 
 enum class Severity {
@@ -91,11 +94,12 @@ enum class Severity {
  *
  * It's better to have a strongly typed message for the better IDE integration.
  */
+@Serializable
 internal data class SimpleMessage(
     val text: @Nls String,
     val extra: @Nls String = "",
     override val severity: Severity = Severity.INFO,
-    override val throwable: Throwable? = null,
+    override val throwable: AmperDependencyResolutionExceptionSerializable? = null,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
 ) : WithChildMessages, WithThrowable {
@@ -103,3 +107,16 @@ internal data class SimpleMessage(
     override val message: @Nls String
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"
 }
+
+fun SerializersModuleBuilder.registerSerializableMessages() {
+    polymorphic(Message::class, SimpleMessage::class, SimpleMessage.serializer())
+    polymorphic(Message::class, BomDeclaredAsRegularDependency::class, BomDeclaredAsRegularDependency.serializer())
+    polymorphic(Message::class, RegularDependencyDeclaredAsBom::class, RegularDependencyDeclaredAsBom.serializer())
+    polymorphic(Message::class, MetadataResolvedWithPomErrors::class, MetadataResolvedWithPomErrors.serializer())
+    polymorphic(Message::class, PomResolvedWithMetadataErrors::class, PomResolvedWithMetadataErrors.serializer())
+    polymorphic(Message::class, UnableToResolveDependency::class, UnableToResolveDependency.serializer())
+    polymorphic(Message::class, UnableToDownloadChecksums::class, UnableToDownloadChecksums.serializer())
+    polymorphic(Message::class, UnableToDownloadFile::class, UnableToDownloadFile.serializer())
+    polymorphic(Message::class, PlatformsAreNotSupported::class, PlatformsAreNotSupported.serializer())
+}
+

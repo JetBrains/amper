@@ -3,20 +3,52 @@
  */
 package org.jetbrains.amper.frontend.dr.resolver
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.SerializersModuleBuilder
+import kotlinx.serialization.modules.plus
+import org.jetbrains.amper.dependency.resolution.DependencyGraph
+import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.DependencyNodeWithResolutionContext
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNodePlain
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.ResolutionConfig
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.Resolver
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
+import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
+import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.diagnostics.registerSerializableMessages
 import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.dependency.resolution.originalVersion
+import org.jetbrains.amper.dependency.resolution.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DependencyCoordinatesInGradleFormat
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenClassifiersAreNotSupported
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveLineBreak
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHavePartEndingWithDot
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveSlash
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveSpace
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveTooFewParts
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveTooManyParts
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesShouldBuildValidPath
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.telemetry.use
+import java.security.MessageDigest
+import kotlin.io.path.pathString
+import kotlin.reflect.KClass
 
 internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
@@ -33,29 +65,195 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, spanBuilder)
     }
 
-    override suspend fun DependencyNodeHolder.resolveDependencies(resolutionDepth: ResolutionDepth, resolutionLevel: ResolutionLevel, downloadSources: Boolean) {
-        when (resolutionDepth) {
-            ResolutionDepth.GRAPH_ONLY -> { /* Do nothing, graph os already given */ }
+    internal fun DependencyNodeWithResolutionContext.getDependenciesGraphInput(): Map<String, List<String>> {
+        val uniqueDependencies = buildMap { fillDependenciesGraphInput(this) }
+        return uniqueDependencies
+    }
 
-            ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
-            ResolutionDepth.GRAPH_FULL -> {
-                val resolver = Resolver()
-                resolver.buildGraph(
-                    this,
-                    level = resolutionLevel,
-                    transitive = (resolutionDepth != ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES),
-                    unspecifiedVersionResolver = DirectMavenDependencyUnspecifiedVersionResolver()
-                )
-                resolver.downloadDependencies(this, downloadSources)
+    private fun DependencyNodeWithResolutionContext.fillDependenciesGraphInput(
+        dependenciesMap: MutableMap<String, List<String>>
+    ) {
+        // todo (AB) : Provide straightforward Id + graph input
+
+        children.forEach {
+            if (it is ModuleDependencyNodeWithModule) {
+                if (it.children.isEmpty()) return@forEach
+
+                val firstChildPlatforms = it.context.settings.platforms
+                val hasDepsWithAnotherPlatformsSet = it.children.any { child ->
+                    child.context.settings.platforms != firstChildPlatforms
+                }
+
+                if (hasDepsWithAnotherPlatformsSet) {
+                    val groupedByFragment = it.children.groupBy {
+                        it as DirectFragmentDependencyNodeHolder
+                        "${it.fragment.module.userReadableName}:${it.fragment.name}"
+                    }
+                    groupedByFragment.forEach {
+                        val resolutionScopeKey = it.key + "," + it.value[0].context.settings.key()
+                        dependenciesMap[resolutionScopeKey] =
+                            it.value.map{ (it as DirectFragmentDependencyNodeHolder).notation.coordinates.value }
+                    }
+                } else {
+                    val coordinates = it
+                        .distinctBfsSequence()
+                        .filterIsInstance<DirectFragmentDependencyNodeHolder>()
+                        .distinctBy { it.dependencyNode }
+                        .map { it.notation.coordinates.value }.toList()
+                    dependenciesMap[it.name] = coordinates
+                }
+            } else if (it is DependencyNodeHolder) {
+                it.fillDependenciesGraphInput(dependenciesMap)
             }
         }
     }
 
-    override suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNodeWithModule {
-        with(resolutionInput) {
-            val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, spanBuilder)
-            moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
-            return moduleDependenciesGraph
+
+
+
+
+
+    override suspend fun DependencyNodeHolder.resolveDependencies(
+        resolutionDepth: ResolutionDepth,
+        resolutionLevel: ResolutionLevel,
+        downloadSources: Boolean,
+        skipIncrementalCache: Boolean,
+    ): DependencyNode {
+        return when (resolutionDepth) {
+            ResolutionDepth.GRAPH_ONLY -> {
+                /* Do nothing, graph is already given */
+                this
+            }
+
+            ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
+            ResolutionDepth.GRAPH_FULL,
+                -> {
+                val resolutionId = when(this) {
+                    is RootDependencyNodeInput -> {
+                        this@resolveDependencies.resolutionId?.let {
+                            it + (if (resolutionDepth == ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES) "[direct only]" else "") +
+                                    "[withSources=$downloadSources]"
+                        }
+                    }
+//                    is ModuleDependencyNodeWithModule -> {
+//                        "Module ${module.userReadableName} compile and runtime dependencies, " +
+//                                "platform = ${this.context.settings.platforms.joinToString { it.pretty }}, " +
+//                                "scope = ${this.context.settings.scope}, " +
+//                                "isTest = "
+//                    }
+                    else -> null
+                }?.replaceTheEndWithMd5IfTooLong()
+
+                if (resolutionId == null || skipIncrementalCache) {
+                    resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
+                    this
+                } else {
+
+                    // todo (AB): It should be adopted and moved into dependency-resolution library
+                    // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
+                    val executeOnChangedInputs = ExecuteOnChangedInputs(
+                        // todo (AB) : It should point into project build dir instead of common DR root
+                        stateRoot = context.settings.fileCache.amperCache.resolve("m2.incremental.state"),
+                        "2"
+                    )
+
+                    val configuration = mapOf(
+                        "userCacheRoot" to context.settings.fileCache.amperCache.pathString,
+                        "dependencies" to getDependenciesGraphInput().entries.joinToString("|") {
+                            "${it.key},${it.value.map { it.toString() }.sorted().joinToString(",")}"
+                        },
+                    )
+
+                    val resolvedGraph = executeOnChangedInputs.execute(
+                        // todo (AB): Think about id, it should specify graph all logical resolution scopes.
+                        id = resolutionId,
+                        configuration,
+                        inputs = listOf(),
+                    ) {
+                        context.spanBuilder("DR.graph")
+                            .use {
+                                resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
+
+                                // todo (AB) : put all dependency files into the outputs
+                                val serializableGraph = this@resolveDependencies.toGraph()
+                                val serialized = json.encodeToString(serializableGraph)
+                                ExecuteOnChangedInputs.ExecutionResult(emptyList(), mapOf("graph" to serialized))
+                            }
+                    }.let {
+                        val serialized = it.outputProperties["graph"]!!
+                        val deserializedGraph = json.decodeFromString<DependencyGraph>(serialized)
+                        deserializedGraph.root.toNodePlain(deserializedGraph.graphContext)
+                    }
+
+                    // todo (AB) : it might be useful to return resolved graph without serialization/deserialisation
+                    // todo (AB) : at first run when cache entry was populated and returned
+                    // if (this == resolvedGraph) return resolvedGraph
+
+                    // Merge input graph (that have PSI references) with the deserialized one
+                    // todo (AB) : Catch error and fallback to non-cached resolution
+                    resolvedGraph.fillNotation(this)
+
+                    resolvedGraph
+                }
+            }
+        }
+    }
+
+    private fun DependencyNodePlain.fillNotation(sourceNode: DependencyNodeHolder) {
+        this.children.forEachIndexed { index, node ->
+            when (node) {
+                is DirectFragmentDependencyNodeHolderPlain -> {
+                    val sourceNode = sourceNode.children.getOrNull(index).ensureSourceNode<DirectFragmentDependencyNodeHolder>(node)
+                    node.notation = sourceNode.notation
+                }
+                is ModuleDependencyNodeWithModulePlain -> {
+                    val sourceNode = sourceNode.children.getOrNull(index).ensureSourceNode<ModuleDependencyNodeWithModule>(node)
+                    node.notation = sourceNode.notation
+                    node.fillNotation(sourceNode)
+                }
+                is RootDependencyNodePlain -> {
+                    val sourceNode = sourceNode.children.getOrNull(index).ensureSourceNode<RootDependencyNodeInput>(node)
+                    node.fillNotation(sourceNode)
+                }
+            }
+        }
+    }
+
+    private inline fun <reified T: DependencyNode> DependencyNode?.ensureSourceNode(node: DependencyNodePlain): T {
+        this ?: error("Deserialized node with key ${node.key} has no corresponding input node")
+        (this as? T)
+            ?: error(
+                "Deserialized node corresponding to unexpected input node of type " +
+                        "${this::class.simpleName} while ${node::class.simpleName} is expected"
+            )
+        return this
+    }
+
+    private fun String.replaceTheEndWithMd5IfTooLong() = this.takeIf { it.length <= 50 }
+        ?: (this.substring(0, 50) + MessageDigest.getInstance("MD5").digest(this.toByteArray()))
+
+    private suspend fun DependencyNodeHolder.resolveDependencies(
+        resolutionLevel: ResolutionLevel,
+        resolutionDepth: ResolutionDepth,
+        downloadSources: Boolean,
+    ) {
+        val resolver = Resolver()
+        resolver.buildGraph(
+            this,
+            level = resolutionLevel,
+            transitive = resolutionDepth != ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
+            unspecifiedVersionResolver = DirectMavenDependencyUnspecifiedVersionResolver()
+        )
+        resolver.downloadDependencies(this, downloadSources)
+    }
+
+    private fun ResolutionConfig.key() = "${scope.name}:${platforms.joinToString(",")}:${repositories.joinToString(",")}"
+
+    override suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNode {
+         with(resolutionInput) {
+             val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, spanBuilder)
+             val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
+             return resolvedGraph as ModuleDependencyNode
         }
     }
 
@@ -63,7 +261,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         spanBuilder: SpanBuilderSource?,
-    ): DependencyNodeHolder {
+    ): RootDependencyNodeInput {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
@@ -72,11 +270,11 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, spanBuilder)
     }
 
-    override suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNodeHolder {
+    override suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNode {
         with(resolutionInput) {
             val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, resolutionInput.spanBuilder)
-            moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
-            return moduleDependenciesGraph
+            val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources, skipIncrementalCache)
+            return resolvedGraph
         }
     }
 
@@ -87,15 +285,60 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         val graph = resolveDependencies(resolutionInput)
         return filterGraph(group, module, graph)
     }
+
+    companion object {
+        val json = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            prettyPrint = true
+            allowStructuredMapKeys = true
+
+            serializersModule = moduleForDependencyNodePlainHierarchy() +
+                    moduleForDependencyNodeHierarchy() +
+                    moduleMessageHierarchy() /*+
+                moduleForDependencyFilePlainHierarchy()*/
+        }
+
+        fun moduleForDependencyNodePlainHierarchy() = SerializersModule {
+            moduleForDependencyNodeHierarchy(DependencyNodePlain::class as KClass<DependencyNode>)
+//        moduleForDependencyNodeHierarchy(DependencyNode::class)
+        }
+
+        fun moduleForDependencyNodeHierarchy() = SerializersModule {
+            moduleForDependencyNodeHierarchy(DependencyNode::class)
+        }
+
+        fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy(kClass: KClass<DependencyNode>) {
+            polymorphic(kClass,MavenDependencyNodePlain::class, MavenDependencyNodePlain.serializer())
+            polymorphic(kClass,ModuleDependencyNodeWithModulePlain::class, ModuleDependencyNodeWithModulePlain.serializer())
+            polymorphic(kClass,RootDependencyNodePlain::class, RootDependencyNodePlain.serializer())
+            polymorphic(kClass,DirectFragmentDependencyNodeHolderPlain::class, DirectFragmentDependencyNodeHolderPlain.serializer())
+            polymorphic(kClass,MavenDependencyConstraintNodePlain::class, MavenDependencyConstraintNodePlain.serializer())
+            polymorphic(kClass,UnresolvedMavenDependencyNodePlain::class,UnresolvedMavenDependencyNodePlain.serializer())
+        }
+
+        fun moduleMessageHierarchy() = SerializersModule {
+            registerSerializableMessages()
+            polymorphic(Message::class,MavenCoordinatesHaveTooFewParts::class, MavenCoordinatesHaveTooFewParts.serializer())
+            polymorphic(Message::class,MavenCoordinatesHaveTooManyParts::class, MavenCoordinatesHaveTooManyParts.serializer())
+            polymorphic(Message::class,MavenCoordinatesHaveSlash::class, MavenCoordinatesHaveSlash.serializer())
+            polymorphic(Message::class,MavenCoordinatesHaveLineBreak::class, MavenCoordinatesHaveLineBreak.serializer())
+            polymorphic(Message::class,MavenCoordinatesHaveSpace::class, MavenCoordinatesHaveSpace.serializer())
+            polymorphic(Message::class,MavenClassifiersAreNotSupported::class, MavenClassifiersAreNotSupported.serializer())
+            polymorphic(Message::class,MavenCoordinatesHavePartEndingWithDot::class, MavenCoordinatesHavePartEndingWithDot.serializer())
+            polymorphic(Message::class,MavenCoordinatesShouldBuildValidPath::class, MavenCoordinatesShouldBuildValidPath.serializer())
+            polymorphic(Message::class,DependencyCoordinatesInGradleFormat::class, DependencyCoordinatesInGradleFormat.serializer())
+        }
+    }
 }
 
-class DirectMavenDependencyUnspecifiedVersionResolver(): UnspecifiedVersionResolver<MavenDependencyNode> {
+class DirectMavenDependencyUnspecifiedVersionResolver(): UnspecifiedVersionResolver<MavenDependencyNodeImpl> {
 
-    override fun isApplicable(node: MavenDependencyNode): Boolean {
+    override fun isApplicable(node: MavenDependencyNodeImpl): Boolean {
         return node.originalVersion() == null
     }
 
-    override fun resolveVersions(nodes: Set<MavenDependencyNode>): Map<MavenDependencyNode, String> {
+    override fun resolveVersions(nodes: Set<MavenDependencyNodeImpl>): Map<MavenDependencyNodeImpl, String> {
         return nodes.mapNotNull { node ->
             if (!isApplicable(node)) {
                 null
@@ -109,20 +352,20 @@ class DirectMavenDependencyUnspecifiedVersionResolver(): UnspecifiedVersionResol
      * Resolve an unspecified dependency version from the BOM imported in the same module.
      * Unspecified dependency version of direct dependency should not be taken from transitive dependencies or constraints.
      */
-    private fun resolveVersionFromBom(node: MavenDependencyNode): String? {
-        val nodeParentsToFindBomsFrom: List<DirectFragmentDependencyNodeHolder> = when {
+    private fun resolveVersionFromBom(node: MavenDependencyNodeImpl): String? {
+        val nodeParentsToFindBomsFrom: List<DirectFragmentDependencyNode> = when {
             // Direct dependency
-            node.parents.any { it is DirectFragmentDependencyNodeHolder } -> node.parents.filterIsInstance<DirectFragmentDependencyNodeHolder>()
+            node.parents.any { it is DirectFragmentDependencyNode } -> node.parents.filterIsInstance<DirectFragmentDependencyNode>()
             // Transitive dependency,
             // find all direct dependencies this transitive one is referenced by and use those for BOM resolution
             else -> node.fragmentDependencies
         }
 
         val boms = nodeParentsToFindBomsFrom
-            .mapNotNull { it.parents.singleOrNull() as? ModuleDependencyNodeWithModule }
+            .mapNotNull { it.parents.singleOrNull() as? ModuleDependencyNode }
             .map { node ->
                 node.children
-                    .filterIsInstance<DirectFragmentDependencyNodeHolder>()
+                    .filterIsInstance<DirectFragmentDependencyNode>()
                     .map { it.dependencyNode }
                     .filterIsInstance<MavenDependencyNode>()
                     .filter { it.isBom }

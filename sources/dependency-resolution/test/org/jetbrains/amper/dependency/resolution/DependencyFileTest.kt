@@ -61,14 +61,14 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependency = MavenDependency(context.settings, "org.jetbrains.kotlin", "kotlin-test", "1.9.20")
+            val dependency = MavenDependencyImpl(context.settings, "org.jetbrains.kotlin", "kotlin-test", "1.9.20")
             val extension = "module"
             val name = "${getNameWithoutExtension(dependency)}.$extension"
             val target = gradleLocalRepository.getPath(dependency, name, "3bf4b49eb37b4aca302f99bd99769f6e310bdb2")
             target.parent.createDirectories()
             Path("testData/metadata/json/module/$name").copyTo(target)
 
-            val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), extension)
+            val dependencyFile = getDependencyFile(dependency, getNameWithoutExtension(dependency), extension)
             assertTrue(dependencyFile.getPath()!!.startsWith(gradleLocalPath) )
 
             val downloaded = dependencyFile.getPath()?.exists() == true
@@ -88,7 +88,7 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "com.fasterxml.jackson.module", "jackson-module-kotlin", "2.15.2"
             )
@@ -109,7 +109,7 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.junit.jupiter", "junit-jupiter-api", "9999"
             )
@@ -145,7 +145,7 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.junit.jupiter", "junit-jupiter-api", "9999"
             )
@@ -175,11 +175,11 @@ class DependencyFileTest {
             repositories = listOf(REDIRECTOR_COMPOSE_DEV)
             platforms = setOf(ResolutionPlatform.MACOS_ARM64)
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.jetbrains.skiko", "skiko-awt-runtime-macos-arm64", "0.8.22"
             )
-            val root = MavenDependencyNode(context, dependency)
+            val root = MavenDependencyNodeImpl(context, dependency)
              val resolver = Resolver()
             resolver.buildGraph(root)
             resolver.downloadDependencies(root)
@@ -214,11 +214,11 @@ class DependencyFileTest {
             )
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64, ResolutionPlatform.IOS_ARM64)
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.jetbrains.skiko", "skiko", "0.8.4"
             )
-            val root = MavenDependencyNode(context, dependency)
+            val root = MavenDependencyNodeImpl(context, dependency)
             val resolver = Resolver()
             resolver.buildGraph(root)
             resolver.downloadDependencies(root)
@@ -241,9 +241,8 @@ class DependencyFileTest {
             )
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
         }.use { context ->
-            val root = DependencyNodeHolder(
-                "root",
-                listOf(
+            val root = RootDependencyNodeInput(
+                children = listOf(
                     context.getOrCreateNode(
                         context.createOrReuseDependency(
                             "org.jetbrains.compose.foundation", "foundation", "1.6.10"
@@ -260,7 +259,7 @@ class DependencyFileTest {
                         ), null
                     ),
                 ),
-                context
+//                context
             )
             val resolver = Resolver()
             resolver.buildGraph(root)
@@ -282,11 +281,11 @@ class DependencyFileTest {
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
             scope = ResolutionScope.RUNTIME
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.jetbrains.skiko", "skiko", "0.8.4"
             )
-            val root = MavenDependencyNode(context, dependency)
+            val root = MavenDependencyNodeImpl(context, dependency)
             val resolver = Resolver()
             resolver.buildGraph(root)
             resolver.downloadDependencies(root)
@@ -305,7 +304,7 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-datetime", "0.5.0"
             )
@@ -327,7 +326,7 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.9.0"
             )
@@ -336,7 +335,7 @@ class DependencyFileTest {
             val errors = dependency.messages.filter { it.severity == Severity.ERROR }
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
-            val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), "jar")
+            val dependencyFile = getDependencyFile(dependency, getNameWithoutExtension(dependency), "jar")
             assertTrue(dependencyFile.getPath()!!.startsWith(mavenLocalPath) )
 
             val downloaded = dependencyFile.getPath()?.exists() == true
@@ -368,7 +367,7 @@ class DependencyFileTest {
 
             Resolver().downloadDependencies(dependencyNode)
 
-            val dependencyFile = DependencyFile(dependencyNode.dependency, getNameWithoutExtension(dependencyNode.dependency), "jar")
+            val dependencyFile = DependencyFileImpl(dependencyNode.dependency, getNameWithoutExtension(dependencyNode.dependency), "jar")
             val path = dependencyFile.getPath()!!
             assertTrue(path.startsWith(mavenLocalPath))
 
@@ -382,7 +381,7 @@ class DependencyFileTest {
             val hasMatchingChecksumAfterCorruption =  dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertFalse (hasMatchingChecksumAfterCorruption, "File was corrupted, checksum check should have failed")
 
-            // Check that artifact was successfully re-downloaded
+            // Check that the artifact was successfully re-downloaded
             Resolver().downloadDependencies(dependencyNode)
             assertTrue(dependencyNode.dependency.messages.none { it.severity == Severity.ERROR }, "There must be no errors: ${dependencyNode.dependency.messages}")
             val hasMatchingChecksumAfterReDownloading = dependencyFile.isDownloadedWithVerification(settings = context.settings)
@@ -401,8 +400,8 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependencyNode = MavenDependencyNode(context,
-                MavenDependency(context.settings, "org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.7.3")
+            val dependencyNode = MavenDependencyNodeImpl(context,
+                MavenDependencyImpl(context.settings, "org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.7.3")
             )
 
             Resolver().buildGraph(dependencyNode)
@@ -412,7 +411,7 @@ class DependencyFileTest {
 
             Resolver().downloadDependencies(dependencyNode)
 
-            val dependencyFile = DependencyFile(dependencyNode.dependency, getNameWithoutExtension(dependencyNode.dependency), "module")
+            val dependencyFile = getDependencyFile(dependencyNode.dependency, getNameWithoutExtension(dependencyNode.dependency), "module")
             val path = dependencyFile.getPath()!!
             assertTrue(path.startsWith(mavenLocalPath))
 
@@ -426,16 +425,16 @@ class DependencyFileTest {
             val hasMatchingChecksumAfterCorruption = dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertFalse (hasMatchingChecksumAfterCorruption, "File was corrupted, checksum check should have failed")
 
-            val dependencyNodeDuplicate = MavenDependencyNode(context,
-                MavenDependency(context.settings, "org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.7.3")
+            val dependencyNodeDuplicate = MavenDependencyNodeImpl(context,
+                MavenDependencyImpl(context.settings, "org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.7.3")
             )
-            val dependencyFileDuplicate = DependencyFile(dependencyNodeDuplicate.dependency, getNameWithoutExtension(dependencyNodeDuplicate.dependency), "module")
+            val dependencyFileDuplicate = getDependencyFile(dependencyNodeDuplicate.dependency, getNameWithoutExtension(dependencyNodeDuplicate.dependency), "module")
 
-            // Check that artifact was not successfully re-downloaded during LOCAL run
+            // Check that the artifact was not successfully re-downloaded during LOCAL run
             Resolver().buildGraph(dependencyNodeDuplicate, level = ResolutionLevel.LOCAL)
             assertTrue(dependencyNodeDuplicate.dependency.messages.any{ it.severity >= Severity.WARNING }, "There must be an errors about incorrect module file: ${dependencyNodeDuplicate.dependency.messages}")
 
-            // Check that artifact was successfully re-downloaded after NETWORK run and no errors are left
+            // Check that the artifact was successfully re-downloaded after NETWORK run and no errors are left
             Resolver().buildGraph(dependencyNodeDuplicate, level = ResolutionLevel.NETWORK)
             assertTrue(dependencyNodeDuplicate.dependency.messages.none { it.severity == Severity.ERROR }, "There must be no errors: ${dependencyNodeDuplicate.dependency.messages}")
             val hasMatchingChecksumAfterReDownloading = dependencyFileDuplicate.isDownloadedWithVerification(settings = context.settings)
@@ -454,7 +453,7 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-datetime", "0.4.0"
             )
@@ -463,7 +462,7 @@ class DependencyFileTest {
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
 
-            val dependencyFile = DependencyFile(dependency, "${getNameWithoutExtension(dependency)}-all", "jar")
+            val dependencyFile = getDependencyFile(dependency, "${getNameWithoutExtension(dependency)}-all", "jar")
             assertTrue(dependencyFile.getPath()!!.startsWith(mavenLocalPath) )
 
             val downloaded = dependencyFile.getPath()?.exists() == true
@@ -491,7 +490,7 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.7.3"
             )
@@ -641,7 +640,7 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependency = MavenDependency(
+            val dependency = MavenDependencyImpl(
                 context.settings,
                 "org.jetbrains.compose.ui", "ui", "1.5.10"
             )

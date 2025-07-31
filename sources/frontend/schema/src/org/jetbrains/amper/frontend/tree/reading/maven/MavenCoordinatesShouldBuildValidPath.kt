@@ -18,7 +18,7 @@ class MavenCoordinatesShouldBuildValidPath(
     @field:UsedInIdePlugin
     val badPart: String,
     @field:UsedInIdePlugin
-    val exception: Throwable,
+    val exceptionMessage: String?,
 ) : MavenCoordinatesParsingProblem() {
     companion object {
         const val ID = "maven.coordinates.should.build.valid.path"

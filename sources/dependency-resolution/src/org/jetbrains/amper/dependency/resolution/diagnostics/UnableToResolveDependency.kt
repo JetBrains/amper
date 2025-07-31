@@ -4,16 +4,18 @@
 
 package org.jetbrains.amper.dependency.resolution.diagnostics
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
-import org.jetbrains.amper.dependency.resolution.MavenDependency
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.annotations.Nls
 
+@Serializable
 class UnableToResolveDependency(
-    val dependency: MavenDependency,
+    val coordinates: MavenCoordinates,
     val repositories: List<Repository>,
-    resolutionLevel: ResolutionLevel,
+    private val resolutionLevel: ResolutionLevel,
     override val childMessages: List<Message>,
 ) : WithChildMessages {
     companion object {
@@ -22,7 +24,7 @@ class UnableToResolveDependency(
 
     override val id: String = ID
 
-    override val message: @Nls String = DependencyResolutionBundle.message(id, dependency)
+    override val message: @Nls String = DependencyResolutionBundle.message(id, coordinates)
 
     override val severity: Severity =
         if (resolutionLevel == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING

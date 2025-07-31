@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.concurrency
 
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runInterruptible
@@ -249,7 +250,7 @@ suspend fun <T> withRetry(
         try {
             return block(attempt)
         } catch (e: Exception) {
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             if (!retryOnException(e)) {
                 throw e
             }

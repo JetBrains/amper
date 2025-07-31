@@ -21,15 +21,14 @@ import org.jetbrains.amper.cli.options.platformGroupOption
 import org.jetbrains.amper.cli.options.selectModules
 import org.jetbrains.amper.cli.options.validLeavesIn
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.telemetry.spanBuilder
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.buildDependenciesGraph
@@ -135,24 +134,26 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
 
         val resolver = MavenResolver(commonOptions.sharedCachesRoot)
 
-        val root = DependencyNodeHolder(
-            name = "root",
-            children = variantsToResolve,
-            emptyContext(commonOptions.sharedCachesRoot) { spanBuilder(it) }
-        )
+            val root = RootDependencyNodeInput(
+                resolutionId = "Module ${resolvedModule.userReadableName} dependencies, " +
+                        (platforms?.let{ "platforms = $platforms," } ?: "") +
+                        "includeTests = $includeTests"
+                ,
+                children = variantsToResolve
+            )
 
-        resolver.resolve(
+        val resolvedGraph = resolver.resolve(
             root = root,
             resolveSourceMoniker = "module ${module.userReadableName}",
         )
 
-        printDependencies(mavenCoordinates, module, root, filter)
+        printDependencies(mavenCoordinates, module, resolvedGraph, filter)
     }
 
     private fun printDependencies(
         mavenCoordinates: MavenCoordinates?,
         resolvedModule: AmperModule,
-        root: DependencyNodeHolder,
+        root: DependencyNode,
         filter: String?,
     ) {
         if (mavenCoordinates == null) {

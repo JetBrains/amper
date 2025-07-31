@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
@@ -13,6 +12,7 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Resolver
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeStub
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleDiagnosticDescriptor
@@ -87,10 +87,10 @@ abstract class BaseModuleDrTest {
 
         val subGraph = when {
             module != null && fragment != null ->
-                DependencyNodeHolder(
-                    "Fragment '$module.$fragment' dependencies",
-                    graph.fragmentDeps(module, fragment),
-                    emptyContext(resolutionInput.fileCacheBuilder, resolutionInput.spanBuilder)
+                RootDependencyNodeStub(
+                    name = "Fragment '$module.$fragment' dependencies",
+                    children = graph.fragmentDeps(module, fragment),
+//                    emptyContext(resolutionInput.fileCacheBuilder, resolutionInput.spanBuilder)
                 )
             module != null -> graph.moduleDeps(module)
             else -> graph
@@ -112,7 +112,7 @@ abstract class BaseModuleDrTest {
 
     protected suspend fun downloadAndAssertFiles(
         testInfo: TestInfo,
-        root: DependencyNode,
+        root: DependencyNodeHolder,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true
     ) {
@@ -128,7 +128,7 @@ abstract class BaseModuleDrTest {
 
     protected suspend fun downloadAndAssertFiles(
         files: List<String>,
-        root: DependencyNode,
+        root: DependencyNodeHolder,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true
     ) {
@@ -167,7 +167,7 @@ abstract class BaseModuleDrTest {
             .filterIsInstance<MavenDependencyNode>()
             .flatMap { it.dependency.files(withSources) }
             .filterNot { !checkAutoAddedDocumentation && it.isAutoAddedDocumentation }
-            .mapNotNull { runBlocking { it.getPath() } }
+            .mapNotNull { it.path }
             .sortedBy { it.name }
             .toSet()
             .let {

@@ -8,10 +8,13 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.group
+import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.orUnspecified
 import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.resolvedVersion
-import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.version
+import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
@@ -32,7 +35,7 @@ class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
         level: Level,
         graphRoot: DependencyNode,
     ) {
-        if (node !is DirectFragmentDependencyNodeHolder) return
+        if (node !is DirectFragmentDependencyNode) return
         if (node.dependencyNode !is MavenDependencyNode) return
         val originalVersion = node.dependencyNode.originalVersion()
 
@@ -42,12 +45,13 @@ class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
             // for every direct module dependency referencing this dependency node
             val psiElement = node.notation.trace?.extractPsiElementOrNull()
             if (psiElement != null) {
+                node.dependencyNode as MavenDependencyNode
                 problemReporter.reportMessage(
                     ModuleDependencyWithOverriddenVersion(
                         node,
                         overrideInsight = moduleDependenciesResolver.dependencyInsight(
-                            node.dependencyNode.group,
-                            node.dependencyNode.module,
+                            (node.dependencyNode as MavenDependencyNode).group,
+                            (node.dependencyNode as MavenDependencyNode).module,
                             graphRoot,
                             resolvedVersionOnly = true,
                         ),
@@ -61,7 +65,7 @@ class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
 
 class ModuleDependencyWithOverriddenVersion(
     @field:UsedInIdePlugin
-    val originalNode: DirectFragmentDependencyNodeHolder,
+    val originalNode: DirectFragmentDependencyNode,
     @field:UsedInIdePlugin
     val overrideInsight: DependencyNode,
     @field:UsedInIdePlugin
@@ -79,9 +83,9 @@ class ModuleDependencyWithOverriddenVersion(
     override val buildProblemId: BuildProblemId = ID
     override val message: @Nls String
         get() = when {
-            dependencyNode.version != null -> FrontendDrBundle.message(
+            dependencyNode.originalVersion != null -> FrontendDrBundle.message(
                 messageKey = ID,
-                dependencyNode.version, effectiveCoordinates, effectiveVersion
+                dependencyNode.originalVersion, effectiveCoordinates, effectiveVersion
             )
             dependencyNode.versionFromBom != null -> FrontendDrBundle.message(
                 messageKey = VERSION_FROM_BOM_IS_OVERRIDDEN_MESSAGE_ID,

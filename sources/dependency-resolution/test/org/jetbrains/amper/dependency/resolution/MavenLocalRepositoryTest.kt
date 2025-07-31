@@ -53,7 +53,7 @@ class MavenLocalRepositoryTest {
         )
     }
 
-    private fun kotlinTest() = MavenDependency(
+    private fun kotlinTest() = MavenDependencyImpl(
         SettingsBuilder {
             cache = {
                 localRepository = mavenLocalRepository

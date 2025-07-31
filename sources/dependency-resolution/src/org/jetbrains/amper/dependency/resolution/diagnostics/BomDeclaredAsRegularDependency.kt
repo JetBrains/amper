@@ -4,16 +4,19 @@
 
 package org.jetbrains.amper.dependency.resolution.diagnostics
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependency
 import org.jetbrains.annotations.Nls
 
-class BomDeclaredAsRegularDependency(val dependency: MavenDependency) : Message {
+@Serializable
+class BomDeclaredAsRegularDependency(val coordinates: MavenCoordinates) : Message {
     companion object {
         const val ID = "bom.declared.as.regular.dependency"
     }
 
     override val id: String = ID
     override val severity: Severity = Severity.ERROR
-    override val message: @Nls String = DependencyResolutionBundle.message(id, dependency)
+    override val message: @Nls String = DependencyResolutionBundle.message(id, coordinates)
 }

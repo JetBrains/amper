@@ -4,10 +4,12 @@
 
 package org.jetbrains.amper.dependency.resolution.diagnostics
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.annotations.Nls
 
+@Serializable
 data class MetadataResolvedWithPomErrors(
     val dependency: MavenCoordinates,
     override val childMessages: List<Message>,

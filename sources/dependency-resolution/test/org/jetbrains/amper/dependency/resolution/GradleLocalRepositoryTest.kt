@@ -87,7 +87,7 @@ class GradleLocalRepositoryTest {
         )
     }
 
-    private fun kotlinTest() = MavenDependency(
+    private fun kotlinTest() = MavenDependencyImpl(
         SettingsBuilder {
             cache = {
                 localRepository = gradleLocalRepository

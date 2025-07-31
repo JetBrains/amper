@@ -11,17 +11,26 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.encoding.encodeStructure
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
 import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.telemetry.use
-import java.nio.file.Path
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.io.path.exists
 
 /**
  * This is the entry point to the library.
@@ -65,10 +74,10 @@ class Resolver {
      * @return current instance
      */
     suspend fun buildGraph(
-        root: DependencyNode,
+        root: DependencyNodeWithResolutionContext,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
         transitive: Boolean = true,
-        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNode>? = null
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl>? = null
     ) {
         root.context.spanBuilder("Resolver.buildGraph").use {
             val conflictResolver =
@@ -104,7 +113,7 @@ class Resolver {
      * Launches a new coroutine to resolve this [DependencyNode], keeping track of the resolution job in the node cache.
      */
     context(coroutineScope: CoroutineScope)
-    private fun DependencyNode.launchRecursiveResolution(
+    private fun DependencyNodeWithResolutionContext.launchRecursiveResolution(
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
@@ -124,7 +133,7 @@ class Resolver {
         resolutionJobs.add(job)
     }
 
-    private suspend fun DependencyNode.resolveRecursively(
+    private suspend fun DependencyNodeWithResolutionContext.resolveRecursively(
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
@@ -166,12 +175,13 @@ class Resolver {
     /**
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
-    suspend fun downloadDependencies(node: DependencyNode, downloadSources: Boolean = false) {
+    suspend fun downloadDependencies(node: DependencyNodeWithResolutionContext, downloadSources: Boolean = false) {
         node.context.spanBuilder("Resolver.downloadDependencies").use {
             coroutineScope {
                 node
                     .distinctBfsSequence { child, _ -> child !is MavenDependencyConstraintNode }
                     .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
+                    .filterIsInstance<DependencyNodeWithResolutionContext>()
                     .forEach {
                         launch {
                             it.downloadDependencies(downloadSources)
@@ -183,11 +193,11 @@ class Resolver {
         }
     }
 
-    private suspend fun DependencyNode.closeResolutionContexts() {
+    private suspend fun DependencyNodeWithResolutionContext.closeResolutionContexts() {
         coroutineScope {
             distinctBfsSequence { child, _ -> child !is MavenDependencyConstraintNode }
                 .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
-                .map { it.context }.distinct()
+                .mapNotNull { (it as? DependencyNodeWithResolutionContext)?.context }.distinct()
                 .forEach {
                     launch {
                         it.close()
@@ -199,7 +209,7 @@ class Resolver {
 
 private class ConflictResolver(
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
-    unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNode>? = null
+    unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl>? = null
 ) {
     /**
      * Maps each key (group:artifact) to the list of "similar" nodes that have that same key, and thus are potential
@@ -208,7 +218,7 @@ private class ConflictResolver(
      * different keys can access the map at the same time).
      * The list values, however, aren't thread-safe, but they are key-specific.
      */
-    private val similarNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<DependencyNode>>()
+    private val similarNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<DependencyNodeWithResolutionContext>>()
     private val conflictedKeys = ConcurrentHashMap.newKeySet<Key<*>>()
     private val conflictDetectionMutexByKey = StripedMutex(64)
 
@@ -219,7 +229,7 @@ private class ConflictResolver(
      * if the node has not been seen yet.
      * Can be called concurrently with any node, including those sharing the same key.
      */
-    suspend fun registerAndDetectConflictsWithChildren(node: DependencyNode) {
+    suspend fun registerAndDetectConflictsWithChildren(node: DependencyNodeWithResolutionContext) {
         conflictDetectionMutexByKey.withLock(node.key.hashCode()) {
             val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
 
@@ -229,9 +239,11 @@ private class ConflictResolver(
         }
 
         // Node is not known to conflict resolver, register it together with all children transitively
-        node.distinctBfsSequence().forEach {
-            registerAndDetectConflicts(it)
-        }
+        node.distinctBfsSequence()
+            .filterIsInstance<DependencyNodeWithResolutionContext>()
+            .forEach {
+                registerAndDetectConflicts(it)
+            }
     }
 
     /**
@@ -250,7 +262,7 @@ private class ConflictResolver(
      * // todo (AB) : as a part of conflict resolution winning subgraph, but some will be eliminated (not reachable from the root).
      * // todo (AB) : The question is: how to detect such "stale" parents? how to get rid of them on conflict resolution-loosing subgraphs?
      */
-    private suspend fun unregisterOrphanNodes(nodes: Set<DependencyNode>) {
+    private suspend fun unregisterOrphanNodes(nodes: Set<DependencyNodeWithResolutionContext>) {
         nodes.flatMap {
             it.distinctBfsSequence { child, _ ->
                 // only a single parent leads to the unregistered top node
@@ -261,7 +273,7 @@ private class ConflictResolver(
                         || !child.isThereAPathToTopBypassing(nodes)
                 // otherwise, the node is referenced from some resolved non-conflicted node
                 // => it should be kept with all children (avoid unregistering)
-            }
+            }.filterIsInstance<DependencyNodeWithResolutionContext>()
         }.forEach {
             conflictDetectionMutexByKey.withLock(it.key.hashCode()) {
                 val similarNodes = similarNodesByKey.computeIfAbsent(it.key) { mutableSetOf() }
@@ -271,7 +283,7 @@ private class ConflictResolver(
         }
     }
 
-    private fun DependencyNode.isThereAPathToTopBypassing(nodes: Set<DependencyNode>): Boolean {
+    private fun DependencyNode.isThereAPathToTopBypassing(nodes: Set<DependencyNodeWithResolutionContext>): Boolean {
         if (parents.isEmpty()) return true // we reach the root
 
         val nonBypassedParents = parents - nodes
@@ -282,7 +294,7 @@ private class ConflictResolver(
      * Registers this node for potential conflict resolution and returns whether it already conflicts with a previously
      * seen node. Can be called concurrently with any node, including those sharing the same key.
      */
-    suspend fun registerAndDetectConflicts(node: DependencyNode): Boolean =
+    suspend fun registerAndDetectConflicts(node: DependencyNodeWithResolutionContext): Boolean =
         conflictDetectionMutexByKey.withLock(node.key.hashCode()) {
             val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
             similarNodes.add(node) // register the node for potential future conflict resolution
@@ -310,7 +322,7 @@ private class ConflictResolver(
      * Resolves conflicts and returns the nodes that must be resolved as a result.
      * Must not be called concurrently with [registerAndDetectConflicts].
      */
-    suspend fun resolveConflicts(): Set<DependencyNode> = coroutineScope {
+    suspend fun resolveConflicts(): Set<DependencyNodeWithResolutionContext> = coroutineScope {
         conflictingNodes()
             .map { candidates ->
                 async {
@@ -334,32 +346,32 @@ private class ConflictResolver(
             }
     }
 
-    private fun conflictingNodes(): List<Set<DependencyNode>> = conflictedKeys.map { key ->
+    private fun conflictingNodes(): List<Set<DependencyNodeWithResolutionContext>> = conflictedKeys.map { key ->
         similarNodesByKey[key] ?: throw AmperDependencyResolutionException("Nodes are missing for ${key.name}")
     }
 
-    private fun Collection<DependencyNode>.resolveConflict(): Boolean {
+    private fun Collection<DependencyNodeWithResolutionContext>.resolveConflict(): Boolean {
         val strategy = conflictResolutionStrategies.find { it.isApplicableFor(this) && it.seesConflictsIn(this) }
             ?: return true // if no strategy sees the conflict, there is no conflict, so it is considered resolved
         return strategy.resolveConflictsIn(this)
     }
 }
 
-private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProvider: UnspecifiedVersionResolver<MavenDependencyNode>) {
-    private val unversionedNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<MavenDependencyNode>>()
+private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProvider: UnspecifiedVersionResolver<MavenDependencyNodeImpl>) {
+    private val unversionedNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<MavenDependencyNodeImpl>>()
 
-    fun registerNode(node: DependencyNode) = doIfApplicable(node) {
+    fun registerNode(node: DependencyNodeWithResolutionContext) = doIfApplicable(node) {
         val unversionedNodes = unversionedNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
         unversionedNodes.add(it)
     }
 
-    fun unregisterNode(node: DependencyNode) = doIfApplicable(node) {
+    fun unregisterNode(node: DependencyNodeWithResolutionContext) = doIfApplicable(node) {
         val unversionedNodes = unversionedNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
         unversionedNodes.remove(it)
     }
 
-    private fun doIfApplicable(node: DependencyNode, block: (MavenDependencyNode) -> Unit) {
-        if (node is MavenDependencyNode && node.resolvedVersion() == null && unspecifiedVersionProvider.isApplicable(node)) {
+    private fun doIfApplicable(node: DependencyNodeWithResolutionContext, block: (MavenDependencyNodeImpl) -> Unit) {
+        if (node is MavenDependencyNodeImpl && node.resolvedVersion() == null && unspecifiedVersionProvider.isApplicable(node)) {
             block(node)
         }
     }
@@ -369,7 +381,7 @@ private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProv
      *
      * @return successfully resolved unspecified versions
      */
-    fun resolveVersions(): List<MavenDependencyNode> {
+    fun resolveVersions(): List<MavenDependencyNodeImpl> {
         return unversionedNodesByKey.values.flatMap { nodes ->
             val resolvedNodes = unspecifiedVersionProvider.resolveVersions(nodes)
 
@@ -384,25 +396,13 @@ private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProv
     }
 }
 
-/**
- * A dependency node is a graph element.
- *
- * It has the following properties.
- *
- * - Holds a context relevant for it and its children.
- * - Can be compared by a [Key] that's the same for all nodes with equal coordinates but different versions.
- * - Has mutable state, children, and messages that could change as a result of the resolution process.
- *
- * By the resolution process we mean finding the node's dependencies (children) according to provided context,
- * namely, a [ResolutionScope] and a platform.
- */
-interface DependencyNode {
+interface DependencyNodeWithResolutionContext: DependencyNode {
 
-    val parents: List<DependencyNode> get() = context.nodeParents
+    override val parents: List<DependencyNodeWithResolutionContext> get() = context.nodeParents
     val context: Context
-    val key: Key<*>
-    val children: List<DependencyNode>
-    val messages: List<Message>
+    override val key: Key<*>
+    override val children: List<DependencyNodeWithResolutionContext>
+    override val messages: List<Message>
 
     /**
      * Fills [children], taking [context] into account.
@@ -421,147 +421,6 @@ interface DependencyNode {
      * Ensures that the dependency-relevant files are on disk, according to settings.
      */
     suspend fun downloadDependencies(downloadSources: Boolean = false)
-
-    /**
-     * Returns a sequence of distinct nodes using BFS starting at (and including) this node.
-     *
-     * The given [childrenPredicate] can be used to skip parts of the graph.
-     * If [childrenPredicate] is false for a node, the node is skipped and will not appear in the sequence.
-     * The subgraph of the skipped node is also not traversed, so these descendant nodes won't be in the sequence unless
-     * they are reached via some other node.
-     * Using [childrenPredicate] is, therefore, different from filtering the resulting sequence after the fact.
-     *
-     * The nodes are distinct in terms of referential identity, which is enough to eliminate duplicate "requested"
-     * dependency triplets. This does NOT eliminate nodes that requested the same dependency in different versions,
-     * even though conflict resolution should make them point to the same dependency version internally eventually.
-     *
-     * The returned sequence is guaranteed to be finite, as it prunes the graph when encountering duplicates (and thus cycles).
-     */
-    fun distinctBfsSequence(childrenPredicate: (DependencyNode, DependencyNode) -> Boolean = { _,_ -> true }): Sequence<DependencyNode> = sequence {
-        val queue = LinkedList(listOf(this@DependencyNode))
-        val visited = mutableSetOf<DependencyNode>()
-        while (queue.isNotEmpty()) {
-            val node = queue.remove()
-            if (visited.add(node)) {
-                yield(node)
-                queue.addAll(node.children.filter { it !in visited && childrenPredicate(it, node) })
-            }
-        }
-    }
-
-    /**
-     * Prints the graph below the node using a Gradle-like output style.
-     */
-    fun prettyPrint(forMavenNode: MavenCoordinates? = null): String = buildString {
-        val allMavenDepsKeys = distinctBfsSequence()
-            .map { it.unwrap() }
-            .filterIsInstance<MavenDependencyNode>()
-            .groupBy { it.key }
-        prettyPrint(this, allMavenDepsKeys,forMavenNode = forMavenNode)
-    }
-
-    private fun DependencyNode.unwrap(): DependencyNode =
-        when (this) {
-            is DependencyNodeWithChildren -> node.unwrap()
-            else -> this
-        }
-
-    private fun prettyPrint(
-        builder: StringBuilder,
-        allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>,
-        indent: StringBuilder = StringBuilder(),
-        visited: MutableSet<Pair<Key<*>, Any?>> = mutableSetOf(),
-        addLevel: Boolean = false,
-        forMavenNode: MavenCoordinates? = null
-    ) {
-        val thisUnwrapped = unwrap()
-        builder.append(indent).append(toString())
-
-        // key doesn't include a version on purpose,
-        // but different nodes referencing the same MavenDependency result in the same dependencies
-        // => add no need to distinguish those while pretty printing
-        val seen = !visited.add(key to ((thisUnwrapped as? MavenDependencyNode)?.dependency ?: (thisUnwrapped as? MavenDependencyConstraintNode)?.dependencyConstraint))
-        if (seen && children.any { it.shouldBePrinted(allMavenDepsKeys, forMavenNode) }) {
-            builder.append(" (*)")
-        } else if (thisUnwrapped is MavenDependencyConstraintNode) {
-            builder.append(" (c)")
-        }
-        builder.append('\n')
-        if (seen || children.isEmpty()) {
-            return
-        }
-
-        if (indent.isNotEmpty()) {
-            indent.setLength(indent.length - 5)
-            if (addLevel) {
-                indent.append("│    ")
-            } else {
-                indent.append("     ")
-            }
-        }
-
-        children
-            .filter { it.shouldBePrinted(allMavenDepsKeys, forMavenNode) }
-            .let { filteredNodes ->
-                filteredNodes.forEachIndexed { i, it ->
-                    val addAnotherLevel = i < filteredNodes.size - 1
-                    if (addAnotherLevel) {
-                        indent.append("├─── ")
-                    } else {
-                        indent.append("╰─── ")
-                    }
-                    it.prettyPrint(builder, allMavenDepsKeys, indent, visited, addAnotherLevel, forMavenNode)
-                    indent.setLength(indent.length - 5)
-                }
-            }
-    }
-
-    fun DependencyNode.shouldBePrinted(
-        allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>,
-        forMavenNode: MavenCoordinates? = null
-    ): Boolean = unwrap().let {
-        it !is MavenDependencyConstraintNode || it.isConstraintAffectingTheGraph(
-            allMavenDepsKeys,
-            forMavenNode
-        )
-    }
-
-    fun MavenDependencyConstraintNode.isConstraintAffectingTheGraph(
-        allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>,
-        forMavenNode: MavenCoordinates?
-    ): Boolean =
-        allMavenDepsKeys[this.key]?.let { affectedNode ->
-            // If there is a dependency with the original version equal to the constraint version, then constraint is noop.
-            affectedNode.none { dep ->
-                dep.version == dep.dependency.version && dep.version == this.version.resolve()
-            }
-                    &&
-                    // The constraint version is the same as the resulted dependency version,
-                    // and the original dependency version is different (⇒ constraint might have affected resolution)
-                    affectedNode.any { dep ->
-                        this.version.resolve() == dep.dependency.version && dep.version != dep.dependency.version
-                    }
-        } ?: forMavenNode?.let { group == it.groupId && module == it.artifactId }
-        ?: false
-
-    suspend fun dependencyPaths(nodeBlock: (DependencyNode) -> Unit = {}): List<Path> {
-        val files = mutableSetOf<Path>()
-        for (node in distinctBfsSequence()) {
-            if (node is MavenDependencyNode) {
-                node.dependency
-                    .files()
-                    .mapNotNull { it.getPath() }
-                    .forEach { file ->
-                        check(file.exists()) {
-                            "File '$file' was returned from dependency resolution, but is missing on disk"
-                        }
-                        files.add(file)
-                    }
-            }
-            nodeBlock(node)
-        }
-        return files.toList()
-    }
 }
 
 /**
@@ -574,7 +433,7 @@ interface DependencyNode {
  * requires one of the child dependencies: this parent just launches its own job for the node, and that one is not canceled.
  */
 // TODO this should probably be an internal property of the dependency node instead of being stored in the nodeCache
-private val DependencyNode.resolutionMutex: Mutex
+private val DependencyNodeWithResolutionContext.resolutionMutex: Mutex
     get() = context.nodeCache.computeIfAbsent(Key<Mutex>("resolutionMutex")) { Mutex() }
 
 /**
@@ -584,7 +443,7 @@ private val DependencyNode.resolutionMutex: Mutex
  * cancellation itself ultimately modifies the list (removes terminated jobs).
  */
 // TODO this should probably be an internal property of the dependency node instead of being stored in the nodeCache
-private val DependencyNode.resolutionJobs: MutableList<Job>
+private val DependencyNodeWithResolutionContext.resolutionJobs: MutableList<Job>
     get() = context.nodeCache.computeIfAbsent(Key<MutableList<Job>>("resolutionJobs")) { CopyOnWriteArrayList() }
 
 /**
@@ -625,3 +484,67 @@ interface UnspecifiedVersionResolver<T> {
 class Progress
 
 class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+
+@Serializable
+class AmperDependencyResolutionExceptionSerializable private constructor(
+    private val ownMessage: String?,
+    private val causeToString: String,
+    private val causeStackTrace: Array<@Serializable(with = StackTraceElementSerializer::class)StackTraceElement>
+) : Throwable(ownMessage) {
+    override fun toString() =
+        (ownMessage?.let { "${AmperDependencyResolutionExceptionSerializable::class.java.simpleName}: $it causedBy${System.lineSeparator()}" } ?: "") +
+            " $causeToString"
+
+    init {
+        setStackTrace(causeStackTrace)
+    }
+
+    constructor(cause: Throwable, message: String? = null)
+            : this(message, cause.toString(), cause.stackTrace )
+}
+
+class StackTraceElementSerializer : KSerializer<StackTraceElement> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("java.lang.StackTraceElement") {
+        element("declaringClass", String.serializer().descriptor)
+        element("methodName", String.serializer().descriptor)
+        element("fileName", String.serializer().nullable.descriptor)
+        element("lineNumber", Int.serializer().descriptor)
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun serialize(encoder: Encoder, value: StackTraceElement) {
+        encoder.encodeStructure(descriptor) {
+            encodeStringElement(descriptor, 0, value.className)
+            encodeStringElement(descriptor, 1, value.methodName)
+            encodeNullableSerializableElement(descriptor, 2, String.serializer().nullable, value.fileName)
+            encodeIntElement(descriptor, 3, value.lineNumber)
+        }
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun deserialize(decoder: Decoder): StackTraceElement {
+        return decoder.decodeStructure(descriptor) {
+            var className: String? = null
+            var methodName: String? = null
+            var fileName: String? = null
+            var lineNumber: Int = -1
+
+            while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
+                    0 -> className = decodeStringElement(descriptor, 0)
+                    1 -> methodName = decodeStringElement(descriptor, 1)
+                    2 -> fileName = decodeNullableSerializableElement(descriptor, 2, String.serializer().nullable)
+                    3 -> lineNumber = decodeIntElement(descriptor, 3)
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> error("Unexpected index: $index")
+                }
+            }
+
+            requireNotNull(className) { "Class name should not be null" }
+            requireNotNull(methodName) { "Method name should not be null" }
+
+            StackTraceElement(className, methodName, fileName, lineNumber)
+        }
+    }
+}
+

@@ -13,6 +13,7 @@ dependencies:
   - ../libraries/concurrency
   - ../libraries/nio-filechannels
   - ../libraries/telemetry
+  - ../libraries/incremental-cache
   - $libs.xmlutil.serialization
   - $libs.maven.artifact
   - $libs.kotlinx.coroutines.core
@@ -20,6 +21,7 @@ dependencies:
 
 test-dependencies:
   - ../test-base
+  - $libs.opentelemetry.exporterLoggingOtlp
   - $libs.slf4j.api
   - $libs.tinylog.api
   - $libs.tinylog.impl

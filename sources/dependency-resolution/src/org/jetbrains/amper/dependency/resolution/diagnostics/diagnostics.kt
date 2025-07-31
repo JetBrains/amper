@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution.diagnostics
 
+import org.jetbrains.amper.dependency.resolution.AmperDependencyResolutionExceptionSerializable
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
 import org.jetbrains.annotations.Nls
 
@@ -12,7 +13,7 @@ class SimpleDiagnosticDescriptor(val id: String, val defaultSeverity: Severity)
 internal fun SimpleDiagnosticDescriptor.asMessage(
     vararg messageArgs: Any?,
     extra: @Nls String? = null,
-    exception: Throwable? = null,
+    exception: AmperDependencyResolutionExceptionSerializable? = null,
     overrideSeverity: Severity? = null,
     childMessages: List<Message> = emptyList(),
 ): SimpleMessage = SimpleMessage(

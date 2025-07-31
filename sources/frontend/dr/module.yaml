@@ -6,12 +6,21 @@ apply:
 
 test-dependencies:
   - ../../test-base
+  - org.reflections:reflections:0.10.2
+  - $kotlin.reflect
 
 dependencies:
   - ../schema
   - ../../core
   - ../../dependency-resolution: exported
   - ../../libraries/telemetry
+  - ../../libraries/incremental-cache
   - $libs.slf4j.api
   - $libs.intellij.platform.util
+
+settings:
+  kotlin:
+    serialization:
+      format: json
+      version: 1.7.3 # Should be aligned with the version of serialization used in the IntelliJ
 

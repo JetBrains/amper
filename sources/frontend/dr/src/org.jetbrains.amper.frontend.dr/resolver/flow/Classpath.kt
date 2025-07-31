@@ -75,10 +75,18 @@ internal class Classpath(
         return fragment.module.fragmentsModuleDependencies(flowType, initialFragment = fragment, fileCacheBuilder = fileCacheBuilder)
     }
 
+    override fun resolutionId(modules: List<AmperModule>): String {
+        return "compile and runtime dependencies of modules ${modules.sortedBy { it.userReadableName }.map { it.userReadableName}}" +
+                "platform = ${flowType.platforms.joinToString { it.pretty }}, " +
+                "isTest = ${flowType.isTest}" +
+                "scope = ${flowType.scope}" +
+                "includeNonExportedNative = ${flowType.includeNonExportedNative}"
+    }
+
     private fun AmperModule.fragmentsModuleDependencies(
         flowType: DependenciesFlowType.ClassPathType,
         directDependencies: Boolean = true,
-        notation: DefaultScopedNotation? = null,
+        notation: LocalModuleDependency? = null,
         visitedModules: MutableSet<AmperModule> = mutableSetOf(),
         initialFragment: Fragment? = null,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,

@@ -73,7 +73,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 """.trimIndent()
         )
 
-        downloadAndAssertFiles(
+        assertFiles(
             listOf(
                 "annotations-13.0.jar",
                 "apiguardian-api-1.1.2.jar",
@@ -258,7 +258,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
             ),
             module = "shared"
-        ) as ModuleDependencyNodeWithModule
+        ) as ModuleDependencyNode
 
         sharedModuleDeps.assertMapping(
             mapOf(
@@ -292,7 +292,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
             ),
             module = "kmp-library",
-        ) as ModuleDependencyNodeWithModule
+        ) as ModuleDependencyNode
 
         moduleDeps.assertParentKmpLibraries(
             mapOf(
@@ -302,7 +302,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
         )
     }
 
-    private fun ModuleDependencyNodeWithModule.assertMapping(
+    private fun ModuleDependencyNode.assertMapping(
         expectedMapping: Map<String, String>
     ) {
         val expectedCoordinatesMapping =
@@ -329,7 +329,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
             }
     }
 
-    private fun ModuleDependencyNodeWithModule.assertParentKmpLibraries(
+    private fun ModuleDependencyNode.assertParentKmpLibraries(
         expectedMapping: Map<String, String>
     ) {
         val expectedCoordinatesMapping =

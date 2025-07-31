@@ -8,13 +8,15 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 
 class DependencyNodeWithChildren(val node: DependencyNode): DependencyNode {
     override val children: MutableList<DependencyNode> = mutableListOf()
-    override val context: Context = node.context
+//    override val context: Context = node.context
     override val key: Key<*> = node.key
     override val messages: List<Message> = node.messages.toMutableList()
+
+    override val parents: MutableList<DependencyNode> = mutableListOf()
+
     override fun toString() = node.toString()
 
-    override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) = throw UnsupportedOperationException("Can't run resolution on wrapper")
-    override suspend fun downloadDependencies(downloadSources: Boolean) = throw UnsupportedOperationException("Can't download dependencies for wrapper")
+    override fun toSerializableReference(graphContext: DependencyGraphContext) = error("${this::class.java.simpleName} is not serializable")
 }
 
 /**
@@ -105,7 +107,7 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
             val dependenciesAndConstraints = entry.value
 
             val effectiveNodes = dependenciesAndConstraints.filter {
-                it is MavenDependencyNode &&  it.dependency.version != null && it.version == it.dependency.version
+                it is MavenDependencyNode &&  it.dependency.version != null && it.originalVersion == it.dependency.version
                         || it is MavenDependencyConstraintNode && it.version == it.dependencyConstraint.version
             }.toSet()
 
@@ -206,6 +208,8 @@ private fun DependencyNode.withFilteredChildren(
             .let { if (it.size > 1 && resolvedVersionOnly && this is MavenDependencyNode) it.subList(0,1) else it }
             .map { it.withFilteredChildren(cachedChildrenMap, resolvedVersionOnly, childrenFilter) }
         nodeWithFilteredChildren.children.addAll(children)
+
+        children.forEach { it.parents.add(nodeWithFilteredChildren) }
 
         nodeWithFilteredChildren
     }

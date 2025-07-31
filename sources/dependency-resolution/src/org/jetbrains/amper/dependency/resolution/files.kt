@@ -10,11 +10,14 @@ import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.jetbrains.amper.concurrency.FileMutexGroup
 import org.jetbrains.amper.concurrency.withRetry
 import org.jetbrains.amper.dependency.resolution.diagnostics.CollectingDiagnosticReporter
@@ -82,7 +85,6 @@ import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-
 private val logger = LoggerFactory.getLogger("files.kt")
 
 private val downloadSemaphore = Semaphore(10)
@@ -103,7 +105,7 @@ interface LocalRepository {
      * As Gradle uses a SHA1 hash as a part of a path which might not be available without a file content,
      * this method allows returning `null`.
      */
-    fun guessPath(dependency: MavenDependency, name: String): Path?
+    fun guessPath(dependency: MavenDependencyImpl, name: String): Path?
 
     /**
      * Returns a path to a temp directory for a particular dependency.
@@ -111,7 +113,7 @@ interface LocalRepository {
      * The file is downloaded to a temp directory to be later moved to a permanent one provided by [getPath].
      * Both paths should preferably be on the same file drive to allow atomic move.
      */
-    fun getTempDir(dependency: MavenDependency): Path
+    fun getTempDir(dependency: MavenDependencyImpl): Path
 
     /**
      * Returns a path to a file on disk.
@@ -119,7 +121,7 @@ interface LocalRepository {
      *
      * Gradle uses a SHA1 hash as a part of a path.
      */
-    fun getPath(dependency: MavenDependency, name: String, sha1: String): Path
+    fun getPath(dependency: MavenDependencyImpl, name: String, sha1: String): Path
 
     /**
      * Returns a path to a file on disk.
@@ -127,7 +129,7 @@ interface LocalRepository {
      *
      * Gradle uses a SHA1 hash as a part of a path.
      */
-    suspend fun getPath(dependency: MavenDependency, name: String, sha1: suspend () -> String): Path =
+    suspend fun getPath(dependency: MavenDependencyImpl, name: String, sha1: suspend () -> String): Path =
         getPath(dependency, name, sha1())
 }
 
@@ -149,7 +151,7 @@ class GradleLocalRepository(internal val filesPath: Path) : LocalRepository {
 
     override fun toString(): String = "[Gradle] $filesPath"
 
-    override fun guessPath(dependency: MavenDependency, name: String): Path? {
+    override fun guessPath(dependency: MavenDependencyImpl, name: String): Path? {
         val location = getLocation(dependency)
         val pathFromVariant = fileFromVariant(dependency, name)?.let { location.resolve("${it.sha1}/${it.name}") }
         if (pathFromVariant != null) return pathFromVariant
@@ -174,14 +176,14 @@ class GradleLocalRepository(internal val filesPath: Path) : LocalRepository {
                 }
         }
 
-    override fun getTempDir(dependency: MavenDependency): Path = getLocation(dependency)
+    override fun getTempDir(dependency: MavenDependencyImpl): Path = getLocation(dependency)
 
-    override fun getPath(dependency: MavenDependency, name: String, sha1: String): Path {
+    override fun getPath(dependency: MavenDependencyImpl, name: String, sha1: String): Path {
         val location = getLocation(dependency)
         return location.resolve(sha1).resolve(name)
     }
 
-    private fun getLocation(dependency: MavenDependency) =
+    private fun getLocation(dependency: MavenDependencyImpl) =
         filesPath.resolve("${dependency.group}/${dependency.module}/${dependency.version.orUnspecified()}")
 }
 
@@ -204,64 +206,87 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
 
     override fun toString(): String = "[Maven] $repository"
 
-    override fun guessPath(dependency: MavenDependency, name: String): Path =
+    override fun guessPath(dependency: MavenDependencyImpl, name: String): Path =
         repository.resolve(getLocation(dependency)).resolve(name)
 
-    override fun getTempDir(dependency: MavenDependency): Path = repository.resolve(getLocation(dependency))
+    override fun getTempDir(dependency: MavenDependencyImpl): Path = repository.resolve(getLocation(dependency))
 
-    override fun getPath(dependency: MavenDependency, name: String, sha1: String): Path = guessPath(dependency, name)
+    override fun getPath(dependency: MavenDependencyImpl, name: String, sha1: String): Path = guessPath(dependency, name)
 
     /**
      * Parameter sha1 is ignored and not calculated
      */
-    override suspend fun getPath(dependency: MavenDependency, name: String, sha1: suspend () -> String): Path =
+    override suspend fun getPath(dependency: MavenDependencyImpl, name: String, sha1: suspend () -> String): Path =
         guessPath(dependency, name)
 
-    private fun getLocation(dependency: MavenDependency): Path {
+    private fun getLocation(dependency: MavenDependencyImpl): Path {
         val groupPath = dependency.group.split('.').joinToString("/")
         return repository.resolve("${groupPath}/${dependency.module}/${dependency.version.orUnspecified()}")
     }
 }
 
-internal fun getDependencyFile(dependency: MavenDependency, file: File) = getDependencyFile(
-    dependency,
-    file.url.substringBeforeLast('.'),
-    file.name.substringAfterLast('.')
-)
+internal fun getDependencyFile(dependency: MavenDependencyImpl, file: File, isDocumentation: Boolean = false) =
+    getDependencyFile(
+        dependency,
+        file.url.substringBeforeLast('.'),
+        file.name.substringAfterLast('.',),
+        isDocumentation = isDocumentation
+    )
 
-fun DependencyFile.getHashDependencyFile(algorithm: String) = getDependencyFile(
+private fun DependencyFileImpl.getHashDependencyFile(algorithm: String) = getDependencyFile(
     dependency,
     nameWithoutExtension,
     "$extension.$algorithm"
 )
 
 fun getDependencyFile(
-    dependency: MavenDependency,
+    dependency: MavenDependencyImpl,
     nameWithoutExtension: String,
     extension: String,
+    isDocumentation: Boolean = false,
     isAutoAddedDocumentation: Boolean = false,
 ) =
     // todo (AB) : What if version is not specified, but later we will find out that it ends with "-SNAPSHOT",
     // todo (AB) : such a dependency file should be converted to SnapshotDependency
     if (dependency.version?.endsWith("-SNAPSHOT") == true) {
-        SnapshotDependencyFile(
+        SnapshotDependencyFileImpl(
             dependency,
             nameWithoutExtension,
             extension,
+            isDocumentation = isDocumentation,
             isAutoAddedDocumentation = isAutoAddedDocumentation,
         )
     } else {
-        DependencyFile(dependency, nameWithoutExtension, extension, isAutoAddedDocumentation = isAutoAddedDocumentation)
+        DependencyFileImpl(dependency, nameWithoutExtension, extension,
+            isDocumentation = isDocumentation, isAutoAddedDocumentation = isAutoAddedDocumentation)
     }
 
+@Serializable
+data class DependencyFilePlain(
+    override val isAutoAddedDocumentation: Boolean,
+    override val isDocumentation: Boolean,
+    override val extension: String,
+    val pathAsString: String? = null
+) : DependencyFile {
+    @Transient
+    override val path: Path? = pathAsString?.let { Path(it) }
+}
 
-open class DependencyFile(
-    val dependency: MavenDependency,
+sealed interface DependencyFile {
+    val isAutoAddedDocumentation: Boolean
+    val isDocumentation: Boolean
+    val extension: String
+    val path: Path?
+}
+
+open class DependencyFileImpl(
+    val dependency: MavenDependencyImpl,
     val nameWithoutExtension: String,
-    val extension: String,
-    val isAutoAddedDocumentation: Boolean = false,
+    override val extension: String,
+    override val isDocumentation: Boolean = false,
+    override val isAutoAddedDocumentation: Boolean = false,
     private val fileCache: FileCache = dependency.settings.fileCache,
-) {
+): DependencyFile {
     val settings = TypedKeyMap()
 
     @Volatile
@@ -307,8 +332,15 @@ open class DependencyFile(
         return readOnlyExternalCacheDirectory
     }
 
+    override val path: Path?
+        get() = getResolvedPath()
+            // runBlocking could be called for the first time only until the path is not resolved yet.
+            // Calling path should be avoided from inside the resolution process. it is here to comply with the base interface.
+            // Use suspendable getPath() instead.
+            ?: runBlocking { getPath() }
+
     @Volatile
-    private var path: Path? = null
+    private var downloadedFilePath: Path? = null
 
     @Volatile
     private var guessedCacheLocalPath: Path? = null
@@ -336,7 +368,7 @@ open class DependencyFile(
                 cacheLocalPath?.also { this.guessedCacheLocalPath = it } }
             }
 
-    private fun getResolvedPath(): Path? = path
+    private fun getResolvedPath(): Path? = downloadedFilePath
             // a verified location in mavenLocal was detected and set => reuse it
             ?: mavenLocalPath
             // a location in Amper local storage was calculated and set => reuse it (at this point artifact can't be resolved from mavenLocal)
@@ -513,7 +545,7 @@ open class DependencyFile(
                     dependency,
                     t::class.simpleName,
                     t.message,
-                    exception = t,
+                    exception = AmperDependencyResolutionExceptionSerializable(t),
                 )
             )
             null
@@ -529,7 +561,7 @@ open class DependencyFile(
         temp: Path, tempFileChannel: FileChannel, expectedHash: Hash,
         cache: Cache, diagnosticsReporter: DiagnosticReporter,
     ): Path? =
-        this@DependencyFile.getReadOnlyCacheDirectory()
+        this@DependencyFileImpl.getReadOnlyCacheDirectory()
             ?.guessPath(dependency, fileName)
             ?.takeIf { it.hasMatchingChecksum(expectedHash) }
             ?.let { externalRepositoryPath ->
@@ -593,7 +625,7 @@ open class DependencyFile(
                     listOf(
                         UnableToDownloadFile(
                             fileName = fileName,
-                            dependency = dependency,
+                            coordinates = dependency.coordinates,
                             repositories = repositories,
                             isAutoAddedDocumentation = isAutoAddedDocumentation,
                             childMessages = collectedMessages,
@@ -692,7 +724,7 @@ open class DependencyFile(
                             fileName,
                             dependency,
                             extra = DependencyResolutionBundle.message("extra.exception", t),
-                            exception = t,
+                            exception = AmperDependencyResolutionExceptionSerializable(t),
                         )
                     )
                     return null
@@ -802,7 +834,7 @@ open class DependencyFile(
         diagnosticsReporter.addMessage(
             UnableToDownloadChecksums(
                 fileName,
-                dependency,
+                coordinates = dependency.coordinates,
                 repositories,
                 isAutoAddedDocumentation = isAutoAddedDocumentation,
                 childMessages = nestedDownloadReporter.getMessages(),
@@ -1014,7 +1046,7 @@ open class DependencyFile(
                 UnableToReachURL.asMessage(
                     url,
                     extra = DependencyResolutionBundle.message("extra.exception", e),
-                    exception = e,
+                    exception = AmperDependencyResolutionExceptionSerializable(e)
                 )
             )
         }
@@ -1045,13 +1077,13 @@ open class DependencyFile(
         "$name.$extension"
 
     internal open suspend fun onFileDownloaded(target: Path, repository: MavenRepository? = null) {
-        this.path = target
+        this.downloadedFilePath = target
         this.dependency.repository = repository
     }
 
     private enum class LocalStorageHashSource {
         File {
-            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, settings: Settings) =
+            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: String, settings: Settings) =
                 settings.spanBuilder("getHashFromGradleCacheDirectory").use { artifact.getHashFromGradleCacheDirectory(algorithm) }
                     ?: settings.spanBuilder("getDependencyFile").use {
                         artifact.getHashDependencyFile(algorithm)
@@ -1061,7 +1093,7 @@ open class DependencyFile(
                             ?.sanitize()
         },
         MetadataInfo {
-            override suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, settings: Settings) =
+            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: String, settings: Settings) =
                 with(artifact) {
                     when (algorithm) {
                         "sha512" -> fileFromVariant(dependency, fileName)?.sha512?.fixOldGradleHash(128)
@@ -1073,9 +1105,9 @@ open class DependencyFile(
                 }
         };
 
-        protected abstract suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, settings: Settings): String?
+        protected abstract suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: String, settings: Settings): String?
 
-        private suspend fun getExpectedHash(artifact: DependencyFile, settings: Settings): Hash? {
+        private suspend fun getExpectedHash(artifact: DependencyFileImpl, settings: Settings): Hash? {
             for (hashAlgorithm in hashAlgorithms) {
                 val expectedHash = getExpectedHash(artifact, hashAlgorithm, settings)
                 if (expectedHash != null) {
@@ -1086,7 +1118,7 @@ open class DependencyFile(
         }
 
         companion object {
-            suspend fun getExpectedHash(artifact: DependencyFile, algorithm: String, settings: Settings, searchInMetadata: Boolean) =
+            suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: String, settings: Settings, searchInMetadata: Boolean) =
                 settings.spanBuilder(" File.getExpectedHash").use {
                     File.getExpectedHash(artifact, algorithm, settings)
                 }
@@ -1097,7 +1129,7 @@ open class DependencyFile(
             /**
              * @return hash of the artifact resolved from a local artifacts storage
              */
-            suspend fun getExpectedHash(artifact: DependencyFile, searchInMetadata: Boolean = true): Hash? =
+            suspend fun getExpectedHash(artifact: DependencyFileImpl, searchInMetadata: Boolean = true): Hash? =
                 // todo (AB) : Remove this empty Context {}
                 File.getExpectedHash(artifact, Context {}.settings)
                     ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, Context {}.settings) else null
@@ -1148,22 +1180,28 @@ open class DependencyFile(
     }
 }
 
-class SnapshotDependencyFile(
-    dependency: MavenDependency,
+interface SnapshotDependencyFile: DependencyFile {
+
+}
+
+class SnapshotDependencyFileImpl(
+    dependency: MavenDependencyImpl,
     name: String,
     extension: String,
     fileCache: FileCache = dependency.settings.fileCache,
+    isDocumentation: Boolean = false,
     isAutoAddedDocumentation: Boolean = false,
-) : DependencyFile(
+) : DependencyFileImpl(
     dependency,
     name,
     extension,
     fileCache = fileCache,
+    isDocumentation = isDocumentation,
     isAutoAddedDocumentation = isAutoAddedDocumentation,
 ) {
 
     private val mavenMetadata by lazy {
-        SnapshotDependencyFile(dependency, "maven-metadata", "xml", FileCacheBuilder {
+        SnapshotDependencyFileImpl(dependency, "maven-metadata", "xml", FileCacheBuilder {
             amperCache = fileCache.amperCache
             localRepository = MavenLocalRepository(fileCache.amperCache.resolve("caches/maven-metadata"))
         }.build())
@@ -1335,7 +1373,7 @@ class SnapshotDependencyFile(
 
 internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.module}-${node.version.orUnspecified()}"
 
-private fun fileFromVariant(dependency: MavenDependency, name: String) =
+private fun fileFromVariant(dependency: MavenDependencyImpl, name: String) =
     dependency.variants.flatMap { it.files }.singleOrNull { it.name == name }
 
 internal suspend fun Path.computeHash(): Collection<Hash> = computeHash(this) { createHashers() }

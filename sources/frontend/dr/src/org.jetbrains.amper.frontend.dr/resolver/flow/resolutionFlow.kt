@@ -4,10 +4,9 @@
 package org.jetbrains.amper.frontend.dr.resolver.flow
 
 import org.jetbrains.amper.dependency.resolution.Context
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
 import org.jetbrains.amper.dependency.resolution.MavenGroupAndArtifact
 import org.jetbrains.amper.dependency.resolution.MavenLocal
 import org.jetbrains.amper.dependency.resolution.MavenRepository
@@ -15,6 +14,7 @@ import org.jetbrains.amper.dependency.resolution.NoopSpanBuilder
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.AmperModule
@@ -25,7 +25,6 @@ import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
-import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.slf4j.LoggerFactory
@@ -44,14 +43,16 @@ interface DependenciesFlow<T: DependenciesFlowType> {
         modules: List<AmperModule>,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         spanBuilder: SpanBuilderSource?,
-    ): DependencyNodeHolder {
-        val node = DependencyNodeHolder(
-            name = "root",
+    ): RootDependencyNodeInput {
+        val node = RootDependencyNodeInput(
+            resolutionId = resolutionId(modules),
             children = modules.map { directDependenciesGraph(it, fileCacheBuilder, spanBuilder) },
-            emptyContext(fileCacheBuilder, spanBuilder)
+//            emptyContext(fileCacheBuilder, spanBuilder)
         )
         return node
     }
+
+    fun resolutionId(modules: List<AmperModule>): String
 }
 
 abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
@@ -60,7 +61,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
 
     private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
 
-    protected fun MavenDependencyBase.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
+    internal fun MavenDependencyBase.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
         val dependencyNode = context.toMavenDependencyNode(toMavenCoordinates(), this is BomDependency)
 
         val node = DirectFragmentDependencyNodeHolder(
@@ -77,7 +78,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     /**
      * the caller should specify the parent node after this method is called
      */
-    private fun Context.toMavenDependencyNode(coordinates: MavenCoordinates, isBom: Boolean): MavenDependencyNode {
+    private fun Context.toMavenDependencyNode(coordinates: MavenCoordinates, isBom: Boolean): MavenDependencyNodeImpl {
         val mavenDependency = createOrReuseDependency(coordinates.groupId, coordinates.artifactId, coordinates.version, isBom = isBom)
         return getOrCreateNode(mavenDependency,null)
     }

@@ -13,9 +13,9 @@ import org.jetbrains.amper.cli.telemetry.setFragments
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -23,9 +23,8 @@ import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
+import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
-import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
@@ -87,10 +86,10 @@ class ResolveExternalDependenciesTask(
         // rely on the plain paths list of the dependencies to act as an indicator
         // for incrementality.
         // Also, `DependencyNode` generally is not serializable.
-        
+
         var compileDependenciesRootNode: DependencyNode? = null
         var runtimeDependenciesRootNode: DependencyNode? = null
-        
+
         val compileDependencyCoordinates = fragmentsCompileModuleDependencies.getExternalDependencies()
         val runtimeDependencyCoordinates = fragmentsRuntimeModuleDependencies?.getExternalDependencies()
         return spanBuilder("resolve-dependencies")
@@ -135,22 +134,23 @@ class ResolveExternalDependenciesTask(
                         inputFiles = emptyList()
                     ) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
-                        val root = DependencyNodeHolder(
-                            name = "root",
+                        val root = RootDependencyNodeInput(
+                            resolutionId = "Module ${module.userReadableName} compile and runtime dependencies, " +
+                                    "platform = $resolvedPlatform, " +
+                                    "isTest = $isTest",
                             children = listOfNotNull(
                                 fragmentsCompileModuleDependencies,
                                 fragmentsRuntimeModuleDependencies
-                            ),
-                            emptyContext(userCacheRoot) { spanBuilder(it) }
+                            )
                         )
 
-                        mavenResolver.resolve(
+                        val resolvedGraph = mavenResolver.resolve(
                             root = root,
                             resolveSourceMoniker = resolveSourceMoniker,
                         )
-                        
-                        compileDependenciesRootNode = root.children[0]
-                        runtimeDependenciesRootNode = if (root.children.size == 2) root.children[1] else null
+
+                        compileDependenciesRootNode = resolvedGraph.children[0]
+                        runtimeDependenciesRootNode = if (resolvedGraph.children.size == 2) resolvedGraph.children[1] else null
 
                         val compileClasspath = compileDependenciesRootNode.dependencyPaths()
                         val runtimeClasspath = runtimeDependenciesRootNode?.dependencyPaths() ?: emptyList()
@@ -238,9 +238,9 @@ class ResolveExternalDependenciesTask(
     }
 
     private fun List<DependencyNode>.getOverridesForDirectDeps(
-        directDependencyCondition: DirectFragmentDependencyNodeHolder.() -> Boolean = { true }
+        directDependencyCondition: DirectFragmentDependencyNode.() -> Boolean = { true }
     ): List<PublicationCoordinatesOverride> = this
-        .filterIsInstance<DirectFragmentDependencyNodeHolder>()
+        .filterIsInstance<DirectFragmentDependencyNode>()
         .filter { it.dependencyNode is MavenDependencyNode }
         .filter { it.directDependencyCondition() }
         .mapNotNull { directMavenDependency ->
@@ -260,8 +260,6 @@ class ResolveExternalDependenciesTask(
     class Result(
         val compileClasspath: List<Path>,
         val runtimeClasspath: List<Path>,
-        val compileClasspathTree: DependencyNode? = null,
-        val runtimeClasspathTree: DependencyNode? = null,
         val coordinateOverridesForPublishing: PublicationCoordinatesOverrides = PublicationCoordinatesOverrides(),
     ) : TaskResult
 

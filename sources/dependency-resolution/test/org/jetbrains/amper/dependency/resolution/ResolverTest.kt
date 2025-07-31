@@ -21,7 +21,10 @@ class ResolverTest: BaseDRTest() {
         val nodeInCompileContext = jupiterParamsCoordinates.toMavenNode(context(ResolutionScope.COMPILE))
         val nodeInRuntimeContext = jupiterParamsCoordinates.toMavenNode(context(ResolutionScope.RUNTIME))
 
-        val root = DependencyNodeHolder("root", listOf(nodeInCompileContext, nodeInRuntimeContext), context())
+        val root = RootDependencyNodeInput(
+            children = listOf(nodeInCompileContext, nodeInRuntimeContext),
+//            context()
+        )
 
         doTest(
             root,

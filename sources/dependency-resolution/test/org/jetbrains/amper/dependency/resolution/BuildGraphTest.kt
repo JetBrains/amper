@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.BomDeclaredAsRegularDependency
@@ -713,7 +712,7 @@ class BuildGraphTest : BaseDRTest() {
         root.distinctBfsSequence()
             .filterIsInstance<MavenDependencyNode>()
             .flatMap { it.dependency.files() }
-            .mapNotNull { runBlocking { it.getPath() } }
+            .mapNotNull { it.path }
             .forEach {
                 assertEquals(it.extension, "jar", "Only jar files are expected, got ${it.name}")
             }
@@ -799,10 +798,9 @@ class BuildGraphTest : BaseDRTest() {
             context(platform = setOf(ResolutionPlatform.ANDROID), repositories = repositories),
         )
 
-        val root = DependencyNodeHolder(
-            "root",
-            contexts.map { "androidx.appcompat:appcompat:1.6.1".toMavenNode(it) },
-            context()
+        val root = RootDependencyNodeInput(
+            children = contexts.map { "androidx.appcompat:appcompat:1.6.1".toMavenNode(it) },
+//            context()
         )
 
         doTest(root, verifyMessages = true)
@@ -1836,21 +1834,12 @@ class BuildGraphTest : BaseDRTest() {
         val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID)
         val context = context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories)
 
-        val root = DependencyNodeHolder(
-            "root",
-            listOf(
-                DependencyNodeHolder(
-                    "module1",
-                    listOf("androidx.appcompat:appcompat:1.6.1".toMavenNode(context)),
-                    context
-                ),
-                DependencyNodeHolder(
-                    "module2",
-                    listOf("androidx.appcompat:appcompat:1.6.1".toMavenNode(context)),
-                    context
-                ),
+        val root = RootDependencyNodeInput(
+            children = listOf(
+                "androidx.appcompat:appcompat:1.6.1".toMavenNode(context),
+                "androidx.appcompat:appcompat:1.6.1".toMavenNode(context)
             ),
-            context
+//            context
         )
 
         val resolver = Resolver()
