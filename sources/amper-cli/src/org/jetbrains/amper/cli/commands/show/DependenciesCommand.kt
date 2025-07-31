@@ -39,6 +39,7 @@ internal class DependenciesCommand: AmperSubcommand(name = "dependencies") {
         .flag(default = false)
 
     private val filter by option("--filter",
+        metavar = "groupId:artifactId",
         help = "Coordinates of a particular dependency from the module dependencies graph. " +
                 "Only maven dependencies are supported at the moment in a format group:module. " +
                 "group defines a maven library group and module defines maven library module" +
