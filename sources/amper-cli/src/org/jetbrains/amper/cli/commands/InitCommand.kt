@@ -10,13 +10,18 @@ import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.ajalt.mordant.terminal.success
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.interactiveSelectList
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.generator.ProjectGenerator
 import org.jetbrains.amper.templates.AmperProjectTemplate
 import org.jetbrains.amper.templates.AmperProjectTemplates
+import org.jetbrains.amper.templates.TemplateFile
+import org.jetbrains.amper.wrapper.AmperWrappers
+import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 
 internal class InitCommand : AmperSubcommand(name = "init") {
 
@@ -31,13 +36,19 @@ internal class InitCommand : AmperSubcommand(name = "init") {
         val selectedTemplate = template ?: promptForTemplate()
         terminal.println("Extracting template ${terminal.theme.info(selectedTemplate.id)} to $targetRootDir…")
 
-        ProjectGenerator.initProject(template = selectedTemplate, targetRootDir = targetRootDir)
+        selectedTemplate.extractTo(outputDir = targetRootDir)
+        val wrappersGenerated = generateWrapperScripts(targetRootDir)
 
-        terminal.success("Project successfully generated")
-        terminal.println()
-        val exe = if (OsFamily.current.isWindows) "amper.bat build" else "./amper build"
-        terminal.println("Now you may build your project with ${terminal.theme.info(exe)} or open this folder in an " +
-                "IDE with the Amper plugin")
+        printSuccessfulCommandConclusion("Project successfully generated")
+
+        if (wrappersGenerated) {
+            terminal.println()
+            val buildCommand = if (OsFamily.current.isWindows) "amper.bat build" else "./amper build"
+            terminal.println(
+                "Now you may build your project with ${terminal.theme.info(buildCommand)} or open this folder in an " +
+                        "IDE with the Amper plugin"
+            )
+        }
     }
 
     private fun promptForTemplate(): AmperProjectTemplate = terminal.interactiveSelectList(
@@ -46,4 +57,35 @@ internal class InitCommand : AmperSubcommand(name = "init") {
         nameSelector = { terminal.theme.info.invoke(it.name) },
         descriptionSelector = { it.description.prependIndent("  ") },
     ) ?: throw PrintMessage("No template selected, project generation aborted")
+
+    private fun AmperProjectTemplate.extractTo(outputDir: Path) {
+        val files = listFiles()
+        checkTemplateFilesConflicts(files, outputDir)
+        outputDir.createDirectories()
+        files.forEach {
+            it.extractTo(outputDir)
+        }
+    }
+
+    private fun generateWrapperScripts(targetRootDir: Path): Boolean {
+        val sha256 = System.getProperty("amper.wrapper.dist.sha256")
+        if (sha256.isNullOrEmpty()) {
+            logger.warn("Amper was not run from amper wrapper, skipping generating wrappers for $targetRootDir")
+            return false
+        }
+        AmperWrappers.generate(targetRootDir, amperVersion = AmperBuild.mavenVersion, amperDistTgzSha256 = sha256)
+        return true
+    }
+
+    private fun checkTemplateFilesConflicts(templateFiles: List<TemplateFile>, outputDir: Path) {
+        val filesToCheck = templateFiles.map { it.relativePath }
+        val alreadyExistingFiles = filesToCheck.filter { outputDir.resolve(it).exists() }
+        if (alreadyExistingFiles.isNotEmpty()) {
+            userReadableError(
+                "The following files already exist in the output directory and would be overwritten by the generation:\n" +
+                        alreadyExistingFiles.sorted().joinToString("\n").prependIndent("  ") + "\n\n" +
+                        "Please move, rename, or delete them before running the command again."
+            )
+        }
+    }
 }
