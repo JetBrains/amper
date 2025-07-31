@@ -124,6 +124,7 @@ class ProjectFileTest : AmperCliTestBase() {
     private val sporadicWrapperBootstrapMessagePrefixes = setOf(
         "Another Amper instance",
         "Downloading Amper distribution",
+        "Downloading JetBrains Runtime",
         "Download complete",
     )
 
