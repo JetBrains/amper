@@ -47,18 +47,18 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
         val prop: MapLikeValue.Property<*>,
     ) {
         fun doCheck() = if (prop.value.trace !is DefaultTrace) {
-            contextAgnostic()
+            platformAgnostic()
             platformSpecific()
             productSpecific()
             gradleSpecific()
         } else Unit
 
-        fun contextAgnostic() {
+        fun platformAgnostic() {
             if (prop.pType?.isPlatformAgnostic == true && prop.contexts.platformCtxs().isNotEmpty()) {
                 problemReporter.reportMessage(
                     IncorrectSettingsSection(
                         prop.value.trace,
-                        "settings.unexpected.context",
+                        "settings.unexpected.platform",
                         level = Level.Error,
                     )
                 )

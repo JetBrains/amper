@@ -6,10 +6,10 @@ product:
     - android
 
 settings@jvm:
-  <![Error] This setting can only be used without any context.!>compose<!>:
+  <![Error] This setting can only be used without any @platform qualifier.!>compose<!>:
     enabled: true
 
 settings@android:
   kotlin:
-    <![Error] This setting can only be used without any context.!>serialization<!>:
+    <![Error] This setting can only be used without any @platform qualifier.!>serialization<!>:
       format: json
