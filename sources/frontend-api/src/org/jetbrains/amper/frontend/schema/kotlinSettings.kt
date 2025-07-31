@@ -103,10 +103,12 @@ class PowerAssertSettings : SchemaNode() {
 
 class KotlinSettings : SchemaNode() {
 
+    @PlatformAgnostic
     @Aliases("language-version", "version")
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
     var languageVersion by value(KotlinVersion.Kotlin22)
 
+    @PlatformAgnostic
     @Aliases("api-version", "sdkVersion")
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")
     var apiVersion by dependentValue(::languageVersion)

@@ -5,7 +5,3 @@ product:
 settings:
   jvm:
     release: 8
-
-settings@android:
-  jvm:
-    release: 17

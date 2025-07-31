@@ -8,10 +8,3 @@ settings {
     release = 8
   }
 }
-
-@android
-settings {
-  jvm {
-    release = 17
-  }
-}

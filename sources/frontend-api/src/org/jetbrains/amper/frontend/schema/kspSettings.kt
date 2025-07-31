@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.DependencyKey
+import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -14,6 +15,7 @@ import java.nio.file.Path
 
 class KspSettings : SchemaNode() {
 
+    @PlatformAgnostic
     @SchemaDoc("The version of KSP to use")
     var version by value(UsedVersions.kspVersion)
 

@@ -116,6 +116,7 @@ class JavaSettings : SchemaNode() {
 
 class JvmSettings : SchemaNode() {
 
+    @PlatformAgnostic
     @Aliases("jdk", "source", "target", "apiVersion")
     @SchemaDoc("The minimum JVM release version that the code should be compatible with. " +
             "This enforces compatibility on 3 levels. " +
@@ -129,6 +130,7 @@ class JvmSettings : SchemaNode() {
     @ProductTypeSpecific(ProductType.JVM_APP)
     var mainClass by nullableValue<String>()
 
+    @PlatformAgnostic
     @Aliases("parameters")
     @SchemaDoc("Enables storing formal parameter names of constructors and methods in the generated class files. " +
             "These can later be accessed using reflection. Behind the scenes, this passes the '-parameters' option " +
@@ -138,7 +140,7 @@ class JvmSettings : SchemaNode() {
     @SchemaDoc("JVM test-specific settings")
     var test by value(::JvmTestSettings)
 
-    @PlatformAgnostic // TODO: the agnosticism only must be spread to platform context, not other dimensions
+    @PlatformAgnostic
     @SchemaDoc("Specifies how runtime classpath is constructed for the application. " +
             "The default is `jars`, which means all the dependencies including local dependencies on Amper modules will " +
             "be built as jars. The `classes` mode will use classes for local modules as part of the runtime classpath.")
