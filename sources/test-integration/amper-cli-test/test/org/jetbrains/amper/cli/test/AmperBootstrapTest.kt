@@ -17,7 +17,7 @@ class AmperBootstrapTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `amper can launch smoke tests`() = runTest(timeout = 30.minutes) {
+    fun `amper can launch some regular tests`() = runTest(timeout = 30.minutes) {
         // We want to run some tests because it can discover problems with the test mechanism/classpath etc.
         // We cannot run all tests because that would amount to running the whole test suite twice.
         // All other tests will be covered anyway in the build of the MR that bumps Amper in Amper.
