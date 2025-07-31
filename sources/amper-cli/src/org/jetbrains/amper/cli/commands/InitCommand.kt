@@ -10,14 +10,12 @@ import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.ajalt.mordant.input.interactiveSelectList
 import com.github.ajalt.mordant.terminal.success
-import com.github.ajalt.mordant.widgets.SelectList
+import org.jetbrains.amper.cli.interactiveSelectList
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.generator.ProjectGenerator
 import org.jetbrains.amper.templates.AmperProjectTemplate
 import org.jetbrains.amper.templates.AmperProjectTemplates
-import org.jetbrains.amper.util.filterAnsiCodes
 import kotlin.io.path.Path
 
 internal class InitCommand : AmperSubcommand(name = "init") {
@@ -42,21 +40,10 @@ internal class InitCommand : AmperSubcommand(name = "init") {
                 "IDE with the Amper plugin")
     }
 
-    private fun promptForTemplate(): AmperProjectTemplate {
-        val choice = terminal.interactiveSelectList(
-            title = "Select a project template:",
-            entries = AmperProjectTemplates.availableTemplates.map {
-                SelectList.Entry(
-                    title = terminal.theme.info.invoke(it.name),
-                    description = it.description.prependIndent("  "),
-                )
-            },
-        )
-        if (choice == null) {
-            throw PrintMessage("No template selected, project generation aborted")
-        }
-        val selectedTemplateName = choice.filterAnsiCodes()
-        return AmperProjectTemplates.availableTemplates.firstOrNull { it.name == selectedTemplateName }
-            ?: error("Template with name '$selectedTemplateName' not found")
-    }
+    private fun promptForTemplate(): AmperProjectTemplate = terminal.interactiveSelectList(
+        title = "Select a project template:",
+        items = AmperProjectTemplates.availableTemplates,
+        nameSelector = { terminal.theme.info.invoke(it.name) },
+        descriptionSelector = { it.description.prependIndent("  ") },
+    ) ?: throw PrintMessage("No template selected, project generation aborted")
 }
