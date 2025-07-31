@@ -1,9 +1,9 @@
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-class LibTest {
+class LibWorldTest {
     @Test
     fun doTest() {
-        assertTrue(Lib().get().contains("World"))
+        assertTrue(getWorld().contains("World"))
     }
 }

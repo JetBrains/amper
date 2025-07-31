@@ -1,3 +1,4 @@
+#file: noinspection AmperEmptyModuleInspection
 product:
   type: jvm/app
 
