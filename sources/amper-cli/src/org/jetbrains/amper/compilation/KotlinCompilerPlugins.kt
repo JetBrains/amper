@@ -8,7 +8,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
-import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.kotlin.CompilerPluginConfig
@@ -49,29 +48,15 @@ internal data class SCompilerPluginConfig(
 }
 
 /**
- * Gets the configurations of the compiler plugins to use to compile these fragments in a single compilation.
- *
- * This function throws an exception if multiple fragments have contradicting configs of the same plugin.
- * The config of a given plugin is expected to be identical for all fragments because they are compiled together.
+ * Gets the configurations of the compiler plugins to use to compile this fragment.
  */
-internal fun List<Fragment>.mergeCompilerPluginConfigs(): List<SCompilerPluginConfig> {
-    val isAndroidCompilation = all { it.platforms.contains(Platform.ANDROID) }
-    // we disable Parcelize on any code that doesn't compile to Android, because it fails on missing Parcelable
-    val pluginConfigs = flatMap { it.settings.compilerPluginsConfigurations() }
+internal fun Fragment.compilerPluginConfigs(): List<SCompilerPluginConfig> {
+    val isAndroidCompilation = platforms.contains(Platform.ANDROID)
+    return settings.compilerPluginsConfigurations()
+        // we disable Parcelize on any code that doesn't compile to Android, because it fails on missing Parcelable
         .filter { isAndroidCompilation || it !is ParcelizeCompilerPluginConfig }
-
-    return pluginConfigs.groupBy { it.id }.values
-        .map { configsOfSinglePlugin -> ensureSingleUnanimousConfig(configsOfSinglePlugin) }
         .map { it.toSerializableCompilerPluginConfig() }
 }
-
-private fun ensureSingleUnanimousConfig(configsOfSamePlugin: List<CompilerPluginConfig>): CompilerPluginConfig =
-    configsOfSamePlugin.distinctBy { it.options }.singleOrNull()
-        ?: userReadableError("The compiler plugin '${configsOfSamePlugin.first().id}' is configured with different " +
-                "settings for some fragments that are compiled together:\n" +
-                configsOfSamePlugin.joinToString("\n") { it.optionsSummary() })
-
-private fun CompilerPluginConfig.optionsSummary(): String = options.joinToString { "${it.name}=${it.value}" }
 
 private fun CompilerPluginConfig.toSerializableCompilerPluginConfig(): SCompilerPluginConfig = SCompilerPluginConfig(
     id = id,

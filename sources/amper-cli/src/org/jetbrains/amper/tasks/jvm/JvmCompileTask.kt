@@ -19,8 +19,9 @@ import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinJvmCompilerArgs
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
-import org.jetbrains.amper.compilation.mergedCompilationSettings
 import org.jetbrains.amper.compilation.plus
+import org.jetbrains.amper.compilation.serializableCompilationSettings
+import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
@@ -131,7 +132,7 @@ internal class JvmCompileTask(
                 ?: error("jvm compilation result from production compilation result was not found for module=${module.userReadableName}, task=$taskName")
         } else null
 
-        val userSettings = fragments.mergedCompilationSettings()
+        val userSettings = fragments.singleLeafFragment().serializableCompilationSettings()
 
         // TODO Make kotlin version configurable in settings
         val kotlinVersion = UsedVersions.kotlinVersion

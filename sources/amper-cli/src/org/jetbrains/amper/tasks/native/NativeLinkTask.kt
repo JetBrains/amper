@@ -12,7 +12,8 @@ import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
-import org.jetbrains.amper.compilation.mergedKotlinSettings
+import org.jetbrains.amper.compilation.serializableKotlinSettings
+import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
@@ -105,7 +106,7 @@ internal class NativeLinkTask(
 
         // TODO kotlin version settings
         val kotlinVersion = UsedVersions.kotlinVersion
-        val kotlinUserSettings = fragments.mergedKotlinSettings()
+        val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("native link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 

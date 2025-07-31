@@ -7,7 +7,8 @@ package org.jetbrains.amper.tasks.ksp
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.kotlinModuleName
-import org.jetbrains.amper.compilation.mergedCompilationSettings
+import org.jetbrains.amper.compilation.serializableCompilationSettings
+import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.telemetry.spanBuilder
@@ -37,7 +38,6 @@ import org.jetbrains.amper.ksp.KspOutputPaths
 import org.jetbrains.amper.ksp.WebBackend
 import org.jetbrains.amper.ksp.downloadKspJars
 import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.settings.unanimousSetting
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -113,7 +113,7 @@ internal class KspTask(
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
-        val kspVersion = fragments.unanimousSetting("ksp.version") { it.kotlin.ksp.version }
+        val kspVersion = fragments.singleLeafFragment().settings.kotlin.ksp.version
         val kspJars = downloadKspCli(kspVersion)
         val ksp = Ksp(kspVersion, jdk, kspJars)
 
@@ -178,7 +178,7 @@ internal class KspTask(
         kspProcessorClasspath: List<Path>,
         kotlinCompilationJdkHome: Path,
     ) {
-        val compilationSettings = fragments.mergedCompilationSettings()
+        val compilationSettings = fragments.singleLeafFragment().serializableCompilationSettings()
         val kspCompilationType = KspCompilationType.forPlatform(platform)
         val sources = (fragments.map { it.src } + additionalSourceDirs.map { it.path }).filter { it.exists() }
         val sharedConfig: KspConfig.Builder.() -> Unit = {

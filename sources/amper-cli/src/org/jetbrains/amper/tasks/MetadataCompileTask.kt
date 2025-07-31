@@ -13,7 +13,7 @@ import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinMetadataCompilerArgs
 import org.jetbrains.amper.compilation.kotlinModuleName
-import org.jetbrains.amper.compilation.mergedKotlinSettings
+import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
@@ -73,7 +73,7 @@ internal class MetadataCompileTask(
 
         // TODO Make kotlin version configurable in settings
         val kotlinVersion = UsedVersions.kotlinVersion
-        val kotlinSettings = listOf(fragment).mergedKotlinSettings()
+        val kotlinSettings = fragment.serializableKotlinSettings()
 
         val dependencyResolutionResults = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>()
 

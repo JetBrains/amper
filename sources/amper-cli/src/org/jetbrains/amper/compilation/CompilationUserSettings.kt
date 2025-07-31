@@ -6,11 +6,10 @@ package org.jetbrains.amper.compilation
 
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.JavaVersion
-import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KotlinVersion
-import org.jetbrains.amper.settings.unanimousOptionalSetting
-import org.jetbrains.amper.settings.unanimousSetting
 
 @Serializable // makes it convenient to include in the input properties of the incremental cache state
 internal data class CompilationUserSettings(
@@ -42,38 +41,38 @@ internal data class JavaUserSettings(
     val freeCompilerArgs: List<String>,
 )
 
-internal fun List<Fragment>.mergedCompilationSettings(): CompilationUserSettings = CompilationUserSettings(
-    kotlin = mergedKotlinSettings(),
-    jvmRelease = unanimousOptionalSetting("jvm.release") { it.jvm.release },
-    java = mergedJavaSettings(),
+internal fun Fragment.serializableCompilationSettings(): CompilationUserSettings = CompilationUserSettings(
+    kotlin = serializableKotlinSettings(),
+    jvmRelease = settings.jvm.release,
+    java = serializableJavaSettings(),
 )
 
-// TODO Consider for which Kotlin settings we should enforce consistency between fragments.
-//  Currently we compile all related fragments together (we don't do klib for common separately), so we have to use
-//  consistent compiler arguments. This is why we forbid configurations where some fragments diverge.
-internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinUserSettings(
-    languageVersion = unanimousKotlinSetting("languageVersion") { it.languageVersion },
-    apiVersion = unanimousKotlinSetting("apiVersion") { it.apiVersion },
-    allWarningsAsErrors = unanimousKotlinSetting("allWarningsAsErrors") { it.allWarningsAsErrors },
-    suppressWarnings = unanimousKotlinSetting("suppressWarnings") { it.suppressWarnings },
-    debug = unanimousOptionalKotlinSetting("debug") { it.debug },
-    optimization = unanimousOptionalKotlinSetting("optimization") { it.optimization },
-    verbose = unanimousKotlinSetting("verbose") { it.verbose },
-    progressiveMode = unanimousKotlinSetting("progressiveMode") { it.progressiveMode },
-    languageFeatures = unanimousOptionalKotlinSetting("languageFeatures") { it.languageFeatures?.map { it.value } }.orEmpty(),
-    optIns = unanimousKotlinSetting("optIns") { it.optIns.orEmpty().map { it.value } },
-    storeJavaParameterNames = unanimousSetting("jvm.storeParameterNames") { it.jvm.storeParameterNames },
-    freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs?.map { it.value } }.orEmpty(),
-    compilerPlugins = mergeCompilerPluginConfigs(),
+internal fun Fragment.serializableKotlinSettings(): KotlinUserSettings = KotlinUserSettings(
+    languageVersion = settings.kotlin.languageVersion,
+    apiVersion = settings.kotlin.apiVersion,
+    allWarningsAsErrors = settings.kotlin.allWarningsAsErrors,
+    suppressWarnings = settings.kotlin.suppressWarnings,
+    debug = settings.kotlin.debug,
+    optimization = settings.kotlin.optimization, // only valid for native anyway
+    verbose = settings.kotlin.verbose,
+    progressiveMode = settings.kotlin.progressiveMode,
+    languageFeatures = settings.kotlin.languageFeatures?.values().orEmpty(),
+    optIns = settings.kotlin.optIns.orEmpty().values(),
+    storeJavaParameterNames = settings.jvm.storeParameterNames, // only valid for JVM anyway
+    // We cannot know whether the free compiler args must be aligned, so let's not fail hastily.
+    freeCompilerArgs = settings.kotlin.freeCompilerArgs?.values().orEmpty(),
+    compilerPlugins = compilerPluginConfigs(),
 )
 
-private fun List<Fragment>.mergedJavaSettings(): JavaUserSettings = JavaUserSettings(
-    parameters = unanimousSetting("jvm.storeParameterNames") { it.jvm.storeParameterNames },
-    freeCompilerArgs = unanimousSetting("java.freeCompilerArgs") { it.java.freeCompilerArgs.map { arg -> arg.value } },
+private fun Fragment.serializableJavaSettings(): JavaUserSettings = JavaUserSettings(
+    parameters = settings.jvm.storeParameterNames,
+    freeCompilerArgs = settings.java.freeCompilerArgs.values(),
 )
 
-private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T?): T? =
-    unanimousOptionalSetting("kotlin.$settingFqn") { selector(it.kotlin) }
+/**
+ * Returns the single leaf fragment of this list, or throws an exception if there isn't exactly one leaf fragments.
+ */
+internal fun List<Fragment>.singleLeafFragment(): Fragment = singleOrNull { it is LeafFragment }
+    ?: error("Expected one single leaf fragment, got: ${map { it.name }}")
 
-private fun <T : Any> List<Fragment>.unanimousKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T): T =
-    unanimousSetting("kotlin.$settingFqn") { selector(it.kotlin) }
+private fun List<TraceableString>.values(): List<String> = map { it.value }
