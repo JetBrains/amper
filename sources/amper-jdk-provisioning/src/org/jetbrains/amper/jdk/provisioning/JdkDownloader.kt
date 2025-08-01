@@ -10,7 +10,7 @@ import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.extract.extractFileToCacheLocation
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
-import java.net.URL
+import java.net.URI
 import kotlin.io.path.isDirectory
 
 // TODO so far, no version selection, need to design it a little
@@ -42,7 +42,7 @@ object JdkDownloader {
         version = jbrJdkVersion,
     )
 
-    private suspend fun downloadJdk(downloadUri: URL, userCacheRoot: AmperUserCacheRoot, version: String): Jdk {
+    private suspend fun downloadJdk(downloadUri: URI, userCacheRoot: AmperUserCacheRoot, version: String): Jdk {
         val jdkArchive = Downloader.downloadFileToCacheLocation(downloadUri.toString(), userCacheRoot)
         val extractedJdkRoot = extractFileToCacheLocation(jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
         // Some archives for macOS contain the JDK under amazon-corretto-X.jdk/Contents/Home
@@ -51,7 +51,7 @@ object JdkDownloader {
         return Jdk(homeDir = jdkHome, downloadUrl = downloadUri, version = version)
     }
 
-    private fun jdkDownloadUrlFor(os: OsFamily, arch: Arch, version: String): URL =
+    private fun jdkDownloadUrlFor(os: OsFamily, arch: Arch, version: String): URI =
         // No Corretto build for Windows Arm64, so use Microsoft's JDK
         if (os == OsFamily.Windows && arch == Arch.Arm64) {
             microsoftJdkUrlWindowsArm64(version)
@@ -66,21 +66,21 @@ object JdkDownloader {
     }
 
     // See releases: https://learn.microsoft.com/en-ca/java/openjdk/download
-    private fun microsoftJdkUrlWindowsArm64(version: String): URL =
-        URL("https://aka.ms/download-jdk/microsoft-jdk-$version-windows-aarch64.zip")
+    private fun microsoftJdkUrlWindowsArm64(version: String): URI =
+        URI("https://aka.ms/download-jdk/microsoft-jdk-$version-windows-aarch64.zip")
 
     // See releases: https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/downloads-list.html
-    private fun correttoJdkUrl(os: OsFamily, arch: Arch, version: String): URL {
+    private fun correttoJdkUrl(os: OsFamily, arch: Arch, version: String): URI {
         val ext = if (os == OsFamily.Windows) "-jdk.zip" else ".tar.gz"
         val osString: String = os.forCorrettoUrl()
         val archString: String = arch.forUrl()
-        return URL("https://corretto.aws/downloads/resources/$version/amazon-corretto-$version-$osString-$archString$ext")
+        return URI("https://corretto.aws/downloads/resources/$version/amazon-corretto-$version-$osString-$archString$ext")
     }
 
-    private fun jbrJdkUrl(os: OsFamily, arch: Arch, version: String, build: String): URL {
+    private fun jbrJdkUrl(os: OsFamily, arch: Arch, version: String, build: String): URI {
         val osString: String = os.forJbrUrl()
         val archString: String = arch.forUrl()
-        return URL("https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-$version-$osString-$archString-$build.tar.gz")
+        return URI("https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-$version-$osString-$archString-$build.tar.gz")
     }
 }
 

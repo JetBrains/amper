@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.jdk.provisioning
 
-import java.net.URL
+import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.exists
 
@@ -14,9 +14,9 @@ class Jdk(
      */
     val homeDir: Path,
     /**
-     * The URL from which this JDK was downloaded.
+     * The URI from which this JDK was downloaded.
      */
-    val downloadUrl: URL,
+    val downloadUrl: URI,
     /**
      * The full version number, including major/minor/path, but also potential extra numbers.
      */
