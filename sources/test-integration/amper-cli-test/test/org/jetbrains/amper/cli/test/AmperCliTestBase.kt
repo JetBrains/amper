@@ -9,6 +9,7 @@ import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
+import org.jetbrains.amper.test.AmperJavaHomeMode
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
@@ -75,6 +76,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         stdin: ProcessInput = ProcessInput.Empty,
         amperJvmArgs: List<String> = emptyList(),
         customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
+        amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.Inherit,
         configureAndroidHome: Boolean = false,
         environment: Map<String, String> = emptyMap(),
     ): AmperCliResult {
@@ -109,6 +111,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
             assertEmptyStdErr = assertEmptyStdErr,
             stdin = stdin,
             amperJvmArgs = amperJvmArgs,
+            amperJavaHomeMode = amperJavaHomeMode,
             customAmperScriptPath = customAmperScriptPath,
         )
 
