@@ -17,6 +17,9 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.path
+import com.github.ajalt.mordant.terminal.warning
+import com.sun.jna.platform.win32.Kernel32
+import com.sun.jna.platform.win32.Kernel32Util
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.AmperVersion
 import org.jetbrains.amper.cli.commands.show.ShowCommand
@@ -29,7 +32,9 @@ import org.jetbrains.amper.cli.withShowCommandSuggestions
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
+import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.tinylog.Level
+import java.io.PrintStream
 import java.nio.file.Path
 
 internal class RootCommand : SuspendingCliktCommand(name = "amper") {
@@ -124,11 +129,10 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         )
 
         spanBuilder("Setup console logging").use {
-            LoggingInitializer.setupConsoleLogging(
-                consoleLogLevel = consoleLogLevel,
-                terminal = terminal
-            )
+            LoggingInitializer.setupConsoleLogging(consoleLogLevel = consoleLogLevel, terminal = terminal)
         }
+
+        fixSystemOutEncodingOnWindows()
     }
 
     data class CommonOptions(
@@ -141,4 +145,27 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         val sharedCachesRoot: AmperUserCacheRoot,
         val explicitBuildOutputRoot: Path?,
     )
+
+    /**
+     * Some Windows encoding used by default doesn't support symbols used in `show dependencies` output
+     * Updating it to UTF-8 solves the issue.
+     *
+     * See https://github.com/ajalt/mordant/issues/249 for details.
+     */
+    private fun fixSystemOutEncodingOnWindows() {
+        if (!System.getProperty("os.name").lowercase().contains("win")) return
+        if (System.out.charset() == Charsets.UTF_8) return
+
+        spanBuilder("Fix stdout encoding").useWithoutCoroutines {
+            // Set console code page to 65001 = UTF-8
+            val success = Kernel32.INSTANCE.SetConsoleOutputCP(65001)
+            if (success) {
+                // Replace System.out and System.err with PrintStreams using UTF-8
+                System.setOut(PrintStream(System.out, true, Charsets.UTF_8))
+                System.setErr(PrintStream(System.err, true, Charsets.UTF_8))
+            } else {
+                terminal.warning("Failed to set UTF-8 as console output encoding: ${Kernel32Util.getLastErrorMessage()}")
+            }
+        }
+    }
 }

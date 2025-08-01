@@ -5,9 +5,6 @@
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.terminal.Terminal
-import com.github.ajalt.mordant.terminal.warning
-import com.sun.jna.platform.win32.Kernel32
-import com.sun.jna.platform.win32.Kernel32Util
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +24,6 @@ import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
-import org.jetbrains.amper.telemetry.useWithoutCoroutines
-import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicReference
 
 private val backendInitialized = AtomicReference<Throwable>(null)
@@ -46,8 +41,6 @@ internal suspend fun <T> withBackend(
     if (initializedException != null) {
         throw IllegalStateException("withBackend was already called, see nested exception", initializedException)
     }
-
-    fixSystemOutEncodingOnWindows(terminal)
 
     // TODO think of a better place to activate it. e.g. we need it in tests too
     // TODO disabled jul bridge for now since it reports too much in debug mode
@@ -105,29 +98,6 @@ internal suspend fun <T> withBackend(
             spanBuilder("Await background scope completion").use {
                 cancelAndWaitForScope(backgroundScope)
             }
-        }
-    }
-}
-
-/**
- * Some Windows encoding used by default doesn't support symbols used in `show dependencies` output
- * Updating it to UTF-8 solves the issue.
- *
- * See https://github.com/ajalt/mordant/issues/249 for details.
- */
-private fun fixSystemOutEncodingOnWindows(terminal: Terminal) {
-    if (!System.getProperty("os.name").lowercase().contains("win")) return
-    if (System.out.charset() == Charsets.UTF_8) return
-
-    spanBuilder("Fix stdout encoding").useWithoutCoroutines {
-        // Set console code page to 65001 = UTF-8
-        val success = Kernel32.INSTANCE.SetConsoleOutputCP(65001)
-        if (success) {
-            // Replace System.out and System.err with PrintStreams using UTF-8
-            System.setOut(PrintStream(System.out, true, Charsets.UTF_8))
-            System.setErr(PrintStream(System.err, true, Charsets.UTF_8))
-        } else {
-            terminal.warning("Failed to set UTF-8 as console output encoding: ${Kernel32Util.getLastErrorMessage()}")
         }
     }
 }
