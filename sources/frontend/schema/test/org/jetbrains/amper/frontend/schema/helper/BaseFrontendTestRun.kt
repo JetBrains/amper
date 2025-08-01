@@ -16,19 +16,11 @@ abstract class BaseFrontendTestRun(
     caseName: String,
 ): BaseTestRun(caseName) {
     private val inputPostfix: String = ".yaml"
-    private val inputAmperPostfix: String = ".amper"
 
     open val expectAmperPostfix: String = ".result.amper.txt"
 
     context(_: GoldenTest)
     override fun doTest() {
         doTest(base / "$caseName$expectPostfix", base / "$caseName$inputPostfix")
-
-        val inputAmper = base / "$caseName$inputAmperPostfix"
-        if (inputAmper.exists()) {
-            val expectAmper = (base / "$caseName$expectAmperPostfix").takeIf { it.exists() }
-                ?: (base / "$caseName$expectPostfix")
-//            doTest(expectAmper, inputAmper)
-        }
     }
 }
