@@ -3,11 +3,10 @@ product:
   platforms: [ jvm ]
 
 dependencies:
-  - ../../core
   - ../../amper-cli
+  - ../../core
   - ../../core-intellij
-  - ../../libraries/concurrency
-  - ../../libraries/telemetry
+  - ../../frontend-api
 
 test-dependencies:
   - ../../test-base

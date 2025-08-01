@@ -14,7 +14,7 @@ dependencies:
   - ../amper-wrapper
   - ../core
   - ../core-intellij
-  - ../frontend-api: exported
+  - ../frontend-api
   - ../frontend/schema
   - ../frontend/dr
   - ../amper-compose-hot-reload-recompiler-extension
@@ -68,18 +68,14 @@ dependencies:
   - $libs.maven.core
   - $libs.maven.resolver.connectorBasic
   - $libs.maven.resolver.transportHttp
-  - com.sun.xml.bind:jaxb-impl:2.3.2
-  - jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
+  - jakarta.xml.bind:jakarta.xml.bind-api:2.3.2 # required by Android SDK tools but somehow not brought transitively
   - $libs.hot.reload.core
   - $libs.hot.reload.orchestration
-
   - $libs.ktor.server.core
   - $libs.ktor.server.netty
   - $libs.ktor.server.sse
   - $libs.ktor.server.content.negotiation
-
   - $libs.ktor.serialization.kotlinx.json
-
 
 test-dependencies:
   - ../test-base
