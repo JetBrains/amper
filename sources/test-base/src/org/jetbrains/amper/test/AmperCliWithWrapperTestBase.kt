@@ -104,7 +104,7 @@ abstract class AmperCliWithWrapperTestBase {
         workingDir: Path,
         args: List<String>,
         environment: Map<String, String> = emptyMap(),
-        expectedExitCode: Int = 0,
+        expectedExitCode: Int? = 0,
         assertEmptyStdErr: Boolean = true,
         bootstrapCacheDir: Path? = null,
         amperJvmArgs: List<String> = emptyList(),
@@ -177,16 +177,18 @@ abstract class AmperCliWithWrapperTestBase {
         )
 
         try {
-            assertEquals(
-                expected = expectedExitCode,
-                actual = result.exitCode,
-                message = """
-                    Exit code must be $expectedExitCode, but got ${result.exitCode} for Amper call (PID ${result.pid}):
-                    $amperScript ${args.joinToString(" ")}
-                    Output:
-                    ${result.relevantOutput(expectedExitCode).prependIndent("                    ")}
-                """.trimMargin(),
-            )
+            if (expectedExitCode != null) {
+                assertEquals(
+                    expected = expectedExitCode,
+                    actual = result.exitCode,
+                    message = """
+                        Exit code must be $expectedExitCode, but got ${result.exitCode} for Amper call (PID ${result.pid}):
+                        $amperScript ${args.joinToString(" ")}
+                        Output:
+                        ${result.relevantOutput(expectedExitCode).prependIndent("                    ")}
+                    """.trimMargin(),
+                )
+            }
             if (assertEmptyStdErr) {
                 assertTrue(
                     actual = result.stderr.isBlank(),

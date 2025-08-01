@@ -61,7 +61,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     protected suspend fun runCli(
         projectRoot: Path,
         vararg args: String,
-        expectedExitCode: Int = 0,
+        expectedExitCode: Int? = 0,
         assertEmptyStdErr: Boolean = true,
         copyToTempDir: Boolean = false,
         modifyTempProjectBeforeRun: (tempProjectDir: Path) -> Unit = {},
