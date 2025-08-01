@@ -27,6 +27,7 @@ import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
+import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicReference
 
@@ -110,29 +111,25 @@ internal suspend fun <T> withBackend(
 
 /**
  * Some Windows encoding used by default doesn't support symbols used in `show dependencies` output
- * Updating it on UTF-8 solves the issue.
+ * Updating it to UTF-8 solves the issue.
  *
  * See https://github.com/ajalt/mordant/issues/249 for details.
  */
-private fun fixSystemOutEncodingOnWindows(terminal: Terminal): Boolean {
-    if (!System.getProperty("os.name").lowercase().contains("win")) return true
+private fun fixSystemOutEncodingOnWindows(terminal: Terminal) {
+    if (!System.getProperty("os.name").lowercase().contains("win")) return
+    if (System.out.charset() == Charsets.UTF_8) return
 
-    try {
+    spanBuilder("Fix stdout encoding").useWithoutCoroutines {
         // Set console code page to 65001 = UTF-8
-        if (Kernel32.INSTANCE.SetConsoleOutputCP(65001)) {
+        val success = Kernel32.INSTANCE.SetConsoleOutputCP(65001)
+        if (success) {
             // Replace System.out and System.err with PrintStreams using UTF-8
             System.setOut(PrintStream(System.out, true, Charsets.UTF_8))
             System.setErr(PrintStream(System.err, true, Charsets.UTF_8))
         } else {
-            // SetConsoleOutputCP() failed, throw exception with error message.
-            error(Kernel32Util.getLastErrorMessage())
+            terminal.warning("Failed to set UTF-8 as console output encoding: ${Kernel32Util.getLastErrorMessage()}")
         }
-    } catch (t: Throwable) {
-        terminal.warning("Failed to set UTF-8 as console output encoding: ${t.message}.")
-        return false
     }
-
-    return true
 }
 
 private fun CoroutineScope.childScope(name: String): CoroutineScope =
