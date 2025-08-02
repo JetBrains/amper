@@ -7,15 +7,15 @@ package org.jetbrains.amper.frontend.messages
 import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.BuildProblemSource
-import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.problems.reporting.BuildProblem
+import org.jetbrains.amper.problems.reporting.BuildProblemSource
+import org.jetbrains.amper.problems.reporting.Level
 import java.nio.file.Path
 import kotlin.reflect.KProperty0
 

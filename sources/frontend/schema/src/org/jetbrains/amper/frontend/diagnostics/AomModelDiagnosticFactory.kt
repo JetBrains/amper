@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
  * Factory to provide diagnostics on the whole AOM [Model].

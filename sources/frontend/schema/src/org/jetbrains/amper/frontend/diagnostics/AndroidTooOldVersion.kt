@@ -5,9 +5,6 @@
 package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitScalarProperties
@@ -16,6 +13,9 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 class AndroidTooOldVersion(
     override val element: PsiElement,

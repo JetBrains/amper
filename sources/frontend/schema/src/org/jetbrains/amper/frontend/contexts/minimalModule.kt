@@ -5,11 +5,6 @@
 package org.jetbrains.amper.frontend.contexts
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.WholeFileBuildProblemSource
-import org.jetbrains.amper.core.messages.replayProblemsTo
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
@@ -30,6 +25,11 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.values
 import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
+import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
+import org.jetbrains.amper.problems.reporting.WholeFileBuildProblemSource
+import org.jetbrains.amper.problems.reporting.replayProblemsTo
 
 /**
  * Internal schema to read fields, which are crucial for contexts generation.

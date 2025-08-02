@@ -5,10 +5,6 @@
 package org.jetbrains.amper.frontend.schema.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
-import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleSource
 import org.jetbrains.amper.frontend.Artifact
@@ -23,6 +19,10 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.parseStringWithReferences
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
+import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
+import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail

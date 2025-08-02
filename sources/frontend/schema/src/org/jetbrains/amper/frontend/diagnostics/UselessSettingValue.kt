@@ -6,8 +6,6 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
@@ -17,10 +15,11 @@ import org.jetbrains.amper.frontend.diagnostics.helpers.collectScalarPropertiesW
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.tree.MergedTree
-import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.single
+import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 private const val DiagnosticId = "setting.value.overrides.nothing"
 

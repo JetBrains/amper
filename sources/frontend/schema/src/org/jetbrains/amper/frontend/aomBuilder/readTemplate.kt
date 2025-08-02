@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
 import org.jetbrains.amper.frontend.catalogs.plus
@@ -15,6 +14,7 @@ import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
  * Reads the effective [VersionCatalog] for the given [templateFile].

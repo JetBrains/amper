@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.valueTracking
 import com.intellij.openapi.util.io.findOrCreateFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.parentOfType
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
@@ -15,6 +14,7 @@ import org.jetbrains.amper.frontend.api.linkedAmperValue
 import org.jetbrains.amper.frontend.api.precedingValuesSequence
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
 import org.jetbrains.amper.frontend.schema.helper.TestProjectContext
+import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.junit.jupiter.api.Test

@@ -10,10 +10,6 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import io.opentelemetry.api.common.Attributes
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
@@ -26,6 +22,10 @@ import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext.Compan
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Project
+import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
+import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException

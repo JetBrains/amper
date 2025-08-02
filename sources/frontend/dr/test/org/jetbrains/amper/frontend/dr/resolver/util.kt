@@ -7,11 +7,11 @@ package org.jetbrains.amper.frontend.dr.resolver
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.messages.NoopProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 import java.nio.file.Path
 import kotlin.test.assertIs
 import kotlin.test.fail

@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.MinimalModule
@@ -15,6 +13,8 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.OwnedTree
 import org.jetbrains.amper.frontend.tree.visitValues
+import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 object UnknownQualifiers : OwnedTreeDiagnostic {
 

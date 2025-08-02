@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.util.asSafely
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.api.InternalTraceSetter
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -25,6 +24,7 @@ import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.frontend.types.isValueRequired
 import org.jetbrains.amper.frontend.types.nameAndAliases
 import org.jetbrains.amper.frontend.types.toType
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
  * Instantiate requested [T] and fill its properties from the [node].

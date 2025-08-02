@@ -23,6 +23,7 @@ dependencies:
   - net.java.dev.jna:jna-platform:5.16.0
   - ../amper-jdk-provisioning
   - ../amper-build-info
+  - ../amper-problem-reporting
   - ../core
   - ../dependency-resolution
   - ../libraries/async-processes: exported # for ProcessResult in the API

@@ -5,7 +5,7 @@
 package org.jetbrains.amper.test.golden
 
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
+import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.test.assertEqualsIgnoreLineSeparator
 import java.nio.file.Path
 import kotlin.io.path.Path

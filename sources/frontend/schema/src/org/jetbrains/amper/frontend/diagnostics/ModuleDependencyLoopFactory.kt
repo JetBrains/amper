@@ -4,14 +4,6 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.BuildProblemSource
-import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.MultipleLocationsBuildProblemSource
-import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
@@ -19,6 +11,14 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.NotResolvedModule
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
+import org.jetbrains.amper.problems.reporting.BuildProblem
+import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemSource
+import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
+import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
+import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.graphs.depthFirstDetectLoops
 import org.jetbrains.annotations.Nls
 

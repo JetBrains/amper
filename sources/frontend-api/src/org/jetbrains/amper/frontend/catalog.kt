@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.frontend
 
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
  * Version catalog. Currently, it supports only maven dependencies.

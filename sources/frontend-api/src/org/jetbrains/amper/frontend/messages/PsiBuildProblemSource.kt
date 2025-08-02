@@ -4,14 +4,13 @@
 
 package org.jetbrains.amper.frontend.messages
 
-import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFileSystemItem
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.FileBuildProblemSource
-import org.jetbrains.amper.core.messages.FileWithRangesBuildProblemSource
-import org.jetbrains.amper.core.messages.LineAndColumnRange
 import org.jetbrains.amper.frontend.getLineAndColumnRangeInPsiFile
+import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
+import org.jetbrains.amper.problems.reporting.FileWithRangesBuildProblemSource
+import org.jetbrains.amper.problems.reporting.LineAndColumnRange
 import java.nio.file.Path
 
 private const val NO_VIRTUAL_FILE_ERROR = "PSI element doesn't have real backing file"

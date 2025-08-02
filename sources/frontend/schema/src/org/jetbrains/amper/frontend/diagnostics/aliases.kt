@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.unsafe
@@ -18,6 +16,8 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.asList
 import org.jetbrains.amper.frontend.tree.scalarValue
+import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 object AliasesDontUseUndeclaredPlatform : MergedTreeDiagnostic {
 

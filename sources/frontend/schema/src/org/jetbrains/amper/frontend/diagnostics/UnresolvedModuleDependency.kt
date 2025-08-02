@@ -6,12 +6,12 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.BuildProblemId
-import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.annotations.Nls
 import java.nio.file.Path
 import kotlin.io.path.pathString

@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.cli
 
-import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporter
-import org.jetbrains.amper.core.messages.renderMessage
+import org.jetbrains.amper.problems.reporting.BuildProblem
+import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.problems.reporting.renderMessage
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicBoolean
 

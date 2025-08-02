@@ -9,10 +9,10 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.DateTimeFormatForFilenames

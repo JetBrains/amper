@@ -3,14 +3,14 @@
  */
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsRegistrar.reporters
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.BasicDrDiagnosticsReporter
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.OverriddenDirectModuleDependencies
+import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 object DrDiagnosticsRegistrar {
     val reporters = listOf(

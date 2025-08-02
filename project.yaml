@@ -10,6 +10,7 @@ modules:
   - sources/amper-compose-hot-reload-recompiler-extension
   - sources/amper-jdk-provisioning
   - sources/amper-junit-listeners
+  - sources/amper-problem-reporting
   - sources/amper-project-templates
   - sources/amper-project-templates/amper-project-template-resources
   - sources/amper-wrapper

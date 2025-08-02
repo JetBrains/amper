@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.plugins
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
@@ -15,6 +14,7 @@ import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
  * Needed by the `preparePlugins` stage to read the plugin information from the local plugin module, before the full

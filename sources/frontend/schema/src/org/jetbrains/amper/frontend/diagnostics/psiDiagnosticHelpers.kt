@@ -6,12 +6,12 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.readModuleMergedTree
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 @UsedInIdePlugin
 data class MergedTreeHolder(

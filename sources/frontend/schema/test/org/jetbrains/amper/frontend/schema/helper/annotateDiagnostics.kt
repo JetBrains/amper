@@ -5,11 +5,11 @@
 package org.jetbrains.amper.frontend.schema.helper
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.BuildProblemSource
-import org.jetbrains.amper.core.messages.FileBuildProblemSource
-import org.jetbrains.amper.core.messages.FileWithRangesBuildProblemSource
-import org.jetbrains.amper.core.messages.MultipleLocationsBuildProblemSource
+import org.jetbrains.amper.problems.reporting.BuildProblem
+import org.jetbrains.amper.problems.reporting.BuildProblemSource
+import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
+import org.jetbrains.amper.problems.reporting.FileWithRangesBuildProblemSource
+import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import java.nio.file.Path
 
 private const val DIAGNOSTIC_START_LB = "<!"

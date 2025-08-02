@@ -7,8 +7,6 @@ package org.jetbrains.amper.frontend.catalogs
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.UsedVersions.logbackVersion
-import org.jetbrains.amper.core.messages.NonIdealDiagnostic
-import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.VersionCatalog
@@ -20,6 +18,8 @@ import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 internal operator fun VersionCatalog?.plus(other: VersionCatalog) =
     if (this == null) other else CompositeVersionCatalog(listOf(this, other))

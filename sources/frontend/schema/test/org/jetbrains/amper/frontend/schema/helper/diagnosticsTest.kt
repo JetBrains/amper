@@ -5,13 +5,13 @@
 package org.jetbrains.amper.frontend.schema.helper
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModel
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
+import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.golden.readContentsAndReplace
 import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines

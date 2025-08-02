@@ -7,7 +7,6 @@ import com.charleskorn.kaml.decodeFromStream
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.messages.NoopProblemReporter
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
@@ -16,6 +15,7 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 import org.jetbrains.amper.test.Dirs
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
