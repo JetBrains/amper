@@ -256,13 +256,12 @@ wrapper_path=$(realpath "$0")
 
 # 1. Prepend basic launch arguments
 if [ "$simpleOs" = "windows" ]; then
-  # Can't cygpath the '*' so it has to be outside
-  classpath="$(cygpath -w "$amper_target_dir")\lib\*"
+  libDirSlash="$(cygpath -w "$amper_target_dir")\lib\\"
 else
-  classpath="$amper_target_dir/lib/*"
+  libDirSlash="$amper_target_dir/lib/"
 fi
 
-set -- -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
+set -- -cp "$libDirSlash*" "-javaagent:${libDirSlash}kotlinx-coroutines-debug-@COROUTINES_DEBUG_VERSION@.jar" org.jetbrains.amper.cli.MainKt "$@"
 
 # 2. Prepend user JVM args from AMPER_JAVA_OPTS
 #

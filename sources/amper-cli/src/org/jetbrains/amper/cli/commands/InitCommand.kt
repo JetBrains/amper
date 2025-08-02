@@ -18,10 +18,12 @@ import org.jetbrains.amper.templates.AmperProjectTemplate
 import org.jetbrains.amper.templates.AmperProjectTemplates
 import org.jetbrains.amper.templates.TemplateFile
 import org.jetbrains.amper.wrapper.AmperWrappers
+import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
+import kotlin.io.path.name
 
 internal class InitCommand : AmperSubcommand(name = "init") {
 
@@ -73,9 +75,26 @@ internal class InitCommand : AmperSubcommand(name = "init") {
             logger.warn("Amper was not run from amper wrapper, skipping generating wrappers for $targetRootDir")
             return false
         }
-        AmperWrappers.generate(targetRootDir, amperVersion = AmperBuild.mavenVersion, amperDistTgzSha256 = sha256)
+        AmperWrappers.generate(
+            targetDir = targetRootDir,
+            amperVersion = AmperBuild.mavenVersion,
+            amperDistTgzSha256 = sha256,
+            coroutinesDebugVersion = currentCoroutinesDebugVersion(),
+        )
         return true
     }
+
+    private val coroutinesDebugJarNameRegex = Regex("kotlinx-coroutines-debug-(?<version>.*)\\.jar")
+
+    private fun currentCoroutinesDebugVersion(): String = System.getProperty("java.class.path")
+        .splitToSequence(File.pathSeparatorChar)
+        .filter { "intellij" !in it } // to avoid intellij's fork of coroutines
+        .map { Path(it) }
+        .firstNotNullOfOrNull { coroutinesDebugJarNameRegex.matchEntire(it.name) }
+        ?.groups
+        ?.get("version")
+        ?.value
+        ?: error("kotlinx-coroutines-debug jar not found in classpath")
 
     private fun checkTemplateFilesConflicts(templateFiles: List<TemplateFile>, outputDir: Path) {
         val filesToCheck = templateFiles.map { it.relativePath }

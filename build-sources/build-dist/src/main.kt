@@ -19,6 +19,7 @@ import java.util.zip.GZIPOutputStream
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
 import kotlin.io.path.outputStream
+import kotlin.io.path.pathString
 import kotlin.io.path.readBytes
 
 suspend fun main(args: Array<String>) = BuildDistCommand().main(args)
@@ -39,6 +40,7 @@ class BuildDistCommand : CacheableTaskCommand() {
                 targetDir = taskOutputDirectory,
                 amperVersion = AmperBuild.mavenVersion,
                 amperDistTgzSha256 = cliTgz.readBytes().sha256String(),
+                coroutinesDebugVersion = cliRuntimeClasspath.coroutinesDebugVersion(),
             )
 
             ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(cliTgz) + wrappers)
@@ -67,3 +69,13 @@ private fun TarArchiveOutputStream.writeFile(file: Path, pathInTar: String) {
     file.inputStream().use { input -> input.copyTo(this) }
     closeArchiveEntry()
 }
+
+private val coroutinesDebugJarNameRegex = Regex("kotlinx-coroutines-debug-(?<version>.*)\\.jar")
+
+private fun List<Path>.coroutinesDebugVersion(): String =
+    filter { "intellij" !in it.pathString } // to avoid intellij's fork of coroutines
+        .firstNotNullOfOrNull { coroutinesDebugJarNameRegex.matchEntire(it.name) }
+        ?.groups
+        ?.get("version")
+        ?.value
+        ?: error("kotlinx-coroutines-debug jar not found in classpath")

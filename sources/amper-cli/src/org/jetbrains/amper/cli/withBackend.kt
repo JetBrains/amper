@@ -18,7 +18,6 @@ import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.AsyncProfilerMode
-import org.jetbrains.amper.diagnostics.CoroutinesDebug
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.plugins.preparePlugins
@@ -48,14 +47,6 @@ internal suspend fun <T> withBackend(
     // JulTinylogBridge.activate()
 
     return withContext(Dispatchers.Default) {
-        // it's ok to parallelize this as long as we wait for it before doing coroutines-heavy work
-        val coroutinesDebugInstallJob = launch {
-            spanBuilder("Setup coroutines instrumentation").use {
-                CoroutinesDebug.setupCoroutinesInstrumentation()
-            }
-        }
-
-        val backgroundScope = childScope("project background scope")
 
         val cliContext = spanBuilder("Create CLI context").use {
             CliContext.create(
@@ -70,10 +61,6 @@ internal suspend fun <T> withBackend(
 
         TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
 
-        // we make sure coroutines debug probes are installed before trying to setup DeadLockMonitor
-        // and before executing coroutines-heavy backend work
-        coroutinesDebugInstallJob.join()
-
         if (setupEnvironment) {
             spanBuilder("Setup file logging and monitoring").use {
                 DeadLockMonitor.install(cliContext.currentLogsRoot)
@@ -87,6 +74,7 @@ internal suspend fun <T> withBackend(
 
         preparePlugins(context = cliContext)
 
+        val backgroundScope = childScope("project background scope")
         val backend = AmperBackend(
             context = cliContext,
             taskExecutionMode = taskExecutionMode,

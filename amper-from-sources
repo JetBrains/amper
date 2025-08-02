@@ -291,10 +291,21 @@ if [ "$simpleOs" = "windows" ]; then
 else
   classpath="$script_dir/build/tasks/_amper-cli_unpackedDist/dist/lib/*"
 fi
+
+coroutinesDebugJar=""
+for f in "$script_dir"/build/tasks/_amper-cli_unpackedDist/dist/lib/*kotlinx-coroutines-debug*.jar; do
+    if [[ -f "$f" ]]; then
+        coroutinesDebugJar="$f"
+        break
+    fi
+done
+
 jvm_args="-ea -XX:+EnableDynamicAgentLoading ${AMPER_JAVA_OPTIONS:-}"
 # shellcheck disable=SC2086
 time "$java_exe" \
   "-Damper.wrapper.path=$wrapper_path" \
   "-Damper.dist.path=$script_dir/build/tasks/_amper-cli_unpackedDist/dist" \
-  $jvm_args -cp "$classpath" org.jetbrains.amper.cli.MainKt \
+  "-javaagent:$coroutinesDebugJar" \
+  $jvm_args \
+  -cp "$classpath" org.jetbrains.amper.cli.MainKt \
   "--build-output=build-from-sources" "$@"

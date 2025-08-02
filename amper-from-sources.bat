@@ -148,6 +148,15 @@ if errorlevel 1 goto fail
 
 REM ********** Launch Amper from unpacked dist **********
 
-set jvm_args=-ea -XX:+EnableDynamicAgentLoading %AMPER_JAVA_OPTIONS%
+set "coroutinesDebugJar="
+for %%F in ("%~dp0build\tasks\_amper-cli_unpackedDist\dist\lib\*kotlinx-coroutines-debug*.jar") do (
+    set "coroutinesDebugJar=%%~fF"
+    goto :coroutinesDebugJarFound
+)
+echo Unable to find kotlinx-coroutines-debug*.jar under %~dp0build\tasks\_amper-cli_unpackedDist\dist\lib
+goto fail
+:coroutinesDebugJarFound
+
+set jvm_args=-ea -XX:+EnableDynamicAgentLoading "-javaagent:%coroutinesDebugJar%" %AMPER_JAVA_OPTIONS%
 "%AMPER_JAVA_HOME%\bin\java.exe" "-Damper.wrapper.path=%~f0" %jvm_args% -cp "%~dp0build\tasks\_amper-cli_unpackedDist\dist\lib\*" org.jetbrains.amper.cli.MainKt --build-output="build-from-sources" %*
 exit /B %ERRORLEVEL%
