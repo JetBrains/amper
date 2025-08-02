@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.diagnostics
 
-import dev.reformator.stacktracedecoroutinator.jvm.DecoroutinatorJvmApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.debug.DebugProbes
 import org.jetbrains.amper.core.telemetry.spanBuilder
@@ -17,16 +16,6 @@ object CoroutinesDebug {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun setupCoroutinesInstrumentation() {
-        // TODO investigate the performance impact of the decoroutinator
-        spanBuilder("Install stacktrace-decoroutinator").useWithoutCoroutines {
-            // see https://github.com/Anamorphosee/stacktrace-decoroutinator#motivation
-            try {
-                DecoroutinatorJvmApi.install()
-            } catch (e: Throwable) {
-                logger.warn("Failed to install stacktrace-decoroutinator: $e")
-            }
-        }
-
         spanBuilder("Install coroutines debug probes").useWithoutCoroutines {
             // coroutines debug probes, required to dump coroutines
             DebugProbes.enableCreationStackTraces = false

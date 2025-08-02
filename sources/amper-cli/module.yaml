@@ -60,7 +60,6 @@ dependencies:
   - $libs.clikt
   - $libs.clikt.markdown
   - $libs.xmlutil.serialization
-  - $libs.stacktrace.decoroutinator
   - $libs.intellij.deps.asyncProfiler
   - $libs.kotlinx.coroutines.debug
   - $libs.kotlinx.coroutines.slf4j
