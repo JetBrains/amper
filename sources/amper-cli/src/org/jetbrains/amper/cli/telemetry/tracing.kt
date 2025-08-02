@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.cli.telemetry
 
-import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import org.jetbrains.amper.frontend.AmperModule
@@ -13,10 +12,8 @@ import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.util.filterAnsiCodes
 
-val amperModuleKey: AttributeKey<String> = AttributeKey.stringKey("amper-module")
-
 fun SpanBuilder.setAmperModule(module: AmperModule): SpanBuilder =
-    setAttribute(amperModuleKey, module.userReadableName)
+    setAttribute("amper-module", module.userReadableName)
 
 fun SpanBuilder.setFragments(fragments: List<Fragment>) =
     setListAttribute("fragments", fragments.map { it.name }.sorted())
