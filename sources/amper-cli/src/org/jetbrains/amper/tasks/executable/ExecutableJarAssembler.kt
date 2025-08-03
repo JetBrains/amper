@@ -51,16 +51,11 @@ class ExecutableJarAssembler(
         return classesInputs + libInputs + listOf(loaderInput, classpathIndexInput, layersIndexInput)
     }
 
-    fun ExecutableJarConfig.createJarConfig(): JarConfig {
-        return JarConfig(
-            mainClassFqn = loaderMainClass,
-            manifestProperties = convertToManifestProperties(),
-            zipConfig = ZipConfig(
-                compressionStrategy = CompressionStrategy.Selective,
-                uncompressedEntryPatterns = listOf("^BOOT-INF/lib/.+"),
-            ),
-        )
-    }
+    fun ExecutableJarConfig.createJarConfig(): JarConfig = JarConfig(
+        mainClassFqn = loaderMainClass,
+        manifestProperties = convertToManifestProperties(),
+        zipConfig = ZipConfig(compressionStrategy = CompressionStrategy.Selective(listOf("^BOOT-INF/lib/.+"))),
+    )
 
     private suspend fun downloadSpringBootLoader(): Path {
         val toolingArtifactsDownloader = ToolingArtifactsDownloader(userCacheRoot, executeOnChangedInputs)

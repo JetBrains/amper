@@ -21,17 +21,27 @@ import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
 
 /**
- * Compression strategy for zip entries
+ * Compression strategy for zip entries.
  */
-enum class CompressionStrategy {
+@Serializable
+sealed class CompressionStrategy {
     /** Compress all entries */
-    CompressAll,
+    @Serializable
+    data object CompressAll : CompressionStrategy()
 
     /** Store all entries uncompressed */
-    StoreAll,
+    @Serializable
+    data object StoreAll : CompressionStrategy()
 
     /** Compress most entries but store specific entries (like lib/ for Spring Boot) uncompressed */
-    Selective
+    @Serializable
+    data class Selective(
+        /**
+         * Patterns for entry paths that should be stored uncompressed.
+         * These should be in regex format and will be matched against the path of each entry relative to the root of the zip.
+         */
+        val uncompressedPatterns: List<String>,
+    ) : CompressionStrategy()
 }
 
 @Serializable
@@ -55,12 +65,6 @@ data class ZipConfig(
      * Use STORE_ALL if all entries should be stored without compression.
      */
     val compressionStrategy: CompressionStrategy = CompressionStrategy.CompressAll,
-
-    /**
-     * Patterns for entry paths that should be stored uncompressed when using Selective compression strategy.
-     * Default includes pattern for Spring Boot's BOOT-INF/lib/ directory entries.
-     */
-    val uncompressedEntryPatterns: List<String> = listOf("^BOOT-INF/lib/.+")
 )
 
 /**
@@ -143,12 +147,10 @@ private fun Sequence<ZipEntrySpec>.sortedIf(condition: Boolean): Sequence<ZipEnt
 /**
  * Determines if an entry should be stored uncompressed based on the compression strategy.
  */
-private fun shouldStoreUncompressed(entryName: String, config: ZipConfig): Boolean {
-    return when (config.compressionStrategy) {
-        CompressionStrategy.StoreAll -> true
-        CompressionStrategy.CompressAll -> false
-        CompressionStrategy.Selective -> config.uncompressedEntryPatterns.any { entryName.matches(it.toRegex()) }
-    }
+private fun CompressionStrategy.shouldStoreUncompressed(entryName: String): Boolean = when (this) {
+    CompressionStrategy.StoreAll -> true
+    CompressionStrategy.CompressAll -> false
+    is CompressionStrategy.Selective -> this.uncompressedPatterns.any { entryName.matches(it.toRegex()) }
 }
 
 /**
@@ -157,10 +159,7 @@ private fun shouldStoreUncompressed(entryName: String, config: ZipConfig): Boole
 private fun ZipOutputStream.writeZipEntry(entryName: String, file: Path, config: ZipConfig) {
     val zipEntry = ZipEntry(entryName)
 
-    // Determine if this entry should be stored uncompressed
-    val storeUncompressed = shouldStoreUncompressed(entryName, config)
-
-    if (storeUncompressed && !file.isDirectory()) {
+    if (config.compressionStrategy.shouldStoreUncompressed(entryName) && !file.isDirectory()) {
         // For uncompressed entries, we need to pre-calculate CRC and size
         zipEntry.method = STORED
         // STORED method requires calculating the size and crc32
