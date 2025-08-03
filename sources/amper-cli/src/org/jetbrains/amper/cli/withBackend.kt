@@ -48,16 +48,14 @@ internal suspend fun <T> withBackend(
 
     return withContext(Dispatchers.Default) {
 
-        val cliContext = spanBuilder("Create CLI context").use {
-            CliContext.create(
-                explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
-                explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot?.toAbsolutePath(),
-                userCacheRoot = commonOptions.sharedCachesRoot,
-                commandName = commandName,
-                runSettings = runSettings,
-                terminal = terminal,
-            )
-        }
+        val cliContext = CliContext.create(
+            explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
+            explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot?.toAbsolutePath(),
+            userCacheRoot = commonOptions.sharedCachesRoot,
+            commandName = commandName,
+            runSettings = runSettings,
+            terminal = terminal,
+        )
 
         TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
 

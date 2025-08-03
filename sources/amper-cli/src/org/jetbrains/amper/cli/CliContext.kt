@@ -20,6 +20,7 @@ import org.jetbrains.amper.util.nowInDefaultTimezone
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 
 class CliContext private constructor(
@@ -61,10 +62,10 @@ class CliContext private constructor(
             commandName: String,
             terminal: Terminal,
             androidHomeRoot: AndroidHomeRoot? = null,
-        ): CliContext {
+        ): CliContext = spanBuilder("Create CLI context").use {
             require(commandName.isNotBlank()) { "commandName should not be blank" }
 
-            val amperProjectContext = spanBuilder("Create Amper project context").use {
+            val projectContext = spanBuilder("Create Amper project context").use {
                 with(CliProblemReporter) {
                     createProjectContext(
                         explicitProjectRoot = explicitProjectRoot?.toAbsolutePath(),
@@ -77,13 +78,11 @@ class CliContext private constructor(
                 }
             }
 
-            val tempDir = amperProjectContext.projectBuildDir.resolve("temp")
-
-            return CliContext(
+            CliContext(
                 commandName = commandName,
-                projectContext = amperProjectContext,
-                buildOutputRoot = AmperBuildOutputRoot(amperProjectContext.projectBuildDir.createDirectories()),
-                projectTempRoot = AmperProjectTempRoot(tempDir.createDirectories()),
+                projectContext = projectContext,
+                buildOutputRoot = AmperBuildOutputRoot(projectContext.projectBuildDir.createDirectories()),
+                projectTempRoot = AmperProjectTempRoot((projectContext.projectBuildDir / "temp").createDirectories()),
                 userCacheRoot = userCacheRoot,
                 runSettings = runSettings,
                 terminal = terminal,
