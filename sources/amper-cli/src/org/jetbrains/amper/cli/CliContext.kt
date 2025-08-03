@@ -28,19 +28,25 @@ class CliContext private constructor(
     val commandName: String,
     val projectContext: AmperProjectContext,
     val userCacheRoot: AmperUserCacheRoot,
-    val projectTempRoot: AmperProjectTempRoot,
-    val buildOutputRoot: AmperBuildOutputRoot,
     val runSettings: AllRunSettings,
     val terminal: Terminal,
     val androidHomeRoot: AndroidHomeRoot,
 ) {
     val projectRoot: AmperProjectRoot = AmperProjectRoot(projectContext.projectRootDir.toNioPath())
 
+    val buildOutputRoot: AmperBuildOutputRoot by lazy {
+        AmperBuildOutputRoot(projectContext.projectBuildDir.createDirectories())
+    }
+
+    val projectTempRoot: AmperProjectTempRoot by lazy {
+        AmperProjectTempRoot((projectContext.projectBuildDir / "temp").createDirectories())
+    }
+
     /**
      * The root directory containing all logs for all Amper executions in the current project.
      */
     val projectLogsRoot: AmperProjectLogsRoot by lazy {
-        AmperProjectLogsRoot(buildOutputRoot.path.resolve("logs").createDirectories())
+        AmperProjectLogsRoot((projectContext.projectBuildDir / "logs").createDirectories())
     }
 
     /**
@@ -81,8 +87,6 @@ class CliContext private constructor(
             CliContext(
                 commandName = commandName,
                 projectContext = projectContext,
-                buildOutputRoot = AmperBuildOutputRoot(projectContext.projectBuildDir.createDirectories()),
-                projectTempRoot = AmperProjectTempRoot((projectContext.projectBuildDir / "temp").createDirectories()),
                 userCacheRoot = userCacheRoot,
                 runSettings = runSettings,
                 terminal = terminal,
