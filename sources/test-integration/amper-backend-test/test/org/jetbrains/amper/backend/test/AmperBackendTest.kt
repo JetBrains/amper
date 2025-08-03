@@ -29,17 +29,15 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
     private suspend fun TestCollector.setupTestDataProject(
         testProjectName: String,
-        programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,
     ): CliContext = setupTestProject(
         testProjectPath = Dirs.amperTestProjectsRoot.resolve(testProjectName),
         copyToTemp = copyToTemp,
-        programArgs = programArgs,
     )
 
     @Test
     fun `simple multiplatform cli sources jars`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = emptyList())
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
         val backend = AmperBackend(projectContext, backgroundScope = backgroundScope)
 
         val sourcesJarJvm = TaskName(":shared:sourcesJarJvm")
@@ -236,7 +234,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Disabled("Metadata compilation doesn't 100% work at the moment, because we need DR to support multi-platform dependencies")
     @Test
     fun `simple multiplatform cli metadata`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = emptyList())
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
         val backend = AmperBackend(projectContext, backgroundScope = backgroundScope)
 
         val compileMetadataJvmMain = TaskName(":shared:compileMetadataJvm")

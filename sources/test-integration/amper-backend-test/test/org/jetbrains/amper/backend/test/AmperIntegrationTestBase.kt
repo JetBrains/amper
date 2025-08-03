@@ -9,7 +9,6 @@ package org.jetbrains.amper.backend.test
 import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestCollector
@@ -50,7 +49,6 @@ abstract class AmperIntegrationTestBase {
     protected suspend fun TestCollector.setupTestProject(
         testProjectPath: Path,
         copyToTemp: Boolean,
-        programArgs: List<String> = emptyList(),
         useEmptyAndroidHome: Boolean = false,
     ): CliContext {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }
@@ -70,7 +68,6 @@ abstract class AmperIntegrationTestBase {
             explicitBuildOutputRoot = buildDir,
             userCacheRoot = userCacheRoot,
             terminal = terminal,
-            runSettings = AllRunSettings(programArgs = programArgs),
             androidHomeRoot = androidHomeRoot,
         )
     }
