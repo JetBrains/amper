@@ -15,12 +15,10 @@ import com.android.sdklib.devices.DeviceManager
 import com.android.sdklib.internal.avd.AvdManager
 import com.android.sdklib.repository.AndroidSdkHandler
 import com.android.utils.StdLogger
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.serialization.XML
@@ -41,11 +39,11 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-
 
 const val headlessEmulatorModePropertyName = "org.jetbrains.amper.android.emulator.headless"
 
@@ -213,26 +211,24 @@ class AndroidRunTask(
         )
     }
 
-    private suspend fun waitForDevice(targetVersion: AndroidVersion): IDevice {
-        val deferred = CompletableDeferred<IDevice>()
-        val listener = object : AndroidDebugBridge.IDeviceChangeListener {
-            override fun deviceConnected(device: IDevice) {
-            }
+    private suspend fun waitForDevice(targetVersion: AndroidVersion): IDevice =
+        suspendCancellableCoroutine { continuation ->
+            val listener = object : AndroidDebugBridge.IDeviceChangeListener {
+                override fun deviceConnected(device: IDevice) = Unit
+                override fun deviceDisconnected(device: IDevice?) = Unit
 
-            override fun deviceDisconnected(device: IDevice?) {
-            }
-
-            override fun deviceChanged(device: IDevice, changeMask: Int) {
-                if (device.state == IDevice.DeviceState.ONLINE && device.version.canRun(targetVersion)) {
-                    deferred.complete(device)
+                override fun deviceChanged(device: IDevice, changeMask: Int) {
+                    if (device.state == IDevice.DeviceState.ONLINE && device.version.canRun(targetVersion)) {
+                        AndroidDebugBridge.removeDeviceChangeListener(this)
+                        continuation.resume(device)
+                    }
                 }
             }
+            AndroidDebugBridge.addDeviceChangeListener(listener)
+            continuation.invokeOnCancellation {
+                AndroidDebugBridge.removeDeviceChangeListener(listener)
+            }
         }
-        AndroidDebugBridge.addDeviceChangeListener(listener)
-        val device = deferred.await()
-        AndroidDebugBridge.removeDeviceChangeListener(listener)
-        return device
-    }
 
     data class Result(val device: IDevice) : TaskResult
 }
@@ -254,23 +250,26 @@ private suspend fun IDevice.waitForBootCompleted(interval: Duration = 10.millise
     return this
 }
 
-private suspend fun IDevice.executeShellCommandAndGetOutput(command: String): String = coroutineScope {
-    val deferred: CompletableDeferred<String> = CompletableDeferred()
-    executeShellCommand(command, object : IShellOutputReceiver {
-        val stringBuilder = StringBuilder()
+private suspend fun IDevice.executeShellCommandAndGetOutput(command: String): String =
+    suspendCancellableCoroutine { continuation ->
+        var isCancelled = false
+        executeShellCommand(command, object : IShellOutputReceiver {
+            val stringBuilder = StringBuilder()
 
-        override fun addOutput(data: ByteArray, offset: Int, length: Int) {
-            stringBuilder.append(data.decodeToString(offset, offset + length))
+            override fun addOutput(data: ByteArray, offset: Int, length: Int) {
+                stringBuilder.append(data.decodeToString(offset, offset + length))
+            }
+
+            override fun flush() {
+                continuation.resume(stringBuilder.toString())
+            }
+
+            override fun isCancelled(): Boolean = isCancelled
+        })
+        continuation.invokeOnCancellation {
+            isCancelled = true
         }
-
-        override fun flush() {
-            deferred.complete(stringBuilder.toString())
-        }
-
-        override fun isCancelled(): Boolean = !isActive
-    })
-    deferred.await()
-}
+    }
 
 private const val namespace = "http://schemas.android.com/apk/res/android"
 private const val prefix = "android"
