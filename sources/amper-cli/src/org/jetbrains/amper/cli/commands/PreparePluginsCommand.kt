@@ -20,8 +20,8 @@ internal class PreparePluginsCommand : AmperSubcommand(name = "prepare-plugins")
 
     override suspend fun run() {
         val context = CliContext.create(
-            explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
-            explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot?.toAbsolutePath(),
+            explicitProjectRoot = commonOptions.explicitProjectRoot,
+            explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
             userCacheRoot = commonOptions.sharedCachesRoot,
             commandName = commandName,
             runSettings = AllRunSettings(),

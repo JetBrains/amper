@@ -49,8 +49,8 @@ internal suspend fun <T> withBackend(
     return withContext(Dispatchers.Default) {
 
         val cliContext = CliContext.create(
-            explicitProjectRoot = commonOptions.explicitProjectRoot?.toAbsolutePath(),
-            explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot?.toAbsolutePath(),
+            explicitProjectRoot = commonOptions.explicitProjectRoot,
+            explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
             userCacheRoot = commonOptions.sharedCachesRoot,
             commandName = commandName,
             runSettings = runSettings,

@@ -19,6 +19,7 @@ import org.jetbrains.amper.util.DateTimeFormatForFilenames
 import org.jetbrains.amper.util.nowInDefaultTimezone
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
@@ -28,7 +29,6 @@ class CliContext private constructor(
     val projectContext: AmperProjectContext,
     val userCacheRoot: AmperUserCacheRoot,
     val projectTempRoot: AmperProjectTempRoot,
-    // in the future it'll be customizable to support out-of-tree builds, e.g., on CI
     val buildOutputRoot: AmperBuildOutputRoot,
     val runSettings: AllRunSettings,
     val terminal: Terminal,
@@ -68,8 +68,8 @@ class CliContext private constructor(
             val projectContext = spanBuilder("Create Amper project context").use {
                 with(CliProblemReporter) {
                     createProjectContext(
-                        explicitProjectRoot = explicitProjectRoot?.toAbsolutePath(),
-                        explicitBuildRoot = explicitBuildOutputRoot,
+                        explicitProjectRoot = explicitProjectRoot?.absolute(),
+                        explicitBuildRoot = explicitBuildOutputRoot?.absolute(),
                     ).also {
                         if (wereProblemsReported()) {
                             userReadableError("aborting because there were errors in the Amper project file, please see above")
