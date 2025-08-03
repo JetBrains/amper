@@ -40,6 +40,12 @@ import kotlin.time.Duration.Companion.milliseconds
  * inside the given [block], that would make the current coroutine hang.
  * If an [owner] object is given, the owner's identity is used to detect such issues and eagerly fail instead of
  * hanging.
+ *
+ * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this JVM
+ * @throws NonWritableChannelException If this file was not opened for writing
+ * @throws FileAlreadyExistsException If a file of that name already exists and the [StandardOpenOption.CREATE_NEW]
+ *         option is specified and the file is being opened for writing
+ * @throws IOException If some other I/O error occurs
  */
 suspend fun <T> FileMutexGroup.withDoubleLock(
     lockFile: Path,
@@ -92,6 +98,9 @@ annotation class DelicateConcurrentApi
  * Note: Since the first lock is a non-reentrant coroutine Mutex, callers MUST NOT call [getOrComputeWithDoubleLock]
  * (or similar locking functions) again from inside the given [computeUnderLock] function - that would make the current
  * coroutine hang.
+ *
+ * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this JVM
+ * @throws IOException If some other I/O error occurs
  */
 @DelicateConcurrentApi
 suspend fun <T> FileMutexGroup.getOrComputeWithDoubleLock(
@@ -140,6 +149,8 @@ suspend fun <T> FileMutexGroup.getOrComputeWithDoubleLock(
  *         virtual machine, or if another thread is already blocked in this function and is attempting to lock an
  *         overlapping region of the same file
  * @throws NonWritableChannelException If this file was not opened for writing
+ * @throws FileAlreadyExistsException If a file of that name already exists and the [StandardOpenOption.CREATE_NEW]
+ *         option is specified and the file is being opened for writing
  * @throws IOException If some other I/O error occurs
  */
 private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOption, block: (FileChannel) -> T): T {
