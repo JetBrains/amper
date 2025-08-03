@@ -23,7 +23,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
@@ -138,14 +137,7 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
 
     private suspend fun findTraceFiles(): List<Path> = coroutineScope {
         val logsRootDir = try {
-            val context = CliContext.create(
-                explicitProjectRoot = commonOptions.explicitProjectRoot,
-                explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
-                userCacheRoot = commonOptions.sharedCachesRoot,
-                commandName = commandName,
-                terminal = terminal,
-            )
-            context.projectLogsRoot.path
+            createCliProjectContext().projectLogsRoot.path
         } catch (_: UserReadableError) {
             return@coroutineScope emptyList()
         }

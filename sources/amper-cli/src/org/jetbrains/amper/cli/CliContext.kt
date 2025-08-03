@@ -61,12 +61,12 @@ class CliContext private constructor(
 
     companion object {
         suspend fun create(
+            commandName: String,
             explicitProjectRoot: Path?,
-            runSettings: AllRunSettings = AllRunSettings(),
             explicitBuildOutputRoot: Path?,
             userCacheRoot: AmperUserCacheRoot,
-            commandName: String,
             terminal: Terminal,
+            runSettings: AllRunSettings = AllRunSettings(),
             androidHomeRoot: AndroidHomeRoot? = null,
         ): CliContext = spanBuilder("Create CLI context").use {
             require(commandName.isNotBlank()) { "commandName should not be blank" }

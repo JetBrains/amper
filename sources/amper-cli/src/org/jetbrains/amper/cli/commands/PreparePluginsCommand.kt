@@ -4,12 +4,9 @@
 
 package org.jetbrains.amper.cli.commands
 
-import com.github.ajalt.clikt.core.terminal
-import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.plugins.preparePlugins
-import org.jetbrains.amper.tasks.AllRunSettings
 
 /**
  * Command to be invoked by the tooling (IDE) to ensure the plugin information is valid and ready.
@@ -19,14 +16,7 @@ internal class PreparePluginsCommand : AmperSubcommand(name = "prepare-plugins")
         get() = true
 
     override suspend fun run() {
-        val context = CliContext.create(
-            explicitProjectRoot = commonOptions.explicitProjectRoot,
-            explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
-            userCacheRoot = commonOptions.sharedCachesRoot,
-            commandName = commandName,
-            runSettings = AllRunSettings(),
-            terminal = terminal,
-        )
+        val context = createCliProjectContext()
         TelemetryEnvironment.setLogsRootDirectory(context.currentLogsRoot)
         LoggingInitializer.setupFileLogging(context.currentLogsRoot)
 

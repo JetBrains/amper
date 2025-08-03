@@ -11,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.cli.logging.LoggingInitializer
@@ -49,12 +48,12 @@ internal suspend fun <T> withBackend(
     return withContext(Dispatchers.Default) {
 
         val cliContext = CliContext.create(
+            commandName = commandName,
             explicitProjectRoot = commonOptions.explicitProjectRoot,
             explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
             userCacheRoot = commonOptions.sharedCachesRoot,
-            commandName = commandName,
-            runSettings = runSettings,
             terminal = terminal,
+            runSettings = runSettings,
         )
 
         TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
