@@ -27,12 +27,13 @@ interface AmperProjectContext {
     val projectRootDir: VirtualFile
 
     /**
-     * This is the build directory of the project.
+     * The build directory of the project, containing project-specific outputs and caches.
+     * It is usually located at `<projectRoot>/build`.
      */
     val projectBuildDir: Path
 
     /**
-     * The version catalog of the project, usually located at `gradle/libs.versions.toml` under the root.
+     * The version catalog of the project, usually located at `<projectRoot>/gradle/libs.versions.toml`.
      */
     val projectVersionsCatalog: VersionCatalog?
 
