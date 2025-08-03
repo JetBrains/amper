@@ -15,15 +15,11 @@ internal class CleanCommand : AmperSubcommand(name = "clean") {
     override fun help(context: Context): String = "Remove the project's build output and caches"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName, terminal, setupEnvironment = false) { backend ->
-            val rootsToClean = listOf(backend.context.buildOutputRoot.path, backend.context.projectTempRoot.path)
+        val cliContext = createCliProjectContext()
+        val buildDir = cliContext.buildOutputRoot.path
+        if (buildDir.exists()) {
             terminal.println("Deleting project build output and caches…")
-            for (path in rootsToClean) {
-                if (path.exists()) {
-                    terminal.println("Deleting $path")
-                    path.deleteRecursively()
-                }
-            }
+            buildDir.deleteRecursively()
         }
         printSuccessfulCommandConclusion("Clean successful")
     }
