@@ -7,6 +7,7 @@ package org.jetbrains.amper.ksp
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.jdk.provisioning.Jdk
+import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.slf4j.LoggerFactory
@@ -52,8 +53,8 @@ internal class Ksp(
             mainClass = compilationType.kspMainClassFqn,
             classpath = kspImplJars,
             programArgs = args,
+            argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
             outputListener = LoggingProcessOutputListener(logger, prefix = "[ksp] "),
-            tempRoot = tempRoot,
         )
         // Note: KSP fails automatically with exit code 1 if any error log is present
         if (result.exitCode != 0) {

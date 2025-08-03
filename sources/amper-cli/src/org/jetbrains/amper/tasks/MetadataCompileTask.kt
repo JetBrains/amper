@@ -29,6 +29,7 @@ import org.jetbrains.amper.frontend.refinedFragments
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
@@ -186,9 +187,8 @@ internal class MetadataCompileTask(
                     mainClass = "org.jetbrains.kotlin.cli.metadata.K2MetadataCompiler",
                     classpath = compilerJars,
                     programArgs = compilerArgs,
-                    jvmArgs = listOf(),
+                    argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
                     outputListener = LoggingProcessOutputListener(logger),
-                    tempRoot = tempRoot,
                 )
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin metadata compilation failed (see errors above)")

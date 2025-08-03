@@ -19,6 +19,7 @@ import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
+import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.runJava
@@ -54,11 +55,11 @@ abstract class AbstractJvmRunTask(
             mainClass = getMainClass(dependenciesResult),
             classpath = getClasspath(dependenciesResult),
             programArgs = runSettings.programArgs,
+            argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
             jvmArgs = getJvmArgs(dependenciesResult),
-            outputListener = PrintToTerminalProcessOutputListener(terminal),
-            tempRoot = tempRoot,
-            input = ProcessInput.Inherit,
             environment = getEnvironment(dependenciesResult),
+            outputListener = PrintToTerminalProcessOutputListener(terminal),
+            input = ProcessInput.Inherit,
         )
 
         val message = "Process exited with exit code ${result.exitCode}"

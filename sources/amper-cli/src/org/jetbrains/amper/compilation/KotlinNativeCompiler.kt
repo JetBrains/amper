@@ -14,6 +14,7 @@ import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -82,6 +83,7 @@ class KotlinNativeCompiler(
                         ),
                         programArgs = listOf("konanc", "@${argFile}"),
                         // JVM args partially copied from <kotlinNativeHome>/bin/run_konan
+                        argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
                         jvmArgs = listOf(
                             "-ea",
                             "-XX:TieredStopAtLevel=1",
@@ -89,7 +91,6 @@ class KotlinNativeCompiler(
                             "-Dkonan.home=$kotlinNativeHome",
                         ),
                         outputListener = LoggingProcessOutputListener(logger),
-                        tempRoot = tempRoot,
                     )
 
                     // TODO this is redundant with the java span of the external process run. Ideally, we

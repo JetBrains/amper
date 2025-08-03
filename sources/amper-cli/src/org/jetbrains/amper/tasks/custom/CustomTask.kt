@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
+import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -98,10 +99,10 @@ internal class CustomTask(
             mainClass = codeModule.fragments.getEffectiveJvmMainClass(),
             classpath = jvmRuntimeClasspathTask.jvmRuntimeClasspath,
             programArgs = custom.programArguments.map { interpolateString(it, dependenciesResult) },
+            argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
             jvmArgs = custom.jvmArguments.map { interpolateString(it, dependenciesResult) },
             environment = custom.environmentVariables.mapValues { interpolateString(it.value, dependenciesResult) },
             outputListener = PrintToTerminalProcessOutputListener(terminal),
-            tempRoot = tempRoot,
         )
 
         if (result.exitCode != 0) {
