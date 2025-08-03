@@ -19,6 +19,7 @@ kaml = "0.76.0"
 kotlin = "2.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 kotlinx-collections = "0.3.8" # aligned with IntelliJ platform - UPDATE WITH CARE
 kotlinx-coroutines = "1.8.0" # aligned with IntelliJ platform - UPDATE WITH CARE
+kotlinx-datetime = "0.7.1"
 ksp = "2.2.0-2.0.2" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 ktor = "3.0.3" # aligned with IntelliJ platform - UPDATE WITH CARE
 maven = "3.9.9"
@@ -81,6 +82,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-debug", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { module="org.jetbrains.kotlinx:kotlinx-datetime", version.ref="kotlinx-datetime" }
 ksp-symbolProcessingApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ktor-client = { module = "io.ktor:ktor-client", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }

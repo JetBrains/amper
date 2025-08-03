@@ -11,13 +11,15 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.logging.LastLogMonitoringWriter
 import org.jetbrains.amper.intellij.ThreadDumper
+import org.jetbrains.amper.util.DateTimeFormatForFilenames
+import org.jetbrains.amper.util.nowInDefaultTimezone
 import java.io.PrintStream
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.io.path.createDirectories
 import kotlin.io.path.pathString
 import kotlin.time.Duration.Companion.minutes
@@ -46,8 +48,8 @@ object DeadLockMonitor {
 
                     val elapsedSinceLastLog = LastLogMonitoringWriter.lastLogEntryTimeMark.elapsedNow()
                     if (elapsedSinceLastLog > considerDeadInterval) {
-                        val dumpFile =
-                            logsRoot.path.resolve("thread-dump-${currentTimestamp()}-${AmperBuild.mavenVersion}.txt")
+                        val dateTime = LocalDateTime.nowInDefaultTimezone().format(DateTimeFormatForFilenames)
+                        val dumpFile = logsRoot.path.resolve("thread-dump-$dateTime-${AmperBuild.mavenVersion}.txt")
                         System.err.println("Amper has not logged anything at DEBUG log level for $elapsedSinceLastLog, possible deadlock, dumping current state to $dumpFile")
 
                         dumpFile.parent.createDirectories()
@@ -72,8 +74,6 @@ object DeadLockMonitor {
             }
         }
     }
-
-    private fun currentTimestamp(): String = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
 
     // Disable deadlock monitor for now as it leads to flaky tests sometimes
     // TODO probably enable it only for real amper runs?

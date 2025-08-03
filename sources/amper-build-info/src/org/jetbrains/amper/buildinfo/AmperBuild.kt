@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.buildinfo
 
-import java.time.Instant
 import java.util.*
+import kotlin.time.Instant
 
 object AmperBuild {
     val isSNAPSHOT: Boolean

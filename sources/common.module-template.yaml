@@ -52,5 +52,6 @@ settings:
     optIns:
       - kotlin.contracts.ExperimentalContracts
       - kotlin.io.path.ExperimentalPathApi
+      - kotlin.time.ExperimentalTime
   jvm:
     release: 21

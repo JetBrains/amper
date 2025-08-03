@@ -4,12 +4,13 @@
 
 package org.jetbrains.amper.cli
 
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.incrementalcache.computeClassPathHash
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import org.jetbrains.amper.util.toLocalDateTimeInDefaultTimezone
 
 object AmperVersion {
 
@@ -24,7 +25,7 @@ object AmperVersion {
      */
     val banner: String by lazy {
         with(AmperBuild) {
-            val commitDate = commitInstant?.atZone(ZoneId.systemDefault())?.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val commitDate = commitInstant?.toLocalDateTimeInDefaultTimezone()?.date?.format(LocalDate.Formats.ISO)
             val distInfoIfSnapshot = if (isSNAPSHOT) "\nDistribution hash: $distributionHash" else ""
             "JetBrains Amper version $mavenVersion ($commitShortHash, $commitDate)$distInfoIfSnapshot"
         }

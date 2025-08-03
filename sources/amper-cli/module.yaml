@@ -63,6 +63,7 @@ dependencies:
   - $libs.intellij.deps.asyncProfiler
   - $libs.kotlinx.coroutines.debug
   - $libs.kotlinx.coroutines.slf4j
+  - $libs.kotlinx.datetime
   - $libs.teamcity.serviceMessages
   - $libs.maven.core
   - $libs.maven.resolver.connectorBasic

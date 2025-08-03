@@ -5,6 +5,8 @@
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.terminal.Terminal
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
 import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.messages.ProblemReporter
@@ -13,9 +15,9 @@ import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
+import org.jetbrains.amper.util.DateTimeFormatForFilenames
+import org.jetbrains.amper.util.nowInDefaultTimezone
 import java.nio.file.Path
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.isDirectory
@@ -44,7 +46,7 @@ class CliContext private constructor(
      * The logs directory for the current Amper execution.
      */
     val currentLogsRoot: AmperBuildLogsRoot by lazy {
-        val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
+        val currentTimestamp = LocalDateTime.nowInDefaultTimezone().format(DateTimeFormatForFilenames)
         val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
         val currentLogsPath = projectLogsRoot.path.resolve("amper_${currentTimestamp}_${pid}_$commandName")
         AmperBuildLogsRoot(currentLogsPath.createDirectories())
