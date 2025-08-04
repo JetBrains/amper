@@ -7,15 +7,17 @@ package org.jetbrains.amper.cli.commands.show
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.terminal
 import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
 import org.jetbrains.amper.cli.commands.AmperProjectAwareCommand
 import org.jetbrains.amper.cli.withBackend
+import org.jetbrains.amper.frontend.Model
 
-internal class TasksCommand : AmperProjectAwareCommand(name = "tasks") {
+internal class TasksCommand : AmperModelAwareCommand(name = "tasks") {
 
     override fun help(context: Context): String = "List all tasks in the project and their dependencies"
 
-    override suspend fun run(cliContext: CliContext) {
-        val taskGraph = withBackend(cliContext) { backend -> backend.taskGraph }
+    override suspend fun run(cliContext: CliContext, model: Model) {
+        val taskGraph = withBackend(cliContext, model) { backend -> backend.taskGraph }
 
         for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
             val taskWithDeps = buildString {

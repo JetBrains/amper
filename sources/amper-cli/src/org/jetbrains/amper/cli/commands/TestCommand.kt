@@ -14,12 +14,13 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.TaskExecutor
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
 
-internal class TestCommand : AmperProjectAwareCommand(name = "test") {
+internal class TestCommand : AmperModelAwareCommand(name = "test") {
 
     private val platforms by leafPlatformOption(
         help = "Only run tests for the specified platform. The option can be repeated to test several platforms."
@@ -121,10 +122,11 @@ internal class TestCommand : AmperProjectAwareCommand(name = "test") {
 
     override fun help(context: Context): String = "Run tests in the project"
 
-    override suspend fun run(cliContext: CliContext) {
+    override suspend fun run(cliContext: CliContext, model: Model) {
         val allTestFilters = includeTestFilters + includeClassFilters + excludeClassFilters
         withBackend(
             cliContext = cliContext,
+            model = model,
             taskExecutionMode = TaskExecutor.Mode.GREEDY, // try to execute as many tests as possible
             runSettings = AllRunSettings(
                 userJvmArgs = jvmArgs,
@@ -132,7 +134,7 @@ internal class TestCommand : AmperProjectAwareCommand(name = "test") {
                 testResultsFormat = format,
             ),
         ) { backend ->
-            if (allTestFilters.isNotEmpty() && includeModules.isEmpty() && excludeModules.isEmpty() && backend.modules().size > 1) {
+            if (allTestFilters.isNotEmpty() && includeModules.isEmpty() && excludeModules.isEmpty() && model.modules.size > 1) {
                 userReadableError(
                     "When using test filters, it is required to use --include-module or --exclude-module to also select " +
                             "the modules where matching tests are expected. " +

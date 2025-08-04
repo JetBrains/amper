@@ -8,22 +8,22 @@ import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.cli.commands.AmperProjectAwareCommand
+import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.buildDependenciesGraph
 
-internal class DependenciesCommand: AmperProjectAwareCommand(name = "dependencies") {
+internal class DependenciesCommand: AmperModelAwareCommand(name = "dependencies") {
 
     private val module by option("-m", "--module",
         help = "Specific module to show dependencies of (run the `show modules` command to get the modules list)")
@@ -50,10 +50,8 @@ internal class DependenciesCommand: AmperProjectAwareCommand(name = "dependencie
 
     override fun help(context: com.github.ajalt.clikt.core.Context): String = "Print the resolved dependencies graph of the module"
 
-    override suspend fun run(cliContext: CliContext) {
-        // FIXME we don't need the backend just to get the list of modules, so this should be refactored
-        val modules = withBackend(cliContext) { backend -> backend.modules() }
-        val resolvedModule = resolveModuleIn(modules)
+    override suspend fun run(cliContext: CliContext, model: Model) {
+        val resolvedModule = resolveModuleIn(model.modules)
 
         val platformSetsToResolveFor = platforms
             ?.let { listOf(resolvedModule.getModuleLeafPlatforms(it)) }

@@ -15,16 +15,17 @@ import com.github.ajalt.mordant.rendering.TextAlign
 import com.github.ajalt.mordant.rendering.Whitespace
 import com.github.ajalt.mordant.terminal.info
 import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
 import org.jetbrains.amper.cli.commands.AmperProjectAwareCommand
 import org.jetbrains.amper.cli.interactiveMultiSelectList
-import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.valueTracking.TracesPresentation
 import org.jetbrains.amper.frontend.valueTracking.compositeValueTracesInfo
 
-internal class SettingsCommand: AmperProjectAwareCommand(name = "settings") {
+internal class SettingsCommand : AmperModelAwareCommand(name = "settings") {
 
     private val modules by option("-m", "--module",
         help = "The module to show the settings of (run the 'show modules' command to get the modules list). " +
@@ -36,11 +37,10 @@ internal class SettingsCommand: AmperProjectAwareCommand(name = "settings") {
 
     override fun help(context: Context): String = "Print the effective Amper settings of each module"
 
-    override suspend fun run(cliContext: CliContext) {
-        // FIXME we don't need the backend just to get the list of modules, so this should be refactored
-        val modules = withBackend(cliContext) { backend -> backend.modules() }
-        modules.filterModulesToInspect().forEach { module ->
-            if (modules.size > 1) {
+    override suspend fun run(cliContext: CliContext, model: Model) {
+        val isMultimodule = model.modules.size
+        model.modules.filterModulesToInspect().forEach { module ->
+            if (isMultimodule > 1) {
                 terminal.info("Module: ${module.userReadableName}\n", Whitespace.PRE_LINE, TextAlign.LEFT)
             }
             module.fragments

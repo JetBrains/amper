@@ -31,6 +31,7 @@ import org.jetbrains.amper.cli.logging.sessionIdKey
 import org.jetbrains.amper.cli.logging.useKey
 import org.jetbrains.amper.cli.logging.useServerValue
 import org.jetbrains.amper.cli.withBackend
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.TaskName
 import org.slf4j.MDC
 import org.tinylog.Level
@@ -42,7 +43,7 @@ data class Task(val taskHierarchy: List<String>)
 
 private const val defaultPort = 8000
 
-internal class ServerCommand : AmperProjectAwareCommand(name = "server") {
+internal class ServerCommand : AmperModelAwareCommand(name = "server") {
 
     override val hiddenFromHelp: Boolean = true
 
@@ -65,8 +66,10 @@ internal class ServerCommand : AmperProjectAwareCommand(name = "server") {
         "Start a server that accepts tasks from Amper and runs them. The server runs on port $defaultPort by default."
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun run(cliContext: CliContext) {
-        withBackend(cliContext) { backend ->
+    override suspend fun run(cliContext: CliContext, model: Model) {
+        // Note: with the current approach, the server will not see changes in Amper module files.
+        // TODO should we re-parse the model every time /task is called?
+        withBackend(cliContext, model = model) { backend ->
             embeddedServer(Netty, port = port) {
                 install(ContentNegotiation) { json() }
                 install(SSE)

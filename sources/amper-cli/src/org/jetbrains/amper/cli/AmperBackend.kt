@@ -19,12 +19,9 @@ import org.jetbrains.amper.engine.TaskExecutor.TaskExecutionFailed
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
-import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.AllRunSettings
@@ -36,14 +33,16 @@ import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
-import org.jetbrains.annotations.TestOnly
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.pathString
 
 class AmperBackend(
     val context: CliContext,
+    /**
+     * The Amper project model.
+     */
+    private val model: Model,
     /**
      * Settings that are passed from the command line to user-visible processes that Amper runs, such as tests or the
      * user's applications.
@@ -58,33 +57,13 @@ class AmperBackend(
      */
     val backgroundScope: CoroutineScope,
 ) {
-    private val resolvedModel: Model = with(CliProblemReporter) {
-        val model = spanBuilder("Read model from Amper files")
-            .setAttribute("root", context.projectRoot.path.pathString)
-            .useWithoutCoroutines {
-                context.projectContext.readProjectModel()
-            }
-        if (model == null || wereProblemsReported()) {
-            userReadableError("failed to read Amper model, refer to the errors above")
-        }
-
-        for ((moduleUserReadableName, moduleList) in model.modules.groupBy { it.userReadableName }) {
-            if (moduleList.size > 1) {
-                userReadableError("Module name '${moduleUserReadableName}' is not unique, it's declared in " +
-                moduleList.joinToString(" ") { (it.source as? AmperModuleFileSource)?.buildFile?.toString() ?: "" })
-            }
-        }
-
-        model
-    }
-
     private val modulesByName by lazy {
-        resolvedModel.modules.associateBy { it.userReadableName }
+        model.modules.associateBy { it.userReadableName }
     }
 
     internal val taskGraph: TaskGraph by lazy {
         spanBuilder("Build task graph").useWithoutCoroutines {
-            ProjectTasksBuilder(context = context, model = resolvedModel, runSettings = runSettings).build()
+            ProjectTasksBuilder(context = context, model = model, runSettings = runSettings).build()
         }
     }
 
@@ -126,7 +105,7 @@ class AmperBackend(
         }
 
         val platformsToCompile = platforms ?: possibleCompilationPlatforms
-        val modulesToCompile = (modules?.map { resolveModule(it) } ?: resolvedModel.modules).toSet()
+        val modulesToCompile = (modules?.map { resolveModule(it) } ?: model.modules).toSet()
 
         val taskNames = taskGraph
             .tasks
@@ -183,7 +162,7 @@ class AmperBackend(
         }
 
         val platformsToPackage = platforms ?: possiblePlatforms
-        val modulesToPackage = (modules?.map { resolveModule(it) } ?: modules()).toSet()
+        val modulesToPackage = (modules?.map { resolveModule(it) } ?: model.modules).toSet()
         val buildTypesToPackage = buildTypes ?: BuildType.entries.toSet()
         val formatsToPackage = formats ?: PackageTask.Format.entries.toSet()
 
@@ -223,11 +202,6 @@ class AmperBackend(
      */
     suspend fun runTask(task: TaskName): TaskResult = taskExecutor.runTasksAndReportOnFailure(setOf(task))[task]
         ?: error("Task '$task' was successfully executed but is not in the results map")
-
-    @TestOnly
-    fun tasks() = taskGraph.tasks.toList()
-
-    fun modules(): List<AmperModule> = resolvedModel.modules
 
     suspend fun publish(modules: Set<String>?, repositoryId: String) {
         require(modules == null || modules.isNotEmpty())
@@ -328,7 +302,7 @@ class AmperBackend(
         val moduleToRun = if (moduleName != null) {
             resolveModule(moduleName)
         } else {
-            val candidates = resolvedModel.modules
+            val candidates = model.modules
                 .filter { it.type.isApplication() }
                 .filter { platform == null || platform in it.leafPlatforms }
             when {
@@ -414,7 +388,7 @@ class AmperBackend(
         platform: Platform,
         buildType: BuildType,
     ): IosPreBuildTask.Result {
-        val module = resolvedModel.modules.find { it.source.moduleDir == moduleDir }
+        val module = model.modules.find { it.source.moduleDir == moduleDir }
         requireNotNull(module) {
             "Unable to resolve a module with the module directory '$moduleDir'"
         }
@@ -438,13 +412,13 @@ class AmperBackend(
         return runTask(taskName) as IosPreBuildTask.Result
     }
 
-    internal fun resolveModule(moduleName: String) = modulesByName[moduleName] ?: userReadableError(
+    private fun resolveModule(moduleName: String) = modulesByName[moduleName] ?: userReadableError(
         "Unable to resolve module by name '$moduleName'.\n\n" +
                 "Available modules: ${availableModulesString()}"
     )
 
-    internal fun availableModulesString() =
-        resolvedModel.modules.map { it.userReadableName }.sorted().joinToString(" ")
+    private fun availableModulesString() =
+        model.modules.map { it.userReadableName }.sorted().joinToString(" ")
 
     private fun formatTaskNames(publishTasks: Collection<TaskName>) =
         publishTasks.map { it.name }.sorted().joinToString(" ")

@@ -12,8 +12,9 @@ import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.PackageTask
+import org.jetbrains.amper.frontend.Model
 
-internal class PackageCommand : AmperProjectAwareCommand(name = "package") {
+internal class PackageCommand : AmperModelAwareCommand(name = "package") {
 
     private val modules by option(
         "-m", "--module",
@@ -41,8 +42,8 @@ internal class PackageCommand : AmperProjectAwareCommand(name = "package") {
 
     override fun help(context: Context): String = "Package the project artifacts for distribution"
 
-    override suspend fun run(cliContext: CliContext) {
-        withBackend(cliContext) { backend ->
+    override suspend fun run(cliContext: CliContext, model: Model) {
+        withBackend(cliContext, model) { backend ->
             backend.`package`(
                 platforms = platforms.takeIf { it.isNotEmpty() },
                 modules = modules.takeIf { it.isNotEmpty() },

@@ -8,16 +8,17 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.withBackend
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.TaskName
 
-internal class TaskCommand : AmperProjectAwareCommand(name = "task") {
+internal class TaskCommand : AmperModelAwareCommand(name = "task") {
 
     private val name by argument(help = "The name of the task to run")
 
     override fun help(context: Context): String = "Run a task and its dependencies from the task graph"
 
-    override suspend fun run(cliContext: CliContext) {
-        withBackend(cliContext) { backend ->
+    override suspend fun run(cliContext: CliContext, model: Model) {
+        withBackend(cliContext, model) { backend ->
             backend.runTask(TaskName(name))
         }
     }

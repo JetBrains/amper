@@ -6,6 +6,8 @@ package org.jetbrains.amper.backend.test
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
+import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
@@ -13,6 +15,7 @@ import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.fail
 import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.util.jar.JarFile
@@ -31,15 +34,28 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     private suspend fun TestCollector.setupTestDataProject(
         testProjectName: String,
         copyToTemp: Boolean = false,
-    ): CliContext = setupTestProject(
-        testProjectPath = Dirs.amperTestProjectsRoot.resolve(testProjectName),
-        copyToTemp = copyToTemp,
-    )
+    ): AmperBackend {
+        val cliContext = setupTestProject(
+            testProjectPath = Dirs.amperTestProjectsRoot.resolve(testProjectName),
+            copyToTemp = copyToTemp,
+        )
+        val problemReporter = CollectingProblemReporter()
+        val model = with(problemReporter) { cliContext.projectContext.readProjectModel() }
+            ?: error("Couldn't read project model for test project '$testProjectName'")
+        if (problemReporter.problems.isNotEmpty()) {
+            fail("Error(s) in the '$testProjectName' test project's model:\n${problemReporter.problems.joinToString("\n")}")
+        }
+        return AmperBackend(
+            context = cliContext,
+            model = model,
+            runSettings = AllRunSettings(),
+            backgroundScope = backgroundScope,
+        )
+    }
 
     @Test
     fun `simple multiplatform cli sources jars`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli")
-        val backend = AmperBackend(projectContext, runSettings = AllRunSettings(), backgroundScope = backgroundScope)
+        val backend = setupTestDataProject("simple-multiplatform-cli")
 
         val sourcesJarJvm = TaskName(":shared:sourcesJarJvm")
         backend.runTask(sourcesJarJvm)
@@ -117,8 +133,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
     @Test
     fun `jvm transitive dependencies`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("jvm-transitive-dependencies")
-        val backend = AmperBackend(projectContext, runSettings = AllRunSettings(), backgroundScope = backgroundScope)
+        val backend = setupTestDataProject("jvm-transitive-dependencies")
 
         // 1. Check compile classpath
         val result = backend.runTask(TaskName(":app:resolveDependenciesJvm"))
@@ -193,7 +208,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
             runtimeClassPath
                 .withoutImplicitAmperLibs()
                 // filtering out module compile result
-                .filterNot { it.startsWith(projectContext.buildOutputRoot.path) }
+                .filterNot { it.startsWith(backend.context.buildOutputRoot.path) }
                 .map { it.name },
             "Unexpected list of resolved runtime dependencies"
         )
@@ -213,8 +228,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
     @Test
     fun `jvm runtime classpath conflict resolution`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("jvm-runtime-classpath-conflict-resolution")
-        val backend = AmperBackend(projectContext, runSettings = AllRunSettings(), backgroundScope = backgroundScope)
+        val backend = setupTestDataProject("jvm-runtime-classpath-conflict-resolution")
 
         val result = backend.runTask(TaskName(":B2:resolveDependenciesJvm")) as ResolveExternalDependenciesTask.Result
         assertIs<ResolveExternalDependenciesTask.Result>(result)
@@ -233,8 +247,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Disabled("Metadata compilation doesn't 100% work at the moment, because we need DR to support multi-platform dependencies")
     @Test
     fun `simple multiplatform cli metadata`() = runTestWithCollector {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli")
-        val backend = AmperBackend(projectContext, runSettings = AllRunSettings(), backgroundScope = backgroundScope)
+        val backend = setupTestDataProject("simple-multiplatform-cli")
 
         val compileMetadataJvmMain = TaskName(":shared:compileMetadataJvm")
         backend.runTask(compileMetadataJvmMain)

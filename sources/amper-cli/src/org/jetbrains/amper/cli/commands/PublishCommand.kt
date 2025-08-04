@@ -10,8 +10,9 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.withBackend
+import org.jetbrains.amper.frontend.Model
 
-internal class PublishCommand : AmperProjectAwareCommand(name = "publish") {
+internal class PublishCommand : AmperModelAwareCommand(name = "publish") {
 
     private val module by option("-m", "--modules", help = "The modules to publish, delimited by `,`. " +
             "By default, the `publish` command will publish all possible modules").split(",")
@@ -20,8 +21,8 @@ internal class PublishCommand : AmperProjectAwareCommand(name = "publish") {
 
     override fun help(context: Context): String = "Publish modules to a repository"
 
-    override suspend fun run(cliContext: CliContext) {
-        withBackend(cliContext) { backend ->
+    override suspend fun run(cliContext: CliContext, model: Model) {
+        withBackend(cliContext, model) { backend ->
             backend.publish(
                 modules = module?.toSet(),
                 repositoryId = repositoryId,

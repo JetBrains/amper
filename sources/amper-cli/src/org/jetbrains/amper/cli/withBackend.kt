@@ -12,6 +12,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.job
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.TaskExecutor
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
@@ -21,6 +22,7 @@ private val backendInitialized = AtomicReference<Throwable>(null)
 
 internal suspend fun <T> withBackend(
     cliContext: CliContext,
+    model: Model,
     runSettings: AllRunSettings = AllRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
     block: suspend (AmperBackend) -> T,
@@ -35,12 +37,11 @@ internal suspend fun <T> withBackend(
     //  and does not handle source class names from jul LogRecord
     // JulTinylogBridge.activate()
 
-    preparePlugins(context = cliContext)
-
     return coroutineScope {
         val backgroundScope = childScope("project background scope")
         val backend = AmperBackend(
             context = cliContext,
+            model = model,
             runSettings = runSettings,
             taskExecutionMode = taskExecutionMode,
             backgroundScope = backgroundScope,
