@@ -8,15 +8,14 @@ import org.eclipse.jgit.api.Git
 import org.yaml.snakeyaml.Yaml
 import java.io.StringWriter
 import java.nio.file.Path
-import java.util.Properties
-import kotlin.collections.component1
+import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.inputStream
-import kotlin.io.path.isDirectory
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
+import kotlin.io.println
 import kotlin.use
 
 fun main(args: Array<String>) {
@@ -37,11 +36,12 @@ fun main(args: Array<String>) {
     val properties = Properties()
     properties["version"] = getCurrentVersion(commonModuleTemplate)
 
-    if (gitRoot.isDirectory()) {
+    // .git is usually a directory, but can be a file in the case when `git worktree add` was used.
+    if (gitRoot.exists()) {
         // This is to avoid issues with people who use config parameters that are not supported by JGit.
         // For example, the 'patience' diff algorithm isn't supported.
         runWithoutGlobalGitConfig {
-            Git.open(gitRoot.toFile()).use { git ->
+            Git.open(projectRoot.toFile()).use { git ->
                 val repo = git.repository
                 val head = repo.refDatabase.getReflogReader("HEAD").lastEntry
                 val shortHash = repo.newObjectReader().use { it.abbreviate(head.newId).name() }
