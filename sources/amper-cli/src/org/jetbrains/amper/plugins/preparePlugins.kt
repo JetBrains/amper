@@ -31,7 +31,7 @@ suspend fun preparePlugins(
 
     // TODO: Maybe parallelize these, if possible
     context.projectContext.pluginDependencies.forEach { dep ->
-        // FIXME: report dep.path!!
+
         val pluginModuleDir = (context.projectRoot.path / dep.path).normalize()
 
         val pluginModuleFile = context.projectContext.amperModuleFiles
