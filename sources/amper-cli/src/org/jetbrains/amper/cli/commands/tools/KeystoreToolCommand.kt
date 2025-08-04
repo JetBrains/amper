@@ -39,7 +39,7 @@ internal class KeystoreToolCommand : AmperSubcommand(name = "generate-keystore")
     override fun help(context: Context): String = "Generate keystore"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName, terminal, setupEnvironment = true) {
+        withBackend(commonOptions, commandName, terminal) {
             try {
                 propertiesFile?.let {
                     KeystoreGenerator.createNewKeystore(it, dn)

@@ -32,7 +32,6 @@ internal suspend fun <T> withBackend(
     terminal: Terminal,
     runSettings: AllRunSettings = AllRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
-    setupEnvironment: Boolean = true,
     block: suspend (AmperBackend) -> T,
 ): T {
     val initializedException = backendInitialized.getAndSet(Throwable())
@@ -58,14 +57,12 @@ internal suspend fun <T> withBackend(
 
         TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
 
-        if (setupEnvironment) {
-            spanBuilder("Setup file logging and monitoring").use {
-                DeadLockMonitor.install(cliContext.currentLogsRoot)
-                LoggingInitializer.setupFileLogging(cliContext.currentLogsRoot)
+        spanBuilder("Setup file logging and monitoring").use {
+            DeadLockMonitor.install(cliContext.currentLogsRoot)
+            LoggingInitializer.setupFileLogging(cliContext.currentLogsRoot)
 
-                if (commonOptions.asyncProfiler) {
-                    AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.buildOutputRoot)
-                }
+            if (commonOptions.asyncProfiler) {
+                AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.buildOutputRoot)
             }
         }
 
