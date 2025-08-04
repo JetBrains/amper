@@ -10,9 +10,9 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.amper.frontend.builders.schema.SingleATypeSchemaBuilder.withExtras
 import org.jetbrains.amper.frontend.meta.ATypesVisitor
 import org.jetbrains.amper.frontend.meta.collectReferencedObjects
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.isValueRequired
 import org.jetbrains.amper.frontend.types.simpleName
 import org.jetbrains.amper.frontend.types.toType
@@ -48,8 +48,9 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
     fun asSchemaObject(root: SchemaObjectDeclaration): JsonElement {
         // Create a JSON element describing the selected property.
         fun SchemaObjectDeclaration.Property.propDesc() = type.accept().withExtras(this).wrapKnownValues(this)
+        val visibleProperties = root.properties.filterNot { it.isHiddenFromCompletion }
 
-        val notCtorArgs = root.properties.filterNot { it.isCtorArg }
+        val notCtorArgs = visibleProperties.filterNot { it.isCtorArg }
         val modifierAware = notCtorArgs.filter { it.isModifierAware }
 
         val patternProperties = modifierAware.flatMap {
@@ -69,7 +70,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
         val withConstructor = ObjectElement(patternProperties = mapOf("^.*$" to withoutConstructor))
 
         // Wrap possible constructor argument.
-        val ctorArg = root.properties.singleOrNull { it.isCtorArg }
+        val ctorArg = visibleProperties.singleOrNull { it.isCtorArg }
         val otherNotOptional = notCtorArgs.any { it.isValueRequired() }
         
         // No ctor args.
@@ -126,7 +127,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
      * Add known type shorthands to the schema element in form of `anyOf` wrapper.
      */
     private fun JsonElement.wrapShorthands(type: SchemaObjectDeclaration): JsonElement {
-        val shorthands = type.properties.filter { it.hasShorthand }
+        val shorthands = type.properties.filter { !it.isHiddenFromCompletion && it.hasShorthand }
         return if (shorthands.isNotEmpty()) {
             val booleanShorthands = shorthands
                 .filter { it.type is SchemaType.BooleanType }

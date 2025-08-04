@@ -42,6 +42,9 @@
       "enabled(DefaultCtx)" : "false(DefaultCtx)",
       "version(DefaultCtx)" : "1.8.0(DefaultCtx)"
     },
+    "internal" : {
+      "excludeDependencies(DefaultCtx)" :
+    },
     "ios" : {
       "framework" : {
         "basename(DefaultCtx)" : "kotlin(DefaultCtx)",

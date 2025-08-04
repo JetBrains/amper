@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.GradleSpecific
+import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.KnownStringValues
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
@@ -82,6 +83,11 @@ class Settings : SchemaNode() {
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
     @SchemaDoc("Lombok settings")
     var lombok by value(::LombokSettings)
+
+    /** no documentation here - the block with Amper internal undesigned settings */
+    @PlatformAgnostic
+    @HiddenFromCompletion
+    var internal by value(::InternalSettings)
 }
 
 class ComposeSettings : SchemaNode() {
@@ -260,4 +266,7 @@ class LombokSettings: SchemaNode() {
     @Shorthand
     @SchemaDoc("Enable Lombok")
     var enabled by value(default = false)
+}
+
+class InternalSettings : SchemaNode() {
 }

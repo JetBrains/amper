@@ -6,11 +6,10 @@ package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.meta.ATypesVisitor
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.starProjectedType
-
 
 interface NestedCompletionNode {
     val name: String
@@ -85,7 +84,7 @@ internal object NestedCompletionBuilder : ATypesVisitor<List<NestedCompletionNod
     override fun visitMap(type: SchemaType.MapType) = empty
     override fun visitObject(type: SchemaType.ObjectType) =
         type.declaration.properties.flatMap { prop ->
-            if (prop.type !is SchemaType.ObjectType) return@flatMap listOf()
+            if (prop.type !is SchemaType.ObjectType || prop.isHiddenFromCompletion) return@flatMap listOf()
             val possibleNames = buildList {
                 add(prop.name to false)
                 // Handle modifier-aware properties.

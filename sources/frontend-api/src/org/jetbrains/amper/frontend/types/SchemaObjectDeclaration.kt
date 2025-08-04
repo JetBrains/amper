@@ -8,7 +8,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.schema.ProductType
-import kotlin.reflect.KClass
 
 interface SchemaObjectDeclaration : SchemaTypeDeclaration {
     val properties: List<Property>
@@ -28,5 +27,6 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
         val specificToGradleMessage: String? = null,
         val knownStringValues: Set<String> = emptySet(),
         val hasShorthand: Boolean = false,
+        val isHiddenFromCompletion: Boolean = false,
     )
 }

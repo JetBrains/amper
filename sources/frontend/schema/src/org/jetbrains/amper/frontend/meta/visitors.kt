@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.frontend.meta
 
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.toType
 
 /**
@@ -49,5 +49,6 @@ private class AObjectRecursiveCollector : ATypesVisitor<List<SchemaType.ObjectTy
     override fun visitPolymorphic(type: SchemaType.VariantType) = type.declaration.variants.flatMap {
         it.toType().accept()
     }
-    override fun visitObject(type: SchemaType.ObjectType) = type.declaration.properties.flatMap { it.type.accept() } + type
+    override fun visitObject(type: SchemaType.ObjectType) = type.declaration.properties
+        .filterNot { it.isHiddenFromCompletion }.flatMap { it.type.accept() } + type
 }

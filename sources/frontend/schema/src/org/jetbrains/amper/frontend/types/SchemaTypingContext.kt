@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.GradleSpecific
+import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.KnownStringValues
 import org.jetbrains.amper.frontend.api.ModifierAware
@@ -385,6 +386,7 @@ private open class DefaultSchemaTypingContext(
                     specificToGradleMessage = it.findAnnotation<GradleSpecific>()?.message,
                     knownStringValues = it.findAnnotation<KnownStringValues>()?.values?.toSet().orEmpty(),
                     hasShorthand = it.hasAnnotation<Shorthand>(),
+                    isHiddenFromCompletion = it.hasAnnotation<HiddenFromCompletion>(),
                 )
             }
         }

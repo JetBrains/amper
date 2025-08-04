@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.TraceableEnum
@@ -21,6 +22,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
+import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
 
 /**
@@ -179,6 +181,9 @@ private class HumanReadableSerializerVisitor(
     }
 
     override fun visitValue(it: ValueDelegateBase<*>) {
+        // We don't care about such properties
+        if (it.property.hasAnnotation<HiddenFromCompletion>()) return
+
         builder.append(it.property.name)
         builder.append(": ")
         // TODO Remove this hack after removing computable dependant defaults.

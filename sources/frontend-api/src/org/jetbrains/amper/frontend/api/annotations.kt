@@ -138,3 +138,11 @@ annotation class Aliases(vararg val values: String)
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class IgnoreForSchema
+
+/**
+ * Properties annotated with this are hidden from completion in IDE. Recursively.
+ * TODO: Properly implement in AMPER-4557 based on the new completion
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class HiddenFromCompletion
