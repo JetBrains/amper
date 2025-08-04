@@ -5,13 +5,11 @@
 package org.jetbrains.amper.cli.commands.tools
 
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.keystore.KeystoreGenerationException
 import org.jetbrains.amper.keystore.KeystoreGenerator
 import kotlin.io.path.Path
@@ -39,16 +37,14 @@ internal class KeystoreToolCommand : AmperSubcommand(name = "generate-keystore")
     override fun help(context: Context): String = "Generate keystore"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName, terminal) {
-            try {
-                propertiesFile?.let {
-                    KeystoreGenerator.createNewKeystore(it, dn)
-                } ?: run {
-                    KeystoreGenerator.createNewKeystore(storeFile, storePassword, keyAlias, keyPassword, dn)
-                }
-            } catch (e: KeystoreGenerationException) {
-                userReadableError(e.message)
+        try {
+            propertiesFile?.let {
+                KeystoreGenerator.createNewKeystore(it, dn)
+            } ?: run {
+                KeystoreGenerator.createNewKeystore(storeFile, storePassword, keyAlias, keyPassword, dn)
             }
+        } catch (e: KeystoreGenerationException) {
+            userReadableError(e.message)
         }
     }
 }
