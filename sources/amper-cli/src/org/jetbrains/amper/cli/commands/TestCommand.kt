@@ -5,12 +5,12 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.TaskExecutor
@@ -19,7 +19,7 @@ import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
 
-internal class TestCommand : AmperSubcommand(name = "test") {
+internal class TestCommand : AmperProjectAwareCommand(name = "test") {
 
     private val platforms by leafPlatformOption(
         help = "Only run tests for the specified platform. The option can be repeated to test several platforms."
@@ -121,12 +121,10 @@ internal class TestCommand : AmperSubcommand(name = "test") {
 
     override fun help(context: Context): String = "Run tests in the project"
 
-    override suspend fun run() {
+    override suspend fun run(cliContext: CliContext) {
         val allTestFilters = includeTestFilters + includeClassFilters + excludeClassFilters
         withBackend(
-            commonOptions = commonOptions,
-            commandName = commandName,
-            terminal = terminal,
+            cliContext = cliContext,
             taskExecutionMode = TaskExecutor.Mode.GREEDY, // try to execute as many tests as possible
             runSettings = AllRunSettings(
                 userJvmArgs = jvmArgs,

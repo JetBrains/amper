@@ -6,16 +6,17 @@ package org.jetbrains.amper.cli.commands.show
 
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.terminal
-import org.jetbrains.amper.cli.commands.AmperSubcommand
+import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.cli.commands.AmperProjectAwareCommand
 import org.jetbrains.amper.cli.withBackend
 
-internal class ModulesCommand : AmperSubcommand(name = "modules") {
+internal class ModulesCommand : AmperProjectAwareCommand(name = "modules") {
 
     override fun help(context: Context): String = "List all modules in the project"
 
-    override suspend fun run() {
+    override suspend fun run(cliContext: CliContext) {
         // FIXME we don't need the backend just to get the list of modules, so this should be refactored
-        val modules = withBackend(commonOptions, commandName, terminal) { backend -> backend.modules() }
+        val modules = withBackend(cliContext) { backend -> backend.modules() }
 
         for (moduleName in modules.map { it.userReadableName }.sorted()) {
             terminal.println(moduleName)

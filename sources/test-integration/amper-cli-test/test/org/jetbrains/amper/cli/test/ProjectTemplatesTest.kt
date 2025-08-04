@@ -194,6 +194,6 @@ class ProjectTemplatesTest : AmperCliTestBase() {
 
     private fun SpansTestCollector.assertXcodeProjectIsValid() {
         // Xcode project should be generated correctly by `init` and thus not updated by the build.
-        assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
+        xcodeProjectManagementSpans.assertNone()
     }
 }

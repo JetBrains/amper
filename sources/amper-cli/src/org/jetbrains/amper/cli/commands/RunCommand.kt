@@ -5,15 +5,15 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.tasks.AllRunSettings
 
-internal class RunCommand : AmperSubcommand(name = "run") {
+internal class RunCommand : AmperProjectAwareCommand(name = "run") {
 
     private val module by option("-m", "--module", help = "Specific module to run (run the `show modules` command to get the modules list)")
 
@@ -57,11 +57,9 @@ internal class RunCommand : AmperSubcommand(name = "run") {
 
     override fun helpEpilog(context: Context): String = "Use `--` to separate the application's arguments from Amper options"
 
-    override suspend fun run() {
+    override suspend fun run(cliContext: CliContext) {
         withBackend(
-            commonOptions = commonOptions,
-            commandName = commandName,
-            terminal = terminal,
+            cliContext = cliContext,
             runSettings = AllRunSettings(
                 programArgs = programArguments,
                 explicitWorkingDir = workingDir,

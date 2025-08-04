@@ -4,19 +4,13 @@
 
 package org.jetbrains.amper.cli
 
-import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.job
-import org.jetbrains.amper.cli.commands.RootCommand
-import org.jetbrains.amper.cli.logging.LoggingInitializer
-import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
 import org.jetbrains.amper.core.telemetry.spanBuilder
-import org.jetbrains.amper.diagnostics.AsyncProfilerMode
-import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.tasks.AllRunSettings
@@ -26,9 +20,7 @@ import java.util.concurrent.atomic.AtomicReference
 private val backendInitialized = AtomicReference<Throwable>(null)
 
 internal suspend fun <T> withBackend(
-    commonOptions: RootCommand.CommonOptions,
-    commandName: String,
-    terminal: Terminal,
+    cliContext: CliContext,
     runSettings: AllRunSettings = AllRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
     block: suspend (AmperBackend) -> T,
@@ -42,27 +34,6 @@ internal suspend fun <T> withBackend(
     // TODO disabled jul bridge for now since it reports too much in debug mode
     //  and does not handle source class names from jul LogRecord
     // JulTinylogBridge.activate()
-
-    val cliContext = CliContext.create(
-        commandName = commandName,
-        explicitProjectRoot = commonOptions.explicitProjectRoot,
-        explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
-        userCacheRoot = commonOptions.sharedCachesRoot,
-        terminal = terminal,
-    )
-
-    spanBuilder("Switch telemetry to project-local build directory").use {
-        TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
-    }
-
-    spanBuilder("Setup file logging and monitoring").use {
-        DeadLockMonitor.install(cliContext.currentLogsRoot)
-        LoggingInitializer.setupFileLogging(cliContext.currentLogsRoot)
-
-        if (commonOptions.asyncProfiler) {
-            AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.buildOutputRoot)
-        }
-    }
 
     preparePlugins(context = cliContext)
 

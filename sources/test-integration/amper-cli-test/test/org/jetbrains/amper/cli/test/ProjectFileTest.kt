@@ -94,7 +94,7 @@ class ProjectFileTest : AmperCliTestBase() {
                 "             ^")
         assertContains(r.stderr, "project.yaml:12:5: Unsupported \"**\" in module glob pattern \"forbidden/**/recursive\". Use multiple single-level \"*\" segments instead to specify the depth exactly.")
         assertContains(r.stderr, "project.yaml:13:5: Directory \"../jvm-default-compiler-settings\" is not under the project root")
-        assertContains(r.stderr, "ERROR: aborting because there were errors in the Amper project file, please see above")
+        assertContains(r.stderr, "ERROR: Aborting because there were errors in the Amper project file, please see above")
     }
 
     @Test

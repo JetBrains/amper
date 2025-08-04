@@ -5,15 +5,15 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
 import com.github.ajalt.clikt.parameters.types.enum
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.PackageTask
 
-internal class PackageCommand : AmperSubcommand(name = "package") {
+internal class PackageCommand : AmperProjectAwareCommand(name = "package") {
 
     private val modules by option(
         "-m", "--module",
@@ -41,8 +41,8 @@ internal class PackageCommand : AmperSubcommand(name = "package") {
 
     override fun help(context: Context): String = "Package the project artifacts for distribution"
 
-    override suspend fun run() {
-        withBackend(commonOptions, commandName, terminal) { backend ->
+    override suspend fun run(cliContext: CliContext) {
+        withBackend(cliContext) { backend ->
             backend.`package`(
                 platforms = platforms.takeIf { it.isNotEmpty() },
                 modules = modules.takeIf { it.isNotEmpty() },

@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.cli.commands.tools
 
-import com.github.ajalt.clikt.core.terminal
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
-import org.jetbrains.amper.cli.commands.AmperSubcommand
+import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.cli.commands.AmperProjectAwareCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.Platform
@@ -22,14 +22,14 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 
-internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integration") {
+internal class XCodeIntegrationCommand : AmperProjectAwareCommand(name = "xcode-integration") {
 
     private val env: Map<String, String> = System.getenv()
 
     override val hiddenFromHelp: Boolean
         get() = true
 
-    override suspend fun run() {
+    override suspend fun run(cliContext: CliContext) {
         validateGeneralXcodeEnvironment()
 
         // Info passed down from the super Amper process if it's the case
@@ -38,7 +38,7 @@ internal class XCodeIntegrationCommand : AmperSubcommand(name = "xcode-integrati
 
         val prebuildResult = readyPrebuildResult ?: run {
             // Running from xcode only - need to run iOS prebuild task ourselves
-            withBackend(commonOptions, commandName, terminal) { backend ->
+            withBackend(cliContext) { backend ->
                 backend.prebuildForXcode(
                     moduleDir = Path(requireXcodeVar("PROJECT_DIR")),
                     buildType = inferBuildTypeFromEnv(),

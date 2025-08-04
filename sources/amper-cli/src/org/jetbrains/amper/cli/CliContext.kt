@@ -7,23 +7,17 @@ package org.jetbrains.amper.cli
 import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
-import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.project.AmperProjectContext
-import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
-import org.jetbrains.amper.problems.reporting.ProblemReporter
-import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.DateTimeFormatForFilenames
 import org.jetbrains.amper.util.nowInDefaultTimezone
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 
-class CliContext private constructor(
+class CliContext(
     val commandName: String,
     val projectContext: AmperProjectContext,
     val userCacheRoot: AmperUserCacheRoot,
@@ -58,40 +52,6 @@ class CliContext private constructor(
     }
 
     companion object {
-        suspend fun create(
-            commandName: String,
-            explicitProjectRoot: Path?,
-            explicitBuildOutputRoot: Path?,
-            userCacheRoot: AmperUserCacheRoot,
-            terminal: Terminal,
-            androidHomeRoot: AndroidHomeRoot? = null,
-        ): CliContext = spanBuilder("Create CLI context").use {
-            require(commandName.isNotBlank()) { "commandName should not be blank" }
-
-            val projectContext = spanBuilder("Create Amper project context").use {
-                with(CliProblemReporter) {
-                    createProjectContext(
-                        explicitProjectRoot = explicitProjectRoot?.absolute(),
-                        explicitBuildRoot = explicitBuildOutputRoot?.absolute(),
-                    ).also {
-                        if (wereProblemsReported()) {
-                            userReadableError("aborting because there were errors in the Amper project file, please see above")
-                        }
-                    }
-                }
-            }
-
-            CliContext(
-                commandName = commandName,
-                projectContext = projectContext,
-                userCacheRoot = userCacheRoot,
-                terminal = terminal,
-                androidHomeRoot = androidHomeRoot ?: AndroidHomeRoot(
-                    AndroidSdkDetector.detectSdkPath().createDirectories()
-                ),
-            )
-        }
-
         /**
          * An absolute path to the wrapper script that the process currently runs under.
          */
@@ -101,28 +61,6 @@ class CliContext private constructor(
         }
     }
 }
-
-context(_: ProblemReporter)
-private fun createProjectContext(
-    explicitProjectRoot: Path?,
-    explicitBuildRoot: Path?,
-): AmperProjectContext =
-    if (explicitProjectRoot != null) {
-        StandaloneAmperProjectContext.create(explicitProjectRoot, explicitBuildRoot)
-            ?: userReadableError(
-                "The given path '$explicitProjectRoot' is not a valid Amper project root directory. " +
-                        "Make sure you have a project file or a module file at the root of your Amper project."
-            )
-    } else {
-        StandaloneAmperProjectContext.find(
-            start = Path(System.getProperty("user.dir")),
-            buildDir = explicitBuildRoot,
-        ) ?: userReadableError(
-            "No Amper project found in the current directory or above. " +
-                    "Make sure you have a project file or a module file at the root of your Amper project, " +
-                    "or specify --root explicitly to run tasks for a project located elsewhere."
-        )
-    }
 
 data class AmperBuildOutputRoot(val path: Path) {
     init {

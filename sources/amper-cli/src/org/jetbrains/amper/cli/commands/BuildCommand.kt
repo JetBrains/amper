@@ -5,13 +5,13 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.withBackend
 
-internal class BuildCommand : AmperSubcommand(name = "build") {
+internal class BuildCommand : AmperProjectAwareCommand(name = "build") {
 
     private val modules by option("-m", "--module",
         help = "The specific module to build (run the 'show modules' command to get the modules list). " +
@@ -29,8 +29,8 @@ internal class BuildCommand : AmperSubcommand(name = "build") {
 
     override fun help(context: Context): String = "Compile and link all code in the project"
 
-    override suspend fun run() {
-        withBackend(commonOptions, commandName, terminal) { backend ->
+    override suspend fun run(cliContext: CliContext) {
+        withBackend(cliContext) { backend ->
             backend.build(
                 platforms = platforms.takeIf { it.isNotEmpty() },
                 modules = modules.takeIf { it.isNotEmpty() },

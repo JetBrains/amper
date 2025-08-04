@@ -9,11 +9,14 @@ package org.jetbrains.amper.backend.test
 import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.android.AndroidTools
 import org.junit.jupiter.api.extension.RegisterExtension
+import org.junit.jupiter.api.fail
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.copyToRecursively
@@ -62,10 +65,17 @@ abstract class AmperIntegrationTestBase {
             AndroidHomeRoot(AndroidTools.getOrInstallForTests().androidSdkHome)
         }
 
-        return CliContext.create(
+        val problemReporter = CollectingProblemReporter()
+        val projectContext = with(problemReporter) {
+            StandaloneAmperProjectContext.create(rootDir = projectRoot, buildDir = buildDir)
+                ?: error("No Amper project found at $projectRoot")
+        }
+        if (problemReporter.problems.isNotEmpty()) {
+            fail("Error in the test project's project.yaml:\n${problemReporter.problems.joinToString("\n")}")
+        }
+        return CliContext(
             commandName = "integration-test-base",
-            explicitProjectRoot = projectRoot,
-            explicitBuildOutputRoot = buildDir,
+            projectContext = projectContext,
             userCacheRoot = userCacheRoot,
             terminal = terminal,
             androidHomeRoot = androidHomeRoot,

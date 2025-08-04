@@ -5,7 +5,6 @@
 package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
@@ -25,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.cli.logging.ServerWriter
 import org.jetbrains.amper.cli.logging.sessionIdKey
@@ -42,7 +42,7 @@ data class Task(val taskHierarchy: List<String>)
 
 private const val defaultPort = 8000
 
-internal class ServerCommand : AmperSubcommand(name = "server") {
+internal class ServerCommand : AmperProjectAwareCommand(name = "server") {
 
     override val hiddenFromHelp: Boolean = true
 
@@ -65,8 +65,8 @@ internal class ServerCommand : AmperSubcommand(name = "server") {
         "Start a server that accepts tasks from Amper and runs them. The server runs on port $defaultPort by default."
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun run() {
-        withBackend(commonOptions, commandName, terminal) { backend ->
+    override suspend fun run(cliContext: CliContext) {
+        withBackend(cliContext) { backend ->
             embeddedServer(Netty, port = port) {
                 install(ContentNegotiation) { json() }
                 install(SSE)
