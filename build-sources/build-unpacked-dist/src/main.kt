@@ -30,8 +30,14 @@ class BuildUnpackedDistCommand : CacheableTaskCommand() {
     override suspend fun ExecuteOnChangedInputs.runCached() {
         execute(
             id = "build-unpacked-dist",
-            configuration = mapOf("targetDir" to targetDir.pathString),
-            inputs = classpath,
+            configuration = mapOf(
+                "targetDir" to targetDir.pathString,
+                "extraClasspaths" to extraClasspaths.joinToString { it.name },
+            ),
+            inputs = buildList {
+                addAll(classpath)
+                extraClasspaths.forEach { addAll(it.classpath) }
+            },
         ) {
             cleanDirectory(targetDir)
             val libDir = targetDir / "lib"

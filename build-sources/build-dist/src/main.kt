@@ -30,7 +30,16 @@ class BuildDistCommand : CacheableTaskCommand() {
     private val extraClasspaths by option("--extra-dir").namedClasspath().multiple()
 
     override suspend fun ExecuteOnChangedInputs.runCached() {
-        execute("build-dist", emptyMap(), cliRuntimeClasspath) {
+        execute(
+            id = "build-dist",
+            configuration = mapOf(
+                "extraClasspaths" to extraClasspaths.joinToString { it.name },
+            ),
+            inputs = buildList {
+                addAll(cliRuntimeClasspath)
+                extraClasspaths.forEach { addAll(it.classpath) }
+            },
+        ) {
             val cliTgz = taskOutputDirectory.resolve("cli.tgz")
 
             println("Writing CLI distribution to $cliTgz")
