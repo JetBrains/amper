@@ -47,11 +47,10 @@ internal class PluginPreparer(
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
     private val tempRoot: AmperProjectTempRoot,
-    private val projectLocalCacheDir: Path,
+    private val buildOutputRoot: AmperBuildOutputRoot,
     private val schemaDir: Path,
 ) {
-    // To make it build-directory agnostic
-    val executeOnChangedInputs = ExecuteOnChangedInputs(AmperBuildOutputRoot(projectLocalCacheDir.createDirectories()))
+    private val executeOnChangedInputs = ExecuteOnChangedInputs(buildOutputRoot)
 
     private val distributionRoot = Path(checkNotNull(System.getProperty("amper.dist.path")) {
         "Missing `amper.dist.path` system property. Ensure your wrapper script integrity."
@@ -108,8 +107,8 @@ internal class PluginPreparer(
                     .resolve("plugins-processor").listDirectoryEntries("*.jar"),
                 config = KspJvmConfig(
                     kspOutputPaths = KspOutputPaths(
-                        pluginModuleDir,
-                        (projectLocalCacheDir / "ksp").createDirectories(),
+                        moduleBaseDir = pluginModuleDir,
+                        cachesDir = (buildOutputRoot.path / "cache/ksp").createDirectories(),
                         resourcesDir = schemaDir.createDirectories(),
                         kotlinSourcesDir = schemaDir,
                         javaSourcesDir = schemaDir,

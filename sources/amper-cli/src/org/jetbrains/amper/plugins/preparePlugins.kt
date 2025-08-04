@@ -10,7 +10,6 @@ import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.frontend.plugins.tryReadMinimalPluginModule
 import org.jetbrains.amper.frontend.project.pluginInternalSchemaDirectory
-import org.jetbrains.amper.frontend.project.projectLocalCacheDirectory
 import org.jetbrains.amper.frontend.schema.ProductType
 import kotlin.io.path.div
 
@@ -26,7 +25,7 @@ suspend fun preparePlugins(
         userCacheRoot = context.userCacheRoot,
         projectRoot = context.projectRoot,
         tempRoot = context.projectTempRoot,
-        projectLocalCacheDir = context.projectContext.projectLocalCacheDirectory,
+        buildOutputRoot = context.buildOutputRoot,
         schemaDir = schemaDir,
     )
 
