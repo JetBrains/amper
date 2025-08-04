@@ -16,6 +16,7 @@ import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.SCompilerPluginConfig
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.frontend.api.UnstableSchemaApi
 import org.jetbrains.amper.frontend.api.toStringRepresentation
@@ -30,6 +31,7 @@ import org.jetbrains.amper.ksp.KspJvmConfig
 import org.jetbrains.amper.ksp.KspOutputPaths
 import org.jetbrains.amper.ksp.downloadKspJars
 import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -75,10 +77,15 @@ internal class PluginPreparer(
                     configuration = mapOf("version" to kspVersion),
                     inputs = emptyList(),
                 ) {
-                    MavenResolver(userCacheRoot).downloadKspJars(
-                        kspVersion,
-                        listOf(MavenRepository.Companion.MavenCentral)
-                    )
+                    spanBuilder("Download KSP CLI for plugins")
+                        .setAttribute("ksp-version", kspVersion)
+                        .use {
+                            MavenResolver(userCacheRoot).downloadKspJars(
+                                kspVersion = kspVersion,
+                                // FIXME we should respect the user's repositories once they move to project.yaml
+                                repositories = listOf(MavenRepository.MavenCentral)
+                            )
+                        }
                 },
             )
         }
