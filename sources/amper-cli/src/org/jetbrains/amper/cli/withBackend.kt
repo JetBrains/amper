@@ -52,7 +52,9 @@ internal suspend fun <T> withBackend(
         runSettings = runSettings,
     )
 
-    TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
+    spanBuilder("Switch telemetry to project-local build directory").use {
+        TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
+    }
 
     spanBuilder("Setup file logging and monitoring").use {
         DeadLockMonitor.install(cliContext.currentLogsRoot)
