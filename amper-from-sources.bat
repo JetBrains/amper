@@ -158,5 +158,13 @@ goto fail
 :coroutinesDebugJarFound
 
 set jvm_args=-ea -XX:+EnableDynamicAgentLoading "-javaagent:%coroutinesDebugJar%" %AMPER_JAVA_OPTIONS%
-"%AMPER_JAVA_HOME%\bin\java.exe" "-Damper.wrapper.path=%~f0" %jvm_args% -cp "%~dp0build\tasks\_amper-cli_unpackedDist\dist\lib\*" org.jetbrains.amper.cli.MainKt --build-output="build-from-sources" %*
+"%AMPER_JAVA_HOME%\bin\java.exe" ^
+  "-Damper.wrapper.dist.sha256=%amper_sha256%" ^
+  "-Damper.dist.path=%~dp0build\tasks\_amper-cli_unpackedDist\dist" ^
+  "-Damper.wrapper.path=%~f0" ^
+  %jvm_args% ^
+  -cp "%~dp0build\tasks\_amper-cli_unpackedDist\dist\lib\*" ^
+  org.jetbrains.amper.cli.MainKt ^
+  --build-output="build-from-sources" ^
+  %*
 exit /B %ERRORLEVEL%
