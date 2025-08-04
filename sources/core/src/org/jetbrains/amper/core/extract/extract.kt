@@ -106,7 +106,7 @@ private fun extractFileWithFlag(
         cleanDirectory(targetDirectory)
     }
 
-    LOG.info("Extracting $archiveFile to $targetDirectory")
+    LOG.debug("Extracting {} to {}", archiveFile, targetDirectory)
     targetDirectory.createDirectories()
 
     val filesAfterCleaning = targetDirectory.listDirectoryEntries()

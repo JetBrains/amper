@@ -32,13 +32,19 @@ class TransformAarExternalDependenciesTask(
             .flatMap { classpathExtractor(it) }
 
         val executionResult = executeOnChangedInputs.execute(taskName.name, mapOf(), resolvedAndroidCompileDependencies) {
-                val outputs = resolvedAndroidCompileDependencies.extractAars().map { it / "classes.jar" }
-                ExecuteOnChangedInputs.ExecutionResult(outputs, mapOf())
+            if (resolvedAndroidCompileDependencies.isNotEmpty()) {
+                logger.info("Transforming AAR external dependencies...")
             }
+            val outputs = resolvedAndroidCompileDependencies.extractAars().map { it / "classes.jar" }
+            ExecuteOnChangedInputs.ExecutionResult(outputs, mapOf())
+        }
         return Result(executionResult.outputs, executionResult.outputs)
     }
 
-    class Result(override val compileClasspath: List<Path>, override val paths: List<Path>) : TaskResult, AdditionalClasspathProvider, RuntimeClasspathElementProvider
+    class Result(
+        override val compileClasspath: List<Path>,
+        override val paths: List<Path>,
+    ) : TaskResult, AdditionalClasspathProvider, RuntimeClasspathElementProvider
 }
 
 private suspend fun List<Path>.extractAars(): List<Path> = coroutineScope {
