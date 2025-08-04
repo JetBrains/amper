@@ -107,7 +107,7 @@ internal fun DefaultModule.addImplicitDependencies() {
 
     parts = parts.map {
         if (it is RepositoriesModulePart) {
-            it.withImplicitMavenRepositories(fragments)
+            it.withImplicitMavenRepositories(productType = this.type, fragments)
         } else {
             it
         }
@@ -261,7 +261,7 @@ private val MavenDependencyBase.groupAndArtifact: String
         return if (parts.size >= 2) "${parts[0]}:${parts[1]}" else coordinates.value
     }
 
-private fun RepositoriesModulePart.withImplicitMavenRepositories(fragments: List<Fragment>): ModulePart<*> {
+private fun RepositoriesModulePart.withImplicitMavenRepositories(productType: ProductType, fragments: List<Fragment>): ModulePart<*> {
     val repositories = buildList {
         addAll(mavenRepositories)
         val isHotReloadRuntimeApiPresent = fragments
@@ -275,7 +275,7 @@ private fun RepositoriesModulePart.withImplicitMavenRepositories(fragments: List
             ))
         }
 
-        if (fragments.first().module.type == ProductType.JVM_AMPER_PLUGIN) {
+        if (productType == ProductType.JVM_AMPER_PLUGIN) {
             if (AmperBuild.isSNAPSHOT) {
                 add(RepositoriesModulePart.Repository(
                     id = "maven-local-resolve",
