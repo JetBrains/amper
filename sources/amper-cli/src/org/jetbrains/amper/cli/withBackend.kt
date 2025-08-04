@@ -7,11 +7,10 @@ package org.jetbrains.amper.cli
 import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.job
-import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
@@ -44,30 +43,29 @@ internal suspend fun <T> withBackend(
     //  and does not handle source class names from jul LogRecord
     // JulTinylogBridge.activate()
 
-    return withContext(Dispatchers.Default) {
+    val cliContext = CliContext.create(
+        commandName = commandName,
+        explicitProjectRoot = commonOptions.explicitProjectRoot,
+        explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
+        userCacheRoot = commonOptions.sharedCachesRoot,
+        terminal = terminal,
+        runSettings = runSettings,
+    )
 
-        val cliContext = CliContext.create(
-            commandName = commandName,
-            explicitProjectRoot = commonOptions.explicitProjectRoot,
-            explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
-            userCacheRoot = commonOptions.sharedCachesRoot,
-            terminal = terminal,
-            runSettings = runSettings,
-        )
+    TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
 
-        TelemetryEnvironment.setLogsRootDirectory(cliContext.currentLogsRoot)
+    spanBuilder("Setup file logging and monitoring").use {
+        DeadLockMonitor.install(cliContext.currentLogsRoot)
+        LoggingInitializer.setupFileLogging(cliContext.currentLogsRoot)
 
-        spanBuilder("Setup file logging and monitoring").use {
-            DeadLockMonitor.install(cliContext.currentLogsRoot)
-            LoggingInitializer.setupFileLogging(cliContext.currentLogsRoot)
-
-            if (commonOptions.asyncProfiler) {
-                AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.buildOutputRoot)
-            }
+        if (commonOptions.asyncProfiler) {
+            AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.buildOutputRoot)
         }
+    }
 
-        preparePlugins(context = cliContext)
+    preparePlugins(context = cliContext)
 
+    return coroutineScope {
         val backgroundScope = childScope("project background scope")
         val backend = AmperBackend(
             context = cliContext,
