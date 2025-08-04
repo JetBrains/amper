@@ -113,6 +113,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var cache: FileCacheBuilder.() -> Unit = {}
     var spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() }
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
+    var dependenciesBlocklist: Set<MavenGroupAndArtifact> = setOf()
 
     init {
         apply(init)
@@ -126,7 +127,8 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             repositories,
             FileCacheBuilder(cache).build(),
             spanBuilder,
-            conflictResolutionStrategies
+            conflictResolutionStrategies,
+            dependenciesBlocklist,
         )
 }
 
@@ -181,6 +183,12 @@ data class Settings(
     val fileCache: FileCache,
     var spanBuilder: SpanBuilderSource,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
+    val dependenciesBlocklist: Set<MavenGroupAndArtifact>,
+)
+
+data class MavenGroupAndArtifact(
+    val group: String,
+    val artifactId: String,
 )
 
 /**

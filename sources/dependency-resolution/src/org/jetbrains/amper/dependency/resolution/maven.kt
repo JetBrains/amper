@@ -402,6 +402,10 @@ data class MavenDependencyConstraint(
     val version: Version
 )
 
+internal fun shouldIgnoreDependency(group: String, module: String, context: Context): Boolean {
+    return MavenGroupAndArtifact(group, module) in context.settings.dependenciesBlocklist
+}
+
 /**
  * The name of the KMP source set represented by the given dependency file.
  */
@@ -1003,7 +1007,7 @@ class MavenDependency internal constructor(
         level: ResolutionLevel,
         diagnosticsReporter: DiagnosticReporter
     ): List<Dependency> =
-        dependencies.map {
+        dependencies.filterNot { shouldIgnoreDependency(it.group, it.module, context) }.map {
             withResolvedVersion(it) { bomDependencyConstraints(context, level, diagnosticsReporter) }
         }
 
@@ -1198,6 +1202,7 @@ class MavenDependency internal constructor(
                     val dependencyGroup = parts[0]
                     val dependencyModule = parts[1]
                     kotlinMetadataVariant.dependencies(context, level, diagnosticsReporter)
+                        .filterNot { shouldIgnoreDependency(it.group, it.module, context) }
                         .firstOrNull { it.group == dependencyGroup && it.module == dependencyModule }
                         ?.toMavenDependency(context) { reason ->
                             diagnosticsReporter.addMessage(
@@ -1603,6 +1608,8 @@ class MavenDependency internal constructor(
         } else {
             (project.dependencies?.dependencies ?: listOf()).filter {
                 context.settings.scope.matches(it)
+            }.filterNot {
+                shouldIgnoreDependency(it.groupId, it.artifactId, context)
             }.filter {
                 it.version != null && it.optional != true
             }.map {

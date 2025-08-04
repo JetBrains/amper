@@ -269,4 +269,10 @@ class LombokSettings: SchemaNode() {
 }
 
 class InternalSettings : SchemaNode() {
+    /**
+     * A temporary internal solution that we have for `exclude` in DR until we have a properly designed support.
+     * a list of "<group>:<artifact>" strings.
+     * Each dependency in the module that matches any such entry is excluded from DR completely.
+     * */
+    var excludeDependencies: List<String> by value(default = emptyList())
 }

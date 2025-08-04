@@ -8,6 +8,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenGroupAndArtifact
 import org.jetbrains.amper.dependency.resolution.MavenLocal
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.NoopSpanBuilder
@@ -28,9 +29,9 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.ParsedCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
+import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
-import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 
 private val logger = LoggerFactory.getLogger("resolutionFlow.kt")
 
@@ -150,6 +151,14 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
                 this.repositories = repositories
                 this.cache = fileCacheBuilder
                 this.spanBuilder = spanBuilder ?: { NoopSpanBuilder.create() }
+                this.dependenciesBlocklist = rootFragment.settings.internal.excludeDependencies.mapNotNull {
+                    val groupAndArtifact = it.split(":", limit = 2)
+                    if (groupAndArtifact.size != 2) {
+                        logger.error("Invalid `excludeDependencies` entry: $it"); null
+                    } else {
+                        MavenGroupAndArtifact(groupAndArtifact[0], groupAndArtifact[1])
+                    }
+                }.toSet()
             }
         }
         return context
