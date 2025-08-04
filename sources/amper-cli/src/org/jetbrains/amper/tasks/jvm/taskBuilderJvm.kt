@@ -155,7 +155,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         userCacheRoot = context.userCacheRoot,
                         projectRoot = context.projectRoot,
                         taskName = HotReloadTaskType.HotRun.getTaskName(module, platform),
-                        runSettings = context.runSettings,
+                        runSettings = runSettings,
                         terminal = context.terminal,
                         tempRoot = context.projectTempRoot,
                         executeOnChangedInputs = executeOnChangedInputs,
@@ -172,7 +172,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                             userCacheRoot = context.userCacheRoot,
                             projectRoot = context.projectRoot,
                             taskName = CommonTaskType.Run.getTaskName(module, platform),
-                            runSettings = context.runSettings,
+                            runSettings = runSettings,
                             terminal = context.terminal,
                             tempRoot = context.projectTempRoot,
                             executeOnChangedInputs = executeOnChangedInputs,
@@ -206,7 +206,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         projectRoot = context.projectRoot,
                         tempRoot = context.projectTempRoot,
                         terminal = context.terminal,
-                        runSettings = context.runSettings,
+                        runSettings = runSettings,
                     ),
                     dependsOn = listOf(executableJarTaskName)
                 )
@@ -271,7 +271,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     taskName = testTaskName,
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
-                    runSettings = context.runSettings,
+                    runSettings = runSettings,
                     executeOnChangedInputs = executeOnChangedInputs,
                 ),
                 listOf(

@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.TaskResult
@@ -43,6 +44,11 @@ import kotlin.io.path.pathString
 
 class AmperBackend(
     val context: CliContext,
+    /**
+     * Settings that are passed from the command line to user-visible processes that Amper runs, such as tests or the
+     * user's applications.
+     */
+    val runSettings: AllRunSettings,
     /**
      * Defines how other tasks are executed if a task fails.
      */
@@ -78,7 +84,7 @@ class AmperBackend(
 
     private val taskGraph: TaskGraph by lazy {
         spanBuilder("Build task graph").useWithoutCoroutines {
-            ProjectTasksBuilder(context = context, model = resolvedModel).build()
+            ProjectTasksBuilder(context = context, model = resolvedModel, runSettings = runSettings).build()
         }
     }
 
@@ -318,7 +324,7 @@ class AmperBackend(
         if (includedTestTasks.isEmpty()) {
             userReadableError("No test tasks were found for specified include filters")
         }
-        if (context.runSettings.userJvmArgs.isNotEmpty() &&
+        if (runSettings.userJvmArgs.isNotEmpty() &&
             includedTestTasks.none { it.platform in setOf(Platform.JVM, Platform.ANDROID) }
         ) {
             logger.warn("The $UserJvmArgsOption option has no effect when running only non-JVM tests")
@@ -404,10 +410,10 @@ class AmperBackend(
                 """.trimIndent())
         }
 
-        if (context.runSettings.userJvmArgs.isNotEmpty() && task.platform != Platform.JVM) {
+        if (runSettings.userJvmArgs.isNotEmpty() && task.platform != Platform.JVM) {
             logger.warn("The $UserJvmArgsOption option have no effect when running a non-JVM app")
         }
-        if (context.runSettings.deviceId != null &&
+        if (runSettings.deviceId != null &&
             !task.platform.isDescendantOf(Platform.IOS) && task.platform != Platform.ANDROID) {
             userReadableError("-d/--device-id argument is not supported for the ${task.platform.pretty} platform")
         }

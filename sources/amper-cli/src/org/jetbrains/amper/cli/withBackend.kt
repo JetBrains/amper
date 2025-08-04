@@ -49,7 +49,6 @@ internal suspend fun <T> withBackend(
         explicitBuildOutputRoot = commonOptions.explicitBuildOutputRoot,
         userCacheRoot = commonOptions.sharedCachesRoot,
         terminal = terminal,
-        runSettings = runSettings,
     )
 
     spanBuilder("Switch telemetry to project-local build directory").use {
@@ -71,6 +70,7 @@ internal suspend fun <T> withBackend(
         val backgroundScope = childScope("project background scope")
         val backend = AmperBackend(
             context = cliContext,
+            runSettings = runSettings,
             taskExecutionMode = taskExecutionMode,
             backgroundScope = backgroundScope,
         )

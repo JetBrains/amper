@@ -134,7 +134,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     taskName = runTaskName,
                     platform = platform,
                     buildType = buildType,
-                    runSettings = context.runSettings,
+                    runSettings = runSettings,
                     terminal = context.terminal,
                 ),
                 NativeTaskType.Link.getTaskName(module, platform, isTest = false, buildType)
@@ -156,7 +156,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     taskName = CommonTaskType.Test.getTaskName(module, platform, buildType = buildType),
                     buildType = buildType,
                     platform = platform,
-                    runSettings = context.runSettings,
+                    runSettings = runSettings,
                     terminal = context.terminal,
                 ),
                 NativeTaskType.Link.getTaskName(module, platform, isTest = true, buildType)

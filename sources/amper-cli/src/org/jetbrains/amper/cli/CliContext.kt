@@ -13,7 +13,6 @@ import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.DateTimeFormatForFilenames
 import org.jetbrains.amper.util.nowInDefaultTimezone
@@ -28,7 +27,6 @@ class CliContext private constructor(
     val commandName: String,
     val projectContext: AmperProjectContext,
     val userCacheRoot: AmperUserCacheRoot,
-    val runSettings: AllRunSettings,
     val terminal: Terminal,
     val androidHomeRoot: AndroidHomeRoot,
 ) {
@@ -66,7 +64,6 @@ class CliContext private constructor(
             explicitBuildOutputRoot: Path?,
             userCacheRoot: AmperUserCacheRoot,
             terminal: Terminal,
-            runSettings: AllRunSettings = AllRunSettings(),
             androidHomeRoot: AndroidHomeRoot? = null,
         ): CliContext = spanBuilder("Create CLI context").use {
             require(commandName.isNotBlank()) { "commandName should not be blank" }
@@ -88,7 +85,6 @@ class CliContext private constructor(
                 commandName = commandName,
                 projectContext = projectContext,
                 userCacheRoot = userCacheRoot,
-                runSettings = runSettings,
                 terminal = terminal,
                 androidHomeRoot = androidHomeRoot ?: AndroidHomeRoot(
                     AndroidSdkDetector.detectSdkPath().createDirectories()

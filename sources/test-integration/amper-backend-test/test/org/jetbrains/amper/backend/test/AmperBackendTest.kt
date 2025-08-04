@@ -6,6 +6,7 @@ package org.jetbrains.amper.backend.test
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.test.Dirs
@@ -38,7 +39,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Test
     fun `simple multiplatform cli sources jars`() = runTestWithCollector {
         val projectContext = setupTestDataProject("simple-multiplatform-cli")
-        val backend = AmperBackend(projectContext, backgroundScope = backgroundScope)
+        val backend = AmperBackend(projectContext, runSettings = AllRunSettings(), backgroundScope = backgroundScope)
 
         val sourcesJarJvm = TaskName(":shared:sourcesJarJvm")
         backend.runTask(sourcesJarJvm)
@@ -117,10 +118,10 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Test
     fun `jvm transitive dependencies`() = runTestWithCollector {
         val projectContext = setupTestDataProject("jvm-transitive-dependencies")
+        val backend = AmperBackend(projectContext, runSettings = AllRunSettings(), backgroundScope = backgroundScope)
 
         // 1. Check compile classpath
-        val result = AmperBackend(projectContext, backgroundScope = backgroundScope)
-            .runTask(TaskName(":app:resolveDependenciesJvm"))
+        val result = backend.runTask(TaskName(":app:resolveDependenciesJvm"))
         assertIs<ResolveExternalDependenciesTask.Result>(result)
 
         // Comparing the lists since the order of libraries on classpath is important
@@ -149,8 +150,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         )
 
         // 2. Check runtime classpath composed after compilation tasks are finished
-        val runtimeClasspathResult = AmperBackend(projectContext, backgroundScope = backgroundScope)
-            .runTask(TaskName(":app:runtimeClasspathJvm"))
+        val runtimeClasspathResult = backend.runTask(TaskName(":app:runtimeClasspathJvm"))
         assertIs<JvmRuntimeClasspathTask.Result>(runtimeClasspathResult)
 
         val runtimeClassPath = runtimeClasspathResult.jvmRuntimeClasspath
@@ -198,8 +198,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
             "Unexpected list of resolved runtime dependencies"
         )
 
-        val runtimeClasspathViaTask = AmperBackend(projectContext, backgroundScope = backgroundScope)
-            .runTask(TaskName(":app:runtimeClasspathJvm"))
+        val runtimeClasspathViaTask = backend.runTask(TaskName(":app:runtimeClasspathJvm"))
         assertIs<JvmRuntimeClasspathTask.Result>(runtimeClasspathViaTask)
 
         // Check correct module order in runtime classpath
@@ -215,9 +214,9 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Test
     fun `jvm runtime classpath conflict resolution`() = runTestWithCollector {
         val projectContext = setupTestDataProject("jvm-runtime-classpath-conflict-resolution")
+        val backend = AmperBackend(projectContext, runSettings = AllRunSettings(), backgroundScope = backgroundScope)
 
-        val result = AmperBackend(projectContext, backgroundScope = backgroundScope)
-            .runTask(TaskName(":B2:resolveDependenciesJvm")) as ResolveExternalDependenciesTask.Result
+        val result = backend.runTask(TaskName(":B2:resolveDependenciesJvm")) as ResolveExternalDependenciesTask.Result
         assertIs<ResolveExternalDependenciesTask.Result>(result)
 
         // should be only one version of commons-io, the highest version
@@ -235,7 +234,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Test
     fun `simple multiplatform cli metadata`() = runTestWithCollector {
         val projectContext = setupTestDataProject("simple-multiplatform-cli")
-        val backend = AmperBackend(projectContext, backgroundScope = backgroundScope)
+        val backend = AmperBackend(projectContext, runSettings = AllRunSettings(), backgroundScope = backgroundScope)
 
         val compileMetadataJvmMain = TaskName(":shared:compileMetadataJvm")
         backend.runTask(compileMetadataJvmMain)

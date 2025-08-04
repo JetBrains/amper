@@ -28,7 +28,6 @@ import org.jetbrains.amper.tasks.ksp.setupKspTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import kotlin.io.path.div
 
 internal interface TaskType {
     val prefix: String
@@ -76,7 +75,8 @@ data class ModuleDependencySequenceCtx(
 
 class ProjectTasksBuilder(
     val context: CliContext,
-    val model: Model
+    val model: Model,
+    val runSettings: AllRunSettings,
 ) {
     val tasks = TaskGraphBuilder()
     val executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot)

@@ -31,7 +31,7 @@ import java.nio.file.Path
 
 fun ProjectTasksBuilder.setupAndroidTasks() {
     val androidSdkPath = context.androidHomeRoot.path
-    val needDefaultSystemImage = context.runSettings.deviceId == null
+    val needDefaultSystemImage = runSettings.deviceId == null
 
     allModules().alsoPlatforms(Platform.ANDROID).withEach {
         tasks.registerTask(
@@ -323,7 +323,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     runTaskName,
                     module,
                     buildType,
-                    context.runSettings,
+                    runSettings,
                     androidSdkPath,
                     AndroidLocationsSingleton.avdLocation,
                 ),
@@ -353,7 +353,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     taskName = testTaskName,
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
-                    runSettings = context.runSettings,
+                    runSettings = runSettings,
                     executeOnChangedInputs = executeOnChangedInputs,
                     platform = Platform.ANDROID,
                     buildType = buildType,
