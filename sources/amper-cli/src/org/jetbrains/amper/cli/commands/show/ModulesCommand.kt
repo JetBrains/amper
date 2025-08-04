@@ -14,8 +14,11 @@ internal class ModulesCommand : AmperSubcommand(name = "modules") {
     override fun help(context: Context): String = "List all modules in the project"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName, terminal) { backend ->
-            backend.showModules()
+        // FIXME we don't need the backend just to get the list of modules, so this should be refactored
+        val modules = withBackend(commonOptions, commandName, terminal) { backend -> backend.modules() }
+
+        for (moduleName in modules.map { it.userReadableName }.sorted()) {
+            terminal.println(moduleName)
         }
     }
 }

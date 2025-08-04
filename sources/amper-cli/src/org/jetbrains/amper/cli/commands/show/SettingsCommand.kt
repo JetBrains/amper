@@ -38,6 +38,7 @@ internal class SettingsCommand: AmperSubcommand(name = "settings") {
     override suspend fun run() {
         // FIXME we don't need the backend just to get the list of modules, so this should be refactored
         val modules = withBackend(commonOptions, commandName, terminal) { it.modules() }
+
         modules.filterModulesToInspect().forEach { module ->
             if (modules.size > 1) {
                 terminal.info("Module: ${module.userReadableName}\n", Whitespace.PRE_LINE, TextAlign.LEFT)

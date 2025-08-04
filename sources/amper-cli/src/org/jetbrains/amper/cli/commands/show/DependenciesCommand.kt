@@ -7,8 +7,6 @@ package org.jetbrains.amper.cli.commands.show
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.mordant.terminal.Terminal
-import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
@@ -52,58 +50,55 @@ internal class DependenciesCommand: AmperSubcommand(name = "dependencies") {
     override fun help(context: com.github.ajalt.clikt.core.Context): String = "Print the resolved dependencies graph of the module"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName, terminal) { backend ->
-            val terminal = backend.context.terminal
+        // FIXME we don't need the backend just to get the list of modules, so this should be refactored
+        val modules = withBackend(commonOptions, commandName, terminal) { backend -> backend.modules() }
+        val resolvedModule = resolveModuleIn(modules)
 
-            val resolvedModule = module.resolveModule(backend)
+        val platformSetsToResolveFor = platforms
+            ?.let { listOf(resolvedModule.getModuleLeafPlatforms(it)) }
+            ?: resolvedModule.fragments.map { it.platforms }.distinct()
 
-            val platformSetsToResolveFor = platforms
-                ?.let { listOf(resolvedModule.getModuleLeafPlatforms(it)) }
-                ?: resolvedModule.fragments.map { it.platforms }.distinct()
+        val mavenCoordinates = filter?.resolveFilter()
 
-            val mavenCoordinates = filter?.resolveFilter()
-
-            val variantsToResolve = buildList {
-                platformSetsToResolveFor.forEach { platforms ->
-                    listOfNotNull(false, true.takeIf { includeTests }).forEach { isTests ->
-                        listOf(ResolutionScope.RUNTIME, ResolutionScope.COMPILE).forEach { scope ->
-                            // todo (AB) : Maybe it is a good idea to show java-like COMPILE graph for native as well
-                            // todo (AB) : (since it is used in Idea for symbol resolution)
-                            if (platforms.size == 1 && platforms.single().isDescendantOf(Platform.NATIVE) && scope == ResolutionScope.RUNTIME)
-                                return@forEach // compile and runtime dependencies are the same for native single-platform contexts
-                            add(
-                                resolvedModule.buildDependenciesGraph(
-                                    isTests,
-                                    platforms,
-                                    scope,
-                                    backend.context.userCacheRoot
-                                )
+        val variantsToResolve = buildList {
+            platformSetsToResolveFor.forEach { platforms ->
+                listOfNotNull(false, true.takeIf { includeTests }).forEach { isTests ->
+                    listOf(ResolutionScope.RUNTIME, ResolutionScope.COMPILE).forEach { scope ->
+                        // todo (AB) : Maybe it is a good idea to show java-like COMPILE graph for native as well
+                        // todo (AB) : (since it is used in Idea for symbol resolution)
+                        if (platforms.size == 1 && platforms.single().isDescendantOf(Platform.NATIVE) && scope == ResolutionScope.RUNTIME)
+                            return@forEach // compile and runtime dependencies are the same for native single-platform contexts
+                        add(
+                            resolvedModule.buildDependenciesGraph(
+                                isTests,
+                                platforms,
+                                scope,
+                                commonOptions.sharedCachesRoot,
                             )
-                        }
+                        )
                     }
                 }
             }
-
-            val resolver = MavenResolver(backend.context.userCacheRoot)
-
-            val root = DependencyNodeHolder(
-                name = "root",
-                children = variantsToResolve,
-                emptyContext(backend.context.userCacheRoot) { spanBuilder(it) }
-            )
-
-            resolver.resolve(
-                root = root,
-                resolveSourceMoniker = "module ${resolvedModule.userReadableName}",
-            )
-
-            printDependencies(mavenCoordinates, terminal, resolvedModule, root, filter)
         }
+
+        val resolver = MavenResolver(commonOptions.sharedCachesRoot)
+
+        val root = DependencyNodeHolder(
+            name = "root",
+            children = variantsToResolve,
+            emptyContext(commonOptions.sharedCachesRoot) { spanBuilder(it) }
+        )
+
+        resolver.resolve(
+            root = root,
+            resolveSourceMoniker = "module ${resolvedModule.userReadableName}",
+        )
+
+        printDependencies(mavenCoordinates, resolvedModule, root, filter)
     }
 
     private fun printDependencies(
         mavenCoordinates: MavenCoordinates?,
-        terminal: Terminal,
         resolvedModule: AmperModule,
         root: DependencyNodeHolder,
         filter: String?,
@@ -135,16 +130,20 @@ internal class DependenciesCommand: AmperSubcommand(name = "dependencies") {
         return MavenCoordinates(groupId = parts[0], artifactId = parts[1], version = null)
     }
 
-    private fun String?.resolveModule(backend: AmperBackend): AmperModule {
-        val modules = backend.modules()
-        return this
-            ?.let { backend.resolveModule(it) }
-            ?: modules.singleOrNull()
-            ?: userReadableError(
+    private fun resolveModuleIn(modules: List<AmperModule>): AmperModule {
+        val resolvedModule = if (module != null) {
+            modules.find { it.userReadableName == module } ?: userReadableError(
+                "Unable to resolve module by name '$module'.\n\n" +
+                        "Available modules:\n${modules.joinToString("\n") { it.userReadableName }}"
+            )
+        } else {
+            modules.singleOrNull() ?: userReadableError(
                 "There are several modules in the project. " +
                         "Please specify one with '--module' argument.\n\n" +
-                        "Available application modules: ${backend.availableModulesString()}"
+                        "Available modules:\n${modules.joinToString("\n") { it.userReadableName }}"
             )
+        }
+        return resolvedModule
     }
 
     /**

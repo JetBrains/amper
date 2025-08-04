@@ -14,8 +14,16 @@ internal class TasksCommand : AmperSubcommand(name = "tasks") {
     override fun help(context: Context): String = "List all tasks in the project and their dependencies"
 
     override suspend fun run() {
-        withBackend(commonOptions, commandName, terminal) { backend ->
-            backend.showTasks()
+        val taskGraph = withBackend(commonOptions, commandName, terminal) { backend -> backend.taskGraph }
+
+        for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
+            val taskWithDeps = buildString {
+                append("task ${taskName.name}")
+                taskGraph.dependencies[taskName]?.let { taskDeps ->
+                    append(" -> ${taskDeps.joinToString { it.name }}")
+                }
+            }
+            terminal.println(taskWithDeps)
         }
     }
 }

@@ -82,7 +82,7 @@ class AmperBackend(
         resolvedModel.modules.associateBy { it.userReadableName }
     }
 
-    private val taskGraph: TaskGraph by lazy {
+    internal val taskGraph: TaskGraph by lazy {
         spanBuilder("Build task graph").useWithoutCoroutines {
             ProjectTasksBuilder(context = context, model = resolvedModel, runSettings = runSettings).build()
         }
@@ -227,24 +227,7 @@ class AmperBackend(
     @TestOnly
     fun tasks() = taskGraph.tasks.toList()
 
-    fun showTasks() {
-        for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
-            context.terminal.println(buildString {
-                append("task ${taskName.name}")
-                taskGraph.dependencies[taskName]?.let { taskDeps ->
-                    append(" -> ${taskDeps.joinToString { it.name }}")
-                }
-            })
-        }
-    }
-
     fun modules(): List<AmperModule> = resolvedModel.modules
-
-    fun showModules() {
-        for (moduleName in resolvedModel.modules.map { it.userReadableName }.sorted()) {
-            context.terminal.println(moduleName)
-        }
-    }
 
     suspend fun publish(modules: Set<String>?, repositoryId: String) {
         require(modules == null || modules.isNotEmpty())
