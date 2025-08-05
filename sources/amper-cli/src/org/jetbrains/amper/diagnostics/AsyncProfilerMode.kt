@@ -21,7 +21,7 @@ import kotlin.io.path.writeBytes
 object AsyncProfilerMode {
     fun attachAsyncProfiler(logsDir: AmperBuildLogsRoot, buildOutputRoot: AmperBuildOutputRoot) {
         val platformId = getPlatformId()
-        val ext = when (OsFamily.Companion.current) {
+        val ext = when (OsFamily.current) {
             OsFamily.Windows -> ".dll"
             OsFamily.Linux, OsFamily.FreeBSD, OsFamily.Solaris -> ".so"
             OsFamily.MacOs -> ".dylib"
@@ -55,8 +55,8 @@ object AsyncProfilerMode {
     }
 
     private fun getPlatformId(): String {
-        val arch = Arch.Companion.current
-        return when (OsFamily.Companion.current) {
+        val arch = Arch.current
+        return when (OsFamily.current) {
             OsFamily.MacOs -> "macos"
 
             OsFamily.Windows -> when (arch) {
