@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.frontend.meta.ATypesVisitor
+import org.jetbrains.amper.frontend.types.ATypesVisitor
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import kotlin.reflect.KClass

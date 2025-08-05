@@ -8,11 +8,10 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.amper.frontend.builders.schema.SingleATypeSchemaBuilder.withExtras
-import org.jetbrains.amper.frontend.meta.ATypesVisitor
-import org.jetbrains.amper.frontend.meta.collectReferencedObjects
+import org.jetbrains.amper.frontend.types.ATypesVisitor
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.collectReferencedObjects
 import org.jetbrains.amper.frontend.types.isValueRequired
 import org.jetbrains.amper.frontend.types.simpleName
 import org.jetbrains.amper.frontend.types.toType
@@ -37,12 +36,12 @@ fun JsonSchema(root: SchemaObjectDeclaration) = root.simpleName().let { simpleNa
 }
 
 /**
- * A visitor that is building the definition of a single [SchemaTypingContext.AmperType] as a [JsonElement] in JSON schema.
+ * A visitor that is building the definition of a single [SchemaObjectDeclaration] as a [JsonElement] in JSON schema.
  */
 private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
 
     /**
-     * Generate a corresponding JSON schema [JsonElement] for the specified [SchemaTypingContext.Object].
+     * Generate a corresponding JSON schema [JsonElement] for the specified [SchemaObjectDeclaration].
      */
     // TODO Add ad-hock check for aliases field.
     fun asSchemaObject(root: SchemaObjectDeclaration): JsonElement {

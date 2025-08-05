@@ -26,6 +26,7 @@ import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.single
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
+import org.jetbrains.amper.frontend.types.PluginYamlTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import java.nio.file.Path
@@ -65,10 +66,10 @@ internal fun BuildCtx.buildPlugins(
 
             this += PluginTreeReader(
                 projectContext = projectContext,
-                pluginId = pluginData.id,
+                pluginData = pluginData,
                 pluginFile = projectContext.frontendPathResolver.loadVirtualFile(pluginFile),
                 pluginModule = pluginModule.module,
-                parentBuildCtx = this@buildPlugins,
+                buildCtx = this@buildPlugins,
             )
         }
     }
@@ -92,7 +93,7 @@ internal fun BuildCtx.buildPlugins(
                     )
                 }
             moduleBuildCtx.module.tasksFromPlugins += DefaultTaskFromPluginDescription(
-                name = pluginTaskNameFor(moduleBuildCtx.module, plugin.pluginId, name),
+                name = pluginTaskNameFor(moduleBuildCtx.module, plugin.pluginData.id, name),
                 actionFunctionJvmName = task.action.jvmFunctionName,
                 actionClassJvmName = task.action.jvmOwnerClassName,
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
@@ -108,17 +109,16 @@ internal fun BuildCtx.buildPlugins(
 private class PluginTreeReader(
     private val projectContext: AmperProjectContext,
     val pluginModule: AmperModule,
-    val pluginId: PluginData.Id,
+    val pluginData: PluginData,
     pluginFile: VirtualFile,
-    parentBuildCtx: BuildCtx,
+    buildCtx: BuildCtx,
 ) {
     private val treeRefiner = TreeRefiner()
-    private val buildCtx = parentBuildCtx.copy(
-        types = parentBuildCtx.types.getPluginContext(pluginId),
-    )
 
-    private val pluginTree: MapLikeValue<Refined> = with(buildCtx) {
-        val declaration = buildCtx.types.getDeclaration<PluginYamlRoot>()
+    private val buildCtx = buildCtx.copy(types = PluginYamlTypingContext(buildCtx.types, pluginData))
+
+    private val pluginTree: MapLikeValue<Refined> = with(this.buildCtx) {
+        val declaration = types.getDeclaration<PluginYamlRoot>()
 
         val tree = readTree(
             file = pluginFile,
@@ -134,9 +134,9 @@ private class PluginTreeReader(
 
     fun asAppliedTo(
         module: ModuleBuildCtx,
-    ): PluginYamlRoot? = with(buildCtx) {
+    ): PluginYamlRoot? = with(this@PluginTreeReader.buildCtx) {
         val moduleRootDir = module.module.source.moduleDir ?: return null
-        val pluginConfiguration = module.commonTree.asMapLikeAndGet("settings")?.asMapLikeAndGet(pluginId.value)
+        val pluginConfiguration = module.commonTree.asMapLikeAndGet("settings")?.asMapLikeAndGet(pluginData.id.value)
 
         val enabled = pluginConfiguration?.asMapLikeAndGet("enabled")?.scalarValue<Boolean>()
         if (enabled != true) return null
@@ -144,11 +144,11 @@ private class PluginTreeReader(
         val taskDirs = (pluginTree.asMapLikeAndGet("tasks") as? Refined)
             ?.refinedChildren
             ?.mapValues { (name, _) ->
-                projectContext.getTaskOutputRoot(pluginTaskNameFor(module.module, pluginId, name))
+                projectContext.getTaskOutputRoot(pluginTaskNameFor(module.module, pluginData.id, name))
             }.orEmpty()
 
         // Build a tree with computed "reference-only" values.
-        val referenceValuesTree = syntheticBuilder(buildCtx.types, DefaultTrace) {
+        val referenceValuesTree = syntheticBuilder(this@PluginTreeReader.buildCtx.types, DefaultTrace) {
             `object`<PluginYamlRoot> {
                 "module" setTo map {
                     "configuration" setTo pluginConfiguration

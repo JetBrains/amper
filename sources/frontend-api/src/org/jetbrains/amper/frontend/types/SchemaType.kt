@@ -8,6 +8,10 @@ sealed interface SchemaType {
     val isMarkedNullable: Boolean
 
     sealed interface ScalarType : SchemaType
+    
+    sealed interface TypeWithDeclaration : SchemaType {
+        val declaration: SchemaTypeDeclaration
+    }
 
     data class BooleanType(
         override val isMarkedNullable: Boolean = false,
@@ -36,22 +40,22 @@ sealed interface SchemaType {
     }
 
     data class EnumType(
-        val declaration: SchemaEnumDeclaration,
+        override val declaration: SchemaEnumDeclaration,
         val isTraceableWrapped: Boolean = false,
         override val isMarkedNullable: Boolean = false,
-    ) : ScalarType {
+    ) : ScalarType, TypeWithDeclaration {
         override fun toString() = declaration.qualifiedName.substringAfterLast(".")
     }
 
     data class ObjectType(
-        val declaration: SchemaObjectDeclaration,
+        override val declaration: SchemaObjectDeclaration,
         override val isMarkedNullable: Boolean = false,
-    ) : SchemaType
+    ) : TypeWithDeclaration
 
     data class VariantType(
-        val declaration: SchemaVariantDeclaration,
+        override val declaration: SchemaVariantDeclaration,
         override val isMarkedNullable: Boolean = false,
-    ) : SchemaType
+    ) : TypeWithDeclaration
 
     data class ListType(
         val elementType: SchemaType,

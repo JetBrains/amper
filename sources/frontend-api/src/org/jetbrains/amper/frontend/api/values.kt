@@ -188,8 +188,8 @@ sealed class ValueDelegateBase<T>(
 private fun <T : KProperty<*>> T.setAccessible() = apply { isAccessible = true }
 
 @Suppress("UNCHECKED_CAST")
-fun <T, V> KProperty1<T, V>.valueBase(receiver: T): ValueDelegateBase<V>? =
-    setAccessible().getDelegate(receiver) as? ValueDelegateBase<V>
+fun <T, V> KProperty1<T, V>.valueBase(receiver: SchemaNode): ValueDelegateBase<V>? =
+    setAccessible().getDelegate(receiver as T) as? ValueDelegateBase<V>
 
 /**
  * Returns the traceable [ValueDelegateBase] of this property, or throws if this property isn't defined with such
