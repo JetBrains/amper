@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parsers.CommandLineParser
 import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.commands.RootCommand
 import org.jetbrains.amper.cli.logging.DoNotLogToTerminalCookie
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
@@ -114,10 +115,16 @@ private fun printUserError(message: String) {
 }
 
 private fun printInternalError(e: Exception) {
-    // we avoid showing a scary stacktrace in the terminal, but we still provide it in the logs
-    printRedToStderr("\nInternal error: $e\n\nPlease check the build logs for the full stacktrace, and if possible file a bug report at https://youtrack.jetbrains.com/newIssue?project=AMPER")
-    DoNotLogToTerminalCookie.use {
+    if (AmperBuild.isSNAPSHOT) {
+        // For dev-oriented builds the error needs to be accessible immediately.
         LoggerFactory.getLogger("main").error("Internal error:", e)
+    } else {
+        // we avoid showing a scary stacktrace in the terminal, but we still provide it in the logs
+        printRedToStderr("\nInternal error: $e\n\nPlease check the build logs for the full stacktrace, " +
+                "and if possible file a bug report at https://youtrack.jetbrains.com/newIssue?project=AMPER")
+        DoNotLogToTerminalCookie.use {
+            LoggerFactory.getLogger("main").error("Internal error:", e)
+        }
     }
 }
 
