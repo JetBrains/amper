@@ -49,6 +49,8 @@ class TaskProgressRenderer(
                 createTasksProgressWidget(threadStates)
             }
 
+            terminal.cursor.hide(showOnExit = true)
+
             launch {
                 while (true) {
                     updateState()
@@ -66,6 +68,7 @@ class TaskProgressRenderer(
                 }
             } finally {
                 animation.clear()
+                terminal.cursor.show()
             }
         }
 
