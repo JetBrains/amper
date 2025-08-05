@@ -36,10 +36,6 @@ object DeadLockMonitor {
 
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     fun install(logsRoot: AmperBuildLogsRoot) {
-        require(DebugProbes.isInstalled) {
-            "DebugProbes must be installed to use DebugProbes.dumpCoroutines"
-        }
-
         GlobalScope.launch {
             try {
                 var timesToReport = MAX_NUMBER_OF_TIMES_TO_REPORT
@@ -55,7 +51,9 @@ object DeadLockMonitor {
                         dumpFile.parent.createDirectories()
                         PrintStream(dumpFile.toFile(), Charsets.UTF_8).use { printStream ->
                             printStream.println(ThreadDumper.dumpThreadsToString())
-                            DebugProbes.dumpCoroutines(out = printStream)
+                            if (DebugProbes.isInstalled) {
+                                DebugProbes.dumpCoroutines(out = printStream)
+                            }
                         }
 
                         if (isUnderTeamCity) {
