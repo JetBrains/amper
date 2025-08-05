@@ -6,6 +6,7 @@ package org.jetbrains.amper.cli.widgets
 
 import com.github.ajalt.mordant.animation.animation
 import com.github.ajalt.mordant.rendering.TextAlign
+import com.github.ajalt.mordant.rendering.Widget
 import com.github.ajalt.mordant.table.ColumnWidth
 import com.github.ajalt.mordant.table.horizontalLayout
 import com.github.ajalt.mordant.table.verticalLayout
@@ -44,46 +45,11 @@ class TaskProgressRenderer(
         val flow = MutableStateFlow(emptyList<ThreadState>())
 
         coroutineScope.launch(Dispatchers.IO) {
-            val animation = terminal.animation<List<ThreadState>> { tasks ->
-                verticalLayout {
-                    // Required to explicitly fill empty space with whitespaces and overwrite old lines
-                    align = TextAlign.LEFT
-                    // Required to correctly truncate very long status lines (or on very narrow terminal windows)
-                    width = ColumnWidth.Expand()
-
-                    cell("")
-//                    cell(HorizontalRule())
-
-                    for (threadState in tasks.take(maxTasksOnScreen)) {
-                        cell(horizontalLayout {
-                            cell(">" ) {
-                                style = terminal.theme.muted
-                            }
-                            if (threadState.name == null) {
-                                cell("IDLE") {
-                                    style = terminal.theme.muted
-                                }
-                            } else {
-                                cell(threadState.name) {
-                                    style = terminal.theme.info
-                                }
-
-                                if (threadState.elapsed >= 1.seconds) {
-                                    cell(threadState.elapsed.toString()) {
-                                        style = terminal.theme.muted
-                                    }
-                                }
-                            }
-                        })
-                    }
-                    if (tasks.size > maxTasksOnScreen) {
-                        cell("(+${tasks.size - maxTasksOnScreen} more)")
-                    }
-                    cell("")
-                }
+            val animation = terminal.animation<List<ThreadState>> { threadStates ->
+                createTasksProgressWidget(threadStates)
             }
 
-            coroutineScope.launch(Dispatchers.IO) {
+            launch {
                 while (true) {
                     updateState()
                     delay(100)
@@ -104,6 +70,42 @@ class TaskProgressRenderer(
         }
 
         flow
+    }
+
+    private fun createTasksProgressWidget(threadStates: List<ThreadState>): Widget = verticalLayout {
+        // Required to explicitly fill empty space with whitespaces and overwrite old lines
+        align = TextAlign.LEFT
+        // Required to correctly truncate very long status lines (or on very narrow terminal windows)
+        width = ColumnWidth.Expand()
+
+        cell("")
+
+        for (threadState in threadStates.take(maxTasksOnScreen)) {
+            cell(horizontalLayout {
+                cell(">") {
+                    style = terminal.theme.muted
+                }
+                if (threadState.name == null) {
+                    cell("IDLE") {
+                        style = terminal.theme.muted
+                    }
+                } else {
+                    cell(threadState.name) {
+                        style = terminal.theme.info
+                    }
+
+                    if (threadState.elapsed >= 1.seconds) {
+                        cell(threadState.elapsed.toString()) {
+                            style = terminal.theme.muted
+                        }
+                    }
+                }
+            })
+        }
+        if (threadStates.size > maxTasksOnScreen) {
+            cell("(+${threadStates.size - maxTasksOnScreen} more)")
+        }
+        cell("")
     }
 
     private fun updateState() {
