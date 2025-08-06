@@ -1,1 +1,3 @@
-# For now, this is just a marker
+settings:
+  jvm:
+    release: 17 # necessary for IDEA for now
