@@ -34,6 +34,7 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.simpleName
 import org.jetbrains.amper.frontend.types.toType
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.psi.YAMLKeyValue
@@ -130,7 +131,11 @@ internal class ReaderCtx(params: TreeReadRequest) {
     fun tryReadScalar(text: String, type: SchemaType.ScalarType, origin: PsiElement, report: Boolean = true): Any? {
         fun reportIfNeeded(msgId: String): Nothing? {
             if (report) {
-                problemReporter.reportBundleError(source = origin.asBuildProblemSource(), messageKey = msgId)
+                problemReporter.reportBundleError(
+                    source = origin.asBuildProblemSource(),
+                    messageKey = msgId,
+                    problemType = BuildProblemType.TypeMismatch,
+                )
             }
             return null
         }
@@ -175,6 +180,7 @@ internal class ReaderCtx(params: TreeReadRequest) {
                 text,
                 values.joinToString { it.schemaValue },
                 buildProblemId = "validation.unknown.enum.value",
+                problemType = BuildProblemType.TypeMismatch,
             )
         }
         return selectedEntry?.name?.let(enum::toEnumConstant) ?: selectedEntry?.name

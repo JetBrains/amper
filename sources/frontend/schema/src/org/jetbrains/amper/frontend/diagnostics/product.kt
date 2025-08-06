@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.yaml.psi.YAMLPsiElement
@@ -50,6 +51,7 @@ object ProductPlatformIsUnsupported : MergedTreeDiagnostic {
                         type.schemaValue,
                         platform.pretty,
                         type.supportedPlatforms.joinToString { it.pretty },
+                        problemType = BuildProblemType.InconsistentConfiguration,
                     )
                 }
             }

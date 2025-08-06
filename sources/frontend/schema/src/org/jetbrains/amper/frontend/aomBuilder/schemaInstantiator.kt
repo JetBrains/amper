@@ -22,6 +22,8 @@ import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.frontend.types.isValueRequired
 import org.jetbrains.amper.frontend.types.toType
+import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
@@ -85,6 +87,8 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
                 source = currentValue.trace.asBuildProblemSource(),
                 messageKey = "validation.not.within.known.values",
                 prop.knownStringValues.joinToString(),
+                level = Level.Error,
+                problemType = BuildProblemType.TypeMismatch,
             )
         }
 
@@ -128,6 +132,8 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
                     problemReporter.reportBundleError(
                         source = currentValue.trace.asBuildProblemSource(),
                         messageKey = "validation.expected.map",
+                        level = Level.Error,
+                        problemType = BuildProblemType.TypeMismatch,
                     )
                 }
             }
@@ -142,6 +148,8 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
                     problemReporter.reportBundleError(
                         source = currentValue.trace.asBuildProblemSource(),
                         messageKey = "validation.expected.collection",
+                        level = Level.Error,
+                        problemType = BuildProblemType.TypeMismatch,
                     )
                 }
             }

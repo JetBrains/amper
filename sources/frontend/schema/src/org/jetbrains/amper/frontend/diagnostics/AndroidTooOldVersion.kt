@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -21,7 +22,7 @@ class AndroidTooOldVersion(
     override val element: PsiElement,
     used: AndroidVersion,
     minVersion: AndroidVersion,
-) : PsiBuildProblem(Level.Error) {
+) : PsiBuildProblem(Level.Error, BuildProblemType.Generic) {
     override val buildProblemId = AndroidTooOldVersionFactory.diagnosticId
     override val message = SchemaBundle.message(buildProblemId, used.versionNumber, minVersion.versionNumber)
 }

@@ -10,12 +10,13 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.annotations.Nls
 
 class UnresolvedModuleDeclaration(
     val modulePath: TraceableString,
-) : PsiBuildProblem(Level.Error) {
+) : PsiBuildProblem(Level.Error, BuildProblemType.UnresolvedReference) {
     companion object {
         const val ID = "unresolved.module.declaration"
     }

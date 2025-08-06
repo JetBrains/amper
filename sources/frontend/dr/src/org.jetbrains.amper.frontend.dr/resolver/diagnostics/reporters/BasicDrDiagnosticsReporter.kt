@@ -26,6 +26,7 @@ import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemImpl
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
@@ -59,10 +60,11 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         for (message in importantMessages) {
             val msgLevel = message.mapSeverityToLevel()
             val buildProblem = BuildProblemImpl(
-                "dependency.problem.no.psi",
-                GlobalBuildProblemSource,
-                message.detailedMessage,
-                msgLevel
+                buildProblemId = "dependency.problem.no.psi",
+                source = GlobalBuildProblemSource,
+                message = message.detailedMessage,
+                level = msgLevel,
+                type = BuildProblemType.Generic,
             )
             problemReporter.reportMessage(buildProblem)
         }
@@ -150,7 +152,7 @@ class DependencyBuildProblem(
     override val element: PsiElement,
     @field:UsedInIdePlugin
     val versionDefinition: VersionDefinition?,
-) : PsiBuildProblem(level) {
+) : PsiBuildProblem(level, BuildProblemType.Generic) {
     override val buildProblemId: BuildProblemId = ID
 
     override val message: @Nls String

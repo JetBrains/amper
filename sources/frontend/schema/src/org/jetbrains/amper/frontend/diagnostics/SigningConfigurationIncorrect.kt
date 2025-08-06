@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.schema.KeystoreProperty
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.storeFile
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.properties.readProperties
@@ -155,7 +156,7 @@ object KeystoreMustExistFactory : SigningConfigurationIncorrect() {
 
 class SigningEnabledWithoutPropertiesFile(
     val targetProperty: KProperty0<*>, val propertiesFilePath: Path
-) : PsiBuildProblem(Level.Warning) {
+) : PsiBuildProblem(Level.Warning, BuildProblemType.InconsistentConfiguration) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = SigningEnabledWithoutPropertiesFileFactory.diagnosticId
     override val message: @Nls String
@@ -168,7 +169,7 @@ class KeystorePropertiesDoesNotContainKey(
     val targetProperty: KProperty0<*>,
     val key: String,
     val propertiesFilePath: Path,
-) : PsiBuildProblem(Level.Warning) {
+) : PsiBuildProblem(Level.Warning, BuildProblemType.Generic) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = KeystorePropertiesDoesNotContainKeyFactory.diagnosticId
     override val message: @Nls String
@@ -179,7 +180,7 @@ class KeystorePropertiesDoesNotContainKey(
 
 class MandatoryFieldInPropertiesFileMustBePresent(
     val targetProperty: KProperty0<*>, val key: String, val propertiesFilePath: Path
-) : PsiBuildProblem(Level.Warning) {
+) : PsiBuildProblem(Level.Warning, BuildProblemType.Generic) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = MandatoryFieldInPropertiesFileMustBePresentFactory.diagnosticId
     override val message: @Nls String
@@ -190,7 +191,7 @@ class MandatoryFieldInPropertiesFileMustBePresent(
 
 class KeystoreFileDoesNotExist(
     val targetProperty: KProperty0<*>, val keystorePath: Path
-) : PsiBuildProblem(Level.Warning) {
+) : PsiBuildProblem(Level.Warning, BuildProblemType.UnresolvedReference) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = KeystoreMustExistFactory.diagnosticId
     override val message: @Nls String

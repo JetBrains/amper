@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.annotations.Nls
 import java.nio.file.Path
@@ -21,7 +22,7 @@ class UnresolvedModuleDependency(
     val dependency: InternalDependency,
     val moduleDirectory: Path,
     val possibleCorrectPath: Path?,
-) : PsiBuildProblem(Level.Error) {
+) : PsiBuildProblem(Level.Error, BuildProblemType.UnresolvedReference) {
     companion object {
         const val ID = "unresolved.module.dependency"
     }

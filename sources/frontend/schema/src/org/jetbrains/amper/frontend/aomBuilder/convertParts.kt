@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.properties.readProperties
 import kotlin.io.path.exists
@@ -57,6 +58,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                             source = credentials::file.asBuildProblemSource(),
                             messageKey = "credentials.file.does.not.exist",
                             credentials.file.normalize(),
+                            problemType = BuildProblemType.UnresolvedReference,
                         )
                         return@let null
                     } else {
@@ -71,6 +73,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                                     credentials.file.normalize(),
                                     keyProperty.get(),
                                     credentialProperties.keys.joinToString(),
+                                    problemType = BuildProblemType.UnresolvedReference,
                                 )
                             }
                             return property

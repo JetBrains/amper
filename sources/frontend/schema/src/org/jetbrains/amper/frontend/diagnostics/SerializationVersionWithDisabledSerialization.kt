@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
@@ -38,7 +39,7 @@ object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnostic
 class SerializationVersionWithoutSerialization(
     @UsedInIdePlugin
     val versionProp: KProperty0<String?>,
-) : PsiBuildProblem(Level.Warning) {
+) : PsiBuildProblem(Level.Warning, BuildProblemType.InconsistentConfiguration) {
     override val element: PsiElement
         get() = versionProp.extractPsiElement()
 

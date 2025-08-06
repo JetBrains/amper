@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext.Compan
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Project
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
@@ -285,6 +286,7 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
             messageKey = "project.module.path.0.is.not.a.directory",
             relativeModulePath.value,
             level = Level.Error,
+            problemType = BuildProblemType.TypeMismatch,
         )
         return null
     }
@@ -302,7 +304,8 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
         problemReporter.reportBundleError(
             source = relativeModulePath.asBuildProblemSource(),
             messageKey = "project.module.root.is.included.by.default",
-            level = Level.Redundancy,
+            level = Level.WeakWarning,
+            problemType = BuildProblemType.RedundantDeclaration,
         )
         return null
     }
@@ -343,7 +346,8 @@ private fun VirtualFile.resolveModuleFilesRecursively(moduleDirGlob: TraceableSt
             source = moduleDirGlob.asBuildProblemSource(),
             messageKey = "project.module.glob.0.matches.nothing",
             moduleDirGlob.value,
-            level = Level.Redundancy,
+            level = Level.WeakWarning,
+            problemType = BuildProblemType.RedundantDeclaration,
         )
     }
     return matchingModuleFiles

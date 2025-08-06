@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
@@ -65,7 +66,7 @@ class ModuleDependencyWithOverriddenVersion(
     val overrideInsight: DependencyNode,
     @field:UsedInIdePlugin
     override val element: PsiElement,
-) : PsiBuildProblem(Level.Warning) {
+) : PsiBuildProblem(Level.Warning, BuildProblemType.Generic) {
     val dependencyNode: MavenDependencyNode
         get() = originalNode.dependencyNode as MavenDependencyNode
     val originalVersion: String

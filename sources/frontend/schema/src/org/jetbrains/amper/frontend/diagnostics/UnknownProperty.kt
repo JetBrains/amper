@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.annotations.Nls
 
@@ -18,7 +19,7 @@ class UnknownProperty(
     val invalidName: String,
     val possibleIntendedNames: List<String>,
     override val element: PsiElement,
-) : PsiBuildProblem(Level.Error) {
+) : PsiBuildProblem(Level.Error, BuildProblemType.UnknownSymbol) {
     companion object {
         const val ID = "unknown.property"
     }

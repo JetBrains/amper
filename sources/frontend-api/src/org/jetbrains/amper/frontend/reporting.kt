@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblemImpl
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.LineAndColumn
@@ -35,6 +36,7 @@ fun ProblemReporter.reportBundleError(
     bundle: MessageBundle = SchemaBundle,
     buildProblemId: String = messageKey,
     level: Level = Level.Error,
+    problemType: BuildProblemType = BuildProblemType.Generic,
 ) {
     reportMessage(
         BuildProblemImpl(
@@ -42,6 +44,7 @@ fun ProblemReporter.reportBundleError(
             source = source,
             message = bundle.message(messageKey, *arguments),
             level = level,
+            type = problemType,
         )
     )
 }

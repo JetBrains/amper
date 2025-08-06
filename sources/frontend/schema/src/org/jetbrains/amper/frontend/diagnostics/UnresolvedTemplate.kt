@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.annotations.Nls
 import java.nio.file.Path
@@ -18,7 +19,7 @@ import kotlin.io.path.relativeTo
 class UnresolvedTemplate(
     val templatePath: TraceablePath,
     val moduleDirectory: Path,
-) : PsiBuildProblem(Level.Error) {
+) : PsiBuildProblem(Level.Error, BuildProblemType.UnresolvedReference) {
     companion object {
         const val ID = "unresolved.template"
     }

@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.reflect.KProperty0
@@ -39,6 +40,7 @@ object InconsistentComposeVersion : AomModelDiagnosticFactory {
                 messageKey = diagnosticId,
                 chosenComposeVersionForModel,
                 level = Level.Fatal,
+                problemType = BuildProblemType.InconsistentConfiguration,
             )
         }
     }
@@ -64,7 +66,7 @@ object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
 class ComposeVersionWithoutCompose(
     @UsedInIdePlugin
     val versionProp: KProperty0<String?>,
-) : PsiBuildProblem(Level.Warning) {
+) : PsiBuildProblem(Level.Warning, BuildProblemType.InconsistentConfiguration) {
     override val element: PsiElement
         get() = versionProp.extractPsiElement()
 

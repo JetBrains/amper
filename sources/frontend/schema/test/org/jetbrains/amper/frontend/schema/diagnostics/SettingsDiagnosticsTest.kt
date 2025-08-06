@@ -24,12 +24,12 @@ class SettingsDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnost
 
     @Test
     fun `no redundancy for kotlin serialization format`() {
-        diagnosticsTest("setting-no-redundancy-kotlin-serialization", levels = arrayOf(Level.Redundancy))
+        diagnosticsTest("setting-no-redundancy-kotlin-serialization", levels = arrayOf(Level.WeakWarning))
     }
 
     @Test
     fun `setting overrides same value`() {
-        diagnosticsTest("setting-overrides-same-value", levels = arrayOf(Level.Redundancy))
+        diagnosticsTest("setting-overrides-same-value", levels = arrayOf(Level.WeakWarning))
     }
 
     @Test

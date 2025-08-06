@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
@@ -24,7 +25,7 @@ class AndroidVersionShouldBeAtLeastMinSdk(
     val versionProp: KProperty0<AndroidVersion?>,
     @UsedInIdePlugin
     val minSdkVersion: AndroidVersion
-) : PsiBuildProblem(Level.Error) {
+) : PsiBuildProblem(Level.Error, BuildProblemType.InconsistentConfiguration) {
     override val element: PsiElement
         get() = versionProp.extractPsiElement()
 

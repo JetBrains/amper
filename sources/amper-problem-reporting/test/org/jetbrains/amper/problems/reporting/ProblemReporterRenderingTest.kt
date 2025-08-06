@@ -18,6 +18,7 @@ class ProblemReporterRenderingTest {
             source = GlobalBuildProblemSource,
             message = "Test message",
             level = Level.Error,
+            type = BuildProblemType.Generic,
         )
         assertEquals("Test message", renderMessage(problem))
     }
@@ -28,7 +29,8 @@ class ProblemReporterRenderingTest {
             buildProblemId = "test.message",
             source = TestFileProblemSource(Path("test.txt")),
             message = "Test message",
-            level = Level.Error
+            level = Level.Error,
+            type = BuildProblemType.Generic,
         )
         assertEquals("test.txt: Test message", renderMessage(problem))
     }
@@ -43,7 +45,8 @@ class ProblemReporterRenderingTest {
                 )
             ),
             message = "Test message",
-            level = Level.Error
+            level = Level.Error,
+            type = BuildProblemType.Generic,
         )
         assertEquals("test.txt:10:15: Test message", renderMessage(problem))
     }
@@ -72,7 +75,8 @@ class ProblemReporterRenderingTest {
                 groupingMessage = "Encountered in:",
             ),
             message = "Test message",
-            level = Level.Error
+            level = Level.Error,
+            type = BuildProblemType.Generic,
         )
         assertEquals(
             """

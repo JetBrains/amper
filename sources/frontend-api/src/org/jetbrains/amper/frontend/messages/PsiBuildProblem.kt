@@ -15,11 +15,15 @@ import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import java.nio.file.Path
 import kotlin.reflect.KProperty0
 
-abstract class PsiBuildProblem(override val level: Level) : BuildProblem {
+abstract class PsiBuildProblem(
+    override val level: Level,
+    override val type: BuildProblemType,
+) : BuildProblem {
     abstract val element: PsiElement
     override val source: BuildProblemSource by lazy { PsiBuildProblemSource(element) }
 }

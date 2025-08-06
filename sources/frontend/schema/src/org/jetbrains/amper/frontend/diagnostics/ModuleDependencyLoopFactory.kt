@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
@@ -37,7 +38,8 @@ class ModuleDependencyLoopProblem(
         sources = loop.dropLast(1).mapNotNull { it.second.extractPsiElementOrNull() }.map(::PsiBuildProblemSource),
         groupingMessage = SchemaBundle.message("dependencies.modules.loop.grouping"),
     )
-    override val level get() = Level.Error
+    override val level: Level get() = Level.Error
+    override val type: BuildProblemType get() = BuildProblemType.Generic
 
     companion object {
         val diagnosticId: BuildProblemId = "module.dependency.loop"
@@ -53,7 +55,8 @@ class ModuleDependencySelfProblem(
         PsiBuildProblemSource(psiElement = it)
     } ?: @OptIn(NonIdealDiagnostic::class) GlobalBuildProblemSource
     override val message = SchemaBundle.message("dependencies.modules.self", selfDependent.userReadableName)
-    override val level get() = Level.Error
+    override val level: Level get() = Level.Error
+    override val type: BuildProblemType get() = BuildProblemType.Generic
 
     companion object {
         val diagnosticId: BuildProblemId = "module.dependency.self"

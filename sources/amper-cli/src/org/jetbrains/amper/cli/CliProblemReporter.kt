@@ -32,7 +32,7 @@ internal object CliProblemReporter : ProblemReporter {
                 problemsWereReported.set(true)
                 fatalsWereReported.set(true)
             }
-            Level.Redundancy -> {
+            Level.WeakWarning -> {
                 logger.info(renderMessage(message))
             }
         }

@@ -64,12 +64,12 @@ fun collectBuildProblems(graph: DependencyNode, problemReporter: ProblemReporter
 internal fun Message.mapSeverityToLevel(): Level = when (severity) {
     Severity.ERROR -> Level.Error
     Severity.WARNING -> Level.Warning
-    Severity.INFO -> Level.Redundancy
+    Severity.INFO -> Level.WeakWarning
 }
 
 internal fun Level.mapLevelToSeverity(): Severity? = when (this) {
     Level.Fatal -> null                  // DR doesn't report anything that might stop the overall import process
     Level.Error -> Severity.ERROR
     Level.Warning -> Severity.WARNING
-    Level.Redundancy -> Severity.INFO
+    Level.WeakWarning -> Severity.INFO
 }

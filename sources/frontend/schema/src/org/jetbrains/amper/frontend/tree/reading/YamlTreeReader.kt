@@ -41,6 +41,7 @@ import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.hasShorthands
 import org.jetbrains.amper.frontend.types.isSameAs
 import org.jetbrains.amper.frontend.types.toType
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
@@ -67,6 +68,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
                     source = mapping.asBuildProblemSource(),
                     messageKey = "unexpected.yaml.node.type",
                     "mapping", type.toString(),
+                    problemType = BuildProblemType.TypeMismatch,
                 )
                 null
             }
@@ -94,7 +96,8 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
                 problemReporter.reportBundleError(
                     source = sequence.asBuildProblemSource(),
                     messageKey = "unexpected.yaml.node.type",
-                    "sequence", type.toString()
+                    "sequence", type.toString(),
+                    problemType = BuildProblemType.TypeMismatch,
                 )
                 null
             }
@@ -113,7 +116,8 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
                     problemReporter.reportBundleError(
                         source = scalar.asBuildProblemSource(),
                         messageKey = "unexpected.yaml.node.type",
-                        "scalar", type.toString()
+                        "scalar", type.toString(),
+                        problemType = BuildProblemType.TypeMismatch,
                     )
                     null
                 }
@@ -181,6 +185,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
                 source = currentElement.asBuildProblemSource(),
                 messageKey = "unexpected.poly.type",
                 type.declaration.qualifiedName,
+                problemType = BuildProblemType.TypeMismatch,
             )
             return null
         }

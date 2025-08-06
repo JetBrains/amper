@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.single
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -58,7 +59,10 @@ class UselessSettingValue(
     }
 }
 
-private class UselessSetting(trace: Trace, private val precedingTrace: PsiTrace) : PsiBuildProblem(Level.Redundancy) {
+private class UselessSetting(
+    trace: Trace,
+    private val precedingTrace: PsiTrace,
+) : PsiBuildProblem(Level.WeakWarning, BuildProblemType.RedundantDeclaration) {
     override val element: PsiElement = trace.extractPsiElement()
     override val buildProblemId = DiagnosticId
     override val message = SchemaBundle.message(

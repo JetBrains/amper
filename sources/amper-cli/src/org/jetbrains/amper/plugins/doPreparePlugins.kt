@@ -23,6 +23,7 @@ import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.problems.reporting.BuildProblem
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
@@ -132,6 +133,7 @@ private class SchemaError(
     }
     override val message = error.message
     override val level = Level.Error
+    override val type = BuildProblemType.Generic
 }
 
 private val logger = LoggerFactory.getLogger("preparePlugins")

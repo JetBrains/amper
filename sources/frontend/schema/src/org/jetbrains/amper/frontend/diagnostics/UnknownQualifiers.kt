@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.OwnedTree
 import org.jetbrains.amper.frontend.tree.visitValues
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 object UnknownQualifiers : OwnedTreeDiagnostic {
@@ -35,6 +36,7 @@ object UnknownQualifiers : OwnedTreeDiagnostic {
                             ?: return@forEach, // Skip for unknown places.
                         messageKey = "product.unknown.qualifier",
                         it.value,
+                        problemType = BuildProblemType.UnknownSymbol,
                     )
                 }
         }

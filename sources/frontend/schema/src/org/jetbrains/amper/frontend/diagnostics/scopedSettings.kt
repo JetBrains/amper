@@ -24,6 +24,7 @@ import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.OwnedTree
 import org.jetbrains.amper.frontend.tree.visitMapLikeValues
 import org.jetbrains.amper.problems.reporting.BuildProblemId
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -56,8 +57,8 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
             if (prop.pType?.isPlatformAgnostic == true && prop.contexts.platformCtxs().isNotEmpty()) {
                 problemReporter.reportMessage(
                     IncorrectSettingsSection(
-                        prop.value.trace,
-                        "settings.unexpected.platform",
+                        trace = prop.value.trace,
+                        messageKey = "settings.unexpected.platform",
                         level = Level.Error,
                     )
                 )
@@ -73,10 +74,11 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
             if (platforms.leaves.intersect(effectivePlatforms).isEmpty())
                 problemReporter.reportMessage(
                     IncorrectSettingsSection(
-                        prop.value.trace,
-                        "settings.incorrect.platform",
+                        trace = prop.value.trace,
+                        messageKey = "settings.incorrect.platform",
                         effectivePlatforms.joinToString { it.schemaValue },
                         platforms.joinToString { it.schemaValue },
+                        level = Level.Warning,
                     )
                 )
         }
@@ -85,10 +87,11 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
             val usedProductType = minimalModule.product.type
             if (!productTypes.contains(usedProductType)) problemReporter.reportMessage(
                 IncorrectSettingsSection(
-                    prop.value.trace,
-                    "settings.incorrect.product.type",
+                    trace = prop.value.trace,
+                    messageKey = "settings.incorrect.product.type",
                     usedProductType,
                     productTypes.joinToString { it.value },
+                    level = Level.Warning,
                 )
             )
         }
@@ -96,9 +99,11 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
         private fun gradleSpecific() = prop.pType?.specificToGradleMessage?.let { message ->
             problemReporter.reportMessage(
                 IncorrectSettingsSection(
-                    prop.value.trace,
-                    "gradle.specific.unsupported",
+                    trace = prop.value.trace,
+                    messageKey = "gradle.specific.unsupported",
                     message,
+                    level = Level.Warning,
+                    buildProblemType = BuildProblemType.ObsoleteDeclaration,
                 )
             )
         }
@@ -110,8 +115,9 @@ class IncorrectSettingsSection internal constructor(
     val trace: Trace,
     messageKey: String,
     vararg values: Any?,
-    level: Level = Level.Warning,
-) : PsiBuildProblem(level) {
+    level: Level,
+    buildProblemType: BuildProblemType = BuildProblemType.Generic,
+) : PsiBuildProblem(level, buildProblemType) {
     override val message = SchemaBundle.message(messageKey, *values)
     override val buildProblemId: BuildProblemId = IncorrectSettingsLocation.diagnosticId
 

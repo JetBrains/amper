@@ -24,6 +24,7 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.BuildProblemImpl
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
@@ -153,6 +154,7 @@ internal fun parseStringWithReferences(
                 buildProblemId = "STR_REF_UNRESOLVED_TYPE",
                 source = source,
                 message = "Contains unresolved reference: $part",
+                problemType = BuildProblemType.UnresolvedReference,
             )
         }
 
@@ -178,6 +180,7 @@ internal fun parseStringWithReferences(
                     buildProblemId = "STR_REF_UNKNOWN_CURRENT_TASK_PROPERTY",
                     source = source,
                     message = "Unknown current task property '$propertyName': ${match.value}",
+                    problemType = BuildProblemType.UnknownSymbol,
                 )
                 return@forEach
             }
@@ -193,6 +196,7 @@ internal fun parseStringWithReferences(
                     buildProblemId = "STR_REF_UNKNOWN_MODULE_PROPERTY",
                     source = source,
                     message = "Unknown property name '$propertyName': ${match.value}",
+                    problemType = BuildProblemType.UnknownSymbol,
                 )
                 return@forEach
             }
@@ -202,6 +206,7 @@ internal fun parseStringWithReferences(
                     buildProblemId = "STR_REF_UNKNOWN_MODULE",
                     source = source,
                     message = "Unknown module '$modulePath' referenced from '${match.value}'",
+                    problemType = BuildProblemType.UnresolvedReference,
                 )
                 return@forEach
             }
@@ -220,5 +225,9 @@ internal fun parseStringWithReferences(
 }
 
 private fun ProblemReporter.reportMessage(
-    buildProblemId: String, source: BuildProblemSource, message: String, level: Level = Level.Error,
-) = reportMessage(BuildProblemImpl(buildProblemId, source, message, level))
+    buildProblemId: String,
+    source: BuildProblemSource,
+    message: String,
+    level: Level = Level.Error,
+    problemType: BuildProblemType = BuildProblemType.Generic,
+) = reportMessage(BuildProblemImpl(buildProblemId, source, message, level, problemType))
