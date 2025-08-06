@@ -188,7 +188,7 @@ class DependencyFileTest {
                 if (it is MavenDependencyNode && it.module.startsWith("skiko-awt")) {
                     val messages = it.messages.defaultFilterMessages()
                     assertEquals(1, messages.size,
-                        "There must be the only error messages instead of ${messages.size}: $messages")
+                        "Expected exactly one error message instead of ${messages.size}: $messages")
                     val message = assertIs<PlatformsAreNotSupported>(messages.single(),"Unexpected error message")
                     assertEquals(setOf(ResolutionPlatform.MACOS_ARM64), message.unsupportedPlatforms)
                     assertEquals(setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID), message.supportedPlatforms)

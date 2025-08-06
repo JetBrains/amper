@@ -251,8 +251,8 @@ private class ConflictResolver(
     private suspend fun unregisterOrphanNodes(nodes: Set<DependencyNode>) {
         nodes.flatMap {
             it.distinctBfsSequence { child, _ ->
-            // the only parent leads to the unregistered top node
-                // => the node could be unregistered as well with all children
+                // only a single parent leads to the unregistered top node
+                // => the node can be unregistered as well with all children
                 child.parents.size == 1
                         // all parents lead to one of the unregistered top nodes
                         // => the node could be unregistered as well with all children

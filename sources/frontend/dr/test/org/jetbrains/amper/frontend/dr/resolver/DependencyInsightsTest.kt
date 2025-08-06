@@ -21,6 +21,7 @@ import kotlin.io.path.div
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class DependencyInsightsTest : BaseModuleDrTest() {
     override val testGoldenFilesRoot: Path = super.testGoldenFilesRoot / "dependencyInsights"
@@ -182,7 +183,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     val constraintNode = it.overriddenBy.singleOrNull() as? MavenDependencyConstraintNode
                     assertNotNull(
                         constraintNode,
-                        "Expected the only dependency constraint node in 'overriddenBy', but found ${
+                        "Expected exactly one dependency constraint node in 'overriddenBy', but found ${
                             it.overriddenBy.map { it.key }.toSet()
                         }"
                     )
@@ -242,7 +243,11 @@ class DependencyInsightsTest : BaseModuleDrTest() {
             .filter { it.group == "org.jetbrains.kotlinx" && it.module == "kotlinx-coroutines-core" }
             .forEach {
                 if (it.originalVersion() == it.resolvedVersion()) {
-                    assertNull(it.overriddenBy.takeIf { it.isNotEmpty() })
+                    assertTrue(
+                        actual = it.overriddenBy.isEmpty(),
+                        message = "Expected overriddenBy to be empty for ${it.key} since its resolved version " +
+                                "matches the original version ${it.originalVersion()}",
+                    )
                 } else {
                     assertNotNull(
                         it.overriddenBy,
@@ -251,7 +256,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     val dependencyNode = it.overriddenBy.filterIsInstance<MavenDependencyNode>().singleOrNull()
                     assertNotNull(
                         dependencyNode,
-                        "Expected the only dependency node in 'overriddenBy', but found ${
+                        "Expected exactly one MavenDependencyNode in 'overriddenBy', but found ${
                             it.overriddenBy.map { it.key }.toSet()
                         }"
                     )
@@ -262,7 +267,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     val constraintNode = it.overriddenBy.filterIsInstance<MavenDependencyConstraintNode>().singleOrNull()
                     assertNotNull(
                         constraintNode,
-                        "Expected the only constraint node in 'overriddenBy', but found ${
+                        "Expected exactly one MavenDependencyConstraintNode in 'overriddenBy', but found ${
                             it.overriddenBy.map { it.key }.toSet()
                         }"
                     )

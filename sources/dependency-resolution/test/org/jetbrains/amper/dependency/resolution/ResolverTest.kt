@@ -151,7 +151,7 @@ class ResolverTest: BaseDRTest() {
         val node = root.distinctBfsSequence().filterIsInstance<MavenDependencyNode>().single()
         assertEquals(
             1, node.messages.size,
-            "There must be the only error messages instead of ${node.messages.size}: ${node.messages}"
+            "Expected exactly one error message instead of ${node.messages.size}: ${node.messages}"
         )
         
         val expectedErrorPath = Dirs.userCacheRoot.resolve(".m2.cache/com/fasterxml/jackson/core/jackson-core/2.17.2 - ../shared")

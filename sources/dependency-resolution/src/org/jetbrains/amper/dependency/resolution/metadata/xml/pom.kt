@@ -291,8 +291,8 @@ operator fun Dependencies?.plus(other: Dependencies?): Dependencies? {
 operator fun Dependencies.plus(other: Dependencies?): Dependencies {
     val allDependencies = this.dependencies + (other?.dependencies ?: emptyList())
     return Dependencies(
-            // Keep the only dependency constraint per artifact
-            // (closest to the original pom => the first one in the list)
+        // Keep a single dependency constraint per artifact
+        // (closest to the original pom => the first one in the list)
         allDependencies.distinctBy { it.groupId to it.artifactId }
     )
 }

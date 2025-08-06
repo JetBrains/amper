@@ -1224,7 +1224,7 @@ class MavenDependency internal constructor(
      * Each cinterop sourceSet has all available APIs.
      * For instance, macosSourceSet would have not only macOS-related API, but also apple, native and common ones.
      *
-     * This way we have to select the only cinterop sourceSet - the most specific one matching target platforms.
+     * This way we have to select a single cinterop sourceSet - the most specific one matching target platforms.
      *
      * The code is inspired by the similar code from KGP plugin:
      * https://jetbrains.team/p/kt/repositories/kotlin/files/e8edf53610f82ecabfc2f8ae7aea8dc6f68409f2/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/native/internal/CInteropMetadataDependencyClasspath.kt?tab=source&line=66&lines-count=1
@@ -1797,7 +1797,7 @@ class MavenDependency internal constructor(
 
     /**
      * Resolve an effective imported dependencyManagement.
-     * If several dependencies are imported, then those are merged into the only dependencyManagement.
+     * If several dependencies are imported, then those are merged into a single [DependencyManagement] object.
      * The first declared import dependency takes precedence over the second one and so on.
      *
      * Parent poms of imported dependencies are taken into account
