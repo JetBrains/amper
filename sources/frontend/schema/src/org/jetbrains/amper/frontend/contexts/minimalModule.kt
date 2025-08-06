@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
-import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
@@ -40,7 +40,7 @@ class MinimalModule : SchemaNode() {
 
     var aliases by nullableValue<Map<String, Set<TraceableEnum<Platform>>>>()
 
-    @Aliases("templates")
+    @Misnomers("templates")
     var apply by nullableValue<List<TraceablePath>>()
 }
 

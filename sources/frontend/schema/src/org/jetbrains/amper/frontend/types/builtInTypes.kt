@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.types
 
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.Aliases
 import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
@@ -13,6 +12,7 @@ import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.KnownStringValues
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
@@ -203,7 +203,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                         name = prop.name,
                         type = getType(prop.returnType),
                         documentation = prop.findAnnotation<SchemaDoc>()?.doc,
-                        aliases = prop.findAnnotation<Aliases>()?.values?.toSet().orEmpty(),
+                        misnomers = prop.findAnnotation<Misnomers>()?.values?.toSet().orEmpty(),
                         default = prop.valueBase(exampleInstance)?.default,
                         isModifierAware = prop.hasAnnotation<ModifierAware>(),
                         // FIXME Maybe introduce new annotation with meaningful name, or change this one.

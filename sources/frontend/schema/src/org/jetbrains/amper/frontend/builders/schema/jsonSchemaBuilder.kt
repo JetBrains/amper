@@ -102,7 +102,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
             if (specificToProducts.isNotEmpty()) put("productTypes",specificToProducts.jsonArray { it.value })
             if (specificToGradleMessage != null) put("gradleSpecific", JsonPrimitive(true))
             // TODO: standalone specific?
-            if (aliases.isNotEmpty()) put("aliases", aliases.jsonArray { it })
+            if (misnomers.isNotEmpty()) put("misnomers", misnomers.jsonArray { it })
         }
         if (extras.isEmpty()) return this@withIntellijMetadata
         else {

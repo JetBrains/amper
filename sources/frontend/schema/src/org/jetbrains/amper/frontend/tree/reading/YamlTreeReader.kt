@@ -289,7 +289,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         if (prop == null) {
             if (params.reportUnknowns) {
                 val possibleIntendedNames = type.declaration.properties
-                    .filter { pName in it.aliases }
+                    .filter { pName in it.misnomers }
                     .map { it.name }
                 problemReporter.reportMessage(
                     UnknownProperty(

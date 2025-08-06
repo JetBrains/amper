@@ -126,11 +126,13 @@ annotation class Shorthand
 annotation class KnownStringValues(vararg val values: String)
 
 /**
- * Aliases for a property. Used mainly in the IDE (code completion)
+ * Other names that users might try when looking for this property.
+ * These are not valid names for this property, and using them in config files is an error.
+ * However, they can be used to help with completion in the IDE, or for more meaningful error messages.
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Aliases(vararg val values: String)
+annotation class Misnomers(vararg val values: String)
 
 /**
  * Properties annotated with this are ignored in [SchemaNode] in terms of schema generation.

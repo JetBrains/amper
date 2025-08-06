@@ -318,7 +318,7 @@
               "x-intellij-html-description": "Properties file where the keystore data is stored.",
               "title": "Properties file where the keystore data is stored",
               "x-intellij-metadata": {
-                "aliases": [
+                "misnomers": [
                   "keystoreFile"
                 ]
               }
@@ -405,7 +405,7 @@
           "x-intellij-html-description": "The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())",
           "title": "The API level to compile the code. The code can use only the Android APIs up to that API level. )",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "compileApiLevel"
             ]
           }
@@ -469,7 +469,7 @@
           "x-intellij-html-description": "Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "Maximum API level on which the application can run",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "maxApiLevel"
             ]
           }
@@ -533,7 +533,7 @@
           "x-intellij-html-description": "Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "Minimum API level needed to run the application",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "minApiLevel"
             ]
           }
@@ -543,7 +543,7 @@
           "x-intellij-html-description": "A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)",
           "title": "A Kotlin or Java package name for the generated `R` and `BuildConfig` classes",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "packageName"
             ]
           }
@@ -561,7 +561,7 @@
             "productTypes": [
               "android/app"
             ],
-            "aliases": [
+            "misnomers": [
               "packagingOptions"
             ]
           }
@@ -635,7 +635,7 @@
           "x-intellij-html-description": "The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "The target API level for the application",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "targetApiLevel"
             ]
           }
@@ -863,7 +863,7 @@
           "x-intellij-html-description": "Options to pass to annotation processors",
           "title": "Options to pass to annotation processors",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "processorSettings"
             ]
           }
@@ -907,7 +907,7 @@
           "x-intellij-html-description": "Pass any compiler option directly to the Java compiler",
           "title": "Pass any compiler option directly to the Java compiler",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "compilation",
               "arguments",
               "options"
@@ -975,7 +975,7 @@
           "x-intellij-html-description": "The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used.",
           "title": "The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "jdk",
               "source",
               "target",
@@ -996,7 +996,7 @@
           "x-intellij-html-description": "Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection. Behind the scenes, this passes the '-parameters' option to the Java compiler, and the '-java-parameters' option to the Kotlin compiler.",
           "title": "Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection. Behind the scenes, this passes the '-parameters' option to the Java compiler, and the '-java-parameters' option to the Kotlin compiler",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "parameters"
             ]
           }
@@ -1125,7 +1125,7 @@
           "x-intellij-html-description": "Some options to pass to KSP processors. Refer to each processor documentation for details.",
           "title": "Some options to pass to KSP processors. Refer to each processor documentation for details",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "processorSettings"
             ]
           }
@@ -1300,7 +1300,7 @@
           "x-intellij-html-description": "Turn any warnings into a compilation error",
           "title": "Turn any warnings into a compilation error",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "Werror"
             ]
           }
@@ -1316,7 +1316,7 @@
           "x-intellij-html-description": "Allow using declarations only from the specified version of Kotlin bundled libraries",
           "title": "Allow using declarations only from the specified version of Kotlin bundled libraries",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "api-version",
               "sdkVersion"
             ]
@@ -1341,7 +1341,7 @@
           "x-intellij-html-description": "Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly",
           "title": "Pass any compiler option directly",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "compilation",
               "arguments",
               "options"
@@ -1371,7 +1371,7 @@
           "x-intellij-html-description": "Source compatibility with the specified version of Kotlin",
           "title": "Source compatibility with the specified version of Kotlin",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "language-version",
               "version"
             ]
@@ -1428,7 +1428,7 @@
           "x-intellij-html-description": "Suppress the compiler from displaying warnings during compilation",
           "title": "Suppress the compiler from displaying warnings during compilation",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "nowarn"
             ]
           }
@@ -1566,7 +1566,7 @@
           "x-intellij-html-description": "Artifact ID of the published Maven artifact",
           "title": "Artifact ID of the published Maven artifact",
           "x-intellij-metadata": {
-            "aliases": [
+            "misnomers": [
               "artifact"
             ]
           }
@@ -1656,7 +1656,7 @@
               "jvm",
               "android"
             ],
-            "aliases": [
+            "misnomers": [
               "test"
             ]
           }
@@ -1683,7 +1683,7 @@
           "title": "Kover settings for code coverage. Read more about Kover",
           "x-intellij-metadata": {
             "gradleSpecific": true,
-            "aliases": [
+            "misnomers": [
               "coverage"
             ]
           }

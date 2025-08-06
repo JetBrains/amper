@@ -20,7 +20,12 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
         val name: String,
         val type: SchemaType,
         val documentation: String? = null,
-        val aliases: Set<String> = emptySet(),
+        /**
+         * Names that users might try when looking for this property.
+         * These are not valid names for this property, and using them in config files is an error.
+         * They can be used to help with completion in the IDE, or for more meaningful error messages.
+         */
+        val misnomers: Set<String> = emptySet(),
         val default: Default<*>? = null,
         val isModifierAware: Boolean = false,
         val isCtorArg: Boolean = false,

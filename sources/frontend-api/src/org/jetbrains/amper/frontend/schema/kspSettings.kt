@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -22,7 +22,7 @@ class KspSettings : SchemaNode() {
     @SchemaDoc("The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates.")
     var processors by value<List<KspProcessorDeclaration>>(default = emptyList())
 
-    @Aliases("processorSettings")
+    @Misnomers("processorSettings")
     @SchemaDoc("Some options to pass to KSP processors. Refer to each processor documentation for details.")
     var processorOptions by value<Map<TraceableString, TraceableString>>(default = emptyMap())
 }

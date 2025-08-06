@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
@@ -104,24 +104,24 @@ class PowerAssertSettings : SchemaNode() {
 class KotlinSettings : SchemaNode() {
 
     @PlatformAgnostic
-    @Aliases("language-version", "version")
+    @Misnomers("language-version", "version")
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
     var languageVersion by value(KotlinVersion.Kotlin22)
 
     @PlatformAgnostic
-    @Aliases("api-version", "sdkVersion")
+    @Misnomers("api-version", "sdkVersion")
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")
     var apiVersion by dependentValue(::languageVersion)
 
-    @Aliases("Werror")
+    @Misnomers("Werror")
     @SchemaDoc("Turn any warnings into a compilation error")
     var allWarningsAsErrors by value(false)
 
-    @Aliases("compilation", "arguments", "options")
+    @Misnomers("compilation", "arguments", "options")
     @SchemaDoc("Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly")
     var freeCompilerArgs by nullableValue<List<TraceableString>>()
 
-    @Aliases("nowarn")
+    @Misnomers("nowarn")
     @SchemaDoc("Suppress the compiler from displaying warnings during compilation")
     var suppressWarnings by value(false)
 

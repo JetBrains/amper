@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.Aliases
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.DependencyKey
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
@@ -76,7 +76,7 @@ class JavaAnnotationProcessingSettings : SchemaNode() {
     @SchemaDoc("The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates")
     var processors by value<List<JavaAnnotationProcessorDeclaration>>(default = emptyList())
 
-    @Aliases("processorSettings")
+    @Misnomers("processorSettings")
     @SchemaDoc("Options to pass to annotation processors")
     var processorOptions by value<Map<String, TraceableString>>(default = emptyMap())
 }
@@ -109,7 +109,7 @@ class JavaSettings : SchemaNode() {
     @SchemaDoc("Java annotation processing settings")
     var annotationProcessing by value(default = ::JavaAnnotationProcessingSettings)
 
-    @Aliases("compilation", "arguments", "options")
+    @Misnomers("compilation", "arguments", "options")
     @SchemaDoc("Pass any compiler option directly to the Java compiler")
     var freeCompilerArgs by value<List<TraceableString>>(emptyList())
 }
@@ -117,7 +117,7 @@ class JavaSettings : SchemaNode() {
 class JvmSettings : SchemaNode() {
 
     @PlatformAgnostic
-    @Aliases("jdk", "source", "target", "apiVersion")
+    @Misnomers("jdk", "source", "target", "apiVersion")
     @SchemaDoc("The minimum JVM release version that the code should be compatible with. " +
             "This enforces compatibility on 3 levels. " +
             "First, it is used as the target version for the bytecode generated from Kotlin and Java sources. " +
@@ -131,7 +131,7 @@ class JvmSettings : SchemaNode() {
     var mainClass by nullableValue<String>()
 
     @PlatformAgnostic
-    @Aliases("parameters")
+    @Misnomers("parameters")
     @SchemaDoc("Enables storing formal parameter names of constructors and methods in the generated class files. " +
             "These can later be accessed using reflection. Behind the scenes, this passes the '-parameters' option " +
             "to the Java compiler, and the '-java-parameters' option to the Kotlin compiler.")
