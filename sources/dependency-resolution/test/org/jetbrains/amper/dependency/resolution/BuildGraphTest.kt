@@ -85,6 +85,16 @@ class BuildGraphTest : BaseDRTest() {
         )
     }
 
+    /**
+     * This test checks that dependency with an interval version taken from the pom property, like [2.18.2, 2.18.3)
+     * is replaced with the single version and resolved correctly.
+     */
+    @Test
+    fun `org_summerboot jexpress 2_6_0`(testInfo: TestInfo) = runTest {
+        val root = doTestByFile(testInfo)
+        assertFiles(testInfo, root)
+    }
+
 
     /**
      * This test checks that a non-KMP library declared in JVM+Android module won't fail dependency resolution

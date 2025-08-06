@@ -1968,10 +1968,23 @@ internal fun Version.resolve() = strictly?.resolveSingleVersion()
     ?: requires?.resolveSingleVersion()
     ?: prefers?.resolveSingleVersion()
 
-private fun String.resolveSingleVersion() = removeSquareBracketsForSingleValue().takeIf { !it.isInterval() }
+internal fun String.resolveSingleVersion() = removeSquareBracketsForSingleValue()
+    .reduceInterval()
+    .takeIf { !it.isInterval() }
+
 private fun String.isInterval() = startsWith("[") || startsWith("]")
+
 private fun String.removeSquareBracketsForSingleValue() = when {
     startsWith("[") && endsWith("]") && !contains(",") -> substring(1, length - 1)
+    else -> this
+}
+
+/**
+ * Until intervals are fully supported, we try our best to interpret it at least as some viable version
+ */
+private fun String.reduceInterval() = when {
+    startsWith("[") && contains(",") -> substring(1, this.indexOf(","))
+    endsWith("]") && contains(",") -> substring(lastIndexOf(",") + 1, length - 1)
     else -> this
 }
 

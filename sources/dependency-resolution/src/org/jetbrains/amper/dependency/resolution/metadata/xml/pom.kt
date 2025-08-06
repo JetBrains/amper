@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlChildrenName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import org.jetbrains.amper.dependency.resolution.resolveSingleVersion
 
 internal val xml = XML {
     defaultPolicy {
@@ -347,7 +348,7 @@ data class Exclusion(
 fun Dependency.expandTemplates(project: Project): Dependency = copy(
     groupId = groupId.expandTemplate(project),
     artifactId = artifactId.expandTemplate(project),
-    version = version?.expandTemplate(project),
+    version = version?.expandTemplate(project)?.resolveSingleVersion(),
     type = type?.expandTemplate(project),
     scope = scope?.expandTemplate(project),
 )

@@ -18,7 +18,7 @@ internal fun Module.serialize(): String = json.encodeToString(this)
 internal data class Module(
     val formatVersion: String,
     val component: Component,
-    val createdBy: CreatedBy,
+    val createdBy: CreatedBy? = null,
     val variants: List<Variant> = listOf(),
 )
 
