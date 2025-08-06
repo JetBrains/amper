@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.contexts.WithContexts
 import org.jetbrains.amper.frontend.tree.MapLikeValue.Property
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
-import org.jetbrains.amper.frontend.types.aliased
 import kotlin.reflect.KProperty1
 
 /**
@@ -126,7 +125,7 @@ interface MapLikeValue<out TS : TreeState> : TreeValue<TS> {
         val pType: SchemaObjectDeclaration.Property?,
     ) : WithContexts {
         constructor(key: String, kTrace: Trace, value: T, parentType: SchemaObjectDeclaration) :
-                this(key, kTrace, value, parentType.aliased()[key])
+                this(key, kTrace, value, parentType.getProperty(key))
         
         constructor(value: T, kTrace: Trace, pType: SchemaObjectDeclaration.Property) :
                 this(pType.name, kTrace, value, pType)

@@ -39,6 +39,11 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
     )
 
     @Test
+    fun `unknown properties with misnomer`() {
+        diagnoseModuleRead("misnomer-did-you-mean")
+    }
+
+    @Test
     fun `merge with templates`() = testRefineModuleWithTemplates(
         "with-templates",
         selectedContexts = { platformCtxs("jvm") + PathCtx(it, null) },

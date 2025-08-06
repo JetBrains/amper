@@ -113,6 +113,10 @@ private class ExternalObjectDeclaration(
         }
     }
 
+    private val propertiesByName by lazy { properties.associateBy { it.name } }
+
+    override fun getProperty(name: String): SchemaObjectDeclaration.Property? = propertiesByName[name]
+
     override fun createInstance(): SchemaNode = instantiationStrategy()
     override val qualifiedName get() = data.name.qualifiedName
     override fun toString() = qualifiedName

@@ -7,7 +7,7 @@ product {
 
 settings {
   kotlin {
-    version = 1.9
+    languageVersion = 1.9
     serialization {
       format = "json"
       version = "1.5.1"

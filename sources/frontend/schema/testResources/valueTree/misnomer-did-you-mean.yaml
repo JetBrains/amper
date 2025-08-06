@@ -1,0 +1,5 @@
+product: jvm/app
+
+settings:
+  jvm:
+    <![Error] Unknown property 'target'. Did you mean 'release'?!>target<!>: 21

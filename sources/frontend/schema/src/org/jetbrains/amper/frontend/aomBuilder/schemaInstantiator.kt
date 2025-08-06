@@ -10,7 +10,6 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueHolder
 import org.jetbrains.amper.frontend.asBuildProblemSource
-import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
@@ -22,7 +21,6 @@ import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.frontend.types.isValueRequired
-import org.jetbrains.amper.frontend.types.nameAndAliases
 import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -57,8 +55,9 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
     fun createSchemaNode(): Any = tryInstantiate { instance ->
         instance.setTrace(currentValue.trace)
         val declaration = currentType.declaration
+        val propertiesMap = currentValue.asMap
         declaration.properties.forEach { prop ->
-            val child = prop.nameAndAliases().firstNotNullOfOrNull { currentValue.asMap[it] }
+            val child = propertiesMap[prop.name]
             if (child == null && prop.isValueRequired()) {
                 problemReporter.reportBundleError(
                     source = currentValue.trace.asBuildProblemSource(),
@@ -158,5 +157,4 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
     // We can use this transformation here because we treat the tree as already merged,
     // so we are not expecting any duplicating keys.
     private val MapLikeValue<*>.asMap: Map<String, RefinedTree> get() = children.associate { it.key to it.value as RefinedTree }
-    private val RefinedTree.psiElement get() = trace.extractPsiElementOrNull()
 }

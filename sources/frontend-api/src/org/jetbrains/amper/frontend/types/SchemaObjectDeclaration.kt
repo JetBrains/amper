@@ -11,6 +11,9 @@ import org.jetbrains.amper.frontend.schema.ProductType
 
 interface SchemaObjectDeclaration : SchemaTypeDeclaration {
     val properties: List<Property>
+
+    fun getProperty(name: String): Property?
+
     fun createInstance(): SchemaNode
 
     data class Property(

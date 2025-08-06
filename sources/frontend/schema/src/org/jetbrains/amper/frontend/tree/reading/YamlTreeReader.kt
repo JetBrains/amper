@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
 import org.jetbrains.amper.frontend.contexts.TestCtx
+import org.jetbrains.amper.frontend.diagnostics.UnknownProperty
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -37,10 +38,8 @@ import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
-import org.jetbrains.amper.frontend.types.aliased
 import org.jetbrains.amper.frontend.types.hasShorthands
 import org.jetbrains.amper.frontend.types.isSameAs
-import org.jetbrains.amper.frontend.types.nameAndAliases
 import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
@@ -258,7 +257,7 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         val readShorthand = shorthandAware.firstNotNullOfOrNull {
             // `compose: enabled` means that we should set `compose.enabled` setting as `true`.
             val pType = it.type
-            if (pType is SchemaType.BooleanType && scalar.textValue in it.nameAndAliases()) true to it
+            if (pType is SchemaType.BooleanType && scalar.textValue == it.name) true to it
             // `kotlin.serialization: json` means that we should set the `serialization.format` setting as `json`.
             else if (pType is SchemaType.StringType || pType is SchemaType.EnumType)
                 tryReadScalar(scalar.textValue, pType, scalar, report = false)?.to(it)
@@ -286,13 +285,18 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         keyValues: Collection<YAMLKeyValue>,
         origin: PsiElement,
     ) = tryReadAsObjectOrMap(keyValues, origin) out@{ pName, pOrigin ->
-        val prop = type.declaration.aliased()[pName]
+        val prop = type.declaration.getProperty(pName)
         if (prop == null) {
             if (params.reportUnknowns) {
-                problemReporter.reportBundleError(
-                    source = pOrigin.asBuildProblemSource(),
-                    messageKey = "unknown.property",
-                    pName,
+                val possibleIntendedNames = type.declaration.properties
+                    .filter { pName in it.aliases }
+                    .map { it.name }
+                problemReporter.reportMessage(
+                    UnknownProperty(
+                        invalidName = pName,
+                        possibleIntendedNames = possibleIntendedNames,
+                        element = pOrigin,
+                    ),
                 )
             }
             return@out null

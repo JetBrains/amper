@@ -190,6 +190,10 @@ internal abstract class BuiltInTypingContext protected constructor(
 
         override val properties by lazy { parseBuiltInProperties() }
 
+        private val propertiesByName by lazy { properties.associateBy { it.name } }
+
+        override fun getProperty(name: String): SchemaObjectDeclaration.Property? = propertiesByName[name]
+
         protected fun parseBuiltInProperties(): List<SchemaObjectDeclaration.Property> {
             // This is needed to extract default values
             val exampleInstance = backingReflectionClass.createInstance()

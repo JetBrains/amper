@@ -84,7 +84,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.2
+        apiVersion: 1.9
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -223,7 +223,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.2
+        apiVersion: 1.9
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -361,7 +361,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.2
+        apiVersion: 1.9
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -501,7 +501,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.2
+        apiVersion: 1.9
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
