@@ -248,7 +248,7 @@ private class ConflictResolver(
      * // todo (AB) : as a part of conflict resolution winning subgraph, but some will be eliminated (not reachable from the root).
      * // todo (AB) : The question is: how to detect such "stale" parents? how to get rid of them on conflict resolution-loosing subgraphs?
      */
-    private suspend fun unregisterOrphanNodes(nodes: Collection<DependencyNode>) {
+    private suspend fun unregisterOrphanNodes(nodes: Set<DependencyNode>) {
         nodes.flatMap {
             it.distinctBfsSequence { child, _ ->
             // the only parent leads to the unregistered top node
@@ -269,13 +269,11 @@ private class ConflictResolver(
         }
     }
 
-    private fun DependencyNode.isThereAPathToTopBypassing(nodes: Collection<DependencyNode>): Boolean {
+    private fun DependencyNode.isThereAPathToTopBypassing(nodes: Set<DependencyNode>): Boolean {
         if (parents.isEmpty()) return true // we reach the root
 
-        val filteredParents = parents - nodes
-        if (filteredParents.isEmpty()) return false // node has parents, but all of them are among those we should bypass along the way to root
-
-        return filteredParents.any { it.isThereAPathToTopBypassing(nodes) }
+        val nonBypassedParents = parents - nodes
+        return nonBypassedParents.any { it.isThereAPathToTopBypassing(nodes) }
     }
 
     /**
@@ -324,11 +322,11 @@ private class ConflictResolver(
             }
             .awaitAll()
             .flatten()
+            .toSet()
             .also {
                 unregisterOrphanNodes(it)
                 conflictedKeys.clear()
             }
-            .toSet()
             .let {
                 it + (unspecifiedVersionHelper?.resolveVersions() ?: emptyList())
             }
