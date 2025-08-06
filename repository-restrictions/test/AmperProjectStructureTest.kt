@@ -71,6 +71,39 @@ class AmperProjectStructureTest {
     }
 
     @Test
+    fun `modules used in IDEA should apply the IDEA template`() = runTest {
+        val modules = readAmperProjectModel().modules
+
+        // module -> list of ancestors (dependent modules)
+        val ancestorsByModule = modules
+            .flatMap { m ->
+                m.localModulesTransitiveClosure(includeTestDeps = false).map { it to m }
+            }
+            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+
+        fun AmperModule.ancestorsWithIdeaTemplate() = ancestorsByModule
+            .getOrElse(this) { emptyList() }
+            .filter { it.hasIdeaTemplate() }
+
+        val modulesMissingIdeaTemplate = modules.filter { module ->
+            !module.hasIdeaTemplate() && module.ancestorsWithIdeaTemplate().isNotEmpty()
+        }
+
+        if (modulesMissingIdeaTemplate.isNotEmpty()) {
+            val list = modulesMissingIdeaTemplate.joinToString("\n") { module ->
+                "  - ${module.userReadableName} (used in IDEA because of: ${module.ancestorsWithIdeaTemplate().joinToString(", ") { it.userReadableName }})"
+            }
+            fail("The following modules are used in IDEA but didn't apply used-in-idea.module-template.yaml:\n\n$list")
+        }
+    }
+
+    private fun AmperModule.hasIdeaTemplate(): Boolean {
+        // For some reason using any method of VirtualFile leads to a dependency error.
+        // Using toString() is fine, though.
+        return usedTemplates.any { "$it".endsWith("used-in-idea.module-template.yaml") }
+    }
+
+    @Test
     fun `Amper-agnostic library modules don't use the word Amper`() = runTest {
         val invalidLines = readAmperProjectModel()
             .modules
@@ -107,7 +140,7 @@ class AmperProjectStructureTest {
         val invalidDeps = readAmperProjectModel()
             .modules
             .filter { it.isAmperAgnosticLibrary() }
-            .map { it to it.nonLibraryDependencies() }
+            .map { it to it.nonLibraryDependencies(includeTestDeps = true) }
             .filter { it.second.isNotEmpty() }
         if (invalidDeps.isNotEmpty()) {
             fail(
@@ -163,15 +196,31 @@ class AmperProjectStructureTest {
             ?: error("Couldn't read Amper's project model")
     }
 
-    private fun AmperModule.nonLibraryDependencies(includeTestDeps: Boolean = true): List<String> = fragments
-        .let { if (includeTestDeps) it else it.filterNot(Fragment::isTest) }
-        .flatMap { it.externalDependencies }
-        .filterIsInstance<LocalModuleDependency>()
-        .filterNot { it.module.isAmperAgnosticLibrary() }
-        .map { it.module.source.moduleDir?.relativeTo(Dirs.amperCheckoutRoot).toString() }
+    private fun AmperModule.nonLibraryDependencies(includeTestDeps: Boolean): List<String> =
+        localModuleDependencies(includeTestDeps)
+            .filterNot { it.module.isAmperAgnosticLibrary() }
+            .map { it.module.source.moduleDir?.relativeTo(Dirs.amperCheckoutRoot).toString() }
 
     private fun AmperModule.isAmperAgnosticLibrary(): Boolean =
         source.moduleDir?.absolute()?.startsWith(Dirs.amperCheckoutRoot.resolve("sources/libraries")) == true
+
+    private fun AmperModule.localModuleDependencies(includeTestDeps: Boolean): List<LocalModuleDependency> = fragments
+        .let { if (includeTestDeps) it else it.filterNot(Fragment::isTest) }
+        .flatMap { it.externalDependencies }
+        .filterIsInstance<LocalModuleDependency>()
+
+    private fun AmperModule.localModulesTransitiveClosure(includeTestDeps: Boolean): Set<AmperModule> {
+        val visited = mutableSetOf<AmperModule>()
+        val queue = ArrayDeque<AmperModule>()
+        queue.add(this)
+        while (queue.isNotEmpty()) {
+            val module = queue.removeFirst()
+            if (module in visited) continue
+            visited.add(module)
+            queue.addAll(module.localModuleDependencies(includeTestDeps).map { it.module })
+        }
+        return visited - this
+    }
 
     @Test
     fun sameVersionInEveryWrapper() {
