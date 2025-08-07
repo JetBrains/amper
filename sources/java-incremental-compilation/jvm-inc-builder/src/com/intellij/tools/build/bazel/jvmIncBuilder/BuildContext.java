@@ -47,4 +47,6 @@ public interface BuildContext extends DiagnosticSink {
   NodeSourcePathMapper getPathMapper();
 
   BuildProcessLogger getBuildLogger();
+
+  @NotNull Path getClassesOutput();
 }
