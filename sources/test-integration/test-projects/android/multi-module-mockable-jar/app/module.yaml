@@ -1,0 +1,18 @@
+product: android/app
+
+dependencies:
+  - $compose.foundation
+  - $compose.material3
+  # Compose integration with Android activities
+  - androidx.activity:activity-compose:1.7.2
+  - androidx.appcompat:appcompat:1.6.1
+
+test-dependencies:
+  - org.mockito:mockito-core:5.18.0
+  - org.mockito.kotlin:mockito-kotlin:5.4.0
+
+settings:
+  android:
+    namespace: "com.jetbrains.sample.app"
+  compose: enabled
+  junit: junit-4

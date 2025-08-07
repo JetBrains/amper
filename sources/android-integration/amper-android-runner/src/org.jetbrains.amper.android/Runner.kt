@@ -6,6 +6,7 @@ package org.jetbrains.amper.android
 
 import com.android.builder.model.v2.models.AndroidProject
 import kotlinx.serialization.json.Json
+import org.gradle.tooling.ConfigurableLauncher
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.events.ProgressEvent
@@ -24,6 +25,10 @@ import kotlin.io.path.notExists
 import kotlin.io.path.outputStream
 import kotlin.io.path.pathString
 
+private const val DEBUG_JVM_AGENT = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
+
+private fun <T : ConfigurableLauncher<T>> T.addDebugJvmArgumentsIf(debug: Boolean): T =
+    if (debug) addJvmArguments(DEBUG_JVM_AGENT) else this
 
 fun runAndroidBuild(
     buildRequest: AndroidBuildRequest,
@@ -53,7 +58,7 @@ fun runAndroidBuild(
             val lazyArtifacts = buildList {
                 for (target in buildRequest.targets) {
                     val androidProject = androidProjects[target] ?: continue
-                    androidProject.lazyArtifacts(connection, buildRequest).also { addAll(it) }
+                    androidProject.lazyArtifacts(connection, buildRequest, debug).also { addAll(it) }
                     when(buildRequest.phase) {
                         AndroidBuildRequest.Phase.Test -> { /* nothing to do here, just return the artifact */ }
                         else -> {
@@ -128,6 +133,7 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
 private fun AndroidProject.lazyArtifacts(
     connection: ProjectConnection,
     buildRequest: AndroidBuildRequest,
+    debug: Boolean = false
 ): List<LazyArtifact> = buildList {
     for (buildType in buildRequest.buildTypes) {
         variants.filter { it.name == buildType.value }.forEach { variant ->
@@ -149,7 +155,9 @@ private fun AndroidProject.lazyArtifacts(
                 )
 
                 AndroidBuildRequest.Phase.Test -> {
-                    connection.action { it.findModel(MockableJarModel::class.java).file }.run()?.toPath()?.let {
+                    val actionLauncher = connection.action { it.findModel(MockableJarModel::class.java).file }
+                        .addDebugJvmArgumentsIf(debug)
+                    actionLauncher.run()?.toPath()?.let {
                         add(DirectLazyArtifact(it))
                     }
                 }
@@ -213,11 +221,9 @@ private fun ProjectConnection.runBuild(
         )
     }
 
-    if (debug) {
-        buildLauncher.addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
-    }
-
-    buildLauncher.run()
+    buildLauncher
+        .addDebugJvmArgumentsIf(debug)
+        .run()
 }
 
 private fun ProjectConnection.extractAndroidProjectModelsFromBuild(debug: Boolean): Map<String, AndroidProject> {
@@ -237,9 +243,7 @@ private fun ProjectConnection.extractAndroidProjectModelsFromBuild(debug: Boolea
         }
     }
 
-    if (debug) {
-        actionLauncher.addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
-    }
-
-    return actionLauncher.run()
+    return actionLauncher
+        .addDebugJvmArgumentsIf(debug)
+        .run()
 }

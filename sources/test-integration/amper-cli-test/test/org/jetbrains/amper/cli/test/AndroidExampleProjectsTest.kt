@@ -193,6 +193,16 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `mockable jar unit tests in multi-module setup`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("android/multi-module-mockable-jar"),
+            "test",
+            assertEmptyStdErr = false // Allow stderr output from Mockito warnings
+        )
+        result.assertStdoutContains("5 tests successful")
+    }
+
+    @Test
     fun `robolectric unit tests`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("android/robolectric"),

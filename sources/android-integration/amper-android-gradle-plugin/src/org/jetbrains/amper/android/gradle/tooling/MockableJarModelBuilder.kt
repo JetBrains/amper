@@ -20,22 +20,32 @@ data class DefaultMockableJarModel(override val file: File?) : MockableJarModel
 class MockableJarModelBuilder : ToolingModelBuilder {
     override fun canBuild(modelName: String): Boolean = modelName == MockableJarModel::class.java.name
 
-    override fun buildAll(modelName: String, project: Project): MockableJarModel =
-        DefaultMockableJarModel(
-            project
+    override fun buildAll(modelName: String, project: Project): MockableJarModel {
+        return DefaultMockableJarModel(findFirstMockableJar(project))
+    }
+
+    private fun findFirstMockableJar(project: Project): File? {
+        for (currentProject in project.allprojects) {
+            val mockableJar = currentProject
                 .configurations
-                .named(VariantDependencies.CONFIG_NAME_ANDROID_APIS)
-                .get()
-                .incoming
-                .artifactView {
+                .findByName(VariantDependencies.CONFIG_NAME_ANDROID_APIS)
+                ?.incoming
+                ?.artifactView {
                     it.attributes { attributeContainer ->
                         attributeContainer
                             .attribute(ARTIFACT_TYPE_ATTRIBUTE, TYPE_MOCKABLE_JAR)
                             .attribute(MOCKABLE_JAR_RETURN_DEFAULT_VALUES, true)
                     }
                 }
-                .files
-                .toList()
-                .firstOrNull()
-        )
+                ?.files
+                ?.toList()
+                ?.firstOrNull()
+            
+            if (mockableJar != null) {
+                return mockableJar
+            }
+        }
+        
+        return null
+    }
 }
