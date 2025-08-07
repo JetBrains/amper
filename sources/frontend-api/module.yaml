@@ -8,7 +8,7 @@ apply:
 
 dependencies:
   - ../amper-problem-reporting
-  - ../core
+  - ../core: exported
   - $libs.kotlin.reflect
   - $libs.intellij.platform.core
   - $libs.intellij.platform.util

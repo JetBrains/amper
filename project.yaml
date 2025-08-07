@@ -23,7 +23,8 @@ modules:
   - sources/dependency-resolution
   - sources/extensibility/amper-extensibility-api
   - sources/extensibility/amper-extensibility-schema-model
-  - sources/extensibility/amper-schema-instrumentator
+  - sources/extensibility/amper-schema-processing
+  - sources/extensibility/amper-schema-processor
   - sources/frontend-api
   - sources/frontend/dr
   - sources/frontend/plain/amper-psi

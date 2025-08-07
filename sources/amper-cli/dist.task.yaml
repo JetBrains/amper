@@ -5,7 +5,7 @@ module: ../../build-sources/build-dist
 programArguments:
   - --output-dir=${outputDirectory}
   - --classpath=${module(.).runtimeClasspathJvm}
-  - --extra-dir=plugins-processor=${module(../extensibility/amper-schema-instrumentator).runtimeClasspathJvm}
+  - --extra-dir=plugins-processor=${module(../extensibility/amper-schema-processor).runtimeClasspathJvm}
   - --extra-dir=extensibility-api=${module(../extensibility/amper-extensibility-api).runtimeClasspathJvm}
 
 publishArtifact:

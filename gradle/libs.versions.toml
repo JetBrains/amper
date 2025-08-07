@@ -72,11 +72,19 @@ junit-engine-vintage = { module = "org.junit.vintage:junit-vintage-engine", vers
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 junit-platform-reporting = { module = "org.junit.platform:junit-platform-reporting", version.ref = "junit-platform" }
+kotlin-analysis-api-fir-for-ide = { module = "org.jetbrains.kotlin:low-level-api-fir-for-ide", version.ref = "kotlin" }
+kotlin-analysis-api-for-ide = { module = "org.jetbrains.kotlin:analysis-api-for-ide", version.ref = "kotlin" }
+kotlin-analysis-api-impl-base-for-ide = { module = "org.jetbrains.kotlin:analysis-api-impl-base-for-ide", version.ref = "kotlin" }
+kotlin-analysis-api-k2-for-ide = { module = "org.jetbrains.kotlin:analysis-api-k2-for-ide", version.ref = "kotlin" }
+kotlin-analysis-api-platform-interface-for-ide = { module = "org.jetbrains.kotlin:analysis-api-platform-interface-for-ide", version.ref = "kotlin" }
+kotlin-analysis-api-standalone-for-ide = { module = "org.jetbrains.kotlin:analysis-api-standalone-for-ide", version.ref = "kotlin" }
 kotlin-buildToolsApi = { module = "org.jetbrains.kotlin:kotlin-build-tools-api", version.ref = "kotlin" }
+kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
 kotlin-compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+kotlin-symbol-light-classes-for-ide = { module = "org.jetbrains.kotlin:symbol-light-classes-for-ide", version.ref = "kotlin" }
 kotlinx-collections = { module="org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm", version.ref="kotlinx-collections" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-debug", version.ref = "kotlinx-coroutines" }

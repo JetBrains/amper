@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 /**
  * Contains all the knowledge about a plugin that is required for the frontend to function.
  *
- * - This includes the general plugin information: [id], [pluginModuleRoot], [description]
+ * - This includes the general plugin information: [id], [description]
  * - Information about the `module.yaml` schema extension for the plugin:
  *   [moduleExtensionSchemaName] (may be absent if plugin has no user configuration).
  * - Schema types descriptions: [enumTypes], [classTypes]
@@ -19,7 +19,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PluginData(
     val id: Id,
-    val pluginModuleRoot: String,
     val moduleExtensionSchemaName: SchemaName? = null,
     val description: String? = null,
     val enumTypes: List<EnumData> = emptyList(),
@@ -69,7 +68,6 @@ data class PluginData(
             val doc: String? = null,
         )
     }
-
 
     @Serializable
     sealed interface Type {

@@ -1,0 +1,13 @@
+product: jvm/app
+
+apply:
+  - ../../common.module-template.yaml
+  - ../uses-aa.module-template.yaml
+
+settings:
+  kotlin:
+    serialization: json
+
+dependencies:
+  - ../amper-schema-processing
+  - $libs.kotlin.analysis.api.standalone.for.ide

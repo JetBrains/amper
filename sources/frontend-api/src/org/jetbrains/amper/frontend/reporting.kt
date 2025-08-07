@@ -65,6 +65,13 @@ fun getLineAndColumnRangeInPsiFile(node: PsiElement): LineAndColumnRange {
     )
 }
 
+fun getLineAndColumnRangeInDocument(document: Document, range: IntRange): LineAndColumnRange {
+    return LineAndColumnRange(
+        offsetToLineAndColumn(document, range.first),
+        offsetToLineAndColumn(document, range.last),
+    )
+}
+
 private fun offsetToLineAndColumn(
     document: Document?,
     offset: Int

@@ -52,11 +52,10 @@ internal fun BuildCtx.buildPlugins(
 ) {
     val plugins = buildList {
         for (pluginData in pluginData) {
-            val pluginModuleRoot = projectContext.projectRootDir.toNioPath() / pluginData.pluginModuleRoot
-
             val pluginModule = result.first {
-                it.moduleFile.parent.toNioPath() == pluginModuleRoot
+                it.moduleCtxModule.plugin?.id == pluginData.id.value
             }
+            val pluginModuleRoot = pluginModule.moduleFile.parent.toNioPath()
             val pluginFile = pluginModuleRoot / "plugin.yaml"
             if (!pluginFile.isRegularFile()) {
                 // We assume for now that missing plugin.yaml is a valid scenario

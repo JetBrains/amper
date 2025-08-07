@@ -1,0 +1,23 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+apply:
+  - ../../common.module-template.yaml
+  - ../../used-in-idea.module-template.yaml
+  - ../uses-aa.module-template.yaml
+
+dependencies:
+  - ../amper-extensibility-schema-model: exported
+
+  - $libs.kotlin.analysis.api.for.ide: exported
+  - $libs.kotlin.compiler: exported
+
+  - $libs.kotlin.analysis.api.impl.base.for.ide: runtime-only
+  - $libs.kotlin.analysis.api.k2.for.ide: runtime-only
+  - $libs.kotlin.analysis.api.fir.for.ide: runtime-only
+  - $libs.kotlin.analysis.api.platform.interface.for.ide: runtime-only
+  - $libs.kotlin.symbol.light.classes.for.ide: runtime-only
+  - com.github.ben-manes.caffeine:caffeine:2.9.3: runtime-only  # required for AA but is missing in deps somehow.
+

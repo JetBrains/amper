@@ -1,0 +1,18 @@
+repositories:
+  - id: kotlin-ide-plugin-dependencies
+    url: https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies
+
+settings:
+  internal:
+    excludeDependencies:
+      # this is a list of broken (unpublished) AA dependencies. See KT-61419.
+      - org.jetbrains.kotlin:analysis-api
+      - org.jetbrains.kotlin:analysis-api-impl-base
+      - org.jetbrains.kotlin:analysis-api-fir
+      - org.jetbrains.kotlin:analysis-api-fir-standalone-base
+      - org.jetbrains.kotlin:analysis-api-platform-interface
+      - org.jetbrains.kotlin:analysis-api-standalone
+      - org.jetbrains.kotlin:analysis-api-standalone-base
+      - org.jetbrains.kotlin:analysis-internal-utils
+      - org.jetbrains.kotlin:low-level-api-fir
+      - org.jetbrains.kotlin:symbol-light-classes

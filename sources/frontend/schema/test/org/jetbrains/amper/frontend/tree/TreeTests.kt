@@ -84,7 +84,6 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
     private fun testPluginData(): List<PluginData> = listOf(
         PluginData(
             id = PluginData.Id("myPlugin"),
-            pluginModuleRoot = ".",
             moduleExtensionSchemaName = PluginData.SchemaName("com.example.CustomPluginSchema"),
             classTypes = listOf(
                 PluginData.ClassData(
