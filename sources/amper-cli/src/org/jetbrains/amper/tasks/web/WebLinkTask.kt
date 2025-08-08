@@ -14,7 +14,8 @@ import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.ResolvedCompilerPlugin
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinModuleName
-import org.jetbrains.amper.compilation.mergedKotlinSettings
+import org.jetbrains.amper.compilation.serializableKotlinSettings
+import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
@@ -29,12 +30,14 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.native.filterKLibs
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
@@ -96,17 +99,25 @@ internal abstract class WebLinkTask(
             .filterIsInstance<WebCompileKlibTask.Result>()
             .firstOrNull { it.taskName == compileKLibTaskName }
             ?.compiledKlib
-            ?: error("The result of the klib compilation task (${compileKLibTaskName.name}) was not found")
+
+        if (includeArtifact == null && isTest) {
+            // We may skip linking for test specifically if there's no compiled code in the fragments.
+            // Libraries are of no interest here because they can't contain any tests
+            logger.info("No test code was found compiled for ${fragments.identificationPhrase()}, skipping linking")
+            return Result(
+                linkedBinary = null,
+            )
+        }
 
         val compileKLibDependencies = dependenciesResult
             .filterIsInstance<WebCompileKlibTask.Result>()
             .filter { it.taskName != compileKLibTaskName }
 
-        val compileKLibs = compileKLibDependencies.map { it.compiledKlib }
+        val compileKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
 
         // TODO kotlin version settings
         val kotlinVersion = UsedVersions.kotlinVersion
-        val kotlinUserSettings = fragments.mergedKotlinSettings()
+        val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("${expectedPlatform.name} link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
@@ -116,7 +127,7 @@ internal abstract class WebLinkTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val inputs = listOf(includeArtifact) + compileKLibs
+        val inputs = compileKLibs + listOfNotNull(includeArtifact)
 
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
@@ -129,7 +140,7 @@ internal abstract class WebLinkTask(
                 jdk,
                 kotlinVersion = kotlinVersion,
                 kotlinUserSettings = kotlinUserSettings,
-                librariesPaths = compileKLibs + externalKLibs + listOf(includeArtifact),
+                librariesPaths = externalKLibs + inputs,
                 includeArtifact = includeArtifact,
             )
 
@@ -183,8 +194,8 @@ internal abstract class WebLinkTask(
                     classpath = compilerJars,
                     programArgs = compilerArgs,
                     jvmArgs = listOf(),
+                    argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
                     outputListener = LoggingProcessOutputListener(logger),
-                    tempRoot = tempRoot,
                 )
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin ${expectedPlatform.name} linking failed (see errors above)")
@@ -207,7 +218,7 @@ internal abstract class WebLinkTask(
     ): List<String>
 
     class Result(
-        val linkedBinary: Path,
+        val linkedBinary: Path?,
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

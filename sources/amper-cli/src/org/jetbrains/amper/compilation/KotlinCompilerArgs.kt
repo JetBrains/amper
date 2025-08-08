@@ -265,7 +265,6 @@ internal fun kotlinNativeCompilerArgs(
     }
 }
 
-context(BuildTask)
 internal fun kotlinWasmJsCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
     compilerPlugins: List<ResolvedCompilerPlugin>,
@@ -299,7 +298,6 @@ internal fun kotlinWasmJsCompilerArgs(
     )
 }
 
-context(BuildTask)
 internal fun kotlinJsCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
     compilerPlugins: List<ResolvedCompilerPlugin>,
@@ -334,7 +332,6 @@ internal fun kotlinJsCompilerArgs(
     )
 }
 
-context(BuildTask)
 private fun kotlinWebCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
     compilerPlugins: List<ResolvedCompilerPlugin>,

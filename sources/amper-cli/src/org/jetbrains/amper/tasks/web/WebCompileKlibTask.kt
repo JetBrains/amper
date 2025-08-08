@@ -14,7 +14,9 @@ import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.ResolvedCompilerPlugin
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinModuleName
-import org.jetbrains.amper.compilation.mergedKotlinSettings
+import org.jetbrains.amper.compilation.serializableKotlinSettings
+import org.jetbrains.amper.compilation.singleLeafFragment
+import org.jetbrains.amper.compilation.validSourceFileExtensions
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
@@ -29,6 +31,7 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -39,6 +42,7 @@ import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
+import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.native.filterKLibs
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
@@ -46,10 +50,9 @@ import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.createTempFile
-import kotlin.io.path.deleteExisting
-import kotlin.io.path.exists
+import kotlin.io.path.extension
 import kotlin.io.path.pathString
+import kotlin.io.path.walk
 
 internal abstract class WebCompileKlibTask(
     override val module: AmperModule,
@@ -109,12 +112,12 @@ internal abstract class WebCompileKlibTask(
         val compileModuleDependencies = dependenciesResult.filterIsInstance<Result>()
 
         val compiledKlibModuleDependencies = compileModuleDependencies
-            .map { it.compiledKlib }
+            .mapNotNull { it.compiledKlib }
             .toList()
 
         // TODO kotlin version settings
         val kotlinVersion = UsedVersions.kotlinVersion
-        val kotlinUserSettings = fragments.mergedKotlinSettings()
+        val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("${expectedPlatform.name} compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
@@ -148,38 +151,31 @@ internal abstract class WebCompileKlibTask(
 
             val artifact = taskOutputRoot.path
 
-            val tempFilesToDelete = mutableListOf<Path>()
-
-            try {
-                val existingSourceRoots = sources.filter { it.exists() }
-                val rootsToCompile = existingSourceRoots.ifEmpty {
-                    // konanc does not want to compile an application with zero sources files,
-                    // but it's a perfectly valid situation where all code is in shared libraries
-                    val emptyKotlinFile = createTempFile(tempRoot.path, "empty", ".kt")
-                        .also { tempFilesToDelete.add(it) }
-                    listOf(emptyKotlinFile)
-                }
-
-                compileSources(
-                    jdk = jdk,
-                    kotlinVersion = kotlinVersion,
-                    kotlinUserSettings = kotlinUserSettings,
-                    sourceDirectories = rootsToCompile,
-                    fragments = if (existingSourceRoots.isEmpty()) emptyList() else fragments,
-                    additionalSourceRoots = additionalSources,
-                    librariesPaths = libraryPaths,
-                    friendPaths = listOfNotNull(productionCompileResult?.compiledKlib),
-                )
-
-                logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
-            } finally {
-                for (tempPath in tempFilesToDelete) {
-                    tempPath.deleteExisting()
-                }
+            // in Kotlin >= 2.2, we need to list all source files (not just dirs)
+            val sourceFiles = sources.flatMap { dir ->
+                // Kotlin IR compiler only accepts *.kt files, and we need to align with fragment arguments
+                dir.walk().filter { it.extension in validSourceFileExtensions }
+            }
+            if (sourceFiles.isEmpty()) {
+                logger.debug("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
+                return@execute ExecuteOnChangedInputs.ExecutionResult(emptyList())
             }
 
+            compileSources(
+                jdk = jdk,
+                kotlinVersion = kotlinVersion,
+                kotlinUserSettings = kotlinUserSettings,
+                sourceFiles = sourceFiles,
+                fragments = fragments,
+                additionalSourceRoots = additionalSources,
+                librariesPaths = libraryPaths,
+                friendPaths = listOfNotNull(productionCompileResult?.compiledKlib),
+            )
+
+            logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
+
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifact))
-        }.outputs.single()
+        }.outputs.singleOrNull()
 
         return Result(
             compiledKlib = artifact,
@@ -193,7 +189,7 @@ internal abstract class WebCompileKlibTask(
         jdk: Jdk,
         kotlinVersion: String,
         kotlinUserSettings: KotlinUserSettings,
-        sourceDirectories: List<Path>,
+        sourceFiles: List<Path>,
         fragments: List<Fragment>,
         additionalSourceRoots: List<SourceRoot>,
         librariesPaths: List<Path>,
@@ -210,8 +206,8 @@ internal abstract class WebCompileKlibTask(
             libraryPaths = librariesPaths,
             outputPath = taskOutputRoot.path,
             friendPaths = friendPaths,
-            fragments = if (sourceDirectories.isEmpty()) emptyList() else fragments,
-            sourceFiles = sourceDirectories,
+            fragments = fragments,
+            sourceFiles = sourceFiles,
             additionalSourceRoots = additionalSourceRoots,
             moduleName = module.kotlinModuleName(isTest),
             include = null,
@@ -219,7 +215,7 @@ internal abstract class WebCompileKlibTask(
         )
         spanBuilder("kotlin-${expectedPlatform.name.lowercase()}-compilation")
             .setAmperModule(module)
-            .setListAttribute("source-dirs", sourceDirectories.map { it.pathString })
+            .setListAttribute("source-dirs", sourceFiles.map { it.pathString })
             .setAttribute("compiler-version", kotlinVersion)
             .setListAttribute("compiler-args", compilerArgs)
             .use {
@@ -230,8 +226,8 @@ internal abstract class WebCompileKlibTask(
                     classpath = compilerJars,
                     programArgs = compilerArgs,
                     jvmArgs = listOf(),
+                    argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
                     outputListener = LoggingProcessOutputListener(logger),
-                    tempRoot = tempRoot,
                 )
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin ${expectedPlatform.name} compilation failed (see errors above)")
@@ -254,7 +250,7 @@ internal abstract class WebCompileKlibTask(
     ): List<String>
 
     class Result(
-        val compiledKlib: Path,
+        val compiledKlib: Path?,
         val module: AmperModule,
         val isTest: Boolean,
         val taskName: TaskName,
