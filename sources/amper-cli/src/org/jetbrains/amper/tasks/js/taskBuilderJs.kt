@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.js
 
-import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
@@ -52,7 +51,6 @@ fun ProjectTasksBuilder.setupJsTasks() {
                         taskName = linkAppTaskName,
                         tempRoot = context.projectTempRoot,
                         isTest = isTest,
-                        compilationType = KotlinCompilationType.BINARY,
                         compileKLibTaskName = compileKLibTaskName,
                     ),
                     dependsOn = buildList {

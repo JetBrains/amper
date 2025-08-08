@@ -32,7 +32,6 @@ internal class JsLinkTask(
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
     buildType: BuildType? = null,
-    compilationType: KotlinCompilationType,
     compileKLibTaskName: TaskName,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
@@ -46,7 +45,6 @@ internal class JsLinkTask(
     tempRoot,
     isTest,
     buildType,
-    compilationType,
     compileKLibTaskName,
     kotlinArtifactsDownloader,
 ) {

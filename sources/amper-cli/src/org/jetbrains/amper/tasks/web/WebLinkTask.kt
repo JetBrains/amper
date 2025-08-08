@@ -57,7 +57,6 @@ internal abstract class WebLinkTask(
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
     override val buildType: BuildType? = null,
-    val compilationType: KotlinCompilationType,
     /**
      * The name of the task that produces the klib for the sources of this module.
      */
@@ -74,7 +73,6 @@ internal abstract class WebLinkTask(
     init {
         require(platform.isLeaf)
         require(platform.isDescendantOf(expectedPlatform))
-        require(compilationType == KotlinCompilationType.BINARY)
     }
 
     override suspend fun run(
@@ -173,7 +171,7 @@ internal abstract class WebLinkTask(
             sourceFiles = emptyList(),
             additionalSourceRoots = emptyList(),
             moduleName = module.kotlinModuleName(isTest),
-            compilationType = compilationType,
+            compilationType = KotlinCompilationType.BINARY,
             include = includeArtifact,
         )
 
