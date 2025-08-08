@@ -1,1 +1,1 @@
-actual fun getWorld(): String = "JS World"
+actual fun getWorld(): String = "WasmJs World"
