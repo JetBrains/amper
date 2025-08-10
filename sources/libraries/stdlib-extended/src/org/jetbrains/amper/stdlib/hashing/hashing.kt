@@ -19,11 +19,9 @@ fun String.sha256(): ByteArray = encodeToByteArray().sha256()
 /**
  * Returns the SHA-256 hash of these bytes, as a hexadecimal string.
  */
-@OptIn(ExperimentalStdlibApi::class)
 fun ByteArray.sha256String(): String = sha256().toHexString()
 
 /**
  * Returns the SHA-256 hash of the UTF-8 representation of this string, as a hexadecimal string.
  */
-@OptIn(ExperimentalStdlibApi::class)
 fun String.sha256String(): String = sha256().toHexString()
