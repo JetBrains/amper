@@ -29,7 +29,7 @@ internal abstract class AmperProjectAwareCommand(name: String) : AmperSubcommand
             LoggingInitializer.setupFileLogging(cliContext.currentLogsRoot)
 
             if (commonOptions.asyncProfiler) {
-                AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.buildOutputRoot)
+                AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.userCacheRoot)
             }
         }
 

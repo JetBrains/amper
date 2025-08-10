@@ -6,13 +6,12 @@ package org.jetbrains.amper.diagnostics
 
 import one.profiler.AsyncProfiler
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
-import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.stdlib.hashing.sha256String
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.fileSize
 import kotlin.io.path.isRegularFile
@@ -20,8 +19,8 @@ import kotlin.io.path.pathString
 import kotlin.io.path.writeBytes
 
 object AsyncProfilerMode {
-    fun attachAsyncProfiler(logsDir: AmperBuildLogsRoot, buildOutputRoot: AmperBuildOutputRoot) {
-        val profiler = getInstanceWithCachedLib(cacheDir = buildOutputRoot.path)
+    fun attachAsyncProfiler(logsDir: AmperBuildLogsRoot, userCacheRoot: AmperUserCacheRoot) {
+        val profiler = getInstanceWithCachedLib(userCacheRoot = userCacheRoot)
 
         val snapshotFile = logsDir.path.resolve("async-profiler-snapshot.jfr")
         val startCommand = "start,file=$snapshotFile,event=wall,interval=10ms,jfr,jfrsync=profile"
@@ -31,7 +30,7 @@ object AsyncProfilerMode {
         logger.info("Async profiler started, snapshot file: $snapshotFile")
     }
 
-    private fun getInstanceWithCachedLib(cacheDir: Path): AsyncProfiler {
+    private fun getInstanceWithCachedLib(userCacheRoot: AmperUserCacheRoot): AsyncProfiler {
         val name = getLibFilename()
         val resourceName = "binaries/${getPlatformId()}/$name"
         val resourceStream = javaClass.classLoader.getResourceAsStream(resourceName)
@@ -40,7 +39,7 @@ object AsyncProfilerMode {
         val libBytes = resourceStream.use { stream -> stream.readAllBytes() }
         val libSha256 = libBytes.sha256String()
 
-        val libFile = cacheDir / "libasyncProfiler" / libSha256 / name
+        val libFile = userCacheRoot.path / "libasyncProfiler" / libSha256 / name
         // do not overwrite file unless absolutely necessary
         // on Windows you can't overwrite an open file or a loaded library
         if (!libFile.isRegularFile() || libFile.fileSize() != libBytes.size.toLong()) {
