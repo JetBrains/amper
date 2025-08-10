@@ -10,13 +10,15 @@ import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.util.DateTimeFormatForFilenames
+import org.jetbrains.amper.util.nowInDefaultTimezone
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
 import kotlin.io.path.Path
@@ -32,9 +34,10 @@ object TelemetryEnvironment {
      * It has to be unique, and somehow convey which project/command it came from.
      */
     private val userLevelTracesFilename: String by lazy {
-        val datetime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd_HH-mm-ss_SSS"))
+        val datetime = LocalDateTime.nowInDefaultTimezone().format(DateTimeFormatForFilenames)
+        val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
         val workingDirName = Path(".").absolute().normalize().name
-        "opentelemetry_traces_${datetime}_${workingDirName.take(20)}.jsonl"
+        "opentelemetry_traces_${datetime}_${pid}_${workingDirName.take(20)}.jsonl"
     }
 
     private var movableFileOutputStream: MovableFileOutputStream? = null
