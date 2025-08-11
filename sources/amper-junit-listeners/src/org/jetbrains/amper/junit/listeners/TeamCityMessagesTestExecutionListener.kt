@@ -152,7 +152,7 @@ class TeamCityMessagesTestExecutionListener(
             TestDescriptor.Type.TEST,
             TestDescriptor.Type.CONTAINER_AND_TEST -> {
                 when (testExecutionResult.status) {
-                    TestExecutionResult.Status.SUCCESSFUL -> {} // just 'finished' is considered success
+                    TestExecutionResult.Status.SUCCESSFUL -> {} // just 'finished' is considered a success
                     TestExecutionResult.Status.FAILED -> {
                         emit(testFailedMessage(testIdentifier, testExecutionResult, "Test failed without exception"))
                     }

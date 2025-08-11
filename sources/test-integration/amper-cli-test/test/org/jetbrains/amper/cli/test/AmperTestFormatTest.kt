@@ -21,6 +21,40 @@ private val NL = System.lineSeparator()
 class AmperTestFormatTest : AmperCliTestBase() {
 
     @Test
+    fun `pretty CLI output format should be used by default`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("jvm-failed-test"),
+            "test",
+            assertEmptyStdErr = false,
+            expectedExitCode = 1,
+        )
+        r.assertStdoutContains("""
+            Started FailedTest
+            Started doTest()
+            Passed doTest()
+            Started shouldFail()
+            Failed shouldFail()
+                       => Exception: org.opentest4j.AssertionFailedError: Expected value to be true.
+                            at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:38)
+                            at org.junit.jupiter.api.Assertions.fail(Assertions.java:138)
+                            at kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)
+                            at kotlin.test.Asserter.assertTrue(Assertions.kt:694)
+                            at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
+                            at kotlin.test.Asserter.assertTrue(Assertions.kt:704)
+                            at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
+                            at kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)
+                            at kotlin.test.AssertionsKt.assertTrue(Unknown Source)
+                            at kotlin.test.AssertionsKt__AssertionsKt.assertTrue${'$'}default(Assertions.kt:42)
+                            at kotlin.test.AssertionsKt.assertTrue${'$'}default(Unknown Source)
+                            at FailedTest.shouldFail(tests.kt:12)
+                            at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+                            at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+                            at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+            Completed FailedTest
+        """.trimIndent(), expectedOccurrences = 1)
+    }
+
+    @Test
     fun `junit 4 tests should print teamcity service messages`() {
         runSlowTest {
             val r = runCli(

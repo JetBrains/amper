@@ -235,7 +235,9 @@ class AmperTestBasicTest : AmperCliTestBase() {
         val projectContext = testProject("ktor-kodein")
         val result = runCli(projectRoot = projectContext, "test")
 
+        result.assertStdoutContains("Started KodeinSimpleApplicationTest")
         result.assertStdoutContains("Passed testProvideFakeRandom")
+        result.assertStdoutContains("Completed KodeinSimpleApplicationTest")
         result.assertStdoutContains("1 tests successful")
     }
 
@@ -246,7 +248,9 @@ class AmperTestBasicTest : AmperCliTestBase() {
         // TODO: attach mockito as agent explicitly
         val result = runCli(projectRoot = projectRoot, "test", assertEmptyStdErr = false)
 
-        result.assertStdoutContains("Passed DemoApplicationTests")
+        result.assertStdoutContains("Started DemoApplicationTests")
+        result.assertStdoutContains("Passed contextLoads")
+        result.assertStdoutContains("Completed DemoApplicationTests")
         result.assertStdoutContains("1 tests successful")
     }
 }

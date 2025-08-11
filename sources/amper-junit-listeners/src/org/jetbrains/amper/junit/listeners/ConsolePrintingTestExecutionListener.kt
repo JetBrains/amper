@@ -64,7 +64,7 @@ class ConsolePrintingTestExecutionListener(
         if (shouldIgnore(testIdentifier)) {
             return
         }
-        val event = TestEvent.forResult(testExecutionResult)
+        val event = TestEvent.forResult(testExecutionResult, testIdentifier.isContainer)
         printEvent(event = event, testIdentifier)
         testExecutionResult.throwable.ifPresent { t ->
             printlnMessage(event.style, "Exception", readStackTrace(t))
@@ -110,7 +110,7 @@ class ConsolePrintingTestExecutionListener(
         terminal.println(message.withStyle(style))
     }
 
-    private fun String.withStyle(style: TextStyle?): String? = style?.invoke(this) ?: this
+    private fun String.withStyle(style: TextStyle?): String = style?.invoke(this) ?: this
 
     companion object {
         private val columnWidth: Int = TestEvent.entries.maxOf { it.displayName.length }
@@ -120,6 +120,7 @@ class ConsolePrintingTestExecutionListener(
 
 private enum class TestEvent(val displayName: String, val style: TextStyle? = null) {
     ContainerStarted("Started", Theme.Default.info),
+    ContainerFinished("Completed", Theme.Default.info),
     TestStarted("Started"),
     Skipped("Skipped", Theme.Default.muted),
     Failed("Failed", Theme.Default.danger),
@@ -128,10 +129,11 @@ private enum class TestEvent(val displayName: String, val style: TextStyle? = nu
     EntryReported("Reported");
 
     companion object {
-        fun forResult(result: TestExecutionResult): TestEvent =
+        fun forResult(result: TestExecutionResult, isContainer: Boolean): TestEvent =
             @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // TestExecutionResult doesn't allow constructing it with the null status
             when (result.status) {
-                TestExecutionResult.Status.SUCCESSFUL -> Succeeded
+                // "Success" is misleading for containers because we get it even if some tests failed (AMPER-4492)
+                TestExecutionResult.Status.SUCCESSFUL -> if (isContainer) ContainerFinished else Succeeded
                 TestExecutionResult.Status.ABORTED -> Skipped
                 TestExecutionResult.Status.FAILED -> Failed
             }
