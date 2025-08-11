@@ -12,4 +12,4 @@ settings:
       processors:
         - $libs.auto.service
       processorOptions:
-        debug: true
+        debug: "" # AutoService checks only the presence of this option, not its value
