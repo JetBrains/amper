@@ -1,17 +1,22 @@
 @echo off
 
-rem
-rem Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-rem
+@rem
+@rem Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+@rem
 
-rem Runs amper cli from sources
-rem based on https://github.com/mfilippov/gradle-jvm-wrapper/blob/70c0c807169eb6818d10ee3f7fcc34153656e1eb/src/main/kotlin/me/filippov/gradle/jvm/wrapper/Plugin.kt#L129
-rem and amper.template.bat
+@rem Runs amper cli from sources
+
+@rem Possible environment variables:
+@rem   AMPER_JRE_DOWNLOAD_ROOT    Url prefix to download Amper JRE from.
+@rem                              default: https:/
+@rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution
+@rem   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
+@rem   AMPER_JAVA_OPTIONS         JVM options to pass to the JVM running Amper (does not affect the user's application)
 
 setlocal
 
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
-if not defined AMPER_BOOTSTRAP_CACHE_DIR set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper
+if not defined AMPER_BOOTSTRAP_CACHE_DIR set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\JetBrains\Amper
 @rem remove trailing \ if present
 if [%AMPER_BOOTSTRAP_CACHE_DIR:~-1%] EQU [\] set AMPER_BOOTSTRAP_CACHE_DIR=%AMPER_BOOTSTRAP_CACHE_DIR:~0,-1%
 
@@ -39,6 +44,8 @@ if exist "%flag_file%" (
 @rem  - we need to support both .zip and .tar.gz archives (for the Amper distribution and the JBR)
 @rem  - tar should be present in all Windows machines since 2018 (and usable from both cmd and powershell)
 @rem  - tar requires the destination dir to exist
+@rem  - We use (New-Object Net.WebClient).DownloadFile instead of Invoke-WebRequest for performance. See the issue
+@rem    https://github.com/PowerShell/PowerShell/issues/16914, which is still not fixed in Windows PowerShell 5.1
 @rem  - DownloadFile requires the directories in the destination file's path to exist
 set download_and_extract_ps1= ^
 Set-StrictMode -Version 3.0; ^
@@ -57,11 +64,17 @@ try { ^
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
         Write-Host 'Downloading %moniker%... (only happens on the first run of this version)'; ^
         [void](New-Item '%AMPER_BOOTSTRAP_CACHE_DIR%' -ItemType Directory -Force); ^
-        (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
+        if (Get-Command curl.exe -errorAction SilentlyContinue) { ^
+            curl.exe -L --silent --show-error --fail --output $temp_file '%url%'; ^
+        } else { ^
+            (New-Object Net.WebClient).DownloadFile('%url%', $temp_file); ^
+        } ^
  ^
         $actualSha = (Get-FileHash -Algorithm SHA%sha_size% -Path $temp_file).Hash.ToString(); ^
         if ($actualSha -ne '%sha%') { ^
-          throw ('Checksum mismatch for ' + $temp_file + ' (downloaded from %url%): expected checksum %sha% but got ' + $actualSha); ^
+            $writeErr = if ($Host.Name -eq 'ConsoleHost') { [Console]::Error.WriteLine } else { $host.ui.WriteErrorLine } ^
+            $writeErr.Invoke(\"ERROR: Checksum mismatch for $temp_file (downloaded from %url%): expected checksum %sha% but got $actualSha\"); ^
+            exit 1; ^
         } ^
  ^
         if (Test-Path '%target_dir%') { ^
