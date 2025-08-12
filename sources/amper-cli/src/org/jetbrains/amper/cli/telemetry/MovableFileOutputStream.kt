@@ -32,20 +32,17 @@ internal class MovableFileOutputStream(initialPath: Path) : OutputStream() {
         if (newPath == currentPath) {
             return
         }
-        try {
-            fileStream.flush()
-        } finally {
-            fileStream.close()
-        }
-        // if nothing has been written so far, the file might not exist at all
+        fileStream.close() // takes care of flushing as well
+
+        // if nothing has been written so far, the file might not exist at all, thus no need to move it in that case
         if (currentPath.exists()) {
             currentPath.moveTo(newPath)
         }
         currentPath = newPath
         fileStream = newPath.outputStream(
             StandardOpenOption.WRITE,
-            StandardOpenOption.CREATE,
-            StandardOpenOption.APPEND
+            StandardOpenOption.CREATE, // in case nothing had been written yet (the file was never created so far)
+            StandardOpenOption.APPEND, // we want to append to the existing (moved) file, so not TRUNCATE_EXISTING
         ).buffered()
     }
 
