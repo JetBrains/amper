@@ -2,7 +2,7 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.maven
+package org.jetbrains.amper.maven.publish
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

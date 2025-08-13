@@ -1,0 +1,16 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../dependency-resolution
+  - ../frontend-api
+  - ../frontend/dr
+  - $libs.maven.core
+
+settings:
+  kotlin:
+    serialization: enabled

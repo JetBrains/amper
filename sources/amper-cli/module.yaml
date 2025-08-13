@@ -10,6 +10,7 @@ repositories:
 dependencies:
   - ../amper-build-info
   - ../amper-jdk-provisioning
+  - ../amper-maven-publish
   - ../amper-project-templates
   - ../amper-wrapper
   - ../core

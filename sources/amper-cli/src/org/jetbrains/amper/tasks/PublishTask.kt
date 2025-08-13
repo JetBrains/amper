@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks
 
 import org.codehaus.plexus.PlexusContainer
 import org.eclipse.aether.artifact.Artifact
+import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.util.repository.AuthenticationBuilder
 import org.jetbrains.amper.cli.AmperProjectTempRoot
@@ -18,14 +19,13 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.maven.PublicationCoordinatesOverrides
-import org.jetbrains.amper.maven.createPlexusContainer
-import org.jetbrains.amper.maven.deployToRemoteRepo
-import org.jetbrains.amper.maven.installToMavenLocal
-import org.jetbrains.amper.maven.merge
-import org.jetbrains.amper.maven.publicationCoordinates
-import org.jetbrains.amper.maven.toMavenArtifact
-import org.jetbrains.amper.maven.writePomFor
+import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverrides
+import org.jetbrains.amper.maven.publish.createPlexusContainer
+import org.jetbrains.amper.maven.publish.deployToRemoteRepo
+import org.jetbrains.amper.maven.publish.installToMavenLocal
+import org.jetbrains.amper.maven.publish.merge
+import org.jetbrains.amper.maven.publish.publicationCoordinates
+import org.jetbrains.amper.maven.publish.writePomFor
 import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.core.telemetry.spanBuilder
@@ -36,6 +36,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempFile
+import kotlin.io.path.extension
 import kotlin.io.path.isRegularFile
 
 private val mavenLocalRepository by lazy {
@@ -157,6 +158,19 @@ class PublishTask(
         is Result -> emptyList()
         else -> error("Unsupported dependency result: ${javaClass.name}")
     }
+
+    private fun Path.toMavenArtifact(
+        coords: MavenCoordinates,
+        classifier: String = "",
+        artifactId: String? = null,
+        extension: String = this.extension,
+    ): Artifact = DefaultArtifact(
+        coords.groupId,
+        artifactId ?: coords.artifactId,
+        classifier,
+        extension,
+        coords.version,
+    ).setFile(toFile())
 
     private fun RepositoriesModulePart.Repository.toMavenRemoteRepository(): RemoteRepository {
         val builder = RemoteRepository.Builder(id, "default", url)

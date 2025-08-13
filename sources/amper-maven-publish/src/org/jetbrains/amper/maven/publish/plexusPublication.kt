@@ -2,7 +2,7 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.maven
+package org.jetbrains.amper.maven.publish
 
 import org.apache.maven.bridge.MavenRepositorySystem
 import org.apache.maven.execution.DefaultMavenExecutionRequest
@@ -16,8 +16,8 @@ import org.codehaus.plexus.classworlds.ClassWorld
 import org.codehaus.plexus.logging.AbstractLogger
 import org.codehaus.plexus.logging.BaseLoggerManager
 import org.codehaus.plexus.logging.Logger
-import org.eclipse.aether.DefaultRepositorySystemSession
 import org.eclipse.aether.RepositorySystem
+import org.eclipse.aether.RepositorySystemSession
 import org.eclipse.aether.artifact.Artifact
 import org.eclipse.aether.deployment.DeployRequest
 import org.eclipse.aether.installation.InstallRequest
@@ -26,7 +26,10 @@ import org.eclipse.aether.repository.RemoteRepository
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
-internal fun createPlexusContainer(): PlexusContainer {
+/**
+ * Creates a new [PlexusContainer] initialized from the current context classloader.
+ */
+fun createPlexusContainer(): PlexusContainer {
     val containerConfiguration = DefaultContainerConfiguration()
         .setClassWorld(ClassWorld("plexus.core", Thread.currentThread().getContextClassLoader()))
         .setName("mavenCore")
@@ -55,7 +58,7 @@ private object Slf4jLoggerManager : BaseLoggerManager() {
     }
 }
 
-internal fun PlexusContainer.deployToRemoteRepo(
+fun PlexusContainer.deployToRemoteRepo(
     remoteRepository: RemoteRepository,
     localRepositoryPath: Path,
     artifacts: List<Artifact>,
@@ -71,7 +74,7 @@ internal fun PlexusContainer.deployToRemoteRepo(
     repositorySystem.deploy(repositorySession, deployRequest)
 }
 
-internal fun PlexusContainer.installToMavenLocal(localRepositoryPath: Path, artifacts: List<Artifact>) {
+fun PlexusContainer.installToMavenLocal(localRepositoryPath: Path, artifacts: List<Artifact>) {
     val installRequest = InstallRequest()
     for (artifact in artifacts) {
         installRequest.addArtifact(artifact)
@@ -80,7 +83,7 @@ internal fun PlexusContainer.installToMavenLocal(localRepositoryPath: Path, arti
     repositorySystem.install(repositorySession, installRequest)
 }
 
-private fun PlexusContainer.createRepositorySession(localRepositoryPath: Path): DefaultRepositorySystemSession {
+private fun PlexusContainer.createRepositorySession(localRepositoryPath: Path): RepositorySystemSession {
     val request = mavenRepositorySystem.createMavenExecutionRequest(localRepositoryPath)
     val session = repositorySystemSessionFactory.newRepositorySession(request)
     session.setConfigProperty(Maven2RepositoryLayoutFactory.CONFIG_PROP_CHECKSUMS_ALGORITHMS, "MD5,SHA-1,SHA-256,SHA-512")

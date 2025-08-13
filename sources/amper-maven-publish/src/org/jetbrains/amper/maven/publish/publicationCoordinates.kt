@@ -1,15 +1,15 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.maven
+package org.jetbrains.amper.maven.publish
 
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 
-internal fun AmperModule.publicationCoordinates(platform: Platform): MavenCoordinates = when {
+fun AmperModule.publicationCoordinates(platform: Platform): MavenCoordinates = when {
     // for JVM-only libraries, we use the root publication format (without -jvm suffix)
     platform == Platform.COMMON || platform == Platform.JVM && isJvmOnly -> rootPublicationCoordinates()
     platform.isLeaf -> kmpLeafPlatformPublicationCoordinates(platform)
