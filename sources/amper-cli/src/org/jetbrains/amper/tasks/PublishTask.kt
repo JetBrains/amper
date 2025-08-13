@@ -40,7 +40,7 @@ import kotlin.io.path.isRegularFile
 
 private val mavenLocalRepository by lazy {
     spanBuilder("Initialize maven local repository").useWithoutCoroutines {
-        MavenLocalRepository()
+        MavenLocalRepository.Default
     }
 }
 

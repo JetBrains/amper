@@ -43,7 +43,7 @@ class Context internal constructor(
     /**
      * Contains a map of all already created [MavenDependencyNode]s by their original maven dependency.
      *
-     * For keys, we are only really interested in the original dependency coordinates, but we can rely on referentia
+     * For keys, we are only really interested in the original dependency coordinates, but we can rely on referential
      * equality here because `MavenDependency` instances are reused just like nodes.
      *
      * Note: if conflict resolution occurs, the key is untouched, and we still consider nodes based on their "desired"
@@ -140,22 +140,42 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
  * @see [MavenLocalRepository]
  */
 class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
+    // FIXME remove this. This DR library should not know or care about Amper and how it organizes its caches.
+    //   The DR file cache should offer customizations for the different places it needs, and on Amper side we can
+    //   create the desired layout within the Amper cache.
     var amperCache: Path = Path(System.getProperty("user.home"), ".amper")
         internal set
+
+    /**
+     * The local repositories to use as extra sources to speed up resolution.
+     *
+     * Their purpose is only to improve download speeds. This has important implications:
+     * 1. the local artifacts are never returned directly, they are first copied to the configured [localRepository]
+     * 2. the artifacts must exist in one of the remote repositories and we'll check their checksums online first
+     */
     var readOnlyExternalRepositories: List<LocalRepository> = defaultReadOnlyExternalRepositories()
+
     var localRepository: LocalRepository? = null
+
+    /**
+     * The local maven repository to use when [MavenLocal] is requested.
+     * By default, it is discovered according to Maven rules.
+     *
+     * This is different from [readOnlyExternalRepositories] because in that case we can directly use artifacts from
+     * maven local.
+     */
+    var mavenLocalRepository: MavenLocalRepository? = null
 
     init {
         apply(init)
     }
 
-    internal fun build(): FileCache {
-        return FileCache(
-            amperCache,
-            readOnlyExternalRepositories,
-            localRepository ?: defaultLocalRepository(amperCache)
-        )
-    }
+    internal fun build(): FileCache = FileCache(
+        amperCache = amperCache,
+        readOnlyExternalRepositories = readOnlyExternalRepositories,
+        localRepository = localRepository ?: defaultLocalRepository(amperCache),
+        mavenLocalRepository = mavenLocalRepository ?: MavenLocalRepository.Default,
+    )
 }
 
 fun getDefaultFileCacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {
@@ -165,7 +185,7 @@ fun getDefaultFileCacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {
 }
 
 // todo (AB) : Should it be emptyList by default?
-private fun FileCacheBuilder.defaultReadOnlyExternalRepositories() = listOf(GradleLocalRepository(), MavenLocalRepository())
+private fun FileCacheBuilder.defaultReadOnlyExternalRepositories() = listOf(GradleLocalRepository(), MavenLocalRepository.Default)
 private fun FileCacheBuilder.defaultLocalRepository(cacheRoot: Path) = MavenLocalRepository(cacheRoot.resolve(".m2.cache"))
 
 /**
@@ -201,8 +221,18 @@ data class MavenGroupAndArtifact(
  */
 data class FileCache(
     val amperCache: Path,
+    /**
+     * The local repositories to use as extra sources to speed up resolution.
+     *
+     * Their purpose is only to improve download speeds. Their artifacts are never used directly: all resolved artifacts
+     * are copied to the configured [localRepository].
+     */
     val readOnlyExternalRepositories: List<LocalRepository>,
     val localRepository: LocalRepository,
+    /**
+     * The local maven repository to use when [MavenLocal] is requested.
+     */
+    val mavenLocalRepository: MavenLocalRepository,
 )
 
 /**

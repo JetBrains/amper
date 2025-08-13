@@ -191,10 +191,14 @@ class GradleLocalRepository(internal val filesPath: Path) : LocalRepository {
  */
 class MavenLocalRepository(val repository: Path) : LocalRepository {
 
-    constructor() : this(findPath())
-
     companion object {
-        private fun findPath() = LocalM2RepositoryFinder.findPath()
+        /**
+         * The default local repository as defined by Maven itself. It is initialized lazily by looking at the several
+         * locations using [LocalM2RepositoryFinder.findPath].
+         */
+        val Default by lazy {
+            MavenLocalRepository(LocalM2RepositoryFinder.findPath())
+        }
     }
 
     override fun toString(): String = "[Maven] $repository"
@@ -271,9 +275,7 @@ open class DependencyFile(
         if (!dependency.settings.repositories.contains(MavenLocal))
             return null
 
-        val mavenLocal = MavenLocalRepository()
-
-        return mavenLocal.guessPath(dependency, fileName).takeIf {
+        return fileCache.mavenLocalRepository.guessPath(dependency, fileName).takeIf {
             // Dependencies are published to mavenLocal without checksums by default
             // (neither by Gradle plugin nor by mvn install)
             isValidMavenLocalPath(it)
@@ -1388,7 +1390,7 @@ private fun InputStream.readTo(writers: Collection<Writer>): Long {
     return size
 }
 
-fun <T> resolveSafeOrNull(block: () -> T?): T? {
+internal inline fun <T> resolveSafeOrNull(block: () -> T?): T? {
     return try {
         block()
     } catch (e: CancellationException) {

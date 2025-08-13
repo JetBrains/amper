@@ -13,12 +13,8 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.serialize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.assertNotNull
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
 import org.junit.jupiter.api.io.TempDir
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
-import uk.org.webcompere.systemstubs.properties.SystemProperties
 import java.net.Authenticator
 import java.net.CookieHandler
 import java.net.ProxySelector
@@ -37,8 +33,6 @@ import java.util.*
 import java.util.concurrent.Executor
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLParameters
-import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
@@ -46,7 +40,6 @@ import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.moveTo
-import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertFalse
@@ -63,199 +56,143 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
     private fun uniqueCacheRoot() = (tmpDir / UUID.randomUUID().toString().substring(0, 8)).createDirectories()
 
     @Test
-    @ExtendWith(SystemStubsExtension::class)
-    fun `release artifacts are resolved from mavenLocal`(
-        systemProperties: SystemProperties,
-        environmentVariables: EnvironmentVariables,
-        testInfo: TestInfo,
-    ) = runTest {
-        clearLocalM2MachineOverrides(systemProperties, environmentVariables)
-
+    fun `release artifacts are resolved from mavenLocal`(testInfo: TestInfo) = runTest {
         val testCacheRoot = uniqueCacheRoot()
 
-        val mavenLocalPath = testCacheRoot.resolve("maven")
-
-        try {
-            systemProperties.set("maven.repo.local", mavenLocalPath.pathString)
-            val repo = MavenLocalRepository()
-            kotlin.test.assertEquals(repo.repository, testCacheRoot / "maven")
-
-            checkLocalRepositoryUsage(
-                testInfo,
-                "org.jetbrains.kotlinx:atomicfu-jvm:0.23.2".toMavenCoordinates(),
-                testCacheRoot,
-                // All of those artifacts are taken from maven local storage
-                filesThatShouldNotBeDownloaded = listOf(
-                    "atomicfu-jvm-0.23.2.pom",
-                    "atomicfu-jvm-0.23.2.module",
-                    "atomicfu-jvm-0.23.2.jar",
-                    "atomicfu-jvm-0.23.2.pom.sha256",
-                    "atomicfu-jvm-0.23.2.module.sha256"
-                ),
-                // Checksums are ignored when an artifact is resolved from mavenLocal
-                filesThatMustBeDownloaded = emptyList(),
-                repositories = listOf(MAVEN_LOCAL),
-                initLocalRepository = { initEtalonMavenLocalStorage(mavenLocalPath) }
-            )
-        } finally {
-            System.clearProperty("maven.repo.local")
-        }
+        checkLocalRepositoryUsage(
+            testInfo,
+            "org.jetbrains.kotlinx:atomicfu-jvm:0.23.2".toMavenCoordinates(),
+            testCacheRoot,
+            // All of those artifacts are taken from maven local storage
+            filesThatShouldNotBeDownloaded = listOf(
+                "atomicfu-jvm-0.23.2.pom",
+                "atomicfu-jvm-0.23.2.module",
+                "atomicfu-jvm-0.23.2.jar",
+                "atomicfu-jvm-0.23.2.pom.sha256",
+                "atomicfu-jvm-0.23.2.module.sha256"
+            ),
+            // Checksums are ignored when an artifact is resolved from mavenLocal
+            filesThatMustBeDownloaded = emptyList(),
+            repositories = listOf(MAVEN_LOCAL),
+            initMavenLocalRepository = { initEtalonMavenLocalStorage(testCacheRoot) }
+        )
     }
 
     @Test
-    @ExtendWith(SystemStubsExtension::class)
-    fun `SNAPSHOT artifacts are resolved from mavenLocal`(
-        systemProperties: SystemProperties,
-        environmentVariables: EnvironmentVariables,
-        testInfo: TestInfo,
-    ) = runTest {
-        clearLocalM2MachineOverrides(systemProperties, environmentVariables)
-
+    fun `SNAPSHOT artifacts are resolved from mavenLocal`(testInfo: TestInfo) = runTest {
         val testCacheRoot = uniqueCacheRoot()
-
         val mavenLocalPath = testCacheRoot.resolve("maven").createDirectories()
 
-        try {
-            systemProperties.set("maven.repo.local", mavenLocalPath.pathString)
-            val repo = MavenLocalRepository()
-            kotlin.test.assertEquals(repo.repository, testCacheRoot / "maven")
+        checkLocalRepositoryUsage(
+            testInfo,
+            "org.jetbrains:dr-snapshot-sample:1.0-SNAPSHOT".toMavenCoordinates(),
+            testCacheRoot,
+            // All of those artifacts are taken from mavenLocal storage
+            filesThatShouldNotBeDownloaded = listOf(
+                "dr-snapshot-sample-1.0-SNAPSHOT.pom",
+                "dr-snapshot-sample-1.0-SNAPSHOT.module",
+                "dr-snapshot-sample-1.0-SNAPSHOT.jar",
+            ),
+            // transitive dependencies that are missing in mavenLocal
+            filesThatMustBeDownloaded = listOf(
+                "jackson-annotations-2.18.2.jar",
+                "jackson-annotations-2.18.2.pom",
+                "jackson-annotations-2.18.2.pom.sha512",
+                "jackson-annotations-2.18.2.module.sha512",
+            ),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL),
+            initMavenLocalRepository = {
+                mavenLocalTestDataPath.copyToRecursively(mavenLocalPath, followLinks = false, overwrite = false)
 
-            checkLocalRepositoryUsage(
-                testInfo,
-                "org.jetbrains:dr-snapshot-sample:1.0-SNAPSHOT".toMavenCoordinates(),
-                testCacheRoot,
-                // All of those artifacts are taken from mavenLocal storage
-                filesThatShouldNotBeDownloaded = listOf(
-                    "dr-snapshot-sample-1.0-SNAPSHOT.pom",
-                    "dr-snapshot-sample-1.0-SNAPSHOT.module",
-                    "dr-snapshot-sample-1.0-SNAPSHOT.jar",
-                ),
-                // transitive dependencies that are missing in mavenLocal
-                filesThatMustBeDownloaded = listOf(
-                    "jackson-annotations-2.18.2.jar",
-                    "jackson-annotations-2.18.2.pom",
-                    "jackson-annotations-2.18.2.pom.sha512",
-                    "jackson-annotations-2.18.2.module.sha512",
-                ),
-                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL),
-                initLocalRepository = {
-                    mavenLocalTestDataPath.copyToRecursively(mavenLocalPath, followLinks = false, overwrite = false)
+                val mavenMetadataLocal = mavenLocalPath.resolve(
+                    "org/jetbrains/dr-snapshot-sample/1.0-SNAPSHOT/maven-metadata-local.xml"
+                )
 
-                    val mavenMetadataLocal = mavenLocalPath.resolve(
-                        "org/jetbrains/dr-snapshot-sample/1.0-SNAPSHOT/maven-metadata-local.xml")
+                setupMavenMetadataDates(mavenMetadataLocal)
 
-                    setupMavenMetadataDates(mavenMetadataLocal)
-
-                    repo
-                }
-            )
-        } finally {
-            System.clearProperty("maven.repo.local")
-        }
+                MavenLocalRepository(mavenLocalPath)
+            }
+        )
     }
 
     @Test
-    @ExtendWith(SystemStubsExtension::class)
     fun `SNAPSHOT artifacts can not be resolved from mavenLocal if maven-metadata-local xml is absent`(
-        systemProperties: SystemProperties,
-        environmentVariables: EnvironmentVariables,
         testInfo: TestInfo,
     ) = runTest {
-        clearLocalM2MachineOverrides(systemProperties, environmentVariables)
-
         val testCacheRoot = uniqueCacheRoot()
-
         val mavenLocalPath = testCacheRoot.resolve("maven").createDirectories()
 
-        try {
-            systemProperties.set("maven.repo.local", mavenLocalPath.pathString)
-            val repo = MavenLocalRepository()
-            kotlin.test.assertEquals(repo.repository, testCacheRoot / "maven")
+        val root = checkLocalRepositoryUsage(
+            testInfo,
+            "org.jetbrains:dr-snapshot-sample:1.0-SNAPSHOT".toMavenCoordinates(),
+            testCacheRoot,
+            verifyMessages = false,
+            // All of those artifacts are taken from mavenLocal storage
+            filesThatShouldNotBeDownloaded = listOf(
+                "dr-snapshot-sample-1.0-SNAPSHOT.pom",
+                "dr-snapshot-sample-1.0-SNAPSHOT.module",
+                "dr-snapshot-sample-1.0-SNAPSHOT.jar",
+            ),
+            filesThatMustBeDownloaded = emptyList(),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL),
+            initMavenLocalRepository = {
+                mavenLocalTestDataPath.copyToRecursively(mavenLocalPath, followLinks = false, overwrite = false)
 
-            val root = checkLocalRepositoryUsage(
-                testInfo,
-                "org.jetbrains:dr-snapshot-sample:1.0-SNAPSHOT".toMavenCoordinates(),
-                testCacheRoot,
-                verifyMessages = false,
-                // All of those artifacts are taken from mavenLocal storage
-                filesThatShouldNotBeDownloaded = listOf(
-                    "dr-snapshot-sample-1.0-SNAPSHOT.pom",
-                    "dr-snapshot-sample-1.0-SNAPSHOT.module",
-                    "dr-snapshot-sample-1.0-SNAPSHOT.jar",
-                ),
-                filesThatMustBeDownloaded = emptyList(),
-                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL),
-                initLocalRepository = {
-                    mavenLocalTestDataPath.copyToRecursively(mavenLocalPath, followLinks = false, overwrite = false)
+                val mavenMetadataLocal = mavenLocalPath.resolve(
+                    "org/jetbrains/dr-snapshot-sample/1.0-SNAPSHOT/maven-metadata-local.xml"
+                )
 
-                    val mavenMetadataLocal = mavenLocalPath.resolve(
-                        "org/jetbrains/dr-snapshot-sample/1.0-SNAPSHOT/maven-metadata-local.xml")
+                setupMavenMetadataDates(mavenMetadataLocal)
 
-                    setupMavenMetadataDates(mavenMetadataLocal)
+                // Moving maven-metadata-local.xml to maven-metadata-repositoryId.xml.
+                // It means that in spite SNAPSHOT artifact is there, it should not be used,
+                // because it was downloaded from the external repository with id equal to 'repositoryId',
+                // such an artifact should not be used (it wasn't installed into mavenLocal)
+                mavenMetadataLocal.moveTo(
+                    mavenMetadataLocal.parent.resolve("maven-metadata-repositoryId.xml"),
+                    overwrite = false
+                )
 
-                    // Moving maven-metadata-local.xml to maven-metadata-repositoryId.xml.
-                    // It means that in spite SNAPSHOT artifact is there, it should not be used,
-                    // because it was downloaded from the external repository with id equal to 'repositoryId',
-                    // such an artifact should not be used (it wasn't installed into mavenLocal)
-                    mavenMetadataLocal.moveTo(mavenMetadataLocal.parent.resolve("maven-metadata-repositoryId.xml"), overwrite = false)
+                MavenLocalRepository(mavenLocalPath)
+            }
+        )
 
-                    repo
-                }
-            )
-
-            assertTheOnlyNonInfoMessage<UnableToResolveDependency>(root, Severity.ERROR)
-        } finally {
-            System.clearProperty("maven.repo.local")
-        }
+        assertTheOnlyNonInfoMessage<UnableToResolveDependency>(root, Severity.ERROR)
     }
 
     @Test
-    @ExtendWith(SystemStubsExtension::class)
     fun `SNAPSHOT artifacts can not be resolved from mavenLocal if maven-metadata-local contains outdated timestamps`(
-        systemProperties: SystemProperties,
-        environmentVariables: EnvironmentVariables,
         testInfo: TestInfo,
     ) = runTest {
-        clearLocalM2MachineOverrides(systemProperties, environmentVariables)
-
         val testCacheRoot = uniqueCacheRoot()
-
         val mavenLocalPath = testCacheRoot.resolve("maven").createDirectories()
 
-        try {
-            systemProperties.set("maven.repo.local", mavenLocalPath.pathString)
-            val repo = MavenLocalRepository()
-            kotlin.test.assertEquals(repo.repository, testCacheRoot / "maven")
+        val root = checkLocalRepositoryUsage(
+            testInfo,
+            "org.jetbrains:dr-snapshot-sample:1.0-SNAPSHOT".toMavenCoordinates(),
+            testCacheRoot,
+            verifyMessages = false,
+            // All of those artifacts are taken from mavenLocal storage
+            filesThatShouldNotBeDownloaded = listOf(
+                "dr-snapshot-sample-1.0-SNAPSHOT.pom",
+                "dr-snapshot-sample-1.0-SNAPSHOT.module",
+                "dr-snapshot-sample-1.0-SNAPSHOT.jar",
+            ),
+            filesThatMustBeDownloaded = emptyList(),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL),
+            initMavenLocalRepository = {
+                mavenLocalTestDataPath.copyToRecursively(mavenLocalPath, followLinks = false, overwrite = false)
 
-            val root = checkLocalRepositoryUsage(
-                testInfo,
-                "org.jetbrains:dr-snapshot-sample:1.0-SNAPSHOT".toMavenCoordinates(),
-                testCacheRoot,
-                verifyMessages = false,
-                // All of those artifacts are taken from mavenLocal storage
-                filesThatShouldNotBeDownloaded = listOf(
-                    "dr-snapshot-sample-1.0-SNAPSHOT.pom",
-                    "dr-snapshot-sample-1.0-SNAPSHOT.module",
-                    "dr-snapshot-sample-1.0-SNAPSHOT.jar",
-                ),
-                filesThatMustBeDownloaded = emptyList(),
-                repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, MAVEN_LOCAL),
-                initLocalRepository = {
-                    mavenLocalTestDataPath.copyToRecursively(mavenLocalPath, followLinks = false, overwrite = false)
+                val mavenMetadataLocal = mavenLocalPath.resolve(
+                    "org/jetbrains/dr-snapshot-sample/1.0-SNAPSHOT/maven-metadata-local.xml"
+                )
 
-                    val mavenMetadataLocal = mavenLocalPath.resolve(
-                        "org/jetbrains/dr-snapshot-sample/1.0-SNAPSHOT/maven-metadata-local.xml")
+                setupMavenMetadataDates(mavenMetadataLocal, valid = false)
+                MavenLocalRepository(mavenLocalPath)
+            }
+        )
 
-                    setupMavenMetadataDates(mavenMetadataLocal, valid = false)
-
-                    repo
-                }
-            )
-
-            assertTheOnlyNonInfoMessage<UnableToResolveDependency>(root, Severity.ERROR)
-        } finally {
-            System.clearProperty("maven.repo.local")
-        }
+        assertTheOnlyNonInfoMessage<UnableToResolveDependency>(root, Severity.ERROR)
     }
 
     private fun setupMavenMetadataDates(mavenMetadataLocalPath: Path, valid: Boolean = true) {
@@ -301,7 +238,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         }
     }
 
-    private suspend fun initEtalonMavenLocalStorage(cacheRoot: Path): LocalRepository {
+    private suspend fun initEtalonMavenLocalStorage(cacheRoot: Path): MavenLocalRepository {
         // Installing maven local repository at the custom location
         cacheRoot.createDirectories()
 
@@ -311,12 +248,12 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         return mavenLocal
     }
 
-    private suspend fun initEtalonLocalStorage(localStoragePath: Path, localStorage: LocalRepository) {
+    private suspend fun initEtalonLocalStorage(cacheRoot: Path, localStorage: LocalRepository) {
         val atomicfuCoordinates = "org.jetbrains.kotlinx:atomicfu-jvm:0.23.2"
 
         // Initialize resolution context
         val context = context(ResolutionScope.COMPILE, cacheBuilder = {
-            amperCache = localStoragePath.resolve(".amper")
+            amperCache = cacheRoot.resolve(".amper")
             localRepository = localStorage
             readOnlyExternalRepositories = emptyList()
         })
@@ -343,16 +280,16 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
         filesThatMustBeDownloaded: List<String> = emptyList(),
         repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         updateLocalRepository: (LocalRepository) -> Unit = {},
-        initLocalRepository: suspend (Path) -> LocalRepository = { cacheRoot -> initEtalonMavenLocalStorage(cacheRoot) }
+        initMavenLocalRepository: suspend (Path) -> MavenLocalRepository = { cacheRoot -> initEtalonMavenLocalStorage(cacheRoot) }
     ): DependencyNode {
         val urlPrefix =
             "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2/${mavenCoordinates.urlFolderPath}"
 
         // Installing maven local repository at the custom location
-        val localExternalRepository = initLocalRepository(testCacheRoot)
+        val customMavenLocalRepository = initMavenLocalRepository(testCacheRoot)
 
         // Initialize resolution context
-        val cacheBuilder = withLocalRepository(testCacheRoot, localExternalRepository)
+        val cacheBuilder = withLocalRepository(testCacheRoot, customMavenLocalRepository)
         val cache = FileCacheBuilder(cacheBuilder).build()
         val context = context(
             ResolutionScope.COMPILE,
@@ -368,7 +305,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
 
         val root = DependencyNodeHolder("root", listOf(nodeInCompileContext), context)
 
-        updateLocalRepository(localExternalRepository)
+        updateLocalRepository(customMavenLocalRepository)
 
         assertTrue(
             !(cache.localRepository as MavenLocalRepository).repository.exists()
@@ -382,14 +319,14 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
             verifyMessages = verifyMessages
         )
 
-        if (localExternalRepository is MavenLocalRepository && repositories.contains(MavenLocal)) {
+        if (customMavenLocalRepository is MavenLocalRepository && repositories.contains(MavenLocal)) {
             // Artifact resolved from mavenLocal is not copied to DR local cache
             assertFalse(
                 cache.localRepository.repository.resolve(mavenCoordinates.urlPath)
                     .exists(),
                 "Local repository should not contain library $mavenCoordinates"
             )
-            assertTrue(localExternalRepository.repository.resolve(mavenCoordinates.urlPath)
+            assertTrue(customMavenLocalRepository.repository.resolve(mavenCoordinates.urlPath)
                 .exists(),
                 "Maven local repository SHOULD contain library $mavenCoordinates"
             )
@@ -428,11 +365,12 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
      */
     fun withLocalRepository(
         cacheRoot: Path,
-        localReadOnlyExternalRepository: LocalRepository? = null
+        customMavenLocalRepository: MavenLocalRepository,
     ): FileCacheBuilder.() -> Unit = {
         amperCache = cacheRoot
         localRepository = MavenLocalRepository(cacheRoot.resolve(".m2.cache.test"))
-        readOnlyExternalRepositories = localReadOnlyExternalRepository?.let { listOf(it) } ?: emptyList()
+        readOnlyExternalRepositories = emptyList()
+        mavenLocalRepository = customMavenLocalRepository
     }
 
     private fun createTestHttpClient(urlThatShouldNotBeDownloaded: List<String>): TestHttpClient {
@@ -481,14 +419,5 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
 
             return block()
         }
-    }
-
-    /**
-     * Temporarily resets custom maven settings of the local machine to control the test configuration completely.
-     */
-    private fun clearLocalM2MachineOverrides(systemProperties: SystemProperties, environmentVariables: EnvironmentVariables) {
-        systemProperties.set("maven.repo.local", "")
-        systemProperties.set("user.home", Path("nothing-to-see-here").absolutePathString())
-        environmentVariables.set("M2_HOME", "")
     }
 }
