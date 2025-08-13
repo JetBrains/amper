@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.NotResolvedModule
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblem
@@ -51,9 +52,7 @@ class ModuleDependencySelfProblem(
     val selfDependency: LocalModuleDependency,
 ) : BuildProblem {
     override val buildProblemId get() = diagnosticId
-    override val source: BuildProblemSource = selfDependency.extractPsiElementOrNull()?.let {
-        PsiBuildProblemSource(psiElement = it)
-    } ?: @OptIn(NonIdealDiagnostic::class) GlobalBuildProblemSource
+    override val source: BuildProblemSource = selfDependency.asBuildProblemSource()
     override val message = SchemaBundle.message("dependencies.modules.self", selfDependent.userReadableName)
     override val level: Level get() = Level.Error
     override val type: BuildProblemType get() = BuildProblemType.Generic
