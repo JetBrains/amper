@@ -1,0 +1,12 @@
+product: jvm/app
+
+apply:
+  - ../../sources/common.module-template.yaml
+
+dependencies:
+  - ../task-helpers
+  - ../../sources/amper-build-info
+  - ../../sources/amper-maven-publish
+  - ../../sources/amper-wrapper
+  - ../../sources/libraries/stdlib-extended
+  - $libs.apacheCommons.compress

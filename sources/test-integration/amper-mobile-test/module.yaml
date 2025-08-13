@@ -13,4 +13,4 @@ tasks:
   testJvm:
     # To build&publish the amper-android-gradle-plugin and deps for gradle-backed Android builds
     # To build&publish the CLI distribution and scripts required for wrapper-based tests
-    dependsOn: [ :amper-android-gradle-plugin:publishJvmToMavenLocal, :amper-cli:publishJvmToMavenLocal ]
+    dependsOn: [ :amper-android-gradle-plugin:publishJvmToMavenLocal, :amper-cli:uploadDistToMavenLocal ]

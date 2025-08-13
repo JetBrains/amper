@@ -6,10 +6,10 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
-  - ../dependency-resolution
-  - ../frontend-api
+  - ../dependency-resolution: exported
+  - ../frontend-api: exported
   - ../frontend/dr
-  - $libs.maven.core
+  - $libs.maven.core: exported
 
 settings:
   kotlin:
