@@ -101,7 +101,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -246,7 +246,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -387,7 +387,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -531,7 +531,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -673,7 +673,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -815,7 +815,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -960,7 +960,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1105,7 +1105,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1247,7 +1247,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1392,7 +1392,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 2.0
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false

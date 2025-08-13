@@ -128,8 +128,11 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("Enable verbose logging output which includes details of the compilation process")
     var verbose by value(false)
 
-//    @SchemaDoc("")
-    var linkerOpts by nullableValue<List<TraceableString>>()
+    @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
+            "Additional arguments to pass to the linker during binary building.")
+    @PlatformSpecific(Platform.NATIVE)
+    @Misnomers("linkerOpts", "arguments")
+    var linkerOptions by nullableValue<List<TraceableString>>()
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
             "Enable emitting debug information. Enabled in debug variants by default.")

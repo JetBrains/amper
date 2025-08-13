@@ -7,7 +7,9 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
+import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.test.spans.assertEachKotlinNativeCompilationSpan
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.util.jar.Attributes
@@ -172,5 +174,17 @@ class AmperBuildTest : AmperCliTestBase() {
         result2.assertStdoutDoesNotContain(
             "Explicit -v/--variant argument is ignored because all selected platforms (jvm) do not support build variants."
         )
+    }
+
+    @Test
+    fun `native linker options are respected`() = runSlowTest {
+        val projectRoot = testProject("native-linker-options")
+        val result = runCli(projectRoot = projectRoot, "build")
+
+        result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
+            hasCompilerArgument("-linker-option=-Wl,--as-needed")
+            hasCompilerArgument("-linker-option=-Wl,-Bstatic")
+            hasCompilerArgument("-linker-option=-lz")
+        }
     }
 }

@@ -1,0 +1,12 @@
+settings:
+  kotlin:
+    allWarningsAsErrors: true
+
+settings@native:
+  kotlin:
+    linkerOptions: [
+      "-Wl,--as-needed",
+      "-Wl,-Bstatic",
+      "-lz",
+      "-Wl,-Bdynamic"
+    ]

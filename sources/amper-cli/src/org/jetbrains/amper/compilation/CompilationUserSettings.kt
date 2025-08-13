@@ -28,6 +28,7 @@ internal data class KotlinUserSettings(
     val optimization: Boolean?,
     val verbose: Boolean,
     val progressiveMode: Boolean,
+    val linkerOptions: List<String>,
     val languageFeatures: List<String>,
     val optIns: List<String>,
     val storeJavaParameterNames: Boolean,
@@ -56,6 +57,7 @@ internal fun Fragment.serializableKotlinSettings(): KotlinUserSettings = KotlinU
     optimization = settings.kotlin.optimization, // only valid for native anyway
     verbose = settings.kotlin.verbose,
     progressiveMode = settings.kotlin.progressiveMode,
+    linkerOptions = settings.kotlin.linkerOptions?.values().orEmpty(),
     languageFeatures = settings.kotlin.languageFeatures?.values().orEmpty(),
     optIns = settings.kotlin.optIns.orEmpty().values(),
     storeJavaParameterNames = settings.jvm.storeParameterNames, // only valid for JVM anyway

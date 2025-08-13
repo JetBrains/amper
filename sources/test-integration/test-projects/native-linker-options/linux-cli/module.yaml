@@ -1,0 +1,7 @@
+product: linux/app
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../shared

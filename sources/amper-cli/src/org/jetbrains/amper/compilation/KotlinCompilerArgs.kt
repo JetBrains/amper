@@ -206,6 +206,10 @@ internal fun kotlinNativeCompilerArgs(
     if (kotlinUserSettings.optimization ?: (buildType == BuildType.Release)) {
         add("-opt")
     }
+    kotlinUserSettings.linkerOptions.forEach { opt ->
+        add("-linker-option=$opt")
+    }
+
     add("-ea")
     add("-produce=${compilationType.argName}")
     add("-target=${task.platform.nameForCompiler}")

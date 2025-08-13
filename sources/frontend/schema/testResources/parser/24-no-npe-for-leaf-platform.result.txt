@@ -103,7 +103,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -263,7 +263,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -418,7 +418,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -576,7 +576,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -730,7 +730,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -887,7 +887,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1042,7 +1042,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1197,7 +1197,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1355,7 +1355,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1513,7 +1513,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1670,7 +1670,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1825,7 +1825,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1983,7 +1983,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -2142,7 +2142,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -2297,7 +2297,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -2455,7 +2455,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false

@@ -102,7 +102,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -247,7 +247,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -388,7 +388,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -532,7 +532,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -672,7 +672,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -815,7 +815,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -956,7 +956,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1100,7 +1100,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1241,7 +1241,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1385,7 +1385,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1526,7 +1526,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1669,7 +1669,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1810,7 +1810,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -1954,7 +1954,7 @@ Fragments:
         }
         languageFeatures: <default> null
         languageVersion: <default> 2.2
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false

@@ -101,7 +101,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 1.9
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -253,7 +253,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 1.9
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -400,7 +400,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 1.9
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false
@@ -553,7 +553,7 @@ Fragments:
           - contextReceivers
         ]
         languageVersion: 1.9
-        linkerOpts: <default> null
+        linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
           enabled: <default> false

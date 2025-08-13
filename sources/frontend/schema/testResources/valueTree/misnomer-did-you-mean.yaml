@@ -1,5 +1,7 @@
 product: jvm/app
 
 settings:
+  kotlin:
+    <![Error] Unknown property 'arguments'. Did you mean 'freeCompilerArgs' or 'linkerOptions'?!>arguments<!>: [ "-Wl" ]
   jvm:
     <![Error] Unknown property 'target'. Did you mean 'release'?!>target<!>: 21

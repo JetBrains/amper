@@ -1377,11 +1377,22 @@
             ]
           }
         },
-        "linkerOpts": {
+        "linkerOptions": {
           "type": "array",
           "uniqueItems": true,
           "items": {
             "type": "string"
+          },
+          "x-intellij-html-description": "(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Additional arguments to pass to the linker during binary building.",
+          "title": "Additional arguments to pass to the linker during binary building",
+          "x-intellij-metadata": {
+            "platforms": [
+              "native"
+            ],
+            "misnomers": [
+              "linkerOpts",
+              "arguments"
+            ]
           }
         },
         "noArg": {
