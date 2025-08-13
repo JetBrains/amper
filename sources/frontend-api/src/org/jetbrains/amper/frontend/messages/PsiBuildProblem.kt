@@ -33,22 +33,6 @@ fun KProperty0<*>.extractPsiElement(): PsiElement = valueBase.extractPsiElement(
 @UsedInIdePlugin
 fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = valueBase.extractPsiElementOrNull()
 
-// FIXME Why do we have this?
-//fun Traceable.extractPsiElement(): PsiElement =
-//    when (val trace = trace) {
-//        // FIXME Rethink default traces.
-//        is DefaultTrace -> trace.computedValueTrace?.extractPsiElement()
-//            ?: error { "Can't extract PSI element from traceable ${this}. Referenced trace is null" }
-//
-//        is PsiTrace -> trace.psiElement
-//
-//        // todo (AB) : It is not correct to throw error here, either returned value should be nullable,
-//        // todo (AB) : or built-in catalogue entries should be associated with the real trace in some virtual file.
-//        is BuiltinCatalogTrace -> error("Can't extract PSI element from traceable ${this}. Expected to have PSI trace, but has ${trace.javaClass}")
-//
-//        null -> error("Can't extract PSI element from traceable ${this}. Element doesn't have trace")
-//    }
-
 fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
     is PsiTrace -> psiElement
     is BuiltinCatalogTrace,
