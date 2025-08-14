@@ -1,0 +1,5 @@
+product: jvm/app
+
+settings:
+  kotlin:
+    version: 2.2.0

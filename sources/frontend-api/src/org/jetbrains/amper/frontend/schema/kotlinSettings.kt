@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
@@ -18,6 +19,12 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.StandaloneSpecific
 import org.jetbrains.amper.frontend.api.TraceableString
+
+/**
+ * The expected pattern for the Kotlin compiler version setting.
+ * It's used in diagnostics and to extract the default language version from the compiler version string.
+ */
+val KotlinCompilerVersionPattern = Regex("""(?<languageVersion>\d+\.\d+)\..*""")
 
 @EnumOrderSensitive(reverse = true)
 @EnumValueFilter("outdated", isNegated = true)
@@ -104,12 +111,17 @@ class PowerAssertSettings : SchemaNode() {
 class KotlinSettings : SchemaNode() {
 
     @PlatformAgnostic
-    @Misnomers("language-version", "version")
-    @SchemaDoc("Source compatibility with the specified version of Kotlin")
-    var languageVersion by value(KotlinVersion.Kotlin22)
+    @Misnomers("compiler")
+    @SchemaDoc("The version of the Kotlin compiler and standard library to use")
+    var version by value(UsedVersions.defaultKotlinVersion)
 
     @PlatformAgnostic
-    @Misnomers("api-version", "sdkVersion")
+    @Misnomers("language-version")
+    @SchemaDoc("Source compatibility with the specified version of Kotlin")
+    var languageVersion by nullableValue<KotlinVersion>()
+
+    @PlatformAgnostic
+    @Misnomers("api-version", "sdkVersion", "sdk")
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")
     var apiVersion by dependentValue(::languageVersion)
 

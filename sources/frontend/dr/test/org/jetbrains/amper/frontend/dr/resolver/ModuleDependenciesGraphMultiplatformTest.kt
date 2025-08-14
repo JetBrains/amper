@@ -54,15 +54,15 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
             module = "jvm-empty",
             expected = """
                 module:jvm-empty
-                ├─── jvm-empty:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                ├─── jvm-empty:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
                 │         ╰─── org.jetbrains:annotations:13.0
-                ├─── jvm-empty:test:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                ╰─── jvm-empty:test:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
-                          ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
-                          │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── jvm-empty:test:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
+                ╰─── jvm-empty:test:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}
+                          ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.defaultKotlinVersion}
+                          │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
                           ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
                                ├─── org.junit:junit-bom:5.10.1
                                ├─── org.opentest4j:opentest4j:1.3.0
@@ -79,9 +79,9 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 "apiguardian-api-1.1.2.jar",
                 "junit-jupiter-api-5.10.1.jar",
                 "junit-platform-commons-1.10.1.jar",
-                "kotlin-stdlib-${UsedVersions.kotlinVersion}.jar",
-                "kotlin-test-${UsedVersions.kotlinVersion}.jar",
-                "kotlin-test-junit5-${UsedVersions.kotlinVersion}.jar",
+                "kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar",
+                "kotlin-test-${UsedVersions.defaultKotlinVersion}.jar",
+                "kotlin-test-junit5-${UsedVersions.defaultKotlinVersion}.jar",
                 "opentest4j-1.3.0.jar",
             ),
             testFragmentDeps
@@ -262,7 +262,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
 
         sharedModuleDeps.assertMapping(
             mapOf(
-                "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}" to "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}",
+                "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}" to "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}",
                 "org.jetbrains.compose.runtime:runtime:${UsedVersions.composeVersion}" to "org.jetbrains.compose.runtime:runtime-desktop:${UsedVersions.composeVersion}",
                 "org.jetbrains.compose.foundation:foundation:${UsedVersions.composeVersion}" to "org.jetbrains.compose.foundation:foundation-desktop:${UsedVersions.composeVersion}",
                 "org.jetbrains.compose.material3:material3:${UsedVersions.composeVersion}" to "org.jetbrains.compose.material3:material3-desktop:${UsedVersions.composeVersion}",

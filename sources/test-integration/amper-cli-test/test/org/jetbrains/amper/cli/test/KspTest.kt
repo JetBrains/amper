@@ -5,7 +5,9 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.cli.test.utils.assertContainsRelativeFiles
+import org.jetbrains.amper.cli.test.utils.assertSomeStderrLineContains
 import org.jetbrains.amper.cli.test.utils.assertSomeStdoutLineContains
+import org.jetbrains.amper.cli.test.utils.assertStderrDoesNotContain
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.core.system.Arch
@@ -28,6 +30,16 @@ import kotlin.test.assertTrue
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
 class KspTest: AmperCliTestBase() {
+
+    @Test
+    fun `ksp jvm invalid kotlin version`() = runSlowTest {
+        val projectRoot = testProject("ksp-jvm-invalid-kotlin-version")
+        val buildResult = runCli(projectRoot, "build", expectedExitCode = 1, assertEmptyStdErr = false)
+
+        // KSP shouldn't crash
+        buildResult.assertStderrDoesNotContain("Internal error")
+        buildResult.assertSomeStderrLineContains("Invalid Kotlin compiler version 2. Should be in the format 'x.y.*'.")
+    }
 
     @Test
     fun `ksp jvm autoservice`() = runSlowTest {

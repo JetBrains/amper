@@ -46,7 +46,8 @@ settings@jvm
 
 
      allWarningsAsErrors: false  # [default]
-     apiVersion: 2.2  # [Inherited from 'languageVersion']
+     apiVersion:
+
      debug:
 
      freeCompilerArgs:
@@ -58,7 +59,8 @@ settings@jvm
 
      languageFeatures:
 
-     languageVersion: 2.2  # [default]
+     languageVersion:
+
      linkerOptions:
 
      noArg:
@@ -88,6 +90,7 @@ settings@jvm
 
      suppressWarnings: false  # [default]
      verbose: false  # [default]
+     version: 2.2.0  # [default]
 
   kover:
 

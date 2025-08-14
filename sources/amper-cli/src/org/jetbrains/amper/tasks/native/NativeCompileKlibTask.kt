@@ -15,7 +15,6 @@ import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.compilation.validSourceFileExtensions
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -95,14 +94,11 @@ internal class NativeCompileKlibTask(
 
         // todo native resources are what exactly?
 
-        // TODO kotlin version settings
-        val kotlinVersion = UsedVersions.kotlinVersion
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("native compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
         val configuration: Map<String, String> = mapOf(
-            "kotlin.version" to kotlinVersion,
             "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
         )
@@ -134,7 +130,7 @@ internal class NativeCompileKlibTask(
 
             val artifact = taskOutputRoot.path.resolve(KotlinCompilationType.LIBRARY.outputFilename(module, platform, isTest))
 
-            val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
+            val nativeCompiler = downloadNativeCompiler(kotlinUserSettings.compilerVersion, userCacheRoot)
             val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
                 plugins = kotlinUserSettings.compilerPlugins,
             )

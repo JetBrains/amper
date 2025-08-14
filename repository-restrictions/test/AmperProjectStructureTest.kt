@@ -176,7 +176,7 @@ class AmperProjectStructureTest {
     private fun Notation.isKotlinStdlib(): Boolean = this is MavenDependency && isKotlinStdlib()
 
     private fun MavenDependency.isKotlinStdlib(): Boolean =
-        coordinates.value == "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}"
+        coordinates.value.startsWith("org.jetbrains.kotlin:kotlin-stdlib:")
 
     @Test
     fun `DR module doesn't depend on Amper-aware modules in its production dependencies`() = runTest {

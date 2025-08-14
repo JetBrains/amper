@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.cli.test.utils.assertLogContains
 import org.jetbrains.amper.cli.test.utils.assertLogStartsWith
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
@@ -21,7 +20,45 @@ import kotlin.test.Test
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
-class LanguageVersionTest : AmperCliTestBase() {
+class KotlinVersionTest : AmperCliTestBase() {
+
+    @Test
+    fun `run kotlin hello world with compiler version 2_0_0`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("kotlin-helloworld-custom-version-2.0.0"), "run")
+
+        result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
+
+        result.readTelemetrySpans().assertKotlinJvmCompilationSpan {
+            doesNotHaveCompilerArgument("-language-version")
+            doesNotHaveCompilerArgument("-api-version")
+            hasAmperModule("kotlin-helloworld-custom-version-2.0.0")
+        }
+    }
+
+    @Test
+    fun `run kotlin hello world with compiler version 2_2_0`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("kotlin-helloworld-custom-version-2.2.0"), "run")
+
+        result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
+
+        result.readTelemetrySpans().assertKotlinJvmCompilationSpan {
+            doesNotHaveCompilerArgument("-language-version")
+            doesNotHaveCompilerArgument("-api-version")
+            hasAmperModule("kotlin-helloworld-custom-version-2.2.0")
+        }
+    }
+
+    @Test
+    fun `run kotlin hello world with compiler version 2_2_10`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("kotlin-helloworld-custom-version-2.2.10"), "run")
+
+        result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
+
+        result.readTelemetrySpans().assertKotlinJvmCompilationSpan {
+            doesNotHaveCompilerArgument("-language-version=2.2")
+            hasAmperModule("kotlin-helloworld-custom-version-2.2.10")
+        }
+    }
 
     @Test
     fun `run jvm with language version 2_1`() = runSlowTest {

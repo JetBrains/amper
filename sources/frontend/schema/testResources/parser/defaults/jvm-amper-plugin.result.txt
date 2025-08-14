@@ -84,7 +84,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.2
+        apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -95,7 +95,7 @@ Fragments:
           version: <default> 2.2.0-2.0.2
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.2
+        languageVersion: <default> null
         linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -119,6 +119,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
+        version: <default> 2.2.0
       }
       kover: <default> null
       ktor: <default> {
@@ -229,7 +230,7 @@ Fragments:
           presets: <default> null
         }
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 2.2
+        apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
         ksp: <default> {
@@ -240,7 +241,7 @@ Fragments:
           version: <default> 2.2.0-2.0.2
         }
         languageFeatures: <default> null
-        languageVersion: <default> 2.2
+        languageVersion: <default> null
         linkerOptions: <default> null
         noArg: <default> {
           annotations: <default> null
@@ -264,6 +265,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
+        version: <default> 2.2.0
       }
       kover: <default> null
       ktor: <default> {

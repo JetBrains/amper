@@ -4,12 +4,13 @@
 
 package org.jetbrains.amper.tasks.native
 
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -49,10 +50,17 @@ class CommonizeNativeDistributionTask(
     private val kotlinDownloader = KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs)
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
-        val kotlinVersion = UsedVersions.kotlinVersion
+        coroutineScope {
+            model.nativePlatformSetsToCommonizeByKotlinVersion().forEach { (kotlinVersion, sharedPlatformSets) ->
+                launch {
+                    commonize(kotlinVersion, sharedPlatformSets)
+                }
+            }
+        }
+        return EmptyTaskResult
+    }
 
-        val sharedPlatformSets = model.nativePlatformSetsToCommonize()
-
+    private suspend fun commonize(kotlinVersion: String, sharedPlatformSets: Set<List<Platform>>) {
         val sharedPlatforms = sharedPlatformSets.map { set ->
             set.joinToString(prefix = "(", separator = ",", postfix = ")") { it.nameForCompiler }
         }.toSet()
@@ -101,21 +109,20 @@ class CommonizeNativeDistributionTask(
                     }.outputs
                 }
         }
-
-        return EmptyTaskResult
     }
 
-    private fun Model.nativePlatformSetsToCommonize(): Set<List<Platform>> {
-        val sharedPlatformSets = mutableSetOf<List<Platform>>()
+    private fun Model.nativePlatformSetsToCommonizeByKotlinVersion(): Map<String, Set<List<Platform>>> {
+        val sharedPlatformSetsByKotlinVersion = mutableMapOf<String, MutableSet<List<Platform>>>()
         for (module in modules) {
             for (fragment in module.fragments) {
                 val platforms = fragment.platforms.filter { it.isDescendantOf(Platform.NATIVE) }
                 if (platforms.size > 1) {
-                    sharedPlatformSets += platforms.toList()
+                    val kotlinVersion = fragment.settings.kotlin.version
+                    sharedPlatformSetsByKotlinVersion.getOrPut(kotlinVersion) { mutableSetOf() } += platforms.toList()
                 }
             }
         }
-        return sharedPlatformSets
+        return sharedPlatformSetsByKotlinVersion
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)

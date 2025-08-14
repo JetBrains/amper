@@ -60,4 +60,14 @@ class SettingsDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnost
     fun `settings context specificity valid with aliases`() {
         diagnosticsTest("settings-context-specificity-valid-with-aliases")
     }
+
+    @Test
+    fun `invalid kotlin compiler version`() {
+        diagnosticsTest("invalid-kotlin-compiler-version")
+    }
+
+    @Test
+    fun `kotlin compiler version too low`() {
+        diagnosticsTest("kotlin-compiler-version-too-low")
+    }
 }

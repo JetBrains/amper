@@ -25,7 +25,6 @@ import org.jetbrains.amper.compilation.serializableCompilationSettings
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
@@ -135,9 +134,6 @@ internal class JvmCompileTask(
 
         val userSettings = fragments.singleLeafFragment().serializableCompilationSettings()
 
-        // TODO Make kotlin version configurable in settings
-        val kotlinVersion = UsedVersions.kotlinVersion
-
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>().flatMap { it.compileClasspath }
         val classpath = compileModuleDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
@@ -163,7 +159,6 @@ internal class JvmCompileTask(
 
         val configuration: Map<String, String> = mapOf(
             "jdk.url" to jdk.downloadUrl.toString(),
-            "kotlin.version" to kotlinVersion,
             "user.settings" to Json.encodeToString(userSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
             "target.platforms" to module.leafPlatforms.map { it.name }.sorted().joinToString(),
@@ -195,7 +190,6 @@ internal class JvmCompileTask(
                     jdk = jdk,
                     sourceDirectories = nonEmptySourceDirs,
                     additionalSources = additionalSources,
-                    kotlinVersion = kotlinVersion,
                     userSettings = userSettings,
                     classpath = classpath,
                     friendPaths = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
@@ -236,7 +230,6 @@ internal class JvmCompileTask(
         jdk: Jdk,
         sourceDirectories: List<Path>,
         additionalSources: List<SourceRoot>,
-        kotlinVersion: String,
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
         friendPaths: List<Path>,
@@ -260,7 +253,6 @@ internal class JvmCompileTask(
             val isMultiplatform = (module.leafPlatforms - Platform.JVM).isNotEmpty() || sourceDirectories.size > 1
 
             compileKotlinSources(
-                compilerVersion = kotlinVersion,
                 userSettings = userSettings,
                 isMultiplatform = isMultiplatform,
                 classpath = classpath,
@@ -286,7 +278,6 @@ internal class JvmCompileTask(
     }
 
     private suspend fun compileKotlinSources(
-        compilerVersion: String,
         userSettings: CompilationUserSettings,
         isMultiplatform: Boolean,
         classpath: List<Path>,
@@ -295,8 +286,10 @@ internal class JvmCompileTask(
         additionalSourceRoots: List<SourceRoot>,
         friendPaths: List<Path>,
     ) {
-        // TODO should we download this in a separate task?
-        val compilationService = CompilationService.loadMaybeCachedImpl(compilerVersion, kotlinArtifactsDownloader)
+        val compilationService = CompilationService.loadMaybeCachedImpl(
+            kotlinVersion = userSettings.kotlin.compilerVersion,
+            downloader = kotlinArtifactsDownloader,
+        )
 
         // TODO should we allow users to choose in-process vs daemon?
         // TODO settings for daemon JVM args?
@@ -329,7 +322,7 @@ internal class JvmCompileTask(
             .setFragments(fragments)
             .setListAttribute("source-files", sourceFiles.map { it.pathString })
             .setListAttribute("compiler-args", compilerArgs)
-            .setAttribute("compiler-version", compilerVersion)
+            .setAttribute("compiler-version", userSettings.kotlin.compilerVersion)
             .use {
                 logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
                 // TODO capture compiler errors/warnings in span (currently stdout/stderr are only logged)

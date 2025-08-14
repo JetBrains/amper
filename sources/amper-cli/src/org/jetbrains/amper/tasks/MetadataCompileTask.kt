@@ -15,7 +15,6 @@ import org.jetbrains.amper.compilation.kotlinMetadataCompilerArgs
 import org.jetbrains.amper.compilation.kotlinModuleName
 import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
@@ -72,8 +71,6 @@ internal class MetadataCompileTask(
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): Result {
         logger.debug("compile metadata for '${module.userReadableName}' -- ${fragment.name}")
 
-        // TODO Make kotlin version configurable in settings
-        val kotlinVersion = UsedVersions.kotlinVersion
         val kotlinSettings = fragment.serializableKotlinSettings()
 
         val dependencyResolutionResults = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>()
@@ -114,7 +111,6 @@ internal class MetadataCompileTask(
                 }
                 compileSources(
                     jdk = jdk,
-                    kotlinVersion = kotlinVersion,
                     kotlinUserSettings = kotlinSettings,
                     sourceDirectories = sourceDirs,
                     additionalSourceRoots = additionalKotlinJavaSourceDirs.map { SourceRoot(it.fragmentName, it.path) },
@@ -145,7 +141,6 @@ internal class MetadataCompileTask(
 
     private suspend fun compileSources(
         jdk: Jdk,
-        kotlinVersion: String,
         kotlinUserSettings: KotlinUserSettings,
         sourceDirectories: List<Path>,
         additionalSourceRoots: List<SourceRoot>,
@@ -158,7 +153,9 @@ internal class MetadataCompileTask(
             return
         }
 
-        val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(version = kotlinVersion)
+        val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(
+            version = kotlinUserSettings.compilerVersion,
+        )
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
             plugins = kotlinUserSettings.compilerPlugins,
         )
@@ -178,7 +175,7 @@ internal class MetadataCompileTask(
         spanBuilder("kotlin-metadata-compilation")
             .setAmperModule(module)
             .setListAttribute("source-dirs", sourceDirectories.map { it.pathString })
-            .setAttribute("compiler-version", kotlinVersion)
+            .setAttribute("compiler-version", kotlinUserSettings.compilerVersion)
             .setListAttribute("compiler-args", compilerArgs)
             .use {
                 logger.info("Compiling Kotlin metadata for module '${module.userReadableName}'...")

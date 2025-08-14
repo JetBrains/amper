@@ -113,14 +113,11 @@ internal abstract class WebLinkTask(
 
         val compileKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
 
-        // TODO kotlin version settings
-        val kotlinVersion = UsedVersions.kotlinVersion
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("${expectedPlatform.name} link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
         val configuration: Map<String, String> = mapOf(
-            "kotlin.version" to kotlinVersion,
             "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
         )
@@ -136,7 +133,6 @@ internal abstract class WebLinkTask(
 
             compileSources(
                 jdk,
-                kotlinVersion = kotlinVersion,
                 kotlinUserSettings = kotlinUserSettings,
                 librariesPaths = externalKLibs + inputs,
                 includeArtifact = includeArtifact,
@@ -152,12 +148,13 @@ internal abstract class WebLinkTask(
 
     private suspend fun compileSources(
         jdk: Jdk,
-        kotlinVersion: String,
         kotlinUserSettings: KotlinUserSettings,
         librariesPaths: List<Path>,
         includeArtifact: Path?,
     ) {
-        val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(version = kotlinVersion)
+        val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(
+            version = kotlinUserSettings.compilerVersion,
+        )
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
             plugins = kotlinUserSettings.compilerPlugins,
         )
@@ -182,7 +179,7 @@ internal abstract class WebLinkTask(
         }
         spanBuilder("kotlin-${expectedPlatform.name.lowercase()}-link")
             .setAmperModule(module)
-            .setAttribute("compiler-version", kotlinVersion)
+            .setAttribute("compiler-version", kotlinUserSettings.compilerVersion)
             .setListAttribute("compiler-args", compilerArgs)
             .use {
                 logger.info("Linking Kotlin ${expectedPlatform.name} for module '${module.userReadableName}'...")

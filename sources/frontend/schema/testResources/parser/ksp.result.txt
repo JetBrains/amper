@@ -15,7 +15,7 @@ Fragments:
         targetSdk: <default> VERSION_35
       }
       kotlin: {
-        apiVersion: <default> 2.2
+        apiVersion: <default> null
         ksp: {
           processorOptions: {
             "room.schemaLocation": ./generated-db-schema
@@ -49,7 +49,7 @@ Fragments:
         targetSdk: <default> VERSION_35
       }
       kotlin: {
-        apiVersion: <default> 2.2
+        apiVersion: <default> null
         ksp: {
           processorOptions: {
             "room.schemaLocation": ./generated-db-schema

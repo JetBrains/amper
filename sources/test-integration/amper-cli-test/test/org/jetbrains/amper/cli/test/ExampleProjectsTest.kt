@@ -135,8 +135,8 @@ class ExampleProjectsTest: AmperCliTestBase() {
         result.withTelemetrySpans {
             // testing some default compiler arguments
             assertKotlinJvmCompilationSpan {
-                hasCompilerArgument("-language-version=2.2")
-                hasCompilerArgument("-api-version=2.2")
+                doesNotHaveCompilerArgument("-language-version")
+                doesNotHaveCompilerArgument("-api-version")
                 hasCompilerArgument("-Xjdk-release=17")
             }
             assertJavaCompilationSpan {

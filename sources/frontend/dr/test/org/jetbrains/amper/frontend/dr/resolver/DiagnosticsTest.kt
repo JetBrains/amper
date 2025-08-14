@@ -61,8 +61,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
                 │         ╰─── org.jetbrains:annotations:13.0
                 ├─── shared:common:org.jetbrains.compose.runtime:runtime:12.12.12
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
@@ -72,12 +72,12 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:commonTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}
-                │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}
-                │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}
+                │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.defaultKotlinVersion}
+                │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
                 │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
                 │              ├─── org.junit:junit-bom:5.10.1
                 │              ├─── org.opentest4j:opentest4j:1.3.0
@@ -93,8 +93,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:jvm:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
                 ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:jvmTest:org.jetbrains.compose.foundation:foundation:12.12.12
@@ -103,10 +103,10 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:jvmTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
-                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion} (*)
+                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
+                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion} (*)
                 ╰─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12
                      ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 """.trimIndent(),
@@ -127,9 +127,9 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 "apiguardian-api-1.1.2.jar",
                 "junit-jupiter-api-5.10.1.jar",
                 "junit-platform-commons-1.10.1.jar",
-                "kotlin-stdlib-${UsedVersions.kotlinVersion}.jar",
-                "kotlin-test-${UsedVersions.kotlinVersion}.jar",
-                "kotlin-test-junit5-${UsedVersions.kotlinVersion}.jar",
+                "kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar",
+                "kotlin-test-${UsedVersions.defaultKotlinVersion}.jar",
+                "kotlin-test-junit5-${UsedVersions.defaultKotlinVersion}.jar",
                 "opentest4j-1.3.0.jar",
             ),
             sharedTestFragmentDeps
@@ -213,8 +213,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 2.17.2, unresolved
                 ├─── jvm-invalid-dependencies:main:com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
                 │    ╰─── com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
-                ╰─── jvm-invalid-dependencies:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                ╰─── jvm-invalid-dependencies:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
             verifyMessages = false
@@ -305,8 +305,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
                 ├─── app:main:com.fasterxml.jackson:jackson-bom:2.18.3
                 │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
             verifyMessages = false,
@@ -398,8 +398,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 ├─── classifiers:main:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
                 ├─── classifiers:main:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
                 ├─── classifiers:main:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
-                ╰─── classifiers:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                ╰─── classifiers:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
             verifyMessages = false

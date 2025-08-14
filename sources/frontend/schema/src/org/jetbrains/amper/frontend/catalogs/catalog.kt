@@ -24,6 +24,10 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 context(problemReporter: ProblemReporter)
 internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
+    kotlinVersion = version(
+        version = TraceableVersion(kotlin.version, kotlin::version.schemaDelegate),
+        fallbackVersion = UsedVersions.defaultKotlinVersion,
+    ),
     serializationVersion = kotlin.serialization.takeIf { it.enabled }?.version
         ?.let { TraceableVersion(it, kotlin.serialization::version.schemaDelegate) }
         ?.let { version(it, UsedVersions.kotlinxSerializationVersion) },
@@ -55,6 +59,7 @@ private fun version(version: TraceableVersion, fallbackVersion: String): Traceab
 }
 
 private class BuiltInCatalog(
+    kotlinVersion: TraceableString,
     serializationVersion: TraceableString?,
     composeVersion: TraceableString?,
     ktorVersion: TraceableString?,
@@ -64,8 +69,6 @@ private class BuiltInCatalog(
 
     override val entries: Map<String, TraceableString> = buildMap {
         // @formatter:off
-        // Add Kotlin dependencies that should be aligned with our single Kotlin version
-        val kotlinVersion = UsedVersions.kotlinVersion
         put("kotlin.test", library("org.jetbrains.kotlin:kotlin-test", kotlinVersion))
         put("kotlin.test.junit", library("org.jetbrains.kotlin:kotlin-test-junit", kotlinVersion))
         put("kotlin.test.junit5", library("org.jetbrains.kotlin:kotlin-test-junit5", kotlinVersion))

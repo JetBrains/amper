@@ -1,11 +1,14 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.ksp
 
 import org.jetbrains.amper.compilation.CompilationUserSettings
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.schema.JavaVersion
+import org.jetbrains.amper.frontend.schema.KotlinCompilerVersionPattern
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -117,8 +120,9 @@ internal sealed interface KspConfig {
         override lateinit var libraries: List<Path>
 
         override var processorOptions: Map<String, String> = emptyMap()
-        override var languageVersion: String = compilationSettings.kotlin.languageVersion.schemaValue
-        override var apiVersion: String = compilationSettings.kotlin.apiVersion.schemaValue
+        override var languageVersion: String = compilationSettings.kotlin.languageVersion?.schemaValue
+            ?: defaultLanguageVersionFor(compilationSettings.kotlin.compilerVersion)
+        override var apiVersion: String = compilationSettings.kotlin.apiVersion?.schemaValue ?: languageVersion
         override var allWarningsAsErrors: Boolean = compilationSettings.kotlin.allWarningsAsErrors
         override var mapAnnotationArgumentsInJava: Boolean = false // TODO map this to a setting?
 
@@ -158,6 +162,15 @@ private fun MutableList<String>.addPaths(argName: String, paths: List<Path>, wor
         paths.map { it.pathString }
     }
     addList(argName, effectivePaths, legacyListMode)
+}
+
+private fun defaultLanguageVersionFor(compilerVersion: String): String {
+    val match = KotlinCompilerVersionPattern.matchEntire(compilerVersion)
+        ?: error("Invalid Kotlin compiler version '$compilerVersion'") // already checked in the frontend
+    val languageVersionGroup = match.groups["languageVersion"]
+        ?: error("The 'languageVersion' capturing group should be present and mandatory in the Kotlin version regex," +
+                "but got: ${KotlinCompilerVersionPattern.pattern}")
+    return languageVersionGroup.value
 }
 
 internal interface KspJvmConfig : KspConfig {

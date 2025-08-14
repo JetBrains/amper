@@ -41,7 +41,7 @@ class SerializationTest: AmperCliTestBase() {
             .assertHasAttribute(
                 key = AttributeKey.stringArrayKey("dependencies"),
                 value = listOf(
-                    "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}",
+                    "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}",
                     "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1",
                     "org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1",
                     "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1",

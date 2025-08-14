@@ -16,6 +16,12 @@ fun AmperCliResult.assertSomeStdoutLineContains(text: String) {
     }
 }
 
+fun AmperCliResult.assertSomeStderrLineContains(text: String) {
+    assertTrue("No line in stdout contains the text '$text':\n" + stderr.trim()) {
+        stderr.lineSequence().any { text in it }
+    }
+}
+
 fun AmperCliResult.assertStdoutContains(text: String) {
     assertTrue("Stdout does not contain the text '$text':\n" + stdout.trim()) {
         text in stdout

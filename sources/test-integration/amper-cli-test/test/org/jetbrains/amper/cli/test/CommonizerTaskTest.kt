@@ -5,7 +5,7 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.cli.test.utils.runSlowTest
-import org.jetbrains.amper.core.UsedVersions.kotlinVersion
+import org.jetbrains.amper.core.UsedVersions.defaultKotlinVersion
 import org.jetbrains.amper.test.MacOnly
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
@@ -80,7 +80,7 @@ class CommonizerTaskTest: AmperCliTestBase() {
         )
 
         assertEquals(runResult.exitCode, 0, "The commonizer task failed with exit code ${runResult.exitCode}")
-        val commonizedRootDir = konanDataDir / "klib" / "commonized" / kotlinVersion
+        val commonizedRootDir = konanDataDir / "klib" / "commonized" / defaultKotlinVersion
         assertTrue(commonizedRootDir.exists(), "$commonizedRootDir directory does not exist")
         return commonizedRootDir
     }

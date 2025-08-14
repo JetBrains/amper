@@ -27,6 +27,12 @@ class CompilationSpanAssertions(
         }
     }
 
+    fun doesNotHaveCompilerArgument(name: String) {
+        assertTrue("Compiler argument '$name' is present, but shouldn't: $compilerArgs") {
+            !compilerArgs.contains(name) && compilerArgs.none { it.startsWith("$name=") }
+        }
+    }
+
     fun hasCompilerArgumentStartingWith(argumentPrefix: String) {
         assertTrue("Compiler argument starting with '$argumentPrefix' is missing. Actual args: $compilerArgs") {
             compilerArgs.any { it.startsWith(argumentPrefix) }

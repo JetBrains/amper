@@ -15,7 +15,6 @@ import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
 import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -104,8 +103,6 @@ internal class NativeLinkTask(
         val compileKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
         val exportedKLibs = exportedKLibDependencies.mapNotNull { it.compiledKlib }
 
-        // TODO kotlin version settings
-        val kotlinVersion = UsedVersions.kotlinVersion
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("native link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
@@ -129,7 +126,6 @@ internal class NativeLinkTask(
         } else emptyMap()
 
         val configuration: Map<String, String> = mapOf(
-            "kotlin.version" to kotlinVersion,
             "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
             "entry.point" to (entryPoint ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,
@@ -159,7 +155,7 @@ internal class NativeLinkTask(
 
             val artifactPath = taskOutputRoot.path.resolve(compilationType.outputFilename(module, platform, isTest))
 
-            val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
+            val nativeCompiler = downloadNativeCompiler(kotlinUserSettings.compilerVersion, userCacheRoot)
             val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
                 plugins = kotlinUserSettings.compilerPlugins,
             )

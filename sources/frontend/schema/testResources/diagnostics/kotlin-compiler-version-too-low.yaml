@@ -1,0 +1,5 @@
+product: jvm/app
+
+settings:
+  kotlin:
+    <![Error] Unsupported Kotlin compiler version 1.9.20. Should be at least 2.0.0.!>version: 1.9.20<!>

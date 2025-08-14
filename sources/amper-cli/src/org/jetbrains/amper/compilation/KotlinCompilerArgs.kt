@@ -37,10 +37,14 @@ private fun kotlinCommonCompilerArgs(
     additionalSourceRoots: List<SourceRoot>,
     compilerPlugins: List<ResolvedCompilerPlugin>,
 ): List<String> = buildList {
+    val languageVersion = kotlinUserSettings.languageVersion
+
     if (isMultiplatform) {
         add("-Xmulti-platform")
 
-        if (kotlinUserSettings.languageVersion >= KotlinVersion.Kotlin20) {
+        // When languageVersion == null, we don't pass anything to the compiler, so it uses its own default.
+        // This case is similar to languageVersion >= 2.0 because we forbid compiler versions < 2.0.0 in the frontend.
+        if (languageVersion == null || languageVersion >= KotlinVersion.Kotlin20) {
             val additionalSourceRootsByFragmentName = additionalSourceRoots.groupBy(
                 keySelector = { it.fragmentName },
                 valueTransform = { it.path },
@@ -61,8 +65,12 @@ private fun kotlinCommonCompilerArgs(
         }
     }
 
-    add("-language-version=${kotlinUserSettings.languageVersion.schemaValue}")
-    add("-api-version=${kotlinUserSettings.apiVersion.schemaValue}")
+    if (languageVersion != null) {
+        add("-language-version=${languageVersion.schemaValue}")
+    }
+    kotlinUserSettings.apiVersion?.let { apiVersion ->
+        add("-api-version=${apiVersion.schemaValue}")
+    }
 
     if (kotlinUserSettings.allWarningsAsErrors) {
         add("-Werror")

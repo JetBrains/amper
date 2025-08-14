@@ -20,8 +20,9 @@ internal data class CompilationUserSettings(
 
 @Serializable
 internal data class KotlinUserSettings(
-    val languageVersion: KotlinVersion,
-    val apiVersion: KotlinVersion,
+    val compilerVersion: String,
+    val languageVersion: KotlinVersion?,
+    val apiVersion: KotlinVersion?,
     val allWarningsAsErrors: Boolean,
     val suppressWarnings: Boolean,
     val debug: Boolean?,
@@ -50,6 +51,7 @@ internal fun Fragment.serializableCompilationSettings(): CompilationUserSettings
 )
 
 internal fun Fragment.serializableKotlinSettings(): KotlinUserSettings = KotlinUserSettings(
+    compilerVersion = settings.kotlin.version,
     languageVersion = settings.kotlin.languageVersion,
     apiVersion = settings.kotlin.apiVersion,
     allWarningsAsErrors = settings.kotlin.allWarningsAsErrors,

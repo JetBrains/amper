@@ -1318,7 +1318,8 @@
           "x-intellij-metadata": {
             "misnomers": [
               "api-version",
-              "sdkVersion"
+              "sdkVersion",
+              "sdk"
             ]
           }
         },
@@ -1372,8 +1373,7 @@
           "title": "Source compatibility with the specified version of Kotlin",
           "x-intellij-metadata": {
             "misnomers": [
-              "language-version",
-              "version"
+              "language-version"
             ]
           }
         },
@@ -1448,6 +1448,16 @@
           "type": "boolean",
           "x-intellij-html-description": "Enable verbose logging output which includes details of the compilation process",
           "title": "Enable verbose logging output which includes details of the compilation process"
+        },
+        "version": {
+          "type": "string",
+          "x-intellij-html-description": "The version of the Kotlin compiler and standard library to use",
+          "title": "The version of the Kotlin compiler and standard library to use",
+          "x-intellij-metadata": {
+            "misnomers": [
+              "compiler"
+            ]
+          }
         }
       }
     },

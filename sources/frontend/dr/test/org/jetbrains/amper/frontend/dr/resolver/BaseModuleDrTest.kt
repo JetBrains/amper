@@ -187,7 +187,7 @@ abstract class BaseModuleDrTest {
         if (!goldenFile.exists()) fail("$fileDescription $goldenFile doesn't exist")
         return goldenFile
             .readText()
-            .replace("#kotlinVersion", UsedVersions.kotlinVersion)
+            .replace("#kotlinVersion", UsedVersions.defaultKotlinVersion)
             .replace("#composeDefaultVersion", UsedVersions.composeVersion)
             .trim()
     }
@@ -225,13 +225,13 @@ abstract class BaseModuleDrTest {
         private fun String.replaceVersionsWithVariables(): String =
             replaceArtifactFilenames(
                 filePrefix = "kotlin-stdlib",
-                version = UsedVersions.kotlinVersion,
+                version = UsedVersions.defaultKotlinVersion,
                 versionVariableName = "kotlinVersion",
             )
                 .replaceCoordinateVersionWithReference(
                     groupPrefix = "org.jetbrains.kotlin",
                     artifactPrefix = "kotlin-",
-                    version = UsedVersions.kotlinVersion,
+                    version = UsedVersions.defaultKotlinVersion,
                     versionVariableName = "kotlinVersion",
                 )
                 .replaceCoordinateVersionWithReference(

@@ -28,8 +28,8 @@ import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLoca
 import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 import org.jetbrains.amper.frontend.toClassBasedSet
 
-private fun kotlinDependencyOf(artifactId: String, dependencyTrace: Trace) = MavenDependency(
-    coordinates = TraceableString("org.jetbrains.kotlin:$artifactId:${UsedVersions.kotlinVersion}", DefaultTrace),
+private fun kotlinDependencyOf(artifactId: String, version: TraceableString, dependencyTrace: Trace) = MavenDependency(
+    coordinates = TraceableString("org.jetbrains.kotlin:$artifactId:$version", DefaultTrace),
     trace = dependencyTrace,
 )
 
@@ -144,13 +144,14 @@ private fun Fragment.allExternalMavenDependencies() = ancestralPath()
     .filterIsInstance<MavenDependencyBase>()
 
 private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> = buildList {
-    add(kotlinDependencyOf("kotlin-stdlib", DefaultTrace))
+    val kotlinVersion = settings.kotlin::version.schemaDelegate.asTraceableString()
+    add(kotlinDependencyOf("kotlin-stdlib", kotlinVersion, DefaultTrace))
 
     // hack for avoiding classpath clashes in android dependencies, until DR support dependency constraints from
     // Gradle module metadata
     if (platforms == setOf(Platform.ANDROID)) {
-        add(kotlinDependencyOf("kotlin-stdlib-jdk7", DefaultTrace))
-        add(kotlinDependencyOf("kotlin-stdlib-jdk8", DefaultTrace))
+        add(kotlinDependencyOf("kotlin-stdlib-jdk7", kotlinVersion, DefaultTrace))
+        add(kotlinDependencyOf("kotlin-stdlib-jdk8", kotlinVersion, DefaultTrace))
     }
 
     if (settings.compose.enabled && settings.compose.experimental.hotReload.enabled) {
@@ -181,7 +182,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         }
     }
     if (settings.android.parcelize.enabled) {
-        add(kotlinDependencyOf("kotlin-parcelize-runtime", DefaultTrace))
+        add(kotlinDependencyOf("kotlin-parcelize-runtime", kotlinVersion, DefaultTrace))
     }
     if (settings.lombok.enabled) {
         val lombokVersion = settings.lombok::version.schemaDelegate.asTraceableString()
@@ -210,7 +211,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         val springBootEnabledTrace = settings.springBoot::enabled.schemaDelegate.trace
         add(springBootBomDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
         add(springBootStarterDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
-        add(kotlinDependencyOf("kotlin-reflect", dependencyTrace = springBootEnabledTrace))
+        add(kotlinDependencyOf("kotlin-reflect", kotlinVersion, dependencyTrace = springBootEnabledTrace))
     }
 
     if (module.type == ProductType.JVM_AMPER_PLUGIN) {
@@ -227,18 +228,19 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
 }
 
 private fun Fragment.inferredTestDependencies(): List<MavenDependency> = buildList {
+    val kotlinVersion = settings.kotlin::version.schemaDelegate.asTraceableString()
     if (platforms.size == 1 && platforms.single().supportsJvmTestFrameworks()) {
         val junitTrace = settings::junit.schemaDelegate.trace
         when (settings.junit) {
             // TODO support kotlin-test-testng?
             //   For this, we should rename settings.junit -> settings.jvm.testFramework and add the TESTNG value to the enum
-            JUnitVersion.JUNIT4 -> add(kotlinDependencyOf("kotlin-test-junit", junitTrace))
-            JUnitVersion.JUNIT5 -> add(kotlinDependencyOf("kotlin-test-junit5", junitTrace))
-            JUnitVersion.NONE -> add(kotlinDependencyOf("kotlin-test", DefaultTrace))
+            JUnitVersion.JUNIT4 -> add(kotlinDependencyOf("kotlin-test-junit", kotlinVersion, junitTrace))
+            JUnitVersion.JUNIT5 -> add(kotlinDependencyOf("kotlin-test-junit5", kotlinVersion, junitTrace))
+            JUnitVersion.NONE -> add(kotlinDependencyOf("kotlin-test", kotlinVersion, DefaultTrace))
         }
     } else {
-        add(kotlinDependencyOf("kotlin-test", DefaultTrace))
-        add(kotlinDependencyOf("kotlin-test-annotations-common", DefaultTrace))
+        add(kotlinDependencyOf("kotlin-test", kotlinVersion, DefaultTrace))
+        add(kotlinDependencyOf("kotlin-test-annotations-common", kotlinVersion, DefaultTrace))
     }
 
     if (settings.springBoot.enabled) {

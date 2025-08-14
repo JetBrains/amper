@@ -89,7 +89,7 @@ fun String.replaceCatalogVersionVariable(variableName: String, newValue: String)
 fun updateUsedVersionsKt() {
     usedVersionsKt.replaceFileText { text ->
         text
-            .replaceBundledVersionVariable(variableName = "kotlinVersion", newValue = kotlinVersion)
+            .replaceBundledVersionVariable(variableName = "defaultKotlinVersion", newValue = kotlinVersion)
             .replaceBundledVersionVariable(variableName = "kotlinxSerializationVersion", newValue = kotlinxSerializationVersion)
             .replaceBundledVersionVariable(variableName = "composeVersion", newValue = composeVersion)
             .replaceBundledVersionVariable(variableName = "junitPlatform", newValue = junitPlatformVersion)

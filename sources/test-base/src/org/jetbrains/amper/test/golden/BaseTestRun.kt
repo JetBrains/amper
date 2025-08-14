@@ -41,5 +41,5 @@ abstract class BaseTestRun(
 }
 
 fun String.replaceDefaultVersions() = this
-    .replace("#kotlinVersion", UsedVersions.kotlinVersion)
+    .replace("#kotlinVersion", UsedVersions.defaultKotlinVersion)
     .replace("#composeDefaultVersion", UsedVersions.composeVersion)

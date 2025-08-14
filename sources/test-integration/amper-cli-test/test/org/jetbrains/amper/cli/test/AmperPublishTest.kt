@@ -118,7 +118,7 @@ class AmperPublishTest : AmperCliTestBase() {
                 <dependency>
                   <groupId>org.jetbrains.kotlin</groupId>
                   <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.kotlinVersion}</version>
+                  <version>${UsedVersions.defaultKotlinVersion}</version>
                   <scope>runtime</scope>
                 </dependency>
               </dependencies>
@@ -182,7 +182,7 @@ class AmperPublishTest : AmperCliTestBase() {
                 <dependency>
                   <groupId>org.jetbrains.kotlin</groupId>
                   <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.kotlinVersion}</version>
+                  <version>${UsedVersions.defaultKotlinVersion}</version>
                   <scope>runtime</scope>
                 </dependency>
               </dependencies>

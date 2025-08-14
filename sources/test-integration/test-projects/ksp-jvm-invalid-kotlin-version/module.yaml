@@ -1,0 +1,13 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - com.google.auto.service:auto-service-annotations:1.1.1
+
+settings:
+  kotlin:
+    version: 2 # a version from which we can't extract a language version
+    ksp:
+      processors:
+        - dev.zacsweers.autoservice:auto-service-ksp:1.2.0

@@ -115,8 +115,6 @@ internal abstract class WebCompileKlibTask(
             .mapNotNull { it.compiledKlib }
             .toList()
 
-        // TODO kotlin version settings
-        val kotlinVersion = UsedVersions.kotlinVersion
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("${expectedPlatform.name} compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
@@ -124,7 +122,6 @@ internal abstract class WebCompileKlibTask(
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
         val configuration: Map<String, String> = mapOf(
-            "kotlin.version" to kotlinVersion,
             "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
         )
@@ -163,7 +160,6 @@ internal abstract class WebCompileKlibTask(
 
             compileSources(
                 jdk = jdk,
-                kotlinVersion = kotlinVersion,
                 kotlinUserSettings = kotlinUserSettings,
                 sourceFiles = sourceFiles,
                 fragments = fragments,
@@ -187,7 +183,6 @@ internal abstract class WebCompileKlibTask(
 
     private suspend fun compileSources(
         jdk: Jdk,
-        kotlinVersion: String,
         kotlinUserSettings: KotlinUserSettings,
         sourceFiles: List<Path>,
         fragments: List<Fragment>,
@@ -195,7 +190,9 @@ internal abstract class WebCompileKlibTask(
         librariesPaths: List<Path>,
         friendPaths: List<Path>,
     ) {
-        val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(version = kotlinVersion)
+        val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(
+            version = kotlinUserSettings.compilerVersion,
+        )
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
             plugins = kotlinUserSettings.compilerPlugins,
         )
@@ -216,7 +213,7 @@ internal abstract class WebCompileKlibTask(
         spanBuilder("kotlin-${expectedPlatform.name.lowercase()}-compilation")
             .setAmperModule(module)
             .setListAttribute("source-dirs", sourceFiles.map { it.pathString })
-            .setAttribute("compiler-version", kotlinVersion)
+            .setAttribute("compiler-version", kotlinUserSettings.compilerVersion)
             .setListAttribute("compiler-args", compilerArgs)
             .use {
                 logger.info("Compiling Kotlin ${expectedPlatform.name} for module '${module.userReadableName}'...")
