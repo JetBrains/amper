@@ -17,7 +17,7 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.trace
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
 import org.jetbrains.amper.frontend.catalogs.plus
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
@@ -235,7 +235,7 @@ private fun Dependency.resolveInternalDependency(
     reportedUnresolvedModules: MutableSet<Trace>,
 ): Notation? = when (this) {
     is ExternalMavenDependency -> MavenDependency(
-        coordinates = TraceableString(coordinates, this::coordinates.valueBase.trace),
+        coordinates = TraceableString(coordinates, this::coordinates.schemaDelegate.trace),
         trace = trace,
         compile = scope.compile,
         runtime = scope.runtime,
@@ -243,7 +243,7 @@ private fun Dependency.resolveInternalDependency(
     )
     is InternalDependency -> resolveModuleDependency(moduleDir2module, reportedUnresolvedModules)
     is ExternalMavenBomDependency -> BomDependency(
-        coordinates = TraceableString(coordinates, trace = ::coordinates.valueBase.trace),
+        coordinates = TraceableString(coordinates, trace = ::coordinates.schemaDelegate.trace),
         trace = trace,
     )
     is CatalogDependency -> error("Catalog dependency must be processed earlier!")

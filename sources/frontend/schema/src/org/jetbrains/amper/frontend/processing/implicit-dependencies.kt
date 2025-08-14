@@ -17,11 +17,11 @@ import org.jetbrains.amper.frontend.ancestralPath
 import org.jetbrains.amper.frontend.aomBuilder.DefaultFragment
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.ValueDelegateBase
 import org.jetbrains.amper.frontend.api.derived
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
@@ -156,7 +156,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     if (settings.compose.enabled && settings.compose.experimental.hotReload.enabled) {
         // TODO should be configurable
         val hotReloadVersion = TraceableString(UsedVersions.hotReloadVersion, DefaultTrace)
-        val hotReloadEnabledTrace = settings.compose.experimental.hotReload::enabled.valueBase.trace
+        val hotReloadEnabledTrace = settings.compose.experimental.hotReload::enabled.schemaDelegate.trace
         add(hotReloadDependency(hotReloadVersion, hotReloadEnabledTrace))
     }
 
@@ -164,15 +164,15 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         addAll(inferredTestDependencies())
     }
     if (settings.kotlin.serialization.enabled) {
-        val kotlinSerializationVersion = settings.kotlin.serialization::version.valueBase.asTraceableString()
-        val serializationEnabledTrace = settings.kotlin.serialization::enabled.valueBase.trace
+        val kotlinSerializationVersion = settings.kotlin.serialization::version.schemaDelegate.asTraceableString()
+        val serializationEnabledTrace = settings.kotlin.serialization::enabled.schemaDelegate.trace
 
         // if kotlinx.serialization plugin is enabled, we need the @Serializable annotation, which is in core
         add(kotlinxSerializationCoreDependency(kotlinSerializationVersion, dependencyTrace = serializationEnabledTrace))
 
         val format = settings.kotlin.serialization.format
         if (format != null && format != legacySerializationFormatNone) {
-            val serializationFormatTrace = settings.kotlin.serialization::format.valueBase.trace
+            val serializationFormatTrace = settings.kotlin.serialization::format.schemaDelegate.trace
             add(kotlinxSerializationFormatDependency(
                 format = format,
                 version = kotlinSerializationVersion,
@@ -186,12 +186,12 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     if (settings.lombok.enabled) {
         // TODO should be configurable
         val lombokVersion = TraceableString(UsedVersions.lombokVersion, DefaultTrace)
-        val lombokEnabledTrace = settings.lombok::enabled.valueBase.trace
+        val lombokEnabledTrace = settings.lombok::enabled.schemaDelegate.trace
         add(lombokDependency(lombokVersion, lombokEnabledTrace))
     }
     if (settings.compose.enabled) {
-        val composeVersion = settings.compose::version.valueBase.asTraceableString()
-        val composeEnabledTrace = settings.compose::enabled.valueBase.trace
+        val composeVersion = settings.compose::version.schemaDelegate.asTraceableString()
+        val composeEnabledTrace = settings.compose::enabled.schemaDelegate.trace
         add(composeRuntimeDependency(composeVersion, dependencyTrace = composeEnabledTrace))
 
         // Have to add dependency because generated code depends on it
@@ -201,14 +201,14 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     }
 
     if (settings.ktor.enabled) {
-        val ktorVersion = settings.ktor::version.valueBase.asTraceableString()
-        val ktorEnabledTrace = settings.ktor::enabled.valueBase.trace
+        val ktorVersion = settings.ktor::version.schemaDelegate.asTraceableString()
+        val ktorEnabledTrace = settings.ktor::enabled.schemaDelegate.trace
         add(ktorBomDependency(ktorVersion, dependencyTrace = ktorEnabledTrace))
     }
 
     if (settings.springBoot.enabled) {
-        val springBootVersion = settings.springBoot::version.valueBase.asTraceableString()
-        val springBootEnabledTrace = settings.springBoot::enabled.valueBase.trace
+        val springBootVersion = settings.springBoot::version.schemaDelegate.asTraceableString()
+        val springBootEnabledTrace = settings.springBoot::enabled.schemaDelegate.trace
         add(springBootBomDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
         add(springBootStarterDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
         add(kotlinDependencyOf("kotlin-reflect", dependencyTrace = springBootEnabledTrace))
@@ -229,7 +229,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
 
 private fun Fragment.inferredTestDependencies(): List<MavenDependency> = buildList {
     if (platforms.size == 1 && platforms.single().supportsJvmTestFrameworks()) {
-        val junitTrace = settings::junit.valueBase.trace
+        val junitTrace = settings::junit.schemaDelegate.trace
         when (settings.junit) {
             // TODO support kotlin-test-testng?
             //   For this, we should rename settings.junit -> settings.jvm.testFramework and add the TESTNG value to the enum
@@ -243,13 +243,13 @@ private fun Fragment.inferredTestDependencies(): List<MavenDependency> = buildLi
     }
 
     if (settings.springBoot.enabled) {
-        val springBootVersion = settings.springBoot::version.valueBase.asTraceableString()
-        val springBootEnabledTrace = settings.springBoot::enabled.valueBase.trace
+        val springBootVersion = settings.springBoot::version.schemaDelegate.asTraceableString()
+        val springBootEnabledTrace = settings.springBoot::enabled.schemaDelegate.trace
         add(springBootStarterTestDependency(springBootVersion, springBootEnabledTrace))
     }
 }
 
-private fun ValueDelegateBase<String>.asTraceableString() = TraceableString(value, trace)
+private fun SchemaValueDelegate<String>.asTraceableString() = TraceableString(value, trace)
 
 private fun Platform.supportsJvmTestFrameworks() = this == Platform.JVM || this == Platform.ANDROID
 

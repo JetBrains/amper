@@ -9,7 +9,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.schema.AndroidVersion
@@ -53,7 +53,7 @@ object AndroidVersionShouldBeAtLeastMinSdkFactory : AomSingleModuleDiagnosticFac
             for (versionProp in usedVersions) {
                 val version = versionProp.get() ?: continue
                 if (version >= minSdkVersion) continue
-                if (!reportedPlaces.add(versionProp.valueBase.trace)) continue
+                if (!reportedPlaces.add(versionProp.schemaDelegate.trace)) continue
 
                 problemReporter.reportMessage(
                     AndroidVersionShouldBeAtLeastMinSdk(

@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
@@ -28,10 +28,10 @@ abstract class PsiBuildProblem(
     override val source: BuildProblemSource by lazy { PsiBuildProblemSource(element) }
 }
 
-fun KProperty0<*>.extractPsiElement(): PsiElement = valueBase.extractPsiElement()
+fun KProperty0<*>.extractPsiElement(): PsiElement = schemaDelegate.extractPsiElement()
 
 @UsedInIdePlugin
-fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = valueBase.extractPsiElementOrNull()
+fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = schemaDelegate.extractPsiElementOrNull()
 
 fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
     is PsiTrace -> psiElement

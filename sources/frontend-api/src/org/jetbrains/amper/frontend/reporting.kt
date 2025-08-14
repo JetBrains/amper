@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblemImpl
@@ -49,7 +49,7 @@ fun ProblemReporter.reportBundleError(
     )
 }
 
-fun KProperty0<*>.asBuildProblemSource(): BuildProblemSource = valueBase.trace.asBuildProblemSource()
+fun KProperty0<*>.asBuildProblemSource(): BuildProblemSource = schemaDelegate.trace.asBuildProblemSource()
 
 fun Traceable.asBuildProblemSource(): BuildProblemSource = trace.asBuildProblemSource()
 

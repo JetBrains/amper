@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isDefault
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.problems.reporting.BuildProblemId
@@ -29,7 +29,7 @@ object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnostic
             val settings = fragment.settings.kotlin.serialization
             val versionProp = settings::version
             if (!versionProp.isDefault && !settings.enabled) {
-                if (!reportedPlaces.add(versionProp.valueBase.trace)) return@forEach
+                if (!reportedPlaces.add(versionProp.schemaDelegate.trace)) return@forEach
                 problemReporter.reportMessage(SerializationVersionWithoutSerialization(versionProp))
             }
         }

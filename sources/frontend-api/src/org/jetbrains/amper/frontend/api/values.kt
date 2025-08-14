@@ -124,14 +124,14 @@ sealed class Default<out T> {
         // We need to access property.valueBase lazily because the delegate of the original property might not be
         // initialized yet. This is the case when the dependent property is declared before the one it depends on in
         // the schema.
-        override val trace by lazy { DefaultTrace(computedValueTrace = property.valueBase) }
+        override val trace by lazy { DefaultTrace(computedValueTrace = property.schemaDelegate) }
     }
 
     data class DirectDependent<T>(
         override val property: KProperty0<T>,
     ) : Dependent<T, T>() {
         override val desc: String = "Inherited from '${property.name}'"
-        override val value by lazy { property.valueBase.value }
+        override val value by lazy { property.schemaDelegate.value }
     }
 
     data class TransformedDependent<T, V>(
@@ -139,7 +139,7 @@ sealed class Default<out T> {
         override val property: KProperty0<T>,
         private val transformValue: (T) -> V,
     ) : Dependent<T, V>() {
-        override val value by lazy { transformValue(property.valueBase.value) }
+        override val value by lazy { transformValue(property.schemaDelegate.value) }
     }
 }
 
@@ -152,12 +152,6 @@ class SchemaValueDelegateProvider<T>(
         return SchemaValueDelegate(property, default, thisRef.valueHolders).also { thisRef.allValues.add(it) }
     }
 }
-
-@Deprecated(
-    message = "The hierarchy was simplified and only SchemaValue<T> remains",
-    replaceWith = ReplaceWith("SchemaValueDelegate<T>", imports = ["org.jetbrains.amper.schema.SchemaValueDelegate"])
-)
-typealias ValueDelegateBase<T> = SchemaValueDelegate<T>
 
 /**
  * Abstract value that can have a default value.
@@ -208,19 +202,19 @@ class SchemaValueDelegate<T>(
 private fun <T : KProperty<*>> T.setAccessible() = apply { isAccessible = true }
 
 @Suppress("UNCHECKED_CAST")
-fun <T, V> KProperty1<T, V>.valueBase(receiver: SchemaNode): ValueDelegateBase<V>? =
-    setAccessible().getDelegate(receiver as T) as? ValueDelegateBase<V>
+fun <T, V> KProperty1<T, V>.schemaDelegate(receiver: SchemaNode): SchemaValueDelegate<V>? =
+    setAccessible().getDelegate(receiver as T) as? SchemaValueDelegate<V>
 
 /**
- * Returns the traceable [ValueDelegateBase] of this property, or throws if this property isn't defined with such
+ * Returns the traceable [SchemaValueDelegate] of this property, or throws if this property isn't defined with such
  * a delegate. This should be used when this property is a schema property defined with a schema delegate.
  */
 @Suppress("UNCHECKED_CAST")
-val <T> KProperty0<T>.valueBase: ValueDelegateBase<T>
-    get() = setAccessible().getDelegate() as? ValueDelegateBase<T>
+val <T> KProperty0<T>.schemaDelegate: SchemaValueDelegate<T>
+    get() = setAccessible().getDelegate() as? SchemaValueDelegate<T>
         ?: error("Property $this should have a traceable schema delegate")
 
-val <T> KProperty0<T>.isDefault get() = valueBase.trace is DefaultTrace
+val <T> KProperty0<T>.isDefault get() = schemaDelegate.trace is DefaultTrace
 
 /**
  * Abstract class to traverse final schema tree.

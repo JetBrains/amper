@@ -8,7 +8,7 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessingSettings
 import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
@@ -21,7 +21,7 @@ import org.jetbrains.amper.frontend.tree.syntheticBuilder
 context(buildCtx: BuildCtx)
 internal fun Merged.configureLombokDefaults(moduleCtxModule: Module): Merged =
     if (moduleCtxModule.settings.lombok.enabled) {
-        val lombokDefault = DefaultTrace(computedValueTrace = moduleCtxModule.settings.lombok::enabled.valueBase)
+        val lombokDefault = DefaultTrace(computedValueTrace = moduleCtxModule.settings.lombok::enabled.schemaDelegate)
         buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.lombokAnnotationProcessorDefaultsTree(trace = lombokDefault)))
    } else {
         this

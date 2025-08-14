@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isDefault
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
@@ -55,7 +55,7 @@ object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
             val settings = fragment.settings.compose
             if (!settings.enabled) {
                 val versionProp = settings::version
-                val trace = versionProp.valueBase.trace
+                val trace = versionProp.schemaDelegate.trace
                 if (!versionProp.isDefault && reportedPlaces.add(trace))
                     problemReporter.reportMessage(ComposeVersionWithoutCompose(versionProp))
             }

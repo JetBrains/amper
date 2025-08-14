@@ -21,7 +21,7 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableEnum
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.types.SchemaType.TypeWithDeclaration
 import java.lang.reflect.Field
@@ -204,7 +204,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                         type = getType(prop.returnType),
                         documentation = prop.findAnnotation<SchemaDoc>()?.doc,
                         misnomers = prop.findAnnotation<Misnomers>()?.values?.toSet().orEmpty(),
-                        default = prop.valueBase(exampleInstance)?.default,
+                        default = prop.schemaDelegate(exampleInstance)?.default,
                         isModifierAware = prop.hasAnnotation<ModifierAware>(),
                         // FIXME Maybe introduce new annotation with meaningful name, or change this one.
                         isCtorArg = prop.hasAnnotation<DependencyKey>(),

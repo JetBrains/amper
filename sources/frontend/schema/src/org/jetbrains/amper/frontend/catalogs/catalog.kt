@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Settings
@@ -27,16 +27,16 @@ internal operator fun VersionCatalog?.plus(other: VersionCatalog) =
 context(problemReporter: ProblemReporter)
 internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
     serializationVersion = kotlin.serialization.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, kotlin.serialization::version.valueBase) }
+        ?.let { TraceableVersion(it, kotlin.serialization::version.schemaDelegate) }
         ?.let { version(it, UsedVersions.kotlinxSerializationVersion) },
     composeVersion = compose.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, compose::version.valueBase) }
+        ?.let { TraceableVersion(it, compose::version.schemaDelegate) }
         ?.let { version(it, UsedVersions.composeVersion) },
     ktorVersion = ktor.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, ktor::version.valueBase) }
+        ?.let { TraceableVersion(it, ktor::version.schemaDelegate) }
         ?.let { version(it, UsedVersions.ktorVersion) },
     springBootVersion = springBoot.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, springBoot::version.valueBase) }
+        ?.let { TraceableVersion(it, springBoot::version.schemaDelegate) }
         ?.let { version(it, UsedVersions.springBootVersion) },
 )
 

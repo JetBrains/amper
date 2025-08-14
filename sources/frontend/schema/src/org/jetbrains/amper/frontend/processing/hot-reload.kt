@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.processing
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.DependencyMode
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.Module
@@ -19,7 +19,7 @@ import org.jetbrains.amper.frontend.tree.syntheticBuilder
 context(buildCtx: BuildCtx)
 internal fun Merged.configureHotReloadDefaults(commonModule: Module) =
     if (commonModule.settings.compose.enabled && commonModule.settings.compose.experimental.hotReload.enabled) {
-        val hotReloadDefault = DefaultTrace(computedValueTrace = commonModule.settings.compose.experimental.hotReload::enabled.valueBase)
+        val hotReloadDefault = DefaultTrace(computedValueTrace = commonModule.settings.compose.experimental.hotReload::enabled.schemaDelegate)
         buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.hotReloadDefaultTree(trace = hotReloadDefault)))
     } else {
         this

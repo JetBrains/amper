@@ -101,7 +101,7 @@ abstract class TraceableValue<T : Any>(val value: T, trace: Trace) : TrivialTrac
 
 open class TraceableString(value: String, trace: Trace) : TraceableValue<String>(value, trace)
 
-class TraceableVersion(value: String, source: ValueDelegateBase<*>) : TraceableString(value, trace = source.trace)
+class TraceableVersion(value: String, source: SchemaValueDelegate<*>) : TraceableString(value, trace = source.trace)
 
 class TraceablePath(value: Path, trace: Trace) : TraceableValue<Path>(value, trace)
 

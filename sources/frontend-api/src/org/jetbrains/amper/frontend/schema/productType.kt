@@ -15,7 +15,7 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.asTraceable
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 
 @SchemaDoc("Defines what should be produced out of the module. Read more about the [product types](#product-types)")
 @EnumValueFilter("obsolete", isNegated = true)
@@ -123,7 +123,7 @@ class ModuleProduct : SchemaNode() {
 
     @SchemaDoc("What platforms to generate the product for")
     var platforms by dependentValue(::type) { productType ->
-        productType.defaultPlatforms?.map { it.asTraceable(DefaultTrace(computedValueTrace = ::type.valueBase)) }
+        productType.defaultPlatforms?.map { it.asTraceable(DefaultTrace(computedValueTrace = ::type.schemaDelegate)) }
             // Degenerate case when there are no default platforms but also platforms are not declared by the user.
             // It is reported as an error via diagnostics, so it will never reach AOM consumers, and thus it's better
             // to keep this type non-nullable.

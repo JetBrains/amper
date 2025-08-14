@@ -11,11 +11,11 @@ import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.ValueDelegateBase
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
@@ -180,7 +180,7 @@ private class HumanReadableSerializerVisitor(
         builder.appendLine(end).append(currentIndent)
     }
 
-    override fun visitValue(it: ValueDelegateBase<*>) {
+    override fun visitValue(it: SchemaValueDelegate<*>) {
         // We don't care about such properties
         if (it.property.hasAnnotation<HiddenFromCompletion>()) return
 

@@ -17,12 +17,12 @@ import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.ValueDelegateBase
-import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.scalarValue
@@ -70,7 +70,7 @@ private class CollectingVisitor(
     }
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-    override fun visitValue(valueBase: ValueDelegateBase<*>) {
+    override fun visitValue(valueBase: SchemaValueDelegate<*>) {
         val applicablePlatforms = valueBase.property.findAnnotation<PlatformSpecific>()?.platforms?.toList()
         val applicableProductTypes = valueBase.property.findAnnotation<ProductTypeSpecific>()?.productTypes?.toList()
         val value = when {
@@ -103,7 +103,7 @@ private class CollectingVisitor(
                                 if (def is Default.Dependent<*, *>) {
                                     ValueSource.DependentDefault(
                                         def.desc,
-                                        def.property.valueBase.extractPsiElementOrNull()
+                                        def.property.schemaDelegate.extractPsiElementOrNull()
                                     )
                                 } else {
                                     ValueSource.Default
@@ -129,7 +129,7 @@ enum class TracesPresentation {
 
 @UsedInIdePlugin
 fun tracesInfo(
-    linkedValue: ValueDelegateBase<*>?,
+    linkedValue: SchemaValueDelegate<*>?,
     containingFile: PsiFile?,
     productType: ProductType?,
     contexts: Set<Platform>,
@@ -307,7 +307,7 @@ private fun getFileName(
     }
 
 private fun precedingValueTrace(
-    linkedValue: ValueDelegateBase<*>?,
+    linkedValue: SchemaValueDelegate<*>?,
     containingFile: PsiFile?,
     presentation: TracesPresentation,
 ): String? {
