@@ -41,15 +41,14 @@ fun annotateTextWithDiagnostics(
     diagnostics: List<BuildProblem>,
     sanitizeDiagnostic: (String) -> String
 ): String {
-    @Suppress("RemoveExplicitTypeArguments") // Making compiler happy
-    val locationToDiagnosticMap = buildMap<BuildProblemSource, BuildProblem> {
+    val locationToDiagnosticMap = buildList {
         diagnostics.forEach { diagnostic ->
             when (val source = diagnostic.source) {
-                is MultipleLocationsBuildProblemSource -> source.sources.forEach { put(it, diagnostic) }
-                else -> put(source, diagnostic)
+                is MultipleLocationsBuildProblemSource -> source.sources.forEach { add(it to diagnostic) }
+                else -> add(source to diagnostic)
             }
         }
-    }.toList()
+    }
 
     val (diagnosticsWithOffsets, diagnosticsWithoutOffsets) = locationToDiagnosticMap.partition { (source, _) ->
         source is FileWithRangesBuildProblemSource
