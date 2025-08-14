@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitScalarProperties
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
@@ -33,21 +34,24 @@ object AndroidTooOldVersionFactory : MergedTreeDiagnostic {
 
     override val diagnosticId: BuildProblemId = "too.old.android.version"
 
-    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter)  =
+    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
+        val reportedPlaces = mutableSetOf<Trace>() // somehow the computed properties lead to duplicate reports
         root.visitScalarProperties<AndroidSettings, AndroidVersion?>(
             AndroidSettings::compileSdk,
             AndroidSettings::minSdk,
             AndroidSettings::maxSdk,
             AndroidSettings::targetSdk,
         ) { prop, value ->
-            if (value < MINIMAL_ANDROID_VERSION) {
+            val versionTrace = prop.value.trace
+            if (value < MINIMAL_ANDROID_VERSION && reportedPlaces.add(versionTrace)) {
                 problemReporter.reportMessage(
                     AndroidTooOldVersion(
-                        prop.value.trace.extractPsiElementOrNull() ?: return@visitScalarProperties,
-                        value,
-                        MINIMAL_ANDROID_VERSION,
+                        element = versionTrace.extractPsiElementOrNull() ?: return@visitScalarProperties,
+                        used = value,
+                        minVersion = MINIMAL_ANDROID_VERSION,
                     )
                 )
             }
         }
+    }
 }
