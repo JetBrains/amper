@@ -8,9 +8,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.aomBuilder.DefaultModel
-import org.jetbrains.amper.frontend.aomBuilder.doBuild
-import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
+import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.golden.readContentsAndReplace
@@ -54,11 +52,7 @@ class DiagnosticsTestRun(
         with(problemReporter) {
             val moduleFiles = listOf(inputFile).plus(additionalFiles).sortedBy { it.path }
             val projectContext = TestProjectContext(buildDirFile, moduleFiles, readCtx)
-            val resultModules = doBuild(projectContext, systemInfo) ?: return@with
-            val model = DefaultModel(projectContext.projectRootDir.toNioPath(), resultModules)
-            AomModelDiagnosticFactories.forEach { diagnostic ->
-                diagnostic.analyze(model, problemReporter)
-            }
+            projectContext.readProjectModel()
         }
         // Collect errors.
         val errors = problemReporter.getDiagnostics(*levels)
