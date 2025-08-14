@@ -1,0 +1,6 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - <![Warning] Module lib-b uses JVM release 17 (default) but depends on module lib-c with a higher JVM release 24!>../lib-c<!>

@@ -57,7 +57,7 @@ fun Traceable.asBuildProblemSource(): BuildProblemSource = trace.asBuildProblemS
 fun Trace.asBuildProblemSource(): BuildProblemSource = extractPsiElementOrNull()?.asBuildProblemSource()
     ?: GlobalBuildProblemSource
 
-fun PsiElement.asBuildProblemSource(): BuildProblemSource = PsiBuildProblemSource(this)
+fun PsiElement.asBuildProblemSource(): PsiBuildProblemSource = PsiBuildProblemSource(this)
 
 fun getLineAndColumnRangeInPsiFile(node: PsiElement): LineAndColumnRange {
     val document: Document = node.containingFile.viewProvider.document
