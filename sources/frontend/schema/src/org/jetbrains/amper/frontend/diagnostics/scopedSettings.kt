@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchyExt
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.contexts.platformCtxs
 import org.jetbrains.amper.frontend.contexts.unwrapAliases
@@ -70,7 +69,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
                 minimalModule.unwrapAliases + naturalHierarchyExtStr - COMMON.schemaValue
             val propPlatforms = prop.contexts.platformCtxs().flatMap { platformsAndAliases[it.value] ?: emptyList() }.toSet()
             // Here we are considering "empty platforms" as all declared ones.
-            val effectivePlatforms = propPlatforms.ifEmpty { minimalModule.product::platforms.unsafe?.leaves.orEmpty() }
+            val effectivePlatforms = propPlatforms.ifEmpty { minimalModule.product.platforms.leaves }
             if (platforms.leaves.intersect(effectivePlatforms).isEmpty())
                 problemReporter.reportMessage(
                     IncorrectSettingsSection(

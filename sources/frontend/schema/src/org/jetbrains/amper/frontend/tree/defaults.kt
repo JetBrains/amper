@@ -25,14 +25,15 @@ private object DefaultsAppender : TreeTransformer<TreeState>() {
         val toAddDefaults: MapLikeChildren<TreeState> =
             aObject.properties.mapNotNull out@{
                 when (val default = it.default) {
-                    // Default as a reference creates a reference value to a referenced property.
-                    is Default.Dependent<*, *> -> ReferenceProperty(
-                        it,
-                        DefaultTrace,
-                        default.property.takeIf { default.isReference }?.name ?: return@out null,
-                        DefaultTrace,
-                        DefaultCtxs,
+                    // Default as a direct reference creates a reference value to a referenced property.
+                    is Default.DirectDependent<*> -> ReferenceProperty(
+                        aProp = it,
+                        kTrace = DefaultTrace,
+                        referencedPath = default.property.name,
+                        trace = DefaultTrace,
+                        contexts = DefaultCtxs,
                     )
+                    is Default.TransformedDependent<*, *> -> return@out null
 
                     // Default as a static value creates a scalar value.
                     is Default.Static<*> -> MapLikeValue.Property(

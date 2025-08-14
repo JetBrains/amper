@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.TraceableEnum
-import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitMapLikeProperties
@@ -24,7 +23,7 @@ object AliasesDontUseUndeclaredPlatform : MergedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "validation.alias.use.undeclared.platform"
 
     override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
-        val declaredPlatforms = minimalModule.product::platforms.unsafe?.leaves ?: return
+        val declaredPlatforms = minimalModule.product.platforms.leaves
         root.visitMapLikeProperties<Module>(Module::aliases) { _, aliasesRaw ->
             aliasesRaw.children.flatMap { it.value.asList?.children.orEmpty() }.forEach { it ->
                 val platform = it.scalarValue<TraceableEnum<Platform>>()?.value ?: return@forEach

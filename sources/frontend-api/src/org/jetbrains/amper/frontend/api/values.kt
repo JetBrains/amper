@@ -64,7 +64,7 @@ abstract class SchemaNode : Traceable {
      */
     fun <T : Any> dependentValue(
         property: KProperty0<T>
-    ) = SchemaValueProvider(::SchemaValue, Default.Dependent<T, T>("Inherited from '${property.name}'", property))
+    ) = SchemaValueProvider(::SchemaValue, Default.DirectDependent(property))
 
     /**
      * Register a value with a default depending on another property
@@ -72,10 +72,10 @@ abstract class SchemaNode : Traceable {
     fun <T, V : Any> dependentValue(
         property: KProperty0<T>,
         desc: String? = null,
-        transformValue: (value: T?) -> V?
+        transformValue: (value: T) -> V,
     ) = SchemaValueProvider(
         ::SchemaValue,
-        Default.Dependent(desc ?: "Computed from '${property.name}'", property, transformValue)
+        Default.TransformedDependent(desc ?: "Computed from '${property.name}'", property, transformValue)
     )
 
     /**
@@ -128,18 +128,29 @@ sealed class Default<out T> {
         override val trace = DefaultTrace
     }
 
-    data class Dependent<T, V>(
-        val desc: String,
-        val property: KProperty0<T>,
-        val transformValue: ((T?) -> V?)? = null
-    ) : Default<V>() {
-        override val value by lazy { transformValue?.invoke(property.valueBase.withoutDefault) }
-        val isReference = transformValue == null
+    sealed class Dependent<T, V> : Default<V>() {
+        abstract val property: KProperty0<T>
+        abstract val desc: String
 
         // We need to access property.valueBase lazily because the delegate of the original property might not be
         // initialized yet. This is the case when the dependent property is declared before the one it depends on in
         // the schema.
         override val trace by lazy { DefaultTrace(computedValueTrace = property.valueBase) }
+    }
+
+    data class DirectDependent<T>(
+        override val property: KProperty0<T>,
+    ) : Dependent<T, T>() {
+        override val desc: String = "Inherited from '${property.name}'"
+        override val value by lazy { property.valueBase.value }
+    }
+
+    data class TransformedDependent<T, V>(
+        override val desc: String,
+        override val property: KProperty0<T>,
+        private val transformValue: (T) -> V,
+    ) : Dependent<T, V>() {
+        override val value by lazy { transformValue(property.valueBase.value) }
     }
 }
 
@@ -201,8 +212,6 @@ val <T> KProperty0<T>.valueBase: ValueDelegateBase<T>
         ?: error("Property $this should have a traceable schema delegate")
 
 val <T> KProperty0<T>.isDefault get() = valueBase.trace is DefaultTrace
-
-val <T> KProperty0<T>.unsafe: T? get() = valueBase.unsafe
 
 /**
  * Required (non-null) schema value.

@@ -109,8 +109,13 @@ class ModuleProduct : SchemaNode() {
 
     @SchemaDoc("What platforms to generate the product for")
     var platforms by dependentValue(::type) { productType ->
-        productType?.defaultPlatforms?.toList()?.map { platform ->
-            platform.asTraceable(DefaultTrace(computedValueTrace = ::type.valueBase))
-        }
+        productType.defaultPlatforms?.map { it.asTraceable(DefaultTrace(computedValueTrace = ::type.valueBase)) }
+            // Degenerate case when there are no default platforms but also platforms are not declared by the user.
+            // It is reported as an error via diagnostics, so it will never reach AOM consumers, and thus it's better
+            // to keep this type non-nullable.
+            // Note that this empty list can still be obtained when running other diagnostics. This is actually
+            // desirable because it correctly represents the fact that we have no platforms at all (thus aliases or
+            // @Platform-specific property usages will be properly reported).
+            ?: emptyList()
     }
 }
