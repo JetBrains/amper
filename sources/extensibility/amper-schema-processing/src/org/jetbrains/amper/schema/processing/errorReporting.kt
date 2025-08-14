@@ -5,6 +5,7 @@
 package org.jetbrains.amper.schema.processing
 
 import com.intellij.psi.PsiElement
+import java.text.MessageFormat
 import java.util.*
 
 internal interface ErrorReporter {
@@ -15,7 +16,7 @@ context(reporter: ErrorReporter)
 internal fun reportError(where: PsiElement, messageKey: String, vararg values: Any?) {
     reporter.reportError(
         where = where,
-        message = SchemaProcessorBundle.getString(messageKey).format(*values),
+        message = MessageFormat(SchemaProcessorBundle.getString(messageKey)).format(values),
         diagnosticId = messageKey,
     )
 }
