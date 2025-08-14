@@ -18,7 +18,7 @@ import kotlin.reflect.jvm.isAccessible
 /**
  * Key, pointing to schema value, that was connected to [PsiElement].
  */
-val linkedAmperValue = Key.create<ValueDelegateBase<*>>("org.jetbrains.amper.frontend.linkedValue")
+val linkedAmperValue = Key.create<SchemaValueDelegate<*>>("org.jetbrains.amper.frontend.linkedValue")
 
 /**
  * Key, pointing to schema enum value, that was connected to [PsiElement].
@@ -45,61 +45,50 @@ annotation class InternalTraceSetter
  */
 abstract class SchemaNode : Traceable {
     @IgnoreForSchema
-    internal val allValues = mutableListOf<ValueDelegateBase<*>>()
+    internal val allValues = mutableListOf<SchemaValueDelegate<*>>()
     @IgnoreForSchema
     val valueHolders: ValueHolders = mutableMapOf()
 
     /**
-     * Register a value.
+     * Register a required value (without default).
      */
-    fun <T : Any> value() = SchemaValueProvider<T, SchemaValue<T>>(::SchemaValue)
+    fun <T> value() = SchemaValueDelegateProvider<T>()
 
     /**
      * Register a value with a default.
      */
-    fun <T : Any> value(default: T) = SchemaValueProvider(::SchemaValue, Default.Static(default))
-
-    /**
-     * Register a value with a default depending on another property
-     */
-    fun <T : Any> dependentValue(
-        property: KProperty0<T>
-    ) = SchemaValueProvider(::SchemaValue, Default.DirectDependent(property))
-
-    /**
-     * Register a value with a default depending on another property
-     */
-    fun <T, V : Any> dependentValue(
-        property: KProperty0<T>,
-        desc: String? = null,
-        transformValue: (value: T) -> V,
-    ) = SchemaValueProvider(
-        ::SchemaValue,
-        Default.TransformedDependent(desc ?: "Computed from '${property.name}'", property, transformValue)
-    )
+    fun <T> value(default: T) = SchemaValueDelegateProvider(Default.Static(default))
 
     /**
      * Register a value with a lazy default.
      */
     // the default value is nullable to allow performing validation without crashing (using "unsafe" access)
-    fun <T : Any> value(default: () -> T?) = SchemaValueProvider(::SchemaValue, Default.Lambda(desc = null, default))
+    fun <T> value(default: () -> T) = SchemaValueDelegateProvider(Default.Lambda(desc = null, default))
 
     /**
-     * Register a nullable value.
+     * Register a value with a default depending on another property
      */
-    fun <T : Any> nullableValue() = SchemaValueProvider<T, NullableSchemaValue<T>>(::NullableSchemaValue)
+    fun <T> dependentValue(property: KProperty0<T>) = SchemaValueDelegateProvider(Default.DirectDependent(property))
 
     /**
-     * Register a nullable value with a default.
+     * Register a value with a default depending on another property
      */
-    fun <T : Any> nullableValue(default: T?) =
-        SchemaValueProvider<T, NullableSchemaValue<T>>(::NullableSchemaValue, default?.let { Default.Static(it) })
+    fun <T, V> dependentValue(
+        property: KProperty0<T>,
+        desc: String? = null,
+        transformValue: (value: T) -> V,
+    ) = SchemaValueDelegateProvider(
+        Default.TransformedDependent(
+            desc = desc ?: "Computed from '${property.name}'",
+            property = property,
+            transformValue = transformValue,
+        )
+    )
 
     /**
-     * Register a nullable value with a lazy default.
+     * Register a nullable value the given [default].
      */
-    fun <T : Any> nullableValue(desc: String? = null, default: () -> T?) =
-        SchemaValueProvider(::NullableSchemaValue, Default.Lambda(desc = desc, default))
+    fun <T : Any> nullableValue(default: T? = null) = value(default = default)
 
     @IgnoreForSchema
     final override lateinit var trace: Trace
@@ -116,14 +105,14 @@ abstract class SchemaNode : Traceable {
 }
 
 sealed class Default<out T> {
-    abstract val value: T?
+    abstract val value: T
     abstract val trace: Trace
 
     data class Static<T>(override val value: T) : Default<T>() {
         override val trace = DefaultTrace
     }
 
-    data class Lambda<T>(val desc: String?, private val getter: () -> T?) : Default<T>() {
+    data class Lambda<T>(val desc: String?, private val getter: () -> T) : Default<T>() {
         override val value by lazy { getter() }
         override val trace = DefaultTrace
     }
@@ -154,32 +143,50 @@ sealed class Default<out T> {
     }
 }
 
-class SchemaValueProvider<T : Any, VT : ValueDelegateBase<*>>(
-    val ctor: (KProperty<*>, Default<T>?, ValueHolders) -> VT,
+class SchemaValueDelegateProvider<T>(
     val default: Default<T>? = null,
-) : PropertyDelegateProvider<SchemaNode, VT> {
-    override fun provideDelegate(thisRef: SchemaNode, property: KProperty<*>): VT {
+) : PropertyDelegateProvider<SchemaNode, SchemaValueDelegate<T>> {
+    override fun provideDelegate(thisRef: SchemaNode, property: KProperty<*>): SchemaValueDelegate<T> {
         // Make sure that we can access delegates from reflection.
         property.isAccessible = true
-        return ctor(property, default, thisRef.valueHolders).also { thisRef.allValues.add(it) }
+        return SchemaValueDelegate(property, default, thisRef.valueHolders).also { thisRef.allValues.add(it) }
     }
 }
+
+@Deprecated(
+    message = "The hierarchy was simplified and only SchemaValue<T> remains",
+    replaceWith = ReplaceWith("SchemaValueDelegate<T>", imports = ["org.jetbrains.amper.schema.SchemaValueDelegate"])
+)
+typealias ValueDelegateBase<T> = SchemaValueDelegate<T>
 
 /**
  * Abstract value that can have a default value.
  */
-sealed class ValueDelegateBase<T>(
+class SchemaValueDelegate<T>(
     val property: KProperty<*>,
     val default: Default<T>?,
     valueHolders: ValueHolders,
 ) : Traceable, ReadWriteProperty<SchemaNode, T> {
-    // We are creating lambdas here to prevent misusage of [valueHolders] from [ValueDelegateBase].
+    // We are creating lambdas here to prevent misusage of [valueHolders] from [SchemaValueDelegate].
     private val valueGetter: () -> ValueHolder<T>? = { valueHolders[property.name] as ValueHolder<T>? }
     private val valueSetter: (ValueHolder<T>?) -> Unit = { if (it != null) valueHolders[property.name] = it }
 
-    abstract val value: T
+    val value: T
+        get() {
+            val valueGetter = valueGetter()
+            if (valueGetter != null) {
+                return valueGetter.value
+            }
+            if (default != null) {
+                return default.value
+            }
+            error("Required property '${property.name}' is not set")
+        }
+
+    // FIXME remove this, it doesn't make sense
     val unsafe: T? get() = valueGetter()?.value ?: default?.value
-    val withoutDefault: T? get() = valueGetter()?.value
+
+    val withoutDefault: ValueHolder<T>? get() = valueGetter()
 
     override fun getValue(thisRef: SchemaNode, property: KProperty<*>) = value
     override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) {
@@ -191,7 +198,9 @@ sealed class ValueDelegateBase<T>(
     override val trace: Trace
         get() = valueGetter()?.trace
             ?: default?.trace
-            ?: DefaultTrace // FIXME NullableSchemaValue has a null 'default' instead of a default with null value
+            // Not really "default" but rather "missing mandatory value".
+            // It only happens for required properties (without default) that also don't have a value.
+            ?: DefaultTrace
 
     override fun toString(): String = "SchemaValue(property = $property, value = $value)"
 }
@@ -214,28 +223,6 @@ val <T> KProperty0<T>.valueBase: ValueDelegateBase<T>
 val <T> KProperty0<T>.isDefault get() = valueBase.trace is DefaultTrace
 
 /**
- * Required (non-null) schema value.
- */
-class SchemaValue<T : Any>(
-    property: KProperty<*>,
-    default: Default<T>?,
-    valueHolders: ValueHolders,
-) : ValueDelegateBase<T>(property, default, valueHolders) {
-    override val value: T get() = unsafe ?: error("No value")
-}
-
-/**
- * Optional (nullable) schema value.
- */
-class NullableSchemaValue<T : Any>(
-    property: KProperty<*>,
-    default: Default<T?>?,
-    valueHolders: ValueHolders,
-) : ValueDelegateBase<T?>(property, default, valueHolders) {
-    override val value: T? get() = unsafe
-}
-
-/**
  * Abstract class to traverse final schema tree.
  */
 abstract class SchemaValuesVisitor {
@@ -244,7 +231,7 @@ abstract class SchemaValuesVisitor {
         when (it) {
             is Collection<*> -> visitCollection(it)
             is Map<*, *> -> visitMap(it)
-            is ValueDelegateBase<*> -> visitValue(it)
+            is SchemaValueDelegate<*> -> visitValue(it)
             is SchemaNode -> visitNode(it)
             else -> visitOther(it)
         }
@@ -262,8 +249,8 @@ abstract class SchemaValuesVisitor {
         it.allValues.sortedBy { it.property.name }.forEach { visit(it) }
     }
 
-    open fun visitValue(it: ValueDelegateBase<*>) {
-        it.withoutDefault?.let { visit(it) }
+    open fun visitValue(it: SchemaValueDelegate<*>) {
+        it.withoutDefault?.let { visit(it.value) }
     }
 
     open fun visitOther(it: Any?) = Unit
