@@ -58,15 +58,15 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                 },
             )
             if (needsLinkedExecutable(module, isTest)) {
-                val (linkAppTaskName, compilationType) = getNativeLinkTaskDetails(platform, module, isTest, buildType)
+                val (linkTaskName, compilationType) = getNativeLinkTaskDetails(platform, module, isTest, buildType)
                 tasks.registerTask(
                     task = NativeLinkTask(
                         module = module,
                         platform = platform,
                         userCacheRoot = context.userCacheRoot,
-                        taskOutputRoot = context.getTaskOutputPath(linkAppTaskName),
+                        taskOutputRoot = context.getTaskOutputPath(linkTaskName),
                         executeOnChangedInputs = executeOnChangedInputs,
-                        taskName = linkAppTaskName,
+                        taskName = linkTaskName,
                         tempRoot = context.projectTempRoot,
                         isTest = isTest,
                         buildType = buildType,
@@ -88,7 +88,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)
-                        add(CommonTaskType.Dependencies.getTaskName(module, platform, false))
+                        add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
                         if (isTest) {
                             add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false, buildType))
                         }
