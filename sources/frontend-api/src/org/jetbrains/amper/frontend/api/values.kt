@@ -261,22 +261,6 @@ abstract class SchemaValuesVisitor {
 }
 
 /**
- * Visitor that is aware of visited properties' path.
- *
- * **Warning!** It is relying on the fact that visiting is done in linear non-parallel way.
- */
-abstract class PathAwareSchemaValuesVisitor : SchemaValuesVisitor() {
-    private val path: MutableList<ValueDelegateBase<*>> = mutableListOf()
-    val currentPath: List<ValueDelegateBase<*>> get() = path
-    override fun visitValue(it: ValueDelegateBase<*>) = try {
-        path.add(it)
-        super.visitValue(it)
-    } finally {
-        path.removeLast()
-    }
-}
-
-/**
  * When the enum value isn't wrapped into the schema value (e.g., in a collection or in AOM),
  * it's impossible to determine the trace of that enum.
  *
