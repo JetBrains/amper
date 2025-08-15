@@ -1892,7 +1892,7 @@ class BuildGraphTest : BaseDRTest() {
                 ResolutionPlatform.TVOS_ARM64,
                 ResolutionPlatform.TVOS_SIMULATOR_ARM64,
                 ResolutionPlatform.TVOS_X64,
-                ResolutionPlatform.WASM,
+                ResolutionPlatform.WASM_JS,
             ),
             message.supportedPlatforms,
         )
@@ -1939,7 +1939,7 @@ class BuildGraphTest : BaseDRTest() {
                 ResolutionPlatform.TVOS_ARM64,
                 ResolutionPlatform.TVOS_SIMULATOR_ARM64,
                 ResolutionPlatform.TVOS_X64,
-                ResolutionPlatform.WASM,
+                ResolutionPlatform.WASM_JS,
             ),
             message.supportedPlatforms,
         )
