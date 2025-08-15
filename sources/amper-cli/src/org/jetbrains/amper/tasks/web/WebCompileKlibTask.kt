@@ -250,6 +250,12 @@ internal abstract class WebCompileKlibTask(
     ): List<String>
 
     class Result(
+        /**
+         * Resulting file path produced by the KLIB compilation stage for JS and Wasm.
+         *
+         * Null indicates there were no sources for this module (matching the selected fragments),
+         * so compilation was skipped and no KLIB was generated.
+         */
         val compiledKlib: Path?,
         val module: AmperModule,
         val isTest: Boolean,

@@ -216,6 +216,12 @@ internal abstract class WebLinkTask(
     ): List<String>
 
     class Result(
+        /**
+         * Resulting file path produced by the link stage for JS or Wasm compilation.
+         *
+         * Null indicates a test compilation where no main module KLIB was produced
+         * (i.e., linking is skipped because there is no compiled test code to link).
+         */
         val linkedBinary: Path?,
     ) : TaskResult
 
