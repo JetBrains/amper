@@ -21,7 +21,7 @@ repositories:
     url: https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2
   - id: mavenLocal
     url: mavenLocal
-    resolve: true
+    resolve: false
     publish: true
   - id: gradle
     url: https://cache-redirector.jetbrains.com/plugins.gradle.org/m2

@@ -13,8 +13,10 @@ import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
+import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 import org.jetbrains.amper.test.Dirs
 import java.nio.file.FileVisitResult
@@ -29,6 +31,8 @@ import kotlin.io.path.relativeTo
 import kotlin.io.path.visitFileTree
 import kotlin.io.path.walk
 import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.use
 
@@ -186,6 +190,19 @@ class AmperProjectStructureTest {
                 "The '$drModuleName' module depends on the following Amper-aware modules:\n\n" +
                         invalidDeps.joinToString("\n") { "  - $it" } +
                         "\n\nPlease remove these dependencies, as we want DR to be independent of Amper.")
+        }
+    }
+
+    @Test
+    fun `mavenLocal repository resolved flag is false`() {
+        assertTrue("mavenLocal repository must not be resolved by Amper") {
+            readAmperProjectModel()
+                .modules
+                .flatMap { it.parts }
+                .filterIsInstance<RepositoriesModulePart>()
+                .flatMap { it.mavenRepositories }
+                .filter { it.url == SpecialMavenLocalUrl }
+                .none { it.resolve }
         }
     }
 
