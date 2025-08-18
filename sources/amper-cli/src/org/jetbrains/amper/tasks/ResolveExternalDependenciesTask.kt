@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
+import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
@@ -136,9 +137,11 @@ class ResolveExternalDependenciesTask(
                     ) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
                         val root = RootDependencyNodeInput(
-                            resolutionId = "Module ${module.userReadableName} compile and runtime dependencies, " +
-                                    "platform = $resolvedPlatform, " +
-                                    "isTest = $isTest",
+                            resolutionId = module.uniqueModuleKey()?.let { moduleKey ->
+                                "Module ${module.userReadableName} compile and runtime dependencies (moduleKey = $moduleKey), " +
+                                        "platform = $resolvedPlatform, " +
+                                        "isTest = $isTest"
+                            },
                             children = listOfNotNull(
                                 fragmentsCompileModuleDependencies,
                                 fragmentsRuntimeModuleDependencies

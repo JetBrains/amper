@@ -12,11 +12,13 @@ import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.problems.reporting.MessageBundle
 import java.nio.file.InvalidPathException
 import java.security.MessageDigest
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
 object FrontendDrBundle : MessageBundle("messages.FrontendDrBundle")
 
@@ -80,3 +82,5 @@ fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: Spa
 internal fun String.md5(): String = MessageDigest.getInstance("MD5")
     .digest(this.toByteArray())
     .decodeToString()
+
+fun AmperModule.uniqueModuleKey(): String? = source.moduleDir?.absolutePathString()?.md5()

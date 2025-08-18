@@ -31,6 +31,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
+import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.buildDependenciesGraph
@@ -137,9 +138,11 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         val resolver = MavenResolver(commonOptions.sharedCachesRoot)
 
         val root = RootDependencyNodeInput(
-            resolutionId = "Module ${resolvedModule.userReadableName} dependencies, " +
-                    (platforms?.let { "platforms = $platforms," } ?: "") +
-                    "includeTests = $includeTests",
+            resolutionId = resolvedModule.uniqueModuleKey()?.let { moduleKey ->
+                "Module ${resolvedModule.userReadableName} dependencies (moduleKey = $moduleKey), " +
+                        (platforms?.let { "platforms = $platforms," } ?: "") +
+                        "includeTests = $includeTests"
+            },
             children = variantsToResolve,
             templateContext = emptyContext(commonOptions.sharedCachesRoot, { spanBuilder(it) })
         )

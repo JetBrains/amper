@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DependencyNodeHolderWithNotation
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.fragmentsTargeting
 
 /**
@@ -76,7 +77,9 @@ internal class Classpath(
     }
 
     override fun resolutionId(modules: List<AmperModule>): String {
-        return "compile and runtime dependencies of modules ${modules.sortedBy { it.userReadableName }.map { it.userReadableName}}" +
+        return "compile and runtime dependencies of modules " +
+                "${modules.sortedBy { it.userReadableName }
+                    .map { it.userReadableName + (it.uniqueModuleKey() ?: "") }}}" +
                 "platform = ${flowType.platforms.joinToString { it.pretty }}, " +
                 "isTest = ${flowType.isTest}" +
                 "scope = ${flowType.scope}" +
