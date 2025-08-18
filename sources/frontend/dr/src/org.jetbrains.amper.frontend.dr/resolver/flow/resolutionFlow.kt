@@ -25,8 +25,13 @@ import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.ParsedCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.emptyContext
+import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
+import org.jetbrains.amper.telemetry.use
+import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 
@@ -36,20 +41,22 @@ interface DependenciesFlow<T: DependenciesFlowType> {
     fun directDependenciesGraph(
         module: AmperModule,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource?,
+        spanBuilder: SpanBuilderSource,
     ): ModuleDependencyNodeWithModule
 
     fun directDependenciesGraph(
         modules: List<AmperModule>,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource?,
+        spanBuilder: SpanBuilderSource,
     ): RootDependencyNodeInput {
-        val node = RootDependencyNodeInput(
-            resolutionId = resolutionId(modules),
-            children = modules.map { directDependenciesGraph(it, fileCacheBuilder, spanBuilder) },
-//            emptyContext(fileCacheBuilder, spanBuilder)
-        )
-        return node
+        return spanBuilder("DR: Resolving direct graph").useWithoutCoroutines {
+            val node = RootDependencyNodeInput(
+                resolutionId = resolutionId(modules),
+                children = modules.map { directDependenciesGraph(it, fileCacheBuilder, spanBuilder) },
+                templateContext = emptyContext(fileCacheBuilder, spanBuilder)
+            )
+            node
+        }
     }
 
     fun resolutionId(modules: List<AmperModule>): String

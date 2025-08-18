@@ -260,7 +260,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
 
         val root = RootDependencyNodeInput(
             children = listOf(atomicfuCoordinates.toMavenNode(context)),
-//            context
+            templateContext = context()
         )
 
         doTest(
@@ -308,7 +308,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
 
         val root = RootDependencyNodeInput(
             children = listOf(nodeInCompileContext),
-//            context
+            templateContext = context()
         )
 
         updateLocalRepository(customMavenLocalRepository)

@@ -320,7 +320,7 @@ typealias MavenDependencyIndex = Int
 typealias MavenDependencyConstraintIndex = Int
 
 @Serializable
-class MavenDependencyNodePlain(
+class MavenDependencyNodePlain internal constructor(
     override val originalVersion: String?,
     override val versionFromBom: String?,
     override val isBom: Boolean,
@@ -338,7 +338,7 @@ class MavenDependencyNodePlain(
     override fun getParentKmpLibraryCoordinates(): MavenCoordinates? = parentKmpLibraryCoordinates
 
     // todo (AB) : Mode to an abstract class DependencyNodePlainBase and reuse?
-    override val parents: List<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) } }
+    override val parents: MutableList<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableList() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
     override val overriddenBy: List<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) } }
 
@@ -373,7 +373,7 @@ class MavenDependencyNodeImpl internal constructor(
     parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
 ) : MavenDependencyNode, DependencyNodeWithResolutionContext {
 
-    override val parents: List<DependencyNodeWithResolutionContext> get() = context.nodeParents
+    override val parents: List<DependencyNode> get() = context.nodeParents
 
     constructor(
         templateContext: Context,
@@ -577,7 +577,7 @@ class MavenDependencyNodeImpl internal constructor(
 }
 
 @Serializable
-class UnresolvedMavenDependencyNodePlain(
+class UnresolvedMavenDependencyNodePlain internal constructor(
     val coordinates: String,
     override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
@@ -647,7 +647,7 @@ class MavenDependencyConstraintReference(
 
 
 @Serializable
-class MavenDependencyConstraintNodePlain(
+class MavenDependencyConstraintNodePlain internal constructor(
     override val group: String,
     override val module: String,
     override val version: Version,
@@ -662,7 +662,7 @@ class MavenDependencyConstraintNodePlain(
 
     override val dependencyConstraint: MavenDependencyConstraint by lazy { dependencyConstraintRef.toNodePlain(graphContext) }
 
-    override val parents: List<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) } }
+    override val parents: MutableList<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableList() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
     override val overriddenBy: List<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) } }
 
@@ -853,8 +853,10 @@ val KmpPlatforms = Key<Set<ResolutionPlatform>>("KmpPlatforms")
 
 interface MavenDependency {
     val coordinates: MavenCoordinates
+    val packaging: String?
     val resolutionConfig: ResolutionConfig
     val messages: List<Message>
+    val state: ResolutionState
 
     fun files(withSources: Boolean = false): List<DependencyFile>
 }
@@ -867,12 +869,15 @@ val MavenDependency.version
     get() = coordinates.version
 
 @Serializable
-class MavenDependencyPlain(
+class MavenDependencyPlain internal constructor (
     override val coordinates: MavenCoordinates,
+    override val packaging: String?,
     override val messages: List<Message>,
     val files: List<DependencyFilePlain>,
-    override val resolutionConfig: ResolutionConfigPlain
+    override val resolutionConfig: ResolutionConfigPlain,
+    override val state: ResolutionState = ResolutionState.RESOLVED
 ) : MavenDependency {
+
     override fun files(withSources: Boolean): List<DependencyFile> {
         return if (withSources) files else files.filterNot { it.isDocumentation }
     }
@@ -914,7 +919,7 @@ class MavenDependencyImpl internal constructor(
         get() = settings
 
     @Volatile
-    var state: ResolutionState = ResolutionState.INITIAL
+    override var state: ResolutionState = ResolutionState.INITIAL
         private set
 
     @Volatile
@@ -926,7 +931,7 @@ class MavenDependencyImpl internal constructor(
         private set
 
     @Volatile
-    var packaging: String? = null
+    override var packaging: String? = null
         private set
 
     @Volatile
@@ -2431,14 +2436,16 @@ class MavenDependencyImpl internal constructor(
             ?: run {
                 val mavenDependencyPlain = MavenDependencyPlain(
                     coordinates,
+                    packaging,
                     messages,
-                    _files.map { DependencyFilePlain(it.isAutoAddedDocumentation, it. isDocumentation, it.extension, it.path?.absolutePathString() ) },
+                    _files.map { DependencyFilePlain(it) },
                     // todo (AB) : ResolutionConfigPlain could be deduplicated with reference
                     ResolutionConfigPlain(
                         resolutionConfig.scope, resolutionConfig.platforms,
                         // todo (AB) : ResolutionConfigPlain could be deduplicated with reference
                         resolutionConfig.repositories
-                    )
+                    ),
+                    state
                      // todo (AB) : Could be deduplicated
                 )
                 graphContext.registerMavenDependencyPlain(this, mavenDependencyPlain)

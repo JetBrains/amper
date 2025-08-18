@@ -23,6 +23,7 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.md5
+import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.slf4j.LoggerFactory
 import kotlin.io.path.absolutePathString
 
@@ -74,11 +75,11 @@ internal class IdeSync(
     override fun directDependenciesGraph(
         module: AmperModule,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource?,
+        spanBuilder: SpanBuilderSource,
     ): ModuleDependencyNodeWithModule =
         module.toGraph(fileCacheBuilder, spanBuilder)
 
-    private fun AmperModule.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource? = null,): ModuleDependencyNodeWithModule {
+    private fun AmperModule.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource): ModuleDependencyNodeWithModule {
         val node = ModuleDependencyNodeWithModule(
             name = "module:${userReadableName}",
             children = fragments.flatMap { it.toGraph(fileCacheBuilder, spanBuilder) },
@@ -89,19 +90,19 @@ internal class IdeSync(
     }
 
     /**
-     * The method returns list of direct fragment maven dependencies in the case of single-platform module
-     * (or more precisely if this fragment belongs to a single-platform module,
+     * The method returns a list of direct fragment maven dependencies in the case of a single-platform module
+     * (or more precisely if this fragment belongs to a single-platform module
      *  and depends on single-platform fragments of other modules only).
      *
      * In the case of a multiplatform project,
      * it resolves all 'COMPILE' maven dependencies declared for this fragment directly as well as those declared for fragments this
      * fragment depends on transitively (taking the flag 'exported' into account).
-     * And return those as a plain list of this fragment direct dependencies.
+     * And return those as a plain list of the fragment direct dependencies.
      *
      * The reason for this is the following: maven dependencies taken from the fragments of other modules
      * should be resolved in the context of the target platforms of this fragment (the one being resolved).
      * Such dependencies cannot be reused from the result of the other fragment resolution targeting a broader set of platforms,
-     * because only a sub-set of the KMP library's source sets would be added as actual dependency (in klib form) for the other fragment.
+     * because only a subset of the KMP library's source sets would be added as actual dependency (in klib form) for the other fragment.
      * (those conforming to all platforms declared in the other multiplatform fragment).
      *
      * Being resolved in the context of the current fragment,
@@ -110,42 +111,47 @@ internal class IdeSync(
      * Resolution of the complete COMPILE maven dependencies graph is performed by [Classpath] flow with COMPILE resolution scope.
      * (flag 'exported' takes effect in the case of native modules during graph resolution)
      */
-    private fun Fragment.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource? = null,): List<DirectFragmentDependencyNodeHolder> {
-        val moduleDependencies = Classpath(
-            DependenciesFlowType.ClassPathType(
-                scope = ResolutionScope.COMPILE,
-                platforms = platforms.mapNotNull { it.toResolutionPlatform() }.toSet(),
-                includeNonExportedNative = false,
-                isTest = isTest
-            )
-        ).directDependenciesGraph(this, fileCacheBuilder)
+    private fun Fragment.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource): List<DirectFragmentDependencyNodeHolder> {
+        return spanBuilder("DR: Resolving direct graph").useWithoutCoroutines {
 
-        if (hasSinglePlatformDependenciesOnly(moduleDependencies)) {
-            val directDependencies = allFragmentDependencies(true)
-                .flatMap { externalDependencies }
-                .filterIsInstance<MavenDependencyBase>()
-                .distinct()
-                .mapNotNull { it.toGraph(this, fileCacheBuilder, spanBuilder) }
-                .toList()
-            // In a single-platform case we could rely on IDE dependencies resolution.
-            // Exported dependencies of the fragment on other modules will be taken into account by IDE while preparing
-            //  a fragment-related IDE module compilation classpath.
-            return directDependencies
+            val moduleDependencies = spanBuilder("DR: directDependenciesGraph").useWithoutCoroutines {
+                Classpath(
+                    DependenciesFlowType.ClassPathType(
+                        scope = ResolutionScope.COMPILE,
+                        platforms = platforms.mapNotNull { it.toResolutionPlatform() }.toSet(),
+                        includeNonExportedNative = false,
+                        isTest = isTest
+                    )
+                ).directDependenciesGraph(this, fileCacheBuilder)
+            }
+
+            if (hasSinglePlatformDependenciesOnly(moduleDependencies)) {
+                val directDependencies = allFragmentDependencies(true)
+                    .flatMap { externalDependencies }
+                    .filterIsInstance<MavenDependencyBase>()
+                    .distinct()
+                    .mapNotNull { it.toGraph(this, fileCacheBuilder, spanBuilder) }
+                    .toList()
+                // In a single-platform case we could rely on IDE dependencies resolution.
+                // Exported dependencies of the fragment on other modules will be taken into account by IDE while preparing
+                //  a fragment-related IDE module compilation classpath.
+                return@useWithoutCoroutines directDependencies
+            }
+
+            val allMavenDeps = spanBuilder("DR: allMavenDeps").useWithoutCoroutines {
+                moduleDependencies
+                    .distinctBfsSequence()
+                    .filterIsInstance<DirectFragmentDependencyNodeHolder>()
+                    .sortedByDescending { it.fragment == this }
+                    .distinctBy { it.dependencyNode }
+                    .map {?                        val mavenDependencyNotation = it.notation as MavenDependencyBase
+                        val context = mavenDependencyNotation.notation.resolveFragmentContext(this, fileCacheBuilder, spanBuilder)
+                        context?.let { mavenDependencyNotation.notation.toFragmentDirectDependencyNode(this, context) }
+                    }.toList()
+            }
+
+            allMavenDeps
         }
-
-        val allMavenDeps = moduleDependencies
-            .distinctBfsSequence()
-            .filterIsInstance<DirectFragmentDependencyNodeHolder>()
-            .filter { it.notation is MavenDependencyBase }
-            .sortedByDescending { it.fragment == this }
-            .distinctBy { it.dependencyNode }
-            .mapNotNull {
-                val mavenDependencyNotation = it.notation as MavenDependencyBase
-                val context = mavenDependencyNotation.resolveFragmentContext(this, fileCacheBuilder, spanBuilder)
-                context?.let { mavenDependencyNotation.toFragmentDirectDependencyNode(this, context) }
-            }.toList()
-
-        return allMavenDeps
     }
 
     private fun AmperModule.platforms(): Set<Platform> = fragments.flatMap { it.platforms }.toSet()
@@ -166,7 +172,7 @@ internal class IdeSync(
     private fun MavenDependencyBase.toGraph(
         fragment: Fragment,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource?
+        spanBuilder: SpanBuilderSource
     ): DirectFragmentDependencyNodeHolder? {
         val context = resolveFragmentContext(fragment, fileCacheBuilder, spanBuilder)
             ?: return null
@@ -176,7 +182,7 @@ internal class IdeSync(
     private fun MavenDependencyBase.resolveFragmentContext(
         fragment: Fragment,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource? = null,
+        spanBuilder: SpanBuilderSource,
     ): Context? {
         val fragmentPlatforms = fragment.resolutionPlatforms ?: return null
         val scope = when (this) {

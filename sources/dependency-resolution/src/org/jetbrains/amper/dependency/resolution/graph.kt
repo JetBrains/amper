@@ -150,6 +150,8 @@ interface DependencyNodePlain : DependencyNode {
     val parentsRefs: List<DependencyNodeReference>
     val childrenRefs: List<DependencyNodeReference>
 
+    override val parents: MutableList<DependencyNode>
+
     override fun toSerializableReference(graphContext: DependencyGraphContext): DependencyNodeReference = plainNodeSerializationError()
 }
 

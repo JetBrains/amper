@@ -46,7 +46,6 @@ import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.telemetry.use
-import java.security.MessageDigest
 import kotlin.io.path.pathString
 import kotlin.reflect.KClass
 
@@ -55,7 +54,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
     override fun AmperModule.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource?,
+        spanBuilder: SpanBuilderSource,
     ): ModuleDependencyNodeWithModule {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
@@ -92,14 +91,14 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                     groupedByFragment.forEach {
                         val resolutionScopeKey = it.key + "," + it.value[0].context.settings.key()
                         dependenciesMap[resolutionScopeKey] =
-                            it.value.map{ (it as DirectFragmentDependencyNodeHolder).notation.coordinates.value }
+                            it.value.mapNotNull{ (it as DirectFragmentDependencyNodeHolder).toDependencyResolutionKey() }
                     }
                 } else {
                     val coordinates = it
                         .distinctBfsSequence()
                         .filterIsInstance<DirectFragmentDependencyNodeHolder>()
                         .distinctBy { it.dependencyNode }
-                        .map { it.notation.coordinates.value }.toList()
+                        .mapNotNull { it.toDependencyResolutionKey() }.toList()
                     dependenciesMap[it.name] = coordinates
                 }
             } else if (it is DependencyNodeHolder) {
@@ -108,10 +107,10 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         }
     }
 
-
-
-
-
+    private fun DirectFragmentDependencyNodeHolder.toDependencyResolutionKey(): String? =
+        (this.dependencyNode as? MavenDependencyNode)
+            ?.getOriginalMavenCoordinates()
+            ?.toString()
 
     override suspend fun DependencyNodeHolder.resolveDependencies(
         resolutionDepth: ResolutionDepth,
@@ -119,118 +118,141 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         downloadSources: Boolean,
         skipIncrementalCache: Boolean,
     ): DependencyNode {
-        return when (resolutionDepth) {
-            ResolutionDepth.GRAPH_ONLY -> {
-                /* Do nothing, graph is already given */
-                this
-            }
+        return context.spanBuilder("DR.graph:resolveDependencies").use {
+            when (resolutionDepth) {
+                ResolutionDepth.GRAPH_ONLY -> {
+                    /* Do nothing, graph is already given */
+                    this@resolveDependencies
+                }
 
-            ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
-            ResolutionDepth.GRAPH_FULL,
-                -> {
-                val resolutionId = when(this) {
-                    is RootDependencyNodeInput -> {
-                        this@resolveDependencies.resolutionId?.let {
-                            it + (if (resolutionDepth == ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES) "[direct only]" else "") +
-                                    "[withSources=$downloadSources]"
+                ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
+                ResolutionDepth.GRAPH_FULL,
+                    -> {
+                    val resolutionId = when (this@resolveDependencies) {
+                        is RootDependencyNodeInput -> {
+                            this@resolveDependencies.resolutionId?.let {
+                                it + (if (resolutionDepth == ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES) "[direct only]" else "") +
+                                        "[withSources=$downloadSources]"
+                            }
                         }
-                    }
 //                    is ModuleDependencyNodeWithModule -> {
 //                        "Module ${module.userReadableName} compile and runtime dependencies, " +
 //                                "platform = ${this.context.settings.platforms.joinToString { it.pretty }}, " +
 //                                "scope = ${this.context.settings.scope}, " +
 //                                "isTest = "
 //                    }
-                    else -> null
-                }?.replaceTheEndWithMd5IfTooLong()
+                        else -> null
+                    }?.replaceTheEndWithMd5IfTooLong()
 
-                if (resolutionId == null || skipIncrementalCache) {
-                    resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
-                    this
-                } else {
+                    if (resolutionId == null || skipIncrementalCache) {
+                        resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
+                        this@resolveDependencies
+                    } else {
 
-                    // todo (AB): It should be adopted and moved into dependency-resolution library
-                    // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
-                    val executeOnChangedInputs = ExecuteOnChangedInputs(
-                        // todo (AB) : It should point into project build dir instead of common DR root
-                        stateRoot = context.settings.fileCache.amperCache.resolve("m2.incremental.state"),
-                        "2"
-                    )
+                        // todo (AB): It should be adopted and moved into dependency-resolution library
+                        // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
+                        val executeOnChangedInputs = ExecuteOnChangedInputs(
+                            // todo (AB) : It should point into project build dir instead of common DR root
+                            stateRoot = context.settings.fileCache.amperCache.resolve("m2.incremental.state"),
+                            "2",
+                            spanBuilder = context.settings.spanBuilder
+                        )
 
-                    val configuration = mapOf(
-                        "userCacheRoot" to context.settings.fileCache.amperCache.pathString,
-                        "dependencies" to getDependenciesGraphInput().entries.joinToString("|") {
-                            "${it.key},${it.value.map { it.toString() }.sorted().joinToString(",")}"
-                        },
-                    )
+                        val configuration = mapOf(
+                            "userCacheRoot" to context.settings.fileCache.amperCache.pathString,
+                            "dependencies" to getDependenciesGraphInput().entries.joinToString("|") {
+                                "${it.key},${it.value.map { it.toString() }.sorted().joinToString(",")}"
+                            },
+                        )
 
-                    val resolvedGraph = executeOnChangedInputs.execute(
-                        // todo (AB): Think about id, it should specify graph all logical resolution scopes.
-                        id = resolutionId,
-                        configuration,
-                        inputs = listOf(),
-                    ) {
-                        context.spanBuilder("DR.graph")
-                            .use {
-                                resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
+                        val resolvedGraph = executeOnChangedInputs.execute(
+                            // todo (AB): Think about id, it should specify graph all logical resolution scopes.
+                            id = resolutionId,
+                            configuration,
+                            inputs = listOf(),
+                        ) {
+                            context.spanBuilder("DR.graph:resolution")
+                                .setAttribute("configuration", configuration["dependencies"]) // todo (AB) : Remove it (was added for debugging purposes))
+                                .setAttribute("userCacheRoot", configuration["userCacheRoot"]) // todo (AB) : Remove it (was added for debugging purposes))
+                                .setAttribute("resolutionId", resolutionId) // todo (AB) : Remove it (was added for debugging purposes))
+                                .use {
+                                    resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
 
-                                // todo (AB) : put all dependency files into the outputs
-                                val serializableGraph = this@resolveDependencies.toGraph()
-                                val serialized = json.encodeToString(serializableGraph)
-                                ExecuteOnChangedInputs.ExecutionResult(emptyList(), mapOf("graph" to serialized))
+                                    // todo (AB) : put all dependency files into the outputs
+                                    val serializableGraph = this@resolveDependencies.toGraph()
+                                    val serialized = json.encodeToString(serializableGraph)
+                                    ExecuteOnChangedInputs.ExecutionResult(
+                                        this@resolveDependencies.dependencyPaths(),
+                                        mapOf("graph" to serialized)
+                                    )
+                                }
+                        }.let {
+                            val serialized = it.outputProperties["graph"]!!
+                            val deserializedGraph = context.spanBuilder("DR.graph:deserialization").use {
+                                json.decodeFromString<DependencyGraph>(serialized)
                             }
-                    }.let {
-                        val serialized = it.outputProperties["graph"]!!
-                        val deserializedGraph = json.decodeFromString<DependencyGraph>(serialized)
-                        deserializedGraph.root.toNodePlain(deserializedGraph.graphContext)
+                            deserializedGraph.root.toNodePlain(deserializedGraph.graphContext)
+                        }
+
+                        // todo (AB) : it might be useful to return resolved graph without serialization/deserialisation
+                        // todo (AB) : at first run when cache entry was populated and returned
+                        // if (this == resolvedGraph) return resolvedGraph
+
+                        // Merge input graph (that have PSI references) with the deserialized one
+                        // todo (AB) : Catch error and fallback to non-cached resolution
+                        resolvedGraph.fillNotation(this@resolveDependencies)
+
+                        resolvedGraph
                     }
-
-                    // todo (AB) : it might be useful to return resolved graph without serialization/deserialisation
-                    // todo (AB) : at first run when cache entry was populated and returned
-                    // if (this == resolvedGraph) return resolvedGraph
-
-                    // Merge input graph (that have PSI references) with the deserialized one
-                    // todo (AB) : Catch error and fallback to non-cached resolution
-                    resolvedGraph.fillNotation(this)
-
-                    resolvedGraph
                 }
             }
         }
     }
 
     private fun DependencyNodePlain.fillNotation(sourceNode: DependencyNodeHolder) {
-        this.children.forEachIndexed { index, node ->
+        val sourceDirectDeps = sourceNode.children.groupBy { it.key }
+        this.children.forEach { node ->
             when (node) {
                 is DirectFragmentDependencyNodeHolderPlain -> {
-                    val sourceNode = sourceNode.children.getOrNull(index).ensureSourceNode<DirectFragmentDependencyNodeHolder>(node)
+                    val sourceNode = sourceDirectDeps[node.key].resolveCorrespondingSourceNode<DirectFragmentDependencyNodeHolder>(node) {
+                        node.notationCoordinates == notation.coordinates.value
+                    }
                     node.notation = sourceNode.notation
                 }
                 is ModuleDependencyNodeWithModulePlain -> {
-                    val sourceNode = sourceNode.children.getOrNull(index).ensureSourceNode<ModuleDependencyNodeWithModule>(node)
+                    val sourceNode = sourceDirectDeps[node.key].resolveCorrespondingSourceNode<ModuleDependencyNodeWithModule>(node)
                     node.notation = sourceNode.notation
                     node.fillNotation(sourceNode)
                 }
                 is RootDependencyNodePlain -> {
-                    val sourceNode = sourceNode.children.getOrNull(index).ensureSourceNode<RootDependencyNodeInput>(node)
+                    val sourceNode = sourceDirectDeps[node.key].resolveCorrespondingSourceNode<RootDependencyNodeInput>(node)
                     node.fillNotation(sourceNode)
                 }
             }
         }
     }
 
-    private inline fun <reified T: DependencyNode> DependencyNode?.ensureSourceNode(node: DependencyNodePlain): T {
-        this ?: error("Deserialized node with key ${node.key} has no corresponding input node")
-        (this as? T)
-            ?: error(
-                "Deserialized node corresponding to unexpected input node of type " +
+    private inline fun <reified T: DependencyNode> List<DependencyNode>?.resolveCorrespondingSourceNode(
+        node: DependencyNodePlain,
+        additionalMatch: T.() -> Boolean = { true }
+    ): T {
+        if (this == null || this.isEmpty())
+            error("Deserialized node with key ${node.key} has no corresponding input node")
+
+        this.forEach {
+            (it as? T) ?: error(
+                "Deserialized node corresponds to unexpected input node of type " +
                         "${this::class.simpleName} while ${node::class.simpleName} is expected"
             )
-        return this
+            if (it.additionalMatch()) return it
+        }
+
+        return (this.first() as T)
     }
 
-    private fun String.replaceTheEndWithMd5IfTooLong() = this.takeIf { it.length <= 50 }
-        ?: (this.substring(0, 50) + MessageDigest.getInstance("MD5").digest(this.toByteArray()))
+    private fun String.replaceTheEndWithMd5IfTooLong() = this
+        .takeIf { it.length <= 50 }
+        ?: (this.substring(0, 50) + md5())
 
     private suspend fun DependencyNodeHolder.resolveDependencies(
         resolutionLevel: ResolutionLevel,
@@ -260,7 +282,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
     override fun List<AmperModule>.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource?,
+        spanBuilder: SpanBuilderSource,
     ): RootDependencyNodeInput {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
@@ -271,10 +293,12 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
     }
 
     override suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNode {
-        with(resolutionInput) {
-            val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, resolutionInput.spanBuilder)
-            val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources, skipIncrementalCache)
-            return resolvedGraph
+        return with(resolutionInput) {
+            resolutionInput.spanBuilder("DR: Resolving dependencies for the list of modules").use {
+                val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, resolutionInput.spanBuilder)
+                val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources, skipIncrementalCache)
+                resolvedGraph
+            }
         }
     }
 

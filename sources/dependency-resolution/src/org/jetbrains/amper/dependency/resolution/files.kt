@@ -75,6 +75,7 @@ import java.time.format.DateTimeParseException
 import java.util.*
 import javax.net.ssl.SSLContext
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
@@ -262,12 +263,23 @@ fun getDependencyFile(
     }
 
 @Serializable
-data class DependencyFilePlain(
-    override val isAutoAddedDocumentation: Boolean,
-    override val isDocumentation: Boolean,
-    override val extension: String,
-    val pathAsString: String? = null
+data class DependencyFilePlain private constructor(
+    override val isAutoAddedDocumentation: Boolean = false,
+    override val isDocumentation: Boolean = false,
+    override val extension: String = ".jar",
+    val pathAsString: String? = null,
+    override val kmpSourceSet: String? = null,
+    override val kmpPlatforms: Set<ResolutionPlatform>? = null
 ) : DependencyFile {
+
+    constructor(dependencyFileImpl: DependencyFileImpl) : this(
+        dependencyFileImpl.isAutoAddedDocumentation,
+        dependencyFileImpl.isDocumentation,
+        dependencyFileImpl.extension,
+        dependencyFileImpl.path?.absolutePathString(),
+        dependencyFileImpl.settings[KmpSourceSetName],
+        dependencyFileImpl.settings[KmpPlatforms])
+
     @Transient
     override val path: Path? = pathAsString?.let { Path(it) }
 }
@@ -277,6 +289,8 @@ sealed interface DependencyFile {
     val isDocumentation: Boolean
     val extension: String
     val path: Path?
+    val kmpSourceSet: String?
+    val kmpPlatforms: Set<ResolutionPlatform>?
 }
 
 open class DependencyFileImpl(
@@ -288,6 +302,9 @@ open class DependencyFileImpl(
     private val fileCache: FileCache = dependency.settings.fileCache,
 ): DependencyFile {
     val settings = TypedKeyMap()
+
+    override val kmpSourceSet = settings[KmpSourceSetName]
+    override val kmpPlatforms = settings[KmpPlatforms]
 
     @Volatile
     private var readOnlyExternalCacheDirectory: LocalRepository? = null

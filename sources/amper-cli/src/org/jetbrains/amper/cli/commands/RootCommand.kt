@@ -158,10 +158,10 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
      */
     private fun fixSystemOutEncodingOnWindows() {
         if (!isWindows()) return
-        if (System.out.charset() == Charsets.UTF_8) return
+//        if (System.out.charset() == Charsets.UTF_8.name()) return
 
         spanBuilder("Fix stdout encoding").useWithoutCoroutines {
-            // Set console code page to 65001 = UTF-8
+            // Set the console code page to 65001 = UTF-8
             val success = Kernel32.INSTANCE.SetConsoleOutputCP(65001)
             if (success) {
                 // Replace System.out and System.err with PrintStreams using UTF-8

@@ -219,7 +219,7 @@ abstract class BaseDRTest {
         assertEqualsWithDiff(expected.trimEnd().lines(), root.prettyPrint().trimEnd().lines())
 
     protected fun List<String>.toRootNode(context: Context) =
-        RootDependencyNodeInput(children = map { it.toMavenNode(context) }/*, context*/)
+        RootDependencyNodeInput(children = map { it.toMavenNode(context) }, templateContext = context)
 
     protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeImpl {
         val isBom = artifactId.startsWith("bom:")

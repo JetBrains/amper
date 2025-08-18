@@ -398,7 +398,7 @@ private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProv
 
 interface DependencyNodeWithResolutionContext: DependencyNode {
 
-    override val parents: List<DependencyNodeWithResolutionContext> get() = context.nodeParents
+    override val parents: List<DependencyNode> get() = context.nodeParents
     val context: Context
     override val key: Key<*>
     override val children: List<DependencyNodeWithResolutionContext>

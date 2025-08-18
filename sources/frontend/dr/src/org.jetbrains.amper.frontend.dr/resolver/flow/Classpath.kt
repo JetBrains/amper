@@ -66,7 +66,7 @@ internal class Classpath(
     override fun directDependenciesGraph(
         module: AmperModule,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource?
+        spanBuilder: SpanBuilderSource
     ): ModuleDependencyNodeWithModule {
         return module.fragmentsModuleDependencies(flowType, fileCacheBuilder = fileCacheBuilder)
     }

@@ -23,7 +23,7 @@ class ResolverTest: BaseDRTest() {
 
         val root = RootDependencyNodeInput(
             children = listOf(nodeInCompileContext, nodeInRuntimeContext),
-//            context()
+            templateContext = context()
         )
 
         doTest(

@@ -800,7 +800,7 @@ class BuildGraphTest : BaseDRTest() {
 
         val root = RootDependencyNodeInput(
             children = contexts.map { "androidx.appcompat:appcompat:1.6.1".toMavenNode(it) },
-//            context()
+            templateContext = context()
         )
 
         doTest(root, verifyMessages = true)
@@ -1839,7 +1839,7 @@ class BuildGraphTest : BaseDRTest() {
                 "androidx.appcompat:appcompat:1.6.1".toMavenNode(context),
                 "androidx.appcompat:appcompat:1.6.1".toMavenNode(context)
             ),
-//            context
+            templateContext = context
         )
 
         val resolver = Resolver()

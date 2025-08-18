@@ -157,7 +157,7 @@ class LocalRepositoryTest : BaseDRTest() {
 
         val root = RootDependencyNodeInput(
             children = listOf(atomicfuCoordinates.toMavenNode(context)),
-//            context
+            templateContext = context()
         )
 
         doTest(
@@ -196,7 +196,7 @@ class LocalRepositoryTest : BaseDRTest() {
 
         val root = RootDependencyNodeInput(
             children = listOf(nodeInCompileContext),
-//            context = context
+            templateContext = context()
         )
 
         updateLocalRepository(localExternalRepository)

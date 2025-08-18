@@ -253,8 +253,8 @@ data class FileCache(
  * The parents of the node holding this context.
  */
 // TODO this should probably be an internal property of the dependency node instead of stored in the nodeCache
-val Context.nodeParents: MutableList<DependencyNodeWithResolutionContext>
-    get() = nodeCache.computeIfAbsent(Key<MutableList<DependencyNodeWithResolutionContext>>("parentNodes")) {
+val Context.nodeParents: MutableList<DependencyNode>
+    get() = nodeCache.computeIfAbsent(Key<MutableList<DependencyNode>>("parentNodes")) {
         CopyOnWriteArrayList()
     }
 

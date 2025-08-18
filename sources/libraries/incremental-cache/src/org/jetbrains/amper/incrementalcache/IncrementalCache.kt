@@ -8,7 +8,7 @@ package org.jetbrains.amper.incrementalcache
 
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.Span
-import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.api.trace.SpanBuilder
 import kotlinx.coroutines.sync.Mutex
 import org.jetbrains.amper.concurrency.withReentrantLock
 import org.jetbrains.amper.filechannels.readText
@@ -45,13 +45,26 @@ class IncrementalCache(
      * Use different [stateRoot]s if you need independent states.
      */
     private val codeVersion: String,
+
     /**
-     * The telemetry instance to use for tracing. If not provided, a no-op instance will be used.
+     * Span builder
      */
-    private val openTelemetry: OpenTelemetry = OpenTelemetry.noop(),
+    var spanBuilder: (String) -> SpanBuilder
 ) {
-    private val tracer: Tracer
-        get() = openTelemetry.getTracer("org.jetbrains.amper.incrementalcache")
+
+    constructor(
+        stateRoot: Path,
+        codeVersion: String,
+        /**
+         * The telemetry instance to use for tracing. If not provided, a no-op instance will be used.
+         */
+        openTelemetry: OpenTelemetry = OpenTelemetry.noop()
+    ): this(
+        stateRoot,
+        codeVersion,
+        {  openTelemetry.getTracer("org.jetbrains.amper.incrementalcache").spanBuilder(it) }
+    )
+
 
     /**
      * Executes the given [block] or returns an existing result from the incremental cache for the given [key].
@@ -96,7 +109,7 @@ class IncrementalCache(
             val stateFile = stateRoot.resolve("$sanitizedKey-$hash")
 
             // Prevent parallel execution of this 'id' from this or other processes,
-            // tracked by a lock on state file
+            // tracked by a lock on the state file
             withLock(key, stateFile) { stateFileChannel ->
                 val (cachedState, cacheCheckTime) = measureTimedValue {
                     getCachedState(stateFile, stateFileChannel, inputValues, inputFiles)

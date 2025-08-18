@@ -259,7 +259,7 @@ class DependencyFileTest {
                         ), null
                     ),
                 ),
-//                context
+                templateContext = context
             )
             val resolver = Resolver()
             resolver.buildGraph(root)

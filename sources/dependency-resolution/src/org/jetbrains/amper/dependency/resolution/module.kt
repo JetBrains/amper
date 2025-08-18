@@ -108,14 +108,15 @@ class RootDependencyNodeInput(
      */
     val resolutionId: String? = null,
     children: List<DependencyNodeWithResolutionContext>,
+    templateContext: Context,
     parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
-) : DependencyNodeHolder(name, children, Context(), parentNodes = parentNodes), RootDependencyNode {
+) : DependencyNodeHolder(name, children, templateContext, parentNodes = parentNodes), RootDependencyNode {
     override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
         RootDependencyNodePlain(name, graphContext = graphContext)
 }
 
 class RootDependencyNodeStub(
-    val name: String = "root",
+    override val name: String = "root",
     override val children: List<DependencyNode> = emptyList(),
     override val parents: List<DependencyNode> = emptyList(),
 ): RootDependencyNode {
@@ -126,17 +127,19 @@ class RootDependencyNodeStub(
     override fun toString() = name
 }
 
-interface RootDependencyNode: DependencyNode
+interface RootDependencyNode: DependencyNode {
+    val name: String
+}
 
 @Serializable
-class RootDependencyNodePlain(
-    val name: String,
+class RootDependencyNodePlain internal constructor(
+    override val name: String,
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = defaultGraphContext(),
 ): DependencyNodeHolderPlain, RootDependencyNode {
     override val parentsRefs = emptyList<DependencyNodeReference>()
-    override val parents = emptyList<DependencyNode>()
+    override val parents = mutableListOf<DependencyNode>()
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
 
     @Transient

@@ -21,6 +21,7 @@ import org.jetbrains.amper.cli.options.platformGroupOption
 import org.jetbrains.amper.cli.options.selectModules
 import org.jetbrains.amper.cli.options.validLeavesIn
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -29,6 +30,7 @@ import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.buildDependenciesGraph
@@ -134,13 +136,13 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
 
         val resolver = MavenResolver(commonOptions.sharedCachesRoot)
 
-            val root = RootDependencyNodeInput(
-                resolutionId = "Module ${resolvedModule.userReadableName} dependencies, " +
-                        (platforms?.let{ "platforms = $platforms," } ?: "") +
-                        "includeTests = $includeTests"
-                ,
-                children = variantsToResolve
-            )
+        val root = RootDependencyNodeInput(
+            resolutionId = "Module ${resolvedModule.userReadableName} dependencies, " +
+                    (platforms?.let { "platforms = $platforms," } ?: "") +
+                    "includeTests = $includeTests",
+            children = variantsToResolve,
+            templateContext = emptyContext(commonOptions.sharedCachesRoot, { spanBuilder(it) })
+        )
 
         val resolvedGraph = resolver.resolve(
             root = root,

@@ -31,7 +31,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
     val json = ModuleDependenciesResolverImpl.json
 
     @Test
-    fun serializationTest(testInfo: TestInfo) = runSlowTest {
+    fun serializationTestJava(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
 
         val appModuleGraph = doTestByFile(
@@ -63,6 +63,44 @@ class GraphSerializationTest: BaseModuleDrTest() {
         val nodePlain = decoded.root.toNodePlain(decoded.graphContext)
         assertEqualsWithDiff(
             appModuleGraph.prettyPrint().lines(),
+            nodePlain.prettyPrint().lines(),
+            "decoded graph pretty print representation differs from the original graph"
+        )
+    }
+
+    @Test
+    fun serializationTestKmp(testInfo: TestInfo) = runSlowTest {
+        val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
+
+        val iosAppModuleDeps = doTestByFile(
+            testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                skipIncrementalCache = true,
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
+            ),
+            module = "ios-app",
+        )
+
+        val serializableGraph = iosAppModuleDeps.toGraph()
+
+        val encoded = json.encodeToString(serializableGraph)
+        println(encoded)
+
+        val decoded = json.decodeFromString(DependencyGraph.serializer(), encoded)
+
+        val encodedOfDecoded = json.encodeToString(decoded)
+
+        kotlin.test.assertEquals(
+            encoded,
+            encodedOfDecoded,
+            "decoded string being encoded again differs from initially encoded"
+        )
+
+        val nodePlain = decoded.root.toNodePlain(decoded.graphContext)
+        assertEqualsWithDiff(
+            iosAppModuleDeps.prettyPrint().lines(),
             nodePlain.prettyPrint().lines(),
             "decoded graph pretty print representation differs from the original graph"
         )

@@ -19,6 +19,7 @@ import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
+import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.diagnostics.WithThrowable
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
@@ -72,11 +73,13 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             platform.wasmTarget?.let { builder.setAttribute("wasmTarget", it) }
         }
         .use {
+            val spanBuilderSource: SpanBuilderSource = { spanBuilder(it) }
             val context = Context {
                 this.cache = getAmperFileCacheBuilder(userCacheRoot)
                 this.repositories = repositories
                 this.scope = scope
                 this.platforms = setOf(platform)
+                this.spanBuilder = spanBuilderSource
             }
 
             val root = RootDependencyNodeInput(
@@ -84,7 +87,8 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 children = coordinates.map {
                     val (group, module, version) = it.split(":")
                     MavenDependencyNodeImpl(context, group, module, version, false)
-                }
+                },
+                templateContext = context
             )
 
             val resolvedGraph = resolve(root, resolveSourceMoniker, resolutionDepth)
