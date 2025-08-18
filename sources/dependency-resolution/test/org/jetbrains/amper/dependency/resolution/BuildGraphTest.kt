@@ -101,8 +101,14 @@ class BuildGraphTest : BaseDRTest() {
      */
     @Test
     fun `com_sun_jna jna 3_0_9`(testInfo: TestInfo) = runTest {
-        val root = doTestByFile(testInfo)
-        assertFiles(testInfo, root)
+        val root = doTest(
+            testInfo,
+            expected = """
+                root
+                ╰─── com.sun.jna:jna:3.0.9
+            """.trimIndent()
+        )
+        downloadAndAssertFiles(listOf("jna-3.0.9.jar"), root, verifyMessages = true)
     }
 
 
