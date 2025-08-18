@@ -63,7 +63,7 @@
                 "enum": [
                   "js",
                   "jvm",
-                  "wasm",
+                  "wasmJs",
                   "android",
                   "linuxX64",
                   "linuxArm64",
@@ -98,7 +98,9 @@
                 "ios/app",
                 "macos/app",
                 "linux/app",
-                "windows/app"
+                "windows/app",
+                "wasm-js/app",
+                "js/app"
               ],
               "x-intellij-enum-metadata": {
                 "lib": "A reusable library which could be used as dependency by other modules in the codebase",
@@ -108,7 +110,9 @@
                 "ios/app": "An iOS application",
                 "macos/app": "A native macOS application",
                 "linux/app": "A native linux application",
-                "windows/app": "A native Windows application"
+                "windows/app": "A native Windows application",
+                "wasm-js/app": "A wasm JS application",
+                "js/app": "A JavaScript application"
               },
               "x-intellij-enum-order-sensitive": true,
               "x-intellij-html-description": "What type of product to generate",
@@ -132,7 +136,9 @@
             "ios/app",
             "macos/app",
             "linux/app",
-            "windows/app"
+            "windows/app",
+            "wasm-js/app",
+            "js/app"
           ]
         }
       ]
@@ -1903,7 +1909,7 @@
                   "enum": [
                     "js",
                     "jvm",
-                    "wasm",
+                    "wasmJs",
                     "android",
                     "linuxX64",
                     "linuxArm64",
