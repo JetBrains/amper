@@ -165,7 +165,7 @@ data class Parent(
 @XmlSerialName("organization", POM_XML_NAMESPACE)
 data class Organization(
     @XmlElement(true)
-    val name: String,
+    val name: String? = null,
     @XmlElement(true)
     val url: String? = null,
 )
@@ -181,7 +181,7 @@ data class Licenses(
 @XmlSerialName("license", POM_XML_NAMESPACE)
 data class License(
     @XmlElement(true)
-    val name: String,
+    val name: String? = null,
     @XmlElement(true)
     val url: String? = null,
     @XmlElement(true)
@@ -225,7 +225,7 @@ data class Contributors(
 @XmlSerialName("contributor", POM_XML_NAMESPACE)
 data class Contributor(
     @XmlElement(true)
-    val name: String,
+    val name: String? = null,
     @XmlElement(true)
     val organization: String? = null,
     @XmlElement(true)
@@ -342,7 +342,7 @@ data class Exclusion(
     @XmlElement(true)
     val groupId: String,
     @XmlElement(true)
-    val artifactId: String,
+    val artifactId: String? = null,
 )
 
 fun Dependency.expandTemplates(project: Project): Dependency = copy(
