@@ -158,7 +158,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
      */
     private fun fixSystemOutEncodingOnWindows() {
         if (!isWindows()) return
-//        if (System.out.charset() == Charsets.UTF_8.name()) return
+        if (System.out.charset() == Charsets.UTF_8) return
 
         spanBuilder("Fix stdout encoding").useWithoutCoroutines {
             // Set the console code page to 65001 = UTF-8
