@@ -40,6 +40,7 @@ internal data class KotlinUserSettings(
 internal data class JavaUserSettings(
     val parameters: Boolean = false,
     val freeCompilerArgs: List<String>,
+    val annotationProcessorOptions: Map<String, String>,
 )
 
 internal fun Fragment.serializableCompilationSettings(): CompilationUserSettings = CompilationUserSettings(
@@ -69,6 +70,9 @@ internal fun Fragment.serializableKotlinSettings(): KotlinUserSettings = KotlinU
 private fun Fragment.serializableJavaSettings(): JavaUserSettings = JavaUserSettings(
     parameters = settings.jvm.storeParameterNames,
     freeCompilerArgs = settings.java.freeCompilerArgs.values(),
+    annotationProcessorOptions = settings.java.annotationProcessing.processorOptions.mapValues {
+        (_, value) -> value.value
+    }
 )
 
 /**

@@ -58,6 +58,13 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
      */
     protected fun newEmptyProjectDir(): Path = tempRoot.resolve("new").also { it.createDirectories() }
 
+    protected fun copyProjectToTempDir(projectRoot: Path): Path {
+        val tempProjectDir = tempRoot / UUID.randomUUID().toString() / projectRoot.fileName
+        tempProjectDir.createDirectories()
+        projectRoot.copyToRecursively(target = tempProjectDir, overwrite = false, followLinks = true)
+        return tempProjectDir
+    }
+
     protected suspend fun runCli(
         projectRoot: Path,
         vararg args: String,
@@ -74,9 +81,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         println("Running Amper CLI with '${args.toList()}' on $projectRoot")
 
         val effectiveProjectRoot = if (copyToTempDir) {
-            val tempProjectDir = tempRoot / UUID.randomUUID().toString() / projectRoot.fileName
-            tempProjectDir.createDirectories()
-            projectRoot.copyToRecursively(target = tempProjectDir, overwrite = false, followLinks = true)
+            val tempProjectDir = copyProjectToTempDir(projectRoot)
             modifyTempProjectBeforeRun(tempProjectDir)
             tempProjectDir
         } else {

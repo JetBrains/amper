@@ -39,6 +39,12 @@ fun AmperCliResult.assertStderrContains(text: String) {
     }
 }
 
+fun AmperCliResult.assertStderrDoesNotContain(text: String) {
+    assertFalse("Stderr should not contain the text '$text':\n" + stderr.trim()) {
+        text in stderr
+    }
+}
+
 fun AmperCliResult.assertStdoutContainsLine(expectedLine: String, nOccurrences: Int = 1) {
     val suffix = if (nOccurrences > 1) " $nOccurrences times" else " once"
     val count = stdout.lines().count { it == expectedLine }

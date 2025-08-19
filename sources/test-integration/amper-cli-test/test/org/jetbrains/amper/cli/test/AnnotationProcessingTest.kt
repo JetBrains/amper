@@ -5,12 +5,15 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.cli.test.utils.assertStderrContains
+import org.jetbrains.amper.cli.test.utils.assertStderrDoesNotContain
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -64,6 +67,47 @@ class AnnotationProcessingTest: AmperCliTestBase() {
         result.assertStderrContains("[com.google.auto.service.AutoService]")
     }
 
+    @Test
+    fun `re-compilation happens after processorOptions changes`() = runSlowTest {
+        // we're going to modify project files => copy the project instead of running in place
+        val projectRoot = copyProjectToTempDir(testProject("ap-with-params"))
+
+        /*
+          This test checks that the module is recompiled after a change in processorOptions (AMPER-4581).
+
+          The '-Adebug' parameter is active and produces some additional debug output in stderr,
+          only when the annotation processor is being run.
+
+          Suppose that we:
+          - keep the '-Adebug' parameter initially,
+          - run the app,
+          - check that debug information was printed to stderr,
+          - remove the '-Adebug' parameter,
+          - run the app again
+          - do not see the debug output.
+          The end result might indicate either:
+          - that the module was recompiled, and the processor option change took effect,
+          - or it can also indicate that the module was not recompiled, and the annotation processor
+          was not run at all (and thus did not produce the debug output).
+          So, this test scenario would not test what we want to test (recompilation).
+
+          To overcome this, we invert the '-Adebug' parameter value:
+          keep it off initially and introduce it after the first run.
+        */
+
+        val moduleYaml = (projectRoot / "module.yaml")
+        moduleYaml.writeText(moduleYaml.readText().replace("- debug: \"\"", "- unknown: true"))
+
+        val result = runCli(projectRoot, "run", assertEmptyStdErr = false)
+        result.assertStdoutContains("Do something")
+        result.assertStderrDoesNotContain("[com.google.auto.service.AutoService]")
+
+        moduleYaml.writeText(moduleYaml.readText().replace("- unknown: true", "- debug: \"\""))
+
+        val result2 = runCli(projectRoot, "run", assertEmptyStdErr = false)
+        result2.assertStdoutContains("Do something")
+        result2.assertStderrContains("[com.google.auto.service.AutoService]")
+    }
 
     @Test
     fun `lombok-kotlin project with interop works when lombok is enabled`() = runSlowTest {

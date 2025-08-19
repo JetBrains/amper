@@ -382,9 +382,7 @@ internal class JvmCompileTask(
                 add("-s")
                 add(generatedSourcesDir.pathString)
 
-                val processorOptions = fragments.flatMap { it.settings.java.annotationProcessing.processorOptions.entries }
-                    .associate { it.key to it.value.value }
-                processorOptions.forEach { (key, value) ->
+                userSettings.java.annotationProcessorOptions.forEach { (key, value) ->
                     add("-A$key=$value")
                 }
             }
