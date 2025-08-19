@@ -7,7 +7,6 @@ package org.jetbrains.amper.dependency.resolution.diagnostics
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.dependency.resolution.DependencyResolutionBundle
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
-import org.jetbrains.amper.dependency.resolution.MavenDependency
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.annotations.Nls
 

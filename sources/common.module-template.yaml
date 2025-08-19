@@ -47,4 +47,4 @@ settings:
       - kotlin.io.path.ExperimentalPathApi
       - kotlin.time.ExperimentalTime
   jvm:
-    release: 17
+    release: 21

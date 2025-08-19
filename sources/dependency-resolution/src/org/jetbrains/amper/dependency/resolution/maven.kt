@@ -10,19 +10,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.encoding.CompositeDecoder
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.decodeStructure
-import kotlinx.serialization.encoding.encodeStructure
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
 import org.jetbrains.amper.dependency.resolution.attributes.Category
 import org.jetbrains.amper.dependency.resolution.attributes.JvmEnvironment
@@ -90,7 +79,6 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.CancellationException
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -123,202 +111,6 @@ val MavenDependencyNode.group
 val MavenDependencyNode.module
     get() = dependency.module
 
-@Serializable(with = DependencyGraphContextSerializer::class)
-class  DependencyGraphContext(
-    val allDependencyNodes: MutableMap<DependencyNodePlain, DependencyNodeIndex> = mutableMapOf(),
-    val allMavenDependencies: MutableMap<MavenDependencyPlain, MavenDependencyIndex> = mutableMapOf(),
-    val allMavenDependencyConstraints: MutableMap<MavenDependencyConstraintPlain, MavenDependencyConstraintIndex> = mutableMapOf()
-) {
-
-    @Transient
-    val allDependencyNodeReferences: MutableMap<DependencyNode, DependencyNodeReference> = mutableMapOf()
-    @Transient
-    val allMavenDependencyReferences: MutableMap<MavenDependency, MavenDependencyReference> = mutableMapOf()
-    @Transient
-    val allMavenDependencyConstraintReferences: MutableMap<MavenDependencyConstraint, MavenDependencyConstraintReference> = mutableMapOf()
-
-    /**
-     * The transient fields below provide instant access to cached values by index.
-     * It is assumed that indexes used for serialization match the indexes of serialized Map
-     */
-    @Transient
-    var allDependencyNodesList: List<DependencyNodePlain> = emptyList()
-        get() {
-            if (field.size != allDependencyNodes.size) {
-                field = allDependencyNodes.keys.toList()
-            }
-            return field
-        }
-        private set
-
-    @Transient
-    var mavenDependenciesList: List<MavenDependencyPlain> = emptyList()
-        get() {
-            if (field.size != allMavenDependencies.size) {
-                field = allMavenDependencies.keys.toList()
-            }
-            return field
-        }
-        private set
-
-    @Transient
-    var mavenDependenciesConstraintsList: List<MavenDependencyConstraint> = emptyList()
-        get() {
-            if (field.size != allMavenDependencyConstraints.size) {
-                field = allMavenDependencyConstraints.keys.toList()
-            }
-            return field
-        }
-        private set
-
-    fun <Node: DependencyNode, NodePlain: DependencyNodePlain> registerDependencyNodePlain(
-        node: Node, nodePlain: NodePlain
-    ): DependencyNodeReference {
-        if (allDependencyNodeReferences[node] != null) error("Node plain for node $node is already registered")
-        if (allDependencyNodes[nodePlain] != null) {
-            error("Reference for node $node is already registered")
-        }
-
-        val refIndex = allDependencyNodeReferences.size
-        allDependencyNodes[nodePlain] = refIndex
-
-        val reference = DependencyNodeReference(refIndex)
-        allDependencyNodeReferences[node] = reference
-
-        return reference
-    }
-
-    fun registerMavenDependencyPlain(mavenDependency: MavenDependency, nodePlain: MavenDependencyPlain): MavenDependencyReference {
-        if (allMavenDependencyReferences[mavenDependency] != null) error("Plain maven dependency for maven dependency $mavenDependency is already registered")
-        if (allMavenDependencies[nodePlain] != null) error("Reference for node $mavenDependency is already registered")
-
-        val refIndex = allMavenDependencyReferences.size
-        allMavenDependencies[nodePlain] = refIndex
-
-        val reference = MavenDependencyReference(refIndex)
-        allMavenDependencyReferences[mavenDependency] = reference
-
-        return reference
-    }
-
-    fun registerMavenDependencyConstraintPlain(constraint: MavenDependencyConstraint, nodePlain: MavenDependencyConstraintPlain): MavenDependencyConstraintReference {
-        if (allMavenDependencyConstraintReferences[constraint] != null) error("Plain maven dependency constraint for maven dependency constraint $constraint is already registered")
-        if (allMavenDependencyConstraints[nodePlain] != null) error("Reference for node $constraint is already registered")
-
-        val refIndex = allMavenDependencyConstraintReferences.size
-        allMavenDependencyConstraints[nodePlain] = refIndex
-
-        val reference = MavenDependencyConstraintReference(refIndex)
-        allMavenDependencyConstraintReferences[constraint] = reference
-
-        return reference
-    }
-
-    inline fun <reified T: DependencyNode> getDependencyNodeReference(node: T): DependencyNodeReference? {
-        return allDependencyNodeReferences[node]
-    }
-
-    fun getMavenDependencyReference(mavenDependency: MavenDependency): MavenDependencyReference? {
-        return allMavenDependencyReferences[mavenDependency]
-    }
-
-    fun getMavenDependencyConstraintReference(constraint: MavenDependencyConstraint): MavenDependencyConstraintReference? {
-        return allMavenDependencyConstraintReferences[constraint]
-    }
-
-    inline fun <reified T: DependencyNodePlain> getDependencyNode(index: DependencyNodeIndex): T {
-        val node = allDependencyNodesList.getOrNull(index)
-
-        node ?: run {
-            error("Dependency with index $index is absent in the graph")
-        }
-        (node as? T) ?: error("Dependency with index $index is of type ${node::class.simpleName} while ${T::class.simpleName} is expected")
-
-        return node
-    }
-
-    fun getMavenDependency(index: MavenDependencyIndex): MavenDependencyPlain {
-        return mavenDependenciesList.getOrNull(index) ?: error("MavenDependency with index $index is absent in the graph")
-    }
-
-    fun getMavenDependencyConstraint(index: MavenDependencyConstraintIndex): MavenDependencyConstraint {
-        return mavenDependenciesConstraintsList.getOrNull(index) ?: error("MavenDependencyConstraint with index $index is absent in the graph")
-    }
-
-    companion object {
-        val currentGraphContext = ThreadLocal<DependencyGraphContext?>()
-    }
-}
-
-private class DependencyGraphContextSerializer: KSerializer<DependencyGraphContext> {
-    private val allDependencyNodesSerializer: KSerializer<Map<DependencyNodePlain, DependencyNodeIndex>> =
-        MapSerializer(PolymorphicSerializer(DependencyNodePlain::class), Int.serializer())
-    private val allMavenDependenciesSerializer: KSerializer<Map<MavenDependencyPlain, MavenDependencyIndex>> =
-        MapSerializer(MavenDependencyPlain.serializer(), Int.serializer())
-    private val allMavenDependencyConstraintsSerializer: KSerializer<Map<MavenDependencyConstraintPlain, DependencyNodeIndex>> =
-        MapSerializer(MavenDependencyConstraintPlain.serializer(), Int.serializer())
-
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(
-        "org.jetbrains.amper.dependency.resolution.DependencyGraphContextSerializer") {
-        element("allDependencyNodes", allDependencyNodesSerializer.descriptor)
-        element("allMavenDependencies", allMavenDependenciesSerializer.descriptor)
-        element("allMavenDependencyConstraints", allMavenDependencyConstraintsSerializer.descriptor)
-    }
-
-    override fun serialize(encoder: Encoder, value: DependencyGraphContext) {
-        encoder.encodeStructure(descriptor) {
-            encodeSerializableElement(descriptor, 0, allDependencyNodesSerializer, value.allDependencyNodes)
-            encodeSerializableElement(descriptor, 1, allMavenDependenciesSerializer, value.allMavenDependencies)
-            encodeSerializableElement(descriptor, 2, allMavenDependencyConstraintsSerializer, value.allMavenDependencyConstraints)
-        }
-    }
-
-    override fun deserialize(decoder: Decoder): DependencyGraphContext {
-        return decoder.decodeStructure(descriptor) {
-            val graphContext = DependencyGraphContext()
-
-            var allDependencyNodes: MutableMap<DependencyNodePlain, DependencyNodeIndex>? = null
-            var allMavenDependencies: MutableMap<MavenDependencyPlain, MavenDependencyIndex>? = null
-            var allMavenDependencyConstraints: MutableMap<MavenDependencyConstraintPlain, MavenDependencyConstraintIndex>? = null
-
-            try {
-                DependencyGraphContext.currentGraphContext.set(graphContext)
-
-                while (true) {
-                    when (val index = decodeElementIndex(descriptor)) {
-                        0 -> {
-                            allDependencyNodes =
-                                decodeSerializableElement(descriptor, 0, allDependencyNodesSerializer).toMutableMap()
-                        }
-                        1 -> {
-                            allMavenDependencies =
-                                decodeSerializableElement(descriptor, 1, allMavenDependenciesSerializer).toMutableMap()
-                        }
-                        2 -> {
-                            allMavenDependencyConstraints =
-                                decodeSerializableElement(descriptor, 2, allMavenDependencyConstraintsSerializer).toMutableMap()
-                        }
-                        CompositeDecoder.DECODE_DONE -> break
-                        else -> error("Unexpected index: $index")
-                    }
-                }
-            } finally {
-                DependencyGraphContext.currentGraphContext.set(null)
-            }
-
-            graphContext.allDependencyNodes.putAll(allDependencyNodes!!)
-            graphContext.allMavenDependencies.putAll(allMavenDependencies!!)
-            graphContext.allMavenDependencyConstraints.putAll(allMavenDependencyConstraints!!)
-
-            graphContext
-        }
-    }
-}
-
-typealias DependencyNodeIndex = Int
-typealias MavenDependencyIndex = Int
-typealias MavenDependencyConstraintIndex = Int
-
 @Serializable
 class MavenDependencyNodePlain internal constructor(
     override val originalVersion: String?,
@@ -350,9 +142,6 @@ class MavenDependencyNodePlain internal constructor(
         "$group:$module:${originalVersion.orUnspecified()} -> ${dependency.version}"
     }
 }
-
-fun defaultGraphContext(): DependencyGraphContext = DependencyGraphContext.currentGraphContext.get()
-    ?: error("Instance of DependencyGraphContext should be either explicitly passed to the constructor or presented in the dedicated ThreadLocal")
 
 /**
  * Serves as a holder for a dependency defined by Maven coordinates, namely, group, module, and version.
@@ -623,9 +412,6 @@ class UnresolvedMavenDependencyNode(
             }
     }
 }
-
-// todo (AB): Extract definitions of DependencyGraph and Plain/Reference nodes to a separate file and create test
-// todo (AB): that serialise/deserialize the graph. Simplified hierarchy is OK for the first step.
 
 interface MavenDependencyConstraintNode : DependencyNode {
     val group: String

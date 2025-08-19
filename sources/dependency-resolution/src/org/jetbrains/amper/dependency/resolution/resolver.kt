@@ -11,18 +11,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.nullable
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.encoding.CompositeDecoder
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.decodeStructure
-import kotlinx.serialization.encoding.encodeStructure
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
@@ -482,69 +470,3 @@ interface UnspecifiedVersionResolver<T> {
 }
 
 class Progress
-
-class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
-
-@Serializable
-class AmperDependencyResolutionExceptionSerializable private constructor(
-    private val ownMessage: String?,
-    private val causeToString: String,
-    private val causeStackTrace: Array<@Serializable(with = StackTraceElementSerializer::class)StackTraceElement>
-) : Throwable(ownMessage) {
-    override fun toString() =
-        (ownMessage?.let { "${AmperDependencyResolutionExceptionSerializable::class.java.simpleName}: $it causedBy${System.lineSeparator()}" } ?: "") +
-            " $causeToString"
-
-    init {
-        setStackTrace(causeStackTrace)
-    }
-
-    constructor(cause: Throwable, message: String? = null)
-            : this(message, cause.toString(), cause.stackTrace )
-}
-
-class StackTraceElementSerializer : KSerializer<StackTraceElement> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("java.lang.StackTraceElement") {
-        element("declaringClass", String.serializer().descriptor)
-        element("methodName", String.serializer().descriptor)
-        element("fileName", String.serializer().nullable.descriptor)
-        element("lineNumber", Int.serializer().descriptor)
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun serialize(encoder: Encoder, value: StackTraceElement) {
-        encoder.encodeStructure(descriptor) {
-            encodeStringElement(descriptor, 0, value.className)
-            encodeStringElement(descriptor, 1, value.methodName)
-            encodeNullableSerializableElement(descriptor, 2, String.serializer().nullable, value.fileName)
-            encodeIntElement(descriptor, 3, value.lineNumber)
-        }
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun deserialize(decoder: Decoder): StackTraceElement {
-        return decoder.decodeStructure(descriptor) {
-            var className: String? = null
-            var methodName: String? = null
-            var fileName: String? = null
-            var lineNumber: Int = -1
-
-            while (true) {
-                when (val index = decodeElementIndex(descriptor)) {
-                    0 -> className = decodeStringElement(descriptor, 0)
-                    1 -> methodName = decodeStringElement(descriptor, 1)
-                    2 -> fileName = decodeNullableSerializableElement(descriptor, 2, String.serializer().nullable)
-                    3 -> lineNumber = decodeIntElement(descriptor, 3)
-                    CompositeDecoder.DECODE_DONE -> break
-                    else -> error("Unexpected index: $index")
-                }
-            }
-
-            requireNotNull(className) { "Class name should not be null" }
-            requireNotNull(methodName) { "Method name should not be null" }
-
-            StackTraceElement(className, methodName, fileName, lineNumber)
-        }
-    }
-}
-
