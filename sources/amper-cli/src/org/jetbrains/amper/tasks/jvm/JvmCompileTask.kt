@@ -260,7 +260,7 @@ internal class JvmCompileTask(
 
         if (javaFilesToCompile.isNotEmpty()) {
             val kotlinClassesPath = listOf(taskOutputRoot.path)
-            val javacSuccess = compileJavaSources(
+            compileJavaSources(
                 jdk = jdk,
                 userSettings = userSettings,
                 classpath = classpath + kotlinClassesPath,
@@ -268,9 +268,6 @@ internal class JvmCompileTask(
                 javaSourceFiles = javaFilesToCompile,
                 tempRoot = tempRoot,
             )
-            if (!javacSuccess) {
-                userReadableError("Java compilation failed (see errors above)")
-            }
         }
     }
 
@@ -351,7 +348,7 @@ internal class JvmCompileTask(
         processorClasspath: List<Path>,
         javaSourceFiles: List<Path>,
         tempRoot: AmperProjectTempRoot,
-    ): Boolean {
+    ) {
         val javacArgs = buildList {
             if (userSettings.jvmRelease != null) {
                 add("--release")
@@ -401,7 +398,7 @@ internal class JvmCompileTask(
             addAll(javaSourceFiles.map { it.pathString })
         }
 
-        withJavaArgFile(tempRoot, javacArgs) { argsFile ->
+        val exitCode = withJavaArgFile(tempRoot, javacArgs) { argsFile ->
             val result = spanBuilder("javac")
                 .setAmperModule(module)
                 .setListAttribute("args", javacArgs)
@@ -415,7 +412,11 @@ internal class JvmCompileTask(
                         outputListener = LoggingProcessOutputListener(logger),
                     )
                 }
-            return result.exitCode == 0
+            result.exitCode
+        }
+
+        if (exitCode != 0) {
+            userReadableError("Java compilation failed (see errors above)")
         }
     }
 
