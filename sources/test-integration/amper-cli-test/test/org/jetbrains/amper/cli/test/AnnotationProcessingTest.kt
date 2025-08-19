@@ -10,6 +10,8 @@ import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import kotlin.io.path.Path
+import kotlin.io.path.deleteExisting
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.readText
@@ -96,17 +98,38 @@ class AnnotationProcessingTest: AmperCliTestBase() {
         */
 
         val moduleYaml = (projectRoot / "module.yaml")
-        moduleYaml.writeText(moduleYaml.readText().replace("- debug: \"\"", "- unknown: true"))
+        moduleYaml.writeText(moduleYaml.readText().replace("debug: \"\"", "unknown: true"))
 
         val result = runCli(projectRoot, "run", assertEmptyStdErr = false)
         result.assertStdoutContains("Do something")
         result.assertStderrDoesNotContain("[com.google.auto.service.AutoService]")
 
-        moduleYaml.writeText(moduleYaml.readText().replace("- unknown: true", "- debug: \"\""))
+        moduleYaml.writeText(moduleYaml.readText().replace("unknown: true", "debug: \"\""))
 
         val result2 = runCli(projectRoot, "run", assertEmptyStdErr = false)
         result2.assertStdoutContains("Do something")
         result2.assertStderrContains("[com.google.auto.service.AutoService]")
+
+        // and let's run once again to verify that if we change nothing, then annotation processors are not re-run
+        val result3 = runCli(projectRoot, "run", assertEmptyStdErr = false)
+        result3.assertStdoutContains("Do something")
+        result3.assertStderrDoesNotContain("[com.google.auto.service.AutoService]")
+    }
+
+    @Test
+    fun `re-compilation is triggered if annotation processor output is removed`() = runSlowTest {
+        val projectRoot = testProject("mapstruct")
+        val buildResult = runCli(projectRoot, "build")
+
+        val generatedFileRelativePath = Path("generated") / "mapstruct" / "main" / "src" / "apt" / "java" / "UserMapperImpl.java"
+        val generatedJavaFile = buildResult.buildOutputRoot / generatedFileRelativePath
+        assertTrue(generatedJavaFile.exists(), "Generated UserMapperImpl.java source file not found")
+
+        generatedJavaFile.deleteExisting()
+
+        val buildResult2 = runCli(projectRoot, "build")
+        val generatedJavaFile2 = buildResult2.buildOutputRoot / generatedFileRelativePath
+        assertTrue(generatedJavaFile2.exists(), "Generated UserMapperImpl.java source file was not regenerated")
     }
 
     @Test

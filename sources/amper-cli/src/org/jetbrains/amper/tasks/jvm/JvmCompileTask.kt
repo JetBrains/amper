@@ -14,6 +14,7 @@ import org.jetbrains.amper.cli.telemetry.setFragments
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.CompilationUserSettings
 import org.jetbrains.amper.compilation.ErrorsCollectorKotlinLogger
+import org.jetbrains.amper.compilation.JavaUserSettings
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
@@ -157,12 +158,16 @@ internal class JvmCompileTask(
         // TODO settings
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
+        val javaAnnotationProcessorsGeneratedDir =
+            fragments.singleLeafFragment().javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)
+
         val configuration: Map<String, String> = mapOf(
             "jdk.url" to jdk.downloadUrl.toString(),
             "kotlin.version" to kotlinVersion,
             "user.settings" to Json.encodeToString(userSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
             "target.platforms" to module.leafPlatforms.map { it.name }.sorted().joinToString(),
+            "java.annotation.processor.generated.dir" to javaAnnotationProcessorsGeneratedDir.pathString
         )
 
         val sources = fragments.map { it.src.toAbsolutePath() } + additionalSources.map { it.path }
@@ -182,6 +187,9 @@ internal class JvmCompileTask(
                     }
                 }
 
+            val outputPaths = mutableListOf<Path>()
+            outputPaths.add(taskOutputRoot.path.toAbsolutePath())
+
             if (nonEmptySourceDirs.isNotEmpty()) {
                 compileSources(
                     jdk = jdk,
@@ -192,8 +200,12 @@ internal class JvmCompileTask(
                     classpath = classpath,
                     friendPaths = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
                     javaAnnotationProcessorClasspath = javaAnnotationProcessorClasspath,
+                    javaAnnotationProcessorsGeneratedDir = javaAnnotationProcessorsGeneratedDir,
                     tempRoot = tempRoot,
                 )
+                if (javaAnnotationProcessorsGeneratedDir.exists()) {
+                    outputPaths.add(javaAnnotationProcessorsGeneratedDir)
+                }
             } else {
                 logger.debug("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
             }
@@ -209,7 +221,7 @@ internal class JvmCompileTask(
                 BuildPrimitives.copy(from = resource, to = dest)
             }
 
-            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path.toAbsolutePath()))
+            return@execute ExecuteOnChangedInputs.ExecutionResult(outputPaths)
         }
 
         return Result(
@@ -230,6 +242,7 @@ internal class JvmCompileTask(
         friendPaths: List<Path>,
         javaAnnotationProcessorClasspath: List<Path>,
         tempRoot: AmperProjectTempRoot,
+        javaAnnotationProcessorsGeneratedDir: Path,
     ) {
         for (friendPath in friendPaths) {
             require(classpath.contains(friendPath)) {
@@ -265,6 +278,7 @@ internal class JvmCompileTask(
                 userSettings = userSettings,
                 classpath = classpath + kotlinClassesPath,
                 processorClasspath = javaAnnotationProcessorClasspath,
+                processorGeneratedDir = javaAnnotationProcessorsGeneratedDir,
                 javaSourceFiles = javaFilesToCompile,
                 tempRoot = tempRoot,
             )
@@ -348,6 +362,7 @@ internal class JvmCompileTask(
         processorClasspath: List<Path>,
         javaSourceFiles: List<Path>,
         tempRoot: AmperProjectTempRoot,
+        processorGeneratedDir: Path,
     ) {
         val javacArgs = buildList {
             if (userSettings.jvmRelease != null) {
@@ -369,19 +384,9 @@ internal class JvmCompileTask(
             // TODO Should we move settings.kotlin.debug to settings.jvm.debug and use it here?
             add("-g")
 
-            if (processorClasspath.isNotEmpty()) {
-                val generatedSourcesDir = fragments.singleLeafFragment().javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)
-
-                add("-processorpath")
-                add(processorClasspath.joinToString(File.pathSeparator))
-
-                // Add generated sources directory
-                add("-s")
-                add(generatedSourcesDir.pathString)
-
-                userSettings.java.annotationProcessorOptions.forEach { (key, value) ->
-                    add("-A$key=$value")
-                }
+            if (!processorClasspath.isEmpty()) {
+                val annotationProcessorArgs = buildAnnotationProcessorArgs(userSettings.java, processorClasspath, processorGeneratedDir)
+                addAll(annotationProcessorArgs)
             }
 
             // https://blog.ltgt.net/most-build-tools-misuse-javac/
@@ -431,4 +436,21 @@ internal class JvmCompileTask(
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
+}
+
+private fun buildAnnotationProcessorArgs(
+    javaSettings: JavaUserSettings,
+    processorClasspath: List<Path>,
+    generatedSourcesDir: Path,
+): List<String> = buildList {
+    add("-processorpath")
+    add(processorClasspath.joinToString(File.pathSeparator))
+
+    // Add generated sources directory
+    add("-s")
+    add(generatedSourcesDir.pathString)
+
+    javaSettings.annotationProcessorOptions.forEach { (key, value) ->
+        add("-A$key=$value")
+    }
 }
