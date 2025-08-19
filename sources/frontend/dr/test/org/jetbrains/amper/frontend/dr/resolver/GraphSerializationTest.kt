@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.DependencyGraph
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
+import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.test.Dirs
@@ -45,27 +46,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             module = "D2",
         )
 
-        val serializableGraph = appModuleGraph.toGraph()
-
-        val encoded = json.encodeToString(serializableGraph)
-        println(encoded)
-
-        val decoded = json.decodeFromString(DependencyGraph.serializer(), encoded)
-
-        val encodedOfDecoded = json.encodeToString(decoded)
-
-        kotlin.test.assertEquals(
-            encoded,
-            encodedOfDecoded,
-            "decoded string being encoded again differs from initially encoded"
-        )
-
-        val nodePlain = decoded.root.toNodePlain(decoded.graphContext)
-        assertEqualsWithDiff(
-            appModuleGraph.prettyPrint().lines(),
-            nodePlain.prettyPrint().lines(),
-            "decoded graph pretty print representation differs from the original graph"
-        )
+        assertGraphSerialization(appModuleGraph)
     }
 
     @Test
@@ -83,7 +64,47 @@ class GraphSerializationTest: BaseModuleDrTest() {
             module = "ios-app",
         )
 
-        val serializableGraph = iosAppModuleDeps.toGraph()
+        assertGraphSerialization(iosAppModuleDeps)
+    }
+
+    @Test
+    fun serializationTestInvalidDependencies(testInfo: TestInfo) = runSlowTest {
+        val aom = getTestProjectModel("jvm-invalid-dependencies", testDataRoot)
+
+        // Run the test that calculates diagnostics for all invalid dependencies, including the diagnostic with stack trace
+        val root = doTestByFile(
+            testInfo,
+            aom,
+            resolutionInput = ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                skipIncrementalCache = true,
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
+            ),
+            verifyMessages = false
+        )
+
+        // todo (AB): Check that deserializedRoot contains the same diagnostics with throwable as root (or get rid od Throwable in diagnostic)
+
+//        val deserializedRoot = assertGraphSerialization(root)
+//        root.children.single()
+//            .children.filterIsInstance<DirectFragmentDependencyNode>()
+//            .first { (it.dependencyNode as? MavenDependencyNode)?.group == "com.jetbrains.intellij.platform" }
+//            .dependencyNode
+//            .let { it as MavenDependencyNode }
+//            .messages.filterIsInstance<WithThrowable>().single().throwable?.stackTrace?.toSet()?.map { it.toString() } ==
+//                deserializedRoot.children.single()
+//                    .children.filterIsInstance<DirectFragmentDependencyNode>()
+//                    .first { (it.dependencyNode as? MavenDependencyNode)?.group == "com.jetbrains.intellij.platform" }
+//                    .dependencyNode
+//                    .let { it as MavenDependencyNode }
+//                    .messages.filterIsInstance<WithThrowable>().single().throwable?.stackTrace?.toSet()?.map { it.toString() }
+    }
+
+    /**
+     * @return deserialized graph
+     */
+    private fun assertGraphSerialization(root: DependencyNode): DependencyNode {
+        val serializableGraph = root.toGraph()
 
         val encoded = json.encodeToString(serializableGraph)
         println(encoded)
@@ -100,10 +121,12 @@ class GraphSerializationTest: BaseModuleDrTest() {
 
         val nodePlain = decoded.root.toNodePlain(decoded.graphContext)
         assertEqualsWithDiff(
-            iosAppModuleDeps.prettyPrint().lines(),
+            root.prettyPrint().lines(),
             nodePlain.prettyPrint().lines(),
             "decoded graph pretty print representation differs from the original graph"
         )
+
+        return nodePlain
     }
 
     @Test

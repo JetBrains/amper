@@ -136,8 +136,6 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                         }
                     }
 
-                    MavenResolverException(buildProblem.message).stackTrace = arrayOf()
-
                     span.recordException(throwable ?: MavenResolverException(buildProblem.message))
                     DoNotLogToTerminalCookie.use {
                         logger.error(buildProblem.message, throwable)

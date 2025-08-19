@@ -6,13 +6,20 @@ package org.jetbrains.amper.frontend.dr.resolver
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
+import org.jetbrains.amper.dependency.resolution.NoopSpanBuilder
+import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeStub
+import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleDiagnosticDescriptor
@@ -295,4 +302,36 @@ abstract class BaseModuleDrTest {
             "Unexpected severity of the error message"
         )
     }
+
+    protected suspend fun populateLocalCacheWithDependencies(cacheRoot: Path, coordinates: List<MavenCoordinates>) {
+        val context = context(cacheBuilder = cacheBuilder(cacheRoot))
+
+        val root = RootDependencyNodeInput(
+            children = coordinates.map{ it.toMavenNode(context) },
+            templateContext = context
+        )
+
+        Resolver().buildGraph(root)
+        Resolver().downloadDependencies(root)
+    }
+
+    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeImpl {
+        val isBom = artifactId.startsWith("bom:")
+        return MavenDependencyNodeImpl(context, groupId, artifactId, version, isBom = isBom)
+    }
+
+    protected fun context(
+        scope: ResolutionScope = ResolutionScope.COMPILE,
+        platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
+        cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
+        spanBuilder: SpanBuilderSource? = null,
+    ) = Context {
+        this.scope = scope
+        this.platforms = platform
+        this.cache = cacheBuilder
+        this.spanBuilder = spanBuilder ?: { NoopSpanBuilder.create() }
+    }
+
+    protected fun String.toMavenCoordinates() =
+        split(":").let { MavenCoordinates(it[0], it[1], it[2]) }
 }

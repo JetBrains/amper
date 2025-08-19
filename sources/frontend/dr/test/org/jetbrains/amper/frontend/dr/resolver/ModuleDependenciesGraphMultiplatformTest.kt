@@ -352,8 +352,4 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
         }.toMap()
         assertEquals(expectedCoordinatesMapping, nodeParents, "Incorrect parent KMP libraries were resolved")
     }
-
-    private fun String.toMavenCoordinates() =
-        split(":").let { MavenCoordinates(it[0], it[1], it[2]) }
-
 }

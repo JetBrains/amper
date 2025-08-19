@@ -79,8 +79,9 @@ fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: Spa
     spanBuilder?.let { this.spanBuilder = it }
 }
 
+@OptIn(ExperimentalStdlibApi::class)
 internal fun String.md5(): String = MessageDigest.getInstance("MD5")
     .digest(this.toByteArray())
-    .decodeToString()
+    .toHexString()
 
 fun AmperModule.uniqueModuleKey(): String? = source.moduleDir?.absolutePathString()?.md5()
