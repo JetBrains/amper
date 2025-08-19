@@ -460,10 +460,10 @@ class AmperDependencyResolutionExceptionSerializable private constructor(
 
 class StackTraceElementSerializer : KSerializer<StackTraceElement> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("java.lang.StackTraceElement") {
-        element("declaringClass", String.serializer().descriptor)
-        element("methodName", String.serializer().descriptor)
-        element("fileName", String.serializer().nullable.descriptor)
-        element("lineNumber", Int.serializer().descriptor)
+        element("class", String.serializer().descriptor)
+        element("m", String.serializer().descriptor)
+        element("f", String.serializer().nullable.descriptor)
+        element("l", Int.serializer().descriptor)
     }
 
     @OptIn(ExperimentalSerializationApi::class)

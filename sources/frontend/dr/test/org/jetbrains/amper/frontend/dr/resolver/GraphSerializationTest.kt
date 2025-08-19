@@ -85,7 +85,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
 
         // todo (AB): Check that deserializedRoot contains the same diagnostics with throwable as root (or get rid od Throwable in diagnostic)
 
-//        val deserializedRoot = assertGraphSerialization(root)
+        val deserializedRoot = assertGraphSerialization(root)
 //        root.children.single()
 //            .children.filterIsInstance<DirectFragmentDependencyNode>()
 //            .first { (it.dependencyNode as? MavenDependencyNode)?.group == "com.jetbrains.intellij.platform" }
