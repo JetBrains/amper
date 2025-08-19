@@ -373,8 +373,7 @@ internal class JvmCompileTask(
             add("-g")
 
             if (processorClasspath.isNotEmpty()) {
-                val generatedSourcesDir = fragments.firstOrNull()?.javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)
-                    ?: taskOutputRoot.path.resolve("generated-sources")
+                val generatedSourcesDir = fragments.singleLeafFragment().javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)
 
                 add("-processorpath")
                 add(processorClasspath.joinToString(File.pathSeparator))
