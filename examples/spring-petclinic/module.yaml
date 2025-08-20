@@ -20,9 +20,9 @@ dependencies:
   - $libs.fontawesome: runtime-only
 
   - $libs.caffeine: runtime-only
-  - $db.h2: runtime-only
-  - $db.mysql: runtime-only
-  - $db.postgresql: runtime-only
+  - $h2: runtime-only
+  - $mysql.connector.j: runtime-only
+  - $postgresql: runtime-only
 
   - $spring.boot.devtools: runtime-only
 

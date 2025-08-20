@@ -1,0 +1,12 @@
+product: jvm/app
+
+dependencies:
+  - $spring.modulith.actuator
+
+test-dependencies:
+  - $spring.security.test
+
+settings:
+  springBoot: enabled
+  jvm:
+    mainClass: com.example.springboot.Main

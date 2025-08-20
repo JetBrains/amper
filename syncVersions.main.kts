@@ -48,15 +48,7 @@ val kspVersion = "2.2.0-2.0.2" // KSP2 still has some Kotlin version in it, but 
 val ktorVersion = "3.1.1"
 val logbackVersion = "1.5.18"
 val slf4jVersion = "2.0.17"
-val springAiTimeFoldVersion = "1.20.1"
-val springAiVersion = "1.0.0-M6"
 val springBootVersion = "3.4.3"
-val springCloudAzureVersion = "5.21.0"
-val springCloudGcpVersion = "6.1.1"
-val springCloudServicesVersion = "4.2.0"
-val springCloudVersion = "2024.0.1"
-val springShellVersion = "3.4.0"
-val lombokVersion = "1.18.38"
 
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 
@@ -100,18 +92,9 @@ fun updateUsedVersionsKt() {
             .replaceBundledVersionVariable(variableName = "junitPlatform", newValue = junitPlatformVersion)
             .replaceBundledVersionVariable(variableName = "kspVersion", newValue = kspVersion)
             .replaceBundledVersionVariable(variableName = "hotReloadVersion", newValue = hotReloadVersion)
-            .replaceBundledVersionVariable(variableName = "springBootVersion", newValue = springBootVersion)
-            .replaceBundledVersionVariable(variableName = "springCloudVersion", newValue = springCloudVersion)
-            .replaceBundledVersionVariable(variableName = "springCloudAzureVersion", newValue = springCloudAzureVersion)
-            .replaceBundledVersionVariable(variableName = "springCloudGcpVersion", newValue = springCloudGcpVersion)
-            .replaceBundledVersionVariable(variableName = "springCloudServicesVersion", newValue = springCloudServicesVersion)
-            .replaceBundledVersionVariable(variableName = "springShellVersion", newValue = springShellVersion)
-            .replaceBundledVersionVariable(variableName = "springAiVersion", newValue = springAiVersion)
-            .replaceBundledVersionVariable(variableName = "springAiTimeFoldVersion", newValue = springAiTimeFoldVersion)
             .replaceBundledVersionVariable(variableName = "slf4jVersion", newValue = slf4jVersion)
             .replaceBundledVersionVariable(variableName = "ktorVersion", newValue = ktorVersion)
             .replaceBundledVersionVariable(variableName = "logbackVersion", newValue = logbackVersion)
-            .replaceBundledVersionVariable(variableName = "lombokVersion", newValue = lombokVersion)
     }
 }
 
