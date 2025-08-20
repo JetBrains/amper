@@ -152,7 +152,6 @@ fun ProjectTasksBuilder.setupNativeTasks() {
             tasks.registerTask(
                 NativeTestTask(
                     module = module,
-                    projectRoot = context.projectRoot,
                     taskName = CommonTaskType.Test.getTaskName(module, platform, buildType = buildType),
                     buildType = buildType,
                     platform = platform,

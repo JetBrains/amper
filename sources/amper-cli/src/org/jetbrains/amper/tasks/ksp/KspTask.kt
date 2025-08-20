@@ -133,7 +133,7 @@ internal class KspTask(
             externalDependencies + compileJvmModuleDependencies + compileNativeModuleDependencies + additionalClasspath
 
         val kspOutputs = KspOutputPaths(
-            moduleBaseDir = module.source.moduleDir ?: taskOutputRoot.path,
+            moduleBaseDir = module.source.moduleDir,
             // In the KSP Gradle plugin, the cache root is unique per target and per default source set of the
             // compilation (so, jvm/jvmMain, jvm/jvmTest, ...). In our case, each KSP task is already per platform and
             // per compilation (jvm/linuxX64/... + main/test), so we can use the task output root as a base for caches.

@@ -6,34 +6,16 @@ package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
+import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
-import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import java.nio.file.Path
 
-sealed interface AmperModuleSource {
-    /**
-     * The directory containing the `module.yaml` or Gradle build file of the module.
-     * May be null for unresolved modules or programmatically generated modules.
-     */
-    val moduleDir: Path?
-}
-
-open class AmperModuleProgrammaticSource : AmperModuleSource {
-    override val moduleDir: Nothing? = null
-
-    companion object : AmperModuleProgrammaticSource()
-}
-
-data class AmperModuleInvalidPathSource(
-    val invalidPath: Path,
-) : AmperModuleProgrammaticSource()
-
-data class AmperModuleFileSource(val buildFile: Path) : AmperModuleSource {
+data class AmperModuleFileSource(val buildFile: Path) {
     /**
      * The directory containing the `module.yaml` or Gradle build file of the module.
      */
-    override val moduleDir: Path
+    val moduleDir: Path
         get() = buildFile.parent
 }
 
@@ -97,7 +79,7 @@ interface AmperModule {
 
     val type: ProductType
 
-    val source: AmperModuleSource
+    val source: AmperModuleFileSource
 
     val fragments: List<Fragment>
 

@@ -347,7 +347,6 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 JvmTestTask(
                     module = module,
                     userCacheRoot = context.userCacheRoot,
-                    projectRoot = context.projectRoot,
                     tempRoot = context.projectTempRoot,
                     buildOutputRoot = context.buildOutputRoot,
                     taskName = testTaskName,

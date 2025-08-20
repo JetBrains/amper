@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.ios
 
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
-import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.concurrency.StripedMutex
@@ -22,7 +21,6 @@ import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.NativeTestRunSettings
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.TestRunSettings
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.tasks.native.toNativeTestExecutableArgs
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -34,7 +32,6 @@ import kotlin.io.path.absolutePathString
 class IosKotlinTestTask(
     override val taskName: TaskName,
     override val module: AmperModule,
-    private val projectRoot: AmperProjectRoot,
     private val terminal: Terminal,
     private val runSettings: NativeTestRunSettings,
     override val platform: Platform,
@@ -42,7 +39,7 @@ class IosKotlinTestTask(
 ) : TestTask {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val compileTaskResult = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>()
-        val workingDir = module.source.moduleDir ?: projectRoot.path
+        val workingDir = module.source.moduleDir
         val executable = compileTaskResult.linkedBinary
         if (executable == null) {
             logger.info("No test binary was found for ${platform.pretty}, skipping test run")

@@ -8,7 +8,6 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.aomBuilder.NotResolvedModule
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
@@ -16,10 +15,8 @@ import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
-import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
-import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.graphs.depthFirstDetectLoops
 import org.jetbrains.annotations.Nls
@@ -74,7 +71,6 @@ object ModuleDependencyLoopFactory : AomModelDiagnosticFactory {
                 .filterNot { it.isTest }
                 .flatMap { it.externalDependencies }
                 .filterIsInstance<LocalModuleDependency>()
-                .filter { it.module !is NotResolvedModule }
                 // NOTE: We take a single dependency that references a particular module;
                 // this may well skip some similar edges. This doesn't impact the overall correctness but may hide
                 // other looping edges.

@@ -1,8 +1,6 @@
 Fragments:
   common
     External dependencies:
-      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend-api)
-      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend{{ fileSeparator }}util)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -147,8 +145,6 @@ Fragments:
 
   commonTest
     External dependencies:
-      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend-api)
-      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend{{ fileSeparator }}util)
       MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
@@ -299,8 +295,6 @@ Fragments:
 
   jvm
     External dependencies:
-      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend-api)
-      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend{{ fileSeparator }}util)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -446,8 +440,6 @@ Fragments:
 
   jvmTest
     External dependencies:
-      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend-api)
-      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend{{ fileSeparator }}util)
       MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)

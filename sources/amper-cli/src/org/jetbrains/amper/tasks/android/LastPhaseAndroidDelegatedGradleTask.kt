@@ -41,7 +41,7 @@ abstract class LastPhaseAndroidDelegatedGradleTask(
         fragments
             .flatMap {
                 buildList {
-                    module.source.moduleDir?.let { moduleDir ->
+                    module.source.moduleDir.let { moduleDir ->
                         add((moduleDir / it.settings.android.signing.propertiesFile).toAbsolutePath())
                         add(moduleDir / "proguard-rules.pro")
                     }

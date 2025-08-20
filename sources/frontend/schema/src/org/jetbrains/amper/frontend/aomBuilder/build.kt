@@ -9,6 +9,7 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
+import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
@@ -232,7 +233,7 @@ context(_: ProblemReporter)
 private fun Dependency.resolveInternalDependency(
     moduleDir2module: Map<Path, AmperModule>,
     reportedUnresolvedModules: MutableSet<Trace>,
-): Notation = when (this) {
+): Notation? = when (this) {
     is ExternalMavenDependency -> MavenDependency(
         coordinates = TraceableString(coordinates, this::coordinates.valueBase.trace),
         trace = trace,
@@ -253,7 +254,7 @@ context(problemReporter: ProblemReporter)
 private fun InternalDependency.resolveModuleDependency(
     moduleDir2module: Map<Path, AmperModule>,
     reportedUnresolvedModules: MutableSet<Trace>,
-): DefaultLocalModuleDependency {
+): DefaultScopedNotation? {
     val module = moduleDir2module[path]
     if (module == null) {
         val originalDirectory = trace.extractPsiElementOrNull()?.originalFilePath?.parent?.absolute()
@@ -267,10 +268,11 @@ private fun InternalDependency.resolveModuleDependency(
                 UnresolvedModuleDependency(this, originalDirectory, possibleCorrectPath)
             )
         }
+        return null
     }
 
     return DefaultLocalModuleDependency(
-        module = module ?: NotResolvedModule(userReadableName = path.name, invalidPath = path),
+        module = module,
         path = path,
         trace = trace,
         compile = scope.compile,

@@ -7,8 +7,7 @@ package org.jetbrains.amper.frontend.aomBuilder
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
-import org.jetbrains.amper.frontend.AmperModuleSource
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.CompositeString
@@ -40,7 +39,7 @@ data class DefaultModel(
 internal open class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
-    override val source: AmperModuleSource,
+    override val source: AmperModuleFileSource,
     override val usedCatalog: VersionCatalog?,
     override val usedTemplates: List<VirtualFile>,
     override var parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
@@ -90,22 +89,6 @@ class DefaultTaskFromPluginDescription(
     override val outputs: Map<Path, TaskFromPluginDescription.OutputMark?>,
     override val codeSource: AmperModule,
 ) : TaskFromPluginDescription
-
-/**
- * Special kind of module that appears only on
- * internal module resolve failure.
- */
-internal class NotResolvedModule(
-    userReadableName: String,
-    invalidPath: Path,
-) : DefaultModule(
-    userReadableName = userReadableName,
-    type = ProductType.LIB,
-    source = AmperModuleInvalidPathSource(invalidPath),
-    usedCatalog = null,
-    usedTemplates = emptyList(),
-    parts = classBasedSet(),
-)
 
 class DefaultArtifact(
     override val name: String,

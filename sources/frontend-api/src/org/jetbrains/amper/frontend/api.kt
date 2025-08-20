@@ -21,5 +21,5 @@ interface Model {
 @UsedInIdePlugin
 fun Model.getModule(moduleFile: VirtualFile): AmperModule? {
     val moduleFilePath = moduleFile.parent?.toNioPath()?.normalize()?.absolute()
-    return modules.find { it.source.moduleDir?.normalize()?.absolute() == moduleFilePath }
+    return modules.find { it.source.moduleDir.normalize().absolute() == moduleFilePath }
 }

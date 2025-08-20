@@ -10,9 +10,6 @@ import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleFileSource
-import org.jetbrains.amper.frontend.AmperModuleInvalidPathSource
-import org.jetbrains.amper.frontend.AmperModuleProgrammaticSource
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.AmperProjectContext
@@ -79,11 +76,7 @@ private fun checkUniqueModuleNames(modules: List<AmperModule>) {
     for ((moduleUserReadableName, moduleList) in modules.groupBy { it.userReadableName }) {
         if (moduleList.size > 1) {
             val joinToString = moduleList.joinToString("\n") {
-                when (val source = it.source) {
-                    is AmperModuleFileSource -> source.buildFile.pathString
-                    is AmperModuleInvalidPathSource -> source.invalidPath.pathString
-                    is AmperModuleProgrammaticSource -> "(unknown)"
-                }
+                it.source.buildFile.pathString
             }
             userReadableError("Module name '${moduleUserReadableName}' is not unique, it's declared in:\n$joinToString")
         }

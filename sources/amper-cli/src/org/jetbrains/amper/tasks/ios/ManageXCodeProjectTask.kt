@@ -61,7 +61,7 @@ class ManageXCodeProjectTask(
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         initializeXcodeComponentManager()
-        val baseDir = checkNotNull(module.source.moduleDir)
+        val baseDir = module.source.moduleDir
         val projectDir = baseDir / XCODE_PROJECT_DIR_NAME
         val pbxProjectFilePath = projectDir / PBXProjectFile.PROJECT_FILE
 

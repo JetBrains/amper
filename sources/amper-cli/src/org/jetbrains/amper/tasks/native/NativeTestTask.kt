@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.native
 
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
-import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.telemetry.spanBuilder
@@ -29,7 +28,6 @@ import kotlin.io.path.pathString
 class NativeTestTask(
     override val taskName: TaskName,
     override val module: AmperModule,
-    private val projectRoot: AmperProjectRoot,
     private val runSettings: NativeTestRunSettings,
     override val platform: Platform,
     override val buildType: BuildType,
@@ -62,7 +60,7 @@ class NativeTestTask(
             .use { span ->
                 logger.info("Testing module '${module.userReadableName}' for platform '${platform.pretty}'...")
 
-                val workingDir = module.source.moduleDir ?: projectRoot.path
+                val workingDir = module.source.moduleDir
 
                 val result = BuildPrimitives.runProcessAndGetOutput(
                     workingDir = workingDir,

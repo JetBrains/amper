@@ -134,7 +134,7 @@ private class PluginTreeReader(
     fun asAppliedTo(
         module: ModuleBuildCtx,
     ): PluginYamlRoot? = with(this@PluginTreeReader.buildCtx) {
-        val moduleRootDir = module.module.source.moduleDir ?: return null
+        val moduleRootDir = module.module.source.moduleDir
         val pluginConfiguration = module.commonTree.asMapLikeAndGet("settings")?.asMapLikeAndGet(pluginData.id.value)
 
         val enabled = pluginConfiguration?.asMapLikeAndGet("enabled")?.scalarValue<Boolean>()

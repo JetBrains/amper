@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.schema.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleSource
+import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.CompositeStringPart
@@ -96,7 +96,7 @@ class BuildTest {
             get() = throw UnsupportedOperationException()
         override val type: ProductType
             get() = throw UnsupportedOperationException()
-        override val source: AmperModuleSource
+        override val source: AmperModuleFileSource
             get() = throw UnsupportedOperationException()
         override val fragments: List<Fragment>
             get() = throw UnsupportedOperationException()

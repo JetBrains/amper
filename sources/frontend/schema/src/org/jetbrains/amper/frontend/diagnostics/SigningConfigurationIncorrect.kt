@@ -32,13 +32,11 @@ abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory 
 
     override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         if (module.type == ProductType.ANDROID_APP) {
-            module.source.moduleDir?.let { moduleDir ->
-                module.fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->
-                    val android = fragment.settings.android
-                    val signing = android.signing
-                    if (signing.enabled) {
-                        analyze(moduleDir, android, problemReporter)
-                    }
+            module.fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->
+                val android = fragment.settings.android
+                val signing = android.signing
+                if (signing.enabled) {
+                    analyze(module.source.moduleDir, android, problemReporter)
                 }
             }
         }

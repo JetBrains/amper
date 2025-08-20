@@ -13,7 +13,7 @@ import kotlin.io.path.relativeTo
  * Returns the Gradle path of this module, as if it were part of a Gradle project with root [projectRoot].
  */
 internal fun AmperModule.gradlePath(projectRoot: AmperProjectRoot): String {
-    val moduleDir = source.moduleDir ?: error("Cannot build Android module without directory")
+    val moduleDir = source.moduleDir
     val relativeModuleDir = moduleDir.relativeTo(projectRoot.path).normalize().invariantSeparatorsPathString
     return ":" + relativeModuleDir.replace('/', ':')
 }

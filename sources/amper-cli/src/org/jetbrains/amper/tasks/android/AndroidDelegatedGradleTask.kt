@@ -73,7 +73,7 @@ abstract class AndroidDelegatedGradleTask(
         val configuration = mapOf("androidConfig" to androidConfig)
 
         val googleServicesFileName = "google-services.json"
-        val googleServicesJson = module.source.moduleDir?.let { moduleDir ->
+        val googleServicesJson = module.source.moduleDir.let { moduleDir ->
             val servicesJsonPath = moduleDir / googleServicesFileName
             if (servicesJsonPath.exists()) servicesJsonPath else null
         }

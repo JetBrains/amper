@@ -21,7 +21,6 @@ import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.MockableJarModelBuilder
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
@@ -85,7 +84,7 @@ var Gradle.knownModel: Model?
     }
 
 
-val AmperModule.buildFile get() = (source as AmperModuleFileSource).buildFile
+val AmperModule.buildFile get() = source.buildFile
 
 val AmperModule.buildDir: Path get() = buildFile.parent
 

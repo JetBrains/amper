@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -48,7 +47,6 @@ class JvmTestTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
     private val tempRoot: AmperProjectTempRoot,
-    private val projectRoot: AmperProjectRoot,
     private val buildOutputRoot: AmperBuildOutputRoot,
     private val terminal: Terminal,
     private val runSettings: JvmTestRunSettings,
@@ -156,7 +154,7 @@ class JvmTestTask(
         // TODO should be customizable?
         // There is no way of knowing what the working dir should be for generated/unresolved test modules,
         // the project root is a somewhat safe choice.
-        val workingDirectory = module.source.moduleDir ?: projectRoot.path
+        val workingDirectory = module.source.moduleDir
 
         return spanBuilder("junit-platform-console-standalone")
             .setAttribute("junit-platform-console-standalone", junitConsole.pathString)

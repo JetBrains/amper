@@ -30,7 +30,6 @@ fun ProjectTasksBuilder.setupIosTasks() {
                 task = IosKotlinTestTask(
                     taskName = CommonTaskType.Test.getTaskName(module, platform, isTest = false, buildType),
                     module = module,
-                    projectRoot = context.projectRoot,
                     terminal = context.terminal,
                     runSettings = runSettings,
                     platform = platform,

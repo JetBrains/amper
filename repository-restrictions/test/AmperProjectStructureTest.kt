@@ -31,7 +31,6 @@ import kotlin.io.path.relativeTo
 import kotlin.io.path.visitFileTree
 import kotlin.io.path.walk
 import kotlin.test.Test
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.use
@@ -216,10 +215,10 @@ class AmperProjectStructureTest {
     private fun AmperModule.nonLibraryDependencies(includeTestDeps: Boolean): List<String> =
         localModuleDependencies(includeTestDeps)
             .filterNot { it.module.isAmperAgnosticLibrary() }
-            .map { it.module.source.moduleDir?.relativeTo(Dirs.amperCheckoutRoot).toString() }
+            .map { it.module.source.moduleDir.relativeTo(Dirs.amperCheckoutRoot).toString() }
 
     private fun AmperModule.isAmperAgnosticLibrary(): Boolean =
-        source.moduleDir?.absolute()?.startsWith(Dirs.amperCheckoutRoot.resolve("sources/libraries")) == true
+        source.moduleDir.absolute().startsWith(Dirs.amperCheckoutRoot.resolve("sources/libraries"))
 
     private fun AmperModule.localModuleDependencies(includeTestDeps: Boolean): List<LocalModuleDependency> = fragments
         .let { if (includeTestDeps) it else it.filterNot(Fragment::isTest) }
