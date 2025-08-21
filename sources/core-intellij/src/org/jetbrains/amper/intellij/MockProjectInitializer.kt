@@ -15,6 +15,7 @@ import com.intellij.mock.MockApplication
 import com.intellij.mock.MockProject
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.impl.CoreProgressManager
 import com.intellij.openapi.project.Project
@@ -35,7 +36,6 @@ import org.toml.lang.TomlLanguage
 import org.toml.lang.parse.TomlParserDefinition
 import org.toml.lang.psi.TomlFileType
 import org.toml.lang.psi.impl.TomlASTFactory
-import java.lang.Exception
 
 open class IntelliJApplicationConfigurator {
     open fun registerApplicationExtensions(application: MockApplication) {}
@@ -116,6 +116,17 @@ object MockProjectInitializer {
 
         LanguageParserDefinitions.INSTANCE.addExplicitExtension(AmperLanguage.INSTANCE, AmperParserDefinition())
         registerFileType(AmperFileType.INSTANCE, "amper")
+
+        // Register mock Kotlin file type to allow loading Kotlin files as non-binary Documents
+        registerFileType(MockKotlinFileType, "kt")
+    }
+
+    private object MockKotlinFileType : FileType {
+        override fun getName() = "Mock Kotlin"
+        override fun getDescription() = ""
+        override fun getDefaultExtension() = "kt"
+        override fun getIcon(): Nothing? = null
+        override fun isBinary() = false
     }
 
     private class MockProgressManager : CoreProgressManager() {
