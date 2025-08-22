@@ -26,6 +26,7 @@ import org.junit.platform.engine.support.descriptor.MethodSource
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.TestPlan
+import org.opentest4j.AssertionFailedError
 import java.io.PrintStream
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -172,11 +173,17 @@ class TeamCityMessagesTestExecutionListener(
         messageIfNoException: String,
     ): ServiceMessage {
         val throwable = testExecutionResult.throwable.getOrNull()
-        return if (throwable != null) {
-            TestFailed(testIdentifier.teamCityName, throwable)
-        } else {
-            TestFailed(testIdentifier.teamCityName, messageIfNoException)
-        }.withFlowId(testIdentifier)
+        val testFailed = when {
+            throwable is AssertionFailedError -> TestFailed(
+                /* name = */ testIdentifier.teamCityName,
+                /* exception = */ throwable,
+                /* actual = */ throwable.actual?.stringRepresentation,
+                /* expected = */ throwable.expected?.stringRepresentation
+            )
+            throwable != null -> TestFailed(testIdentifier.teamCityName, throwable)
+            else -> TestFailed(testIdentifier.teamCityName, messageIfNoException)
+        }
+        return testFailed.withFlowId(testIdentifier)
     }
 
     override fun reportingEntryPublished(testIdentifier: TestIdentifier, entry: ReportEntry) {

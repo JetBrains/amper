@@ -7,12 +7,14 @@ package org.jetbrains.amper.cli.test.utils
 import jetbrains.buildServer.messages.serviceMessages.MessageWithAttributes
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessageTypes
+import jetbrains.buildServer.messages.serviceMessages.TestFailed
 import jetbrains.buildServer.messages.serviceMessages.TestFinished
 import jetbrains.buildServer.messages.serviceMessages.TestStarted
 import jetbrains.buildServer.messages.serviceMessages.TestStdErr
 import jetbrains.buildServer.messages.serviceMessages.TestStdOut
 import jetbrains.buildServer.messages.serviceMessages.TestSuiteFinished
 import jetbrains.buildServer.messages.serviceMessages.TestSuiteStarted
+import org.opentest4j.AssertionFailedError
 import java.util.*
 
 fun buildServiceMessages(block: ServiceMessagesBuilder.() -> Unit): List<ServiceMessage> =
@@ -86,6 +88,20 @@ class ServiceMessagesBuilder {
     fun testStdErr(output: String, withTimestamp: Boolean = false) {
         val testName = currentTest ?: error("Not in a test")
         messages.add(TestStdErr(testName, output).withFlowId(currentFlowId).apply { if (withTimestamp) withSomeTimestamp() })
+    }
+
+    fun testFailed(message: String, stackTrace: Array<StackTraceElement>) {
+        val testName = currentTest ?: error("Not in a test")
+        val exception = AssertionFailedError(message)
+        exception.stackTrace = stackTrace
+        messages.add(TestFailed(testName, exception).withFlowId(currentFlowId))
+    }
+
+    fun testFailed(message: String, expectedValue: String, actualValue: String, stackTrace: Array<StackTraceElement>) {
+        val testName = currentTest ?: error("Not in a test")
+        val exception = AssertionFailedError(message, expectedValue, actualValue)
+        exception.stackTrace = stackTrace
+        messages.add(TestFailed(testName, exception, actualValue, expectedValue).withFlowId(currentFlowId))
     }
 }
 

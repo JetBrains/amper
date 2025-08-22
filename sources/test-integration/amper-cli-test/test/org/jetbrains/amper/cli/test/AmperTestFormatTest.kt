@@ -28,13 +28,28 @@ class AmperTestFormatTest : AmperCliTestBase() {
             assertEmptyStdErr = false,
             expectedExitCode = 1,
         )
-        r.assertStdoutContains("""
-            Started FailedTest
+
+        val expectedFailureOutput = """
             Started doTest()
             Passed doTest()
-            Started shouldFail()
-            Failed shouldFail()
-                       => Exception: org.opentest4j.AssertionFailedError: Expected value to be true.
+            Started stringComparisonFailure()
+            Failed stringComparisonFailure()
+                       => Exception: org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>
+                            at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+                            at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+                            at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+                            at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
+                            at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1156)
+                            at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+                            at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+                            at kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+                            at FailedTest.stringComparisonFailure(tests.kt:18)
+                            at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+                            at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+                            at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+            Started booleanFailure()
+            Failed booleanFailure()
+                       => Exception: org.opentest4j.AssertionFailedError: The boolean value is incorrect
                             at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:38)
                             at org.junit.jupiter.api.Assertions.fail(Assertions.java:138)
                             at kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)
@@ -44,14 +59,84 @@ class AmperTestFormatTest : AmperCliTestBase() {
                             at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
                             at kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)
                             at kotlin.test.AssertionsKt.assertTrue(Unknown Source)
-                            at kotlin.test.AssertionsKt__AssertionsKt.assertTrue${'$'}default(Assertions.kt:42)
-                            at kotlin.test.AssertionsKt.assertTrue${'$'}default(Unknown Source)
-                            at FailedTest.shouldFail(tests.kt:12)
+                            at FailedTest.booleanFailure(tests.kt:13)
                             at java.base/java.lang.reflect.Method.invoke(Method.java:580)
                             at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
                             at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-            Completed FailedTest
-        """.trimIndent(), expectedOccurrences = 1)
+                            """.trimIndent()
+
+        val outputPartToCheck = r.stdout
+            .substringAfter("Started FailedTest")
+            .substringBefore("Completed FailedTest")
+            .trim()
+        assertEquals(expectedFailureOutput, outputPartToCheck, "Output is incorrect")
+    }
+
+    @Test
+    fun `test failure should print expected and actual values in teamcity service messages`() {
+        runSlowTest {
+            val r = runCli(
+                projectRoot = testProject("jvm-failed-test"),
+                "test",
+                "--format=teamcity",
+                assertEmptyStdErr = false,
+                expectedExitCode = 1,
+            )
+
+            val serviceMessages = parseTeamCityServiceMessages(r.stdout)
+            val expectedMessages = buildServiceMessages {
+                suiteWithFlow("JUnit Platform Suite")
+                suiteWithFlow("JUnit Jupiter") {
+                    suiteWithFlow("FailedTest") {
+                        testWithFlow("FailedTest.doTest()") {
+                        }
+                        testWithFlow("FailedTest.stringComparisonFailure()") {
+                            testFailed(
+                                message = "Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>",
+                                expectedValue = "EXPECTED_VALUE",
+                                actualValue = "ACTUAL_VALUE",
+                                stackTrace = arrayOf(
+                                    StackTraceElement("org.junit.jupiter.api.AssertionFailureBuilder", "build", "AssertionFailureBuilder.java", 151),
+                                    StackTraceElement("org.junit.jupiter.api.AssertionFailureBuilder", "buildAndThrow", "AssertionFailureBuilder.java", 132),
+                                    StackTraceElement("org.junit.jupiter.api.AssertEquals", "failNotEqual", "AssertEquals.java", 197),
+                                    StackTraceElement("org.junit.jupiter.api.AssertEquals", "assertEquals", "AssertEquals.java", 182),
+                                    StackTraceElement("org.junit.jupiter.api.Assertions", "assertEquals", "Assertions.java", 1156),
+                                    StackTraceElement("kotlin.test.junit5.JUnit5Asserter", "assertEquals", "JUnitSupport.kt", 32),
+                                    StackTraceElement("kotlin.test.AssertionsKt__AssertionsKt", "assertEquals", "Assertions.kt", 63),
+                                    StackTraceElement("kotlin.test.AssertionsKt", "assertEquals", null, -1),
+                                    StackTraceElement("FailedTest", "stringComparisonFailure", "tests.kt", 18),
+                                    StackTraceElement("java.base/java.lang.reflect.Method", "invoke", "Method.java", 580),
+                                    StackTraceElement("java.base/java.util.ArrayList", "forEach", "ArrayList.java", 1596),
+                                    StackTraceElement("java.base/java.util.ArrayList", "forEach", "ArrayList.java", 1596),
+                                )
+                            )
+                        }
+                        testWithFlow("FailedTest.booleanFailure()") {
+                            testFailed(
+                                message = "The boolean value is incorrect",
+                                stackTrace = arrayOf(
+                                    StackTraceElement("org.junit.jupiter.api.AssertionUtils", "fail", "AssertionUtils.java", 38),
+                                    StackTraceElement("org.junit.jupiter.api.Assertions", "fail", "Assertions.java", 138),
+                                    StackTraceElement("kotlin.test.junit5.JUnit5Asserter", "fail", "JUnitSupport.kt", 56),
+                                    StackTraceElement("kotlin.test.Asserter", "assertTrue", "Assertions.kt", 694),
+                                    StackTraceElement("kotlin.test.junit5.JUnit5Asserter", "assertTrue", "JUnitSupport.kt", 30),
+                                    StackTraceElement("kotlin.test.Asserter", "assertTrue", "Assertions.kt", 704),
+                                    StackTraceElement("kotlin.test.junit5.JUnit5Asserter", "assertTrue", "JUnitSupport.kt", 30),
+                                    StackTraceElement("kotlin.test.AssertionsKt__AssertionsKt", "assertTrue", "Assertions.kt", 44),
+                                    StackTraceElement("kotlin.test.AssertionsKt", "assertTrue", null, -1),
+                                    StackTraceElement("FailedTest", "booleanFailure", "tests.kt", 13),
+                                    StackTraceElement("java.base/java.lang.reflect.Method", "invoke", "Method.java", 580),
+                                    StackTraceElement("java.base/java.util.ArrayList", "forEach", "ArrayList.java", 1596),
+                                    StackTraceElement("java.base/java.util.ArrayList", "forEach", "ArrayList.java", 1596),
+                                )
+                            )
+                        }
+                    }
+                }
+                suiteWithFlow("JUnit Vintage")
+            }
+            assertServiceMessagesEqual(expectedMessages, serviceMessages)
+        }
     }
 
     @Test

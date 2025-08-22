@@ -42,8 +42,9 @@ class AmperTestBasicTest : AmperCliTestBase() {
         val projectRoot = testProject("jvm-failed-test")
         val result = runCli(projectRoot = projectRoot, "test", assertEmptyStdErr = false, expectedExitCode = 1)
         result.assertStderrContains("ERROR: JVM tests failed for module 'jvm-failed-test' with exit code 1 (see errors above)")
-        result.assertStdoutContains("MethodSource [className = 'FailedTest', methodName = 'shouldFail', methodParameterTypes = '']")
-        result.assertStdoutContains("=> Exception: org.opentest4j.AssertionFailedError: Expected value to be true.")
+        result.assertStdoutContains("MethodSource [className = 'FailedTest', methodName = 'stringComparisonFailure', methodParameterTypes = '']")
+        result.assertStdoutContains("MethodSource [className = 'FailedTest', methodName = 'booleanFailure', methodParameterTypes = '']")
+        result.assertStdoutContains("=> Exception: org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>")
     }
 
     @Test
