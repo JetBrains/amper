@@ -1,4 +1,6 @@
-product: jvm/app
+product:
+  type: lib
+  platforms: [ jvm ]
 
 apply:
   - ../../common.module-template.yaml
@@ -11,3 +13,7 @@ settings:
 dependencies:
   - ../amper-schema-processing
   - $libs.kotlin.analysis.api.standalone.for.ide
+
+test-dependencies:
+  - ../../test-base
+  - ../amper-extensibility-api

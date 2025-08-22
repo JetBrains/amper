@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.schema.processing
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -28,53 +29,60 @@ fun main() {
     val request = Json.decodeFromStream<PluginDataRequest>(System.`in`)
 
     val disposable = Disposer.newDisposable()
-    val results = try {
-        val modules = mutableMapOf<PluginData.Id, KaSourceModule>()
-        val session = buildStandaloneAnalysisAPISession(disposable) {
-            val myPlatform = JvmPlatforms.defaultJvmPlatform
-            buildKtModuleProvider {
-                platform = myPlatform
-                val jdkModule = buildKtSdkModule {
-                    platform = myPlatform
-                    libraryName = "[JDK]"
-                    addBinaryRootsFromJdkHome(request.jdkPath, isJre = false)
-                }
-                val libraryModules = request.librariesPaths.map { libraryPath ->
-                    buildKtLibraryModule {
-                        platform = myPlatform
-                        libraryName = libraryPath.nameWithoutExtension
-                        addBinaryRoot(libraryPath)
-                    }
-                }
-                request.plugins.forEach { pluginHeader ->
-                    val module = buildKtSourceModule {
-                        platform = myPlatform
-                        moduleName = pluginHeader.pluginId.value
-                        addSourceRoot(pluginHeader.sourceDir)
-                        addRegularDependency(jdkModule)
-                        libraryModules.forEach(::addRegularDependency)
-                    }
-                    modules[pluginHeader.pluginId] = module
-                    addModule(module)
-                }
-            }
-        }
+    try {
+        val results = runSchemaProcessor(disposable, request)
 
-        modules.map { (id, module) ->
-            analyze(module) {
-                parsePluginData(
-                    files = session.modulesWithFiles[module]?.filterIsInstance<KtFile>().orEmpty(),
-                    header = request.plugins.first { it.pluginId == id }
-                )
-            }
-        }
+        @OptIn(ExperimentalSerializationApi::class)
+        Json.encodeToStream(PluginDataResponse(results = results), System.out)
     } finally {
         Disposer.dispose(disposable)
+
+        // exitProcess is necessary because of lingering IDEA-related non-daemon threads.
+        exitProcess(0)
+    }
+}
+
+fun runSchemaProcessor(
+    disposable: Disposable,
+    request: PluginDataRequest,
+): List<PluginDataResponse.PluginDataWithDiagnostics> {
+    val modules = mutableMapOf<PluginData.Id, KaSourceModule>()
+    val session = buildStandaloneAnalysisAPISession(disposable) {
+        val myPlatform = JvmPlatforms.defaultJvmPlatform
+        buildKtModuleProvider {
+            platform = myPlatform
+            val jdkModule = buildKtSdkModule {
+                platform = myPlatform
+                libraryName = "[JDK]"
+                addBinaryRootsFromJdkHome(request.jdkPath, isJre = false)
+            }
+            val libraryModules = request.librariesPaths.map { libraryPath ->
+                buildKtLibraryModule {
+                    platform = myPlatform
+                    libraryName = libraryPath.nameWithoutExtension
+                    addBinaryRoot(libraryPath)
+                }
+            }
+            request.plugins.forEach { pluginHeader ->
+                val module = buildKtSourceModule {
+                    platform = myPlatform
+                    moduleName = pluginHeader.pluginId.value
+                    addSourceRoot(pluginHeader.sourceDir)
+                    addRegularDependency(jdkModule)
+                    libraryModules.forEach(::addRegularDependency)
+                }
+                modules[pluginHeader.pluginId] = module
+                addModule(module)
+            }
+        }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    Json.encodeToStream(PluginDataResponse(results = results), System.out)
-
-    // exitProcess is necessary because of lingering IDEA-related non-daemon threads.
-    exitProcess(0)
+    return modules.map { (id, module) ->
+        analyze(module) {
+            parsePluginData(
+                files = session.modulesWithFiles[module]?.filterIsInstance<KtFile>().orEmpty(),
+                header = request.plugins.first { it.pluginId == id }
+            )
+        }
+    }
 }

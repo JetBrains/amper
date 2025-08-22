@@ -1,0 +1,706 @@
+{
+  "id": "test-plugin",
+  "moduleExtensionSchemaName": "com.example.MySettings",
+  "enumTypes": [
+    {
+      "schemaName": "com.example.MyKind",
+      "entries": [
+        {
+          "name": "Kind1",
+          "schemaName": "Kind1"
+        },
+        {
+          "name": "Kind2",
+          "schemaName": "Kind2"
+        },
+        {
+          "name": "Kind3",
+          "schemaName": "Kind3"
+        }
+      ]
+    }
+  ],
+  "classTypes": [
+    {
+      "name": "com.example.Empty"
+    },
+    {
+      "name": "com.example.Lists",
+      "properties": [
+        {
+          "name": "enabled",
+          "type": {
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "data",
+          "type": {
+            "type": "list",
+            "elementType": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "name": "data2",
+          "type": {
+            "type": "list",
+            "elementType": {
+              "type": "object",
+              "schemaName": "com.example.Lists"
+            }
+          }
+        },
+        {
+          "name": "aliasList",
+          "type": {
+            "type": "list",
+            "elementType": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "com.example.Maps",
+      "properties": [
+        {
+          "name": "mapProperty1",
+          "type": {
+            "type": "map",
+            "valueType": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "name": "mapProperty2",
+          "type": {
+            "type": "map",
+            "valueType": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "name": "mapProperty4",
+          "type": {
+            "type": "map",
+            "valueType": {
+              "type": "object",
+              "schemaName": "com.example.Lists"
+            }
+          }
+        },
+        {
+          "name": "mapProperty5",
+          "type": {
+            "type": "map",
+            "valueType": {
+              "type": "object",
+              "schemaName": "com.example.Maps"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "com.example.Nullable",
+      "properties": [
+        {
+          "name": "enum",
+          "type": {
+            "type": "enum",
+            "schemaName": "com.example.MyKind",
+            "isNullable": true
+          }
+        },
+        {
+          "name": "boolean",
+          "type": {
+            "type": "boolean",
+            "isNullable": true
+          }
+        },
+        {
+          "name": "string",
+          "type": {
+            "type": "string",
+            "isNullable": true
+          }
+        },
+        {
+          "name": "int",
+          "type": {
+            "type": "int",
+            "isNullable": true
+          }
+        },
+        {
+          "name": "path",
+          "type": {
+            "type": "path",
+            "isNullable": true
+          }
+        },
+        {
+          "name": "booleanAlias",
+          "type": {
+            "type": "boolean",
+            "isNullable": true
+          }
+        },
+        {
+          "name": "listsOptional",
+          "type": {
+            "type": "object",
+            "schemaName": "com.example.Lists",
+            "isNullable": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "com.example.WithValidDefaults",
+      "properties": [
+        {
+          "name": "boolean1",
+          "type": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": "boolean",
+            "value": true
+          }
+        },
+        {
+          "name": "boolean3",
+          "type": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": "boolean",
+            "value": true
+          }
+        },
+        {
+          "name": "string1",
+          "type": {
+            "type": "string"
+          },
+          "default": {
+            "type": "string",
+            "value": "hello"
+          }
+        },
+        {
+          "name": "string2",
+          "type": {
+            "type": "string"
+          },
+          "default": {
+            "type": "string",
+            "value": "hello World!"
+          }
+        },
+        {
+          "name": "string3",
+          "type": {
+            "type": "string",
+            "isNullable": true
+          },
+          "default": {
+            "type": "string",
+            "value": "helloWorld"
+          }
+        },
+        {
+          "name": "string4",
+          "type": {
+            "type": "string",
+            "isNullable": true
+          },
+          "default": {
+            "type": "null"
+          }
+        },
+        {
+          "name": "int",
+          "type": {
+            "type": "int"
+          },
+          "default": {
+            "type": "int",
+            "value": 3
+          }
+        },
+        {
+          "name": "int2",
+          "type": {
+            "type": "int"
+          },
+          "default": {
+            "type": "int",
+            "value": 2147483647
+          }
+        },
+        {
+          "name": "listOfString",
+          "type": {
+            "type": "list",
+            "elementType": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "type": "list",
+            "value": [
+              {
+                "type": "string",
+                "value": "a"
+              },
+              {
+                "type": "string",
+                "value": "b"
+              },
+              {
+                "type": "string",
+                "value": "c"
+              }
+            ]
+          }
+        },
+        {
+          "name": "listOfString2",
+          "type": {
+            "type": "list",
+            "elementType": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "type": "list",
+            "value": []
+          }
+        },
+        {
+          "name": "listOfString1",
+          "type": {
+            "type": "list",
+            "elementType": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "type": "list",
+            "value": [
+              {
+                "type": "string",
+                "value": "hellofoo"
+              },
+              {
+                "type": "string",
+                "value": "World!"
+              }
+            ]
+          }
+        },
+        {
+          "name": "listOfMaps",
+          "type": {
+            "type": "list",
+            "elementType": {
+              "type": "map",
+              "valueType": {
+                "type": "string"
+              }
+            }
+          },
+          "default": {
+            "type": "list",
+            "value": [
+              {
+                "type": "list",
+                "value": []
+              },
+              {
+                "type": "list",
+                "value": []
+              }
+            ]
+          }
+        },
+        {
+          "name": "mapOfList",
+          "type": {
+            "type": "map",
+            "valueType": {
+              "type": "list",
+              "elementType": {
+                "type": "string"
+              }
+            }
+          },
+          "default": {
+            "type": "list",
+            "value": []
+          }
+        },
+        {
+          "name": "map",
+          "type": {
+            "type": "map",
+            "valueType": {
+              "type": "int"
+            }
+          },
+          "default": {
+            "type": "list",
+            "value": []
+          }
+        },
+        {
+          "name": "obj1",
+          "type": {
+            "type": "object",
+            "schemaName": "com.example.Maps",
+            "isNullable": true
+          },
+          "default": {
+            "type": "null"
+          }
+        },
+        {
+          "name": "path",
+          "type": {
+            "type": "path",
+            "isNullable": true
+          },
+          "default": {
+            "type": "null"
+          }
+        },
+        {
+          "name": "enum",
+          "type": {
+            "type": "enum",
+            "schemaName": "com.example.MyKind",
+            "isNullable": true
+          },
+          "default": {
+            "type": "null"
+          }
+        }
+      ]
+    },
+    {
+      "name": "com.example.WithInvalidDefaults",
+      "properties": [
+        {
+          "name": "boolean0",
+          "type": {
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "boolean1",
+          "type": {
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "boolean2",
+          "type": {
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "int1",
+          "type": {
+            "type": "int"
+          }
+        },
+        {
+          "name": "int2",
+          "type": {
+            "type": "int",
+            "isNullable": true
+          }
+        },
+        {
+          "name": "path",
+          "type": {
+            "type": "path"
+          }
+        },
+        {
+          "name": "list1",
+          "type": {
+            "type": "list",
+            "elementType": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "name": "list2",
+          "type": {
+            "type": "list",
+            "elementType": {
+              "type": "list",
+              "elementType": {
+                "type": "string"
+              }
+            }
+          },
+          "default": {
+            "type": "list",
+            "value": []
+          }
+        },
+        {
+          "name": "map",
+          "type": {
+            "type": "map",
+            "valueType": {
+              "type": "int"
+            }
+          }
+        },
+        {
+          "name": "obj",
+          "type": {
+            "type": "object",
+            "schemaName": "com.example.WithValidDefaults"
+          }
+        },
+        {
+          "name": "obj1",
+          "type": {
+            "type": "object",
+            "schemaName": "com.example.WithValidDefaults"
+          }
+        },
+        {
+          "name": "enum",
+          "type": {
+            "type": "enum",
+            "schemaName": "com.example.MyKind"
+          },
+          "default": {
+            "type": "enum",
+            "value": "Kind1"
+          }
+        },
+        {
+          "name": "withBlockBody",
+          "type": {
+            "type": "int"
+          }
+        }
+      ]
+    },
+    {
+      "name": "com.example.Invalid",
+      "properties": [
+        {
+          "name": "foo",
+          "type": {
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "withReceiver",
+          "type": {
+            "type": "int"
+          }
+        },
+        {
+          "name": "withReceiver2",
+          "type": {
+            "type": "string"
+          },
+          "default": {
+            "type": "string",
+            "value": ""
+          }
+        },
+        {
+          "name": "withContext",
+          "type": {
+            "type": "int"
+          }
+        },
+        {
+          "name": "mutable",
+          "type": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    {
+      "name": "com.example.MySettings",
+      "properties": [
+        {
+          "name": "booleanProperty",
+          "type": {
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "stringProperty",
+          "type": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "intProperty",
+          "type": {
+            "type": "int"
+          }
+        },
+        {
+          "name": "pathProperty",
+          "type": {
+            "type": "path"
+          }
+        },
+        {
+          "name": "empty",
+          "type": {
+            "type": "object",
+            "schemaName": "com.example.Empty"
+          }
+        },
+        {
+          "name": "lists",
+          "type": {
+            "type": "object",
+            "schemaName": "com.example.Lists"
+          }
+        },
+        {
+          "name": "maps",
+          "type": {
+            "type": "object",
+            "schemaName": "com.example.Maps"
+          }
+        }
+      ]
+    },
+    {
+      "name": "com.example.Config",
+      "properties": [
+        {
+          "name": "map",
+          "type": {
+            "type": "map",
+            "valueType": {
+              "type": "list",
+              "elementType": {
+                "type": "path"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "syntheticType": {
+        "name": "com.example.invalidTaskAction",
+        "properties": [
+          {
+            "name": "int",
+            "type": {
+              "type": "int"
+            },
+            "default": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "name": "map",
+            "type": {
+              "type": "map",
+              "valueType": {
+                "type": "string"
+              }
+            },
+            "default": {
+              "type": "list",
+              "value": []
+            }
+          },
+          {
+            "name": "list",
+            "type": {
+              "type": "list",
+              "elementType": {
+                "type": "path"
+              }
+            },
+            "default": {
+              "type": "list",
+              "value": []
+            }
+          },
+          {
+            "name": "inputDir",
+            "type": {
+              "type": "path",
+              "isNullable": true
+            },
+            "default": {
+              "type": "null"
+            }
+          },
+          {
+            "name": "outputDir",
+            "type": {
+              "type": "path"
+            }
+          },
+          {
+            "name": "somePath",
+            "type": {
+              "type": "path"
+            }
+          },
+          {
+            "name": "anotherPath",
+            "type": {
+              "type": "path"
+            }
+          },
+          {
+            "name": "crazyPath",
+            "type": {
+              "type": "path"
+            }
+          },
+          {
+            "name": "config",
+            "type": {
+              "type": "object",
+              "schemaName": "com.example.Config"
+            }
+          }
+        ]
+      },
+      "jvmFunctionClassName": "com.example.PluginKt",
+      "jvmFunctionName": "invalidTaskAction",
+      "inputPropertyNames": [
+        "inputDir"
+      ],
+      "outputPropertyNames": [
+        "outputDir"
+      ]
+    }
+  ]
+}
