@@ -27,6 +27,10 @@ internal fun parseSchemaDeclaration(
     val isPrimarySchema = name == primarySchemaFqnString?.qualifiedName
     val properties = buildList {
         val visitor = object : KtTreeVisitor<Nothing?>() {
+            override fun visitClassOrObject(classOrObject: KtClassOrObject, data: Nothing?): Void? {
+                return null  // Stop here to not go into unrelated nested classes
+            }
+
             override fun visitNamedFunction(function: KtNamedFunction, data: Nothing?) = null.also {
                 reportError(function, "schema.forbidden.function")
             }
@@ -54,7 +58,7 @@ internal fun parseSchemaDeclaration(
                 return super.visitProperty(property, data)
             }
         }
-        schemaDeclaration.accept(visitor)
+        schemaDeclaration.acceptChildren(visitor)
     }
     return PluginData.ClassData(
         name = PluginData.SchemaName(name),

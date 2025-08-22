@@ -8,13 +8,11 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
-import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
 import org.jetbrains.kotlin.analysis.api.types.KaStarTypeProjection
 import org.jetbrains.kotlin.analysis.api.types.KaType
 import org.jetbrains.kotlin.analysis.api.types.KaTypeArgumentWithVariance
 import org.jetbrains.kotlin.analysis.api.types.KaTypeNullability
 import org.jetbrains.kotlin.analysis.api.types.KaTypeProjection
-import org.jetbrains.kotlin.analysis.api.types.KaUsualClassType
 import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.psi.KtTypeProjection
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
@@ -24,12 +22,9 @@ import org.jetbrains.kotlin.types.Variance
 context(session: KaSession, _: ErrorReporter, typeCollector: SymbolsCollector)
 internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? {
     val isNullable = nullability == KaTypeNullability.NULLABLE
-    if (this !is KaUsualClassType) {
-        // TODO: Maybe provide additional specific hints for error types?
-        return null.also { reportError(origin(), "schema.type.unexpected", this) }
-    }
-    // It's safe because AA provides us with already expanded types, and we never use [KaType.abbreviation]
-    val symbol = symbol as KaClassSymbol
+    val symbol = expandTypeToClassSymbol()
+         // TODO: Maybe provide additional specific hints for error types?
+        ?: return null.also { reportError(origin(), "schema.type.unexpected", renderToString()) }
     return when (symbol.classId) {
         StandardClassIds.Boolean -> PluginData.Type.BooleanType(isNullable)
         StandardClassIds.Int -> PluginData.Type.IntType(isNullable)
@@ -71,7 +66,7 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
                         checkNotNull(symbol.classId) { "not reachable: interface can't be anonymous" }.toSchemaName(),
                         isNullable,
                     )
-                } else null.also { reportError(origin(), "schema.type.unexpected", symbol) }
+                } else null.also { reportError(origin(), "schema.type.unexpected", renderToString()) }
             }
             KaClassKind.ENUM_CLASS -> {
                 typeCollector.onEnumReferenced(symbol)
@@ -80,7 +75,7 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
                     isNullable,
                 )
             }
-            else -> null.also { reportError(origin(), "schema.type.unexpected", symbol) }
+            else -> null.also { reportError(origin(), "schema.type.unexpected", renderToString()) }
         }
     }
 }

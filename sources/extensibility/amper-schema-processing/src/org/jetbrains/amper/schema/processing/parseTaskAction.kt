@@ -52,14 +52,18 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
             if (isPath && inputMark != null && outputMark == null) inputNames += parameterName
             if (isPath && inputMark == null && outputMark != null) outputNames += parameterName
 
-            // TODO: implement defaults parsing here
+            val default = parameter.defaultValue?.let { defaultValue ->
+                parseDefaultExpression(defaultValue, type)
+            }
 
             add(
                 PluginData.ClassData.Property(
-                name = parameterName,
-                type = type,
-                doc = function.docComment?.findSectionByTag(KDocKnownTag.PARAM, parameterName)?.getContent(),
-            ))
+                    name = parameterName,
+                    type = type,
+                    default = default,
+                    doc = function.docComment?.findSectionByTag(KDocKnownTag.PARAM, parameterName)?.getContent(),
+                )
+            )
         }
     }
     return PluginData.TaskInfo(

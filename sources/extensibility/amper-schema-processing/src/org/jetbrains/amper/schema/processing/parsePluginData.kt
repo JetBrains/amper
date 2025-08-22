@@ -28,7 +28,7 @@ fun KaSession.parsePluginData(
     header: PluginDataRequest.PluginHeader,
 ): PluginDataResponse.PluginDataWithDiagnostics {
     val symbolsCollector = object : SymbolsCollector {
-        val referencedEnumSymbols = mutableListOf<KaClassSymbol>()
+        val referencedEnumSymbols = mutableSetOf<KaClassSymbol>()
         override fun onEnumReferenced(symbol: KaClassSymbol) {
             require(symbol.classKind == KaClassKind.ENUM_CLASS)
             referencedEnumSymbols += symbol

@@ -65,6 +65,7 @@ data class PluginData(
         data class Property(
             val name: String,
             val type: Type,
+            val default: Defaults? = null,
             val doc: String? = null,
         )
     }

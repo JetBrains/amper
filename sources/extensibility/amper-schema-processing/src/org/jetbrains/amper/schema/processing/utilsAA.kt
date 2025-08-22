@@ -4,11 +4,20 @@
 
 package org.jetbrains.amper.schema.processing
 
+import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotated
+import org.jetbrains.kotlin.analysis.api.symbols.KaAnonymousObjectSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaNamedClassSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaTypeAliasSymbol
+import org.jetbrains.kotlin.analysis.api.types.KaType
+import org.jetbrains.kotlin.analysis.api.types.KaUsualClassType
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtModifierListOwner
+import org.jetbrains.kotlin.types.Variance
+import kotlin.contracts.contract
 
 context(session: KaSession)
 internal fun KtModifierListOwner.getAnnotation(annotation: ClassId): KtAnnotationEntry? = annotationEntries.find {
@@ -21,3 +30,18 @@ internal fun KtModifierListOwner.isAnnotatedWith(annotation: ClassId): Boolean =
 
 internal fun KaAnnotated.isAnnotatedWith(annotation: ClassId): Boolean =
     annotations.any { it.classId == annotation }
+
+@OptIn(KaExperimentalApi::class)
+context(session: KaSession)
+internal fun KaType.renderToString() = with(session) { render(position = Variance.INVARIANT) }
+
+internal fun KaType.expandTypeToClassSymbol(): KaClassSymbol? {
+    contract { returnsNotNull() implies (this@expandTypeToClassSymbol is KaUsualClassType) }
+    return when (this) {
+        is KaUsualClassType -> when (val symbol = symbol) {
+            is KaAnonymousObjectSymbol, is KaNamedClassSymbol -> symbol
+            is KaTypeAliasSymbol -> symbol.expandedType.expandTypeToClassSymbol()
+        }
+        else -> null
+    }
+}

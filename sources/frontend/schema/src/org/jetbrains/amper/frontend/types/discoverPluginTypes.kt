@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.TaskAction
+import org.jetbrains.amper.plugins.schema.model.Defaults
 import org.jetbrains.amper.plugins.schema.model.PluginData
 
 internal data class PluginKey(val pluginId: PluginData.Id, val qualifiedName: String) : DeclarationKey
@@ -97,6 +98,7 @@ private class ExternalObjectDeclaration(
                 this += SchemaObjectDeclaration.Property(
                     name = property.name,
                     type = typingContext.toSchemaType(pluginId, property.type),
+                    default = property.default?.let { Default.Static(it.toValue()) },
                     documentation = property.doc,
                 )
             }
@@ -111,6 +113,16 @@ private class ExternalObjectDeclaration(
                 )
             }
         }
+    }
+
+    private fun Defaults.toValue(): Any? = when(this) {
+        is Defaults.BooleanDefault -> value
+        is Defaults.EnumDefault -> value
+        is Defaults.StringDefault -> value
+        is Defaults.IntDefault -> value
+        is Defaults.ListDefault -> value.map { it.toValue() }
+        is Defaults.MapDefault -> value.mapValues { (_, it) -> it.toValue() }
+        Defaults.Null -> null
     }
 
     private val propertiesByName by lazy { properties.associateBy { it.name } }
