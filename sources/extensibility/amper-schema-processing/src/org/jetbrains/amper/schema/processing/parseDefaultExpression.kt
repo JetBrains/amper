@@ -30,13 +30,13 @@ internal fun parseDefaultExpression(
     return when (type) {
         is PluginData.Type.BooleanType -> (constant as? KaConstantValue.BooleanValue)
             ?.let { Defaults.BooleanDefault(it.value) }
-            ?.also { reportError(expression, "schema.defaults.invalid.constant") }
+            ?: run { reportError(expression, "schema.defaults.invalid.constant"); null }
         is PluginData.Type.IntType -> (constant as? KaConstantValue.IntValue)
             ?.let { Defaults.IntDefault(it.value) }
-            ?.also { reportError(expression, "schema.defaults.invalid.constant") }
+            ?: run { reportError(expression, "schema.defaults.invalid.constant"); null }
         is PluginData.Type.StringType -> (constant as? KaConstantValue.StringValue)
             ?.let { Defaults.StringDefault(it.value) }
-            ?.also { reportError(expression, "schema.defaults.invalid.constant") }
+            ?: run { reportError(expression, "schema.defaults.invalid.constant"); null }
         is PluginData.Type.EnumType -> when (val symbol = (call as? KaSimpleVariableAccessCall)?.symbol) {
             is KaEnumEntrySymbol -> Defaults.EnumDefault(symbol.name.identifier)
             else -> {
@@ -51,14 +51,14 @@ internal fun parseDefaultExpression(
                 })
                 else -> null
             }
-        }?.also { reportError(expression, "schema.defaults.invalid.list") }
+        } ?: run{ reportError(expression, "schema.defaults.invalid.list"); null }
         is PluginData.Type.MapType -> (call as? KaSimpleFunctionCall)?.let { call ->
             when (call.symbol.callableId) {
                 EMPTY_MAP -> Defaults.ListDefault(emptyList())
                 // TODO: MAP_OF
                 else -> null
             }
-        }?.also { reportError(expression, "schema.defaults.invalid.map") }
+        } ?: run { reportError(expression, "schema.defaults.invalid.map"); null }
         is PluginData.Type.ObjectType -> {
             reportError(expression, "schema.defaults.invalid.object"); null
         }

@@ -83,20 +83,20 @@ Supported types are:
 }
 
 @Schema interface WithValidDefaults {
-  val boolean1: Boolean get() = /*{{*/DEFAULT_TRUE/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
-  val boolean3 get() = /*{{*/true/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
-  val string1 get() = /*{{*/"hello"/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
-  val string2 get() = /*{{*/"hello $CONST_STR"/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
-  val string3: String? get() = /*{{*/"hello" + "World"/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
+  val boolean1: Boolean get() = DEFAULT_TRUE
+  val boolean3 get() = true
+  val string1 get() = "hello"
+  val string2 get() = "hello $CONST_STR"
+  val string3: String? get() = "hello" + "World"
   val string4: String? get() = null
-  val int: Int get() = /*{{*/1 + 2/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
-  val int2: Int get() = /*{{*/Int.MAX_VALUE/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
-  val listOfString get() = /*{{*/listOf(/*{{*/"a"/*}} Invalid primitive default expression. Only simple constant expressions are allowed */, /*{{*/"b"/*}} Invalid primitive default expression. Only simple constant expressions are allowed */, /*{{*/"c"/*}} Invalid primitive default expression. Only simple constant expressions are allowed */)/*}} Invalid list default expression. Only `emptyList()` or `listOf(...)` calls are allowed */
-  val listOfString2: List<String> get() = /*{{*/emptyList()/*}} Invalid list default expression. Only `emptyList()` or `listOf(...)` calls are allowed */
-  val listOfString1: List<String> get() = /*{{*/listOf(null, /*{{*/"hello" + "foo"/*}} Invalid primitive default expression. Only simple constant expressions are allowed */, /*{{*/CONST_STR/*}} Invalid primitive default expression. Only simple constant expressions are allowed */)/*}} Invalid list default expression. Only `emptyList()` or `listOf(...)` calls are allowed */
-  val listOfMaps: List<Map<String, String>> get() = /*{{*/listOf(/*{{*/emptyMap()/*}} Invalid map default expression. Only `emptyMap()` or `mapOf(...)` calls are allowed */, /*{{*/emptyMap()/*}} Invalid map default expression. Only `emptyMap()` or `mapOf(...)` calls are allowed */)/*}} Invalid list default expression. Only `emptyList()` or `listOf(...)` calls are allowed */
-  val mapOfList: Map<String, List<String>> get() = /*{{*/emptyMap()/*}} Invalid map default expression. Only `emptyMap()` or `mapOf(...)` calls are allowed */
-  val map: Map<String, Int> get() = /*{{*/emptyMap()/*}} Invalid map default expression. Only `emptyMap()` or `mapOf(...)` calls are allowed */
+  val int: Int get() = 1 + 2
+  val int2: Int get() = Int.MAX_VALUE
+  val listOfString get() = listOf("a", "b", "c")
+  val listOfString2: List<String> get() = emptyList()
+  val listOfString1: List<String?> get() = listOf(null, "hello" + "foo", CONST_STR)
+  val listOfMaps: List<Map<String, String>> get() = listOf(emptyMap(), emptyMap())
+  val mapOfList: Map<String, List<String>> get() = emptyMap()
+  val map: Map<String, Int> get() = emptyMap()
   val obj1: Maps? get() = null
   val path: Path? get() = null
   val enum: MyKind? get() = null
@@ -120,33 +120,33 @@ Supported types are:
  - List<T>, Map<String, T>, where `T` is a supported type. */
 
 // TODO: Investigate, why is this not a constant expression
-  val boolean0: Boolean get() = false && true
+  val boolean0: Boolean get() = /*{{*/false && true/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
 
-  val boolean1: Boolean get() = System.getProperty("hello") != null                  
+  val boolean1: Boolean get() = /*{{*/System.getProperty("hello") != null/*}} Invalid primitive default expression. Only simple constant expressions are allowed */                  
   // TODO: Support this case in some capacity?
-  val boolean2: Boolean get() = boolean1
-  val int1: Int get() = 0 / 0
-  val int2: Int? get() = System.getProperty("hello")?.length
+  val boolean2: Boolean get() = /*{{*/boolean1/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
+  val int1: Int get() = /*{{*/0 / 0/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
+  val int2: Int? get() = /*{{*/System.getProperty("hello")?.length/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
   // TODO: Support this case?
   val path: Path get() = /*{{*/kotlin.io.path.Path("foo/bar")/*}} Explicit defaults for paths are not yet supported */
-  val list1: List<String> get() = arrayOf("hello", "foo").toList()
-  val list2: List<List<String>> get() = /*{{*/listOf(arrayOf("a").toList())/*}} Invalid list default expression. Only `emptyList()` or `listOf(...)` calls are allowed */
+  val list1: List<String> get() = /*{{*/arrayOf("hello", "foo").toList()/*}} Invalid list default expression. Only `emptyList()` or `listOf(...)` calls are allowed */
+  val list2: List<List<String>> get() = listOf(/*{{*/arrayOf("a").toList()/*}} Invalid list default expression. Only `emptyList()` or `listOf(...)` calls are allowed */)
   // TODO: Support this case
-  val map: Map<String, Int> get() = mapOf("a" to 1, "b" to 2, "c" to 3)
+  val map: Map<String, Int> get() = /*{{*/mapOf("a" to 1, "b" to 2, "c" to 3)/*}} Invalid map default expression. Only `emptyMap()` or `mapOf(...)` calls are allowed */
   val obj: WithValidDefaults get() = /*{{*/object : WithValidDefaults {}/*}} Explicit defaults for @Schema interfaces are not supported. Every schema interface is instantiated by default using all user-provided and default values */
   val obj1 get() = /*{{*/object : WithValidDefaults {}/*}} Explicit defaults for @Schema interfaces are not supported. Every schema interface is instantiated by default using all user-provided and default values */
 
   val enum: MyKind get() = MyKind.Kind1
 
   val withBlockBody: Int 
-    get() { return 0 }
+    /*{{*/get() { return 0 }/*}} Default property getter must have an expression body */
 }
 
 @Schema interface Invalid /*{{*/<T>/*}} Generics are not allowed in @Schema interfaces */ : /*{{*/Empty/*}} Superinterfaces for @Schema interfaces are not yet supported */ {
    val foo: Boolean
    
    val /*{{*/<T>/*}} Generics are not allowed in @Schema interfaces */ /*{{*/T/*}} Extension properties are not allowed in @Schema interfaces */.withReceiver: Int
-   val /*{{*/Int/*}} Extension properties are not allowed in @Schema interfaces */.withReceiver2: String get() = /*{{*/""/*}} Invalid primitive default expression. Only simple constant expressions are allowed */
+   val /*{{*/Int/*}} Extension properties are not allowed in @Schema interfaces */.withReceiver2: String get() = ""
 
    /*{{*/context(_: String)/*}} Context parameters are not allowed in @Schema interfaces */
    val withContext: Int
@@ -207,10 +207,10 @@ object Hello {
 @TaskAction
 /*{{*/context(_: String)/*}} Context parameters are not allowed in @TaskAction function */
 /*{{*/suspend/*}} Suspending @TaskAction functions are not yet supported */ /*{{*/inline/*}} @TaskAction function cant be marked as inline */ fun /*{{*/<T>/*}} @TaskAction function cant be generic */ /*{{*/T/*}} @TaskAction function cant be an extension function */.invalidTaskAction(
-  int: Int = /*{{*/0/*}} Invalid primitive default expression. Only simple constant expressions are allowed */,
-  map: Map<String, String> = /*{{*/emptyMap()/*}} Invalid map default expression. Only `emptyMap()` or `mapOf(...)` calls are allowed */,
+  int: Int = 0,
+  map: Map<String, String> = emptyMap(),
   // FIXME: contains paths, should be marked
-  list: List<Path> = /*{{*/emptyList()/*}} Invalid list default expression. Only `emptyList()` or `listOf(...)` calls are allowed */,
+  list: List<Path> = emptyList(),
   @Input inputDir: Path? = null,
   @Output outputDir: Path,
   somePath: Path,

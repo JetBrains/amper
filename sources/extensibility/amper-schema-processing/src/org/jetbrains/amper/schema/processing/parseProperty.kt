@@ -33,15 +33,13 @@ internal fun parseProperty(
     }.parseSchemaType(origin = { property.typeReference ?: property })
 
     val default = with(session) { property.symbol as KaPropertySymbol }.getter?.let { getter ->
-        if (getter.hasBody) {
-            when (val expression = getter.psiSafe<KtPropertyAccessor>()?.bodyExpression) {
-                null -> {
-                    reportError(getter.psi(), "schema.defaults.invalid.getter.block"); null
-                }
-                else if type != null -> parseDefaultExpression(expression, type)
-                else -> null
-            }
-        } else null
+        getter.psiSafe<KtPropertyAccessor>()?.let { psi ->
+            if (psi.bodyBlockExpression != null) {
+                reportError(getter.psi(), "schema.defaults.invalid.getter.block"); null
+            } else if (type != null) psi.bodyExpression?.let { expression ->
+                parseDefaultExpression(expression, type)
+            } else null
+        }
     }
 
     if (type == null) return null

@@ -290,12 +290,16 @@
           "type": {
             "type": "list",
             "elementType": {
-              "type": "string"
+              "type": "string",
+              "isNullable": true
             }
           },
           "default": {
             "type": "list",
             "value": [
+              {
+                "type": "null"
+              },
               {
                 "type": "string",
                 "value": "hellofoo"
