@@ -146,7 +146,7 @@ fun getSpringBootVersionFromSyncVersions(): String {
     return matchResult?.groupValues?.get(1) ?: error("Could not find springBootVersion in syncVersions.main.kts")
 }
 
-fun main() {
+fun syncSpringBootDependencies() {
     val springBootVersion = getSpringBootVersionFromSyncVersions()
     println("Using Spring Boot version $springBootVersion")
     val springBootBoms = fetchSpringBoms()
@@ -363,5 +363,5 @@ fun String.replaceRegexGroup1(regex: Regex, replacement: String) = replace(regex
     it.value.replace(it.groupValues[1], replacement)
 }
 
-main()
+syncSpringBootDependencies()
 

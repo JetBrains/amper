@@ -3,6 +3,7 @@
  */
 
 @file:OptIn(ExperimentalPathApi::class)
+@file:Import("springBootDependenciesSync.main.kts")
 
 import java.io.File
 import java.net.URI
@@ -224,3 +225,6 @@ fun Path.replaceFileText(transform: (text: String) -> String) {
 
 // actually runs the script
 syncVersions()
+
+// run spring boot dependencies
+syncSpringBootDependencies()
