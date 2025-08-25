@@ -7,10 +7,11 @@ package org.jetbrains.amper.frontend.schema.helper
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
+import org.jetbrains.amper.frontend.contexts.EmptyContexts
+import org.jetbrains.amper.frontend.contexts.defaultContextsInheritance
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.reading.readTree
+import org.jetbrains.amper.frontend.tree.refineTree
 import org.jetbrains.amper.test.golden.GoldenTest
 import java.nio.file.Path
 
@@ -32,7 +33,8 @@ private class ConvertTestRun(
         val inputFile = pathResolver.loadVirtualFile(inputPath)
         with(BuildCtx(pathResolver, problemReporter)) {
             val tree = readTree(inputFile, moduleAType)
-            createSchemaNode<Module>(tree as MapLikeValue<Refined>)
+            val refined = tree.refineTree(EmptyContexts, defaultContextsInheritance)
+            createSchemaNode<Module>(refined)
         }
         return problemReporter.getDiagnostics().joinToString { it.message }
     }
