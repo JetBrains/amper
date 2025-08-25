@@ -7,28 +7,25 @@ package org.jetbrains.amper.frontend.contexts
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.aomBuilder.MissingPropertiesHandler
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ModuleProduct
-import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
-import org.jetbrains.amper.frontend.tree.get
-import org.jetbrains.amper.frontend.tree.isEmptyOrNoValue
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
-import org.jetbrains.amper.frontend.tree.values
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
-import org.jetbrains.amper.problems.reporting.WholeFileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.replayProblemsTo
 
 /**
@@ -65,26 +62,35 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             .appendDefaultValues()
             .resolveReferences()
 
-        val productProperty = moduleTree.children.firstOrNull { it.key == "product" }
-        val possibleTypes = (productProperty?.value as? MapLikeValue)?.get("type")?.values
-
-        // Check if there is "product" section.
-        if (productProperty == null) {
-            collectingReporter.reportBundleError(
-                source = WholeFileBuildProblemSource(moduleFilePath.toNioPath()),
-                messageKey = "product.not.defined.empty",
-                buildProblemId = "product.not.defined",
-                level = Level.Fatal,
-            )
+        val refined = TreeRefiner().refineTree(moduleTree, EmptyContexts)
+        val delegate = object : MissingPropertiesHandler.Default(collectingReporter) {
+            override fun onMissingRequiredPropertyValue(
+                trace: Trace,
+                keyName: String,
+                keyTrace: Trace?,
+            ) {
+                when (keyName) {
+                    "product" if keyTrace != null -> collectingReporter.reportBundleError(
+                        source = keyTrace.asBuildProblemSource(),
+                        messageKey = "product.not.defined",
+                        level = Level.Fatal,
+                    )
+                    "product" -> collectingReporter.reportBundleError(
+                        source = trace.asBuildProblemSource(),
+                        messageKey = "product.not.defined.empty",
+                        buildProblemId = "product.not.defined",
+                        level = Level.Fatal,
+                    )
+                    "type" -> collectingReporter.reportBundleError(
+                        source = trace.asBuildProblemSource(),
+                        messageKey = "product.not.defined",
+                        level = Level.Fatal,
+                    )
+                    else -> super.onMissingRequiredPropertyValue(trace, keyName, keyTrace)
+                }
+            }
         }
-        // Check if product types are present.
-        else if (possibleTypes == null || possibleTypes.isEmptyOrNoValue()) {
-            collectingReporter.reportBundleError(
-                source = productProperty.kTrace.asBuildProblemSource(),
-                messageKey = "product.not.defined",
-                level = Level.Fatal,
-            )
-        }
+        val instance = createSchemaNode<MinimalModule>(refined, delegate)
 
         if (collectingReporter.hasFatal) {
             // Replay errors to the original reporter if something fatal had happened.
@@ -93,14 +99,12 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             return null
         }
 
-        val refined = TreeRefiner().refineTree(moduleTree, EmptyContexts)
-
         MinimalModuleHolder(
             moduleFilePath = moduleFilePath,
             buildCtx = this@tryReadMinimalModule,
             // We can cast here because we know that minimal module
             // properties should be used outside any context.
-            module = createSchemaNode<MinimalModule>(refined)
+            module = instance,
         )
     }
 }

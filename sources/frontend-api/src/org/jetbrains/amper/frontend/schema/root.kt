@@ -57,7 +57,7 @@ class Module : Base() {
     var module by value(::Meta)
 
     @ProductTypeSpecific(ProductType.JVM_AMPER_PLUGIN)
-    var plugin by nullableValue<PluginDeclarationSchema>()  // FIXME: should not be nullable
+    var plugin by nullableValue<PluginDeclarationSchema>()
 }
 
 class Repository : SchemaNode() {

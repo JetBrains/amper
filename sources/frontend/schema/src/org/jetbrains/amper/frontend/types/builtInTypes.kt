@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.types.SchemaType.TypeWithDeclaration
 import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotation
@@ -201,11 +202,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                 .map { prop ->
                     SchemaObjectDeclaration.Property(
                         name = prop.name,
-                        type = getType(prop.returnType).let { type ->
-                            prop.findAnnotation<KnownStringValues>()?.values?.toSet()?.let {
-                                (type as SchemaType.StringType).copy(knownStringValues = it)
-                            } ?: type
-                        },
+                        type = getType(prop.returnType).addKnownStringValuesIfAny(prop),
                         documentation = prop.findAnnotation<SchemaDoc>()?.doc,
                         misnomers = prop.findAnnotation<Misnomers>()?.values?.toSet().orEmpty(),
                         default = prop.schemaDelegate(exampleInstance)?.default,
@@ -221,6 +218,15 @@ internal abstract class BuiltInTypingContext protected constructor(
                         isHiddenFromCompletion = prop.hasAnnotation<HiddenFromCompletion>()
                     )
                 }
+        }
+
+        private fun SchemaType.addKnownStringValuesIfAny(property: KProperty<*>): SchemaType {
+            val stringValues = property.findAnnotation<KnownStringValues>()
+            if (stringValues != null) {
+                check(this is SchemaType.StringType) { "@KnownStringValues is only supported for String properties" }
+                return copy(knownStringValues = stringValues.values.toSet())
+            }
+            return this
         }
 
         override fun createInstance(): SchemaNode =

@@ -7,9 +7,13 @@ package org.jetbrains.amper.frontend.plugins
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.aomBuilder.MissingPropertiesHandler
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
@@ -23,14 +27,14 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 class MinimalPluginModule : SchemaNode() {
     var product by value<ModuleProduct>()
 
-    var plugin by value<PluginDeclarationSchema>()
+    var plugin by value(::PluginDeclarationSchema)
 }
 
 fun tryReadMinimalPluginModule(
     problemReporter: ProblemReporter,
     frontendPathResolver: FrontendPathResolver,
     moduleFilePath: VirtualFile,
-) : MinimalPluginModule {
+) : MinimalPluginModule? {
     return with(BuildCtx(frontendPathResolver, problemReporter)) {
         val pluginModuleTree = readTree(
             file = moduleFilePath,
@@ -39,6 +43,23 @@ fun tryReadMinimalPluginModule(
         )
         val refiner = TreeRefiner()
         val noContextsTree = refiner.refineTree(pluginModuleTree, EmptyContexts)
-        createSchemaNode<MinimalPluginModule>(noContextsTree)
+        val missingPropertiesHandler = object : MissingPropertiesHandler {
+            var somePropertiesMissing = false
+            override fun onMissingRequiredPropertyValue(
+                trace: Trace,
+                keyName: String,
+                keyTrace: Trace?,
+            ) {
+                somePropertiesMissing = true
+                if (keyName == "id") {
+                    problemReporter.reportBundleError(
+                        trace.asBuildProblemSource(), "plugin.id.not.defined"
+                    )
+                }
+                // Others are going to be reported elsewhere
+            }
+        }
+        createSchemaNode<MinimalPluginModule>(noContextsTree, missingPropertiesHandler)
+            .takeUnless { missingPropertiesHandler.somePropertiesMissing }
     }
 }
