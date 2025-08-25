@@ -28,6 +28,7 @@ sealed interface SchemaType {
     data class StringType(
         override val isMarkedNullable: Boolean = false,
         val isTraceableWrapped: Boolean = false,
+        val knownStringValues: Set<String>? = null,
     ) : ScalarType {
         override fun toString() = "string"
     }

@@ -33,7 +33,6 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
         val specificToProducts: Set<ProductType> = emptySet(),
         val isPlatformAgnostic: Boolean = false,
         val specificToGradleMessage: String? = null,
-        val knownStringValues: Set<String> = emptySet(),
         val hasShorthand: Boolean = false,
         val isHiddenFromCompletion: Boolean = false,
     )

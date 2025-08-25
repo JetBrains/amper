@@ -201,7 +201,11 @@ internal abstract class BuiltInTypingContext protected constructor(
                 .map { prop ->
                     SchemaObjectDeclaration.Property(
                         name = prop.name,
-                        type = getType(prop.returnType),
+                        type = getType(prop.returnType).let { type ->
+                            prop.findAnnotation<KnownStringValues>()?.values?.toSet()?.let {
+                                (type as SchemaType.StringType).copy(knownStringValues = it)
+                            } ?: type
+                        },
                         documentation = prop.findAnnotation<SchemaDoc>()?.doc,
                         misnomers = prop.findAnnotation<Misnomers>()?.values?.toSet().orEmpty(),
                         default = prop.schemaDelegate(exampleInstance)?.default,
@@ -213,7 +217,6 @@ internal abstract class BuiltInTypingContext protected constructor(
                             .orEmpty(),
                         isPlatformAgnostic = prop.hasAnnotation<PlatformAgnostic>(),
                         specificToGradleMessage = prop.findAnnotation<GradleSpecific>()?.message,
-                        knownStringValues = prop.findAnnotation<KnownStringValues>()?.values?.toSet().orEmpty(),
                         hasShorthand = prop.hasAnnotation<Shorthand>(),
                         isHiddenFromCompletion = prop.hasAnnotation<HiddenFromCompletion>()
                     )

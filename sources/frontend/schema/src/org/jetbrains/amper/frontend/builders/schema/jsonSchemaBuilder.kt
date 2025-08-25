@@ -116,7 +116,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
      * Wrap an element with [EnumElement] if it has some known values to provide them in autocompletion.
      */
     private fun JsonElement.wrapKnownValues(prop: SchemaObjectDeclaration.Property): JsonElement {
-        val knownValues = prop.knownStringValues
+        val knownValues = (prop.type as? SchemaType.StringType)?.knownStringValues.orEmpty()
         return if (knownValues.isNotEmpty()) AnyOfElement(
             this, EnumElement(knownValues).`x-intellij-enum-order-sensitive`(true)
         ) else this
@@ -136,8 +136,8 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
                 .flatten()
                 .map { it.schemaValue }
             val stringShorthands = shorthands
-                .filter { it.type is SchemaType.StringType }
-                .flatMap { it.knownStringValues }
+                .mapNotNull { it.type as? SchemaType.StringType }
+                .flatMap { it.knownStringValues.orEmpty() }
             AnyOfElement(
                 this,
                 EnumElement(booleanShorthands.toSet() + enumShorthands + stringShorthands),

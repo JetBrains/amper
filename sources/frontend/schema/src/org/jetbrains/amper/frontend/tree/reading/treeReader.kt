@@ -129,19 +129,27 @@ internal class ReaderCtx(params: TreeReadRequest) {
      * Try to read a value of the specified scalar [type] from the given [text] and return `null` if failed.
      */
     fun tryReadScalar(text: String, type: SchemaType.ScalarType, origin: PsiElement, report: Boolean = true): Any? {
-        fun reportIfNeeded(msgId: String): Nothing? {
+        fun reportIfNeeded(msgId: String, vararg args: Any?): Nothing? {
             if (report) {
                 problemReporter.reportBundleError(
                     source = origin.asBuildProblemSource(),
                     messageKey = msgId,
                     problemType = BuildProblemType.TypeMismatch,
+                    arguments = args,
                 )
             }
             return null
         }
 
         return when(type) {
-            is SchemaType.StringType -> if (type.isTraceableWrapped) text.asTraceable(origin.trace) else text
+            is SchemaType.StringType -> {
+                type.knownStringValues?.let { knownStringValues ->
+                    if (text !in knownStringValues) {
+                        reportIfNeeded("validation.not.within.known.values", knownStringValues.joinToString())
+                    }
+                }
+                if (type.isTraceableWrapped) text.asTraceable(origin.trace) else text
+            }
             is SchemaType.IntType -> text.toIntOrNull() ?: reportIfNeeded("validation.expected.integer")
             is SchemaType.BooleanType -> text.toBooleanStrictOrNull() ?: reportIfNeeded("validation.expected.boolean")
             is SchemaType.PathType -> (baseDir.resolveOrNull(text) ?: reportIfNeeded("validation.expected.path")).let {

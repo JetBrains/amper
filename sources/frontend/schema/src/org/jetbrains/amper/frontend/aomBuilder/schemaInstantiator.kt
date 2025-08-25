@@ -80,18 +80,6 @@ internal class InstantiationCtx<V : RefinedTree, T : SchemaType>(
      * Try to perform last validations on the property value and then set it with the correct trace.
      */
     private fun SchemaNode.setSafely(prop: SchemaObjectDeclaration.Property, value: Any) {
-        if (value is String && prop.type is SchemaType.StringType &&
-            prop.knownStringValues.isNotEmpty() && value !in prop.knownStringValues
-        ) {
-            problemReporter.reportBundleError(
-                source = currentValue.trace.asBuildProblemSource(),
-                messageKey = "validation.not.within.known.values",
-                prop.knownStringValues.joinToString(),
-                level = Level.Error,
-                problemType = BuildProblemType.TypeMismatch,
-            )
-        }
-
         valueHolders[prop.name] = ValueHolder(value, currentValue.trace)
     }
 
