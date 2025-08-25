@@ -52,6 +52,7 @@ import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.stdlib.caching
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.name
@@ -90,8 +91,10 @@ internal fun doBuild(
     )
 ) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
-    val rawModules = projectContext.amperModuleFiles.mapNotNull {
-        readModuleMergedTree(it, projectContext.projectVersionsCatalog)
+    val rawModules = caching { templateCache ->
+        projectContext.amperModuleFiles.mapNotNull {
+            readModuleMergedTree(it, projectContext.projectVersionsCatalog, templateCache)
+        }
     }
 
     // Fail fast if we have fatal errors.
@@ -124,6 +127,7 @@ context(problemReporter: ProblemReporter)
 internal fun BuildCtx.readModuleMergedTree(
     moduleFile: VirtualFile,
     projectVersionsCatalog: VersionCatalog?,
+    templatesCache: MutableMap<Path, MapLikeValue<*>> = hashMapOf(),
 ): ModuleBuildCtx? {
     val moduleCtx = PathCtx(moduleFile, moduleFile.asPsi().trace)
 
@@ -133,7 +137,7 @@ internal fun BuildCtx.readModuleMergedTree(
     // Read the whole module and used templates.
     // FIXME Read templates by raw access API and then just reuse single read tree both
     //       for module building and minimal module building.
-    val ownedTrees = readWithTemplates(minimalModule, moduleFile, moduleCtx)
+    val ownedTrees = readWithTemplates(minimalModule, moduleFile, moduleCtx, templatesCache)
 
     // Perform diagnostics for owned trees.
     OwnedTreeDiagnostics.forEach { diagnostic ->
@@ -179,12 +183,15 @@ internal fun BuildCtx.readWithTemplates(
     minimalModule: MinimalModuleHolder,
     mPath: VirtualFile,
     moduleCtx: PathCtx,
+    templatesCache: MutableMap<Path, MapLikeValue<*>> = hashMapOf(),
 ): List<MapLikeValue<*>> {
     val moduleTree = readTree(mPath, moduleAType, moduleCtx)
     return listOf(moduleTree) + minimalModule.appliedTemplates.mapNotNull {
-        val templateVirtual = it.asVirtualOrNull() ?: return@mapNotNull null
-        val psiFile = pathResolver.toPsiFile(templateVirtual) ?: return@mapNotNull null
-        readTree(templateVirtual, templateAType, PathCtx(templateVirtual, psiFile.trace))
+        templatesCache.getOrPut(it) {
+            val templateVirtual = it.asVirtualOrNull() ?: return@mapNotNull null
+            val psiFile = pathResolver.toPsiFile(templateVirtual) ?: return@mapNotNull null
+            readTree(templateVirtual, templateAType, PathCtx(templateVirtual, psiFile.trace))
+        }
     }
 }
 
