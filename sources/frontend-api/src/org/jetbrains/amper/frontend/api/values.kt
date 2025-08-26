@@ -162,6 +162,7 @@ class SchemaValueDelegate<T>(
     valueHolders: ValueHolders,
 ) : Traceable, ReadWriteProperty<SchemaNode, T> {
     // We are creating lambdas here to prevent misusage of [valueHolders] from [SchemaValueDelegate].
+    @Suppress("UNCHECKED_CAST") // What we put in valueHolders is checked up front
     private val valueGetter: () -> ValueHolder<T>? = { valueHolders[property.name] as ValueHolder<T>? }
     private val valueSetter: (ValueHolder<T>?) -> Unit = { if (it != null) valueHolders[property.name] = it }
 
