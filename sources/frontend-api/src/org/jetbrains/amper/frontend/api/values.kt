@@ -63,7 +63,7 @@ abstract class SchemaNode : Traceable {
      * Register a value with a lazy default.
      */
     // the default value is nullable to allow performing validation without crashing (using "unsafe" access)
-    fun <T> value(default: () -> T) = SchemaValueDelegateProvider(Default.Lambda(desc = null, default))
+    fun <T> value(default: () -> T) = SchemaValueDelegateProvider(Default.Lambda(default))
 
     /**
      * Register a value with a default depending on another property
@@ -112,7 +112,7 @@ sealed class Default<out T> {
         override val trace = DefaultTrace
     }
 
-    data class Lambda<T>(val desc: String?, private val getter: () -> T) : Default<T>() {
+    data class Lambda<T>(private val getter: () -> T) : Default<T>() {
         override val value by lazy { getter() }
         override val trace = DefaultTrace
     }
