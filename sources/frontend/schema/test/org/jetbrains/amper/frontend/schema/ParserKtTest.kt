@@ -23,8 +23,8 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
     }
 
     @Test
-    fun `multiplatform app`() {
-        aomTest("1-multiplatform-app")
+    fun `multiplatform lib`() {
+        aomTest("1-multiplatform-lib")
     }
 
     @Test

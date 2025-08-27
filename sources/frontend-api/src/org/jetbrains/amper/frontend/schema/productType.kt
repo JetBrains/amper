@@ -34,13 +34,6 @@ enum class ProductType(
         defaultPlatforms = null
     ),
 
-    LEGACY_APP(
-        "app",
-        supportedPlatforms = Platform.leafPlatforms,
-        defaultPlatforms = setOf(Platform.JVM),
-        outdated = true,
-    ),
-
     @SchemaDoc("A JVM console or desktop application")
     JVM_APP(
         "jvm/app",
