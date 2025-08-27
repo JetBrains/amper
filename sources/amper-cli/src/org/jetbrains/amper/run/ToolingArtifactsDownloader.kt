@@ -53,10 +53,6 @@ class ToolingArtifactsDownloader(
         listOf(MavenCentral, GOOGLE_REPOSITORY)
     )
 
-    suspend fun downloadSlf4jApi(): List<Path> = downloadToolingArtifacts(
-        listOf("org.slf4j:slf4j-api:${UsedVersions.slf4jVersion}"),
-    )
-
     suspend fun downloadSpringBootLoader(): Path = downloadToolingArtifacts(
         listOf("org.springframework.boot:spring-boot-loader:${UsedVersions.springBootVersion}")
     ).single()

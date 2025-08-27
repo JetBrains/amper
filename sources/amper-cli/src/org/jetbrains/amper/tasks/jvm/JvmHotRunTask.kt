@@ -87,11 +87,6 @@ class JvmHotRunTask(
             addAll(classpath)
             addAll(filteredAgentClasspath)
 
-            val hasSl4fjApi = classpath.any { it.pathString.contains("org/slf4j/slf4j-api") }
-            if (!hasSl4fjApi) {
-                addAll(toolingArtifactsDownloader.downloadSlf4jApi())
-            }
-
             val hasComposeDesktop = classpath.any { it.pathString.contains("org/jetbrains/compose/desktop") }
             if (!hasComposeDesktop) {
                 addAll(toolingArtifactsDownloader.downloadComposeDesktop())
