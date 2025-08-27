@@ -1,5 +1,5 @@
 Fragments:
-  common
+  main
     External dependencies:
       MavenDependency(coordinates=a, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=false, runtime=true, exported=false)
       MavenDependency(coordinates=b, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=false, exported=false)
@@ -10,7 +10,7 @@ Fragments:
     Settings: {
     }
 
-  commonTest
+  test
     External dependencies:
       MavenDependency(coordinates=a, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=false, runtime=true, exported=false)
       MavenDependency(coordinates=b, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=false, exported=false)
@@ -19,33 +19,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
-      common (FRIEND)
-    Settings: {
-    }
-
-  jvm
-    External dependencies:
-      MavenDependency(coordinates=a, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=false, runtime=true, exported=false)
-      MavenDependency(coordinates=b, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=false, exported=false)
-      MavenDependency(coordinates=c, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=false, exported=true)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@jvm
-    Fragment dependencies:
-      common (REFINE)
-    Settings: {
-    }
-
-  jvmTest
-    External dependencies:
-      MavenDependency(coordinates=a, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=false, runtime=true, exported=false)
-      MavenDependency(coordinates=b, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=false, exported=false)
-      MavenDependency(coordinates=c, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=false, exported=true)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@jvm
-    Fragment dependencies:
-      commonTest (REFINE)
-      jvm (FRIEND)
+      main (FRIEND)
     Settings: {
     }
 
@@ -53,11 +27,11 @@ Artifacts:
   isTest: false
   [JVM]
     Fragments:
-      jvm
+      main
   isTest: true
   [JVM]
     Fragments:
-      jvmTest
+      test
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2

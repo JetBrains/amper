@@ -1,5 +1,5 @@
 Fragments:
-  common
+  main
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta03, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -17,7 +17,7 @@ Fragments:
       }
     }
 
-  commonTest
+  test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta03, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -25,47 +25,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
-      common (FRIEND)
-    Settings: {
-      compose: {
-        enabled: true
-        experimental: {
-          hotReload: {
-            enabled: true
-          }
-        }
-      }
-    }
-
-  jvm
-    External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta03, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@jvm
-    Fragment dependencies:
-      common (REFINE)
-    Settings: {
-      compose: {
-        enabled: true
-        experimental: {
-          hotReload: {
-            enabled: true
-          }
-        }
-      }
-    }
-
-  jvmTest
-    External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.hot-reload:hot-reload-runtime-api:1.0.0-beta03, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@jvm
-    Fragment dependencies:
-      commonTest (REFINE)
-      jvm (FRIEND)
+      main (FRIEND)
     Settings: {
       compose: {
         enabled: true
@@ -81,11 +41,11 @@ Artifacts:
   isTest: false
   [JVM]
     Fragments:
-      jvm
+      main
   isTest: true
   [JVM]
     Fragments:
-      jvmTest
+      test
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2

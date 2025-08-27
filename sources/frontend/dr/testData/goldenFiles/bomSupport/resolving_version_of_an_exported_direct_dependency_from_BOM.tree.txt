@@ -91,7 +91,5 @@ Module app
 │    │         ╰─── io.ktor:ktor-client-core:3.1.1 (c)
 │    ╰─── B:jvm:io.ktor:ktor-bom:3.1.1
 │         ╰─── io.ktor:ktor-bom:3.1.1 (*)
-├─── app:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-╰─── app:jvm:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)

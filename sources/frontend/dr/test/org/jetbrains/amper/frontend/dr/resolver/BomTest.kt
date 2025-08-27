@@ -45,21 +45,15 @@ class BomTest: BaseModuleDrTest() {
                 │ - main
                 │ - scope = COMPILE
                 │ - platforms = [jvm]
-                ├─── app:common:com.fasterxml.jackson.core:jackson-annotations:unspecified
+                ├─── app:main:com.fasterxml.jackson.core:jackson-annotations:unspecified
                 │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3
                 │         ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
                 │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
-                ├─── app:common:com.fasterxml.jackson:jackson-bom:2.18.3
+                ├─── app:main:com.fasterxml.jackson:jackson-bom:2.18.3
                 │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ├─── app:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
-                │         ╰─── org.jetbrains:annotations:13.0
-                ├─── app:jvm:com.fasterxml.jackson.core:jackson-annotations:unspecified
-                │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3 (*)
-                ├─── app:jvm:com.fasterxml.jackson:jackson-bom:2.18.3
-                │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ╰─── app:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion} (*)
+                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
+                          ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
         )
 

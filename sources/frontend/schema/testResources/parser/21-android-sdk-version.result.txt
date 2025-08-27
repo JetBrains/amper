@@ -1,51 +1,5 @@
 Fragments:
-  android
-    External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@android
-    Fragment dependencies:
-      common (REFINE)
-    Settings: {
-      android: {
-        applicationId: <default> org.example.namespace
-        compileSdk: VERSION_32
-        maxSdk: VERSION_34
-        targetSdk: VERSION_32
-      }
-      compose: {
-        enabled: true
-      }
-    }
-
-  androidTest
-    External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@android
-    Fragment dependencies:
-      commonTest (REFINE)
-      android (FRIEND)
-    Settings: {
-      android: {
-        applicationId: <default> org.example.namespace
-        compileSdk: VERSION_32
-        maxSdk: VERSION_34
-        targetSdk: VERSION_32
-      }
-      compose: {
-        enabled: true
-      }
-    }
-
-  common
+  main
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -66,7 +20,7 @@ Fragments:
       }
     }
 
-  commonTest
+  test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -76,7 +30,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
-      common (FRIEND)
+      main (FRIEND)
     Settings: {
       android: {
         applicationId: <default> org.example.namespace
@@ -93,11 +47,11 @@ Artifacts:
   isTest: false
   [ANDROID]
     Fragments:
-      android
+      main
   isTest: true
   [ANDROID]
     Fragments:
-      androidTest
+      test
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2

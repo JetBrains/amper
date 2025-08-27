@@ -24,21 +24,31 @@ enum class ProductType(
     val value: String,
     val supportedPlatforms: Set<Platform>,
     val defaultPlatforms: Set<Platform>?,
-    override val outdated: Boolean = false
+    val supportsFragmentBamboos: Boolean = true,
+    override val outdated: Boolean = false,
 ): SchemaEnum {
 
-    @SchemaDoc("A reusable library which could be used as dependency by other modules in the codebase")
+    @SchemaDoc("A reusable multiplatform library which could be used as dependency by other modules in the codebase")
     LIB(
         "lib",
         supportedPlatforms = Platform.leafPlatforms,
-        defaultPlatforms = null
+        defaultPlatforms = null,
     ),
 
     @SchemaDoc("A JVM console or desktop application")
     JVM_APP(
         "jvm/app",
         supportedPlatforms = setOf(Platform.JVM),
-        defaultPlatforms = setOf(Platform.JVM)
+        defaultPlatforms = setOf(Platform.JVM),
+        supportsFragmentBamboos = false,
+    ),
+
+    @SchemaDoc("A reusable JVM library which could be used as dependency by other modules in the codebase only limited by JVM platform")
+    JVM_LIB(
+        "jvm/lib",
+        supportedPlatforms = setOf(Platform.JVM),
+        defaultPlatforms = setOf(Platform.JVM),
+        supportsFragmentBamboos = false,
     ),
 
     @SchemaDoc("An Amper plugin")
@@ -46,13 +56,15 @@ enum class ProductType(
         "jvm/amper-plugin",
         supportedPlatforms = setOf(Platform.JVM),
         defaultPlatforms = setOf(Platform.JVM),
+        supportsFragmentBamboos = false,
     ),
 
     @SchemaDoc("An Android VM application")
     ANDROID_APP(
         "android/app",
         supportedPlatforms = setOf(Platform.ANDROID),
-        defaultPlatforms = setOf(Platform.ANDROID)
+        defaultPlatforms = setOf(Platform.ANDROID),
+        supportsFragmentBamboos = false,
     ),
 
     @SchemaDoc("An iOS application")
@@ -94,10 +106,10 @@ enum class ProductType(
     JS_APP(
         "js/app",
         supportedPlatforms = setOf(Platform.JS),
-        defaultPlatforms = setOf(Platform.JS)
+        defaultPlatforms = setOf(Platform.JS),
     ),;
 
-    fun isLibrary() = this == LIB || this == JVM_AMPER_PLUGIN
+    fun isLibrary() = this == LIB || this == JVM_AMPER_PLUGIN || this == JVM_LIB
     fun isApplication() = !isLibrary()
     override fun toString() = value
     override val schemaValue: String = value

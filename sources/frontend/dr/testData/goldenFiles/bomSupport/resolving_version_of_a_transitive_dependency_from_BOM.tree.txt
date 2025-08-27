@@ -2,7 +2,7 @@ Module app
 │ - main
 │ - scope = RUNTIME
 │ - platforms = [android]
-├─── app:android:io.github.dokar3:sonner:0.3.8
+├─── app:main:io.github.dokar3:sonner:0.3.8
 │    ╰─── io.github.dokar3:sonner:0.3.8
 │         ╰─── io.github.dokar3:sonner-android:0.3.8
 │              ├─── androidx.compose.ui:ui-tooling-preview:unspecified -> 1.8.1
@@ -289,26 +289,16 @@ Module app
 │              ├─── org.jetbrains.compose.ui:ui:1.6.11
 │              │    ╰─── androidx.compose.ui:ui:1.6.7 -> 1.8.1 (*)
 │              ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1 (*)
-├─── app:android:androidx.compose:compose-bom:2025.05.00
+├─── app:main:androidx.compose:compose-bom:2025.05.00
 │    ╰─── androidx.compose:compose-bom:2025.05.00
 │         ├─── androidx.compose.foundation:foundation:1.8.1 (c)
 │         ╰─── androidx.compose.ui:ui-tooling-preview:1.8.1 (c)
-├─── app:android:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+├─── app:main:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit
+├─── app:main:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
-│         ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-│         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
-├─── app:common:io.github.dokar3:sonner:0.3.8
-│    ╰─── io.github.dokar3:sonner:0.3.8 (*)
-├─── app:common:androidx.compose:compose-bom:2025.05.00
-│    ╰─── androidx.compose:compose-bom:2025.05.00 (*)
-├─── app:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── app:common:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
-╰─── app:common:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
-     ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion (*)
+╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
+          ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
+          ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)

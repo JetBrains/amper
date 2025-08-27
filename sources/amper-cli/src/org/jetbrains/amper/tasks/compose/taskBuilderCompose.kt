@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.refinedLeafFragmentsDependingOn
@@ -28,8 +27,9 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
         val packagingDir = "composeResources/$packageName/"
 
         // `expect` is generated in `common` only, while `actual` are generated in the refined fragments.
-        //  do not separate `expect`/`actual` if the module only contains a single fragment.
-        val shouldSeparateExpectActual = module.fragments.size > 1
+        //  do not separate `expect`/`actual` if the module only contains a single main fragment.
+        val (testFragments, mainFragments) = module.fragments.partition { it.isTest }
+        val shouldSeparateExpectActual = mainFragments.size > 1 || testFragments.size > 1
 
         /*
          The tasks generate code (collectors and Res) if either is true:

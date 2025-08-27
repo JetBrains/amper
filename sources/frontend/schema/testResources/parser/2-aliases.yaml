@@ -8,7 +8,7 @@ dependencies@iosSimulatorArm64:
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9
 
 product:
-  type: app
+  type: lib
   platforms:
     - android
     - iosSimulatorArm64

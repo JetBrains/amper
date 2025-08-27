@@ -1,39 +1,5 @@
 Fragments:
-  android
-    External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@android
-    Fragment dependencies:
-      common (REFINE)
-    Settings: {
-      android: {
-        applicationId: namespace
-        namespace: namespace
-        targetSdk: <default> VERSION_35
-      }
-    }
-
-  androidTest
-    External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@android
-    Fragment dependencies:
-      commonTest (REFINE)
-      android (FRIEND)
-    Settings: {
-      android: {
-        applicationId: namespace
-        namespace: namespace
-        targetSdk: <default> VERSION_35
-      }
-    }
-
-  common
+  main
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
@@ -48,7 +14,7 @@ Fragments:
       }
     }
 
-  commonTest
+  test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
@@ -56,7 +22,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
-      common (FRIEND)
+      main (FRIEND)
     Settings: {
       android: {
         applicationId: namespace
@@ -69,11 +35,11 @@ Artifacts:
   isTest: false
   [ANDROID]
     Fragments:
-      android
+      main
   isTest: true
   [ANDROID]
     Fragments:
-      androidTest
+      test
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2

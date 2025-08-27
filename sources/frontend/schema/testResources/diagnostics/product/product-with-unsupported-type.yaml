@@ -1,1 +1,1 @@
-<![Fatal] Product type definition is missing!>product<!>: <![Error] Unknown value 'foo/bar'. Expected one of: [lib, jvm/app, jvm/amper-plugin, android/app, ios/app, macos/app, linux/app, windows/app, wasm-js/app, js/app]!>foo/bar<!>
+<![Fatal] Product type definition is missing!>product<!>: <![Error] Unknown value 'foo/bar'. Expected one of: [lib, jvm/app, jvm/lib, jvm/amper-plugin, android/app, ios/app, macos/app, linux/app, windows/app, wasm-js/app, js/app]!>foo/bar<!>

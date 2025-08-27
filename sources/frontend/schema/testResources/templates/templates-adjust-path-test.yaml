@@ -1,5 +1,5 @@
 product:
-  type: app
+  type: lib
   platforms: [ iosArm64 ]
 
 

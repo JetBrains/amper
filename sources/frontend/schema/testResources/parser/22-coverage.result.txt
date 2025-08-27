@@ -1,5 +1,5 @@
 Fragments:
-  common
+  main
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: src
@@ -18,55 +18,13 @@ Fragments:
       }
     }
 
-  commonTest
+  test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
-      common (FRIEND)
-    Settings: {
-      kover: {
-        enabled: true
-        html: {
-          onCheck: true
-          reportDir: {{ testResources }}{{ fileSeparator }}html
-        }
-        xml: {
-          onCheck: false
-          reportFile: {{ testResources }}{{ fileSeparator }}coverage.xml
-        }
-      }
-    }
-
-  jvm
-    External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@jvm
-    Fragment dependencies:
-      common (REFINE)
-    Settings: {
-      kover: {
-        enabled: true
-        html: {
-          onCheck: true
-          reportDir: {{ testResources }}{{ fileSeparator }}html
-        }
-        xml: {
-          onCheck: false
-          reportFile: {{ testResources }}{{ fileSeparator }}coverage.xml
-        }
-      }
-    }
-
-  jvmTest
-    External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@jvm
-    Fragment dependencies:
-      commonTest (REFINE)
-      jvm (FRIEND)
+      main (FRIEND)
     Settings: {
       kover: {
         enabled: true
@@ -85,11 +43,11 @@ Artifacts:
   isTest: false
   [JVM]
     Fragments:
-      jvm
+      main
   isTest: true
   [JVM]
     Fragments:
-      jvmTest
+      test
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2

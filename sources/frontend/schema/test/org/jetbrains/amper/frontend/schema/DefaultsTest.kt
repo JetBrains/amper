@@ -13,7 +13,7 @@ import kotlin.io.path.div
 
 class DefaultsTest : GoldenTestBase(Path("testResources") / "parser" / "defaults") {
     @ParameterizedTest(name = "Test defaults for {0}")
-    @EnumSource(ProductType::class, mode = EnumSource.Mode.EXCLUDE, names = ["LEGACY_APP"])
+    @EnumSource(ProductType::class, mode = EnumSource.Mode.EXCLUDE)
     fun `test defaults for product type`(productType: ProductType) {
         val testDataFile = productType.value.replace('/', '-')
         aomTest(testDataFile, printDefaults = true)

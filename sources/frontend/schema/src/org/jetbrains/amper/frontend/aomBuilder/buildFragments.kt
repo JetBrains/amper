@@ -54,7 +54,15 @@ open class DefaultFragment(
 
     override val fragmentDependants = mutableListOf<FragmentLink>()
 
-    final override val name = seed.modifier.removePrefix("@").ifBlank { "common" } + if (isTest) "Test" else ""
+    final override val name = run {
+        val suffix = if (isTest) "Test" else ""
+        val modifier = seed.modifier.removePrefix("@")
+        when {
+            modifier.isNotEmpty() -> modifier + suffix
+            seed.naturalHierarchyPlatform?.isLeaf == true -> if (isTest) "test" else "main"
+            else -> "common$suffix"
+        }
+    }
 
     final override val platforms = seed.platforms
 

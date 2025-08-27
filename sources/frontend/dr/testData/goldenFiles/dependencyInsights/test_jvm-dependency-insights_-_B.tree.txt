@@ -2,7 +2,7 @@ Module B
 │ - main
 │ - scope = COMPILE
 │ - platforms = [jvm]
-├─── B:common:org.jetbrains.compose.ui:ui-tooling:1.6.0
+├─── B:main:org.jetbrains.compose.ui:ui-tooling:1.6.0
 │    ╰─── org.jetbrains.compose.ui:ui-tooling:1.6.0
 │         ╰─── org.jetbrains.compose.ui:ui-tooling-desktop:1.6.0
 │              ├─── org.jetbrains.compose.runtime:runtime:1.6.0
@@ -44,13 +44,7 @@ Module B
 │              ╰─── org.jetbrains.compose.ui:ui-tooling-preview:1.6.0
 │                   ╰─── org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.6.0
 │                        ╰─── org.jetbrains.compose.runtime:runtime:1.6.0 (*)
-├─── B:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+├─── B:main:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── B:common:org.jetbrains.compose.runtime:runtime:1.5.0
-│    ╰─── org.jetbrains.compose.runtime:runtime:1.5.0 -> 1.6.0 (*)
-├─── B:jvm:org.jetbrains.compose.ui:ui-tooling:1.6.0
-│    ╰─── org.jetbrains.compose.ui:ui-tooling:1.6.0 (*)
-├─── B:jvm:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-╰─── B:jvm:org.jetbrains.compose.runtime:runtime:1.5.0
+╰─── B:main:org.jetbrains.compose.runtime:runtime:1.5.0
      ╰─── org.jetbrains.compose.runtime:runtime:1.5.0 -> 1.6.0 (*)

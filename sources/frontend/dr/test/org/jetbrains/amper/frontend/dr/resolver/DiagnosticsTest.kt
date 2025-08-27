@@ -180,40 +180,40 @@ class DiagnosticsTest : BaseModuleDrTest() {
         val aom = getTestProjectModel("jvm-invalid-dependencies", testDataRoot)
 
         assertEquals(
-            setOf("common", "commonTest", "jvm", "jvmTest"),
+            setOf("main", "test"),
             aom.modules.single().fragments.map { it.name }.toSet(),
             ""
         )
 
-        val commonFragmentDeps = doTest(
+        val mainFragmentDeps = doTest(
             aom,
             ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
                 fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
             ),
             module = "jvm-invalid-dependencies",
-            fragment = "common",
+            fragment = "main",
             expected = """
-                Fragment 'jvm-invalid-dependencies.common' dependencies
-                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
+                Fragment 'jvm-invalid-dependencies.main' dependencies
+                ├─── jvm-invalid-dependencies:main:com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
                 │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared, unresolved
-                ├─── jvm-invalid-dependencies:common:com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
+                ├─── jvm-invalid-dependencies:main:com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
                 │    ╰─── com.fasterxml.     jackson.core:jackson-core:2.17.2, unresolved
-                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:2.17.2 :exported, unresolved
+                ├─── jvm-invalid-dependencies:main:com.fasterxml.jackson.core:jackson-core:2.17.2 :exported, unresolved
                 │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2 :exported, unresolved
-                ├─── jvm-invalid-dependencies:common:com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
+                ├─── jvm-invalid-dependencies:main:com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
                 │    ╰─── com.fasterx/ml.jackson.core:jackson-core:2.17.2, unresolved
-                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core, unresolved
+                ├─── jvm-invalid-dependencies:main:com.fasterxml.jackson.core, unresolved
                 │    ╰─── com.fasterxml.jackson.core, unresolved
-                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
+                ├─── jvm-invalid-dependencies:main:com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
                 │    ╰─── com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2, unresolved
-                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core:
+                ├─── jvm-invalid-dependencies:main:com.fasterxml.jackson.core:jackson-core:
                 2.17.2, unresolved
                 │    ╰─── com.fasterxml.jackson.core:jackson-core:
                 2.17.2, unresolved
-                ├─── jvm-invalid-dependencies:common:com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
+                ├─── jvm-invalid-dependencies:main:com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
                 │    ╰─── com.fasterxml.jackson.core:jackson-core.:2.17.2., unresolved
-                ╰─── jvm-invalid-dependencies:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                ╰─── jvm-invalid-dependencies:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                      ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
@@ -221,7 +221,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         )
 
         val diagnosticsReporter = CollectingProblemReporter()
-        collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Error)
+        collectBuildProblems(mainFragmentDeps, diagnosticsReporter, Level.Error)
         val buildProblems = diagnosticsReporter.problems
 
         assertEquals(8, buildProblems.size)
@@ -289,23 +289,23 @@ class DiagnosticsTest : BaseModuleDrTest() {
     @Test
     fun `overridden version for BOM version is not displayed for unspecified versions`() = runTest {
         val aom = getTestProjectModel("jvm-bom-support", testDataRoot)
-        val commonDeps = doTest(
+        val mainFragmentDeps = doTest(
             aom,
             ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
                 fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
             ),
             module = "app",
-            fragment = "common",
+            fragment = "main",
             expected = """
-                Fragment 'app.common' dependencies
-                ├─── app:common:com.fasterxml.jackson.core:jackson-annotations:unspecified
+                Fragment 'app.main' dependencies
+                ├─── app:main:com.fasterxml.jackson.core:jackson-annotations:unspecified
                 │    ╰─── com.fasterxml.jackson.core:jackson-annotations:unspecified -> 2.18.3
                 │         ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
                 │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
-                ├─── app:common:com.fasterxml.jackson:jackson-bom:2.18.3
+                ├─── app:main:com.fasterxml.jackson:jackson-bom:2.18.3
                 │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ╰─── app:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                      ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
@@ -313,7 +313,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         )
 
         val diagnosticsReporter = CollectingProblemReporter()
-        collectBuildProblems(commonDeps, diagnosticsReporter, Level.Warning)
+        collectBuildProblems(mainFragmentDeps, diagnosticsReporter, Level.Warning)
         val buildProblems = diagnosticsReporter.problems
 
         assertEquals(
@@ -341,7 +341,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
             ),
             module = "app",
-            fragment = "common",
+            fragment = "main",
             verifyMessages = false,
         )
 
@@ -377,28 +377,28 @@ class DiagnosticsTest : BaseModuleDrTest() {
         val aom = getTestProjectModel("classifiers", testDataRoot)
 
         assertEquals(
-            setOf("common", "commonTest", "jvm", "jvmTest"),
+            setOf("main", "test"),
             aom.modules.single().fragments.map { it.name }.toSet(),
             ""
         )
 
-        val commonFragmentDeps = doTest(
+        val mainFragmentDeps = doTest(
             aom,
             ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
                 fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
             ),
             module = "classifiers",
-            fragment = "common",
+            fragment = "main",
             expected = """
-                Fragment 'classifiers.common' dependencies
-                ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2
+                Fragment 'classifiers.main' dependencies
+                ├─── classifiers:main:com.fasterxml.jackson.core:jackson-core:2.17.2
                 │    ╰─── com.fasterxml.jackson.core:jackson-core:2.17.2
                 │         ╰─── com.fasterxml.jackson:jackson-bom:2.17.2
-                ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
-                ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
-                ├─── classifiers:common:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
-                ╰─── classifiers:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
+                ├─── classifiers:main:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
+                ├─── classifiers:main:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
+                ├─── classifiers:main:com.fasterxml.jackson.core:jackson-core:2.17.2 (*)
+                ╰─── classifiers:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}, implicit
                      ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.kotlinVersion}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
@@ -406,7 +406,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         )
 
         val diagnosticsReporter = CollectingProblemReporter()
-        collectBuildProblems(commonFragmentDeps, diagnosticsReporter, Level.Warning)
+        collectBuildProblems(mainFragmentDeps, diagnosticsReporter, Level.Warning)
         val buildProblems = diagnosticsReporter.problems
         assertEquals(4, buildProblems.size)
 

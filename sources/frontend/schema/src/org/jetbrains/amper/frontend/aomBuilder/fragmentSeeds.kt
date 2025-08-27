@@ -58,6 +58,20 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
     val declaredPlatforms = product.platforms
     val declaredLeafPlatforms = declaredPlatforms.flatMap { it.value.leaves }.toSet()
 
+    fun prunedBambooSeeds(): Set<FragmentSeed> {
+        val platform = declaredLeafPlatforms.singleOrNull()
+        require(platform != null) {
+            // We now have the only use case when pruned bamboos exist only with singular platform products. It must be
+            // reconsidered when ios is added
+            "Pruned bamboo modules must declare exactly one leaf platform."
+        }
+        return setOf(FragmentSeed(setOf(platform), "", platform))
+    }
+
+    if (!product.type.supportsFragmentBamboos) {
+        return prunedBambooSeeds()
+    }
+
     // Get declared aliases.
     // Check that declared aliases only use declared platforms and
     // check that aliases are not intersecting with any of the hierarchy platforms

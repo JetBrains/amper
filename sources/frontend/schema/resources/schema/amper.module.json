@@ -93,6 +93,7 @@
               "enum": [
                 "lib",
                 "jvm/app",
+                "jvm/lib",
                 "jvm/amper-plugin",
                 "android/app",
                 "ios/app",
@@ -103,8 +104,9 @@
                 "js/app"
               ],
               "x-intellij-enum-metadata": {
-                "lib": "A reusable library which could be used as dependency by other modules in the codebase",
+                "lib": "A reusable multiplatform library which could be used as dependency by other modules in the codebase",
                 "jvm/app": "A JVM console or desktop application",
+                "jvm/lib": "A reusable JVM library which could be used as dependency by other modules in the codebase only limited by JVM platform",
                 "jvm/amper-plugin": "An Amper plugin",
                 "android/app": "An Android VM application",
                 "ios/app": "An iOS application",
@@ -129,8 +131,8 @@
         {
           "enum": [
             "lib",
-            "app",
             "jvm/app",
+            "jvm/lib",
             "jvm/amper-plugin",
             "android/app",
             "ios/app",

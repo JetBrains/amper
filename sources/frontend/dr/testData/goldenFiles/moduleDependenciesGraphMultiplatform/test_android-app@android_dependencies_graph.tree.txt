@@ -1,5 +1,5 @@
-Fragment 'android-app.android' dependencies
-├─── android-app:android:androidx.activity:activity-compose:1.7.2
+Fragment 'android-app.main' dependencies
+├─── android-app:main:androidx.activity:activity-compose:1.7.2
 │    ╰─── androidx.activity:activity-compose:1.7.2
 │         ├─── androidx.activity:activity-ktx:1.7.2
 │         │    ├─── androidx.activity:activity:1.7.2
@@ -134,20 +134,20 @@ Fragment 'android-app.android' dependencies
 │         │         │         ╰─── androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7 (c)
 │         │         ╰─── org.jspecify:jspecify:1.0.0
 │         ╰─── androidx.lifecycle:lifecycle-viewmodel:2.6.1 -> 2.8.7 (*)
-├─── android-app:android:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+├─── android-app:main:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit
+├─── android-app:main:org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── android-app:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
+├─── android-app:main:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
 │         ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
-├─── android-app:android:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+├─── android-app:main:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
 │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
 │         ├─── androidx.compose.runtime:runtime:1.8.0 (*)
 │         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
-├─── android-app:android:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
+├─── android-app:main:org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
 │    ╰─── org.jetbrains.compose.foundation:foundation:#composeDefaultVersion
 │         ├─── androidx.compose.foundation:foundation:1.8.0
 │         │    ╰─── androidx.compose.foundation:foundation-android:1.8.0
@@ -208,7 +208,7 @@ Fragment 'android-app.android' dependencies
 │         │    ╰─── org.jetbrains.compose.ui:ui-geometry:#composeDefaultVersion (*)
 │         ├─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
 │         ╰─── org.jetbrains.compose.ui:ui:#composeDefaultVersion (*)
-╰─── android-app:android:org.jetbrains.compose.material3:material3:#composeDefaultVersion
+╰─── android-app:main:org.jetbrains.compose.material3:material3:#composeDefaultVersion
      ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion
           ├─── androidx.compose.material3:material3:1.3.2
           │    ╰─── androidx.compose.material3:material3-android:1.3.2

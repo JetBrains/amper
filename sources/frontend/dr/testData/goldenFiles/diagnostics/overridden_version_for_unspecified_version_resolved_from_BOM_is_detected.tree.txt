@@ -1,5 +1,5 @@
-Fragment 'app.common' dependencies
-├─── app:common:io.ktor:ktor-client-cio-jvm:unspecified
+Fragment 'app.main' dependencies
+├─── app:main:io.ktor:ktor-client-cio-jvm:unspecified
 │    ╰─── io.ktor:ktor-client-cio-jvm:unspecified -> 3.1.2
 │         ├─── org.slf4j:slf4j-api:2.0.16
 │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
@@ -92,7 +92,7 @@ Fragment 'app.common' dependencies
 │         │         ├─── io.ktor:ktor-utils:3.1.2 (*)
 │         │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 -> #kotlinVersion (*)
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.20 -> #kotlinVersion (*)
-├─── app:common:io.ktor:ktor-bom:3.0.2
+├─── app:main:io.ktor:ktor-bom:3.0.2
 │    ╰─── io.ktor:ktor-bom:3.0.2
-╰─── app:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
+╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)

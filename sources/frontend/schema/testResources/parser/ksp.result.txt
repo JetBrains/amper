@@ -1,73 +1,5 @@
 Fragments:
-  android
-    External dependencies:
-      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@android
-    Fragment dependencies:
-      common (REFINE)
-    Settings: {
-      android: {
-        applicationId: com.jetbrains.sample.app
-        namespace: com.jetbrains.sample.app
-        targetSdk: <default> VERSION_35
-      }
-      kotlin: {
-        apiVersion: <default> 2.2
-        ksp: {
-          processorOptions: {
-            "room.schemaLocation": ./generated-db-schema
-            "room.generateKotlin": true
-          }
-          processors: [
-            - {
-                coordinates: androidx.room:room-compiler:2.7.0-alpha12
-              }
-          ]
-          version: 1.9.20-1.0.24
-        }
-      }
-    }
-
-  androidTest
-    External dependencies:
-      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@android
-    Fragment dependencies:
-      commonTest (REFINE)
-      android (FRIEND)
-    Settings: {
-      android: {
-        applicationId: com.jetbrains.sample.app
-        namespace: com.jetbrains.sample.app
-        targetSdk: <default> VERSION_35
-      }
-      kotlin: {
-        apiVersion: <default> 2.2
-        ksp: {
-          processorOptions: {
-            "room.schemaLocation": ./generated-db-schema
-            "room.generateKotlin": true
-          }
-          processors: [
-            - {
-                coordinates: androidx.room:room-compiler:2.7.0-alpha12
-              }
-          ]
-          version: 1.9.20-1.0.24
-        }
-      }
-    }
-
-  common
+  main
     External dependencies:
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -99,7 +31,7 @@ Fragments:
       }
     }
 
-  commonTest
+  test
     External dependencies:
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha12, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -109,7 +41,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
-      common (FRIEND)
+      main (FRIEND)
     Settings: {
       android: {
         applicationId: com.jetbrains.sample.app
@@ -137,11 +69,11 @@ Artifacts:
   isTest: false
   [ANDROID]
     Fragments:
-      android
+      main
   isTest: true
   [ANDROID]
     Fragments:
-      androidTest
+      test
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2

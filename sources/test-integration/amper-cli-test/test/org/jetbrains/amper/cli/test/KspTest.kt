@@ -48,7 +48,7 @@ class KspTest: AmperCliTestBase() {
         val projectRoot = testProject("ksp-jvm-local-processor")
         val buildResult = runCli(projectRoot, "build")
 
-        val generatedFilesDir = buildResult.generatedFilesDir(module = "consumer", fragment = "jvm")
+        val generatedFilesDir = buildResult.generatedFilesDir(module = "consumer", fragment = "main")
         generatedFilesDir.assertContainsRelativeFiles(
             "resources/ksp/com/sample/generated/annotated-classes.txt",
         )
@@ -166,7 +166,7 @@ class KspTest: AmperCliTestBase() {
         val projectRoot = testProject("ksp-jvm-dagger")
         val buildResult = runCli(projectRoot, "build")
 
-        val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-jvm-dagger", fragment = "jvm")
+        val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-jvm-dagger", fragment = "main")
         generatedFilesDir.assertContainsRelativeFiles(
             "src/ksp/java/com/sample/dagger/CoffeeMaker_Factory.java",
             "src/ksp/java/com/sample/dagger/DaggerCoffeeShop.java",
@@ -184,7 +184,7 @@ class KspTest: AmperCliTestBase() {
         val projectRoot = testProject("ksp-jvm-dagger-catalog")
         val buildResult = runCli(projectRoot, "build")
 
-        val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-jvm-dagger-catalog", fragment = "jvm")
+        val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-jvm-dagger-catalog", fragment = "main")
         generatedFilesDir.assertContainsRelativeFiles(
             "src/ksp/java/com/sample/dagger/CoffeeMaker_Factory.java",
             "src/ksp/java/com/sample/dagger/DaggerCoffeeShop.java",
@@ -205,7 +205,7 @@ class KspTest: AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "build")
 
-        val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-android-room", fragment = "android")
+        val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-android-room", fragment = "main")
 
         generatedFilesDir.assertContainsRelativeFiles(
             "src/ksp/kotlin/com/jetbrains/sample/app/AppDatabase_Impl.kt",
