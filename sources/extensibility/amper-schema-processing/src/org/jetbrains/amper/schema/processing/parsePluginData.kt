@@ -34,18 +34,20 @@ fun KaSession.parsePluginData(
             referencedEnumSymbols += symbol
         }
     }
-    val errorCollector = object : ErrorReporter {
-        val errors = mutableListOf<PluginDataResponse.Error>()
-        override fun reportError(
+    val diagnosticCollector = object : DiagnosticsReporter {
+        val diagnostics = mutableListOf<PluginDataResponse.Diagnostic>()
+        override fun report(
             where: PsiElement,
             message: String,
             diagnosticId: String,
+            kind: PluginDataResponse.DiagnosticKind,
         ) {
-            errors += PluginDataResponse.Error(
+            diagnostics += PluginDataResponse.Diagnostic(
                 diagnosticId = diagnosticId,
                 message = message,
                 filePath = where.containingFile.virtualFile.toNioPath(),
                 textRange = where.textRange.let { it.startOffset..it.endOffset },
+                kind = kind,
             )
         }
     }
@@ -54,7 +56,7 @@ fun KaSession.parsePluginData(
         discoverAnnotatedClassesFrom(it, SCHEMA_ANNOTATION_CLASS)
     }.mapNotNull {
         with(symbolsCollector) {
-            with(errorCollector) {
+            with(diagnosticCollector) {
                 parseSchemaDeclaration(it, primarySchemaFqnString = header.moduleExtensionSchemaName)
             }
         }
@@ -64,7 +66,7 @@ fun KaSession.parsePluginData(
         discoverAnnotatedFunctionsFrom(it, TASK_ACTION_ANNOTATION_CLASS)
     }.mapNotNull {
         with(symbolsCollector) {
-            with(errorCollector) {
+            with(diagnosticCollector) {
                 parseTaskAction(it)
             }
         }
@@ -92,6 +94,6 @@ fun KaSession.parsePluginData(
             classTypes = classes,
             tasks = tasks,
         ),
-        errors = errorCollector.errors,
+        diagnostics = diagnosticCollector.diagnostics,
     )
 }

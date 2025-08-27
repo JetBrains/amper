@@ -22,6 +22,7 @@ import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
+import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
@@ -97,12 +98,12 @@ internal suspend fun doPreparePlugins(
         }
 
         val reporter = CollectingProblemReporter()
-        results.flatMap { it.errors }.forEach { error ->
-            val document = frontendPathResolver.loadVirtualFileOrNull(error.filePath)?.findDocument()
+        results.flatMap { it.diagnostics }.forEach { diagnostic ->
+            val document = frontendPathResolver.loadVirtualFileOrNull(diagnostic.filePath)?.findDocument()
             reporter.reportMessage(
-                SchemaError(
-                    error = error,
-                    range = document?.let { getLineAndColumnRangeInDocument(it, error.textRange) },
+                SchemaDiagnostic(
+                    diagnostic = diagnostic,
+                    range = document?.let { getLineAndColumnRangeInDocument(it, diagnostic.textRange) },
                 )
             )
         }
@@ -121,19 +122,27 @@ internal suspend fun doPreparePlugins(
     }
 }
 
-private class SchemaError(
-    error: PluginDataResponse.Error,
+private class SchemaDiagnostic(
+    diagnostic: PluginDataResponse.Diagnostic,
     range: LineAndColumnRange?,
 ) : BuildProblem {
-    override val buildProblemId = error.diagnosticId
+    override val buildProblemId = diagnostic.diagnosticId
     override val source = object : FileWithRangesBuildProblemSource {
         override val range = range ?: LineAndColumnRange(LineAndColumn.NONE, LineAndColumn.NONE)
-        override val offsetRange = error.textRange
-        override val file = error.filePath
+        override val offsetRange = diagnostic.textRange
+        override val file = diagnostic.filePath
     }
-    override val message = error.message
-    override val level = Level.Error
-    override val type = BuildProblemType.Generic
+    override val message = diagnostic.message
+    override val level = when(diagnostic.kind) {
+        DiagnosticKind.ErrorGeneric,
+        DiagnosticKind.ErrorUnresolvedLikeConstruct -> Level.Error
+        DiagnosticKind.WarningRedundant -> Level.WeakWarning
+    }
+    override val type = when(diagnostic.kind) {
+        DiagnosticKind.ErrorGeneric -> BuildProblemType.Generic
+        DiagnosticKind.ErrorUnresolvedLikeConstruct -> BuildProblemType.UnknownSymbol
+        DiagnosticKind.WarningRedundant -> BuildProblemType.RedundantDeclaration
+    }
 }
 
 private val logger = LoggerFactory.getLogger("preparePlugins")

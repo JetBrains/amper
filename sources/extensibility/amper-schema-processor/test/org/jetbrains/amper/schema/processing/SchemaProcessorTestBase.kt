@@ -97,10 +97,10 @@ abstract class SchemaProcessorTestBase {
             )
 
             val result = runSchemaProcessor(disposable, request).first()
-            val groupedErrors: Map<Path, List<PluginDataResponse.Error>> =
-                result.errors.groupBy { it.filePath }
+            val groupedDiagnostics: Map<Path, List<PluginDataResponse.Diagnostic>> =
+                result.diagnostics.groupBy { it.filePath }
             for (source in sources) {
-                val relevantErrors = groupedErrors[source.path].orEmpty()
+                val relevantErrors = groupedDiagnostics[source.path].orEmpty()
                 val markers = mutableListOf<Pair<String, Int>>()
                 for (error in relevantErrors) {
                     markers += "/*{{*/" to error.textRange.first

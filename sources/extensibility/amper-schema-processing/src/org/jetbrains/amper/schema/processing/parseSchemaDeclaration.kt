@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.psi.KtTreeVisitor
 import org.jetbrains.kotlin.psi.KtTypeParameterList
 
-context(_: KaSession, _: ErrorReporter, _: SymbolsCollector)
+context(_: KaSession, _: DiagnosticsReporter, _: SymbolsCollector)
 internal fun parseSchemaDeclaration(
     schemaDeclaration: KtClassOrObject,
     primarySchemaFqnString: PluginData.SchemaName?,

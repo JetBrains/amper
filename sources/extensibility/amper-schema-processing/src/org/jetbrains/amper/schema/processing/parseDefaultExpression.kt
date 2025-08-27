@@ -6,6 +6,7 @@ package org.jetbrains.amper.schema.processing
 
 import org.jetbrains.amper.plugins.schema.model.Defaults
 import org.jetbrains.amper.plugins.schema.model.PluginData
+import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind.WarningRedundant
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.base.KaConstantValue
 import org.jetbrains.kotlin.analysis.api.resolution.KaSimpleFunctionCall
@@ -15,16 +16,20 @@ import org.jetbrains.kotlin.analysis.api.resolution.symbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaEnumEntrySymbol
 import org.jetbrains.kotlin.psi.KtExpression
 
-context(session: KaSession, _: ErrorReporter)
+context(session: KaSession, _: DiagnosticsReporter)
 internal fun parseDefaultExpression(
     expression: KtExpression,
     type: PluginData.Type,
+    nestedExpression: Boolean = false,
 ): Defaults? {
     val constant by lazy { with(session) { expression.evaluate() } }
 
     val call by lazy { with(session) { expression.resolveToCall() as? KaSuccessCallInfo }?.call }
 
     if (type.isNullable && constant is KaConstantValue.NullValue) {
+        if (!nestedExpression) {
+            report(expression, "schema.defaults.redundant.null", kind = WarningRedundant)
+        }
         return Defaults.Null
     }
     return when (type) {
@@ -47,7 +52,7 @@ internal fun parseDefaultExpression(
             when (call.symbol.callableId) {
                 EMPTY_LIST -> Defaults.ListDefault(emptyList())
                 LIST_OF -> Defaults.ListDefault(call.argumentMapping.mapNotNull { (e, _) ->
-                    parseDefaultExpression(e, type.elementType)
+                    parseDefaultExpression(e, type.elementType, nestedExpression = true)
                 })
                 else -> null
             }

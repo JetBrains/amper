@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-context(session: KaSession, _: ErrorReporter, symbolsCollector: SymbolsCollector)
+context(session: KaSession, _: DiagnosticsReporter, symbolsCollector: SymbolsCollector)
 internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
     if (!function.isTopLevel) return null.also { reportError(function, "schema.task.action.not.toplevel") }
     val name = function.fqName?.asString() ?: return null  // invalid Kotlin (top-level functions are named)

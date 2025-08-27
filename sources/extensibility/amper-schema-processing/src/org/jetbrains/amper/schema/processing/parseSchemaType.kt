@@ -6,6 +6,7 @@ package org.jetbrains.amper.schema.processing
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.plugins.schema.model.PluginData
+import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind.ErrorUnresolvedLikeConstruct
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
 import org.jetbrains.kotlin.analysis.api.types.KaStarTypeProjection
@@ -19,12 +20,13 @@ import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.types.Variance
 
-context(session: KaSession, _: ErrorReporter, typeCollector: SymbolsCollector)
+context(session: KaSession, _: DiagnosticsReporter, typeCollector: SymbolsCollector)
 internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? {
     val isNullable = nullability == KaTypeNullability.NULLABLE
-    val symbol = expandTypeToClassSymbol()
-         // TODO: Maybe provide additional specific hints for error types?
-        ?: return null.also { reportError(origin(), "schema.type.unexpected", renderToString()) }
+    val symbol = expandTypeToClassSymbol() ?: run {
+        reportUnexpectedType(origin)
+        return null
+    }
     return when (symbol.classId) {
         StandardClassIds.Boolean -> PluginData.Type.BooleanType(isNullable)
         StandardClassIds.Int -> PluginData.Type.IntType(isNullable)
@@ -38,9 +40,10 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
         StandardClassIds.Map -> {
             val keyType = typeArguments.getOrNull(0) ?: /*invalid Kotlin*/ return null
             if (keyType !is KaTypeArgumentWithVariance || with(session) { !keyType.type.isStringType }) {
-                reportError(
+                report(
                     origin().let { it.findDescendantOfType<KtTypeProjection>() ?: it },
-                    "schema.type.map.key.unexpected"
+                    "schema.type.map.key.unexpected",
+                    kind = ErrorUnresolvedLikeConstruct,
                 )
             }
             val mapValueOrigin = {
@@ -66,7 +69,7 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
                         checkNotNull(symbol.classId) { "not reachable: interface can't be anonymous" }.toSchemaName(),
                         isNullable,
                     )
-                } else null.also { reportError(origin(), "schema.type.unexpected", renderToString()) }
+                } else { reportUnexpectedType(origin); null }
             }
             KaClassKind.ENUM_CLASS -> {
                 typeCollector.onEnumReferenced(symbol)
@@ -75,18 +78,26 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
                     isNullable,
                 )
             }
-            else -> null.also { reportError(origin(), "schema.type.unexpected", renderToString()) }
+            else -> { reportUnexpectedType(origin); null }
         }
     }
 }
 
-context(_: KaSession, _: ErrorReporter, _: SymbolsCollector)
-internal fun KaTypeProjection.parseSchemaType(origin: () -> PsiElement): PluginData.Type? {
+context(_: KaSession, _: DiagnosticsReporter, _: SymbolsCollector)
+private fun KaTypeProjection.parseSchemaType(origin: () -> PsiElement): PluginData.Type? {
     return when (this) {
-        is KaStarTypeProjection -> null.also { reportError(origin(), "schema.type.forbidden.projection") }
+        is KaStarTypeProjection -> run {
+            report(origin(), "schema.type.forbidden.projection", kind = ErrorUnresolvedLikeConstruct); null
+        }
         is KaTypeArgumentWithVariance -> {
-            if (variance != Variance.INVARIANT) reportError(origin(), "schema.type.forbidden.projection")
+            if (variance != Variance.INVARIANT)
+                report(origin(), "schema.type.forbidden.projection", kind = ErrorUnresolvedLikeConstruct)
             type.parseSchemaType(origin)
         }
     }
+}
+
+context(_: KaSession, _: DiagnosticsReporter)
+private fun KaType.reportUnexpectedType(origin: () -> PsiElement) {
+    report(origin(), "schema.type.unexpected", renderToString(), kind = ErrorUnresolvedLikeConstruct)
 }

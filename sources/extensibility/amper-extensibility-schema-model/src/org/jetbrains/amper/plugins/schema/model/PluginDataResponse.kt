@@ -17,14 +17,22 @@ data class PluginDataResponse(
     @Serializable
     data class PluginDataWithDiagnostics(
         val pluginData: PluginData,
-        val errors: List<Error> = emptyList(),
+        val diagnostics: List<Diagnostic> = emptyList(),
     )
 
     @Serializable
-    data class Error(
+    data class Diagnostic(
         val diagnosticId: String,
         val message: String,
         val filePath: PathAsString,
+        val kind: DiagnosticKind,
         val textRange: @Serializable(with = RangeSerializer::class) IntRange
     )
+
+    @Serializable
+    enum class DiagnosticKind {
+        ErrorGeneric,
+        ErrorUnresolvedLikeConstruct,
+        WarningRedundant,
+    }
 }

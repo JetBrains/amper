@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.analysis.api.symbols.psiSafe
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
 
-context(session: KaSession, _: ErrorReporter, _: SymbolsCollector)
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector)
 internal fun parseProperty(
     property: KtProperty,
 ): PluginData.ClassData.Property? {
