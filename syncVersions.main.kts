@@ -3,7 +3,10 @@
  */
 
 @file:OptIn(ExperimentalPathApi::class)
-@file:Import("springBootDependenciesSync.main.kts")
+
+// Disabled because it breaks Amper update builds in Amper
+// (the springBootDependenciesSync.main.kts script doesn't compile with TeamCity's Kotlin version)
+//@file:Import("springBootDependenciesSync.main.kts")
 
 import java.io.File
 import java.net.URI
@@ -226,5 +229,7 @@ fun Path.replaceFileText(transform: (text: String) -> String) {
 // actually runs the script
 syncVersions()
 
+// Disabled because it breaks Amper update builds in Amper
+// (the springBootDependenciesSync.main.kts script doesn't compile with TeamCity's Kotlin version)
 // run spring boot dependencies
-syncSpringBootDependencies()
+//syncSpringBootDependencies()
