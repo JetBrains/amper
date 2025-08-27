@@ -48,6 +48,9 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
             if (isPath && inputMark != null && outputMark != null) {
                 reportError(inputMark, "schema.task.action.parameter.path.conflicting")
             }
+            if (isPath && inputMark == null && outputMark == null) {
+                reportError(parameter, "schema.task.action.parameter.path.unmarked")
+            }
 
             if (isPath && inputMark != null && outputMark == null) inputNames += parameterName
             if (isPath && inputMark == null && outputMark != null) outputNames += parameterName
