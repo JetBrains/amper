@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.processing
 
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
@@ -19,15 +18,22 @@ import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 context(buildCtx: BuildCtx)
-internal fun Merged.configureLombokDefaults(moduleCtxModule: Module): Merged =
-    if (moduleCtxModule.settings.lombok.enabled) {
-        val lombokDefault = DefaultTrace(computedValueTrace = moduleCtxModule.settings.lombok::enabled.schemaDelegate)
-        buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.lombokAnnotationProcessorDefaultsTree(trace = lombokDefault)))
-   } else {
+internal fun Merged.configureLombokDefaults(moduleCtxModule: Module): Merged {
+    val lombokSettings = moduleCtxModule.settings.lombok
+    return if (lombokSettings.enabled) {
+        val lombokDefault = DefaultTrace(computedValueTrace = lombokSettings::enabled.schemaDelegate)
+        val elements = buildCtx.lombokAnnotationProcessorDefaultsTree(
+            trace = lombokDefault,
+            lombokVersion = lombokSettings.version,
+            versionTrace = lombokSettings::version.schemaDelegate.trace,
+        )
+        buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, elements))
+    } else {
         this
     }
+}
 
-private fun BuildCtx.lombokAnnotationProcessorDefaultsTree(trace: Trace) =
+private fun BuildCtx.lombokAnnotationProcessorDefaultsTree(trace: Trace, lombokVersion: String, versionTrace: Trace) =
     syntheticBuilder(types, trace) {
         `object`<Module> {
             Module::settings {
@@ -35,7 +41,7 @@ private fun BuildCtx.lombokAnnotationProcessorDefaultsTree(trace: Trace) =
                     JavaSettings::annotationProcessing {
                         JavaAnnotationProcessingSettings::processors {
                             this += `object`<MavenJavaAnnotationProcessorDeclaration> {
-                                MavenJavaAnnotationProcessorDeclaration::coordinates setTo scalar("org.projectlombok:lombok:${UsedVersions.lombokVersion}")
+                                MavenJavaAnnotationProcessorDeclaration::coordinates setTo scalar("org.projectlombok:lombok:$lombokVersion", versionTrace)
                             }
                         }
                     }

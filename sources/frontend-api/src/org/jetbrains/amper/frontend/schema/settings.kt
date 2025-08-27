@@ -272,6 +272,9 @@ class LombokSettings: SchemaNode() {
     @Shorthand
     @SchemaDoc("Enable Lombok")
     var enabled by value(default = false)
+
+    @SchemaDoc("The version of Lombok to use for the runtime library and the annotation processor")
+    var version by value(default = UsedVersions.lombokVersion)
 }
 
 class InternalSettings : SchemaNode() {

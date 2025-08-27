@@ -1,8 +1,8 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -33,8 +33,8 @@ Fragments:
         versionCode: <default> 1
         versionName: <default> unspecified
       }
-      compose: {
-        enabled: true
+      compose: <default> {
+        enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
             enabled: <default> false
@@ -58,7 +58,10 @@ Fragments:
         annotationProcessing: <default> {
           processorOptions: <default> {
           }
-          processors: <default> [
+          processors: [
+            - {
+                coordinates: org.projectlombok:lombok:1.18.35
+              }
           ]
         }
         freeCompilerArgs: <default> [
@@ -125,9 +128,9 @@ Fragments:
         enabled: <default> false
         version: <default> 3.1.1
       }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
+      lombok: {
+        enabled: true
+        version: 1.18.35
       }
       native: <default> null
       publishing: <default> {
@@ -144,9 +147,9 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -178,8 +181,8 @@ Fragments:
         versionCode: <default> 1
         versionName: <default> unspecified
       }
-      compose: {
-        enabled: true
+      compose: <default> {
+        enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
             enabled: <default> false
@@ -203,7 +206,10 @@ Fragments:
         annotationProcessing: <default> {
           processorOptions: <default> {
           }
-          processors: <default> [
+          processors: [
+            - {
+                coordinates: org.projectlombok:lombok:1.18.35
+              }
           ]
         }
         freeCompilerArgs: <default> [
@@ -270,9 +276,9 @@ Fragments:
         enabled: <default> false
         version: <default> 3.1.1
       }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
+      lombok: {
+        enabled: true
+        version: 1.18.35
       }
       native: <default> null
       publishing: <default> {
@@ -289,8 +295,8 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -322,8 +328,8 @@ Fragments:
         versionCode: <default> 1
         versionName: <default> unspecified
       }
-      compose: {
-        enabled: true
+      compose: <default> {
+        enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
             enabled: <default> false
@@ -347,7 +353,10 @@ Fragments:
         annotationProcessing: <default> {
           processorOptions: <default> {
           }
-          processors: <default> [
+          processors: [
+            - {
+                coordinates: org.projectlombok:lombok:1.18.35
+              }
           ]
         }
         freeCompilerArgs: <default> [
@@ -414,9 +423,9 @@ Fragments:
         enabled: <default> false
         version: <default> 3.1.1
       }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
+      lombok: {
+        enabled: true
+        version: 1.18.35
       }
       native: <default> null
       publishing: <default> {
@@ -433,9 +442,9 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)
@@ -468,8 +477,8 @@ Fragments:
         versionCode: <default> 1
         versionName: <default> unspecified
       }
-      compose: {
-        enabled: true
+      compose: <default> {
+        enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
             enabled: <default> false
@@ -493,7 +502,10 @@ Fragments:
         annotationProcessing: <default> {
           processorOptions: <default> {
           }
-          processors: <default> [
+          processors: [
+            - {
+                coordinates: org.projectlombok:lombok:1.18.35
+              }
           ]
         }
         freeCompilerArgs: <default> [
@@ -560,9 +572,9 @@ Fragments:
         enabled: <default> false
         version: <default> 3.1.1
       }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
+      lombok: {
+        enabled: true
+        version: 1.18.35
       }
       native: <default> null
       publishing: <default> {

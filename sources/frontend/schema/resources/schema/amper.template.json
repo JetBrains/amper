@@ -1542,6 +1542,11 @@
               "type": "boolean",
               "x-intellij-html-description": "Enable Lombok",
               "title": "Enable Lombok"
+            },
+            "version": {
+              "type": "string",
+              "x-intellij-html-description": "The version of Lombok to use for the runtime library and the annotation processor",
+              "title": "The version of Lombok to use for the runtime library and the annotation processor"
             }
           }
         },

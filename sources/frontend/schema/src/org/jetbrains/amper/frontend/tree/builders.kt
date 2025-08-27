@@ -59,5 +59,5 @@ class SyntheticBuilder(
     fun list(block: MutableList<TreeValue<*>>.() -> Unit) =
         ListValue(mutableListOf<TreeValue<*>>().apply(block), trace, contexts)
 
-    fun scalar(value: Any) = ScalarValue<Owned>(value, trace, contexts)
+    fun scalar(value: Any, trace: Trace = this.trace) = ScalarValue<Owned>(value, trace, contexts)
 }

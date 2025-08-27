@@ -1,0 +1,13 @@
+product {
+  type = "app"
+  platforms {
+    "jvm"
+  }
+}
+
+settings {
+  lombok {
+    enabled = true
+    version = "1.18.35"
+  }
+}

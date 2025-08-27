@@ -126,6 +126,7 @@ Fragments:
       }
       lombok: <default> {
         enabled: <default> false
+        version: <default> 1.18.38
       }
       native: {
         entryPoint: package.main
@@ -272,6 +273,7 @@ Fragments:
       }
       lombok: <default> {
         enabled: <default> false
+        version: <default> 1.18.38
       }
       native: {
         entryPoint: package.main
@@ -416,6 +418,7 @@ Fragments:
       }
       lombok: <default> {
         enabled: <default> false
+        version: <default> 1.18.38
       }
       native: {
         entryPoint: package.main
@@ -560,6 +563,7 @@ Fragments:
       }
       lombok: <default> {
         enabled: <default> false
+        version: <default> 1.18.38
       }
       native: {
         entryPoint: package.main
@@ -707,6 +711,7 @@ Fragments:
       }
       lombok: <default> {
         enabled: <default> false
+        version: <default> 1.18.38
       }
       native: {
         entryPoint: package.main
@@ -854,6 +859,7 @@ Fragments:
       }
       lombok: <default> {
         enabled: <default> false
+        version: <default> 1.18.38
       }
       native: {
         entryPoint: package.main
@@ -998,6 +1004,7 @@ Fragments:
       }
       lombok: <default> {
         enabled: <default> false
+        version: <default> 1.18.38
       }
       native: {
         entryPoint: package.main
@@ -1145,6 +1152,7 @@ Fragments:
       }
       lombok: <default> {
         enabled: <default> false
+        version: <default> 1.18.38
       }
       native: {
         entryPoint: package.main

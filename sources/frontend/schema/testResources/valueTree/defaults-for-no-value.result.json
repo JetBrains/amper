@@ -101,7 +101,8 @@
       "version(DefaultCtx)" : "3.1.1(DefaultCtx)"
     },
     "lombok" : {
-      "enabled(DefaultCtx)" : "false(DefaultCtx)"
+      "enabled(DefaultCtx)" : "false(DefaultCtx)",
+      "version(DefaultCtx)" : "1.18.38(DefaultCtx)"
     },
     "publishing" : {
       "enabled(DefaultCtx)" : "true(DefaultCtx)"

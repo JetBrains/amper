@@ -168,6 +168,16 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
     }
 
     @Test
+    fun `check lombok settings with default version`() {
+        aomTest("lombok-default-version")
+    }
+
+    @Test
+    fun `check lombok settings with custom version`() {
+        aomTest("lombok-custom-version")
+    }
+
+    @Test
     fun `check android sdk version`() {
         aomTest("21-android-sdk-version")
     }

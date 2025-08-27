@@ -184,8 +184,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         add(kotlinDependencyOf("kotlin-parcelize-runtime", DefaultTrace))
     }
     if (settings.lombok.enabled) {
-        // TODO should be configurable
-        val lombokVersion = TraceableString(UsedVersions.lombokVersion, DefaultTrace)
+        val lombokVersion = settings.lombok::version.schemaDelegate.asTraceableString()
         val lombokEnabledTrace = settings.lombok::enabled.schemaDelegate.trace
         add(lombokDependency(lombokVersion, lombokEnabledTrace))
     }
