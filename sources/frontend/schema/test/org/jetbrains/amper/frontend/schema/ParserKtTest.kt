@@ -14,7 +14,6 @@ import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Ignore
 import kotlin.test.Test
-import kotlin.test.expect
 
 internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
 

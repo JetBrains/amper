@@ -1,0 +1,4 @@
+product {
+  type = "lib"
+  platforms {"android", "iosArm64", "iosX64", "jvm", "wasmJs"}
+}

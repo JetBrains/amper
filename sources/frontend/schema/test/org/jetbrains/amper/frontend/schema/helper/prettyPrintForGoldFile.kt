@@ -8,6 +8,7 @@ import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
+import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -16,7 +17,6 @@ import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.schema.SerializationSettings
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -27,12 +27,21 @@ import kotlin.reflect.full.memberProperties
 
 /**
  * Prints a human-readable string representation of this module, for comparison with gold files.
+ *
+ * NB: the default value for [printDefaults] is `false`, so that golden files are as comprehensible as possible
+ * and only reflect the values overridden in the corresponding module file. There is a dedicated set of tests
+ * ([org.jetbrains.amper.frontend.schema.DefaultsTest]) that checks the defaults for all the
+ * product types. If you are interested in how defaults are configured in some non-trivial scenario, please, prefer
+ * putting tests with `printDefaults = true` in the `DefaultsTest` suite.
+ *
+ * @param printDefaults whether to print default values into gold files or omit them. NB: derived properties are
+ *   always printed, even though they are marked as `<default>` in gold files.
  */
 // We don't use the visitor from the root for 2 reasons:
 //   1. this limits changes to gold files (we just replace the "parts" values with settings, but the rest of the format
 //      stays as it was)
 //   2. as a whole, the AmperModule object contains cross-references (and even cycles) which are not nice to print
-internal fun AmperModule.prettyPrintForGoldFile(): String = buildString {
+internal fun AmperModule.prettyPrintForGoldFile(printDefaults: Boolean = false): String = buildString {
     appendLine("Fragments:")
     for (fragment in fragments.sortedBy { it.name }) {
         appendLine("  ${fragment.name}")
@@ -46,7 +55,7 @@ internal fun AmperModule.prettyPrintForGoldFile(): String = buildString {
             appendLine("      ${dependency.target.name} (${dependency.type})")
         }
         append("    Settings: ")
-        appendLine(prettyPrintForGoldFile(fragment.settings).prependIndent("    ").trim())
+        appendLine(prettyPrintForGoldFile(fragment.settings, printDefaults).prependIndent("    ").trim())
         appendLine()
     }
     appendLine("Artifacts:")
@@ -82,8 +91,8 @@ internal fun AmperModule.prettyPrintForGoldFile(): String = buildString {
     }
 }
 
-private fun prettyPrintForGoldFile(value: Any): String = buildString {
-    HumanReadableSerializerVisitor(builder = this@buildString, indent = "  ").visit(value)
+private fun prettyPrintForGoldFile(value: Any, printDefaults: Boolean): String = buildString {
+    HumanReadableSerializerVisitor(builder = this@buildString, indent = "  ", printDefaults).visit(value)
 }
 
 // Invariants
@@ -94,6 +103,7 @@ private fun prettyPrintForGoldFile(value: Any): String = buildString {
 private class HumanReadableSerializerVisitor(
     private val builder: StringBuilder,
     private val indent: String,
+    private val printDefaults: Boolean,
 ) : SchemaValuesVisitor() {
 
     private var currentIndent: String = ""
@@ -184,11 +194,33 @@ private class HumanReadableSerializerVisitor(
         // We don't care about such properties
         if (it.property.hasAnnotation<HiddenFromCompletion>()) return
 
+        val isSetToDefault = it.trace is DefaultTrace
+        val isDerived = it.default is Default.Dependent<*, *>
+
+        /*
+        We still want to print derived properties because if the logic of its calculation is changed we want to notice
+        it in the tests that override the property we depend on.
+
+        E.g., having this schema:
+        ```kotlin
+        val a by value(42)
+        val b by derivedValue(::a) { a + 1 }
+        ```
+        The defaults tests will have `a = 42 <default>` and `b = 43 <default>`.
+        Changing `b` to:
+        ```kotlin
+        val b by derivedValue(::a) { if (a = 0) 42 else a + 1 }
+        ```
+        Will still result in `a = 42 <default>` and `b = 43 <default>`.
+
+        However, if we had a test with `a: 0`, we'd want to reflect that in the first version of the schema `b` is
+        `b = 1 <default>` and in the second version it's `b = 42 <default>`.
+        */
+        if (isSetToDefault && !isDerived && !printDefaults) return
+
         builder.append(it.property.name)
         builder.append(": ")
-        // TODO Remove this hack after removing computable dependant defaults.
-        val isDefaultSerialize = it.property == SerializationSettings::enabled && it.trace is DefaultTrace
-        if (it.trace == DefaultTrace || isDefaultSerialize) {
+        if (isSetToDefault) {
             builder.append("<default> ")
         }
         visit(it.value)

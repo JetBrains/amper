@@ -19,14 +19,16 @@ fun GoldenTest.aomTest(
     caseName: String,
     systemInfo: SystemInfo = DefaultSystemInfo,
     expectedError: String? = null,
+    printDefaults: Boolean = false,
     adjustCtx: TestProjectContext.() -> Unit = {},
-) = BuildAomTestRun(caseName, systemInfo, baseTestResourcesPath(), expectedError, adjustCtx).doTest()
+) = BuildAomTestRun(caseName, systemInfo, baseTestResourcesPath(), expectedError, printDefaults, adjustCtx).doTest()
 
 open class BuildAomTestRun(
     caseName: String,
     private val systemInfo: SystemInfo,
     override val base: Path,
     private val expectedError: String? = null,
+    private val printDefaults: Boolean,
     private val adjustCtx: TestProjectContext.() -> Unit = {},
 ) : BaseFrontendTestRun(caseName) {
     override fun GoldenTest.getInputContent(inputPath: Path): String {
@@ -65,7 +67,7 @@ open class BuildAomTestRun(
         }
 
         // Return module's textual representation.
-        return module?.prettyPrintForGoldFile() ?: error("Could not read and parse")
+        return module?.prettyPrintForGoldFile(printDefaults) ?: error("Could not read and parse")
     }
 
     override fun GoldenTest.getExpectContent(expectedPath: Path) =

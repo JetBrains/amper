@@ -16,149 +16,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -181,149 +70,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -341,149 +119,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -504,149 +171,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -663,149 +219,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -825,149 +270,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -985,149 +319,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -1145,149 +368,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -1308,149 +420,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -1471,149 +472,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -1633,149 +523,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -1793,149 +572,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -1956,149 +624,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -2120,149 +677,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -2280,149 +726,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 
@@ -2443,149 +778,38 @@ Fragments:
         maxSdk: VERSION_33
         minSdk: VERSION_30
         namespace: com.example.namespace
-        parcelize: <default> {
-          additionalAnnotations: <default> [
-          ]
-          enabled: <default> false
-        }
-        resourcePackaging: <default> {
-          excludes: <default> [
-          ]
-          merges: <default> [
-          ]
-          pickFirsts: <default> [
-          ]
-        }
-        signing: <default> {
-          enabled: <default> false
-          propertiesFile: <default> keystore.properties
-        }
         targetSdk: VERSION_33
-        versionCode: <default> 1
-        versionName: <default> unspecified
       }
       compose: {
         enabled: true
-        experimental: <default> {
-          hotReload: <default> {
-            enabled: <default> false
-          }
-        }
-        resources: <default> {
-          enabled: <default> false
-          exposedAccessors: <default> false
-          packageName: <default>
-        }
-        version: <default> 1.8.0
-      }
-      ios: <default> {
-        framework: <default> {
-          basename: <default> kotlin
-          isStatic: <default> false
-        }
-        teamId: <default> null
-      }
-      java: <default> {
-        annotationProcessing: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-        }
-        freeCompilerArgs: <default> [
-        ]
       }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
-        storeParameterNames: <default> false
-        test: <default> {
-          freeJvmArgs: <default> [
-          ]
-          systemProperties: <default> {
-          }
-        }
       }
       kotlin: {
-        allOpen: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          presets: <default> null
-        }
         allWarningsAsErrors: false
         apiVersion: 1.8
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        ksp: <default> {
-          processorOptions: <default> {
-          }
-          processors: <default> [
-          ]
-          version: <default> 2.2.0-2.0.2
-        }
-        languageFeatures: <default> null
         languageVersion: 1.8
-        linkerOptions: <default> null
-        noArg: <default> {
-          annotations: <default> null
-          enabled: <default> false
-          invokeInitializers: <default> false
-          presets: <default> null
-        }
         optIns: [
           - kotlinx.Experimental
         ]
-        optimization: <default> null
-        powerAssert: <default> {
-          enabled: <default> false
-          functions: <default> [
-            - kotlin.assert
-          ]
-        }
         progressiveMode: false
-        serialization: <default> {
-          enabled: <default> false
-          format: <default> null
-          version: <default> 1.8.0
-        }
         suppressWarnings: false
         verbose: true
       }
       kover: {
         enabled: true
         html: {
-          charset: <default> null
           onCheck: true
-          reportDir: <default> null
-          title: <default> null
         }
         xml: {
           onCheck: true
-          reportFile: <default> null
         }
-      }
-      ktor: <default> {
-        enabled: <default> false
-        version: <default> 3.1.1
-      }
-      lombok: <default> {
-        enabled: <default> false
-        version: <default> 1.18.38
-      }
-      native: <default> null
-      publishing: <default> {
-        enabled: <default> true
-        group: <default> null
-        name: <default> null
-        version: <default> null
-      }
-      springBoot: <default> {
-        enabled: <default> false
-        version: <default> 3.4.3
       }
     }
 

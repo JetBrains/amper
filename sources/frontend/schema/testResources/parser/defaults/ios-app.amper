@@ -1,0 +1,4 @@
+product {
+  type = "ios/app"
+  platforms {"iosArm64", "iosX64", "iosSimulatorArm64"}
+}

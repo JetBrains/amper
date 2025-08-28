@@ -35,3 +35,4 @@ dependencies:
 
 test-dependencies:
   - ../../test-base
+  - $libs.junit.jupiter.params
