@@ -32,7 +32,6 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
         aomTest("multiplatform-native-settings")
     }
 
-    // TODO See: https://youtrack.jetbrains.com/issue/AMPER-114/Change-aliases-DSL-from-object-to-list
     @Test
     fun aliases() {
         aomTest("2-aliases")
@@ -122,7 +121,6 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
 
     @Test
     fun `common library replacement`() {
-        println()
         aomTest(
             "17-compose-desktop-replacement",
             TestSystemInfo(SystemInfo.Os(OsFamily.MacOs, "X", Arch.X64))
