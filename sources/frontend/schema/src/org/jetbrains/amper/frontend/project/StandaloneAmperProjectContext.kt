@@ -20,7 +20,6 @@ import org.jetbrains.amper.frontend.catalogs.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDeclaration
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext.Companion.find
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
@@ -42,7 +41,7 @@ class StandaloneAmperProjectContext(
     override val projectRootDir: VirtualFile,
     projectBuildDir: Path?,
     override val amperModuleFiles: List<VirtualFile>,
-    override val pluginDependencies: List<InternalDependency>,
+    override val pluginModuleFiles: List<VirtualFile>,
 ) : AmperProjectContext {
 
     override val amperCustomTaskFiles: List<VirtualFile> by lazy {
@@ -125,7 +124,7 @@ class StandaloneAmperProjectContext(
                     projectRootDir = result.startModuleFile.parent,
                     projectBuildDir = buildDir,
                     amperModuleFiles = listOf(result.startModuleFile),
-                    pluginDependencies = emptyList(), // no plugins for the single-module project.
+                    pluginModuleFiles = emptyList(), // no plugins for the single-module project.
                 )
             }
             return potentialContext
@@ -174,9 +173,6 @@ class StandaloneAmperProjectContext(
                 return null
             }
 
-            val pluginDependencies = amperProject?.plugins ?: emptyList()
-            // TODO: report non-internal dependencies (for now)
-
             val explicitProjectModuleFiles = amperProject?.modulePaths(rootDir) ?: emptyList()
             val amperModuleFiles = listOfNotNull(rootModuleFile) + explicitProjectModuleFiles
             if (amperModuleFiles.isEmpty()) {
@@ -188,12 +184,33 @@ class StandaloneAmperProjectContext(
                 )
             }
 
+            val pluginDependencies = amperProject?.plugins.orEmpty().mapNotNull { dependency ->
+                val pluginModuleFile = frontendPathResolver.loadVirtualFileOrNull(dependency.value)
+                    ?.findChildMatchingAnyOf(amperModuleFileNames)
+                when (pluginModuleFile) {
+                    null -> {
+                        problemReporter.reportBundleError(
+                            dependency.trace.asBuildProblemSource(), "plugin.dependency.not.found",
+                            dependency.value.relativeTo(rootDir.toNioPath())
+                        ); null
+                    }
+                    !in amperModuleFiles -> {
+                        // TODO: Quickfix?
+                        problemReporter.reportBundleError(
+                            dependency.trace.asBuildProblemSource(), "plugin.dependency.not.included",
+                            dependency.value.relativeTo(rootDir.toNioPath())
+                        ); null
+                    }
+                    else -> pluginModuleFile
+                }
+            }
+
             return StandaloneAmperProjectContext(
                 frontendPathResolver = frontendPathResolver,
                 projectRootDir = rootDir,
                 projectBuildDir = buildDir,
                 amperModuleFiles = amperModuleFiles,
-                pluginDependencies = pluginDependencies.filterIsInstance<InternalDependency>(),
+                pluginModuleFiles = pluginDependencies,
             )
         }
     }

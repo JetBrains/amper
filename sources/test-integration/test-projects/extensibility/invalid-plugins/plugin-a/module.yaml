@@ -1,0 +1,4 @@
+product: jvm/amper-plugin
+
+plugin:
+  id: hello

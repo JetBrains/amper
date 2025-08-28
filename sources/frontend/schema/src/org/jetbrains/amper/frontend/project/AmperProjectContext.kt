@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
-import org.jetbrains.amper.frontend.schema.InternalDependency
 import java.nio.file.Path
 
 /**
@@ -51,8 +50,7 @@ interface AmperProjectContext {
     val amperCustomTaskFiles: List<VirtualFile>
 
     /**
-     * Plugin dependencies of this project.
-     * NOTE: Currently, only local plugins are supported.
+     * Local plugin module files of this project. Subset of [amperModuleFiles].
      */
-    val pluginDependencies: List<InternalDependency>
+    val pluginModuleFiles: List<VirtualFile>
 }

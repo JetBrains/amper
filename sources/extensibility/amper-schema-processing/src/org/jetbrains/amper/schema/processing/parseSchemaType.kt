@@ -40,10 +40,9 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
         StandardClassIds.Map -> {
             val keyType = typeArguments.getOrNull(0) ?: /*invalid Kotlin*/ return null
             if (keyType !is KaTypeArgumentWithVariance || with(session) { !keyType.type.isStringType }) {
-                report(
+                reportError(
                     origin().let { it.findDescendantOfType<KtTypeProjection>() ?: it },
                     "schema.type.map.key.unexpected",
-                    kind = ErrorUnresolvedLikeConstruct,
                 )
             }
             val mapValueOrigin = {
@@ -87,11 +86,11 @@ context(_: KaSession, _: DiagnosticsReporter, _: SymbolsCollector)
 private fun KaTypeProjection.parseSchemaType(origin: () -> PsiElement): PluginData.Type? {
     return when (this) {
         is KaStarTypeProjection -> run {
-            report(origin(), "schema.type.forbidden.projection", kind = ErrorUnresolvedLikeConstruct); null
+            reportError(origin(), "schema.type.forbidden.projection"); null
         }
         is KaTypeArgumentWithVariance -> {
             if (variance != Variance.INVARIANT)
-                report(origin(), "schema.type.forbidden.projection", kind = ErrorUnresolvedLikeConstruct)
+                reportError(origin(), "schema.type.forbidden.projection")
             type.parseSchemaType(origin)
         }
     }

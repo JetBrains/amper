@@ -8,8 +8,8 @@ import org.jetbrains.amper.frontend.TaskName
 import java.nio.file.Path
 import kotlin.io.path.div
 
-val AmperProjectContext.pluginInternalSchemaDirectory: Path
-    get() = projectBuildDir / "plugins"
+val AmperProjectContext.pluginInternalDataFile: Path
+    get() = projectBuildDir / ".plugins.json"
 
 fun AmperProjectContext.getTaskOutputRoot(taskName: TaskName): Path {
     return projectBuildDir / "tasks" / taskName.name.replace(":", "_")

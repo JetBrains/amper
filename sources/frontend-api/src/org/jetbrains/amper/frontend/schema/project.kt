@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
 
 class Project : SchemaNode() {
@@ -23,5 +24,5 @@ class Project : SchemaNode() {
     var modules by value<List<TraceableString>>(default = emptyList())
 
     // TODO: doc
-    var plugins by value<List<Dependency>>(default = emptyList())
+    var plugins by value<List<TraceablePath>>(default = emptyList())
 }

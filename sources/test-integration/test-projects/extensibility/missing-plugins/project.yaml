@@ -1,0 +1,7 @@
+modules:
+  - existing
+
+plugins:
+  - existing
+  - existing-but-not-included
+  - non-existing

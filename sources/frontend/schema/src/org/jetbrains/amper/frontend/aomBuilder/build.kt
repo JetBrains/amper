@@ -16,8 +16,8 @@ import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.api.schemaDelegate
+import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
@@ -34,6 +34,7 @@ import org.jetbrains.amper.frontend.messages.originalFilePath
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
 import org.jetbrains.amper.frontend.processing.configureHotReloadDefaults
 import org.jetbrains.amper.frontend.processing.configureLombokDefaults
+import org.jetbrains.amper.frontend.processing.configurePluginDefaults
 import org.jetbrains.amper.frontend.processing.configureSpringBootDefaults
 import org.jetbrains.amper.frontend.processing.substituteComposeOsSpecific
 import org.jetbrains.amper.frontend.project.AmperProjectContext
@@ -147,6 +148,7 @@ internal fun BuildCtx.readModuleMergedTree(
     // Merge owned trees (see [TreeMerger]) and preprocess them.
     val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
         .appendDefaultValues()
+        .configurePluginDefaults(moduleName = moduleFile.parent.name, product = minimalModule.module.product)
         .resolveReferences()
 
     // Choose catalogs.

@@ -9,7 +9,6 @@ import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.project.AmperProjectContext
-import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.test.golden.GoldenTest
 import java.nio.file.Path
 import kotlin.io.path.copyTo
@@ -35,7 +34,7 @@ open class TestProjectContext(
     override val frontendPathResolver: FrontendPathResolver,
 ) : AmperProjectContext {
     override val amperCustomTaskFiles: List<VirtualFile> = emptyList()
-    override val pluginDependencies: List<InternalDependency> = emptyList()
+    override val pluginModuleFiles: List<VirtualFile> = emptyList()
     override val projectBuildDir: Path get() = projectRootDir.toNioPath()
     override var projectVersionsCatalog: VersionCatalog? = null
 }

@@ -10,12 +10,9 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.api.UnstableSchemaApi
-import org.jetbrains.amper.frontend.api.toStringRepresentation
 import org.jetbrains.amper.frontend.getLineAndColumnRangeInDocument
-import org.jetbrains.amper.frontend.plugins.PluginDeclarationSchema
+import org.jetbrains.amper.frontend.plugins.PluginManifest
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
@@ -38,6 +35,7 @@ import org.jetbrains.amper.processes.runJava
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.writeText
@@ -46,8 +44,8 @@ internal suspend fun doPreparePlugins(
     userCacheRoot: AmperUserCacheRoot,
     frontendPathResolver: FrontendPathResolver,
     executeOnChangedInputs: ExecuteOnChangedInputs,
-    schemaDir: Path,
-    plugins: Map<Path, PluginDeclarationSchema>,
+    schemaFile: Path,
+    plugins: Map<Path, PluginManifest>,
 ) {
     require(plugins.isNotEmpty())
     val distributionRoot = Path(checkNotNull(System.getProperty("amper.dist.path")) {
@@ -57,7 +55,7 @@ internal suspend fun doPreparePlugins(
     executeOnChangedInputs.executeForFiles(
         id = "prepare-plugins",
         configuration = mapOf(
-            "plugins" to plugins.values.joinToString { @OptIn(UnstableSchemaApi::class) it.toStringRepresentation() }
+            "plugins" to plugins.values.joinToString()
         ),
         inputs = plugins.keys.toList(),
     ) {
@@ -78,7 +76,6 @@ internal suspend fun doPreparePlugins(
             }
         )
         logger.info("Processing local plugin schema for [${plugins.values.joinToString { it.id }}]...")
-        cleanDirectory(schemaDir)
         jdk.runJava(
             workingDir = Path("."),
             mainClass = "org.jetbrains.amper.schema.processing.MainKt",
@@ -108,17 +105,15 @@ internal suspend fun doPreparePlugins(
             )
         }
 
-        results.forEach { result ->
-            val pluginDataPath = schemaDir / "${result.pluginData.id.value}.json"
-            pluginDataPath.writeText(Json.encodeToString(result.pluginData))
-        }
+        schemaFile.createParentDirectories()
+            .writeText(Json.encodeToString(results.map { it.pluginData }))
 
         reporter.replayProblemsTo(CliProblemReporter)
         if (reporter.problems.isNotEmpty()) {
             userReadableError("Local plugins pre-processing failed, see the errors above.")
         }
 
-        listOf(schemaDir)
+        listOf(schemaFile)
     }
 }
 

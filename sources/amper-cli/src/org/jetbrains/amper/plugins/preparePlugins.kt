@@ -6,69 +6,45 @@ package org.jetbrains.amper.plugins
 
 import com.android.utils.associateNotNull
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.core.telemetry.spanBuilder
-import org.jetbrains.amper.frontend.asBuildProblemSource
-import org.jetbrains.amper.frontend.plugins.tryReadMinimalPluginModule
-import org.jetbrains.amper.frontend.project.pluginInternalSchemaDirectory
-import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.plugins.parsePluginManifestFromModuleFile
+import org.jetbrains.amper.frontend.project.pluginInternalDataFile
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import kotlin.io.path.div
 
+/**
+ * Silently prepares plugins on the best effort basis.
+ * All the validation must be done separately.
+ */
 suspend fun preparePlugins(
     context: CliContext,
 ) {
-    if (context.projectContext.pluginDependencies.isEmpty())
-        return  // Early bail
-
     spanBuilder("Prepare plugins").use {
-        val schemaDir = context.projectContext.pluginInternalSchemaDirectory
-        val reporter = CliProblemReporter
-        val pluginInfos = context.projectContext.pluginDependencies.associateNotNull { dep ->
-            val pluginModuleDir = (context.projectRoot.path / dep.path).normalize()
-            val pluginModuleFile = context.projectContext.amperModuleFiles
-                .find { it.parent.toNioPath() == pluginModuleDir }
-
-            if (pluginModuleFile == null) {
-                reporter.reportBundleError(dep.trace.asBuildProblemSource(), "plugin.dependency.not.found", dep.path)
-                return@associateNotNull null
-            }
-
-            val pluginModule = spanBuilder("Read minimal plugin module").use {
-                tryReadMinimalPluginModule(
-                    problemReporter = reporter,
-                    frontendPathResolver = context.projectContext.frontendPathResolver,
-                    moduleFilePath = pluginModuleFile,
+        val projectContext = context.projectContext
+        val pluginInfos = projectContext.pluginModuleFiles.associateNotNull { pluginModuleFile ->
+            val pluginManifest = spanBuilder("Read plugin manifest").use {
+                parsePluginManifestFromModuleFile(
+                    frontendPathResolver = projectContext.frontendPathResolver,
+                    moduleFile = pluginModuleFile,
                 )
-            }
+            } ?: return@associateNotNull null
 
-            if (pluginModule == null) {
-                // Already reported
-                return@associateNotNull null
-            }
-
-            if (pluginModule.product.type != ProductType.JVM_AMPER_PLUGIN) {
-                reporter.reportBundleError(pluginModule.product.trace.asBuildProblemSource(),
-                    "plugin.unexpected.product.type", ProductType.JVM_AMPER_PLUGIN.value, pluginModule.product.type)
-                return@associateNotNull null
-            }
-
-            pluginModuleDir to pluginModule.plugin
+            pluginModuleFile.parent.toNioPath() to pluginManifest
         }
 
         if (pluginInfos.isEmpty()) {
             return@use  // Nothing to prepare after validation
         }
 
+        // Note: plugin may have duplicate ids at this point.
+        //  We process everything on the best-effort basis to report as much as possible.
         spanBuilder("Generate local plugins schema")
             .use {
                 doPreparePlugins(
                     userCacheRoot = context.userCacheRoot,
                     executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot),
-                    frontendPathResolver = context.projectContext.frontendPathResolver,
-                    schemaDir = schemaDir,
+                    frontendPathResolver = projectContext.frontendPathResolver,
+                    schemaFile = projectContext.pluginInternalDataFile,
                     plugins = pluginInfos,
                 )
             }

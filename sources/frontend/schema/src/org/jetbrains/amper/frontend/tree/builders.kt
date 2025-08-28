@@ -39,7 +39,7 @@ class SyntheticBuilder(
             else properties += MapLikeValue.Property(this, trace, value, null)
 
         @JvmName("invokeMapLike")
-        inline operator fun <reified T : SchemaNode> KProperty1<out SchemaNode, T>.invoke(noinline block: MapLikeValueBuilder.() -> Unit) =
+        inline operator fun <reified T : SchemaNode?> KProperty1<out SchemaNode, T>.invoke(noinline block: MapLikeValueBuilder.() -> Unit) =
             setTo(`object`<T>(block))
 
         @JvmName("invokeList")
@@ -50,7 +50,7 @@ class SyntheticBuilder(
     fun `object`(type: SchemaObjectDeclaration, block: MapLikeValueBuilder.() -> Unit) =
         Owned(MapLikeValueBuilder(trace, type).apply(block).properties, type, trace, contexts)
 
-    inline fun <reified T : SchemaNode> `object`(noinline block: MapLikeValueBuilder.() -> Unit) =
+    inline fun <reified T : SchemaNode?> `object`(noinline block: MapLikeValueBuilder.() -> Unit) =
         `object`(types.getDeclaration<T>(), block)
 
     fun map(block: MapLikeValueBuilder.() -> Unit) =

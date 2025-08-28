@@ -25,10 +25,6 @@ data class PluginData(
     val classTypes: List<ClassData> = emptyList(),
     val tasks: List<TaskInfo> = emptyList(),
 ) {
-    init {
-        require(moduleExtensionSchemaName == null ||
-                classTypes.any { it.name == moduleExtensionSchemaName })
-    }
 
     @Serializable
     @JvmInline

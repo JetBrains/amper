@@ -9,5 +9,5 @@ import kotlin.reflect.full.createType
 
 inline fun <reified T> SchemaTypingContext.getType() = getType(T::class.createType())
 
-inline fun <reified T : SchemaNode> SchemaTypingContext.getDeclaration() = 
+inline fun <reified T : SchemaNode?> SchemaTypingContext.getDeclaration() =
     getDeclaration(T::class.builtInKey) as SchemaObjectDeclaration

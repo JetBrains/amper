@@ -25,25 +25,30 @@ internal operator fun PluginData.Id.div(schemaName: PluginData.SchemaName) = Plu
  */
 internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: List<PluginData>) {
     pluginsData.forEach { pluginData ->
+        val moduleExtensionSchemaName = pluginData.moduleExtensionSchemaName
+        val hasValidModuleExtension = moduleExtensionSchemaName != null &&
+                pluginData.classTypes.any { it.name == moduleExtensionSchemaName }
         // Load external classes.
         for (declaration in pluginData.classTypes) registeredDeclarations[pluginData.id / declaration.name] =
             ExternalObjectDeclaration(
                 pluginId = pluginData.id,
                 data = declaration,
                 instantiationStrategy = { ExtensionSchemaNode(declaration.name.qualifiedName) },
-                isRootSchema = declaration.name == pluginData.moduleExtensionSchemaName,
+                isRootSchema = declaration.name == moduleExtensionSchemaName,
                 typingContext = this,
             )
 
         // Add a stub class just for the `enabled` sake.
-        if (pluginData.moduleExtensionSchemaName == null) registeredDeclarations[pluginData.id / StubSchemaName] =
-            ExternalObjectDeclaration(
+        val pluginSettingsExtensionSchemaName = if (!hasValidModuleExtension) {
+            registeredDeclarations[pluginData.id / StubSchemaName] = ExternalObjectDeclaration(
                 pluginId = pluginData.id,
                 data = PluginData.ClassData(name = StubSchemaName),
                 instantiationStrategy = { ExtensionSchemaNode(null) },
                 isRootSchema = true,
                 typingContext = this,
             )
+            StubSchemaName
+        } else moduleExtensionSchemaName
 
         // Load external enums.
         for (declaration in pluginData.enumTypes) registeredDeclarations[pluginData.id / declaration.schemaName] =
@@ -72,14 +77,12 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
             )
 
         // Load custom properties for a [Settings] schema type.
-        val pluginSettingsExtensionSchemaName = pluginData.moduleExtensionSchemaName ?: StubSchemaName
-        val pluginSettingsExtensionKey = pluginData.id / pluginSettingsExtensionSchemaName
         addCustomProperty(
             settingsTypeKey,
             ExtensibleBuiltInTypingContext.CustomPropertyDescriptor(
-                pluginData.id.value,
-                pluginSettingsExtensionKey,
-                pluginData.description,
+                propertyName = pluginData.id.value,
+                propertyType = pluginData.id / pluginSettingsExtensionSchemaName,
+                description = pluginData.description,
             )
         )
     }

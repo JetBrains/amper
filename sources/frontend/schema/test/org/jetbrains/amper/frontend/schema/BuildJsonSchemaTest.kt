@@ -5,14 +5,16 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.builders.schema.jsonSchemaString
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.schema.helper.doTestWithInput
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
+import kotlin.test.Ignore
 import kotlin.test.Test
 
+@Ignore // We don't need json schema anymore
 class BuildJsonSchemaTest : GoldenTestBase() {
 
     @Test

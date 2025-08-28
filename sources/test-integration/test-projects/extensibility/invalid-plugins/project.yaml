@@ -1,0 +1,15 @@
+modules:
+  - plugin-empty-id
+  - plugin-no-plugin-block
+  - not-a-plugin
+  - plugin-a
+  - plugin-b
+  - hello
+
+plugins:
+  - ./plugin-empty-id
+  - ./plugin-no-plugin-block
+  - ./not-a-plugin
+  - ./plugin-a
+  - ./plugin-b
+  - hello
