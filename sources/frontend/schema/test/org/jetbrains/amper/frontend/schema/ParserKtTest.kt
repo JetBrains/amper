@@ -38,12 +38,6 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
     }
 
     @Test
-    @Ignore
-    fun variants() {
-        aomTest("3-variants")
-    }
-
-    @Test
     fun `jvm run`() {
         aomTest("4-jvm-run")
     }
@@ -65,13 +59,6 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
     @Test
     fun `empty key`() {
         aomTest("6-empty-list-key")
-    }
-
-    // TODO Add variants issue link.
-    @Test
-    @Ignore
-    fun `variants even more simplified`() {
-        aomTest("8-variants-simplified")
     }
 
     @Test
@@ -101,12 +88,6 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
     @Test
     fun `jvmTarget adds to artifacts in android and jvm platforms`() {
         aomTest("13-multiplatform-jvmrelease")
-    }
-
-    @Test
-    @Ignore
-    fun `check artifacts of multi-variant builds`() {
-        aomTest("14-check-artifacts-of-multi-variant-build")
     }
 
     @Test
