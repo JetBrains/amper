@@ -135,7 +135,7 @@ private fun buildCustomTask(
 
 private val propertyReferenceRegex = Regex("""\$\{(module\(([./0-9a-zA-Z\-_]+)\)\.)?([0-9a-zA-Z]+)}""")
 // A $ from reference can be escaped with a slash, but if that slash is paired then it's the slash escaping a slash
-// E.g., "\\\$ref" is not a reference (it parses into "\$ref" literal) while "\\\\$ref".
+// E.g., "\\\$ref" is not a reference (it parses into "\$ref" literal) while "\\\\$ref" is.
 private val referenceRegex = Regex("""(?<!\\)(\\\\)*\$""")
 
 // TODO: This is not a real parser and it won't provide a good IDE support either

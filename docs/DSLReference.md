@@ -104,38 +104,6 @@ dependencies@jvmAndAndroid:
   ...
 ```
 
-### Variants
-
-`variants:` section defines the list of build variants for the product. Variant names can be used as `@platform` qualifiers.
-
-Examples:
-
-```yaml
-# Define two build variants: `debug` and `release`  
-product: android/app
-
-variant: [debug, release]
-
-# Dependencies for the debug build variant:
-dependencies@debug:
-  ...
-```
-
-```yaml
-# Define multi-dimensional variants   
-product: android/app
-
-variants:
-  - [debug, release]
-  - [paid, free]
-
-dependencies@paid:
-  - ...
-
-dependencies@debug:
-  - ...
-```
-
 ### Templates
 
 `apply:` section lists the templates applied to the module. Read more about the [module templates](Documentation.md#templates)

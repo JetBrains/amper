@@ -58,8 +58,6 @@ open class DefaultFragment(
 
     final override val platforms = seed.platforms
 
-    override val variants = emptyList<String>()
-
     override val settings = relevantSettings ?: Settings()
 
     override val isDefault = true

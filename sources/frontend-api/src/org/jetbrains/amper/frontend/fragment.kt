@@ -102,8 +102,6 @@ interface Fragment {
      * Paths to the generated classes roots, relative to the build directory.
      */
     val generatedClassesRelativeDirs: List<Path>
-
-    val variants: List<String>
 }
 
 /**
