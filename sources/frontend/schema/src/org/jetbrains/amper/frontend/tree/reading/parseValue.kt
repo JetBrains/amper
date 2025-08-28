@@ -1,0 +1,80 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.amper.frontend.tree.reading
+
+import org.jetbrains.amper.frontend.contexts.Contexts
+import org.jetbrains.amper.frontend.contexts.EmptyContexts
+import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.render
+import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.yaml.psi.YAMLAlias
+import org.jetbrains.yaml.psi.YAMLMapping
+import org.jetbrains.yaml.psi.YAMLQuotedText
+import org.jetbrains.yaml.psi.YAMLScalar
+import org.jetbrains.yaml.psi.YAMLSequence
+import org.jetbrains.yaml.psi.YAMLValue
+
+/**
+ * Main entry point for parsing a value. When there's a new physical value to be parsed,
+ *  this function should be called, instead of more narrow functions like [parseScalar], because they do not handle
+ *  the whole context (aliases, type tags, nullability, etc.).
+ */
+context(inheritedContexts: Contexts, config: ParsingConfig, reporter: ProblemReporter)
+internal fun parseValue(
+    psi: YAMLValue,
+    type: SchemaType,
+    explicitContexts: Contexts = EmptyContexts,
+): TreeValue<*>? {
+    if (psi is YAMLScalar && psi !is YAMLQuotedText && psi.textValue == "null") {
+        // Unquoted `null` string is treated as the `null` keyword, not a string
+        if (type.isMarkedNullable) {
+            // TODO: Support modeling `null` in the `TreeValue`s properly.
+            reportParsing(psi, "validation.types.reserved.null")
+        } else when (type) {
+            is SchemaType.EnumType, is SchemaType.PathType, is SchemaType.StringType,
+                -> reportParsing(psi, "validation.types.unexpected.null.stringlike", type = BuildProblemType.TypeMismatch)
+            else -> reportParsing(psi, "validation.types.unexpected.null", type = BuildProblemType.TypeMismatch)
+        }
+        return null
+    }
+    psi.tag?.let { tag ->
+        if (tag.text.startsWith("!!")) {
+            // Do not abort parsing, just ignore the tag
+            reportParsing(tag, "validation.structure.unsupported.standard.tag", tag.text)
+        }
+    }
+    if (psi is YAMLAlias) {
+        reportParsing(psi, "validation.structure.unsupported.standard.alias")
+        return null
+    }
+
+    // This is required because all "inherited" contexts, that are not explicitly mentioned must not have any traces.
+    // Otherwise, some diagnostics report duplicate errors
+    // TODO(*): is there a better way around it?
+    val newContexts: Contexts = inheritedContexts.map { it.withoutTrace() } + explicitContexts
+    context(newContexts) {
+        if (config.supportReferences && psi is YAMLScalar) {
+            val scalar = YAMLScalarOrKey(psi)
+            if (containsReferenceSyntax(scalar)) {
+                return parseReference(scalar, type)
+            }
+        }
+
+        return when (type) {
+            is SchemaType.ScalarType if psi is YAMLScalar -> parseScalar(YAMLScalarOrKey(psi), type)
+            is SchemaType.ListType if psi is YAMLSequence -> parseList(psi, type)
+            is SchemaType.MapType if psi is YAMLMapping -> parseMap(psi, type)
+            is SchemaType.MapType if psi is YAMLSequence -> parseMapFromSequence(psi, type)
+            is SchemaType.ObjectType -> parseObject(psi, type)
+            is SchemaType.VariantType -> parseVariant(psi, type)
+            else -> {
+                reportParsing(psi, "validation.types.unexpected.value", type.render(), formatValueForMessage(psi))
+                return null
+            }
+        }
+    }
+}

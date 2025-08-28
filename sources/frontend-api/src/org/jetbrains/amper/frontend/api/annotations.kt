@@ -29,14 +29,37 @@ annotation class SchemaDoc(
 annotation class ModifierAware
 
 /**
- * Defines that this field is a dependency key. Can be either of:
- * - String / TraceableString
- * - TraceablePath
- * - CatalogKey
+ *
+ * Example:
+ * ```kotlin
+ * class MyDependency : SchemaNode() {
+ *    @FromKeyAndTheRestIsNested
+ *    val notation: String by value()
+ *    val exported: Boolean by value(default=...)
+ *    val scope: Scope by value(default=...)
+ * }
+ * ```
+ * Then such object can be described in YAML like this:
+ * ```yaml
+ * my-dependency-1:
+ *   "this-is-notation"          # MyDependency(notation="this-is-notation", exported=<default>, scope=<default>)
+ * my-dependency-2:
+ *   "this-is-also-notation":    # MyDependency(notation="this-is-also-notation", exported=true, scope=compile)
+ *       exported: true
+ *       scope: compile
+ * ```
+ * Note, that it's not possible to use such a property normally:
+ * ```yaml
+ * my-dependency:
+ *   notation: foo  # error: not possible
+ *   exported: true
+ *   scope: runtime
+ * ```
+ * Only (Traceable)Strings/Paths are supported for now.
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class DependencyKey
+annotation class FromKeyAndTheRestIsNested
 
 /**
  * This annotation can be used to indicate that the order in which the enumeration constants

@@ -9,6 +9,8 @@ interface SchemaEnumDeclaration : SchemaTypeDeclaration {
     val isOrderSensitive: Boolean
     fun toEnumConstant(name: String): Any
 
+    fun getEntryBySchemaValue(schemaValue: String): EnumEntry?
+
     data class EnumEntry(
         val name: String,
         val schemaValue: String = name,

@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.api.Misnomers
-import org.jetbrains.amper.frontend.api.DependencyKey
+import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -30,17 +30,17 @@ class KspSettings : SchemaNode() {
 sealed class KspProcessorDeclaration : SchemaNode()
 
 class MavenKspProcessorDeclaration : KspProcessorDeclaration() {
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     var coordinates by value<String>()
 }
 
 class ModuleKspProcessorDeclaration : KspProcessorDeclaration() {
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     var path by value<Path>()
 }
 
 class CatalogKspProcessorDeclaration : KspProcessorDeclaration() {
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     var catalogKey by value<String>()
 }
 

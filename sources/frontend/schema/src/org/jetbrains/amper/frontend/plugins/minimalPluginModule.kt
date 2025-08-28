@@ -52,6 +52,7 @@ fun parsePluginManifestFromModuleFile(
             file = moduleFile,
             type = types.getDeclaration<MinimalPluginModule>(),
             reportUnknowns = false,
+            parseContexts = false,
         )
         val noContextsTree = TreeRefiner().refineTree(pluginModuleTree, EmptyContexts)
         val handler = object : MissingPropertiesHandler {

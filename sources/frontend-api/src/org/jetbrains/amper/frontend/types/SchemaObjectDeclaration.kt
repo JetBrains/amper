@@ -14,6 +14,26 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
 
     fun getProperty(name: String): Property?
 
+    /**
+     * Returns the boolean shorthand property, if any.
+     *
+     * @see org.jetbrains.amper.frontend.api.Shorthand
+     */
+    fun getBooleanShorthand(): Property?
+
+    /**
+     * Returns the secondary shorthand property, if any.
+     *
+     * Can be of Enum, String, Path, List types.
+     * @see org.jetbrains.amper.frontend.api.Shorthand
+     */
+    fun getSecondaryShorthand(): Property?
+
+    /**
+     * @see org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
+     */
+    fun getFromKeyAndTheRestNestedProperty(): Property?
+
     fun createInstance(): SchemaNode
 
     data class Property(
@@ -28,7 +48,10 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
         val misnomers: Set<String> = emptySet(),
         val default: Default<*>? = null,
         val isModifierAware: Boolean = false,
-        val isCtorArg: Boolean = false,
+        /**
+         * @see org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
+         */
+        val isFromKeyAndTheRestNested: Boolean = false,
         val specificToPlatforms: Set<Platform> = emptySet(),
         val specificToProducts: Set<ProductType> = emptySet(),
         val isPlatformAgnostic: Boolean = false,

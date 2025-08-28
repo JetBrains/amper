@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.types
 
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.DependencyKey
+import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.GradleSpecific
@@ -30,6 +30,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.createType
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.isSubclassOf
@@ -136,6 +137,16 @@ internal abstract class BuiltInTypingContext protected constructor(
             require(sealedClass.isSealed)
         }
 
+        override val variantTree: List<SchemaVariantDeclaration.Variant> by lazy {
+            sealedClass.sealedSubclasses.map {
+                when(val type = getType(it.createType())) {
+                    is SchemaType.ObjectType -> SchemaVariantDeclaration.Variant.LeafVariant(type.declaration)
+                    is SchemaType.VariantType -> SchemaVariantDeclaration.Variant.SubVariant(type.declaration)
+                    else -> error("Unexpected sealed subclass! class: $it, sealed: $sealedClass")
+                }
+            }
+        }
+
         override val variants by lazy {
             // TODO Do we need any checks here?
             sealedClass.deepSealedSubclasses()
@@ -151,12 +162,13 @@ internal abstract class BuiltInTypingContext protected constructor(
 
     private class BuiltinEnumDeclaration<T : Enum<T>>(
         private val backingReflectionClass: KClass<T>,
-    ) : SchemaEnumDeclaration, BuiltinTypeDeclarationBase(backingReflectionClass) {
-
+    ) : SchemaEnumDeclaration, SchemaEnumDeclarationBase() {
         private val enumOrderSensitive = backingReflectionClass.findAnnotation<EnumOrderSensitive>()
         private val enumConstants = backingReflectionClass.java.enumConstants
 
         override val isOrderSensitive = enumOrderSensitive != null
+
+        override val qualifiedName: String = checkNotNull(backingReflectionClass.qualifiedName)
 
         override val entries by lazy {
             val annotationsByEntryName: Map<String, Field> = backingReflectionClass.java.fields
@@ -187,13 +199,11 @@ internal abstract class BuiltInTypingContext protected constructor(
 
     protected open inner class BuiltinClassDeclaration(
         private val backingReflectionClass: KClass<out SchemaNode>,
-    ) : SchemaObjectDeclaration, BuiltinTypeDeclarationBase(backingReflectionClass) {
+    ) : SchemaObjectDeclaration, SchemaObjectDeclarationBase() {
+
+        override val qualifiedName: String = checkNotNull(backingReflectionClass.qualifiedName)
 
         override val properties by lazy { parseBuiltInProperties() }
-
-        private val propertiesByName by lazy { properties.associateBy { it.name } }
-
-        override fun getProperty(name: String): SchemaObjectDeclaration.Property? = propertiesByName[name]
 
         protected fun parseBuiltInProperties(): List<SchemaObjectDeclaration.Property> {
             // This is needed to extract default values
@@ -207,8 +217,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                         misnomers = prop.findAnnotation<Misnomers>()?.values?.toSet().orEmpty(),
                         default = prop.schemaDelegate(exampleInstance)?.default,
                         isModifierAware = prop.hasAnnotation<ModifierAware>(),
-                        // FIXME Maybe introduce new annotation with meaningful name, or change this one.
-                        isCtorArg = prop.hasAnnotation<DependencyKey>(),
+                        isFromKeyAndTheRestNested = prop.hasAnnotation<FromKeyAndTheRestIsNested>(),
                         specificToPlatforms = prop.findAnnotation<PlatformSpecific>()?.platforms?.toSet().orEmpty(),
                         specificToProducts = prop.findAnnotation<ProductTypeSpecific>()?.productTypes?.toSet()
                             .orEmpty(),

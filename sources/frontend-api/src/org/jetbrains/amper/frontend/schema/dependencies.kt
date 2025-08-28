@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.DependencyKey
+import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -49,21 +49,21 @@ sealed class ScopedDependency : Dependency() {
 class ExternalMavenDependency : ScopedDependency() {
 
     @SchemaDoc("Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     var coordinates by value<String>()
 }
 
 class InternalDependency : ScopedDependency() {
 
     @SchemaDoc("Dependency [on another module](#module-dependencies) in the codebase")
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     var path by value<Path>()
 }
 
 class CatalogDependency : ScopedDependency() {
 
     @SchemaDoc("Dependency from [a dependency catalog](#dependencyversion-catalogs)")
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     var catalogKey by value<String>()
 }
 
@@ -72,14 +72,14 @@ sealed class BomDependency : Dependency()
 class ExternalMavenBomDependency : BomDependency() {
 
     @SchemaDoc("Dependency on [a BOM](#external-maven-dependencies) in a Maven repository")
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     var coordinates by value<String>()
 }
 
 class CatalogBomDependency : BomDependency() {
 
     @SchemaDoc("BOM dependency from [a dependency catalog](#dependencyversion-catalogs)")
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     var catalogKey by value<String>()
 }
 

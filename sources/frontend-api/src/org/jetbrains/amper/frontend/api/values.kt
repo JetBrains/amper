@@ -23,7 +23,8 @@ data class ValueHolder<T>(
 /**
  * This setter is made public but should never be used outside the Amper frontend.
  */
-@RequiresOptIn
+@RequiresOptIn("This is an API, that mutates/alters the already set trace. " +
+        "Consider setting the correct trace from the start.")
 annotation class InternalTraceSetter
 
 /**

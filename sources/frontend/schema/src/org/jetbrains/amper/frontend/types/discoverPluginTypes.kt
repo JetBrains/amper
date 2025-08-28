@@ -94,7 +94,7 @@ private class ExternalObjectDeclaration(
     private val instantiationStrategy: () -> SchemaNode,
     private val isRootSchema: Boolean,
     private val typingContext: ExtensibleBuiltInTypingContext,
-) : SchemaObjectDeclaration {
+) : SchemaObjectDeclarationBase() {
     override val properties: List<SchemaObjectDeclaration.Property> by lazy {
         buildList {
             for (property in data.properties) {
@@ -128,10 +128,6 @@ private class ExternalObjectDeclaration(
         Defaults.Null -> null
     }
 
-    private val propertiesByName by lazy { properties.associateBy { it.name } }
-
-    override fun getProperty(name: String): SchemaObjectDeclaration.Property? = propertiesByName[name]
-
     override fun createInstance(): SchemaNode = instantiationStrategy()
     override val qualifiedName get() = data.name.qualifiedName
     override fun toString() = qualifiedName
@@ -139,7 +135,7 @@ private class ExternalObjectDeclaration(
 
 private class ExternalEnumDeclaration(
     private val data: PluginData.EnumData,
-) : SchemaEnumDeclaration {
+) : SchemaEnumDeclarationBase() {
     override val entries: List<SchemaEnumDeclaration.EnumEntry> by lazy {
         data.entries.map { entry ->
             SchemaEnumDeclaration.EnumEntry(
@@ -159,6 +155,9 @@ private class SyntheticVariantDeclaration(
     override val qualifiedName: String,
     override val variants: List<SchemaObjectDeclaration>,
 ) : SchemaVariantDeclaration {
+    override val variantTree: List<SchemaVariantDeclaration.Variant> =
+        variants.map { SchemaVariantDeclaration.Variant.LeafVariant(it) }
+
     override fun toString() = qualifiedName
 }
 
@@ -175,7 +174,7 @@ private fun ExtensibleBuiltInTypingContext.toSchemaType(
         isMarkedNullable = type.isNullable,
     )
     is PluginData.Type.MapType -> SchemaType.MapType(
-        keyType = SchemaType.StringType(),
+        keyType = SchemaType.KeyStringType,
         valueType = toSchemaType(pluginId, type.valueType),
         isMarkedNullable = type.isNullable,
     )

@@ -49,7 +49,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
         fun SchemaObjectDeclaration.Property.propDesc() = type.accept().withExtras(this).wrapKnownValues(this)
         val visibleProperties = root.properties.filterNot { it.isHiddenFromCompletion }
 
-        val notCtorArgs = visibleProperties.filterNot { it.isCtorArg }
+        val notCtorArgs = visibleProperties.filterNot { it.isFromKeyAndTheRestNested }
         val modifierAware = notCtorArgs.filter { it.isModifierAware }
 
         val patternProperties = modifierAware.flatMap {
@@ -69,7 +69,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
         val withConstructor = ObjectElement(patternProperties = mapOf("^.*$" to withoutConstructor))
 
         // Wrap possible constructor argument.
-        val ctorArg = visibleProperties.singleOrNull { it.isCtorArg }
+        val ctorArg = visibleProperties.singleOrNull { it.isFromKeyAndTheRestNested }
         val otherNotOptional = notCtorArgs.any { it.isValueRequired() }
         
         // No ctor args.

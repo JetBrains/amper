@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Misnomers
-import org.jetbrains.amper.frontend.api.DependencyKey
+import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
@@ -84,17 +84,17 @@ class JavaAnnotationProcessingSettings : SchemaNode() {
 sealed class JavaAnnotationProcessorDeclaration : SchemaNode()
 
 class MavenJavaAnnotationProcessorDeclaration : JavaAnnotationProcessorDeclaration() {
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     val coordinates by value<String>()
 }
 
 class ModuleJavaAnnotationProcessorDeclaration : JavaAnnotationProcessorDeclaration() {
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     val path by value<Path>()
 }
 
 class CatalogJavaAnnotationProcessorDeclaration : JavaAnnotationProcessorDeclaration() {
-    @DependencyKey
+    @FromKeyAndTheRestIsNested
     val catalogKey by value<String>()
 }
 

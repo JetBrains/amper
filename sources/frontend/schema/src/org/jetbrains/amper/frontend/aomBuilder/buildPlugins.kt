@@ -172,6 +172,7 @@ private class PluginTreeReader(
             type = declaration,
             reportUnknowns = true,
             parseReferences = true,
+            parseContexts = false,
         )
 
         treeMerger.mergeTrees(tree)

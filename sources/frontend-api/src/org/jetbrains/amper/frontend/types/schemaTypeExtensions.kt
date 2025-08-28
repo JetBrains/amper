@@ -15,6 +15,51 @@ fun SchemaTypeDeclaration.isSameAs(`class`: KClass<out SchemaNode>): Boolean = q
 
 fun SchemaObjectDeclaration.toType() = SchemaType.ObjectType(this)
 
-fun SchemaObjectDeclaration.hasShorthands() = properties.any { it.hasShorthand }
+fun SchemaVariantDeclaration.toType() = SchemaType.VariantType(this)
 
 fun SchemaObjectDeclaration.Property.isValueRequired() = !type.isMarkedNullable && default == null
+
+fun SchemaType.render(
+    includePossibleValues: Boolean = true,
+): String = buildString {
+    when (this@render) {
+        is SchemaType.BooleanType -> append("boolean")
+        is SchemaType.IntType -> append("integer")
+        is SchemaType.PathType -> append("path")
+        is SchemaType.StringType -> append("string")
+        is SchemaType.ListType -> append("list[ ${elementType.render(false)} ]")
+        is SchemaType.MapType -> append("map {${SchemaType.KeyStringType.render(false)} : ${valueType.render(false)} }")
+        is SchemaType.EnumType -> {
+            // TODO: Introduce a public-name concept?
+            append(declaration.simpleName())
+            if (includePossibleValues) {
+                declaration.entries.joinTo(
+                    buffer = this,
+                    separator = " | ",
+                    prefix = "( ",
+                    postfix = " )",
+                ) { '"' + it.schemaValue + '"' }
+            }
+        }
+        is SchemaType.ObjectType -> {
+            // TODO: Introduce a public-name concept?
+            append(declaration.simpleName())
+            if (includePossibleValues) {
+                append("{...}")
+            }
+        }
+        is SchemaType.VariantType -> {
+            // TODO: Introduce a public-name concept?
+            append(declaration.simpleName())
+            if (includePossibleValues) {
+                declaration.variantTree.joinTo(
+                    buffer = this,
+                    separator = " | ",
+                    prefix = "( ",
+                    postfix = " )",
+                ) { it.declaration.simpleName() }
+            }
+        }
+    }
+    if (isMarkedNullable) append('?')
+}

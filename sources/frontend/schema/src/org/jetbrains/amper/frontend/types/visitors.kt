@@ -42,9 +42,14 @@ private class AObjectRecursiveCollector : ATypesVisitor<List<SchemaType.ObjectTy
     override fun visitScalar(type: SchemaType.ScalarType) = empty
     override fun visitMap(type: SchemaType.MapType) = type.valueType.accept()
     override fun visitList(type: SchemaType.ListType) = type.elementType.accept()
-    
+
     override fun visitPolymorphic(type: SchemaType.VariantType) =
-        type.declaration.variants.flatMap { it.toType().accept() }
+        type.declaration.variantTree.flatMap {
+            when (it) {
+                is SchemaVariantDeclaration.Variant.LeafVariant -> it.declaration.toType().accept()
+                is SchemaVariantDeclaration.Variant.SubVariant -> it.declaration.toType().accept()
+            }
+        }
 
     override fun visitObject(type: SchemaType.ObjectType) =
         type.declaration.properties
