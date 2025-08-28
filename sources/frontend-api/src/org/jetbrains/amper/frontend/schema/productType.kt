@@ -18,13 +18,13 @@ import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.schemaDelegate
 
 @SchemaDoc("Defines what should be produced out of the module. Read more about the [product types](#product-types)")
-@EnumValueFilter("obsolete", isNegated = true)
+@EnumValueFilter("outdated", isNegated = true)
 @EnumOrderSensitive
 enum class ProductType(
     val value: String,
     val supportedPlatforms: Set<Platform>,
     val defaultPlatforms: Set<Platform>?,
-    @Suppress("unused") val obsolete: Boolean = false
+    override val outdated: Boolean = false
 ): SchemaEnum {
 
     @SchemaDoc("A reusable library which could be used as dependency by other modules in the codebase")
@@ -38,7 +38,7 @@ enum class ProductType(
         "app",
         supportedPlatforms = Platform.leafPlatforms,
         defaultPlatforms = setOf(Platform.JVM),
-        obsolete = true
+        outdated = true,
     ),
 
     @SchemaDoc("A JVM console or desktop application")
@@ -108,7 +108,6 @@ enum class ProductType(
     fun isApplication() = !isLibrary()
     override fun toString() = value
     override val schemaValue: String = value
-    override val outdated: Boolean = false
 
     companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::value)
 }
