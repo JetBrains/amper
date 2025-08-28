@@ -1,0 +1,8 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+
+dependencies:
+  - $libs.kotlinx.coroutines.core
+  - $libs.kotlinx.datetime

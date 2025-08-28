@@ -33,7 +33,10 @@ interface AmperProjectContext {
     val projectBuildDir: Path
 
     /**
-     * The version catalog of the project, usually located at `<projectRoot>/gradle/libs.versions.toml`.
+     * The version catalog of the project, usually located at `<projectRoot>/libs.versions.toml` or
+     * `<projectRoot>/gradle/libs.versions.toml`.
+     *
+     * Null if the project doesn't have a version catalog file.
      */
     val projectVersionsCatalog: VersionCatalog?
 

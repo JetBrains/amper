@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.catalogs
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.childrenOfType
+import org.jetbrains.amper.frontend.FileVersionCatalog
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.PsiTrace
@@ -42,17 +43,14 @@ private data class TomlLibraryDefinition(
 )
 
 private class TomlCatalog(
+    override val location: VirtualFile,
     private val libraries: Map<String, TomlLibraryDefinition>,
-) : VersionCatalog {
+) : FileVersionCatalog {
     override val entries: Map<String, TraceableString>
         get() = libraries.map {
             val definition = it.value
             it.key to TraceableString(definition.libraryString, trace = PsiTrace(definition.element))
         }.toMap()
-
-    override val isPhysical: Boolean = true
-
-    override fun findInCatalog(key: String) = entries[key]
 }
 
 /**
@@ -65,7 +63,7 @@ internal fun FrontendPathResolver.parseGradleVersionCatalog(
 ): VersionCatalog? {
     val psiFile = toPsiFile(catalogFile) as? TomlFile ?: return null
     val libraries = psiFile.parseCatalogLibraries() ?: return null
-    return TomlCatalog(libraries)
+    return TomlCatalog(catalogFile, libraries)
 }
 
 /**

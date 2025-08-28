@@ -7,7 +7,12 @@ package org.jetbrains.amper.frontend.catalogs
 import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.withComputedValueTrace
+import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
@@ -27,6 +32,7 @@ import org.jetbrains.amper.frontend.tree.asScalar
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.toType
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.reflect.full.createType
 
 context(buildCtx: BuildCtx)
@@ -65,4 +71,24 @@ internal class CatalogVersionsSubstitutor(
                 MapLikeValue.Property("coordinates", catalogKeyProp.kTrace, newCValue, substituted.declaration)
         return Changed(value.copy(children = newChildren, type = substituted.declaration))
     }
+}
+
+/**
+ * Get dependency notation by key. Reports on a missing value.
+ */
+context(problemReporter: ProblemReporter)
+private fun VersionCatalog.findInCatalogWithReport(key: String, keyTrace: Trace?): TraceableString? {
+    val value = findInCatalog(key)
+    if (value == null && keyTrace is PsiTrace) {
+        problemReporter.reportBundleError(
+            source = keyTrace.psiElement.asBuildProblemSource(),
+            messageKey = when {
+                key.startsWith("compose.") -> "compose.is.disabled"
+                key.startsWith("kotlin.serialization.") -> "kotlin.serialization.is.disabled"
+                else -> "no.catalog.value"
+            },
+            key,
+        )
+    }
+    return value
 }

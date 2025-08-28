@@ -8,8 +8,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
-import org.jetbrains.amper.frontend.catalogs.plus
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
+import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.tree.TreeRefiner
@@ -32,5 +32,5 @@ fun AmperProjectContext.readEffectiveCatalogForTemplate(templateFile: VirtualFil
         // NOTE: That will change when nested templated are allowed.
         val noContextsTree = refiner.refineTree(mergedTemplateTree, EmptyContexts)
         val noContextsTemplate = createSchemaNode<Template>(noContextsTree)
-        projectVersionsCatalog + noContextsTemplate.settings.builtInCatalog()
+        noContextsTemplate.settings.builtInCatalog() + projectVersionsCatalog
     }

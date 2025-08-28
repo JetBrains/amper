@@ -9,6 +9,7 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.UsedVersions.logbackVersion
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.frontend.InMemoryVersionCatalog
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
@@ -20,9 +21,6 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-
-internal operator fun VersionCatalog?.plus(other: VersionCatalog) =
-    if (this == null) other else CompositeVersionCatalog(listOf(this, other))
 
 context(problemReporter: ProblemReporter)
 internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
@@ -56,33 +54,13 @@ private fun version(version: TraceableVersion, fallbackVersion: String): Traceab
     }
 }
 
-/**
- * Composition of multiple version catalogs with priority for first declared.
- */
-private class CompositeVersionCatalog(
-    private val catalogs: List<VersionCatalog>,
-) : VersionCatalog {
-
-    override val entries: Map<String, TraceableString> = buildMap {
-        // First catalogs have the highest priority.
-        catalogs.reversed().forEach { putAll(it.entries) }
-    }
-
-    override val isPhysical: Boolean
-        get() = catalogs.any { it.isPhysical }
-
-    override fun findInCatalog(key: String) = catalogs.firstNotNullOfOrNull { it.findInCatalog(key) }
-}
-
 private class BuiltInCatalog(
     serializationVersion: TraceableString?,
     composeVersion: TraceableString?,
     ktorVersion: TraceableString?,
     springBootVersion: TraceableString?,
     private val systemInfo: SystemInfo = DefaultSystemInfo,
-) : VersionCatalog {
-    override val isPhysical: Boolean = false
-    override fun findInCatalog(key: String): TraceableString? = entries[key]
+) : InMemoryVersionCatalog {
 
     override val entries: Map<String, TraceableString> = buildMap {
         // @formatter:off

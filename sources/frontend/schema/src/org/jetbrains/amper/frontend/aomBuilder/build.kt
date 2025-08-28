@@ -18,8 +18,8 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.api.schemaDelegate
+import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
-import org.jetbrains.amper.frontend.catalogs.plus
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
 import org.jetbrains.amper.frontend.contexts.MinimalModuleHolder
 import org.jetbrains.amper.frontend.contexts.PathCtx
@@ -154,7 +154,7 @@ internal fun BuildCtx.readModuleMergedTree(
     val refiner = TreeRefiner(minimalModule.combinedInheritance)
     val commonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
     val commonModule = createSchemaNode<Module>(commonTree)
-    val effectiveCatalog = projectVersionsCatalog + commonModule.settings.builtInCatalog()
+    val effectiveCatalog = commonModule.settings.builtInCatalog() + projectVersionsCatalog
 
     val processedTree = preProcessedTree
         .substituteCatalogDependencies(effectiveCatalog)
