@@ -133,9 +133,10 @@ private fun buildCustomTask(
     )
 }
 
-private val propertyReferenceRegex = Regex("\\$\\{(module\\(([./0-9a-zA-Z\\-_]+)\\)\\.)?([0-9a-zA-Z]+)}")
-private val unresolvedReferenceRegex1 = Regex("(?<!\\\\)\\$")
-private val unresolvedReferenceRegex2 = Regex("\\\\\\\\\\$")
+private val propertyReferenceRegex = Regex("""\$\{(module\(([./0-9a-zA-Z\-_]+)\)\.)?([0-9a-zA-Z]+)}""")
+// A $ from reference can be escaped with a slash, but if that slash is paired then it's the slash escaping a slash
+// E.g., "\\\$ref" is not a reference (it parses into "\$ref" literal) while "\\\\$ref".
+private val referenceRegex = Regex("""(?<!\\)(\\\\)*\$""")
 
 // TODO: This is not a real parser and it won't provide a good IDE support either
 // Please decide on an appropriate references syntax and rewrite
@@ -149,7 +150,7 @@ internal fun parseStringWithReferences(
     val result = mutableListOf<CompositeStringPart>()
 
     fun addLiteralPart(part: String) {
-        if (unresolvedReferenceRegex1.containsMatchIn(part) || unresolvedReferenceRegex2.containsMatchIn(part)) {
+        if (referenceRegex.containsMatchIn(part)) {
             problemReporter.reportMessage(
                 buildProblemId = "STR_REF_UNRESOLVED_TYPE",
                 source = source,

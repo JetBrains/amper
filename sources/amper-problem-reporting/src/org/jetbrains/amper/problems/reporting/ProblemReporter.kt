@@ -38,9 +38,6 @@ class CollectingProblemReporter : ProblemReporter {
     override fun reportMessage(message: BuildProblem) {
         myProblems.add(message)
     }
-
-    fun getDiagnostics(vararg levels: Level = arrayOf(Level.Error, Level.Fatal)): List<BuildProblem> =
-        myProblems.filter { levels.contains(it.level) }
 }
 
 /**

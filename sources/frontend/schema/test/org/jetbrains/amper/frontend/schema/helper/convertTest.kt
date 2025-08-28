@@ -36,7 +36,7 @@ private class ConvertTestRun(
             val refined = tree.refineTree(EmptyContexts, defaultContextsInheritance)
             createSchemaNode<Module>(refined)
         }
-        return problemReporter.getDiagnostics().joinToString { it.message }
+        return problemReporter.problems.joinToString { it.message }
     }
 
     override fun GoldenTest.getExpectContent(expectedPath: Path) = expectedErrors

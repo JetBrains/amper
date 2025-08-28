@@ -14,6 +14,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.expect
 
 internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
 
@@ -189,12 +190,18 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
 
     @Test
     fun coverage() {
-        aomTest("22-coverage")
+        aomTest(
+            "22-coverage",
+            expectedError = "This setting was only applicable in Gradle-based Amper and is now obsolete: kover is not yet supported."
+        )
     }
 
     @Test
     fun `coverage short form`() {
-        aomTest("23-coverage-short-form")
+        aomTest(
+            "23-coverage-short-form",
+            expectedError = "This setting was only applicable in Gradle-based Amper and is now obsolete: kover is not yet supported."
+        )
     }
 
     @Test

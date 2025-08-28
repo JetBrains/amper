@@ -73,7 +73,7 @@ class LinkedValuesTest : GoldenTestBase(Path("testResources") / "valueTracking")
         val testProjectContext = TestProjectContext(buildDirFile, listOf(inputFile), ctx)
         val problemReporter = CollectingProblemReporter()
         with(problemReporter) { doBuild(testProjectContext, DefaultSystemInfo) }
-        val errorDiagnostics = problemReporter.getDiagnostics()
+        val errorDiagnostics = problemReporter.problems
         assertTrue(errorDiagnostics.isEmpty(), "Expected no problems, but got: $errorDiagnostics")
 
         // Get psi element at the caret.

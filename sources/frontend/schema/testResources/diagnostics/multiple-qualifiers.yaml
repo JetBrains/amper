@@ -28,7 +28,7 @@ settings@ios:
   kotlin:
     debug: true
 
-<![Error] Multiple qualifiers are not supported yet!>settings@jvm+android<!>:
+<![Error] Multiple qualifiers are not supported yet!>settings@iosArm64+iosSimulatorArm64<!>:
   kotlin:
     debug: true
 
@@ -36,6 +36,6 @@ test-settings@ios:
   kotlin:
     debug: true
 
-<![Error] Multiple qualifiers are not supported yet!>test-settings@jvm+android<!>:
+<![Error] Multiple qualifiers are not supported yet!>test-settings@iosArm64+iosSimulatorArm64<!>:
   kotlin:
     debug: true

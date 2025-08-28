@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.schema.diagnostics
 
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
@@ -29,6 +28,6 @@ class AndroidDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnosti
 
     @Test
     fun `test setting cannot be applied to android library`() {
-        diagnosticsTest("signing-in-libraries", levels = arrayOf(Level.Warning))
+        diagnosticsTest("signing-in-libraries")
     }
 }

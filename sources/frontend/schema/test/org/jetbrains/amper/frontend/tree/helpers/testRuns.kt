@@ -48,7 +48,7 @@ internal open class TreeTestRun(
     protected val dumpPathContexts: Boolean = false,
 ) : BaseFrontendTestRun(caseName) {
 
-    protected val diagnostics get() = problemReporter.getDiagnostics()
+    protected val diagnostics get() = problemReporter.problems
 
     protected val buildCtx = BuildCtx(
         problemReporter = problemReporter,

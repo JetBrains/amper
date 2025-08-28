@@ -9,7 +9,6 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
-import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.golden.readContentsAndReplace
 import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
@@ -22,16 +21,13 @@ import kotlin.io.path.div
 fun GoldenTest.diagnosticsTest(
     caseName: String,
     systemInfo: SystemInfo = DefaultSystemInfo,
-    vararg levels: Level = arrayOf(Level.Error, Level.Fatal),
     additionalFiles: List<String> = emptyList()
-) =
-    DiagnosticsTestRun(caseName, systemInfo, baseTestResourcesPath(), levels, additionalFiles).doTest()
+) = DiagnosticsTestRun(caseName, systemInfo, baseTestResourcesPath(), additionalFiles).doTest()
 
 class DiagnosticsTestRun(
     caseName: String,
     private val systemInfo: SystemInfo,
     override val base: Path,
-    private val levels: Array<out Level>,
     private val additionalPaths: List<String>,
 ) : BaseFrontendTestRun(caseName) {
 
@@ -55,7 +51,7 @@ class DiagnosticsTestRun(
             projectContext.readProjectModel()
         }
         // Collect errors.
-        val errors = problemReporter.getDiagnostics(*levels)
+        val errors = problemReporter.problems
         val annotated = annotateTextWithDiagnostics(inputPath.absolute(), cleared, errors) {
             it.replace(buildDir().absolutePathString() + File.separator, "")
         }

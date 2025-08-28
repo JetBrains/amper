@@ -45,23 +45,23 @@ open class BuildAomTestRun(
 
         // Check errors absence.
         if (expectedError == null) {
-            assert(problemReporter.getDiagnostics().isEmpty()) {
+            assert(problemReporter.problems.isEmpty()) {
                 "Expected no errors, but got ${
-                    problemReporter.getDiagnostics()
+                    problemReporter.problems
                         .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t") { it.message }
                 }"
             }
         } else {
-            val diagnostic = problemReporter.getDiagnostics().firstOrNull { it.message == expectedError }
+            val diagnostic = problemReporter.problems.firstOrNull { it.message == expectedError }
             assertNotNull(
                 diagnostic,
                 "Expected an error $expectedError, but got ${
-                    problemReporter.getDiagnostics()
+                    problemReporter.problems
                         .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t") { it.message }
                 }"
             )
             // Check that lazily initialized diagnostic source doesn't produce any error
-            problemReporter.getDiagnostics().forEach { (it as? PsiBuildProblem)?.source }
+            problemReporter.problems.forEach { (it as? PsiBuildProblem)?.source }
         }
 
         // Return module's textual representation.

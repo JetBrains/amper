@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.schema.diagnostics
 
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
@@ -17,7 +16,6 @@ class JvmReleaseLowerThanDependenciesDiagnosticTest : GoldenTestBase(Path("testR
     fun `jvm release lower than dependencies`() {
         diagnosticsTest(
             "lib-a/module",
-            levels = arrayOf(Level.Warning, Level.Error, Level.Fatal),
             additionalFiles = listOf(
                 "lib-b/module.yaml",
                 "lib-c/module.yaml",

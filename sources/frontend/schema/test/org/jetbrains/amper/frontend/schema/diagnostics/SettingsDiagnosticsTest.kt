@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.schema.diagnostics
 
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.test.golden.GoldenTestBase
 import kotlin.io.path.Path
 import kotlin.io.path.div
@@ -14,51 +13,51 @@ import kotlin.test.Test
 class SettingsDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnostics") {
     @Test
     fun `compose version when compose disabled`() {
-        diagnosticsTest("compose-version-disabled", levels = arrayOf(Level.Warning))
+        diagnosticsTest("compose-version-disabled")
     }
 
     @Test
     fun `serialization version when serialization disabled`() {
-        diagnosticsTest("serialization-version-disabled", levels = arrayOf(Level.Warning))
+        diagnosticsTest("serialization-version-disabled")
     }
 
     @Test
     fun `no redundancy for kotlin serialization format`() {
-        diagnosticsTest("setting-no-redundancy-kotlin-serialization", levels = arrayOf(Level.WeakWarning))
+        diagnosticsTest("setting-no-redundancy-kotlin-serialization")
     }
 
     @Test
     fun `setting overrides same value`() {
-        diagnosticsTest("setting-overrides-same-value", levels = arrayOf(Level.WeakWarning))
+        diagnosticsTest("setting-overrides-same-value")
     }
 
     @Test
     fun `ios setting jvm app`() {
-        diagnosticsTest("ios-setting-jvm-app", levels = arrayOf(Level.Warning))
+        diagnosticsTest("ios-setting-jvm-app")
     }
 
     @Test
     fun `android settings jvm ios lib`() {
-        diagnosticsTest("android-settings-jvm-ios-lib", levels = arrayOf(Level.Warning))
+        diagnosticsTest("android-settings-jvm-ios-lib")
     }
 
     @Test
     fun `setting main class with lib`() {
-        diagnosticsTest("setting-main-class-with-lib", levels = arrayOf(Level.Warning))
+        diagnosticsTest("setting-main-class-with-lib")
     }
 
     @Test
     fun `settings context specificity`() {
-        diagnosticsTest("settings-context-specificity", levels = arrayOf(Level.Warning))
+        diagnosticsTest("settings-context-specificity")
     }
 
     @Test
     fun `settings no modifiers allowed`() {
-        diagnosticsTest("settings-no-modifiers-allowed", levels = arrayOf(Level.Error))
+        diagnosticsTest("settings-no-modifiers-allowed")
     }
 
     @Test
     fun `settings context specificity valid with aliases`() {
-        diagnosticsTest("settings-context-specificity-valid-with-aliases", levels = arrayOf(Level.Warning))
+        diagnosticsTest("settings-context-specificity-valid-with-aliases")
     }
 }

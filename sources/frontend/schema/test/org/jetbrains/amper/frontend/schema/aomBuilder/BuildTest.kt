@@ -21,7 +21,6 @@ import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
-import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -30,35 +29,54 @@ import kotlin.test.fail
 class BuildTest {
     @Test
     fun parseStringWithReferences_valid() {
-        checkParse("some \\\$text", Literal("some \$text"))
-        checkParse("some \\\\\\\$text", Literal("some \\\$text"))
+        checkParse($$"""some \$text""", Literal($$"some $text"))
+        checkParse($$"""some \\\$text""", Literal($$"some \\$text"))
 
         checkParse(
-            "\${module(.).version}",
-            CompositeStringPart.ModulePropertyReference(module1, KnownModuleProperty.VERSION, "\${module(.).version}")
+            $$"${module(.).version}",
+            CompositeStringPart.ModulePropertyReference(
+                module1,
+                KnownModuleProperty.VERSION,
+                $$"${module(.).version}"
+            )
         )
 
         checkParse(
-            "\${module(.).version}\${module(../xxx/yyy).name}",
-            CompositeStringPart.ModulePropertyReference(module1, KnownModuleProperty.VERSION, "\${module(.).version}"),
-            CompositeStringPart.ModulePropertyReference(module2, KnownModuleProperty.NAME, "\${module(../xxx/yyy).name}")
+            $$"${module(.).version}${module(../xxx/yyy).name}",
+            CompositeStringPart.ModulePropertyReference(
+                module1,
+                KnownModuleProperty.VERSION,
+                $$"${module(.).version}"
+            ),
+            CompositeStringPart.ModulePropertyReference(
+                module2,
+                KnownModuleProperty.NAME,
+                $$"${module(../xxx/yyy).name}"
+            )
         )
 
         checkParse(
-            "text1\${module(.).version}text2\${module(../xxx/yyy).name}text3",
+            $$"text1${module(.).version}text2${module(../xxx/yyy).name}text3",
             Literal("text1"),
-            CompositeStringPart.ModulePropertyReference(module1, KnownModuleProperty.VERSION, "\${module(.).version}"),
+            CompositeStringPart.ModulePropertyReference(
+                module1,
+                KnownModuleProperty.VERSION,
+                $$"${module(.).version}"
+            ),
             Literal("text2"),
-            CompositeStringPart.ModulePropertyReference(module2, KnownModuleProperty.NAME, "\${module(../xxx/yyy).name}"),
+            CompositeStringPart.ModulePropertyReference(
+                module2, KnownModuleProperty.NAME,
+                $$"${module(../xxx/yyy).name}"
+            ),
             Literal("text3"),
         )
     }
 
     @Test
     fun parseStringWithReferences_errors() {
-        checkParseErrors("ref \$ref", "Contains unresolved reference: ref \$ref")
-        checkParseErrors("ref \${module(.).some}", "Unknown property name 'some': \${module(.).some}")
-        checkParseErrors("\${module(abc).version}", "Unknown module 'abc' referenced from '\${module(abc).version}'")
+        checkParseErrors($$"ref $ref", $$"Contains unresolved reference: ref $ref")
+        checkParseErrors($$"ref ${module(.).some}", $$"Unknown property name 'some': ${module(.).some}")
+        checkParseErrors($$"${module(abc).version}", $$"Unknown module 'abc' referenced from '${module(abc).version}'")
     }
 
     @OptIn(NonIdealDiagnostic::class)
@@ -67,10 +85,14 @@ class BuildTest {
         val actual = with(problemReporter) {
             parseStringWithReferences(value, GlobalBuildProblemSource, moduleResolver)
         }
-        val problems = problemReporter.getDiagnostics(Level.Warning)
+        val problems = problemReporter.problems
         if (problems.isNotEmpty()) {
-            fail("Parsing of '$value' failed:\n" +
-                    problems.joinToString("\n") { it.message })
+            fail(
+                """
+                   Parsing of '$value' failed:
+                   ${problems.joinToString("\n") { it.message }}
+                """.trimIndent()
+            )
         }
 
         assertEquals(
@@ -87,11 +109,11 @@ class BuildTest {
         with(problemReporter) {
             parseStringWithReferences(value, GlobalBuildProblemSource, moduleResolver)
         }
-        val problems = problemReporter.getDiagnostics(*Level.entries.toTypedArray()).map { it.message }
+        val problems = problemReporter.problems.map { it.message }
         assertEquals(message.toList(), problems)
     }
 
-    private class MockModule() : AmperModule {
+    private class MockModule : AmperModule {
         override val userReadableName: String
             get() = throw UnsupportedOperationException()
         override val type: ProductType
