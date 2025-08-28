@@ -8,6 +8,7 @@ import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.dependency.resolution.MavenLocal
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.Repository
@@ -41,7 +42,10 @@ class ToolingArtifactsDownloader(
             "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}",
             "org.jetbrains.amper:amper-compose-hot-reload-recompiler-extension:${AmperBuild.mavenVersion}"
         ),
-        listOf(MavenCentral, GOOGLE_REPOSITORY, AMPER_DEV_REPOSITORY)
+        buildList {
+            addAll(listOf(MavenCentral, GOOGLE_REPOSITORY, AMPER_DEV_REPOSITORY))
+            if (AmperBuild.isSNAPSHOT) add(MavenLocal)
+        }
     )
 
     suspend fun downloadComposeDesktop(): List<Path> = downloadToolingArtifacts(
