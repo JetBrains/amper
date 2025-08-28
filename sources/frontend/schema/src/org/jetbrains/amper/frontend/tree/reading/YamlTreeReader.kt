@@ -106,8 +106,8 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
 
     override fun visitScalar(scalar: YAMLScalar) = ctx.readCurrent {
         runIf(params.parseReferences) { tryReadAsReference(scalar) }
-            ?: tryReadAsShorthand(scalar)
             ?: when (val type = currentType) {
+                is SchemaType.ObjectType -> tryReadAsShorthand(type, scalar)
                 is SchemaType.VariantType -> tryReadAsPolyFromScalar(type, scalar)
                 is SchemaType.ScalarType -> tryReadScalar(scalar.textValue, type, scalar)
                     // We explicitly here construct trace from that parent to catch also the key.
@@ -247,32 +247,33 @@ internal class YamlTreeReader(val params: TreeReadRequest) : YamlPsiElementVisit
         }
     }
 
-    private fun ReaderCtx.tryReadAsShorthand(scalar: YAMLScalar): TreeValue<*>? {
-        val lastObjectDeclaration = (currentType as? SchemaType.ObjectType)?.declaration ?: return null
-        if (!lastObjectDeclaration.hasShorthands()) return null
-        val shorthandAware = lastObjectDeclaration.properties.filter { it.hasShorthand }.sortedBy {
-            when (it.type) {
-                // Booleans have priority.
-                is SchemaType.BooleanType -> 0
-                is SchemaType.EnumType -> 1
-                else -> 2
+    private fun ReaderCtx.tryReadAsShorthand(type: SchemaType.ObjectType, scalar: YAMLScalar): TreeValue<*>? {
+        if (!type.declaration.hasShorthands()) return null
+        val shorthandProperties = type.declaration.properties
+            .filter { it.hasShorthand }
+            .sortedBy { property ->
+                when (property.type) {
+                    // If an object supports both string and boolean shorthands then the name of boolean can be
+                    // misinterpreted as a shorthand for the string if it appears first.
+                    // Thus, we first will check boolean properties when searching for the shorthand match.
+                    // The same goes for enums that are more specific than strings.
+                    is SchemaType.BooleanType -> 0
+                    is SchemaType.EnumType -> 1
+                    else -> 2
+                }
             }
-        }
 
-        val readShorthand = shorthandAware.firstNotNullOfOrNull {
-            // `compose: enabled` means that we should set `compose.enabled` setting as `true`.
-            val pType = it.type
-            if (pType is SchemaType.BooleanType && scalar.textValue == it.name) true to it
-            // `kotlin.serialization: json` means that we should set the `serialization.format` setting as `json`.
-            else if (pType is SchemaType.StringType || pType is SchemaType.EnumType)
-                tryReadScalar(scalar.textValue, pType, scalar, report = false)?.to(it)
-            else null
-        }
-
-        return readShorthand?.let {
-            val value = scalarValue(it.first, scalar.asTrace())
-            mapValue(listOf(MapLikeValue.Property(value, scalar.asTrace(), it.second)), scalar.asTrace())
-        }
+        val (parsedShorthand, property) = shorthandProperties.firstNotNullOfOrNull { property ->
+            when (val propertyType = property.type) {
+                // `compose: enabled` means that we should set `compose.enabled` setting as `true`.
+                is SchemaType.BooleanType if scalar.textValue == property.name -> true to property
+                // `kotlin.serialization: json` means that we should set the `serialization.format` setting as `json`.
+                is SchemaType.StringType, is SchemaType.EnumType -> tryReadScalar(scalar.textValue, propertyType, scalar)?.to(property)
+                else -> null
+            }
+        } ?: return null
+        val value = scalarValue(parsedShorthand, scalar.asTrace())
+        return mapValue(listOf(MapLikeValue.Property(value, scalar.asTrace(), property)), scalar.asTrace())
     }
 
     private fun ReaderCtx.tryReadAsList(type: SchemaType.ListType, sequence: YAMLSequence) = sequence.items

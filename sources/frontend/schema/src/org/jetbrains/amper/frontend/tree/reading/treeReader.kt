@@ -32,7 +32,6 @@ import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaEnumDeclaration
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
-import org.jetbrains.amper.frontend.types.simpleName
 import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -128,16 +127,14 @@ internal class ReaderCtx(params: TreeReadRequest) {
     /**
      * Try to read a value of the specified scalar [type] from the given [text] and return `null` if failed.
      */
-    fun tryReadScalar(text: String, type: SchemaType.ScalarType, origin: PsiElement, report: Boolean = true): Any? {
-        fun reportIfNeeded(msgId: String, vararg args: Any?): Nothing? {
-            if (report) {
-                problemReporter.reportBundleError(
-                    source = origin.asBuildProblemSource(),
-                    messageKey = msgId,
-                    problemType = BuildProblemType.TypeMismatch,
-                    arguments = args,
-                )
-            }
+    fun tryReadScalar(text: String, type: SchemaType.ScalarType, origin: PsiElement): Any? {
+        fun reportTypeMismatch(msgId: String, vararg args: Any?): Nothing? {
+            problemReporter.reportBundleError(
+                source = origin.asBuildProblemSource(),
+                messageKey = msgId,
+                problemType = BuildProblemType.TypeMismatch,
+                arguments = args,
+            )
             return null
         }
 
@@ -145,17 +142,17 @@ internal class ReaderCtx(params: TreeReadRequest) {
             is SchemaType.StringType -> {
                 type.knownStringValues?.let { knownStringValues ->
                     if (text !in knownStringValues) {
-                        reportIfNeeded("validation.not.within.known.values", knownStringValues.joinToString())
+                        reportTypeMismatch("validation.not.within.known.values", knownStringValues.joinToString())
                     }
                 }
                 if (type.isTraceableWrapped) text.asTraceable(origin.trace) else text
             }
-            is SchemaType.IntType -> text.toIntOrNull() ?: reportIfNeeded("validation.expected.integer")
-            is SchemaType.BooleanType -> text.toBooleanStrictOrNull() ?: reportIfNeeded("validation.expected.boolean")
-            is SchemaType.PathType -> (baseDir.resolveOrNull(text) ?: reportIfNeeded("validation.expected.path")).let {
+            is SchemaType.IntType -> text.toIntOrNull() ?: reportTypeMismatch("validation.expected.integer")
+            is SchemaType.BooleanType -> text.toBooleanStrictOrNull() ?: reportTypeMismatch("validation.expected.boolean")
+            is SchemaType.PathType -> (baseDir.resolveOrNull(text) ?: reportTypeMismatch("validation.expected.path")).let {
                 if (type.isTraceableWrapped) it?.asTraceable(origin.trace) else it
             }
-            is SchemaType.EnumType -> tryReadEnum(text, type.declaration, origin, report).let {
+            is SchemaType.EnumType -> tryReadEnum(text, type.declaration, origin).let {
                 if (type.isTraceableWrapped) {
                     (it as Enum<*>?)?.asTraceable(origin.trace)
                 } else it
@@ -170,23 +167,19 @@ internal class ReaderCtx(params: TreeReadRequest) {
     private fun VirtualFile.resolveOrNull(part: String): Path? =
         part.toNioPathOrNull()?.let { toNioPathOrNull()?.resolve(it)?.absolute()?.normalize() }
 
-    private fun String.splitByCamelHumps() = sequence {
-        onEach { if (it.isUpperCase()) yield(' ') }.forEach { yield(it.lowercase()) }
-    }.joinToString("").trimStart()
-
     /**
      * Try to read value of a specified [enum] from the [YAMLScalar] and return `null` if failed.
      */
-    private fun tryReadEnum(text: String, enum: SchemaEnumDeclaration, origin: PsiElement, report: Boolean): Any? {
+    private fun tryReadEnum(text: String, enum: SchemaEnumDeclaration, origin: PsiElement): Any? {
         val values = enum.entries
         val selectedEntry = values.firstOrNull { it.schemaValue == text }
-        if (selectedEntry == null && report) {
+        if (selectedEntry == null) {
+            val suggestedValues = values.filter { it.isIncludedIntoJsonSchema }.joinToString { it.schemaValue }
             problemReporter.reportBundleError(
                 source = origin.asBuildProblemSource(),
-                messageKey = if (values.size > 10) "validation.unknown.enum.value.short" else "validation.unknown.enum.value",
-                enum.simpleName().splitByCamelHumps(),
+                messageKey = "validation.unknown.enum.value",
                 text,
-                values.joinToString { it.schemaValue },
+                suggestedValues,
                 buildProblemId = "validation.unknown.enum.value",
                 problemType = BuildProblemType.TypeMismatch,
             )
