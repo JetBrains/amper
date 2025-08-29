@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.asBuildProblemSource
@@ -33,7 +34,8 @@ object JvmReleaseLowerThanDependencies : AomModelDiagnosticFactory {
             // A null JVM release means we use the JDK's default source/target/release configuration
             val thisJvmRelease = module.jvmRelease() ?: DefaultJdkVersion
             module.fragments
-                .filterNot { it.isTest }
+                // No need to warn for tests fragments, because any real problem would be noticed during the tests
+                .filter { !it.isTest && it.platforms.any(Platform::isAffectedByJvmRelease) }
                 .flatMap { it.externalDependencies }
                 .filterIsInstance<LocalModuleDependency>()
                 .forEach { dep ->
@@ -52,6 +54,8 @@ object JvmReleaseLowerThanDependencies : AomModelDiagnosticFactory {
         }
     }
 }
+
+private fun Platform.isAffectedByJvmRelease() = this == Platform.JVM || this == Platform.ANDROID
 
 class JvmReleaseTooLowForDependency(
     val module: AmperModule,

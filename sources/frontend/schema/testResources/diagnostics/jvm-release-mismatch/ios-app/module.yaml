@@ -1,0 +1,6 @@
+product: ios/app
+
+dependencies:
+  - ../lib-a
+  - ../lib-b
+  - ../lib-c

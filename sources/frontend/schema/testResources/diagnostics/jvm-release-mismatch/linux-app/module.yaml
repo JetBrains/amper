@@ -1,0 +1,6 @@
+product: linux/app
+
+dependencies:
+  - ../lib-a
+  - ../lib-b
+  - ../lib-c

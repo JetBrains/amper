@@ -2,3 +2,6 @@ modules:
   - lib-a
   - lib-b
   - lib-c
+  - linux-app
+  - macos-app
+  - windows-app

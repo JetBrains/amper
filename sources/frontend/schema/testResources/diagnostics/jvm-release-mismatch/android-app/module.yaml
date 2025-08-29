@@ -1,0 +1,6 @@
+product: android/app
+
+dependencies:
+  - ../lib-a
+  - ../lib-b
+  - <![Warning] Module android-app uses JVM release 17 (default) but depends on module lib-c with a higher JVM release 24!>../lib-c<!>

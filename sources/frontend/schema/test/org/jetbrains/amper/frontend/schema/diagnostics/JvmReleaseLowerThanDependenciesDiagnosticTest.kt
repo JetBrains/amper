@@ -6,20 +6,33 @@ package org.jetbrains.amper.frontend.schema.diagnostics
 
 import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
 import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import kotlin.io.path.Path
 import kotlin.io.path.div
-import kotlin.test.Test
 
 class JvmReleaseLowerThanDependenciesDiagnosticTest : GoldenTestBase(Path("testResources") / "diagnostics" / "jvm-release-mismatch") {
 
-    @Test
-    fun `jvm release lower than dependencies`() {
+    @ParameterizedTest
+    @MethodSource("allModulesInTestProject")
+    fun `jvm release lower than dependencies`(moduleName: String) {
         diagnosticsTest(
-            "lib-a/module",
-            additionalFiles = listOf(
-                "lib-b/module.yaml",
-                "lib-c/module.yaml",
-            ),
+            caseName = "$moduleName/module",
+            additionalFiles = (allModulesInTestProject() - moduleName).map { "$it/module.yaml" },
+        )
+    }
+
+    companion object {
+        @JvmStatic
+        fun allModulesInTestProject(): List<String> = listOf(
+            "android-app",
+            "ios-app",
+            "lib-a",
+            "lib-b",
+            "lib-c",
+            "linux-app",
+            "macos-app",
+            "windows-app",
         )
     }
 }

@@ -1,7 +1,7 @@
 product:
   type: lib
-  platforms: [ jvm ]
+  platforms: [ android, jvm, iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64 ]
 
 settings:
   jvm:
-    <![Warning] Module lib-b uses JVM release 17 (default) but depends on module lib-c with a higher JVM release 24!><![Warning] Module lib-a uses JVM release 11 but depends on module lib-c with a higher JVM release 24!>release: 24<!><!>
+    <![Warning] Module android-app uses JVM release 17 (default) but depends on module lib-c with a higher JVM release 24!><![Warning] Module lib-a uses JVM release 11 but depends on module lib-c with a higher JVM release 24!><![Warning] Module lib-b uses JVM release 17 (default) but depends on module lib-c with a higher JVM release 24!>release: 24<!><!><!>
