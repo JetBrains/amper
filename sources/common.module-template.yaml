@@ -30,6 +30,7 @@ repositories:
 
 settings:
   publishing:
+    enabled: false # temporary crutch before we change the default value to 'false'
     group: org.jetbrains.amper
     version: 1.0-SNAPSHOT
 
