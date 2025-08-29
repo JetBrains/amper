@@ -1,0 +1,111 @@
+settings@jvm
+  compose:
+     enabled: false  # [default]
+     experimental:
+        hotReload:
+           enabled: false  # [default]
+
+
+     resources:
+        enabled: false  # [default]
+        exposedAccessors: false  # [default]
+        packageName:   # [default]
+
+     version: 1.8.0  # [default]
+
+  internal:
+     excludeDependencies: []  # [default]
+
+  java:
+     annotationProcessing:
+        processorOptions: {}  # [default]
+        processors: []  # [default]
+
+     freeCompilerArgs: []  # [default]
+
+  junit: junit-5  # [default]
+  jvm:
+     mainClass:
+
+     release: 17  # [default]
+     runtimeClasspathMode: jars  # [default]
+     storeParameterNames: false  # [default]
+     test:
+        freeJvmArgs: []  # [default]
+        systemProperties: {}  # [default]
+
+
+  kotlin:
+     allOpen:
+        annotations:
+
+        enabled: false  # [default]
+        presets:
+
+
+     allWarningsAsErrors: false  # [default]
+     apiVersion: 2.2  # [Inherited from 'languageVersion']
+     debug:
+
+     freeCompilerArgs:
+
+     ksp:
+        processorOptions: {}  # [default]
+        processors: []  # [default]
+        version: 2.2.0-2.0.2  # [default]
+
+     languageFeatures:
+
+     languageVersion: 2.2  # [default]
+     linkerOptions:
+
+     noArg:
+        annotations:
+
+        enabled: false  # [default]
+        invokeInitializers: false  # [default]
+        presets:
+
+
+     optIns:
+
+     optimization:
+
+     powerAssert:
+        enabled: false  # [default]
+        functions: [
+           kotlin.assert
+        ]
+
+     progressiveMode: false  # [default]
+     serialization:
+        enabled: false  # [Enabled when 'format' is specified]
+        format:
+
+        version: 1.8.0  # [default]
+
+     suppressWarnings: false  # [default]
+     verbose: false  # [default]
+
+  kover:
+
+  ktor:
+     enabled: false  # [default]
+     version: 3.1.1  # [default]
+
+  lombok:
+     enabled: false  # [default]
+     version: 1.18.38  # [default]
+
+  publishing:
+     enabled: true  # [default]
+     group:
+
+     name:
+
+     version:
+
+
+  springBoot:
+     enabled: false  # [default]
+     version: 3.4.3  # [default]

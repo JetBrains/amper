@@ -266,6 +266,16 @@ data class AmperCliResult(
     val stdout: String,
     val stderr: String,
 ) {
+    /**
+     * The contents of [stdout] without any sporadic wrapper bootstrap messages (downloads / synchronization) that can
+     * sometimes appear at the beginning.
+     */
+    val stdoutClean: String by lazy {
+        stdout.lines()
+            .dropWhile { it.isEmpty() || it.isSporadicWrapperBootstrapMessage() }
+            .joinToString("\n")
+    }
+
     val infoLogsPath = logsDir?.resolve("info.log")
     val debugLogsPath = logsDir?.resolve("debug.log")
     val tracesPath = logsDir?.resolve("opentelemetry_traces.jsonl")
@@ -287,3 +297,14 @@ data class AmperCliResult(
 
 private fun String.prependIndentWithEmptyMark(indent: String): String =
     trim().ifEmpty { "<empty>" }.prependIndent(indent)
+
+
+private val sporadicWrapperBootstrapMessagePrefixes = setOf(
+    "Another Amper instance",
+    "Downloading Amper distribution",
+    "Downloading JetBrains Runtime",
+    "Download complete",
+)
+
+private fun String.isSporadicWrapperBootstrapMessage(): Boolean =
+    sporadicWrapperBootstrapMessagePrefixes.any { this.startsWith(it) }

@@ -115,21 +115,6 @@ class ProjectFileTest : AmperCliTestBase() {
         assertEquals(expected, r.stderr.trim())
     }
 
-    private fun assertModulesList(modulesCommandResult: AmperCliResult, expectedModules: List<String>) {
-        // TODO should we have a machine-readable output format without banner/logs location messages?
-        val modules = modulesCommandResult.stdout.lines()
-            .dropWhile { it.isEmpty() || it.isSporadicWrapperBootstrapMessage() }
-            .dropLastWhile { it.isEmpty() }
-        return assertEquals(expectedModules, modules)
-    }
-
-    private val sporadicWrapperBootstrapMessagePrefixes = setOf(
-        "Another Amper instance",
-        "Downloading Amper distribution",
-        "Downloading JetBrains Runtime",
-        "Download complete",
-    )
-
-    private fun String.isSporadicWrapperBootstrapMessage(): Boolean =
-        sporadicWrapperBootstrapMessagePrefixes.any { this.startsWith(it) }
+    private fun assertModulesList(modulesCommandResult: AmperCliResult, expectedModules: List<String>) =
+        assertEquals(expectedModules, modulesCommandResult.stdoutClean.trim().lines())
 }
