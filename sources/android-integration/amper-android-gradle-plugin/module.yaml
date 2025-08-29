@@ -21,5 +21,6 @@ settings:
   kotlin:
     serialization: json
   publishing:
+    enabled: true
     group: org.jetbrains.amper.android.settings.plugin
     name: org.jetbrains.amper.android.settings.plugin.gradle.plugin

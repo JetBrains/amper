@@ -4,3 +4,9 @@ product:
 
 apply:
   - ../../common.module-template.yaml
+
+settings:
+  publishing:
+    # Currently, we add the amper-extensibility-api as a regular dependency downloaded from maven,
+    # so we have to publish it.
+    enabled: true
