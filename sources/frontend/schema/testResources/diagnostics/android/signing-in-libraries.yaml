@@ -4,4 +4,4 @@ product:
 
 settings:
   android:
-    signing: <![Warning] This setting cannot be applied to a product type lib. Supported product types are: android/app!>enabled<!>
+    signing: <![Warning] Setting 'signing' cannot be applied to product type 'lib'. Supported product types are: android/app!>enabled<!>

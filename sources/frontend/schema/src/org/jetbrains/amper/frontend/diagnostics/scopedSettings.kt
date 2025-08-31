@@ -26,6 +26,7 @@ import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.stdlib.collections.joinToString
 
 /**
  * [naturalHierarchy] with [COMMON] and leaves included.
@@ -58,6 +59,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
                     IncorrectSettingsSection(
                         trace = prop.value.trace,
                         messageKey = "settings.unexpected.platform",
+                        prop.key, // TODO use full path of the property instead
                         level = Level.Error,
                     )
                 )
@@ -74,9 +76,21 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
                 problemReporter.reportMessage(
                     IncorrectSettingsSection(
                         trace = prop.value.trace,
-                        messageKey = "settings.incorrect.platform",
-                        effectivePlatforms.joinToString { it.schemaValue },
-                        platforms.joinToString { it.schemaValue },
+                        messageKey = "settings.incorrect.platforms",
+                        prop.key, // TODO use full path of the property instead
+                        effectivePlatforms.size,
+                        effectivePlatforms.toList().joinToString(
+                            separator = ", ",
+                            lastSeparator = ", or",
+                            separatorForSize2 = " or ",
+                            transform = { "'${it.schemaValue}'" }
+                        ),
+                        platforms.toList().joinToString(
+                            separator = ", ",
+                            lastSeparator = ", and",
+                            separatorForSize2 = " and ",
+                            transform = { "'${it.schemaValue}'" }
+                        ),
                         level = Level.Warning,
                     )
                 )
@@ -88,6 +102,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
                 IncorrectSettingsSection(
                     trace = prop.value.trace,
                     messageKey = "settings.incorrect.product.type",
+                    prop.key, // TODO use full path of the property instead
                     usedProductType,
                     productTypes.joinToString { it.value },
                     level = Level.Warning,
