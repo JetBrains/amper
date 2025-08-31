@@ -93,7 +93,7 @@ open class TrivialTraceable(override val trace: Trace) : Traceable
 /**
  * A value that can persist its trace.
  */
-abstract class TraceableValue<T : Any>(val value: T, trace: Trace) : TrivialTraceable(trace) {
+abstract class TraceableValue<T>(val value: T, trace: Trace) : TrivialTraceable(trace) {
     override fun toString() = value.toString()
     override fun hashCode() = value.hashCode()
     override fun equals(other: Any?) = this === other || other?.asSafely<TraceableValue<*>>()?.value == value
