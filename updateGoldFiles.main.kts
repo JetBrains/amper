@@ -28,19 +28,21 @@ fun updateGoldFiles() {
 @Suppress("PROCESS_BUILDER_START_LEAK")
 fun runSchemaTests() {
     println("Running schema and dr tests to generate .tmp result files...")
-    val isWindows = System.getProperty("os.name").startsWith("Win", ignoreCase = true)
-    val amperScript = amperRootDir.resolve(if (isWindows) "amper.bat" else "amper")
-    val exitCode = ProcessBuilder(amperScript.pathString, "test", "-m", "schema", "-m", "dr")
-        .inheritIO()
-        .start()
-        .waitFor()
+    val exitCode1 = runAmperCli("test", "-m", "schema", "-m", "dr")
+    val exitCode2 = runAmperCli("test", "-m", "amper-cli-test", "--include-classes=*.ShowSettingsCommandTest")
     println()
-    if (exitCode == 0) {
+    if (exitCode1 == 0 && exitCode2 == 0) {
         println("Tests succeeded, which means no new .tmp files were generated.")
     } else {
-        println("Tests failed, but it's ok if it's because of the failed schema or dr tests.")
+        println("Tests failed, but it's ok if it's because of the gold files.")
     }
     println()
+}
+
+fun runAmperCli(vararg args: String): Int {
+    val isWindows = System.getProperty("os.name").startsWith("Win", ignoreCase = true)
+    val amperScript = amperRootDir.resolve(if (isWindows) "amper.bat" else "amper")
+    return ProcessBuilder(amperScript.pathString, *args).inheritIO().start().waitFor()
 }
 
 fun updateGoldFileFor(tmpResultFile: Path) {
