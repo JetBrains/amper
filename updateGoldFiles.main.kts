@@ -11,6 +11,7 @@ import kotlin.io.path.*
 private val amperRootDir: Path = __FILE__.toPath().absolute().parent
 private val drModuleDir = amperRootDir / "sources/frontend/dr"
 private val schemaModuleDir = amperRootDir / "sources/frontend/schema"
+private val cliTestsModuleDir = amperRootDir / "sources/test-integration/amper-cli-test"
 private val testResourcesDir = schemaModuleDir / "testResources"
 private val testResourcePathRegex = Regex("(${Regex.escape(testResourcesDir.absolutePathString())})[^),\"'\n\r]*")
 
@@ -18,7 +19,7 @@ fun updateGoldFiles() {
     // regenerate .tmp files from broken tests
     runSchemaTests()
 
-    (drModuleDir.walk() + schemaModuleDir.walk())
+    (drModuleDir.walk() + schemaModuleDir.walk() + cliTestsModuleDir.walk())
         .filter { it.name.endsWith(".tmp") }
         .forEach { tmpResultFile ->
             updateGoldFileFor(tmpResultFile)
