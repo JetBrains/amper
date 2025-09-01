@@ -30,7 +30,7 @@ class DefaultLeafFragment(
     module: AmperModule,
     isTest: Boolean,
     externalDependencies: List<Notation>,
-    relevantSettings: Settings?,
+    relevantSettings: Settings,
     moduleFile: VirtualFile,
 ) : DefaultFragment(seed, module, isTest, externalDependencies, relevantSettings, moduleFile), LeafFragment {
     init {
@@ -45,7 +45,7 @@ open class DefaultFragment(
     final override val module: AmperModule,
     final override val isTest: Boolean,
     override var externalDependencies: List<Notation>,
-    relevantSettings: Settings?,
+    override val settings: Settings,
     moduleFile: VirtualFile,
 ) : Fragment {
     final override val modifier = seed.modifier
@@ -65,8 +65,6 @@ open class DefaultFragment(
     }
 
     final override val platforms = seed.platforms
-
-    override val settings = relevantSettings ?: Settings()
 
     override val isDefault = true
 
