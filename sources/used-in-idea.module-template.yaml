@@ -1,3 +1,3 @@
 settings:
   jvm:
-    release: 17 # necessary for IDEA for now
+    release: 21 # Modules used in IntelliJ should have release version aligned with the SDK
