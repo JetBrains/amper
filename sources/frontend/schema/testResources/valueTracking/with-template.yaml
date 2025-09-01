@@ -1,7 +1,0 @@
-product: jvm/app
-
-apply:
-  - template.module-template.yaml
-
-settings:
-  compose: enabled

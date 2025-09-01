@@ -1,9 +1,0 @@
-product: jvm/app
-
-apply:
-  - collection.module-template.yaml
-
-settings:
-  kotlin:
-    freeCompilerArgs:
-      - boobaz

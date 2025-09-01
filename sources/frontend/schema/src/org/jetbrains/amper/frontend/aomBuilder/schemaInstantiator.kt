@@ -82,7 +82,7 @@ private fun createNode(
             val declaration = type.declaration
             declaration.createInstance().apply {
                 @OptIn(InternalTraceSetter::class)
-                setTrace(value.trace)
+                trace = value.trace
                 declaration.properties.forEach { property ->
                     val mapLikePropertyValue = value.refinedChildren[property.name]
                     if (mapLikePropertyValue == null) {

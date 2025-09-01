@@ -29,8 +29,6 @@ sealed interface TreeValue<out TS : TreeState> : WithContexts {
     fun withContexts(contexts: Contexts): TreeValue<TS>
 }
 
-val TreeValue<*>.isDefault get() = trace is DefaultTrace
-
 sealed interface ScalarOrReference<out TS : TreeState> : TreeValue<TS> {
     val value: Any
 }

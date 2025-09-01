@@ -1,8 +1,0 @@
-product: jvm/app
-
-apply:
-  - template-override.module-template.yaml
-
-settings:
-  compose:
-    enabled: true

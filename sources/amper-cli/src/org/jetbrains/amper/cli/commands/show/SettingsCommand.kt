@@ -23,7 +23,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.valueTracking.TracesPresentation
-import org.jetbrains.amper.frontend.valueTracking.compositeValueTracesInfo
+import org.jetbrains.amper.frontend.valueTracking.renderSettings
 
 internal class SettingsCommand : AmperModelAwareCommand(name = "settings") {
 
@@ -61,12 +61,12 @@ internal class SettingsCommand : AmperModelAwareCommand(name = "settings") {
             "settings"
         }
         terminal.println(settingsNodeName, Whitespace.PRE_LINE, TextAlign.LEFT)
-        val yamlLikeEffectiveSettings = compositeValueTracesInfo(
+        val yamlLikeEffectiveSettings = renderSettings(
             value = fragment.settings,
             containingFile = null,
             product = productType,
             contexts = fragment.platforms,
-            presentation = TracesPresentation.CLI
+            presentation = TracesPresentation.CLI,
         ) ?: return
         // whitespace ahead is necessary for copy-pastability
         terminal.println(yamlLikeEffectiveSettings.prependIndent("  "))

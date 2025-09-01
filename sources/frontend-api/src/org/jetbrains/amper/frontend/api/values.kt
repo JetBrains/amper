@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend.api
 
-import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
 import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
@@ -15,21 +13,6 @@ import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.isAccessible
 
-/**
- * Key, pointing to schema value, that was connected to [PsiElement].
- */
-val linkedAmperValue = Key.create<SchemaValueDelegate<*>>("org.jetbrains.amper.frontend.linkedValue")
-
-/**
- * Key, pointing to schema enum value, that was connected to [PsiElement].
- */
-val linkedAmperEnumValue = Key.create<Enum<*>>("org.jetbrains.amper.frontend.linkedEnumValue")
-
-/**
- * Key, pointing to schema node, that was connected to [PsiElement].
- */
-val linkedAmperNode = Key.create<SchemaNode>("org.jetbrains.amper.frontend.linkedNode")
-
 typealias ValueHolders = MutableMap<String, ValueHolder<*>>
 
 data class ValueHolder<T>(
@@ -37,6 +20,9 @@ data class ValueHolder<T>(
     val trace: Trace? = null,
 )
 
+/**
+ * This setter is made public but should never be used outside the Amper frontend.
+ */
 @RequiresOptIn
 annotation class InternalTraceSetter
 
@@ -92,16 +78,8 @@ abstract class SchemaNode : Traceable {
 
     @IgnoreForSchema
     final override lateinit var trace: Trace
-        private set
-
-    // we have to use a setter method because custom var setters are not allowed for lateinit vars
-    @InternalTraceSetter
-    fun setTrace(trace: Trace) {
-        if (trace is PsiTrace) {
-            trace.psiElement.putUserData(linkedAmperNode, this)
-        }
-        this.trace = trace
-    }
+        @InternalTraceSetter
+        set
 }
 
 sealed class Default<out T> {
@@ -177,9 +155,6 @@ class SchemaValueDelegate<T>(
             }
             error("Required property '${property.name}' is not set")
         }
-
-    // FIXME remove this, it doesn't make sense
-    val unsafe: T? get() = valueGetter()?.value ?: default?.value
 
     val withoutDefault: ValueHolder<T>? get() = valueGetter()
 
@@ -258,10 +233,6 @@ abstract class SchemaValuesVisitor {
  * This wrapper allows persisting a trace in such scenarios.
  */
 class TraceableEnum<T : Enum<*>>(value: T, trace: Trace) : TraceableValue<T>(value, trace) {
-
-    init {
-        if (trace is PsiTrace) trace.psiElement.putUserData(linkedAmperEnumValue, this.value)
-    }
 
     override fun toString(): String = value.toString()
 }

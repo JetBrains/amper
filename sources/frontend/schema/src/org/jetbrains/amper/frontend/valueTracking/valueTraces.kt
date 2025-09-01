@@ -7,12 +7,9 @@ package org.jetbrains.amper.frontend.valueTracking
 import com.intellij.openapi.application.ReadAction
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Default
-import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.PsiTrace
@@ -25,7 +22,6 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.tree.scalarValue
 import kotlin.reflect.full.findAnnotation
 
 private sealed class PropertyWithSource(
@@ -46,7 +42,7 @@ private sealed class PropertyWithSource(
     ) : PropertyWithSource(name, applicablePlatforms, applicableProductTypes)
 }
 
-sealed class ValueSource {
+private sealed class ValueSource {
     data object Default : ValueSource()
     class DependentDefault(val desc: String, val element: PsiElement?) : ValueSource()
     class Element(val element: PsiElement) : ValueSource()
@@ -121,26 +117,13 @@ private class CollectingVisitor(
     }
 }
 
+// TODO: unify 'renderSettings' with HumanReadableSerializerVisitor, and generalize this
 enum class TracesPresentation {
     IDE,
     CLI,
-    Tests
 }
 
-@UsedInIdePlugin
-fun tracesInfo(
-    linkedValue: SchemaValueDelegate<*>?,
-    containingFile: PsiFile?,
-    productType: ProductType?,
-    contexts: Set<Platform>,
-    presentation: TracesPresentation = TracesPresentation.IDE
-): String {
-    return (compositeValueTracesInfo(linkedValue?.unsafe, containingFile, productType, contexts, presentation)
-        ?.let { prependPrefix(it, presentation) }
-        ?: precedingValueTrace(linkedValue, containingFile, presentation) ?: "")
-}
-
-fun compositeValueTracesInfo(
+fun renderSettings(
     value: Any?,
     containingFile: PsiFile?,
     product: ProductType?,
@@ -305,45 +288,3 @@ private fun getFileName(
             }
         } else containingFile?.name
     }
-
-private fun precedingValueTrace(
-    linkedValue: SchemaValueDelegate<*>?,
-    containingFile: PsiFile?,
-    presentation: TracesPresentation,
-): String? {
-    return linkedValue?.trace?.precedingValue?.let {
-        val trace = it.trace
-        // FIXME This is not working with any collections/maps.
-        //  That should be fixed by getting TreeValue out from the delegate or event building traces
-        //  for the raw TreeValue.
-        val defaultValue = it.scalarValue<Any>()
-        when {
-            trace is DefaultTrace -> {
-                presentation.sectionSeparator + SchemaBundle.message(
-                    "tracing.overrides.default",
-                    presentation.wrapValue(
-                        presentableValue(defaultValue, containingFile, presentation)
-                    )
-                )
-            }
-
-            trace is PsiTrace && defaultValue != linkedValue.value -> {
-                getFileName(trace.psiElement, presentation = presentation)?.let { fileName ->
-                    presentation.sectionSeparator + SchemaBundle.message(
-                        "tracing.overrides",
-                        presentation.wrapValue(
-                            presentableValue(
-                                defaultValue,
-                                containingFile,
-                                presentation
-                            )
-                        ),
-                        fileName
-                    )
-                }
-            }
-
-            else -> ""
-        }
-    }
-}
