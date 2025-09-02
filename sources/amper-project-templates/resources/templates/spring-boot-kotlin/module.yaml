@@ -6,6 +6,7 @@ settings:
     mainClass: org.jetbrains.amper.spring.MainKt
 
 dependencies:
+  - $kotlin.reflect
   - $spring.boot.starter
 
 test-dependencies:
