@@ -1,3 +1,6 @@
 settings:
+  kotlin:
+    serialization:
+      version: 1.8.1 # Aligned with IntelliJ platform
   jvm:
     release: 21 # Modules used in IntelliJ should have release version aligned with the SDK
