@@ -202,17 +202,18 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
 
     if (settings.ktor.enabled) {
         val ktorVersion = settings.ktor::version.schemaDelegate.asTraceableString()
-        val ktorEnabledTrace = settings.ktor::enabled.schemaDelegate.trace
-        add(ktorBomDependency(ktorVersion, dependencyTrace = ktorEnabledTrace))
+        val ktorAutoApplyBomTrace = settings.ktor::autoApplyBom.schemaDelegate.trace
+        if (settings.ktor.autoApplyBom) {
+            add(ktorBomDependency(ktorVersion, dependencyTrace = ktorAutoApplyBomTrace))
+        }
     }
 
     if (settings.springBoot.enabled) {
         val springBootVersion = settings.springBoot::version.schemaDelegate.asTraceableString()
-        val springBootEnabledTrace = settings.springBoot::enabled.schemaDelegate.trace
+        val springBootAutoApplyBomTrace = settings.springBoot::autoApplyBom.schemaDelegate.trace
         if (settings.springBoot.autoApplyBom) {
-            add(springBootBomDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
+            add(springBootBomDependency(springBootVersion, dependencyTrace = springBootAutoApplyBomTrace))
         }
-        add(kotlinDependencyOf("kotlin-reflect", kotlinVersion, dependencyTrace = springBootEnabledTrace))
     }
 
     if (module.type == ProductType.JVM_AMPER_PLUGIN) {

@@ -255,6 +255,9 @@ class KtorSettings: SchemaNode() {
 
     @SchemaDoc("Ktor version")
     var version by value(default = UsedVersions.ktorVersion)
+
+    @SchemaDoc("Whether to apply the Ktor BOM or not")
+    var autoApplyBom by value(default = true)
 }
 
 class SpringBootSettings: SchemaNode() {
