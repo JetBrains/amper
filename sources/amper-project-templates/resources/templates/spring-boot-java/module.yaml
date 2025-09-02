@@ -5,3 +5,8 @@ settings:
   jvm:
     mainClass: org.jetbrains.amper.spring.Main
 
+dependencies:
+  - $spring.boot.starter
+
+test-dependencies:
+  - $spring.boot.starter.test

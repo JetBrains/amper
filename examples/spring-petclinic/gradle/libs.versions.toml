@@ -4,6 +4,10 @@ webjarsFontawesomeVersion = "4.7.0"
 webjarsBootstrapVersion = "5.3.3"
 
 [libraries]
+
+h2 = { module = "com.h2database:h2" }
+mysql-connector-j = { module = "com.mysql:mysql-connector-j" }
+postgresql = { module = "org.postgresql:postgresql" }
 webjarsLocatorLite = { module = "org.webjars:webjars-locator-lite", version.ref = "webjarsLocatorLiteVersion" }
 webJarsBootsrtap = { module = "org.webjars.npm:bootstrap", version.ref = "webjarsBootstrapVersion" }
 fontawesome = { module = "org.webjars.npm:font-awesome", version.ref = "webjarsFontawesomeVersion" }

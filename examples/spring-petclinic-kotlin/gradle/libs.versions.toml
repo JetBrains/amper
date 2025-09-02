@@ -8,6 +8,8 @@ jakartaXmlBindVersion = "4.0.2"
 cacheApiVersion = "1.1.1"
 
 [libraries]
+h2 = { module = "com.h2database:h2" }
+mysql-connector-j = { module = "com.mysql:mysql-connector-j" }
 webjarsLocatorLite = { module = "org.webjars:webjars-locator-lite", version.ref = "webjarsLocatorLiteVersion" }
 webJarsBootsrtap = { module = "org.webjars.npm:bootstrap", version.ref = "webjarsBootstrapVersion" }
 fontawesome = { module = "org.webjars.npm:font-awesome", version.ref = "webjarsFontawesomeVersion" }

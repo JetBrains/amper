@@ -4,3 +4,9 @@ settings:
   springBoot: enabled
   jvm:
     mainClass: org.jetbrains.amper.spring.MainKt
+
+dependencies:
+  - $spring.boot.starter
+
+test-dependencies:
+  - $spring.boot.starter.test

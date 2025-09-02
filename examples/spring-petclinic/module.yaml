@@ -20,14 +20,15 @@ dependencies:
   - $libs.fontawesome: runtime-only
 
   - $libs.caffeine: runtime-only
-  - $h2: runtime-only
-  - $mysql.connector.j: runtime-only
-  - $postgresql: runtime-only
+  - $libs.h2: runtime-only
+  - $libs.mysql.connector.j: runtime-only
+  - $libs.postgresql: runtime-only
 
   - $spring.boot.devtools: runtime-only
 
 
 test-dependencies:
+  - $spring.boot.starter.test
   - $spring.boot.testcontainers
   - $spring.boot.docker.compose
   - $libs.testcontainers.junitJupiter
