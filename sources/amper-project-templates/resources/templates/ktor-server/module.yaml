@@ -9,7 +9,7 @@ dependencies:
   - $ktor.server.core
   - $ktor.server.netty
   - $ktor.server.configYaml
-  - $logback.classic
+  - ch.qos.logback:logback-classic:1.5.18
 
 test-dependencies:
   - $ktor.server.testHost
