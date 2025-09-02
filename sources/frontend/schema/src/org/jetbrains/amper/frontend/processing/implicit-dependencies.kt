@@ -209,8 +209,9 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     if (settings.springBoot.enabled) {
         val springBootVersion = settings.springBoot::version.schemaDelegate.asTraceableString()
         val springBootEnabledTrace = settings.springBoot::enabled.schemaDelegate.trace
-        add(springBootBomDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
-        add(springBootStarterDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
+        if (settings.springBoot.autoApplyBom) {
+            add(springBootBomDependency(springBootVersion, dependencyTrace = springBootEnabledTrace))
+        }
         add(kotlinDependencyOf("kotlin-reflect", kotlinVersion, dependencyTrace = springBootEnabledTrace))
     }
 
@@ -241,12 +242,6 @@ private fun Fragment.inferredTestDependencies(): List<MavenDependency> = buildLi
     } else {
         add(kotlinDependencyOf("kotlin-test", kotlinVersion, DefaultTrace))
         add(kotlinDependencyOf("kotlin-test-annotations-common", kotlinVersion, DefaultTrace))
-    }
-
-    if (settings.springBoot.enabled) {
-        val springBootVersion = settings.springBoot::version.schemaDelegate.asTraceableString()
-        val springBootEnabledTrace = settings.springBoot::enabled.schemaDelegate.trace
-        add(springBootStarterTestDependency(springBootVersion, springBootEnabledTrace))
     }
 }
 

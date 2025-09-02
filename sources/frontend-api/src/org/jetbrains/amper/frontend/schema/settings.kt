@@ -265,6 +265,9 @@ class SpringBootSettings: SchemaNode() {
 
     @SchemaDoc("Spring Boot version")
     var version by value(default = UsedVersions.springBootVersion)
+
+    @SchemaDoc("Whether to apply the spring-boot-dependencies BOM or not")
+    var autoApplyBom by value(default = true)
 }
 
 class LombokSettings: SchemaNode() {
