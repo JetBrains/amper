@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.catalogs
 
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.UsedVersions.logbackVersion
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.InMemoryVersionCatalog
@@ -244,8 +243,6 @@ private class BuiltInCatalog(
             put("ktor.sse", library("io.ktor:ktor-sse"))
             put("ktor.utils", library("io.ktor:ktor-utils"))
             put("ktor.websocket.serialization", library("io.ktor:ktor-websocket-serialization"))
-
-            put("logback.classic", library("ch.qos.logback:logback-classic", logbackVersion))
         }
 
         // Spring Boot dependencies

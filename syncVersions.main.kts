@@ -50,7 +50,6 @@ val junitPlatformVersion = "1.12.1"
 val kotlinxSerializationVersion = "1.8.0"
 val kspVersion = "2.2.0-2.0.2" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
 val ktorVersion = "3.1.1"
-val logbackVersion = "1.5.18"
 val springBootVersion = "3.4.3"
 
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
@@ -96,7 +95,6 @@ fun updateUsedVersionsKt() {
             .replaceBundledVersionVariable(variableName = "kspVersion", newValue = kspVersion)
             .replaceBundledVersionVariable(variableName = "hotReloadVersion", newValue = hotReloadVersion)
             .replaceBundledVersionVariable(variableName = "ktorVersion", newValue = ktorVersion)
-            .replaceBundledVersionVariable(variableName = "logbackVersion", newValue = logbackVersion)
     }
 }
 

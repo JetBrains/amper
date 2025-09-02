@@ -17,7 +17,6 @@ object UsedVersions {
     /*magic_replacement*/ val kotlinxSerializationVersion = "1.8.0"
     /*magic_replacement*/ val kspVersion = "2.2.0-2.0.2"
     /*magic_replacement*/ val ktorVersion = "3.1.1"
-    /*magic_replacement*/ val logbackVersion = "1.5.18"
     /*magic_replacement*/ val lombokVersion = "1.18.38"
     /*magic_replacement*/ val springBootVersion = "3.4.3"
 }
