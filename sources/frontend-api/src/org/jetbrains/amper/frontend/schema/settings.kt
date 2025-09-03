@@ -47,7 +47,7 @@ class Settings : SchemaNode() {
     var android by value(::AndroidSettings)
 
     @PlatformAgnostic
-    @SchemaDoc("[Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework." +
+    @SchemaDoc("[Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework. " +
             "Read more about [Compose configuration](#configuring-compose-multiplatform)")
     var compose by value(::ComposeSettings)
 
