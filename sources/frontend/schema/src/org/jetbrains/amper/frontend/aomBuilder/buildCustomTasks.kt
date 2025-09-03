@@ -34,7 +34,6 @@ import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.pathString
 
-@OptIn(NonIdealDiagnostic::class)
 internal fun BuildCtx.buildCustomTask(
     customTaskFile: VirtualFile,
     allModules: List<ModuleBuildCtx>,
@@ -42,6 +41,7 @@ internal fun BuildCtx.buildCustomTask(
     val dir2module = allModules.associateBy { it.moduleFile.parent.toNioPath().absolute() }
 
     val module = dir2module[customTaskFile.parent.toNioPath().absolute()] ?: run {
+        @OptIn(NonIdealDiagnostic::class)
         problemReporter.reportMessage(
             buildProblemId = "INVALID_CUSTOM_TASK_FILE_PATH",
             source = WholeFileBuildProblemSource(customTaskFile.toNioPath()),
