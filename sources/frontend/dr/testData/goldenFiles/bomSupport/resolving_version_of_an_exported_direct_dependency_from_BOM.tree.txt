@@ -3,8 +3,8 @@ Module app
 │ - scope = COMPILE
 │ - platforms = [jvm]
 ├─── Module B
-│    ├─── B:common:io.ktor:ktor-client-core:unspecified
-│    │    ╰─── io.ktor:ktor-client-core:unspecified -> 3.1.1
+│    ├─── B:common:io.ktor:ktor-client-core:3.1.1
+│    │    ╰─── io.ktor:ktor-client-core:3.1.1
 │    │         ╰─── io.ktor:ktor-client-core-jvm:3.1.1
 │    │              ├─── org.slf4j:slf4j-api:2.0.16
 │    │              ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
@@ -84,12 +84,11 @@ Module app
 │    │              │         ├─── io.ktor:ktor-http:3.1.1 (*)
 │    │              │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> #kotlinVersion (*)
 │    │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> #kotlinVersion (*)
-│    ├─── B:jvm:io.ktor:ktor-client-core:unspecified
-│    │    ╰─── io.ktor:ktor-client-core:unspecified -> 3.1.1 (*)
-│    ├─── B:common:io.ktor:ktor-bom:3.1.1
+│    ├─── B:jvm:io.ktor:ktor-client-core:3.1.1
+│    │    ╰─── io.ktor:ktor-client-core:3.1.1 (*)
+│    ├─── B:common:io.ktor:ktor-bom:3.1.1, implicit
 │    │    ╰─── io.ktor:ktor-bom:3.1.1
-│    │         ╰─── io.ktor:ktor-client-core:3.1.1 (c)
-│    ╰─── B:jvm:io.ktor:ktor-bom:3.1.1
-│         ╰─── io.ktor:ktor-bom:3.1.1 (*)
+│    ╰─── B:jvm:io.ktor:ktor-bom:3.1.1, implicit
+│         ╰─── io.ktor:ktor-bom:3.1.1
 ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)

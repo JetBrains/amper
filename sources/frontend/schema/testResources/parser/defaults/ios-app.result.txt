@@ -123,6 +123,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -138,6 +139,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -270,6 +272,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -285,6 +288,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -413,6 +417,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -428,6 +433,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -559,6 +565,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -574,6 +581,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -703,6 +711,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -718,6 +727,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -847,6 +857,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -862,6 +873,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -994,6 +1006,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -1009,6 +1022,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -1138,6 +1152,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -1153,6 +1168,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -1285,6 +1301,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -1300,6 +1317,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -1432,6 +1450,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -1447,6 +1466,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -1576,6 +1596,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -1591,6 +1612,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -1723,6 +1745,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -1738,6 +1761,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -1867,6 +1891,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -1882,6 +1907,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }
@@ -2014,6 +2040,7 @@ Fragments:
       }
       kover: <default> null
       ktor: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.1.1
       }
@@ -2029,6 +2056,7 @@ Fragments:
         version: <default> null
       }
       springBoot: <default> {
+        applyBom: <default> true
         enabled: <default> false
         version: <default> 3.4.3
       }

@@ -95,6 +95,7 @@ settings@jvm
   kover:
 
   ktor:
+     applyBom: true  # [default]
      enabled: false  # [default]
      version: 3.1.1  # [default]
 
@@ -112,5 +113,6 @@ settings@jvm
 
 
   springBoot:
+     applyBom: true  # [default]
      enabled: false  # [default]
      version: 3.4.3  # [default]

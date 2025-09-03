@@ -97,6 +97,7 @@
       "version(DefaultCtx)" : "2.2.0(DefaultCtx)"
     },
     "ktor" : {
+      "applyBom(DefaultCtx)" : "true(DefaultCtx)",
       "enabled(DefaultCtx)" : "false(DefaultCtx)",
       "version(DefaultCtx)" : "3.1.1(DefaultCtx)"
     },
@@ -108,6 +109,7 @@
       "enabled(DefaultCtx)" : "true(DefaultCtx)"
     },
     "springBoot" : {
+      "applyBom(DefaultCtx)" : "true(DefaultCtx)",
       "enabled(DefaultCtx)" : "false(DefaultCtx)",
       "version(DefaultCtx)" : "3.4.3(DefaultCtx)"
     },
