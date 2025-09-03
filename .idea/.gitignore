@@ -6,6 +6,9 @@
 !codeStyles/*
 !copyright
 !copyright/*
+!externalAnnotations
+!externalAnnotations/*
+!externalAnnotations/**/*
 !inspectionProfiles
 !inspectionProfiles/*
 !runConfigurations
