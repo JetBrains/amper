@@ -257,7 +257,7 @@ class KtorSettings: SchemaNode() {
     var version by value(default = UsedVersions.ktorVersion)
 
     @SchemaDoc("Whether to apply the Ktor BOM or not")
-    var autoApplyBom by value(default = true)
+    var applyBom by value(default = true)
 }
 
 class SpringBootSettings: SchemaNode() {
@@ -270,7 +270,7 @@ class SpringBootSettings: SchemaNode() {
     var version by value(default = UsedVersions.springBootVersion)
 
     @SchemaDoc("Whether to apply the spring-boot-dependencies BOM or not")
-    var autoApplyBom by value(default = true)
+    var applyBom by value(default = true)
 }
 
 class LombokSettings: SchemaNode() {

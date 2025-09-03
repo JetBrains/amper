@@ -202,16 +202,16 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
 
     if (settings.ktor.enabled) {
         val ktorVersion = settings.ktor::version.schemaDelegate.asTraceableString()
-        val ktorAutoApplyBomTrace = settings.ktor::autoApplyBom.schemaDelegate.trace
-        if (settings.ktor.autoApplyBom) {
+        val ktorAutoApplyBomTrace = settings.ktor::applyBom.schemaDelegate.trace
+        if (settings.ktor.applyBom) {
             add(ktorBomDependency(ktorVersion, dependencyTrace = ktorAutoApplyBomTrace))
         }
     }
 
     if (settings.springBoot.enabled) {
         val springBootVersion = settings.springBoot::version.schemaDelegate.asTraceableString()
-        val springBootAutoApplyBomTrace = settings.springBoot::autoApplyBom.schemaDelegate.trace
-        if (settings.springBoot.autoApplyBom) {
+        val springBootAutoApplyBomTrace = settings.springBoot::applyBom.schemaDelegate.trace
+        if (settings.springBoot.applyBom) {
             add(springBootBomDependency(springBootVersion, dependencyTrace = springBootAutoApplyBomTrace))
         }
     }
