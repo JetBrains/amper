@@ -75,27 +75,6 @@ private fun springBootBomDependency(springBootVersion: TraceableString, dependen
         trace = dependencyTrace,
     )
 
-private fun springBootStarterDependency(springBootVersion: TraceableString, dependencyTrace: Trace): MavenDependency =
-    MavenDependency(
-        coordinates = TraceableString(
-            value = "org.springframework.boot:spring-boot-starter:${springBootVersion.value}",
-            trace = springBootVersion.trace,
-        ),
-        trace = dependencyTrace,
-    )
-
-private fun springBootStarterTestDependency(
-    springBootVersion: TraceableString,
-    dependencyTrace: Trace,
-): MavenDependency =
-    MavenDependency(
-        coordinates = TraceableString(
-            value = "org.springframework.boot:spring-boot-starter-test:$springBootVersion",
-            trace = springBootVersion.trace,
-        ),
-        trace = dependencyTrace,
-    )
-
 /**
  * Add automatically-added implicit dependencies to default module impl.
  */
