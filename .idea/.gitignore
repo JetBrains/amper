@@ -3,10 +3,15 @@
 
 # Exclude specific things we want to share with the team
 !codeStyles
+!codeStyles/*
 !copyright
+!copyright/*
 !inspectionProfiles
+!inspectionProfiles/*
 !runConfigurations
+!runConfigurations/*
 !scopes
+!scopes/*
 !amper-codeinsight.xml
 !codeInsightSettings.xml
 !icon.svg
