@@ -134,8 +134,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     }
 
     if (settings.compose.enabled && settings.compose.experimental.hotReload.enabled) {
-        // TODO should be configurable
-        val hotReloadVersion = TraceableString(UsedVersions.hotReloadVersion, DefaultTrace)
+        val hotReloadVersion = settings.compose.experimental.hotReload::version.schemaDelegate.asTraceableString()
         val hotReloadEnabledTrace = settings.compose.experimental.hotReload::enabled.schemaDelegate.trace
         add(hotReloadDependency(hotReloadVersion, hotReloadEnabledTrace))
     }

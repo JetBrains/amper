@@ -6,6 +6,7 @@ settings@jvm
      experimental:
         hotReload:
            enabled: false  # [default]
+           version: 1.0.0-beta03  # [default]
 
 
      resources:

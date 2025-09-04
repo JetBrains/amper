@@ -134,6 +134,10 @@ class ComposeExperimentalHotReloadSettings: SchemaNode() {
     @Shorthand
     @SchemaDoc("Enable hot reload")
     var enabled by value(default = false)
+
+    @HiddenFromCompletion
+    @SchemaDoc("The version of the Compose Hot Reload toolchain to use.")
+    var version by value(default = UsedVersions.hotReloadVersion)
 }
 
 class SerializationSettings : SchemaNode() {

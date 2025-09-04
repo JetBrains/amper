@@ -31,7 +31,8 @@
     "compose" : {
       "experimental" : {
         "hotReload" : {
-          "enabled(DefaultCtx)" : "false(DefaultCtx)"
+          "enabled(DefaultCtx)" : "false(DefaultCtx)",
+          "version(DefaultCtx)" : "1.0.0-beta03(DefaultCtx)"
         }
       },
       "resources" : {
