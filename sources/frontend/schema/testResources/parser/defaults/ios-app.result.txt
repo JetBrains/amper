@@ -125,7 +125,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -274,7 +274,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -419,7 +419,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -567,7 +567,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -713,7 +713,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -859,7 +859,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -1008,7 +1008,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -1154,7 +1154,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -1303,7 +1303,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -1452,7 +1452,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -1598,7 +1598,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -1747,7 +1747,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -1893,7 +1893,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false
@@ -2042,7 +2042,7 @@ Fragments:
       ktor: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.1.1
+        version: <default> 3.2.3
       }
       lombok: <default> {
         enabled: <default> false

@@ -99,7 +99,7 @@
     "ktor" : {
       "applyBom(DefaultCtx)" : "true(DefaultCtx)",
       "enabled(DefaultCtx)" : "false(DefaultCtx)",
-      "version(DefaultCtx)" : "3.1.1(DefaultCtx)"
+      "version(DefaultCtx)" : "3.2.3(DefaultCtx)"
     },
     "lombok" : {
       "enabled(DefaultCtx)" : "false(DefaultCtx)",
