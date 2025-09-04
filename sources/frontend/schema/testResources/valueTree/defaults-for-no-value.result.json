@@ -87,7 +87,7 @@
         ]
       },
       "serialization" : {
-        "version(DefaultCtx)" : "1.8.0(DefaultCtx)"
+        "version(DefaultCtx)" : "1.9.0(DefaultCtx)"
       },
       "allWarningsAsErrors(DefaultCtx)" : "false(DefaultCtx)",
       "apiVersion(DefaultCtx)" : "languageVersion(DefaultCtx)",

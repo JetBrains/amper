@@ -86,7 +86,7 @@ settings@jvm
         enabled: false  # [Enabled when 'format' is specified]
         format:
 
-        version: 1.8.0  # [default]
+        version: 1.9.0  # [default]
 
      suppressWarnings: false  # [default]
      verbose: false  # [default]
