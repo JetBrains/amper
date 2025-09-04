@@ -115,7 +115,7 @@ settings@jvm
   springBoot:
      applyBom: true  # [default]
      enabled: false  # [default]
-     version: 3.4.3  # [default]
+     version: 3.5.5  # [default]
 
 
 Module: two
@@ -235,4 +235,4 @@ settings@jvm
   springBoot:
      applyBom: true  # [default]
      enabled: false  # [default]
-     version: 3.4.3  # [default]
+     version: 3.5.5  # [default]

@@ -140,7 +140,7 @@ Fragments:
       springBoot: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.4.3
+        version: <default> 3.5.5
       }
     }
 
@@ -288,7 +288,7 @@ Fragments:
       springBoot: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.4.3
+        version: <default> 3.5.5
       }
     }
 
@@ -434,7 +434,7 @@ Fragments:
       springBoot: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.4.3
+        version: <default> 3.5.5
       }
     }
 
@@ -583,7 +583,7 @@ Fragments:
       springBoot: <default> {
         applyBom: <default> true
         enabled: <default> false
-        version: <default> 3.4.3
+        version: <default> 3.5.5
       }
     }
 

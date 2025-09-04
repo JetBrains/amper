@@ -50,7 +50,7 @@ val junitPlatformVersion = "1.12.1"
 val kotlinxSerializationVersion = "1.9.0"
 val kspVersion = "2.2.0-2.0.2" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
 val ktorVersion = "3.2.3"
-val springBootVersion = "3.4.3"
+val springBootVersion = "3.5.5"
 
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 

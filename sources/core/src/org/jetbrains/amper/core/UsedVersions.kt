@@ -18,5 +18,5 @@ object UsedVersions {
     /*magic_replacement*/ val kspVersion = "2.2.0-2.0.2"
     /*magic_replacement*/ val ktorVersion = "3.2.3"
     /*magic_replacement*/ val lombokVersion = "1.18.38"
-    /*magic_replacement*/ val springBootVersion = "3.4.3"
+    /*magic_replacement*/ val springBootVersion = "3.5.5"
 }

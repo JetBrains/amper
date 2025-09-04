@@ -111,7 +111,7 @@
     "springBoot" : {
       "applyBom(DefaultCtx)" : "true(DefaultCtx)",
       "enabled(DefaultCtx)" : "false(DefaultCtx)",
-      "version(DefaultCtx)" : "3.4.3(DefaultCtx)"
+      "version(DefaultCtx)" : "3.5.5(DefaultCtx)"
     },
     "junit(DefaultCtx)" : "JUNIT5(DefaultCtx)"
   }
