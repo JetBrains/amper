@@ -26,7 +26,7 @@ class DependenciesCommandTest : AmperCliTestBase(), GoldenTest {
     override fun buildDir(): Path = tempRoot
 
     @Test
-    fun `show dependencies command help prints dash dash`() = runSlowTest {
+    fun `show dependencies command prints the correct tree`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root"
