@@ -7,44 +7,17 @@ package org.jetbrains.amper.frontend.diagnostics
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.api.schemaDelegate
-import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.reflect.KProperty0
-
-object InconsistentComposeVersion : AomModelDiagnosticFactory {
-    const val diagnosticId: BuildProblemId = "inconsistent.compose.versions"
-
-    override fun analyze(model: Model, problemReporter: ProblemReporter) {
-        val chosenComposeVersionForModel = chooseComposeVersion(model) ?: return
-
-        val mismatchedComposeSettings = model.modules
-            .map { it.rootFragment.settings.compose }
-            .filter { it.version != chosenComposeVersionForModel }
-
-        mismatchedComposeSettings.forEach {
-            val sourceProperty = if (!it::version.isDefault) it::version else it::enabled
-            problemReporter.reportBundleError(
-                source = sourceProperty.asBuildProblemSource(),
-                messageKey = diagnosticId,
-                chosenComposeVersionForModel,
-                level = Level.Fatal,
-                problemType = BuildProblemType.InconsistentConfiguration,
-            )
-        }
-    }
-}
 
 object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "compose.version.without.compose"
