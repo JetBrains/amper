@@ -1,7 +1,7 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -14,8 +14,8 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
@@ -29,7 +29,7 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
@@ -43,8 +43,8 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=PsiTrace(psiElement=YAML key value, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:

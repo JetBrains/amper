@@ -2,7 +2,7 @@ Fragments:
   common
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -27,8 +27,8 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-api:5.9.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-engine:5.9.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
@@ -56,7 +56,7 @@ Fragments:
   jvm
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
@@ -82,8 +82,8 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-api:5.9.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-engine:5.9.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)

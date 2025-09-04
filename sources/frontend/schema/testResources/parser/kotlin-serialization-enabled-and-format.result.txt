@@ -1,7 +1,7 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.9.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src
@@ -19,8 +19,8 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.9.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test
@@ -39,7 +39,7 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.9.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src@jvm
@@ -58,8 +58,8 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-hocon:1.9.0, trace=PsiTrace(psiElement=YAML key value, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test@jvm

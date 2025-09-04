@@ -94,7 +94,7 @@
       "progressiveMode(DefaultCtx)" : "false(DefaultCtx)",
       "suppressWarnings(DefaultCtx)" : "false(DefaultCtx)",
       "verbose(DefaultCtx)" : "false(DefaultCtx)",
-      "version(DefaultCtx)" : "2.2.0(DefaultCtx)"
+      "version(DefaultCtx)" : "2.2.10(DefaultCtx)"
     },
     "ktor" : {
       "applyBom(DefaultCtx)" : "true(DefaultCtx)",

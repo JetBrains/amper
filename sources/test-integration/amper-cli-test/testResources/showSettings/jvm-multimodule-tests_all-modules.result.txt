@@ -90,7 +90,7 @@ settings@jvm
 
      suppressWarnings: false  # [default]
      verbose: false  # [default]
-     version: 2.2.0  # [default]
+     version: 2.2.10  # [default]
 
   kover:
 
@@ -210,7 +210,7 @@ settings@jvm
 
      suppressWarnings: false  # [default]
      verbose: false  # [default]
-     version: 2.2.0  # [default]
+     version: 2.2.10  # [default]
 
   kover:
 

@@ -1,7 +1,7 @@
 Fragments:
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -118,7 +118,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.0
+        version: <default> 2.2.10
       }
       kover: <default> null
       ktor: <default> {
@@ -146,9 +146,9 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -266,7 +266,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.0
+        version: <default> 2.2.10
       }
       kover: <default> null
       ktor: <default> {
@@ -294,7 +294,7 @@ Fragments:
 
   mingw
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: src@mingw
     Fragment dependencies:
       native (REFINE)
@@ -412,7 +412,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.0
+        version: <default> 2.2.10
       }
       kover: <default> null
       ktor: <default> {
@@ -440,9 +440,9 @@ Fragments:
 
   mingwTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test@mingw
     Fragment dependencies:
       nativeTest (REFINE)
@@ -561,7 +561,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.0
+        version: <default> 2.2.10
       }
       kover: <default> null
       ktor: <default> {
@@ -589,7 +589,7 @@ Fragments:
 
   mingwX64
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: src@mingwX64
     Fragment dependencies:
       mingw (REFINE)
@@ -707,7 +707,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.0
+        version: <default> 2.2.10
       }
       kover: <default> null
       ktor: <default> {
@@ -735,9 +735,9 @@ Fragments:
 
   mingwX64Test
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test@mingwX64
     Fragment dependencies:
       mingwTest (REFINE)
@@ -856,7 +856,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.0
+        version: <default> 2.2.10
       }
       kover: <default> null
       ktor: <default> {
@@ -884,7 +884,7 @@ Fragments:
 
   native
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: src@native
     Fragment dependencies:
       common (REFINE)
@@ -1002,7 +1002,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.0
+        version: <default> 2.2.10
       }
       kover: <default> null
       ktor: <default> {
@@ -1030,9 +1030,9 @@ Fragments:
 
   nativeTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.0, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test@native
     Fragment dependencies:
       commonTest (REFINE)
@@ -1151,7 +1151,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.0
+        version: <default> 2.2.10
       }
       kover: <default> null
       ktor: <default> {
