@@ -13,7 +13,7 @@ settings@jvm
         exposedAccessors: false  # [default]
         packageName:   # [default]
 
-     version: 1.8.0  # [default]
+     version: 1.8.2  # [default]
 
   internal:
      excludeDependencies: []  # [default]
