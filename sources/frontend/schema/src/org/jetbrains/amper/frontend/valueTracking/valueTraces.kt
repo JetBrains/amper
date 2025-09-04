@@ -30,15 +30,18 @@ private sealed class PropertyWithSource(
     val applicableProductTypes: List<ProductType>?
 ) {
     class PropertyWithPrimitiveValue(
-        name: String, val source: ValueSource?, val value: Any?,
+        name: String,
+        val source: ValueSource?,
+        val value: Any?,
         applicablePlatforms: List<Platform>? = null,
-        applicableProductTypes: List<ProductType>? = null
+        applicableProductTypes: List<ProductType>? = null,
     ) : PropertyWithSource(name, applicablePlatforms, applicableProductTypes)
 
     class PropertyWithObjectValue(
-        name: String, val value: List<PropertyWithSource>,
+        name: String,
+        val valueObjectProperties: List<PropertyWithSource>,
         applicablePlatforms: List<Platform>? = null,
-        applicableProductTypes: List<ProductType>? = null
+        applicableProductTypes: List<ProductType>? = null,
     ) : PropertyWithSource(name, applicablePlatforms, applicableProductTypes)
 }
 
@@ -74,9 +77,10 @@ private class CollectingVisitor(
                 val innerProperties = mutableListOf<PropertyWithSource>()
                 CollectingVisitor(innerProperties, contexts).visit(valueBase.value)
                 PropertyWithSource.PropertyWithObjectValue(
-                    valueBase.property.name, innerProperties,
-                    applicablePlatforms,
-                    applicableProductTypes
+                    name = valueBase.property.name,
+                    valueObjectProperties = innerProperties,
+                    applicablePlatforms = applicablePlatforms,
+                    applicableProductTypes = applicableProductTypes
                 )
             }
 
@@ -84,16 +88,17 @@ private class CollectingVisitor(
                 val innerProperties = mutableListOf<PropertyWithSource>()
                 CollectingVisitor(innerProperties, contexts).visit(valueBase.default!!.value)
                 PropertyWithSource.PropertyWithObjectValue(
-                    valueBase.property.name, innerProperties,
-                    applicablePlatforms,
-                    applicableProductTypes
+                    name = valueBase.property.name,
+                    valueObjectProperties = innerProperties,
+                    applicablePlatforms = applicablePlatforms,
+                    applicableProductTypes = applicableProductTypes
                 )
             }
 
             valueBase.value != null -> valueBase.value.let { value ->
                 PropertyWithSource.PropertyWithPrimitiveValue(
-                    valueBase.property.name,
-                    (valueBase.trace as? PsiTrace)?.let { ValueSource.Element(it.psiElement) }
+                    name = valueBase.property.name,
+                    source = (valueBase.trace as? PsiTrace)?.let { ValueSource.Element(it.psiElement) }
                         ?: valueBase.default?.takeIf { valueBase.value == valueBase.default!!.value }
                             ?.let { def ->
                                 if (def is Default.Dependent<*, *>) {
@@ -105,9 +110,9 @@ private class CollectingVisitor(
                                     ValueSource.Default
                                 }
                             },
-                    value,
-                    applicablePlatforms,
-                    applicableProductTypes
+                    value = value,
+                    applicablePlatforms = applicablePlatforms,
+                    applicableProductTypes = applicableProductTypes
                 )
             }
 
@@ -145,7 +150,7 @@ private fun renderProperties(properties: List<PropertyWithSource>): String = bui
         append(
             "${prop.name}: ${
                 when (prop) {
-                    is PropertyWithSource.PropertyWithObjectValue -> "\n" + renderProperties(prop.value)
+                    is PropertyWithSource.PropertyWithObjectValue -> "\n" + renderProperties(prop.valueObjectProperties)
                         .prependIndent("   ")
                     is PropertyWithSource.PropertyWithPrimitiveValue -> {
                         val value = prop.value
@@ -163,12 +168,12 @@ private fun sourcePostfix(it: PropertyWithSource.PropertyWithPrimitiveValue
     val sourceName = when (it.source) {
         ValueSource.Default -> "default"
         is ValueSource.DependentDefault -> it.source.desc + (it.source.element?.let { element ->
-            getFileName(element)?.let {
+            element.containingFilename()?.let {
                 if (it.isNotBlank()) " @ $it" else ""
             }
         }.orEmpty())
 
-        is ValueSource.Element -> getFileName(it.source.element)
+        is ValueSource.Element -> it.source.element.containingFilename()
         null -> null
     }
     return if (!sourceName.isNullOrBlank()) formatSourceName(sourceName) else ""
@@ -185,25 +190,20 @@ private fun presentableValue(it: Any?): String {
     }
 }
 
-private fun renderTraceableCollection(
-    it: Collection<*>
-): String = "[\n" +
+private fun renderTraceableCollection(it: Collection<*>): String = "[\n" +
         it.mapIndexed { index, element ->
             "   " +
                     presentableValue(element) +
                     (if (index == it.indices.last) "" else ",") +
-                    (((element as Traceable).trace as? PsiTrace)
-                        ?.let { getFileName(it.psiElement) }
+                    (((element as Traceable).trace as? PsiTrace)?.psiElement?.containingFilename()
                         ?.let { formatSourceName(it) }
                         ?: "")
         }.joinToString("\n") +
         "\n]"
 
-private fun getFileName(
-    psiElement: PsiElement,
-): String? =
+private fun PsiElement.containingFilename(): String? =
     ReadAction.compute<String, Throwable> {
-        val containingFile = psiElement.containingFile
+        val containingFile = this.containingFile
         if (containingFile?.name == "module.yaml" || containingFile?.name == "module.amper") {
             (containingFile.parent?.name ?: "module").let {
                 "${containingFile.name} ($it)"
