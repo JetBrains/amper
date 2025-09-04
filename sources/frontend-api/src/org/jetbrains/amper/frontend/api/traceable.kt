@@ -106,6 +106,21 @@ class TraceableVersion(value: String, source: SchemaValueDelegate<*>) : Traceabl
 class TraceablePath(value: Path, trace: Trace) : TraceableValue<Path>(value, trace)
 
 /**
+ * When the enum value isn't wrapped into the schema value (e.g., in a collection or in AOM),
+ * it's impossible to determine the trace of that enum.
+ *
+ * This wrapper allows persisting a trace in such scenarios.
+ */
+class TraceableEnum<T : Enum<*>>(value: T, trace: Trace) : TraceableValue<T>(value, trace) {
+
+    override fun toString(): String = value.toString()
+}
+
+fun <T : Enum<*>> T.asTraceable(trace: Trace) = TraceableEnum(this, trace)
+fun Path.asTraceable(trace: Trace) = TraceablePath(this, trace)
+fun String.asTraceable(trace: Trace) = TraceableString(this, trace)
+
+/**
  * Creates a new [TraceableString] with a value computed from this [TraceableString]'s value.
  * The new trace will be the same as this one.
  *

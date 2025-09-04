@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.api
 
 import com.intellij.util.asSafely
-import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -226,18 +225,3 @@ abstract class SchemaValuesVisitor {
 
     open fun visitOther(it: Any?) = Unit
 }
-
-/**
- * When the enum value isn't wrapped into the schema value (e.g., in a collection or in AOM),
- * it's impossible to determine the trace of that enum.
- *
- * This wrapper allows persisting a trace in such scenarios.
- */
-class TraceableEnum<T : Enum<*>>(value: T, trace: Trace) : TraceableValue<T>(value, trace) {
-
-    override fun toString(): String = value.toString()
-}
-
-fun <T : Enum<*>> T.asTraceable(trace: Trace) = TraceableEnum(this, trace)
-fun Path.asTraceable(trace: Trace) = TraceablePath(this, trace)
-fun String.asTraceable(trace: Trace) = TraceableString(this, trace)
