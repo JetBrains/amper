@@ -28,18 +28,21 @@ class ToolingArtifactsDownloader(
 
     private val mavenResolver = MavenResolver(userCacheRoot)
 
-    suspend fun downloadHotReloadAgent(): List<Path> =
+    suspend fun downloadHotReloadAgent(hotReloadVersion: String): List<Path> =
         downloadToolingArtifacts(
             listOf(
-                "org.jetbrains.compose.hot-reload:hot-reload-agent:${UsedVersions.hotReloadVersion}",
-                "org.jetbrains.compose.hot-reload:hot-reload-runtime-jvm:${UsedVersions.hotReloadVersion}",
+                "org.jetbrains.compose.hot-reload:hot-reload-agent:$hotReloadVersion",
+                "org.jetbrains.compose.hot-reload:hot-reload-runtime-jvm:$hotReloadVersion",
             ),
         )
 
-    suspend fun downloadDevTools(): List<Path> = downloadToolingArtifacts(
+    suspend fun downloadDevTools(
+        hotReloadVersion: String,
+        composeVersion: String,
+    ): List<Path> = downloadToolingArtifacts(
         listOf(
-            "org.jetbrains.compose.hot-reload:hot-reload-devtools:${UsedVersions.hotReloadVersion}",
-            "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}",
+            "org.jetbrains.compose.hot-reload:hot-reload-devtools:$hotReloadVersion",
+            "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:$composeVersion",
             "org.jetbrains.amper:amper-compose-hot-reload-recompiler-extension:${AmperBuild.mavenVersion}"
         ),
         buildList {
@@ -48,8 +51,8 @@ class ToolingArtifactsDownloader(
         }
     )
 
-    suspend fun downloadComposeDesktop(): List<Path> = downloadToolingArtifacts(
-        listOf("org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:${UsedVersions.composeVersion}"),
+    suspend fun downloadComposeDesktop(composeVersion: String): List<Path> = downloadToolingArtifacts(
+        listOf("org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:$composeVersion"),
         listOf(MavenCentral, GOOGLE_REPOSITORY)
     )
 

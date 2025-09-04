@@ -7,10 +7,12 @@ package org.jetbrains.amper.tasks.jvm
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.composehotreload.recompiler.ENV_AMPER_BUILD_ROOT
 import org.jetbrains.amper.composehotreload.recompiler.ENV_AMPER_BUILD_TASK
 import org.jetbrains.amper.composehotreload.recompiler.ENV_AMPER_SERVER_PORT
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
@@ -52,13 +54,21 @@ class JvmHotRunTask(
 
     private val portAvailable: Int get() = ServerSocket(0).use { it.localPort }
 
+    private val composeSettings by lazy {
+        // Compose settings are platform-agnostic
+        module.fragments.singleLeafFragment().settings.compose
+    }
+
     override suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> {
-        val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
+        val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent(UsedVersions.hotReloadVersion)
         val agent =
             agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/hot-reload-agent") }
                 ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
 
-        val devToolsClasspath = toolingArtifactsDownloader.downloadDevTools()
+        val devToolsClasspath = toolingArtifactsDownloader.downloadDevTools(
+            hotReloadVersion = UsedVersions.hotReloadVersion,
+            composeVersion = composeSettings.version,
+        )
 
         val amperJvmArgs = buildList {
             add("-ea")
@@ -78,7 +88,7 @@ class JvmHotRunTask(
 
     override suspend fun getClasspath(dependenciesResult: List<TaskResult>): List<Path> {
         val classpath = super.getClasspath(dependenciesResult)
-        val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent()
+        val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent(UsedVersions.hotReloadVersion)
         val agent = agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/hot-reload-agent") }
             ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
         val filteredAgentClasspath = agentClasspath.filter { !it.pathString.contains(agent.pathString) }
@@ -89,7 +99,7 @@ class JvmHotRunTask(
 
             val hasComposeDesktop = classpath.any { it.pathString.contains("org/jetbrains/compose/desktop") }
             if (!hasComposeDesktop) {
-                addAll(toolingArtifactsDownloader.downloadComposeDesktop())
+                addAll(toolingArtifactsDownloader.downloadComposeDesktop(composeSettings.version))
             }
         }
     }
