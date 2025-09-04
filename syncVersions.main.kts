@@ -95,6 +95,7 @@ fun updateUsedVersionsKt() {
             .replaceBundledVersionVariable(variableName = "kspVersion", newValue = kspVersion)
             .replaceBundledVersionVariable(variableName = "hotReloadVersion", newValue = hotReloadVersion)
             .replaceBundledVersionVariable(variableName = "ktorVersion", newValue = ktorVersion)
+            .replaceBundledVersionVariable(variableName = "springBootVersion", newValue = springBootVersion)
     }
 }
 
