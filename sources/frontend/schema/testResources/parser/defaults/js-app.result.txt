@@ -7,9 +7,9 @@ Fragments:
     Settings: {
       android: <default> {
         applicationId: <default> org.example.namespace
-        compileSdk: <default> VERSION_35
+        compileSdk: <default> 35
         maxSdk: <default> null
-        minSdk: <default> VERSION_21
+        minSdk: <default> 21
         namespace: <default> org.example.namespace
         parcelize: <default> {
           additionalAnnotations: <default> [
@@ -28,7 +28,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> 35
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -63,11 +63,11 @@ Fragments:
         freeCompilerArgs: <default> [
         ]
       }
-      junit: <default> JUNIT5
+      junit: <default> junit-5
       jvm: <default> {
         mainClass: <default> null
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
+        release: <default> 17
+        runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
@@ -155,9 +155,9 @@ Fragments:
     Settings: {
       android: <default> {
         applicationId: <default> org.example.namespace
-        compileSdk: <default> VERSION_35
+        compileSdk: <default> 35
         maxSdk: <default> null
-        minSdk: <default> VERSION_21
+        minSdk: <default> 21
         namespace: <default> org.example.namespace
         parcelize: <default> {
           additionalAnnotations: <default> [
@@ -176,7 +176,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> 35
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -211,11 +211,11 @@ Fragments:
         freeCompilerArgs: <default> [
         ]
       }
-      junit: <default> JUNIT5
+      junit: <default> junit-5
       jvm: <default> {
         mainClass: <default> null
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
+        release: <default> 17
+        runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
@@ -301,9 +301,9 @@ Fragments:
     Settings: {
       android: <default> {
         applicationId: <default> org.example.namespace
-        compileSdk: <default> VERSION_35
+        compileSdk: <default> 35
         maxSdk: <default> null
-        minSdk: <default> VERSION_21
+        minSdk: <default> 21
         namespace: <default> org.example.namespace
         parcelize: <default> {
           additionalAnnotations: <default> [
@@ -322,7 +322,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> 35
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -357,11 +357,11 @@ Fragments:
         freeCompilerArgs: <default> [
         ]
       }
-      junit: <default> JUNIT5
+      junit: <default> junit-5
       jvm: <default> {
         mainClass: <default> null
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
+        release: <default> 17
+        runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [
@@ -450,9 +450,9 @@ Fragments:
     Settings: {
       android: <default> {
         applicationId: <default> org.example.namespace
-        compileSdk: <default> VERSION_35
+        compileSdk: <default> 35
         maxSdk: <default> null
-        minSdk: <default> VERSION_21
+        minSdk: <default> 21
         namespace: <default> org.example.namespace
         parcelize: <default> {
           additionalAnnotations: <default> [
@@ -471,7 +471,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> 35
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -506,11 +506,11 @@ Fragments:
         freeCompilerArgs: <default> [
         ]
       }
-      junit: <default> JUNIT5
+      junit: <default> junit-5
       jvm: <default> {
         mainClass: <default> null
-        release: <default> VERSION_17
-        runtimeClasspathMode: <default> JARS
+        release: <default> 17
+        runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
           freeJvmArgs: <default> [

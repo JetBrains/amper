@@ -5,6 +5,8 @@
 package org.jetbrains.amper.frontend.api
 
 import com.intellij.util.asSafely
+import org.jetbrains.amper.frontend.SchemaEnum
+import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -196,31 +198,55 @@ val <T> KProperty0<T>.isDefault get() = schemaDelegate.trace is DefaultTrace
  */
 abstract class SchemaValuesVisitor {
 
-    open fun visit(it: Any?) {
-        when (it) {
-            is Collection<*> -> visitCollection(it)
-            is Map<*, *> -> visitMap(it)
-            is SchemaValueDelegate<*> -> visitValue(it)
-            is SchemaNode -> visitNode(it)
-            else -> visitOther(it)
+    open fun visit(value: Any?) {
+        when (value) {
+            is Collection<*> -> visitCollection(value)
+            is Map<*, *> -> visitMap(value)
+            is SchemaValueDelegate<*> -> visitSchemaValueDelegate(value)
+            is SchemaNode -> visitSchemaNode(value)
+            is TraceableValue<*> -> visitTraceableValue(value)
+            is SchemaEnum -> visitSchemaEnumValue(value)
+            null,
+            is Boolean,
+            is Short,
+            is Int,
+            is Long,
+            is Float,
+            is Double,
+            is String,
+            is Enum<*>,
+            is Path -> visitPrimitiveLike(value)
+            else -> visitOther(value)
         }
     }
 
-    open fun visitCollection(it: Collection<*>) {
-        it.filterNotNull().forEach { visit(it) }
+    open fun visitPrimitiveLike(other: Any?) = Unit
+
+    open fun visitSchemaEnumValue(schemaEnum: SchemaEnum) {
+        visit(schemaEnum.schemaValue)
     }
 
-    open fun visitMap(it: Map<*, *>) {
-        visitCollection(it.values)
+    open fun visitCollection(collection: Collection<*>) {
+        collection.forEach { visit(it) }
     }
 
-    open fun visitNode(it: SchemaNode) {
-        it.allValues.sortedBy { it.property.name }.forEach { visit(it) }
+    open fun visitMap(map: Map<*, *>) {
+        visitCollection(map.values)
     }
 
-    open fun visitValue(it: SchemaValueDelegate<*>) {
-        it.withoutDefault?.let { visit(it.value) }
+    open fun visitSchemaNode(node: SchemaNode) {
+        node.allValues.sortedBy { it.property.name }.forEach { visit(it) }
     }
 
-    open fun visitOther(it: Any?) = Unit
+    open fun visitSchemaValueDelegate(schemaValue: SchemaValueDelegate<*>) {
+        visit(schemaValue.value)
+    }
+
+    open fun visitTraceableValue(traceableValue: TraceableValue<*>) {
+        visit(traceableValue.value)
+    }
+
+    open fun visitOther(other: Any) {
+        error("Type ${other::class.simpleName} is not supported in the schema")
+    }
 }

@@ -17,7 +17,7 @@ Fragments:
           ]
           enabled: true
         }
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> 35
       }
     }
 
@@ -41,7 +41,7 @@ Fragments:
           ]
           enabled: true
         }
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> 35
       }
     }
 

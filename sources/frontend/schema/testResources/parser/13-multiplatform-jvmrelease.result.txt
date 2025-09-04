@@ -9,7 +9,7 @@ Fragments:
       common (REFINE)
     Settings: {
       jvm: {
-        release: VERSION_8
+        release: 8
       }
     }
 
@@ -25,7 +25,7 @@ Fragments:
       android (FRIEND)
     Settings: {
       jvm: {
-        release: VERSION_8
+        release: 8
       }
     }
 
@@ -36,7 +36,7 @@ Fragments:
     Fragment dependencies:
     Settings: {
       jvm: {
-        release: VERSION_8
+        release: 8
       }
     }
 
@@ -50,7 +50,7 @@ Fragments:
       common (FRIEND)
     Settings: {
       jvm: {
-        release: VERSION_8
+        release: 8
       }
     }
 
@@ -62,7 +62,7 @@ Fragments:
       common (REFINE)
     Settings: {
       jvm: {
-        release: VERSION_8
+        release: 8
       }
     }
 
@@ -76,7 +76,7 @@ Fragments:
       jvm (FRIEND)
     Settings: {
       jvm: {
-        release: VERSION_8
+        release: 8
       }
     }
 

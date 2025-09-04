@@ -10,7 +10,7 @@ Fragments:
       android: {
         applicationId: namespace
         namespace: namespace
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> 35
       }
     }
 
@@ -27,7 +27,7 @@ Fragments:
       android: {
         applicationId: namespace
         namespace: namespace
-        targetSdk: <default> VERSION_35
+        targetSdk: <default> 35
       }
     }
 

@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
-import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
@@ -14,16 +13,7 @@ import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
-import org.jetbrains.amper.frontend.api.TraceableEnum
-import org.jetbrains.amper.frontend.api.TraceablePath
-import org.jetbrains.amper.frontend.api.TraceableString
-import java.nio.file.Path
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
-import kotlin.reflect.KProperty1
-import kotlin.reflect.KVisibility
 import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.memberProperties
 
 /**
  * Prints a human-readable string representation of this module, for comparison with gold files.
@@ -108,51 +98,9 @@ private class HumanReadableSerializerVisitor(
 
     private var currentIndent: String = ""
 
-    private val visited = mutableSetOf<Any>()
-
-    override fun visit(it: Any?) {
-        if (visitTraceable(it)) return
-        if (!it.isPrettifiedWithToString()) {
-            // we have to detect cycles for complex objects
-            // we exclude the empty collections/maps because we don't want to count those as a cycle
-            // TODO instead of checking for _duplicates_ we should check for real _cycles_ (only keeping track of
-            //  objects within which we are, not the ones that appear in other places in the file)
-            if (it in visited &&
-                !it.asSafely<Collection<*>>().isNullOrEmpty() &&
-                !it.asSafely<Map<*, *>>().isNullOrEmpty()
-            ) {
-                builder.appendLine("<cycle>").append(currentIndent)
-                return
-            }
-            visited.add(it)
-        }
-        super.visit(it)
-    }
-
-    private fun visitTraceable(it: Any?): Boolean {
-        when (it) {
-            is TraceableString -> {
-                super.visit(it.value)
-                return true
-            }
-
-            is TraceableEnum<*> -> {
-                super.visit(it.value)
-                return true
-            }
-
-            is TraceablePath -> {
-                super.visit(it.value)
-                return true
-            }
-
-            else -> return false
-        }
-    }
-
-    override fun visitCollection(it: Collection<*>) {
+    override fun visitCollection(collection: Collection<*>) {
         appendBlock(start = "[", end = "]") {
-            it.forEach {
+            collection.forEach {
                 builder.append("- ")
                 currentIndent += "  " // that's the dimension of "- ", not the indent
                 visit(it)
@@ -162,9 +110,9 @@ private class HumanReadableSerializerVisitor(
         }
     }
 
-    override fun visitMap(it: Map<*, *>) {
+    override fun visitMap(map: Map<*, *>) {
         appendBlock(start = "{", end = "}") {
-            it.forEach { (k, v) ->
+            map.forEach { (k, v) ->
                 builder.append('"')
                 builder.append(k.toString())
                 builder.append('"')
@@ -174,9 +122,9 @@ private class HumanReadableSerializerVisitor(
         }
     }
 
-    override fun visitNode(it: SchemaNode) {
+    override fun visitSchemaNode(node: SchemaNode) {
         appendBlock(start = "{", end = "}") {
-            super.visitNode(it)
+            super.visitSchemaNode(node)
         }
     }
 
@@ -190,12 +138,12 @@ private class HumanReadableSerializerVisitor(
         builder.appendLine(end).append(currentIndent)
     }
 
-    override fun visitValue(it: SchemaValueDelegate<*>) {
+    override fun visitSchemaValueDelegate(schemaValue: SchemaValueDelegate<*>) {
         // We don't care about such properties
-        if (it.property.hasAnnotation<HiddenFromCompletion>()) return
+        if (schemaValue.property.hasAnnotation<HiddenFromCompletion>()) return
 
-        val isSetToDefault = it.trace is DefaultTrace
-        val isDerived = it.default is Default.Dependent<*, *>
+        val isSetToDefault = schemaValue.trace is DefaultTrace
+        val isDerived = schemaValue.default is Default.Dependent<*, *>
 
         /*
         We still want to print derived properties because if the logic of its calculation is changed we want to notice
@@ -218,62 +166,16 @@ private class HumanReadableSerializerVisitor(
         */
         if (isSetToDefault && !isDerived && !printDefaults) return
 
-        builder.append(it.property.name)
+        builder.append(schemaValue.property.name)
         builder.append(": ")
         if (isSetToDefault) {
             builder.append("<default> ")
         }
-        visit(it.value)
+        visit(schemaValue.value)
     }
 
-    override fun visitOther(it: Any?) {
-        if (it.isPrettifiedWithToString()) {
-            builder.appendLine(it).append(currentIndent)
-        } else {
-            visitObject(it)
-        }
-    }
-
-    private fun visitObject(obj: Any) {
-        // this should usually be avoided, probably by adding more types to isPrettifiedWithToString()
-        System.err.println("WARN: relying on general object reflection in gold file for ${obj::class.qualifiedName}")
-        obj::class.memberProperties
-            .filter { it.visibility == KVisibility.PUBLIC }
-            .sortedBy { it.name }
-            .forEach { prop ->
-                visitProperty(receiver = obj, prop)
-            }
-    }
-
-    private fun <T : Any> visitProperty(receiver: Any, prop: KProperty1<T, *>) {
-        builder.append(prop.name)
-        builder.append(": ")
-        @Suppress("UNCHECKED_CAST")
-        visit(prop.get(receiver as T))
-    }
-}
-
-/**
- * Returns true if this value is prettified as a simple string.
- */
-@OptIn(ExperimentalContracts::class)
-private fun Any?.isPrettifiedWithToString(): Boolean {
-    contract {
-        returns(false) implies (this@isPrettifiedWithToString != null)
-    }
-    return when (this) {
-        null,
-        is Boolean,
-        is Short,
-        is Int,
-        is Long,
-        is Float,
-        is Double,
-        is String,
-        is Enum<*>,
-        is Path -> true
-
-        else -> this::class.isData
+    override fun visitPrimitiveLike(other: Any?) {
+        builder.appendLine(other).append(currentIndent)
     }
 }
 

@@ -9,9 +9,9 @@ Fragments:
     Settings: {
       android: {
         applicationId: <default> org.example.namespace
-        compileSdk: VERSION_27
-        minSdk: VERSION_30
-        targetSdk: VERSION_27
+        compileSdk: 27
+        minSdk: 30
+        targetSdk: 27
       }
     }
 
@@ -27,9 +27,9 @@ Fragments:
     Settings: {
       android: {
         applicationId: <default> org.example.namespace
-        compileSdk: VERSION_27
-        minSdk: VERSION_30
-        targetSdk: VERSION_27
+        compileSdk: 27
+        minSdk: 30
+        targetSdk: 27
       }
     }
 

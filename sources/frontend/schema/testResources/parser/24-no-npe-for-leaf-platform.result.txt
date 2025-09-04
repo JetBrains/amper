@@ -12,16 +12,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -66,16 +66,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -115,16 +115,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -167,16 +167,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -215,16 +215,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -266,16 +266,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -315,16 +315,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -364,16 +364,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -416,16 +416,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -468,16 +468,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -519,16 +519,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -568,16 +568,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -620,16 +620,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -673,16 +673,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -722,16 +722,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }
@@ -774,16 +774,16 @@ Fragments:
     Settings: {
       android: {
         applicationId: my-application
-        compileSdk: VERSION_33
-        maxSdk: VERSION_33
-        minSdk: VERSION_30
+        compileSdk: 33
+        maxSdk: 33
+        minSdk: 30
         namespace: com.example.namespace
-        targetSdk: VERSION_33
+        targetSdk: 33
       }
       compose: {
         enabled: true
       }
-      junit: NONE
+      junit: none
       jvm: {
         mainClass: MainKt
       }

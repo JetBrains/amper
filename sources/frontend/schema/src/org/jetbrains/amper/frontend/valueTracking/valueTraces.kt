@@ -66,7 +66,7 @@ private class CollectingVisitor(
     }
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-    override fun visitValue(valueBase: SchemaValueDelegate<*>) {
+    override fun visitSchemaValueDelegate(valueBase: SchemaValueDelegate<*>) {
         val applicablePlatforms = valueBase.property.findAnnotation<PlatformSpecific>()?.platforms?.toList()
         val applicableProductTypes = valueBase.property.findAnnotation<ProductTypeSpecific>()?.productTypes?.toList()
         val value = when {

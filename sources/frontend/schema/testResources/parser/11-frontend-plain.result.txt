@@ -8,7 +8,7 @@ Fragments:
     Fragment dependencies:
     Settings: {
       jvm: {
-        release: VERSION_21
+        release: 21
       }
       kotlin: {
         apiVersion: 1.9
@@ -38,7 +38,7 @@ Fragments:
       common (FRIEND)
     Settings: {
       jvm: {
-        release: VERSION_21
+        release: 21
       }
       kotlin: {
         apiVersion: 1.9
@@ -63,7 +63,7 @@ Fragments:
       common (REFINE)
     Settings: {
       jvm: {
-        release: VERSION_21
+        release: 21
       }
       kotlin: {
         apiVersion: 1.9
@@ -94,7 +94,7 @@ Fragments:
       jvm (FRIEND)
     Settings: {
       jvm: {
-        release: VERSION_21
+        release: 21
       }
       kotlin: {
         apiVersion: 1.9
