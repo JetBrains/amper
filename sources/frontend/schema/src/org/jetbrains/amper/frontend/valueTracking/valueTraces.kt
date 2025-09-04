@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.valueTracking
 
 import com.intellij.openapi.application.ReadAction
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Default
@@ -22,6 +21,7 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Settings
 import kotlin.reflect.full.findAnnotation
 
 private sealed class PropertyWithSource(
@@ -117,174 +117,96 @@ private class CollectingVisitor(
     }
 }
 
-// TODO: unify 'renderSettings' with HumanReadableSerializerVisitor, and generalize this
-enum class TracesPresentation {
-    IDE,
-    CLI,
-}
-
 fun renderSettings(
-    value: Any?,
-    containingFile: PsiFile?,
+    value: Settings,
     product: ProductType?,
-    contexts: Set<Platform>,
-    presentation: TracesPresentation
-): String? {
-    return renderObject(value, contexts, product, containingFile, presentation)
-        ?: renderCollection(value, containingFile, presentation)
-}
-
-private fun renderObject(
-    value: Any?,
-    contexts: Set<Platform>,
-    productType: ProductType?,
-    containingFile: PsiFile?,
-    presentation: TracesPresentation,
-): String? = mutableListOf<PropertyWithSource>().also {
-    value?.let { v ->
-        CollectingVisitor(it, contexts.map { it.pretty }.toSet()).visit(v)
-    }
-}
-    .filter {
+    contexts: Set<Platform>
+): String {
+    val props = value.findProperties(contexts)
+    val applicableProps = props.filter {
         (it.applicablePlatforms?.let { contexts.intersect(it).isNotEmpty() } ?: true)
-                && (it.applicableProductTypes?.map { it.value }?.contains(productType?.value) ?: true)
+                && (it.applicableProductTypes?.map { it.value }?.contains(product?.value) ?: true)
     }
-    .takeIf { it.isNotEmpty() }
-    ?.prettyPrint(containingFile, presentation)
-
-private fun renderCollection(value: Any?, containingFile: PsiFile?, presentation: TracesPresentation): String? {
-    if (value is Collection<*>) {
-        return presentableValue(value, containingFile, presentation)
-    }
-    return null
+    return renderProperties(applicableProps)
 }
 
-private fun List<PropertyWithSource>.prettyPrint(containingFile: PsiFile?, presentation: TracesPresentation): String {
-    return StringBuilder().also { printProperties(it, containingFile, presentation) }.toString()
+private fun Any.findProperties(
+    contexts: Set<Platform>,
+): List<PropertyWithSource> {
+    val obj = this@findProperties
+    return buildList {
+        val contextsStrings = contexts.map { it.pretty }.toSet()
+        CollectingVisitor(this, contextsStrings).visit(obj)
+    }
 }
 
-private fun List<PropertyWithSource>.printProperties(
-    builder: StringBuilder,
-    containingFile: PsiFile?,
-    presentation: TracesPresentation
-) {
-    forEach { prop ->
-        builder.append(
-            "${wrapName(prop, presentation)}: ${
+private fun renderProperties(properties: List<PropertyWithSource>): String = buildString {
+    properties.forEach { prop ->
+        append(
+            "${prop.name}: ${
                 when (prop) {
-                    is PropertyWithSource.PropertyWithObjectValue -> prop.value.prettyPrint(
-                        containingFile,
-                        presentation
-                    ).let {
-                        "\n" + prependPrefix(it, presentation)
-                    }
-
+                    is PropertyWithSource.PropertyWithObjectValue -> "\n" + renderProperties(prop.value)
+                        .prependIndent("   ")
                     is PropertyWithSource.PropertyWithPrimitiveValue -> {
                         val value = prop.value
-                        presentableValue(value, containingFile, presentation).let {
-                            if (value is Collection<*>) it
-                            else presentation.wrapValue(it)
-                        } + sourcePostfix(prop, containingFile, presentation).let {
-                            it.takeIf { value !is Collection<*> || value.isEmpty() } ?: ""
-                        }
+                        presentableValue(value) + (sourcePostfix(prop).takeIf { value !is Collection<*> || value.isEmpty() } ?: "")
                     }
                 }
-            }${presentation.sectionSeparator}")
+            }\n")
     }
 }
 
-private val TracesPresentation.sectionSeparator
-    get() = when (this) {
-        TracesPresentation.IDE -> "\n\n"
-        else -> "\n"
-    }
+private fun formatSourceName(sourceName: String): String = "  # [$sourceName]"
 
-private val TracesPresentation.prefix
-    get() = when (this) {
-        TracesPresentation.IDE -> ">"
-        else -> "  "
-    }
-
-private fun TracesPresentation.wrapValue(value: String) = when (this) {
-    TracesPresentation.IDE -> "*$value*"
-    else -> value
-}
-
-private fun prependPrefix(string: String, presentation: TracesPresentation): String {
-    return string.split("\n").joinToString("\n") { "${presentation.prefix} $it" }
-}
-
-private fun wrapName(source: PropertyWithSource, presentation: TracesPresentation): String =
-    when (presentation) {
-        TracesPresentation.IDE -> "**${source.name}**"
-        else -> source.name
-    }
-
-private fun formatSourceName(sourceName: String, presentation: TracesPresentation): String {
-    return when (presentation) {
-        TracesPresentation.CLI -> "  # [$sourceName]"
-        else -> " [$sourceName]"
-    }
-}
-
-private fun sourcePostfix(
-    it: PropertyWithSource.PropertyWithPrimitiveValue,
-    containingFile: PsiFile?,
-    presentation: TracesPresentation
+private fun sourcePostfix(it: PropertyWithSource.PropertyWithPrimitiveValue
 ): String {
     val sourceName = when (it.source) {
         ValueSource.Default -> "default"
         is ValueSource.DependentDefault -> it.source.desc + (it.source.element?.let { element ->
-            getFileName(element, containingFile, presentation)?.let {
+            getFileName(element)?.let {
                 if (it.isNotBlank()) " @ $it" else ""
             }
         }.orEmpty())
 
-        is ValueSource.Element -> getFileName(it.source.element, containingFile, presentation)
+        is ValueSource.Element -> getFileName(it.source.element)
         null -> null
     }
-    return if (!sourceName.isNullOrBlank()) formatSourceName(sourceName, presentation) else ""
+    return if (!sourceName.isNullOrBlank()) formatSourceName(sourceName) else ""
 }
 
-private fun presentableValue(it: Any?, currentFile: PsiFile?, presentation: TracesPresentation): String {
+private fun presentableValue(it: Any?): String {
     return when {
         it is TraceableEnum<*> && it.value is SchemaEnum -> (it.value as SchemaEnum).schemaValue
         it is SchemaEnum -> it.schemaValue
-        it is Collection<*> && it.isEmpty() -> if (presentation != TracesPresentation.CLI) "(empty)" else "[]"
-        it is Collection<*> && it.all { it is Traceable } -> renderTraceableCollection(it, currentFile, presentation)
-        it is Collection<*> -> "[" + it.joinToString { presentableValue(it, currentFile, presentation) } + "]"
+        it is Collection<*> && it.isEmpty() -> "[]"
+        it is Collection<*> && it.all { it is Traceable } -> renderTraceableCollection(it)
+        it is Collection<*> -> "[" + it.joinToString { presentableValue(it) } + "]"
         else -> it.toString()
     }
 }
 
 private fun renderTraceableCollection(
-    it: Collection<*>,
-    currentFile: PsiFile?,
-    presentation: TracesPresentation
-): String = "[${presentation.sectionSeparator}" +
+    it: Collection<*>
+): String = "[\n" +
         it.mapIndexed { index, element ->
-            "${presentation.prefix} " +
-                    presentation.wrapValue(presentableValue(element, currentFile, presentation)) +
-                    (if (presentation != TracesPresentation.CLI || index == it.size - 1) "" else ",") +
+            "   " +
+                    presentableValue(element) +
+                    (if (index == it.indices.last) "" else ",") +
                     (((element as Traceable).trace as? PsiTrace)
-                        ?.let { getFileName(it.psiElement, currentFile, presentation) }
-                        ?.let { formatSourceName(it, presentation) }
-                     ?: "") +
-                    (if (presentation == TracesPresentation.CLI || index == it.size - 1) "" else ",")
-        }.joinToString(presentation.sectionSeparator) +
-        "${presentation.sectionSeparator}]"
+                        ?.let { getFileName(it.psiElement) }
+                        ?.let { formatSourceName(it) }
+                        ?: "")
+        }.joinToString("\n") +
+        "\n]"
 
 private fun getFileName(
     psiElement: PsiElement,
-    ignoreIfFile: PsiFile? = null,
-    presentation: TracesPresentation
 ): String? =
     ReadAction.compute<String, Throwable> {
         val containingFile = psiElement.containingFile
-        if (ignoreIfFile == containingFile) return@compute null
         if (containingFile?.name == "module.yaml" || containingFile?.name == "module.amper") {
             (containingFile.parent?.name ?: "module").let {
-                if (presentation == TracesPresentation.CLI) "${containingFile.name} ($it)" else it
+                "${containingFile.name} ($it)"
             }
         } else containingFile?.name
     }
