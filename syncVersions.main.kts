@@ -45,7 +45,7 @@ val amperInternalJbrVersion = "21.0.8b1038.68"
 val kotlinVersion = "2.2.10" // /!\ Remember to update the KotlinVersion enum with outdated/experimental versions
 
 val composeVersion = "1.8.2"
-val hotReloadVersion = "1.0.0-beta03"
+val hotReloadVersion = "1.0.0-beta05"
 val junitPlatformVersion = "1.13.4"
 val kotlinxSerializationVersion = "1.9.0"
 val kspVersion = "2.2.10-2.0.2" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
