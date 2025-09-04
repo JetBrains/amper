@@ -48,7 +48,6 @@ abstract class SchemaNode : Traceable {
     /**
      * Register a value with a lazy default.
      */
-    // the default value is nullable to allow performing validation without crashing (using "unsafe" access)
     fun <T> value(default: () -> T) = SchemaValueDelegateProvider(Default.Lambda(default))
 
     /**
