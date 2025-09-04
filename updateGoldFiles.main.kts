@@ -29,7 +29,7 @@ fun updateGoldFiles() {
 fun runSchemaTests() {
     println("Running schema and dr tests to generate .tmp result files...")
     val exitCode1 = runAmperCli("test", "-m", "schema", "-m", "dr")
-    val exitCode2 = runAmperCli("test", "-m", "amper-cli-test", "--include-classes=*.ShowSettingsCommandTest")
+    val exitCode2 = runAmperCli("test", "-m", "amper-cli-test", "--include-classes=*.ShowSettingsCommandTest", "--include-classes=*.DependenciesCommandTest")
     println()
     if (exitCode1 == 0 && exitCode2 == 0) {
         println("Tests succeeded, which means no new .tmp files were generated.")
