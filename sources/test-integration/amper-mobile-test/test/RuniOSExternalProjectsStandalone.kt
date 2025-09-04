@@ -9,13 +9,6 @@ import org.junit.jupiter.api.Test
 class RuniOSExternalProjectsStandalone : IOSBaseTest() {
 
     @Test
-    fun kotlinConfAppTest() = runIosAppTests(
-        projectSource = amperExternalProject("kotlinconf"),
-        bundleIdentifier = "ios-app",
-        iosAppModuleName = "ios-app",
-    )
-
-    @Test
     fun toDoListApp() = runIosAppTests(
         projectSource = amperExternalProject("todolistlite"),
         bundleIdentifier = "ios-app",
@@ -36,7 +29,7 @@ class RuniOSExternalProjectsStandalone : IOSBaseTest() {
     )
 
     @Test
-    fun kotlinConf2025() = runIosAppTests(
+    fun kotlinConfApp2025() = runIosAppTests(
         projectSource = ProjectSource.RemoteRepository(
             cloneUrl = "https://github.com/Jeffset/kotlinconf-app.git",
             cloneIntoDirName = "kotlinconf-app",
@@ -45,5 +38,4 @@ class RuniOSExternalProjectsStandalone : IOSBaseTest() {
         bundleIdentifier = "com.kotlinconf.iosapp",
         iosAppModuleName = "iosApp",
     )
-
 }

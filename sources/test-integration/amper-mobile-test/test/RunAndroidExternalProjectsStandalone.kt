@@ -15,13 +15,6 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
     )
 
     @Test
-    fun kotlinConfAppTest() = runInstrumentedTests(
-        projectSource = amperExternalProject("kotlinconf"),
-        applicationId = "com.jetbrains.kotlinconf.android",
-        androidAppModuleName = "android-app",
-    )
-
-    @Test
     fun toDoListApp() = runInstrumentedTests(
         projectSource = amperExternalProject("todolistlite"),
         applicationId = "org.jetbrains.todo",
@@ -36,7 +29,7 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
     )
 
     @Test
-    fun kotlinConfAppTest2025() = runInstrumentedTests(
+    fun kotlinConfApp2025() = runInstrumentedTests(
         projectSource = ProjectSource.RemoteRepository(
             cloneUrl = "https://github.com/Jeffset/kotlinconf-app.git",
             cloneIntoDirName = "kotlinconf-app",
