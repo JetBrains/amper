@@ -26,7 +26,6 @@ fun updateGoldFiles() {
         }
 }
 
-@Suppress("PROCESS_BUILDER_START_LEAK")
 fun runSchemaTests() {
     println("Running schema and dr tests to generate .tmp result files...")
     val exitCode1 = runAmperCli("test", "-m", "schema", "-m", "dr")
@@ -40,6 +39,7 @@ fun runSchemaTests() {
     println()
 }
 
+@Suppress("PROCESS_BUILDER_START_LEAK")
 fun runAmperCli(vararg args: String): Int {
     val isWindows = System.getProperty("os.name").startsWith("Win", ignoreCase = true)
     val amperScript = amperRootDir.resolve(if (isWindows) "amper.bat" else "amper")
