@@ -8,11 +8,11 @@ import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.buildServiceMessages
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.fail
 
 private val NL = System.lineSeparator()
 
@@ -253,15 +253,7 @@ private fun parseTeamCityServiceMessages(text: String): List<ServiceMessage> = t
     .mapNotNull { ServiceMessage.parse(it) }
 
 private fun assertServiceMessagesEqual(expected: List<ServiceMessage>, actual: List<ServiceMessage>) {
-    for ((exp, act) in expected.zip(actual)) {
-        assertEquals(exp.normalized(), act.normalized(), "Service messages don't match")
-    }
-    if (expected.size < actual.size) {
-        fail("Unexpected extra service messages:\n${actual.drop(expected.size).joinToString("\n")}")
-    }
-    if (expected.size > actual.size) {
-        fail("Missing service messages, expected ${expected.size - actual.size} more:\n${expected.drop(actual.size).joinToString("\n")}")
-    }
+    assertEqualsWithDiff(expected.map { it.normalized() }, actual.map { it.normalized() })
 }
 
 private fun ServiceMessage.normalized(): String {
