@@ -32,7 +32,7 @@ class Task : SchemaNode() {
 class MarkOutputAs : SchemaNode() {
     var path by value<Path>()
     var kind by value<GeneratedPathKind>()
-    var fragment by value(::FragmentDescriptor)
+    val fragment: FragmentDescriptor by nested()
 }
 
 class FragmentDescriptor : SchemaNode() {

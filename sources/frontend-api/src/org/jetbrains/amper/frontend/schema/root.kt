@@ -33,7 +33,7 @@ abstract class Base : SchemaNode() {
 
     @ModifierAware
     @SchemaDoc("Configures the toolchains used in the build process. [Read more](#settings)")
-    var settings by value(::Settings)
+    val settings: Settings by nested()
 
     @SchemaDoc("Tasks settings. Experimental and will be replaced")
     var tasks by nullableValue<Map<String, TaskSettings>>()
@@ -54,7 +54,7 @@ class Module : Base() {
     var apply by nullableValue<List<TraceablePath>>()
 
     @SchemaDoc("Configures various aspects of the module, such as file layout")
-    var module by value(::Meta)
+    val module: Meta by nested()
 
     @ProductTypeSpecific(ProductType.JVM_AMPER_PLUGIN)
     var plugin by nullableValue<PluginDeclarationSchema>()

@@ -8,10 +8,10 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -169,21 +169,21 @@ class KotlinSettings : SchemaNode() {
 
     @StandaloneSpecific
     @SchemaDoc("[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.")
-    var ksp by value<KspSettings>(::KspSettings)
+    val ksp: KspSettings by nested()
 
     @PlatformAgnostic
     @SchemaDoc("Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
-    var serialization by value<SerializationSettings>(::SerializationSettings)
+    val serialization: SerializationSettings by nested()
     
     @PlatformAgnostic
     @SchemaDoc("Configure the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html)")
-    var noArg by value<NoArgSettings>(::NoArgSettings)
+    val noArg: NoArgSettings by nested()
     
     @PlatformAgnostic
     @SchemaDoc("Configure the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)")
-    var allOpen by value<AllOpenSettings>(::AllOpenSettings)
+    val allOpen: AllOpenSettings by nested()
 
     @PlatformAgnostic
     @SchemaDoc("Configure the [Kotlin power-assert compiler plugin](https://kotlinlang.org/docs/power-assert.html)")
-    var powerAssert by value<PowerAssertSettings>(::PowerAssertSettings)
+    val powerAssert: PowerAssertSettings by nested()
 }

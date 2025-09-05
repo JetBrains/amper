@@ -28,7 +28,7 @@ import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 class MinimalPluginModule : SchemaNode() {
     var product by value<ModuleProduct>()
 
-    var plugin by value(::PluginDeclarationSchema)
+    val plugin: PluginDeclarationSchema by nested()
 }
 
 interface PluginManifest {

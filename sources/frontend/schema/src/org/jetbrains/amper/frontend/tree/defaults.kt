@@ -45,7 +45,7 @@ private object DefaultsAppender : TreeTransformer<TreeState>() {
 
                     // In case if default is pointing to SchemaObject then we create an empty [MapProperty]
                     // and it will be filled within [acceptAll] call.
-                    is Default.Lambda<*> -> MapProperty(
+                    is Default.NestedObject<*> -> MapProperty(
                         it,
                         DefaultTrace,
                         DefaultTrace,

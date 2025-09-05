@@ -6,10 +6,10 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.Misnomers
-import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
+import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -107,7 +107,7 @@ val JavaAnnotationProcessingSettings.enabled: Boolean
 class JavaSettings : SchemaNode() {
 
     @SchemaDoc("Java annotation processing settings")
-    var annotationProcessing by value(default = ::JavaAnnotationProcessingSettings)
+    val annotationProcessing: JavaAnnotationProcessingSettings by nested()
 
     @Misnomers("compilation", "arguments", "options")
     @SchemaDoc("Pass any compiler option directly to the Java compiler")
@@ -138,7 +138,7 @@ class JvmSettings : SchemaNode() {
     var storeParameterNames by value(false)
 
     @SchemaDoc("JVM test-specific settings")
-    var test by value(::JvmTestSettings)
+    val test: JvmTestSettings by nested()
 
     @PlatformAgnostic
     @SchemaDoc("Specifies how runtime classpath is constructed for the application. " +

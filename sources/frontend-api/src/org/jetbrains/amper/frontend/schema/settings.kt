@@ -8,10 +8,10 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.KnownStringValues
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import java.nio.file.Path
-
 
 @SchemaDoc("JUnit version that is used for the module tests")
 enum class JUnitVersion(override val schemaValue: String, override val outdated: Boolean = false) : SchemaEnum {
@@ -33,23 +32,23 @@ class Settings : SchemaNode() {
 
     @SchemaDoc("JVM platform-specific settings")
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
-    var jvm by value(::JvmSettings)
+    val jvm: JvmSettings by nested()
 
     @SchemaDoc("Java language and the compiler settings")
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
-    var java by value(::JavaSettings)
+    val java: JavaSettings by nested()
 
     @SchemaDoc("Kotlin language and the compiler settings")
-    var kotlin by value(::KotlinSettings)
+    val kotlin: KotlinSettings by nested()
 
     @SchemaDoc("Android toolchain and platform settings")
     @PlatformSpecific(Platform.ANDROID)
-    var android by value(::AndroidSettings)
+    val android: AndroidSettings by nested()
 
     @PlatformAgnostic
     @SchemaDoc("[Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework. " +
             "Read more about [Compose configuration](#configuring-compose-multiplatform)")
-    var compose by value(::ComposeSettings)
+    val compose: ComposeSettings by nested()
 
     @Misnomers("test")
     @SchemaDoc("JUnit test runner on the JVM and Android platforms. " +
@@ -59,10 +58,10 @@ class Settings : SchemaNode() {
 
     @SchemaDoc("iOS toolchain and platform settings")
     @PlatformSpecific(Platform.IOS)
-    var ios by value(::IosSettings)
+    val ios: IosSettings by nested()
 
     @SchemaDoc("Publishing settings")
-    var publishing by value(::PublishingSettings)
+    val publishing: PublishingSettings by nested()
 
     @GradleSpecific("kover is not yet supported")
     @Misnomers("coverage")
@@ -74,20 +73,20 @@ class Settings : SchemaNode() {
     var native by nullableValue<NativeSettings>()
 
     @SchemaDoc("Ktor server settings")
-    var ktor by value(::KtorSettings)
+    val ktor: KtorSettings by nested()
 
     @PlatformSpecific(Platform.JVM)
     @SchemaDoc("Spring Boot settings")
-    var springBoot by value(::SpringBootSettings)
+    val springBoot: SpringBootSettings by nested()
 
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
     @SchemaDoc("Lombok settings")
-    var lombok by value(::LombokSettings)
+    val lombok: LombokSettings by nested()
 
     /** no documentation here - the block with Amper internal undesigned settings */
     @PlatformAgnostic
     @HiddenFromCompletion
-    var internal by value(::InternalSettings)
+    val internal: InternalSettings by nested()
 }
 
 class ComposeSettings : SchemaNode() {
@@ -100,10 +99,10 @@ class ComposeSettings : SchemaNode() {
     var version by value(UsedVersions.composeVersion)
 
     @SchemaDoc("Compose Resources settings")
-    var resources by value(::ComposeResourcesSettings)
+    val resources: ComposeResourcesSettings by nested()
 
     @SchemaDoc("Experimental Compose settings")
-    var experimental by value(::ComposeExperimentalSettings)
+    val experimental: ComposeExperimentalSettings by nested()
 }
 
 class ComposeResourcesSettings : SchemaNode() {
@@ -128,7 +127,7 @@ class ComposeExperimentalSettings: SchemaNode() {
 
     @PlatformSpecific(Platform.JVM) // we can only use Hot Reload on JVM for now, better warn users about it
     @SchemaDoc("Experimental Compose hot-reload settings")
-    var hotReload by value(::ComposeExperimentalHotReloadSettings)
+    val hotReload: ComposeExperimentalHotReloadSettings by nested()
 }
 
 class ComposeExperimentalHotReloadSettings: SchemaNode() {
@@ -177,7 +176,7 @@ class IosSettings : SchemaNode() {
     @SchemaDoc("(Only for the library [product type](#product-types) " +
             "Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)")
     @ProductTypeSpecific(ProductType.LIB)
-    var framework by value(::IosFrameworkSettings)
+    val framework: IosFrameworkSettings by nested()
 }
 
 class IosFrameworkSettings : SchemaNode() {

@@ -6,8 +6,8 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
+import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -132,7 +132,7 @@ class AndroidSettings : SchemaNode() {
     @SchemaDoc("Application signing settings. " +
     "[Read more](https://developer.android.com/studio/publish/app-signing)")
     @ProductTypeSpecific(ProductType.ANDROID_APP)
-    var signing by value(::AndroidSigningSettings)
+    val signing: AndroidSigningSettings by nested()
 
     @SchemaDoc("Version code. " +
             "[Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)")
@@ -147,11 +147,11 @@ class AndroidSettings : SchemaNode() {
     @Misnomers("packagingOptions")
     @SchemaDoc("Packaging options for java resource files.")
     @ProductTypeSpecific(ProductType.ANDROID_APP)
-    var resourcePackaging by value(::AndroidJavaResourcesPackagingSettings)
+    val resourcePackaging: AndroidJavaResourcesPackagingSettings by nested()
 
     @SchemaDoc("Configure [Kotlin Parcelize](https://developer.android.com/kotlin/parcelize) to automatically " +
             "implement the `Parcelable` interface for classes annotated with `@Parcelize`.")
-    var parcelize by value(::ParcelizeSettings)
+    val parcelize: ParcelizeSettings by nested()
 }
 
 class AndroidSigningSettings : SchemaNode() {

@@ -9,9 +9,11 @@ import org.jetbrains.amper.frontend.SchemaEnum
 import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.createInstance
 import kotlin.reflect.jvm.isAccessible
 
 typealias ValueHolders = MutableMap<String, ValueHolder<*>>
@@ -48,9 +50,9 @@ abstract class SchemaNode : Traceable {
     fun <T> value(default: T) = SchemaValueDelegateProvider(Default.Static(default))
 
     /**
-     * Register a value with a lazy default.
+     * Register a nested object value with a default-constructed instance by default.
      */
-    fun <T> value(default: () -> T) = SchemaValueDelegateProvider(Default.Lambda(default))
+    inline fun <reified T : SchemaNode> nested() = SchemaValueDelegateProvider(Default.NestedObject(T::class))
 
     /**
      * Register a value with a default depending on another property
@@ -91,8 +93,10 @@ sealed class Default<out T> {
         override val trace = DefaultTrace
     }
 
-    data class Lambda<T>(private val getter: () -> T) : Default<T>() {
-        override val value by lazy { getter() }
+    data class NestedObject<T : SchemaNode>(
+        private val kClass: KClass<T>,
+    ) : Default<T>() {
+        override val value by lazy { kClass.createInstance() }
         override val trace = DefaultTrace
     }
 
@@ -156,8 +160,6 @@ class SchemaValueDelegate<T>(
             }
             error("Required property '${property.name}' is not set")
         }
-
-    val withoutDefault: ValueHolder<T>? get() = valueGetter()
 
     override fun getValue(thisRef: SchemaNode, property: KProperty<*>) = value
     override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) {
