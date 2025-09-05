@@ -5,8 +5,6 @@
 package org.jetbrains.amper.frontend.schema.helper
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.test.golden.GoldenTest
@@ -20,13 +18,11 @@ import kotlin.io.path.div
 
 fun GoldenTest.diagnosticsTest(
     caseName: String,
-    systemInfo: SystemInfo = DefaultSystemInfo,
     additionalFiles: List<String> = emptyList()
-) = DiagnosticsTestRun(caseName, systemInfo, baseTestResourcesPath(), additionalFiles).doTest()
+) = DiagnosticsTestRun(caseName, baseTestResourcesPath(), additionalFiles).doTest()
 
 class DiagnosticsTestRun(
     caseName: String,
-    private val systemInfo: SystemInfo,
     override val base: Path,
     private val additionalPaths: List<String>,
 ) : BaseFrontendTestRun(caseName) {
