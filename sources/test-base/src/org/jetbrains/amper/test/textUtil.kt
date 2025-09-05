@@ -20,8 +20,8 @@ fun assertEqualsWithDiff(expected: List<String>, actual: List<String>, message: 
     if (expected.filter { it.isNotEmpty() } != actual.filter { it.isNotEmpty() }) {
         AssertionFailureBuilder.assertionFailure()
             .message("$message. Diff:\n${generateUnifiedDiff(expected, "expected", actual, "actual")}")
-            .expected(expected)
-            .actual(actual)
+            .expected(expected.joinToString("\n"))
+            .actual(actual.joinToString("\n"))
             .buildAndThrow()
     }
 }
