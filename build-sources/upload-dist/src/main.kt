@@ -82,7 +82,7 @@ private val JetBrainsTeamAmperRepository by lazy {
     val builder = RemoteRepository.Builder(
         "jetbrains-team-amper",
         "default",
-        "https://packages.jetbrains.team/maven/p/amper/maven",
+        "https://packages.jetbrains.team/maven/p/amper/amper",
     )
     val authBuilder = AuthenticationBuilder()
     authBuilder.addUsername(username)

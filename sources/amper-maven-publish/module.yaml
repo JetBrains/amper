@@ -10,6 +10,8 @@ dependencies:
   - ../frontend-api: exported
   - ../frontend/dr
   - $libs.maven.core: exported
+  - $libs.maven.resolver.connectorBasic: runtime-only
+  - $libs.maven.resolver.transportHttp: runtime-only
 
 settings:
   kotlin:

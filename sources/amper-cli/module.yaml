@@ -66,9 +66,6 @@ dependencies:
   - $libs.kotlinx.coroutines.slf4j
   - $libs.kotlinx.datetime
   - $libs.teamcity.serviceMessages
-  - $libs.maven.core
-  - $libs.maven.resolver.connectorBasic
-  - $libs.maven.resolver.transportHttp
   - jakarta.xml.bind:jakarta.xml.bind-api:2.3.2 # required by Android SDK tools but somehow not brought transitively
   - $libs.hot.reload.core
   - $libs.hot.reload.orchestration
