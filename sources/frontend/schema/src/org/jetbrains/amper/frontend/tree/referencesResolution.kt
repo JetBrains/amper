@@ -282,7 +282,7 @@ private fun TreeValue<Refined>.deepContainsAnyReferences(): Boolean = when(this)
 }
 
 private fun ReferenceValue<*>.resolvedTrace(resolvedValue: Traceable) = ResolvedReferenceTrace(
-    description = $$"resolved from ${$$referencedPath}",
+    description = $$"$${if (trace.isDefault) "default, " else ""}from ${$$referencedPath}",
     referenceTrace = trace,
     resolvedValue = resolvedValue,
 )

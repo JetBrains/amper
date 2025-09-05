@@ -22,7 +22,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.valueTracking.renderSettings
+import org.jetbrains.amper.frontend.serialization.serializeAsAmperYaml
 
 internal class ShowSettingsCommand : AmperModelAwareCommand(name = "settings") {
 
@@ -55,18 +55,17 @@ internal class ShowSettingsCommand : AmperModelAwareCommand(name = "settings") {
         productType: ProductType,
     ) {
         val settingsNodeName = if (fragment.platforms.isNotEmpty()) {
-            "settings@${fragment.platforms.joinToString("+") { it.pretty }}"
+            "settings@${fragment.platforms.joinToString("+") { it.pretty }}:"
         } else {
-            "settings"
+            "settings:"
         }
-        terminal.println(settingsNodeName, Whitespace.PRE_LINE, TextAlign.LEFT)
-        val yamlLikeEffectiveSettings = renderSettings(
-            value = fragment.settings,
-            product = productType,
+        terminal.println(settingsNodeName)
+        val yamlLikeEffectiveSettings = fragment.settings.serializeAsAmperYaml(
+            productType = productType,
             contexts = fragment.platforms,
         )
-        // whitespace ahead is necessary for copy-pastability
         terminal.println(yamlLikeEffectiveSettings.prependIndent("  "))
+        terminal.println()
     }
 
     private fun List<AmperModule>.filterModulesToInspect(): List<AmperModule> {
