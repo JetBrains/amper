@@ -16,9 +16,9 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.8.0-dev-3169
+set amper_version=0.8.0-dev-3172
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=adbfeec1a5b70b78496c06348e5b4b0e74631be8b5fbdf573624a5283e10855e
+set amper_sha256=438c7b9d61b0c17f2bb76573629954cde8f22cdaeb61d40b894b7a90ffd85c77
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -170,7 +170,7 @@ if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
 
 REM ********** Launch Amper **********
 
-set jvm_args=-ea -XX:+EnableDynamicAgentLoading "-javaagent:%amper_target_dir%\lib\kotlinx-coroutines-debug-1.10.1.jar" %AMPER_JAVA_OPTIONS%
+set jvm_args=-ea -XX:+EnableDynamicAgentLoading "-javaagent:%amper_target_dir%\lib\kotlinx-coroutines-debug-1.10.2.jar" %AMPER_JAVA_OPTIONS%
 "%AMPER_JAVA_HOME%\bin\java.exe" ^
   "-Damper.wrapper.dist.sha256=%amper_sha256%" ^
   "-Damper.dist.path=%amper_target_dir%" ^
