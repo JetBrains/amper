@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.amper.frontend.dr.resolver.flow
 
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
@@ -28,7 +32,7 @@ fun Platform.toResolutionPlatform() : ResolutionPlatform? = when(this) {
     Platform.ANDROID_NATIVE_X64 -> ResolutionPlatform.ANDROID_NATIVE_X64
     Platform.ANDROID_NATIVE_X86 -> ResolutionPlatform.ANDROID_NATIVE_X86
 
-    // DR could not be run for non-leaf platforms
+    // DR cannot be run for non-leaf platforms
     Platform.COMMON,
     Platform.NATIVE,
     Platform.LINUX,
@@ -38,7 +42,8 @@ fun Platform.toResolutionPlatform() : ResolutionPlatform? = when(this) {
     Platform.IOS,
     Platform.TVOS,
     Platform.MACOS,
-    Platform.WATCHOS -> null
+    Platform.WATCHOS,
+    Platform.WEB -> null
 }
 
 fun ResolutionPlatform.toPlatform() : Platform = when(this) {

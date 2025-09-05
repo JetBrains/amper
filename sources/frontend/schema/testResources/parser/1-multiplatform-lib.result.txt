@@ -212,7 +212,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src@js
     Fragment dependencies:
-      common (REFINE)
+      web (REFINE)
     Settings: {
     }
 
@@ -226,7 +226,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test@js
     Fragment dependencies:
-      commonTest (REFINE)
+      webTest (REFINE)
       js (FRIEND)
     Settings: {
     }
@@ -268,7 +268,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src@wasmJs
     Fragment dependencies:
-      common (REFINE)
+      web (REFINE)
     Settings: {
     }
 
@@ -282,27 +282,54 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test@wasmJs
     Fragment dependencies:
-      commonTest (REFINE)
+      webTest (REFINE)
       wasmJs (FRIEND)
+    Settings: {
+    }
+
+  web
+    External dependencies:
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+    Src folder: src@web
+    Fragment dependencies:
+      common (REFINE)
+    Settings: {
+    }
+
+  webTest
+    External dependencies:
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+    Src folder: test@web
+    Fragment dependencies:
+      commonTest (REFINE)
+      web (FRIEND)
     Settings: {
     }
 
 Artifacts:
   isTest: false
-  [JS, WASM_JS, ANDROID, IOS_ARM64, IOS_SIMULATOR_ARM64, IOS_X64]
+  [ANDROID, JS, WASM_JS, IOS_ARM64, IOS_SIMULATOR_ARM64, IOS_X64]
     Fragments:
+      android
       js
       wasmJs
-      android
       iosArm64
       iosSimulatorArm64
       iosX64
   isTest: true
-  [JS, WASM_JS, ANDROID, IOS_ARM64, IOS_SIMULATOR_ARM64, IOS_X64]
+  [ANDROID, JS, WASM_JS, IOS_ARM64, IOS_SIMULATOR_ARM64, IOS_X64]
     Fragments:
+      androidTest
       jsTest
       wasmJsTest
-      androidTest
       iosArm64Test
       iosSimulatorArm64Test
       iosX64Test

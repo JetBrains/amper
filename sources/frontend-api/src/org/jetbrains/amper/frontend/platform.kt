@@ -22,10 +22,13 @@ enum class Platform(
 ) : SchemaEnum, Context {
     COMMON,
 
-    JS(COMMON, isLeaf = true),
     JVM(COMMON, isLeaf = true),
-    WASM_JS(COMMON, isLeaf = true),
     ANDROID(COMMON, isLeaf = true),
+
+    WEB(COMMON),
+    JS(WEB, isLeaf = true),
+    WASM_JS(WEB, isLeaf = true),
+
     NATIVE(COMMON),
 
     LINUX(NATIVE),

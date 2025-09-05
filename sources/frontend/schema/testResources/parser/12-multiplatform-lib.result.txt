@@ -110,7 +110,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: src@js
     Fragment dependencies:
-      common (REFINE)
+      web (REFINE)
     Settings: {
     }
 
@@ -121,7 +121,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test@js
     Fragment dependencies:
-      commonTest (REFINE)
+      webTest (REFINE)
       js (FRIEND)
     Settings: {
     }
@@ -172,7 +172,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: src@wasmJs
     Fragment dependencies:
-      common (REFINE)
+      web (REFINE)
     Settings: {
     }
 
@@ -183,27 +183,48 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: test@wasmJs
     Fragment dependencies:
-      commonTest (REFINE)
+      webTest (REFINE)
       wasmJs (FRIEND)
+    Settings: {
+    }
+
+  web
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src@web
+    Fragment dependencies:
+      common (REFINE)
+    Settings: {
+    }
+
+  webTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test@web
+    Fragment dependencies:
+      commonTest (REFINE)
+      web (FRIEND)
     Settings: {
     }
 
 Artifacts:
   isTest: false
-  [JS, JVM, WASM_JS, ANDROID, IOS_ARM64]
+  [JVM, ANDROID, JS, WASM_JS, IOS_ARM64]
     Fragments:
-      js
       jvm
-      wasmJs
       android
+      js
+      wasmJs
       iosArm64
   isTest: true
-  [JS, JVM, WASM_JS, ANDROID, IOS_ARM64]
+  [JVM, ANDROID, JS, WASM_JS, IOS_ARM64]
     Fragments:
-      jsTest
       jvmTest
-      wasmJsTest
       androidTest
+      jsTest
+      wasmJsTest
       iosArm64Test
 Repositories:
   - id: https://repo1.maven.org/maven2
