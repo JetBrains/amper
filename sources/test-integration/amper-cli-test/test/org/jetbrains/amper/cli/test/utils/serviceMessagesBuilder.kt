@@ -90,18 +90,16 @@ class ServiceMessagesBuilder {
         messages.add(TestStdErr(testName, output).withFlowId(currentFlowId).apply { if (withTimestamp) withSomeTimestamp() })
     }
 
-    fun testFailed(message: String, stackTrace: Array<StackTraceElement>) {
+    fun testFailed(message: String, serializedStackTrace: String) {
         val testName = currentTest ?: error("Not in a test")
-        val exception = AssertionFailedError(message)
-        exception.stackTrace = stackTrace
-        messages.add(TestFailed(testName, exception).withFlowId(currentFlowId))
+        val sm = "##teamcity[testFailed name='$testName' message='$message' details='$serializedStackTrace']"
+        messages.add(ServiceMessage.parse(sm)!!.withFlowId(currentFlowId))
     }
 
-    fun testFailed(message: String, expectedValue: String, actualValue: String, stackTrace: Array<StackTraceElement>) {
+    fun testFailed(message: String, expectedValue: String, actualValue: String, serializedStackTrace: String) {
         val testName = currentTest ?: error("Not in a test")
-        val exception = AssertionFailedError(message, expectedValue, actualValue)
-        exception.stackTrace = stackTrace
-        messages.add(TestFailed(testName, exception, actualValue, expectedValue).withFlowId(currentFlowId))
+        val sm = "##teamcity[testFailed name='$testName' message='$message' details='$serializedStackTrace' actual='$actualValue' expected='$expectedValue']"
+        messages.add(ServiceMessage.parse(sm)!!.withFlowId(currentFlowId))
     }
 }
 

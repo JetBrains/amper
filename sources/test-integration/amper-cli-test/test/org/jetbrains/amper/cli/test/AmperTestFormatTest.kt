@@ -9,12 +9,21 @@ import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.buildServiceMessages
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.test.assertEqualsWithDiff
+import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * New line character for the current OS.
+ */
 private val NL = System.lineSeparator()
+
+/**
+ * TeamCity-encoded new line for the current OS.
+ */
+private val ENL = if (OS.current() == OS.WINDOWS) "|r|n" else "|n"
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
@@ -92,43 +101,16 @@ class AmperTestFormatTest : AmperCliTestBase() {
                         }
                         testWithFlow("FailedTest.stringComparisonFailure()") {
                             testFailed(
-                                message = "Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>",
+                                message = "org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>",
                                 expectedValue = "EXPECTED_VALUE",
                                 actualValue = "ACTUAL_VALUE",
-                                stackTrace = arrayOf(
-                                    StackTraceElement("org.junit.jupiter.api.AssertionFailureBuilder", "build", "AssertionFailureBuilder.java", 151),
-                                    StackTraceElement("org.junit.jupiter.api.AssertionFailureBuilder", "buildAndThrow", "AssertionFailureBuilder.java", 132),
-                                    StackTraceElement("org.junit.jupiter.api.AssertEquals", "failNotEqual", "AssertEquals.java", 197),
-                                    StackTraceElement("org.junit.jupiter.api.AssertEquals", "assertEquals", "AssertEquals.java", 182),
-                                    StackTraceElement("org.junit.jupiter.api.Assertions", "assertEquals", "Assertions.java", 1156),
-                                    StackTraceElement("kotlin.test.junit5.JUnit5Asserter", "assertEquals", "JUnitSupport.kt", 32),
-                                    StackTraceElement("kotlin.test.AssertionsKt__AssertionsKt", "assertEquals", "Assertions.kt", 63),
-                                    StackTraceElement("kotlin.test.AssertionsKt", "assertEquals", null, -1),
-                                    StackTraceElement("FailedTest", "stringComparisonFailure", "tests.kt", 18),
-                                    StackTraceElement("java.base/java.lang.reflect.Method", "invoke", "Method.java", 580),
-                                    StackTraceElement("java.base/java.util.ArrayList", "forEach", "ArrayList.java", 1596),
-                                    StackTraceElement("java.base/java.util.ArrayList", "forEach", "ArrayList.java", 1596),
-                                )
+                                serializedStackTrace = "org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)$ENL\tat org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)$ENL\tat org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)$ENL\tat org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1156)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)$ENL\tat kotlin.test.AssertionsKt.assertEquals(Unknown Source)$ENL\tat FailedTest.stringComparisonFailure(tests.kt:18)$ENL\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)$ENL\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)$ENL\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)$ENL"
                             )
                         }
                         testWithFlow("FailedTest.booleanFailure()") {
                             testFailed(
-                                message = "The boolean value is incorrect",
-                                stackTrace = arrayOf(
-                                    StackTraceElement("org.junit.jupiter.api.AssertionUtils", "fail", "AssertionUtils.java", 38),
-                                    StackTraceElement("org.junit.jupiter.api.Assertions", "fail", "Assertions.java", 138),
-                                    StackTraceElement("kotlin.test.junit5.JUnit5Asserter", "fail", "JUnitSupport.kt", 56),
-                                    StackTraceElement("kotlin.test.Asserter", "assertTrue", "Assertions.kt", 694),
-                                    StackTraceElement("kotlin.test.junit5.JUnit5Asserter", "assertTrue", "JUnitSupport.kt", 30),
-                                    StackTraceElement("kotlin.test.Asserter", "assertTrue", "Assertions.kt", 704),
-                                    StackTraceElement("kotlin.test.junit5.JUnit5Asserter", "assertTrue", "JUnitSupport.kt", 30),
-                                    StackTraceElement("kotlin.test.AssertionsKt__AssertionsKt", "assertTrue", "Assertions.kt", 44),
-                                    StackTraceElement("kotlin.test.AssertionsKt", "assertTrue", null, -1),
-                                    StackTraceElement("FailedTest", "booleanFailure", "tests.kt", 13),
-                                    StackTraceElement("java.base/java.lang.reflect.Method", "invoke", "Method.java", 580),
-                                    StackTraceElement("java.base/java.util.ArrayList", "forEach", "ArrayList.java", 1596),
-                                    StackTraceElement("java.base/java.util.ArrayList", "forEach", "ArrayList.java", 1596),
-                                )
+                                message = "org.opentest4j.AssertionFailedError: The boolean value is incorrect",
+                                serializedStackTrace = "org.opentest4j.AssertionFailedError: The boolean value is incorrect$ENL\tat org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:38)$ENL\tat org.junit.jupiter.api.Assertions.fail(Assertions.java:138)$ENL\tat kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:694)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:704)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)$ENL\tat kotlin.test.AssertionsKt.assertTrue(Unknown Source)$ENL\tat FailedTest.booleanFailure(tests.kt:13)$ENL\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)$ENL\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)$ENL\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)$ENL"
                             )
                         }
                     }
