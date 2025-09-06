@@ -7,10 +7,8 @@ package org.jetbrains.amper.frontend.plugins
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
-import org.jetbrains.amper.frontend.aomBuilder.MissingPropertiesHandler
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.UnstableSchemaApi
 import org.jetbrains.amper.frontend.api.toStringRepresentation
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
@@ -55,16 +53,8 @@ fun parsePluginManifestFromModuleFile(
             parseContexts = false,
         )
         val noContextsTree = TreeRefiner().refineTree(pluginModuleTree, EmptyContexts)
-        val handler = object : MissingPropertiesHandler {
-            var somePropertiesMissing = false
-            override fun onMissingRequiredPropertyValue(trace: Trace, keyName: String, keyTrace: Trace?) {
-                somePropertiesMissing = true
-            }
-        }
-        val moduleHeader = createSchemaNode<MinimalPluginModule>(noContextsTree, handler)
-
-        if (handler.somePropertiesMissing)
-            return null
+        val moduleHeader = createSchemaNode<MinimalPluginModule>(noContextsTree)
+            ?: return null
 
         if (moduleHeader.product.type != ProductType.JVM_AMPER_PLUGIN)
             return null

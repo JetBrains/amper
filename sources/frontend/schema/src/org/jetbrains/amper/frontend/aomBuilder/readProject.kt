@@ -21,4 +21,5 @@ internal fun readProject(
         val projectTree = readTree(projectFile, projectAType)
         val noContextsTree = TreeRefiner().refineTree(projectTree, EmptyContexts)
         createSchemaNode<Project>(noContextsTree)
+            ?: error("No required values must be in the project schema!")
     }

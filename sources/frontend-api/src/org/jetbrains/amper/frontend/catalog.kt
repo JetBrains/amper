@@ -96,3 +96,10 @@ class CompositeVersionCatalog(
         @Suppress("DEPRECATION")
         get() = catalogs.any { it.isPhysical }
 }
+
+/**
+ * A synthetic version catalog with no entries.
+ */
+object EmptyVersionCatalog : InMemoryVersionCatalog {
+    override val entries: Map<String, Nothing> get() = emptyMap()
+}

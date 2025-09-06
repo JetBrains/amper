@@ -55,10 +55,7 @@ private fun parseObjectWithFromKeyProperty(
                 reportParsing(psi,  "validation.types.invalid.ctor.arg.key", type.render())
                 return null
             }
-            val key = YAMLScalarOrKey.parseKey(argKeyValue) ?: run {
-                reportParsing(argKeyValue, "validation.structure.missing.key")
-                return null
-            }
+            val key = YAMLScalarOrKey.parseKey(argKeyValue) ?: return null
             val argumentValue = parseScalar(key, argumentType)
                 ?: return null
             val nestedRemainingObject = argKeyValue.value
@@ -112,10 +109,7 @@ private fun parseObjectWithoutFromKeyProperty(psi: YAMLValue, type: SchemaType.O
 context(contexts: Contexts, config: ParsingConfig, reporter: ProblemReporter)
 private fun parseObjectFromMap(psi: YAMLMapping, type: SchemaType.ObjectType): Owned {
     fun parseObjectProperty(keyValue: YAMLKeyValue): MapLikeValue.Property<*>? {
-        val key = YAMLScalarOrKey.parseKey(keyValue) ?: run {
-            reportParsing(keyValue, "validation.structure.missing.key")
-            return null
-        }
+        val key = YAMLScalarOrKey.parseKey(keyValue) ?: return null
         val (propertyName, propertyContexts) = parsePropertyKeyContexts(key)
             ?: return null
         val property = type.declaration.getProperty(propertyName)?.takeUnless { it.isFromKeyAndTheRestNested }

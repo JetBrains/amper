@@ -1,0 +1,8 @@
+product:
+  type: jvm/app
+
+repositories:
+  - url: https://com.example
+    <![Error] No value for required property 'passwordKey'.!>credentials:
+      file: ./some-file
+      usernameKey:<!>

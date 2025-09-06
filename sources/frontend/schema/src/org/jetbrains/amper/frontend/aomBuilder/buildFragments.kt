@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Notation
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
@@ -195,13 +196,24 @@ internal fun BuildCtx.createFragments(
         val testFragment: DefaultFragment,
     )
 
-    fun FragmentSeed.toFragment(isTest: Boolean): DefaultFragment {
+    fun FragmentSeed.toFragment(isTest: Boolean): DefaultFragment? {
         val testCtx = if (isTest) setOf(TestCtx) else EmptyContexts
         val selectedContexts = testCtx +
                 platforms.map { PlatformCtx(it.pretty) } +
                 PathCtx(ctx.moduleFile)
         val refinedTree = ctx.refiner.refineTree(ctx.mergedTree, selectedContexts)
-        val refinedModule = createSchemaNode<Module>(refinedTree)
+        val handler = object : MissingPropertiesHandler.Default(problemReporter) {
+            override fun onMissingRequiredPropertyValue(
+                trace: Trace,
+                valuePath: List<String>,
+                keyTrace: Trace?,
+            ) = when(valuePath[0]) {
+                "settings", "dependencies" -> super.onMissingRequiredPropertyValue(trace, valuePath, keyTrace)
+                else -> Unit  // ignoring; was already reported in the `ctx.moduleCtxModule`.
+            }
+        }
+        val refinedModule = createSchemaNode<Module>(refinedTree, handler)
+            ?: return null
         val fragmentCtor = if (isLeaf) ::DefaultLeafFragment else ::DefaultFragment
         return fragmentCtor(
             this,
@@ -214,7 +226,13 @@ internal fun BuildCtx.createFragments(
     }
 
     // Create fragments.
-    val initial = seeds.associateWith { FragmentBundle(it.toFragment(false), it.toFragment(true)) }
+    val initial = buildMap {
+        for (seed in seeds) {
+            val main = seed.toFragment(false) ?: continue
+            val test = seed.toFragment(true) ?: continue
+            put(seed, FragmentBundle(main, test))
+        }
+    }
 
     // Set fragment dependencies.
     initial.entries.forEach { (seed, bundle) ->

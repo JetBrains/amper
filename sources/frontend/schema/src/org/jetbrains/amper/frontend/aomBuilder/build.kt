@@ -18,7 +18,6 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.api.trace
-import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
 import org.jetbrains.amper.frontend.contexts.MinimalModuleHolder
@@ -31,6 +30,7 @@ import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDependency
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.messages.originalFilePath
+import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
 import org.jetbrains.amper.frontend.processing.configureHotReloadDefaults
 import org.jetbrains.amper.frontend.processing.configureLombokDefaults
@@ -156,6 +156,7 @@ internal fun BuildCtx.readModuleMergedTree(
     val refiner = TreeRefiner(minimalModule.combinedInheritance)
     val commonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
     val commonModule = createSchemaNode<Module>(commonTree)
+        ?: return null
     val effectiveCatalog = commonModule.settings.builtInCatalog() + projectVersionsCatalog
 
     val processedTree = preProcessedTree

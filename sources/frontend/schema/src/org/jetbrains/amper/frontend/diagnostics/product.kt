@@ -24,9 +24,9 @@ object LibShouldHavePlatforms : MergedTreeDiagnostic {
     override val diagnosticId: BuildProblemId = "product.type.does.not.have.default.platforms"
 
     override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
-        root.visitProduct { (typeValue, type, _, _, platforms) ->
+        root.visitProduct { (typeValue, type, platformsValue, _, _) ->
             val isYaml = typeValue.trace.extractPsiElementOrNull()?.parent is YAMLPsiElement
-            if (type == ProductType.LIB && platforms == null) {
+            if (type == ProductType.LIB && platformsValue == null) {
                 problemReporter.reportBundleError(
                     source = typeValue.trace.asBuildProblemSource(),
                     messageKey = if (isYaml) diagnosticId else "product.type.does.not.have.default.platforms.amperlang",
@@ -63,9 +63,9 @@ object ProductPlatformsShouldNotBeEmpty : MergedTreeDiagnostic {
 
     override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitProduct { (_, _, platformsValue, _, platforms) ->
-            if (platforms?.isEmpty() == true) {
+            if (platformsValue != null && platforms.isNullOrEmpty()) {
                 problemReporter.reportBundleError(
-                    source = (platformsValue?.trace ?: return@visitProduct).asBuildProblemSource(),
+                    source = platformsValue.trace.asBuildProblemSource(),
                     messageKey = diagnosticId,
                     level = Level.Fatal,
                 )

@@ -66,27 +66,27 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
         val delegate = object : MissingPropertiesHandler.Default(collectingReporter) {
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,
-                keyName: String,
+                valuePath: List<String>,
                 keyTrace: Trace?,
             ) {
-                when (keyName) {
-                    "product" if keyTrace != null -> collectingReporter.reportBundleError(
+                when (valuePath) {
+                    listOf("product") if keyTrace != null -> collectingReporter.reportBundleError(
                         source = keyTrace.asBuildProblemSource(),
                         messageKey = "product.not.defined",
                         level = Level.Fatal,
                     )
-                    "product" -> collectingReporter.reportBundleError(
+                    listOf("product") -> collectingReporter.reportBundleError(
                         source = trace.asBuildProblemSource(),
                         messageKey = "product.not.defined.empty",
                         buildProblemId = "product.not.defined",
                         level = Level.Fatal,
                     )
-                    "type" -> collectingReporter.reportBundleError(
+                    listOf("product", "type") -> collectingReporter.reportBundleError(
                         source = trace.asBuildProblemSource(),
                         messageKey = "product.not.defined",
                         level = Level.Fatal,
                     )
-                    else -> super.onMissingRequiredPropertyValue(trace, keyName, keyTrace)
+                    else -> super.onMissingRequiredPropertyValue(trace, valuePath, keyTrace)
                 }
             }
         }
@@ -98,6 +98,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             collectingReporter.replayProblemsTo(this@tryReadMinimalModule.problemReporter)
             return null
         }
+        instance ?: return null
 
         MinimalModuleHolder(
             moduleFilePath = moduleFilePath,

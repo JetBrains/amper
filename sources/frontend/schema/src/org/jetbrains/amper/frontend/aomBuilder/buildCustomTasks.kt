@@ -54,7 +54,7 @@ internal fun BuildCtx.buildCustomTask(
     val refined = TreeRefiner().refineTree(taskTree, EmptyContexts)
     
     // We can cast here only because no contexts are available inside the task definition.
-    val node = createSchemaNode<CustomTaskNode>(refined)
+    val node = createSchemaNode<CustomTaskNode>(refined) ?: return
     val customTask = with(problemReporter) {
         buildCustomTask(customTaskFile, node, module.module) {
             val modulePathPart = it.toNioPathOrNull() ?: return@buildCustomTask null

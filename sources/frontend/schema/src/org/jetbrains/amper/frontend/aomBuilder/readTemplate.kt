@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
+import org.jetbrains.amper.frontend.EmptyVersionCatalog
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
@@ -32,5 +33,6 @@ fun AmperProjectContext.readEffectiveCatalogForTemplate(templateFile: VirtualFil
         // NOTE: That will change when nested templated are allowed.
         val noContextsTree = refiner.refineTree(mergedTemplateTree, EmptyContexts)
         val noContextsTemplate = createSchemaNode<Template>(noContextsTree)
-        noContextsTemplate.settings.builtInCatalog() + projectVersionsCatalog
+        val builtinCatalog = noContextsTemplate?.settings?.builtInCatalog() ?: EmptyVersionCatalog
+        builtinCatalog + projectVersionsCatalog
     }

@@ -1,0 +1,7 @@
+product:
+  type: jvm/app
+
+settings:
+  kotlin:
+    serialization:
+      enabled: <![Error] Expected a boolean value!>abracadabra<!>

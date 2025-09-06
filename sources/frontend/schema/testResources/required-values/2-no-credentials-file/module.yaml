@@ -1,0 +1,7 @@
+product:
+  type: jvm/app
+
+repositories:
+  - url: https://com.example
+    credentials:
+      <![Error] No value for required property 'file'.!>file:<!>
