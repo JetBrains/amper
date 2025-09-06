@@ -26,14 +26,11 @@ class Owned(
 typealias MergedTree = TreeValue<Merged>
 
 class Merged(
-    val mapLikeChildren: Map<String, Property<TreeValue<Merged>>>,
-    val otherChildren: MapLikeChildren<Merged>,
+    override val children: MapLikeChildren<Merged>,
     override val type: SchemaObjectDeclaration?,
     override val trace: Trace,
     override val contexts: Contexts,
-) : MapLikeValue<Merged>, TreeState {
-    override val children = mapLikeChildren.values + otherChildren
-}
+) : MapLikeValue<Merged>, TreeState
 
 typealias RefinedTree = TreeValue<Refined>
 
@@ -62,8 +59,7 @@ fun <TS : TreeState> MapLikeValue<TS>.copy(
         contexts = contexts
     )
     is Merged -> Merged(
-        mapLikeChildren = (children as MapLikeChildren<Merged>).filter { it.value is MapLikeValue<*> }.associateBy { it.key },
-        otherChildren = children.filter { it.value !is MapLikeValue<*> },
+        children = children as MapLikeChildren<Merged>,
         type = type,
         trace = trace,
         contexts = contexts

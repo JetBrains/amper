@@ -48,11 +48,10 @@ class TreeMerger() {
         val allChildren = trees.flatMap { it.children }
         val (mapLike, other) = allChildren.partitionMapLike()
         val otherMerged = other.map { it.mergeSingle() }
-        val mapLikeMerged = mapLike.mergeProperties().associateBy { it.key }
+        val mapLikeMerged = mapLike.mergeProperties()
         val firstNonDefault = trees.firstOrNull { it.trace !is DefaultTrace } ?: firstTree
         return Merged(
-            mapLikeChildren = mapLikeMerged,
-            otherChildren = otherMerged,
+            children = mapLikeMerged + otherMerged,
             type = firstNonDefault.type,
             trace = firstNonDefault.trace,
             contexts = EmptyContexts,
@@ -65,9 +64,9 @@ class TreeMerger() {
         is ListValue -> ListValue(children.map { it.mergeSingle() }, trace, contexts) as MergedTree
         is MapLikeValue -> {
             val (mapLike, other) = children.partitionMapLike()
-            val mapLikeMerged = mapLike.mergeProperties().associateBy { it.key }
+            val mapLikeMerged = mapLike.mergeProperties()
             val otherMerged = other.map { it.mergeSingle() }
-            Merged(mapLikeMerged, otherMerged, type, trace, EmptyContexts)
+            Merged(children = mapLikeMerged + otherMerged, type, trace, EmptyContexts)
         }
     }
 
