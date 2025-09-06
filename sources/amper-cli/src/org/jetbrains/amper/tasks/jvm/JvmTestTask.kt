@@ -66,13 +66,14 @@ class JvmTestTask(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
+        val jvmTestSettings = module.leafFragments.single { it.platform == platform && it.isTest }.settings.jvm.test
         // https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.1/junit-platform-console-standalone-1.10.1.jar
         val junitConsoleUrl = Downloader.getUriForMavenArtifact(
             mavenRepository = "https://repo1.maven.org/maven2",
             groupId = "org.junit.platform",
             artifactId = "junit-platform-console-standalone",
             packaging = "jar",
-            version = UsedVersions.junitPlatform,
+            version = jvmTestSettings.junitPlatformVersion,
         ).toString()
 
         // test task depends on compile test task
@@ -135,7 +136,6 @@ class JvmTestTask(
                 add("-Dorg.jetbrains.amper.junit.listener.teamcity.enabled=true")
             }
 
-            val jvmTestSettings = module.leafFragments.single { it.platform == platform && it.isTest }.settings.jvm.test
             addAll(jvmTestSettings.systemProperties.map { (k, v) -> "-D${k.value}=${v.value}" })
             addAll(jvmTestSettings.freeJvmArgs)
 

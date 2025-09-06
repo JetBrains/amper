@@ -62,7 +62,8 @@
     "jvm" : {
       "test" : {
         "systemProperties" : ,
-        "freeJvmArgs(DefaultCtx)" :
+        "freeJvmArgs(DefaultCtx)" : ,
+        "junitPlatformVersion(DefaultCtx)" : "1.13.4(DefaultCtx)"
       },
       "release(DefaultCtx)" : "VERSION_17(DefaultCtx)",
       "runtimeClasspathMode(DefaultCtx)" : "JARS(DefaultCtx)",

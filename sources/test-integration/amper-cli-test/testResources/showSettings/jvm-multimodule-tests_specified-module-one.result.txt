@@ -35,6 +35,7 @@ settings@jvm
      storeParameterNames: false  # [default]
      test:
         freeJvmArgs: []  # [default]
+        junitPlatformVersion: 1.13.4  # [default]
         systemProperties: {}  # [default]
 
 
