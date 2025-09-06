@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.types
 
+import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.types.SchemaType.TypeWithDeclaration
 import java.util.concurrent.ConcurrentHashMap
@@ -68,6 +69,7 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
                             ?: error("No object declaration for $propTypeKey"),
                         isMarkedNullable = true,
                     ),
+                    default = Default.Static(null),
                     documentation = description,
                     isPlatformAgnostic = true,
                 )

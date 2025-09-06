@@ -46,7 +46,14 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
          * They can be used to help with completion in the IDE, or for more meaningful error messages.
          */
         val misnomers: Set<String> = emptySet(),
-        val default: Default<*>? = null,
+        /**
+         * The default value for this property, if any.
+         *
+         * If this property is optional and defaults to null, a proper [Default] instance will be present, with the null
+         * value inside. If the [default] is null itself, it means there is no default value (not even null), and thus
+         * the property must be specfied explicitly (required).
+         */
+        val default: Default<*>?,
         val isModifierAware: Boolean = false,
         /**
          * @see org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
