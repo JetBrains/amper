@@ -17,7 +17,14 @@ fun SchemaObjectDeclaration.toType() = SchemaType.ObjectType(this)
 
 fun SchemaVariantDeclaration.toType() = SchemaType.VariantType(this)
 
-fun SchemaObjectDeclaration.Property.isValueRequired() = !type.isMarkedNullable && default == null
+/**
+ * Whether this property must be specified explicitly. This is true for any property that doesn't have a default value.
+ *
+ * Note that this is orthogonal to whether the property has a nullable type. Nullable properties don't necessarily have
+ * a default value. If they do, the default is not necessarily null. If they don't, they are required despite being
+ * nullable.
+ */
+fun SchemaObjectDeclaration.Property.isValueRequired() = default == null
 
 fun SchemaType.render(
     includePossibleValues: Boolean = true,

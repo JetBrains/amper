@@ -8,6 +8,7 @@ private fun <R, TS : TreeState> TreeVisitor<R, TS>.accept(value: TreeValue<TS>):
     is ListValue<TS> -> visitListValue(value)
     is MapLikeValue<TS> -> visitMapValue(value)
     is ScalarValue<TS> -> visitScalarValue(value)
+    is NullValue<TS> -> visitNullValue(value)
     is ReferenceValue<TS> -> visitReferenceValue(value)
     is NoValue -> visitNoValue(value)
 }
@@ -17,6 +18,7 @@ private fun <R, TS : TreeState> TreeVisitor<R, TS>.accept(value: TreeValue<TS>):
  */
 interface TreeVisitor<R, TS : TreeState> {
     fun visitValue(value: TreeValue<TS>): R = accept(value)
+    fun visitNullValue(value: NullValue<TS>): R
     fun visitScalarValue(value: ScalarValue<TS>): R
     fun visitNoValue(value: NoValue): R
     fun visitReferenceValue(value: ReferenceValue<TS>): R
@@ -45,6 +47,7 @@ abstract class RecurringTreeVisitor<R, TS : TreeState> : TreeVisitor<R, TS> {
 abstract class RecurringTreeVisitorUnit<TS : TreeState> : RecurringTreeVisitor<Unit, TS>() {
     override fun aggregate(value: TreeValue<TS>, childResults: List<Unit>) = Unit
     override fun visitScalarValue(value: ScalarValue<TS>) = Unit
+    override fun visitNullValue(value: NullValue<TS>) = Unit
     override fun visitReferenceValue(value: ReferenceValue<TS>) = Unit
     override fun visitNoValue(value: NoValue) = Unit
 }
@@ -54,6 +57,7 @@ abstract class RecurringTreeVisitorUnit<TS : TreeState> : RecurringTreeVisitor<U
  */
 fun <TS : TreeState> TreeValue<TS>.visitValues(block: (TreeValue<TS>) -> Unit) =
     object : RecurringTreeVisitorUnit<TS>() {
+        override fun visitNullValue(value: NullValue<TS>) = block(value)
         override fun visitScalarValue(value: ScalarValue<TS>) = block(value)
         override fun visitReferenceValue(value: ReferenceValue<TS>) = block(value)
         override fun visitListValue(value: ListValue<TS>) = block(value).also { super.visitListValue(value) }
@@ -101,6 +105,7 @@ abstract class TreeTransformer<TS : TreeState> : TreeVisitor<TransformResult<Tre
         }
 
     override fun visitNoValue(value: NoValue) = NotChanged
+    override fun visitNullValue(value: NullValue<TS>) = NotChanged
     override fun visitScalarValue(value: ScalarValue<TS>) = NotChanged
     override fun visitReferenceValue(value: ReferenceValue<TS>) = NotChanged
 

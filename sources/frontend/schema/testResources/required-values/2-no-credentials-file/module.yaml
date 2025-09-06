@@ -3,5 +3,5 @@ product:
 
 repositories:
   - url: https://com.example
-    credentials:
-      <![Error] No value for required property 'file'.!>file:<!>
+    <![Error] No value for required property 'passwordKey'.!><![Error] No value for required property 'usernameKey'.!>credentials:
+      <![Error] No value for required property 'file'.!>file:<!><!><!>

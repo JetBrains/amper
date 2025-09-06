@@ -4,8 +4,11 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
+import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
+import org.jetbrains.amper.frontend.tree.NullValue
+import org.jetbrains.amper.frontend.tree.TreeState
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
@@ -19,9 +22,13 @@ import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YAMLValue
 
 /**
- * Main entry point for parsing a value. When there's a new physical value to be parsed,
- *  this function should be called, instead of more narrow functions like [parseScalar], because they do not handle
- *  the whole context (aliases, type tags, nullability, etc.).
+ * Parses the given [psi] value into a [TreeValue] according to the expected [type].
+ *
+ * If the value in the PSI cannot be parsed into a valid [TreeValue] for the expected [type], an error is reported via
+ * the given [ProblemReporter] and null is returned.
+ *
+ * When there's a new physical value to be parsed, this function should be called, instead of more narrow functions
+ * like [parseScalar], because they do not handle the whole context (aliases, type tags, nullability, etc.).
  */
 context(inheritedContexts: Contexts, config: ParsingConfig, reporter: ProblemReporter)
 internal fun parseValue(
@@ -29,17 +36,17 @@ internal fun parseValue(
     type: SchemaType,
     explicitContexts: Contexts = EmptyContexts,
 ): TreeValue<*>? {
+    // Unquoted `null` string is treated as the `null` keyword, not a string
     if (psi is YAMLScalar && psi !is YAMLQuotedText && psi.textValue == "null") {
-        // Unquoted `null` string is treated as the `null` keyword, not a string
-        if (type.isMarkedNullable) {
-            // TODO: Support modeling `null` in the `TreeValue`s properly.
-            reportParsing(psi, "validation.types.reserved.null")
-        } else when (type) {
-            is SchemaType.EnumType, is SchemaType.PathType, is SchemaType.StringType,
-                -> reportParsing(psi, "validation.types.unexpected.null.stringlike", type = BuildProblemType.TypeMismatch)
-            else -> reportParsing(psi, "validation.types.unexpected.null", type = BuildProblemType.TypeMismatch)
+        if (!type.isMarkedNullable) {
+            when (type) {
+                is SchemaType.EnumType, is SchemaType.PathType, is SchemaType.StringType,
+                    -> reportParsing(psi, "validation.types.unexpected.null.stringlike", type = BuildProblemType.TypeMismatch)
+                else -> reportParsing(psi, "validation.types.unexpected.null", type = BuildProblemType.TypeMismatch)
+            }
+            return null // null means invalid in this function, not the null value
         }
-        return null
+        return NullValue<TreeState>(psi.asTrace(), explicitContexts)
     }
     psi.tag?.let { tag ->
         if (tag.text.startsWith("!!")) {

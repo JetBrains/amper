@@ -24,6 +24,7 @@ class TreePsiLookupVisitor<TS : TreeState>(
     override fun aggregate(value: TreeValue<TS>, childResults: List<TreeValue<TS>?>) =
         childResults.firstNotNullOfOrNull { it } ?: value.checkSelf()
 
+    override fun visitNullValue(value: NullValue<TS>) = value.checkSelf()
     override fun visitScalarValue(value: ScalarValue<TS>) = value.checkSelf()
     override fun visitReferenceValue(value: ReferenceValue<TS>) = value.checkSelf()
 

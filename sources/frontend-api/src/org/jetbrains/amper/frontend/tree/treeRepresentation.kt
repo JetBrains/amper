@@ -30,7 +30,7 @@ sealed interface TreeValue<out TS : TreeState> : WithContexts {
 }
 
 sealed interface ScalarOrReference<out TS : TreeState> : TreeValue<TS> {
-    val value: Any
+    val value: Any?
 }
 
 /**
@@ -45,6 +45,17 @@ class NoValue(
 ) : TreeValue<Nothing> {
     override val contexts = EmptyContexts
     override fun withContexts(contexts: Contexts) = this
+}
+
+/**
+ * Represents the null literal.
+ */
+data class NullValue<out TS : TreeState>(
+    override val trace: Trace,
+    override val contexts: Contexts,
+) : ScalarOrReference<TS> {
+    override val value: Nothing? = null
+    override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
 }
 
 /** Convenient shortcut to check results of [MapLikeValue.get]*/

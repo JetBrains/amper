@@ -220,4 +220,9 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
     fun `compose hot reload sets runtime classpath mode to classes`() {
         aomTest("compose-hot-reload")
     }
+
+    @Test
+    fun `null overrides`() {
+        aomTest("override-value-with-null")
+    }
 }

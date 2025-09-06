@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.NoValue
+import org.jetbrains.amper.frontend.tree.NullValue
 import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.RefinedTree
 import org.jetbrains.amper.frontend.tree.ScalarValue
@@ -36,19 +37,42 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 internal inline fun <reified T : SchemaNode> BuildCtx.createSchemaNode(
     node: RefinedTree,
     missingPropertiesHandler: MissingPropertiesHandler = MissingPropertiesHandler.Default(problemReporter),
-): T? {
-    return context(missingPropertiesHandler) {
-        createNode(types.getType<T>(), node, emptyList()) as T?
+): T? = createSchemaNode(types.getType<T>(), node, missingPropertiesHandler) as T?
+
+/**
+ * Creates a new [SchemaNode] of the given [type] from the given tree [node].
+ *
+ * If the object cannot be created because it is missing or incomplete, this function returns `null`.
+ * This is the case when some required property is missing somewhere in the tree, for example.
+ * This ensures all returned objects are complete and respect their contract.
+ *
+ * @param missingPropertiesHandler provides a hook to report/handle missing required values.
+ */
+internal fun BuildCtx.createSchemaNode(
+    type: SchemaType,
+    node: TreeValue<*>,
+    missingPropertiesHandler: MissingPropertiesHandler = MissingPropertiesHandler.Default(problemReporter),
+): SchemaNode? {
+    val node = context(missingPropertiesHandler) {
+        createNode(type, node, valuePath = emptyList())
     }
+    return if (node === ValueCreationErrorToken) null else node as SchemaNode
 }
+
+/**
+ * A special sentinel value to represent conversion errors from tree values to real Kotlin values.
+ *
+ * It can be checked with referential equality to test for errors. This will be replaced with a proper error union in
+ * the future when Kotlin has them, but in the meantime we can avoid the boilerplate of a result class and the extra
+ * instantiations thanks to the `Any?` return type of [createNode].
+ */
+private object ValueCreationErrorToken
 
 /**
  * Creates a value of the given [type] from the given tree [value].
  *
- * If the value cannot be created because it is missing or incomplete, this function returns `null`.
- * This ensures all objects are complete and respect their contract.
- *
- * Note: this `null` marker only works because `null` is currently not denotable in our YAML.
+ * If the value cannot be created because it is missing or incomplete, this function returns a special
+ * [ValueCreationErrorToken]. This ensures all objects are complete and respect their contract.
  *
  * @param missingPropertiesHandler provides a hook to report/handle missing required values.
  */
@@ -68,7 +92,7 @@ private fun createNode(
                 keyTrace = propertyKeyTrace,
             )
         }
-        return null
+        return ValueCreationErrorToken
     }
 
     return when (type) {
@@ -82,6 +106,7 @@ private fun createNode(
             }
             createNode(value.type!!.toType(), value, valuePath)
         }
+        else if (type.isMarkedNullable && value is NullValue<*>) -> null
         else -> {
             // If crashes, it's not caused by an invalid user input, but rather by a bug in tree post-processing.
             error("Type error: expected a `$type`, got: `$value`")
@@ -93,9 +118,7 @@ context(missingPropertiesHandler: MissingPropertiesHandler)
 private fun createListNode(value: ListValue<*>, type: SchemaType.ListType, valuePath: List<String>): List<Any?> =
     value.children
         .map { createNode(type.elementType, it, valuePath + "[]") }
-        .filter {
-            it != null || type.elementType.isMarkedNullable  // skip all the `null`s if the type is not nullable
-        }
+        .filter { it !== ValueCreationErrorToken }
 
 context(missingPropertiesHandler: MissingPropertiesHandler)
 private fun createMapNode(value: Refined, type: SchemaType.MapType, valuePath: List<String>): Map<Any, Any?> =
@@ -104,17 +127,17 @@ private fun createMapNode(value: Refined, type: SchemaType.MapType, valuePath: L
             val key = if (type.keyType.isTraceableWrapped) TraceableString(it.key, it.kTrace) else it.key
             key to createNode(type.valueType, it.value, valuePath + it.key)
         }
-        .filterValues {
-            it != null || type.valueType.isMarkedNullable  // skip all the `null`s if the type is not nullable
-        }
+        .filterValues { it !== ValueCreationErrorToken }
 
 context(missingPropertiesHandler: MissingPropertiesHandler)
-private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valuePath: List<String>): Any? {
+private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valuePath: List<String>): Any {
     val declaration = type.declaration
     val newInstance = declaration.createInstance()
     @OptIn(InternalTraceSetter::class)
     newInstance.trace = value.trace
 
+    // we track this but don't return early, so we can report everything
+    var hasMissingRequiredProps = false
     for (property in declaration.properties) {
         val propertyValuePath = valuePath + property.name
         val mapLikePropertyValue = value.refinedChildren[property.name]
@@ -126,8 +149,7 @@ private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valueP
                     valuePath = propertyValuePath,
                     keyTrace = null,
                 )
-                // We don't allow incomplete objects
-                return null
+                hasMissingRequiredProps = true
             }
             continue
         }
@@ -138,20 +160,18 @@ private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valueP
             propertyKeyTrace = mapLikePropertyValue.kTrace,
             valuePath = propertyValuePath,
         )
-        if (node == null) {
+        if (node === ValueCreationErrorToken) {
             if (property.isValueRequired()) {
-                // We don't allow incomplete objects
-                return null
+                // we don't report here because the error must have been reported when parsing the property
+                hasMissingRequiredProps = true
             }
-            // We don't create a `ValueHolder` for a nullable property in case of the `null` value,
-            // because there may be an untraceable (`SchemaValueDelegate`-level) default,
-            // e.g `Default.TransformedDependent`, which would not work because of the explicit ValueHolder.
-            //
-            // NOTE: This works because there is no explicit (user-intended) null support yet.
-            // TODO: AMPER-4609
-        } else {
-            newInstance.valueHolders[property.name] = ValueHolder(node, mapLikePropertyValue.value.trace)
+            continue
         }
+        newInstance.valueHolders[property.name] = ValueHolder(node, mapLikePropertyValue.value.trace)
+    }
+    if (hasMissingRequiredProps) {
+        // We don't allow incomplete objects
+        return ValueCreationErrorToken
     }
     return newInstance
 }

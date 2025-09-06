@@ -70,7 +70,10 @@ class TreeMerger {
 
     // TODO Optimize; Do not copy when it is unnecessary.
     private fun TreeValue<*>.mergeSingle(): MergedTree = when (this) {
-        is ScalarValue, is ReferenceValue, is NoValue -> this as MergedTree
+        is NullValue,
+        is ScalarValue,
+        is ReferenceValue,
+        is NoValue -> this as MergedTree
         is ListValue -> ListValue(children.map { it.mergeSingle() }, trace, contexts) as MergedTree
         is MapLikeValue -> {
             val (mapLike, other) = children.partitionMapLike()

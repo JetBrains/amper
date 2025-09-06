@@ -1,0 +1,61 @@
+Fragments:
+  main
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src
+    Fragment dependencies:
+    Settings: {
+      jvm: {
+        release: null
+      }
+      kotlin: {
+        apiVersion: 2.3
+        languageVersion: 2.3
+      }
+    }
+
+  test
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test
+    Fragment dependencies:
+      main (FRIEND)
+    Settings: {
+      jvm: {
+        release: null
+      }
+      kotlin: {
+        apiVersion: 2.3
+        languageVersion: 2.3
+      }
+    }
+
+Artifacts:
+  isTest: false
+  [JVM]
+    Fragments:
+      main
+  isTest: true
+  [JVM]
+    Fragments:
+      test
+Repositories:
+  - id: https://repo1.maven.org/maven2
+    url: https://repo1.maven.org/maven2
+    publish: false
+    resolve: true
+    username: null
+    password: null
+  - id: https://maven.google.com
+    url: https://maven.google.com
+    publish: false
+    resolve: true
+    username: null
+    password: null
+  - id: https://maven.pkg.jetbrains.space/public/p/compose/dev
+    url: https://maven.pkg.jetbrains.space/public/p/compose/dev
+    publish: false
+    resolve: true
+    username: null
+    password: null

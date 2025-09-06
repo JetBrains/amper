@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeChildren
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.NoValue
+import org.jetbrains.amper.frontend.tree.NullValue
 import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.ScalarValue
@@ -81,5 +82,6 @@ internal fun <T : TreeState> TreeValue<T>.copyWithTrace(trace: Trace): TreeValue
         is NoValue -> NoValue(trace = trace)
         is ReferenceValue<T> -> copy(trace = trace)
         is ScalarValue<T> -> copy(trace = trace)
+        is NullValue<T> -> copy(trace = trace)
     }
 }

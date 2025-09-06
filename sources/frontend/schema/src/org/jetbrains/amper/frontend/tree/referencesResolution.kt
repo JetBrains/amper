@@ -116,6 +116,7 @@ private class TreeReferencesResolver : TreeTransformer<Merged>() {
 private fun MergedTree.areThereAnyReferences() = AreThereAnyReferences.visitValue(this)
 
 private object AreThereAnyReferences : RecurringTreeVisitor<Boolean, Merged>() {
+    override fun visitNullValue(value: NullValue<Merged>) = false
     override fun visitScalarValue(value: ScalarValue<Merged>) = false
     override fun visitNoValue(value: NoValue) = false
     override fun visitReferenceValue(value: ReferenceValue<Merged>) = true

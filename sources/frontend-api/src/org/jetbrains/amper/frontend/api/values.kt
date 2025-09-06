@@ -19,7 +19,7 @@ import kotlin.reflect.jvm.isAccessible
 typealias ValueHolders = MutableMap<String, ValueHolder<*>>
 
 data class ValueHolder<T>(
-    val value: T & Any,
+    val value: T,
     val trace: Trace? = null,
 )
 
