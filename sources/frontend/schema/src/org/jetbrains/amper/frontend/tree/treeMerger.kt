@@ -34,15 +34,25 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
  *     baz@jvm: 43
  * ```
  */
-class TreeMerger() {
+class TreeMerger {
 
-    fun mergeTrees(trees: List<MapLikeValue<*>>): Merged = doMergeTrees(trees) as Merged
-
+    /**
+     * Returns a [Merged] view of the given [tree].
+     */
     fun mergeTrees(tree: MapLikeValue<*>): Merged = tree.mergeSingle() as Merged
 
+    /**
+     * Merges the given [trees] into one.
+     *
+     * Intermediate nodes that appear in several trees are merged by recursively merging the corresponding subtrees.
+     *
+     * Leaf properties that are present in several trees are all kept together in the resulting tree.
+     * This means that the same property with the same key can appear several times in the resulting tree.
+     * It's the role of the [TreeRefiner] to remove duplicate properties later.
+     */
     // TODO Optimize; Do not copy when it is unnecessary.
-    private fun doMergeTrees(trees: List<MapLikeValue<*>>): MapLikeValue<Merged> {
-        if (trees.size == 1) return trees.first().mergeSingle() as MapLikeValue<Merged>
+    fun mergeTrees(trees: List<MapLikeValue<*>>): Merged {
+        if (trees.size == 1) return trees.first().mergeSingle() as Merged
         val firstTree = trees.first()
         // TODO Maybe check that we are merging (or within same hierarchy) types?
         val allChildren = trees.flatMap { it.children }
@@ -76,7 +86,7 @@ class TreeMerger() {
     private fun List<MapProperty<*>>.mergeProperties() = groupBy { it.key }.map { (key, group) ->
         val pType = group.first().pType // Every group has at least one element.
         val kTrace = group.first().kTrace //FIXME Need to figure out what trace is in the merged property.
-        MapProperty(key, kTrace, doMergeTrees(group.map { it.value }), pType)
+        MapProperty(key, kTrace, mergeTrees(group.map { it.value }), pType)
     }
 
     @Suppress("UNCHECKED_CAST")
