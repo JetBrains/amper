@@ -195,7 +195,9 @@ Supported types are:
    val maps: Maps
 }
 
-@Schema interface Config {
+@Schema
+/*{{*/internal/*}} [Amper Plugin Schema] @Schema interface must be public */
+interface Config {
   val map: Map<String, List<Path>>
 }
 
@@ -205,7 +207,9 @@ object Hello {
 }
 
 @TaskAction fun /*{{*/overloaded/*}} [Amper Plugin Schema] Illegal overload for `$com.example.overloaded`: @TaskAction functions cant be overloaded */() {}
-@TaskAction fun /*{{*/overloaded/*}} [Amper Plugin Schema] Illegal overload for `$com.example.overloaded`: @TaskAction functions cant be overloaded */(int: Int) {}
+@TaskAction
+/*{{*/private/*}} [Amper Plugin Schema] @TaskAction function must be public */
+fun /*{{*/overloaded/*}} [Amper Plugin Schema] Illegal overload for `$com.example.overloaded`: @TaskAction functions cant be overloaded */(int: Int) {}
 
 @TaskAction
 /*{{*/context(_: String)/*}} [Amper Plugin Schema] Context parameters are not allowed in @TaskAction function */

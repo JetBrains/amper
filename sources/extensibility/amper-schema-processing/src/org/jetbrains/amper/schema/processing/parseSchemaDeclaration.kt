@@ -6,6 +6,7 @@ package org.jetbrains.amper.schema.processing
 
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolVisibility
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtContextReceiverList
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -13,8 +14,9 @@ import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.psi.KtTreeVisitor
 import org.jetbrains.kotlin.psi.KtTypeParameterList
+import org.jetbrains.kotlin.psi.psiUtil.visibilityModifier
 
-context(_: KaSession, _: DiagnosticsReporter, _: SymbolsCollector)
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector)
 internal fun parseSchemaDeclaration(
     schemaDeclaration: KtClassOrObject,
     primarySchemaFqnString: PluginData.SchemaName?,
@@ -25,6 +27,14 @@ internal fun parseSchemaDeclaration(
     }
     val name = schemaDeclaration.fqName?.asString() ?: return null // invalid Kotlin
     val nameIdentifier = schemaDeclaration.nameIdentifier ?: return null // invalid Kotlin
+    when (with(session) { schemaDeclaration.symbol }.visibility) {
+        KaSymbolVisibility.PUBLIC, KaSymbolVisibility.UNKNOWN -> Unit // okay/ignore
+        KaSymbolVisibility.LOCAL -> {
+            reportError(schemaDeclaration.visibilityModifier() ?: nameIdentifier, "schema.forbidden.local")
+            return null  // ignore local declarations
+        }
+        else -> reportError(schemaDeclaration.visibilityModifier() ?: nameIdentifier, "schema.must.be.public")
+    }
     val isPrimarySchema = name == primarySchemaFqnString?.qualifiedName
     val properties = buildList {
         val visitor = object : KtTreeVisitor<Nothing?>() {

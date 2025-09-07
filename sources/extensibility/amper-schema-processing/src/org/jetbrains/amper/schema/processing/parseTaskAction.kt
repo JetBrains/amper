@@ -7,15 +7,21 @@ package org.jetbrains.amper.schema.processing
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolVisibility
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.psiUtil.visibilityModifier
 
 context(session: KaSession, _: DiagnosticsReporter, symbolsCollector: SymbolsCollector)
 internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
     if (!function.isTopLevel) return null.also { reportError(function, "schema.task.action.not.toplevel") }
     val nameIdentifier = function.nameIdentifier ?: return null // invalid Kotlin (top-level functions are named)
     val name = function.fqName?.asString() ?: return null  // invalid Kotlin (top-level functions are named)
+    when (with(session) { function.symbol }.visibility) {
+        KaSymbolVisibility.PUBLIC, KaSymbolVisibility.UNKNOWN -> Unit // okay/ignore
+        else -> reportError(function.visibilityModifier() ?: nameIdentifier, "schema.task.action.must.be.public")
+    }
     function.extensionReceiver()?.let { reportError(it, "schema.forbidden.task.action.extension") }
     function.modifierList?.let { modifiers ->
         modifiers.getModifier(KtTokens.SUSPEND_KEYWORD)?.let {
