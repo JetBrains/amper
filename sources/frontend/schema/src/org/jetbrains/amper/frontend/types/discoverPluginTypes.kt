@@ -42,7 +42,8 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
         val pluginSettingsExtensionSchemaName = if (!hasValidModuleExtension) {
             registeredDeclarations[pluginData.id / StubSchemaName] = ExternalObjectDeclaration(
                 pluginId = pluginData.id,
-                data = PluginData.ClassData(name = StubSchemaName),
+                schemaName = StubSchemaName,
+                properties = emptyList(),
                 instantiationStrategy = { ExtensionSchemaNode(null) },
                 isRootSchema = true,
                 typingContext = this,
@@ -90,14 +91,24 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
 
 private class ExternalObjectDeclaration(
     private val pluginId: PluginData.Id,
-    private val data: PluginData.ClassData,
+    schemaName: PluginData.SchemaName,
+    properties: List<PluginData.ClassData.Property>,
     private val instantiationStrategy: () -> SchemaNode,
     private val isRootSchema: Boolean,
     private val typingContext: ExtensibleBuiltInTypingContext,
 ) : SchemaObjectDeclarationBase() {
+
+    constructor(
+        pluginId: PluginData.Id,
+        data: PluginData.ClassData,
+        instantiationStrategy: () -> SchemaNode,
+        isRootSchema: Boolean,
+        typingContext: ExtensibleBuiltInTypingContext,
+    ) : this(pluginId, data.name, data.properties, instantiationStrategy, isRootSchema, typingContext)
+
     override val properties: List<SchemaObjectDeclaration.Property> by lazy {
         buildList {
-            for (property in data.properties) {
+            for (property in properties) {
                 this += SchemaObjectDeclaration.Property(
                     name = property.name,
                     type = typingContext.toSchemaType(pluginId, property.type),
@@ -129,7 +140,7 @@ private class ExternalObjectDeclaration(
     }
 
     override fun createInstance(): SchemaNode = instantiationStrategy()
-    override val qualifiedName get() = data.name.qualifiedName
+    override val qualifiedName = schemaName.qualifiedName
     override fun toString() = qualifiedName
 }
 

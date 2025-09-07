@@ -8,11 +8,12 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
-import org.jetbrains.amper.plugins.schema.model.SourceLocation
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaEnumEntrySymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolOrigin
+import org.jetbrains.kotlin.analysis.api.symbols.psi
 import org.jetbrains.kotlin.analysis.api.symbols.psiSafe
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
@@ -38,20 +39,9 @@ fun KaSession.parsePluginData(
     val diagnosticCollector = object : DiagnosticsReporter {
         val diagnostics = mutableListOf<PluginDataResponse.Diagnostic>()
         override fun report(
-            where: PsiElement,
-            message: String,
-            diagnosticId: String,
-            kind: PluginDataResponse.DiagnosticKind,
+            diagnostic: PluginDataResponse.Diagnostic,
         ) {
-            diagnostics += PluginDataResponse.Diagnostic(
-                diagnosticId = diagnosticId,
-                message = message,
-                kind = kind,
-                location = SourceLocation(
-                    path = where.containingFile.virtualFile.toNioPath(),
-                    textRange = where.textRange.let { it.startOffset..it.endOffset },
-                ),
-            )
+            diagnostics += diagnostic
         }
     }
 
@@ -71,7 +61,10 @@ fun KaSession.parsePluginData(
         }
     }
 
-    val enums = symbolsCollector.referencedEnumSymbols.map { symbol ->
+    val enums = symbolsCollector.referencedEnumSymbols.filter {
+        // Otherwise it's a library (API) enum, we don't touch those here.
+        it.origin == KaSymbolOrigin.SOURCE
+    }.map { symbol ->
         PluginData.EnumData(
             schemaName = checkNotNull(symbol.classId) { "not reachable: enum" }.toSchemaName(),
             entries = symbol.staticDeclaredMemberScope.callables.filterIsInstance<KaEnumEntrySymbol>().map {
@@ -79,8 +72,10 @@ fun KaSession.parsePluginData(
                     name = it.name.asString(),
                     schemaName = it.name.asString(),
                     doc = it.psiSafe<KtDeclaration>()?.getDefaultDocString(),
+                    origin = it.psi<PsiElement>().getSourceLocation(),
                 )
-            }.toList()
+            }.toList(),
+            origin = symbol.psi<PsiElement>().getSourceLocation(),
         )
     }
 

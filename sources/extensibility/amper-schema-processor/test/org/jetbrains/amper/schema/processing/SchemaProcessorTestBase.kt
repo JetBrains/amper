@@ -6,11 +6,19 @@ package org.jetbrains.amper.schema.processing
 
 import com.intellij.openapi.util.Disposer
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
+import org.jetbrains.amper.plugins.schema.model.SourceLocation
 import org.jetbrains.amper.test.TempDirExtension
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.File
@@ -98,15 +106,15 @@ abstract class SchemaProcessorTestBase {
 
             val result = runSchemaProcessor(disposable, request).first()
             val groupedDiagnostics: Map<Path, List<PluginDataResponse.Diagnostic>> =
-                result.diagnostics.groupBy { it.filePath }
+                result.diagnostics.groupBy { it.location.path }
             for (source in sources) {
                 val relevantErrors = groupedDiagnostics[source.path].orEmpty()
                 val markers = mutableListOf<Pair<String, Int>>()
                 for (error in relevantErrors) {
-                    markers += "/*{{*/" to error.textRange.first
-                    markers += "/*}} ${error.message} */" to error.textRange.last
+                    markers += "/*{{*/" to error.location.textRange.first
+                    markers += "/*}} ${error.message} */" to error.location.textRange.last
                 }
-                // Sorting all the markers to insert them one-by-one without from the end to avoid offsets recalculation
+                // Sorting all the markers to insert them one-by-one from the end to avoid offsets recalculation
                 markers.sortByDescending { (_, position) -> position }
 
                 val markedContents = StringBuilder(source.contentsWithoutComments).run {
@@ -122,7 +130,7 @@ abstract class SchemaProcessorTestBase {
             }
             assertEquals(
                 expected = expectedJsonPluginData,
-                actual = PrettyJson.encodeToString(result.pluginData)
+                actual = JsonForTest.encodeToString(result.pluginData)
             )
         } finally {
             Disposer.dispose(disposable)
@@ -137,8 +145,19 @@ abstract class SchemaProcessorTestBase {
 
 private val MultiLineCommentRegex = """/\*.*?\*/""".toRegex(RegexOption.DOT_MATCHES_ALL)
 
-private val PrettyJson = Json {
+private object RedactingSourceLocationSerializer : KSerializer<SourceLocation> {
+    override val descriptor = PrimitiveSerialDescriptor("RedactingSourceLocation", PrimitiveKind.STRING)
+    override fun serialize(encoder: Encoder, value: SourceLocation) = encoder.encodeString("..")
+    override fun deserialize(decoder: Decoder) = error("Not used for deserialization")
+}
+
+private val JsonForTest = Json {
     prettyPrint = true
     @OptIn(ExperimentalSerializationApi::class)
     prettyPrintIndent = "  "
+
+    serializersModule = SerializersModule {
+        // We have to redact all the origins because they are environment-sensitive
+        contextual(RedactingSourceLocationSerializer)
+    }
 }

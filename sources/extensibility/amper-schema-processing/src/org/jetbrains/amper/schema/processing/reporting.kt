@@ -6,16 +6,12 @@ package org.jetbrains.amper.schema.processing
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
+import org.jetbrains.amper.plugins.schema.model.SourceLocation
 import java.text.MessageFormat
 import java.util.*
 
 internal interface DiagnosticsReporter {
-    fun report(
-        where: PsiElement,
-        message: String,
-        diagnosticId: String,
-        kind: PluginDataResponse.DiagnosticKind,
-    )
+    fun report(diagnostic: PluginDataResponse.Diagnostic)
 }
 
 context(reporter: DiagnosticsReporter)
@@ -23,7 +19,7 @@ internal fun reportError(
     where: PsiElement,
     messageKey: String,
     vararg values: Any?,
-) = report(where, messageKey, values = values, kind = PluginDataResponse.DiagnosticKind.ErrorGeneric)
+) = report(where.getSourceLocation(), messageKey, values = values, kind = PluginDataResponse.DiagnosticKind.ErrorGeneric)
 
 context(reporter: DiagnosticsReporter)
 internal fun report(
@@ -31,13 +27,28 @@ internal fun report(
     messageKey: String,
     vararg values: Any?,
     kind: PluginDataResponse.DiagnosticKind,
+) = report(where = where.getSourceLocation(), messageKey = messageKey, values = values, kind = kind)
+
+context(reporter: DiagnosticsReporter)
+internal fun report(
+    where: SourceLocation,
+    messageKey: String,
+    vararg values: Any?,
+    kind: PluginDataResponse.DiagnosticKind,
 ) {
     val specificMessage = MessageFormat(SchemaProcessorBundle.getString(messageKey)).format(values)
-    reporter.report(
-        where = where,
+    reporter.report(PluginDataResponse.Diagnostic(
+        location = where,
         message = SchemaMessageFormat.format(arrayOf(specificMessage)),
         diagnosticId = messageKey,
         kind = kind,
+    ))
+}
+
+internal fun PsiElement.getSourceLocation(): SourceLocation {
+    return SourceLocation(
+        path = containingFile.virtualFile.toNioPath(),
+        textRange = textRange.let { it.startOffset..it.endOffset },
     )
 }
 

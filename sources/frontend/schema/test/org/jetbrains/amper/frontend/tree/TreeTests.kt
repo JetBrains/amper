@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.tree.helpers.testRefineModule
 import org.jetbrains.amper.frontend.tree.helpers.testRefineModuleWithTemplates
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.plugins.schema.model.PluginData
+import org.jetbrains.amper.plugins.schema.model.SourceLocation
 import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
@@ -81,25 +82,31 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
     private fun platformCtxs(vararg values: String) = 
         values.map { PlatformCtx(it, null) }.toSet()
 
-    private fun testPluginData(): List<PluginData> = listOf(
-        PluginData(
-            id = PluginData.Id("myPlugin"),
-            moduleExtensionSchemaName = PluginData.SchemaName("com.example.CustomPluginSchema"),
-            classTypes = listOf(
-                PluginData.ClassData(
-                    name = PluginData.SchemaName("com.example.CustomPluginSchema"),
-                    properties = listOf(
-                        PluginData.ClassData.Property(
-                            name = "foo",
-                            type = PluginData.Type.IntType(),
-                        ),
-                        PluginData.ClassData.Property(
-                            name = "bar",
-                            type = PluginData.Type.StringType(),
-                        ),
+    private fun testPluginData(): List<PluginData> {
+        val stubLocation = SourceLocation(Path("/"), -1..-1)
+        return listOf(
+            PluginData(
+                id = PluginData.Id("myPlugin"),
+                moduleExtensionSchemaName = PluginData.SchemaName("com.example.CustomPluginSchema"),
+                classTypes = listOf(
+                    PluginData.ClassData(
+                        name = PluginData.SchemaName("com.example.CustomPluginSchema"),
+                        origin = stubLocation,
+                        properties = listOf(
+                            PluginData.ClassData.Property(
+                                name = "foo",
+                                type = PluginData.Type.IntType(),
+                                origin = stubLocation,
+                            ),
+                            PluginData.ClassData.Property(
+                                name = "bar",
+                                type = PluginData.Type.StringType(),
+                                origin = stubLocation,
+                            ),
+                        )
                     )
-                )
-            ),
+                ),
+            )
         )
-    )
+    }
 }

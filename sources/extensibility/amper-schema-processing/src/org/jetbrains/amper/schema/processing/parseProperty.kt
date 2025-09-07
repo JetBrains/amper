@@ -17,6 +17,7 @@ internal fun parseProperty(
     property: KtProperty,
 ): PluginData.ClassData.Property? {
     val name = property.name ?: return null // invalid Kotlin
+    val nameIdentifier = property.nameIdentifier ?: return null // invalid Kotlin
 
     property.overrideModifier()?.let {
         reportError(it, "schema.forbidden.property.override")
@@ -49,5 +50,6 @@ internal fun parseProperty(
         type = type,
         default = default,
         doc = property.getDefaultDocString(),
+        origin = nameIdentifier.getSourceLocation(),
     )
 }

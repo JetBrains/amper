@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.plugins.schema.model
 
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -42,12 +43,16 @@ data class PluginData(
     data class EnumData(
         val schemaName: SchemaName,
         val entries: List<Entry>,
+        @Contextual
+        val origin: SourceLocation,
     ) {
         @Serializable
         data class Entry(
             val name: String,
             val schemaName: String,
             val doc: String? = null,
+            @Contextual
+            val origin: SourceLocation,
         )
     }
 
@@ -56,6 +61,8 @@ data class PluginData(
         val name: SchemaName,
         val properties: List<Property> = emptyList(),
         val doc: String? = null,
+        @Contextual
+        val origin: SourceLocation,
     ) {
         @Serializable
         data class Property(
@@ -63,6 +70,8 @@ data class PluginData(
             val type: Type,
             val default: Defaults? = null,
             val doc: String? = null,
+            @Contextual
+            val origin: SourceLocation,
         )
     }
 

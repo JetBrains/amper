@@ -24,6 +24,7 @@ internal fun parseSchemaDeclaration(
         return null  // fatal - no need to parse further
     }
     val name = schemaDeclaration.fqName?.asString() ?: return null // invalid Kotlin
+    val nameIdentifier = schemaDeclaration.nameIdentifier ?: return null // invalid Kotlin
     val isPrimarySchema = name == primarySchemaFqnString?.qualifiedName
     val properties = buildList {
         val visitor = object : KtTreeVisitor<Nothing?>() {
@@ -64,5 +65,6 @@ internal fun parseSchemaDeclaration(
         name = PluginData.SchemaName(name),
         properties = properties,
         doc = schemaDeclaration.getDefaultDocString(),
+        origin = nameIdentifier.getSourceLocation(),
     )
 }

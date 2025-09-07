@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 context(session: KaSession, _: DiagnosticsReporter, symbolsCollector: SymbolsCollector)
 internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
     if (!function.isTopLevel) return null.also { reportError(function, "schema.task.action.not.toplevel") }
+    val nameIdentifier = function.nameIdentifier ?: return null // invalid Kotlin (top-level functions are named)
     val name = function.fqName?.asString() ?: return null  // invalid Kotlin (top-level functions are named)
     function.extensionReceiver()?.let { reportError(it, "schema.forbidden.task.action.extension") }
     function.modifierList?.let { modifiers ->
@@ -65,6 +66,7 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
                     type = type,
                     default = default,
                     doc = function.docComment?.findSectionByTag(KDocKnownTag.PARAM, parameterName)?.getContent(),
+                    origin = parameter.getSourceLocation(),
                 )
             )
         }
@@ -74,6 +76,7 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
             name = PluginData.SchemaName(name),
             properties = properties,
             doc = function.getDefaultDocString(),
+            origin = nameIdentifier.getSourceLocation(),
         ),
         jvmFunctionName = function.name!!,  // FIXME: How to take JvmName into account here?
         jvmFunctionClassName = @OptIn(KaExperimentalApi::class) with(session) {
