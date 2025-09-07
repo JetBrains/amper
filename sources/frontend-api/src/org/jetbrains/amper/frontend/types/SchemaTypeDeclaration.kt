@@ -5,5 +5,13 @@
 package org.jetbrains.amper.frontend.types
 
 interface SchemaTypeDeclaration {
+    /**
+     * Type's fully qualified name, using dots as separators.
+     */
     val qualifiedName: String
+
+    /**
+     * Where the declaration comes from.
+     */
+    val origin: SchemaOrigin
 }

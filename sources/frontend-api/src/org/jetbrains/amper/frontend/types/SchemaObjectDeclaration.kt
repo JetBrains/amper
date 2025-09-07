@@ -65,5 +65,6 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
         val specificToGradleMessage: String? = null,
         val hasShorthand: Boolean = false,
         val isHiddenFromCompletion: Boolean = false,
+        val origin: SchemaOrigin,
     )
 }

@@ -17,5 +17,6 @@ interface SchemaEnumDeclaration : SchemaTypeDeclaration {
         val isOutdated: Boolean = false,
         val isIncludedIntoJsonSchema: Boolean = true,
         val documentation: String? = null,
+        val origin: SchemaOrigin,
     )
 }

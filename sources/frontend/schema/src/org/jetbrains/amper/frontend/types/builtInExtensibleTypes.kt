@@ -23,6 +23,7 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
         val propertyName: String,
         val propertyType: DeclarationKey,
         val description: String?,
+        val origin: SchemaOrigin,
     )
 
     private val registeredCustomProperties = ConcurrentHashMap<DeclarationKey, MutableList<CustomPropertyDescriptor>>()
@@ -61,7 +62,7 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
         override val properties by lazy { parseBuiltInProperties() + customProperties(backingReflectionClass) }
 
         private fun customProperties(type: KClass<out SchemaNode>): List<SchemaObjectDeclaration.Property> =
-            registeredCustomProperties[BuiltInKey(type)]?.map { (propName, propTypeKey, description) ->
+            registeredCustomProperties[BuiltInKey(type)]?.map { (propName, propTypeKey, description, origin) ->
                 SchemaObjectDeclaration.Property(
                     name = propName,
                     type = SchemaType.ObjectType(
@@ -72,6 +73,7 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
                     default = Default.Static(null),
                     documentation = description,
                     isPlatformAgnostic = true,
+                    origin = origin,
                 )
             }.orEmpty()
     }

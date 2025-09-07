@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.TaskAction
 import org.jetbrains.amper.plugins.schema.model.Defaults
 import org.jetbrains.amper.plugins.schema.model.PluginData
+import org.jetbrains.amper.plugins.schema.model.SourceLocation
 
 internal data class PluginKey(val pluginId: PluginData.Id, val qualifiedName: String) : DeclarationKey
 
@@ -38,12 +39,17 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
                 typingContext = this,
             )
 
-        // Add a stub class just for the `enabled` sake.
+        // TODO: Provide a proper user-friendly origin here,
+        //  that would somehow point to the plugin module
+        val stubPluginConfigurationOrigin = SchemaOrigin.Builtin
+
         val pluginSettingsExtensionSchemaName = if (!hasValidModuleExtension) {
+            // Add a stub class just for the `enabled` sake.
             registeredDeclarations[pluginData.id / StubSchemaName] = ExternalObjectDeclaration(
                 pluginId = pluginData.id,
                 schemaName = StubSchemaName,
                 properties = emptyList(),
+                origin = stubPluginConfigurationOrigin,
                 instantiationStrategy = { ExtensionSchemaNode(null) },
                 isRootSchema = true,
                 typingContext = this,
@@ -77,6 +83,9 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
                 }
             )
 
+        val moduleExtensionSchemaDeclaration = pluginData.moduleExtensionSchemaName?.let { name ->
+            pluginData.classTypes.find { it.name == name }
+        }
         // Load custom properties for a [Settings] schema type.
         addCustomProperty(
             settingsTypeKey,
@@ -84,6 +93,8 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
                 propertyName = pluginData.id.value,
                 propertyType = pluginData.id / pluginSettingsExtensionSchemaName,
                 description = pluginData.description,
+                origin = moduleExtensionSchemaDeclaration?.origin?.toLocalPluginOrigin()
+                    ?: stubPluginConfigurationOrigin
             )
         )
     }
@@ -93,6 +104,7 @@ private class ExternalObjectDeclaration(
     private val pluginId: PluginData.Id,
     schemaName: PluginData.SchemaName,
     properties: List<PluginData.ClassData.Property>,
+    override val origin: SchemaOrigin,
     private val instantiationStrategy: () -> SchemaNode,
     private val isRootSchema: Boolean,
     private val typingContext: ExtensibleBuiltInTypingContext,
@@ -104,7 +116,10 @@ private class ExternalObjectDeclaration(
         instantiationStrategy: () -> SchemaNode,
         isRootSchema: Boolean,
         typingContext: ExtensibleBuiltInTypingContext,
-    ) : this(pluginId, data.name, data.properties, instantiationStrategy, isRootSchema, typingContext)
+    ) : this(
+        pluginId, data.name, data.properties, data.origin.toLocalPluginOrigin(),
+        instantiationStrategy, isRootSchema, typingContext
+    )
 
     override val properties: List<SchemaObjectDeclaration.Property> by lazy {
         buildList {
@@ -114,6 +129,7 @@ private class ExternalObjectDeclaration(
                     type = typingContext.toSchemaType(pluginId, property.type),
                     default = property.default?.let { Default.Static(it.toValue()) },
                     documentation = property.doc,
+                    origin = property.origin.toLocalPluginOrigin(),
                 )
             }
             if (isRootSchema) {
@@ -124,6 +140,7 @@ private class ExternalObjectDeclaration(
                     default = Default.Static(false),
                     documentation = "Whether to enable the `${pluginId.value}` plugin",
                     hasShorthand = true,
+                    origin = SchemaOrigin.Builtin,
                 )
             }
         }
@@ -147,12 +164,14 @@ private class ExternalObjectDeclaration(
 private class ExternalEnumDeclaration(
     private val data: PluginData.EnumData,
 ) : SchemaEnumDeclarationBase() {
+    override val origin: SchemaOrigin = data.origin.toLocalPluginOrigin()
     override val entries: List<SchemaEnumDeclaration.EnumEntry> by lazy {
         data.entries.map { entry ->
             SchemaEnumDeclaration.EnumEntry(
                 name = entry.name,
                 schemaValue = entry.schemaName,
                 documentation = entry.doc,
+                origin = entry.origin.toLocalPluginOrigin(),
             )
         }
     }
@@ -166,6 +185,7 @@ private class SyntheticVariantDeclaration(
     override val qualifiedName: String,
     override val variants: List<SchemaObjectDeclaration>,
 ) : SchemaVariantDeclaration {
+    override val origin get() = SchemaOrigin.Builtin
     override val variantTree: List<SchemaVariantDeclaration.Variant> =
         variants.map { SchemaVariantDeclaration.Variant.LeafVariant(it) }
 
@@ -198,3 +218,8 @@ private fun ExtensibleBuiltInTypingContext.toSchemaType(
         isMarkedNullable = type.isNullable,
     )
 }
+
+private fun SourceLocation.toLocalPluginOrigin() = SchemaOrigin.LocalPlugin(
+    sourceFile = path,
+    textRange = textRange,
+)

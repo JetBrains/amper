@@ -5,9 +5,9 @@
 package org.jetbrains.amper.frontend.types
 
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
+import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.IgnoreForSchema
@@ -128,6 +128,7 @@ internal abstract class BuiltInTypingContext protected constructor(
         clazz: KClass<*>,
     ) : SchemaTypeDeclaration {
         override val qualifiedName = checkNotNull(clazz.qualifiedName)
+        override val origin get() = SchemaOrigin.Builtin
     }
 
     protected inner class BuiltinVariantDeclaration<T : SchemaNode>(
@@ -170,6 +171,8 @@ internal abstract class BuiltInTypingContext protected constructor(
 
         override val qualifiedName: String = checkNotNull(backingReflectionClass.qualifiedName)
 
+        override val origin get() = SchemaOrigin.Builtin
+
         override val entries by lazy {
             val annotationsByEntryName: Map<String, Field> = backingReflectionClass.java.fields
                 .filter { it.type.isEnum }.associateBy { it.name }
@@ -187,6 +190,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                     isOutdated = entry.outdated,
                     isIncludedIntoJsonSchema = filter?.first?.get(entry) == filter?.second,
                     documentation = annotated?.getDeclaredAnnotation(SchemaDoc::class.java)?.doc,
+                    origin = SchemaOrigin.Builtin,
                 )
             }
             if (enumOrderSensitive?.reverse == true) entries.asReversed() else entries
@@ -204,6 +208,8 @@ internal abstract class BuiltInTypingContext protected constructor(
         override val qualifiedName: String = checkNotNull(backingReflectionClass.qualifiedName)
 
         override val properties by lazy { parseBuiltInProperties() }
+
+        override val origin get() = SchemaOrigin.Builtin
 
         protected fun parseBuiltInProperties(): List<SchemaObjectDeclaration.Property> {
             // This is needed to extract default values
@@ -224,7 +230,8 @@ internal abstract class BuiltInTypingContext protected constructor(
                         isPlatformAgnostic = prop.hasAnnotation<PlatformAgnostic>(),
                         specificToGradleMessage = prop.findAnnotation<GradleSpecific>()?.message,
                         hasShorthand = prop.hasAnnotation<Shorthand>(),
-                        isHiddenFromCompletion = prop.hasAnnotation<HiddenFromCompletion>()
+                        isHiddenFromCompletion = prop.hasAnnotation<HiddenFromCompletion>(),
+                        origin = SchemaOrigin.Builtin,
                     )
                 }
         }
