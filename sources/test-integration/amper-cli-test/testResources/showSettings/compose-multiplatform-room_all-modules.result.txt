@@ -22,7 +22,7 @@ settings@android:
     versionName: unspecified  # [default]
   compose:
     enabled: true  # [module.yaml]
-    experimental:
+    experimental: {}  # [default]
     resources:
       enabled: false  # [default]
       exposedAccessors: false  # [default]
@@ -213,8 +213,7 @@ settings@jvm+android:
     ksp:
       processorOptions: {}  # [module.yaml]
       processors:
-        -
-            coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml]
+        - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml]
       version: 2.2.10-2.0.2  # [default]
     languageFeatures: null  # [default]
     languageVersion: null  # [default]
@@ -291,8 +290,7 @@ settings@jvm:
       processorOptions:
         "room.schemaLocation": ./generated-db-schema/jvm  # [module.yaml]
       processors:
-        -
-            coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml]
+        - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml]
       version: 2.2.10-2.0.2  # [default]
     languageFeatures: null  # [default]
     languageVersion: null  # [default]
@@ -344,7 +342,7 @@ settings@android:
     targetSdk: 35  # [default, from ${compileSdk}]
   compose:
     enabled: true  # [module.yaml]
-    experimental:
+    experimental: {}  # [default]
     resources:
       enabled: false  # [default]
       exposedAccessors: false  # [default]
@@ -376,8 +374,7 @@ settings@android:
       processorOptions:
         "room.schemaLocation": ./generated-db-schema/android  # [module.yaml]
       processors:
-        -
-            coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml]
+        - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml]
       version: 2.2.10-2.0.2  # [default]
     languageFeatures: null  # [default]
     languageVersion: null  # [default]

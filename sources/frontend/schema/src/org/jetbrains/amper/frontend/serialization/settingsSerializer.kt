@@ -5,11 +5,14 @@
 package org.jetbrains.amper.frontend.serialization
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.Default
+import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.DerivedValueTrace
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
+import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.SchemaValueDelegate
+import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
 import kotlin.reflect.full.findAnnotation
@@ -44,13 +47,13 @@ private class SettingsFilter(
         if (platformSpecific != null && contexts.intersect(platformSpecific.platforms.toSet()).isEmpty()) {
             return false
         }
-        val isUnset = valueDelegate.trace is DefaultTrace
+        val isUnset = valueDelegate.trace.isDefault
         if (isUnset) {
-            return when (valueDelegate.default) {
-                null -> true // properties without a default must not be unset, better not filter this out
-                is Default.Static,
-                is Default.NestedObject<*> -> printStaticDefaults
-                is Default.Dependent<*, *> -> printDerivedDefaults
+            return when (valueDelegate.trace) {
+                is DerivedValueTrace -> printDerivedDefaults
+                DefaultTrace -> printStaticDefaults
+                is BuiltinCatalogTrace, // should never happen, because we should only see the reference in this case
+                is PsiTrace -> true
             }
         }
         return true

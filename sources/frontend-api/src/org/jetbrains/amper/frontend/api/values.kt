@@ -212,6 +212,8 @@ val <T> KProperty0<T>.schemaDelegate: SchemaValueDelegate<T>
 val <T> KProperty0<T>.isExplicitlySet: Boolean
     get() = !schemaDelegate.trace.isDefault
 
+val SchemaNode.propertyDelegates: List<SchemaValueDelegate<*>> get() = allValues
+
 /**
  * Abstract class to traverse final schema tree.
  */
