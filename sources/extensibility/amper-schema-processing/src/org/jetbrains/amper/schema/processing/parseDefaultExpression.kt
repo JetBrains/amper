@@ -59,7 +59,7 @@ internal fun parseDefaultExpression(
         } ?: run{ reportError(expression, "schema.defaults.invalid.list"); null }
         is PluginData.Type.MapType -> (call as? KaSimpleFunctionCall)?.let { call ->
             when (call.symbol.callableId) {
-                EMPTY_MAP -> Defaults.ListDefault(emptyList())
+                EMPTY_MAP -> Defaults.MapDefault(emptyMap())
                 // TODO: MAP_OF
                 else -> null
             }

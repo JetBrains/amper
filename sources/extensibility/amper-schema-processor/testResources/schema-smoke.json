@@ -326,12 +326,12 @@
             "type": "list",
             "value": [
               {
-                "type": "list",
-                "value": []
+                "type": "map",
+                "value": {}
               },
               {
-                "type": "list",
-                "value": []
+                "type": "map",
+                "value": {}
               }
             ]
           }
@@ -348,8 +348,8 @@
             }
           },
           "default": {
-            "type": "list",
-            "value": []
+            "type": "map",
+            "value": {}
           }
         },
         {
@@ -361,8 +361,8 @@
             }
           },
           "default": {
-            "type": "list",
-            "value": []
+            "type": "map",
+            "value": {}
           }
         },
         {
@@ -637,8 +637,8 @@
               }
             },
             "default": {
-              "type": "list",
-              "value": []
+              "type": "map",
+              "value": {}
             }
           },
           {

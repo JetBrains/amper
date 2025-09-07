@@ -55,20 +55,16 @@ fun KaSession.parsePluginData(
     val classes = files.flatMap {
         discoverAnnotatedClassesFrom(it, SCHEMA_ANNOTATION_CLASS)
     }.mapNotNull {
-        with(symbolsCollector) {
-            with(diagnosticCollector) {
-                parseSchemaDeclaration(it, primarySchemaFqnString = header.moduleExtensionSchemaName)
-            }
+        context(symbolsCollector, diagnosticCollector) {
+            parseSchemaDeclaration(it, primarySchemaFqnString = header.moduleExtensionSchemaName)
         }
     }
 
     val tasks = files.flatMap {
         discoverAnnotatedFunctionsFrom(it, TASK_ACTION_ANNOTATION_CLASS)
     }.mapNotNull {
-        with(symbolsCollector) {
-            with(diagnosticCollector) {
-                parseTaskAction(it)
-            }
+        context(symbolsCollector, diagnosticCollector) {
+            parseTaskAction(it)
         }
     }
 
