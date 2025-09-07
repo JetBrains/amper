@@ -221,8 +221,8 @@ fun /*{{*/overloaded/*}} [Amper Plugin Schema] Illegal overload for `$com.exampl
   @Input inputDir: Path? = /*{{*/null/*}} [Amper Plugin Schema] Nullable properties are already null by default, no need to specify this explicitly */,
   @Output outputDir: Path,
   /*{{*/somePath: Path/*}} [Amper Plugin Schema] Path parameter must be annotated with either @Input or @Output */,
-  /*{{*/@Input/*}} [Amper Plugin Schema] Both @Input and @Output annotations cant be specified for a single parameter. File updates in-place are not supported. Use separate input/output instead. */ @Output anotherPath: Path,
-  @[/*{{*/Input/*}} [Amper Plugin Schema] Both @Input and @Output annotations cant be specified for a single parameter. File updates in-place are not supported. Use separate input/output instead. */ Output] crazyPath: Path,
+  /*{{*/@Input @Output anotherPath: Path/*}} [Amper Plugin Schema] Both @Input and @Output annotations cant be specified for a single parameter. File updates in-place are not supported. Use separate input/output instead. */,
+  /*{{*/@[Input Output] crazyPath: Path/*}} [Amper Plugin Schema] Both @Input and @Output annotations cant be specified for a single parameter. File updates in-place are not supported. Use separate input/output instead. */,
   // FIXME: contains paths, should be marked/forbidden/marked here?
   config: Config,
 ): /*{{*/String/*}} [Amper Plugin Schema] @TaskAction function must return Unit */ {

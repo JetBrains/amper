@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolVisibility
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifier
 
 context(session: KaSession, _: DiagnosticsReporter, symbolsCollector: SymbolsCollector)
@@ -41,41 +42,17 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
 
     val inputNames = mutableListOf<String>()
     val outputNames = mutableListOf<String>()
-    val properties = buildList {
-        for (parameter in function.valueParameters) {
-            val parameterName = parameter.name ?: continue // invalid Kotlin
-            val typeReference = parameter.typeReference ?: continue // invalid Kotlin
-            val type = with(session) { typeReference.type }.parseSchemaType(origin = { typeReference }) ?: continue
-            val isPath = type is PluginData.Type.PathType
-            val inputMark = parameter.getAnnotation(INPUT_ANNOTATION_CLASS)
-            val outputMark = parameter.getAnnotation(OUTPUT_ANNOTATION_CLASS)
-            if (!isPath && (inputMark != null || outputMark != null)) {
-                reportError(inputMark ?: outputMark!!, "schema.task.action.parameter.not.path")
-            }
-            if (isPath && inputMark != null && outputMark != null) {
-                reportError(inputMark, "schema.task.action.parameter.path.conflicting")
-            }
-            if (isPath && inputMark == null && outputMark == null) {
-                reportError(parameter, "schema.task.action.parameter.path.unmarked")
-            }
-
-            if (isPath && inputMark != null && outputMark == null) inputNames += parameterName
-            if (isPath && inputMark == null && outputMark != null) outputNames += parameterName
-
-            val default = parameter.defaultValue?.let { defaultValue ->
-                parseDefaultExpression(defaultValue, type)
-            }
-
-            add(
-                PluginData.ClassData.Property(
-                    name = parameterName,
-                    type = type,
-                    default = default,
-                    doc = function.docComment?.findSectionByTag(KDocKnownTag.PARAM, parameterName)?.getContent(),
-                    origin = parameter.getSourceLocation(),
-                )
-            )
+    val properties = function.valueParameters.mapNotNull {
+        val (property, mark) = parseTaskParameter(
+            parameter = it,
+            doc = { name -> function.docComment?.findSectionByTag(KDocKnownTag.PARAM, name)?.getContent() },
+        ) ?: return@mapNotNull null
+        when (mark) {
+            InputOutputMark.Input -> inputNames.add(property.name)
+            InputOutputMark.Output -> outputNames.add(property.name)
+            null -> {}
         }
+        property
     }
     return PluginData.TaskInfo(
         syntheticType = PluginData.ClassData(
@@ -91,4 +68,49 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
         inputPropertyNames = inputNames,
         outputPropertyNames = outputNames,
     )
+}
+
+context(session: KaSession, _: DiagnosticsReporter, symbolsCollector: SymbolsCollector)
+private fun parseTaskParameter(
+    parameter: KtParameter,
+    doc: (name: String) -> String?,
+): Pair<PluginData.ClassData.Property, InputOutputMark?>? {
+    val parameterName = parameter.name ?: return null // invalid Kotlin
+    val typeReference = parameter.typeReference ?: return null // invalid Kotlin
+    val type = with(session) { typeReference.type }.parseSchemaType(origin = { typeReference }) ?: return null
+    val inputMark = parameter.getAnnotation(INPUT_ANNOTATION_CLASS)
+    val outputMark = parameter.getAnnotation(OUTPUT_ANNOTATION_CLASS)
+    val inputOutputMark: InputOutputMark? = if (type is PluginData.Type.PathType) when {
+        inputMark != null && outputMark != null -> {  // both
+            reportError(parameter, "schema.task.action.parameter.path.conflicting")
+            null
+        }
+        inputMark != null -> InputOutputMark.Input  // input only
+        outputMark != null -> InputOutputMark.Output  // output only
+        else -> {  // none
+            reportError(parameter, "schema.task.action.parameter.path.unmarked")
+            null
+        }
+    } else {
+        if (outputMark != null) reportError(outputMark, "schema.task.action.parameter.not.path")
+        if (inputMark != null) reportError(inputMark, "schema.task.action.parameter.not.path")
+        null
+    }
+
+    val default = parameter.defaultValue?.let { defaultValue ->
+        parseDefaultExpression(defaultValue, type)
+    }
+
+    return PluginData.ClassData.Property(
+        name = parameterName,
+        type = type,
+        default = default,
+        doc = doc(parameterName),
+        origin = parameter.getSourceLocation(),
+    ) to inputOutputMark
+}
+
+private enum class InputOutputMark {
+    Input,
+    Output,
 }
