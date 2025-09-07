@@ -22,17 +22,26 @@ private val R_DIAG_START_RB = Regex.escape(DIAGNOSTIC_START_RB)
 private val R_DIAG_END = Regex.escape(DIAGNOSTIC_END)
 
 private val DIAGNOSTIC_REGEX =
-    """($R_DIAG_START_LB((?!$R_DIAG_START_RB).)*$R_DIAG_START_RB)+(?<code>((?!$R_DIAG_END).)*)($R_DIAG_END)+"""
+    """($R_DIAG_START_LB((?!$R_DIAG_START_RB).)*$R_DIAG_START_RB)(?<code>((?!$R_DIAG_END).)*)($R_DIAG_END)"""
         .toRegex(RegexOption.DOT_MATCHES_ALL)
 
 fun PsiFile.removeDiagnosticAnnotations(): PsiFile {
     val newFile = copy() as PsiFile
-    val newText = newFile.text.replace(DIAGNOSTIC_REGEX) { result ->
-        result.groups["code"]?.value ?: error("Diagnostic regex matched but the 'code' capturing group is missing")
-    }
+    val newText = newFile.text.removeDiagnosticAnnotations()
     val document = newFile.viewProvider.document
     document.setText(newText)
     return newFile
+}
+
+private fun String.removeDiagnosticAnnotations(): String {
+    var newText = this
+    do {
+        val currentText = newText
+        newText = currentText.replace(DIAGNOSTIC_REGEX) { result ->
+            result.groups["code"]?.value ?: error("Diagnostic regex matched but the 'code' capturing group is missing")
+        }
+    } while(newText != currentText)
+    return newText
 }
 
 fun annotateTextWithDiagnostics(
