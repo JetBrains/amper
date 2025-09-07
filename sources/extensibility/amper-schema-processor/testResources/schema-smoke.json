@@ -687,6 +687,14 @@
   "tasks": [
     {
       "syntheticType": {
+        "name": "com.example.overloaded",
+        "origin": ".."
+      },
+      "jvmFunctionClassName": "com.example.PluginKt",
+      "jvmFunctionName": "overloaded"
+    },
+    {
+      "syntheticType": {
         "name": "com.example.invalidTaskAction",
         "properties": [
           {

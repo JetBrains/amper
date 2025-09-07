@@ -44,3 +44,25 @@ private fun <T> Appendable.appendElement(element: T, transform: ((T) -> CharSequ
         else -> append(element.toString())
     }
 }
+
+/**
+ * Returns a sequence containing only elements from the given sequence
+ * having distinct keys returned by the given [selector] function.
+ *
+ * Among elements of the given sequence with equal keys, only the first one will be present in the resulting sequence.
+ * The elements in the resulting sequence are in the same order as they were in the source sequence.
+ *
+ * [onDuplicates] is invoked for each unique key, that has two or more corresponding elements.
+ */
+fun <T, K> Iterable<T>.distinctBy(
+    selector: (T) -> K,
+    onDuplicates: (key: K, items: List<T>) -> Unit,
+): List<T> {
+    return groupBy(selector)
+        .onEach { (key, items) ->
+            if (items.size > 1) {
+                onDuplicates(key, items)
+            }
+        }.values
+        .map { it.first() }
+}

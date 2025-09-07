@@ -8,6 +8,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
+import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind.ErrorGeneric
+import org.jetbrains.amper.stdlib.collections.distinctBy
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
@@ -53,12 +55,22 @@ fun KaSession.parsePluginData(
         }
     }
 
-    val tasks = files.flatMap {
-        discoverAnnotatedFunctionsFrom(it, TASK_ACTION_ANNOTATION_CLASS)
-    }.mapNotNull {
-        context(symbolsCollector, diagnosticCollector) {
+    val tasks = context(diagnosticCollector, symbolsCollector) {
+        files.flatMap {
+            discoverAnnotatedFunctionsFrom(it, TASK_ACTION_ANNOTATION_CLASS)
+        }.mapNotNull {
             parseTaskAction(it)
-        }
+        }.distinctBy(
+            selector = { it.syntheticType.name.qualifiedName },
+            onDuplicates = { name, taskInfos ->
+                taskInfos.forEach {
+                    report(
+                        it.syntheticType.origin, "schema.forbidden.task.action.overloads", name,
+                        kind = ErrorGeneric,
+                    )
+                }
+            }
+        )
     }
 
     val enums = symbolsCollector.referencedEnumSymbols.filter {

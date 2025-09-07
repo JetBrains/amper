@@ -204,6 +204,9 @@ object Hello {
     fun nested()/*}} [Amper Plugin Schema] @TaskAction function must be a top-level function */
 }
 
+@TaskAction fun /*{{*/overloaded/*}} [Amper Plugin Schema] Illegal overload for `$com.example.overloaded`: @TaskAction functions cant be overloaded */() {}
+@TaskAction fun /*{{*/overloaded/*}} [Amper Plugin Schema] Illegal overload for `$com.example.overloaded`: @TaskAction functions cant be overloaded */(int: Int) {}
+
 @TaskAction
 /*{{*/context(_: String)/*}} [Amper Plugin Schema] Context parameters are not allowed in @TaskAction function */
 /*{{*/suspend/*}} [Amper Plugin Schema] Suspending @TaskAction functions are not yet supported */ /*{{*/inline/*}} [Amper Plugin Schema] @TaskAction function cant be marked as inline */ fun /*{{*/<T>/*}} [Amper Plugin Schema] @TaskAction function cant be generic */ /*{{*/T/*}} [Amper Plugin Schema] @TaskAction function cant be an extension function */.invalidTaskAction(

@@ -10,6 +10,7 @@ apply:
 
 dependencies:
   - ../amper-extensibility-schema-model: exported
+  - ../../libraries/stdlib-extended
 
   - $libs.kotlin.analysis.api.for.ide: exported
   - $libs.kotlin.compiler: exported
