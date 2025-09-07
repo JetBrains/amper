@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
+import org.jetbrains.amper.plugins.schema.model.SourceLocation
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
@@ -45,9 +46,11 @@ fun KaSession.parsePluginData(
             diagnostics += PluginDataResponse.Diagnostic(
                 diagnosticId = diagnosticId,
                 message = message,
-                filePath = where.containingFile.virtualFile.toNioPath(),
-                textRange = where.textRange.let { it.startOffset..it.endOffset },
                 kind = kind,
+                location = SourceLocation(
+                    path = where.containingFile.virtualFile.toNioPath(),
+                    textRange = where.textRange.let { it.startOffset..it.endOffset },
+                ),
             )
         }
     }

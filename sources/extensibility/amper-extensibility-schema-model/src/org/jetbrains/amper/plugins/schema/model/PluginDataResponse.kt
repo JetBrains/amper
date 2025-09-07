@@ -24,9 +24,8 @@ data class PluginDataResponse(
     data class Diagnostic(
         val diagnosticId: String,
         val message: String,
-        val filePath: PathAsString,
         val kind: DiagnosticKind,
-        val textRange: @Serializable(with = RangeSerializer::class) IntRange
+        val location: SourceLocation,
     )
 
     @Serializable

@@ -96,11 +96,11 @@ internal suspend fun doPreparePlugins(
 
         val reporter = CollectingProblemReporter()
         results.flatMap { it.diagnostics }.forEach { diagnostic ->
-            val document = frontendPathResolver.loadVirtualFileOrNull(diagnostic.filePath)?.findDocument()
+            val document = frontendPathResolver.loadVirtualFileOrNull(diagnostic.location.path)?.findDocument()
             reporter.reportMessage(
                 SchemaDiagnostic(
                     diagnostic = diagnostic,
-                    range = document?.let { getLineAndColumnRangeInDocument(it, diagnostic.textRange) },
+                    range = document?.let { getLineAndColumnRangeInDocument(it, diagnostic.location.textRange) },
                 )
             )
         }
@@ -124,8 +124,8 @@ private class SchemaDiagnostic(
     override val buildProblemId = diagnostic.diagnosticId
     override val source = object : FileWithRangesBuildProblemSource {
         override val range = range ?: LineAndColumnRange(LineAndColumn.NONE, LineAndColumn.NONE)
-        override val offsetRange = diagnostic.textRange
-        override val file = diagnostic.filePath
+        override val offsetRange = diagnostic.location.textRange
+        override val file = diagnostic.location.path
     }
     override val message = diagnostic.message
     override val level = when(diagnostic.kind) {
