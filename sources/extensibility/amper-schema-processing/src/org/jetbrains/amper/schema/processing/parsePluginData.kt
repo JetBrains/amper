@@ -24,6 +24,10 @@ internal interface SymbolsCollector {
     fun onEnumReferenced(symbol: KaClassSymbol)
 }
 
+internal interface ParsedClassesResolver {
+    fun getClassData(type: PluginData.Type.ObjectType): PluginData.ClassData
+}
+
 /**
  * The entry point to the `amper-schema-processing` library.
  */
@@ -55,7 +59,14 @@ fun KaSession.parsePluginData(
         }
     }
 
-    val tasks = context(diagnosticCollector, symbolsCollector) {
+    val parsedClassesResolver = object : ParsedClassesResolver {
+        private val byName = classes.associateBy { it.name }
+        override fun getClassData(type: PluginData.Type.ObjectType): PluginData.ClassData {
+            return checkNotNull(byName[type.schemaName]) { "Undefined class for ${type.schemaName.qualifiedName}" }
+        }
+    }
+
+    val tasks = context(diagnosticCollector, symbolsCollector, parsedClassesResolver) {
         files.flatMap {
             discoverAnnotatedFunctionsFrom(it, TASK_ACTION_ANNOTATION_CLASS)
         }.mapNotNull {

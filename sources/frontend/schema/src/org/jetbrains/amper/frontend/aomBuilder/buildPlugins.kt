@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
@@ -127,8 +128,9 @@ internal fun BuildCtx.buildPlugins(
         ) ?: continue
         for ((name, task) in appliedPlugin.tasks) {
             val outputsToMarks = task.action.outputPropertyNames
-                .mapNotNull { task.action[it] as Path? }
-                .associateWith { path ->
+                .flatMap {
+                    buildSet { gatherPaths(paths = this, value = task.action[it]) }
+                }.associateWith { path ->
                     task.markOutputsAs.find { it.path == path }
                 }.mapValues { (_, mark) ->
                     mark ?: return@mapValues null
@@ -150,6 +152,18 @@ internal fun BuildCtx.buildPlugins(
                 codeSource = plugin.pluginModule,
             )
         }
+    }
+}
+
+private fun gatherPaths(
+    paths: MutableSet<in Path>,
+    value: Any?,
+) {
+    when(value) {
+        is SchemaNode -> value.valueHolders.values.forEach { gatherPaths(paths, it.value) }
+        is Map<*, *> -> value.values.forEach { gatherPaths(paths, it) }
+        is Collection<*> -> value.forEach { gatherPaths(paths, it) }
+        is Path -> paths.add(value)
     }
 }
 

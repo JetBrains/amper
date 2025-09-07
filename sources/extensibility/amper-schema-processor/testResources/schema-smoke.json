@@ -782,6 +782,24 @@
               "schemaName": "com.example.Config"
             },
             "origin": ".."
+          },
+          {
+            "name": "inputConfig",
+            "type": {
+              "type": "object",
+              "schemaName": "com.example.Config"
+            },
+            "origin": ".."
+          },
+          {
+            "name": "outputList",
+            "type": {
+              "type": "map",
+              "valueType": {
+                "type": "path"
+              }
+            },
+            "origin": ".."
           }
         ],
         "origin": ".."
@@ -789,10 +807,12 @@
       "jvmFunctionClassName": "com.example.PluginKt",
       "jvmFunctionName": "invalidTaskAction",
       "inputPropertyNames": [
-        "inputDir"
+        "inputDir",
+        "inputConfig"
       ],
       "outputPropertyNames": [
-        "outputDir"
+        "outputDir",
+        "outputList"
       ]
     }
   ]

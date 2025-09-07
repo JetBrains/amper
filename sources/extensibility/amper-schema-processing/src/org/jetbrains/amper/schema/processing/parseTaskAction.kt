@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifier
 
-context(session: KaSession, _: DiagnosticsReporter, symbolsCollector: SymbolsCollector)
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: ParsedClassesResolver)
 internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
     if (!function.isTopLevel) return null.also { reportError(function, "schema.task.action.not.toplevel") }
     val nameIdentifier = function.nameIdentifier ?: return null // invalid Kotlin (top-level functions are named)
@@ -70,7 +70,7 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
     )
 }
 
-context(session: KaSession, _: DiagnosticsReporter, symbolsCollector: SymbolsCollector)
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: ParsedClassesResolver)
 private fun parseTaskParameter(
     parameter: KtParameter,
     doc: (name: String) -> String?,
@@ -80,7 +80,7 @@ private fun parseTaskParameter(
     val type = with(session) { typeReference.type }.parseSchemaType(origin = { typeReference }) ?: return null
     val inputMark = parameter.getAnnotation(INPUT_ANNOTATION_CLASS)
     val outputMark = parameter.getAnnotation(OUTPUT_ANNOTATION_CLASS)
-    val inputOutputMark: InputOutputMark? = if (type is PluginData.Type.PathType) when {
+    val inputOutputMark: InputOutputMark? = if (type.containsPath()) when {
         inputMark != null && outputMark != null -> {  // both
             reportError(parameter, "schema.task.action.parameter.path.conflicting")
             null
@@ -113,4 +113,13 @@ private fun parseTaskParameter(
 private enum class InputOutputMark {
     Input,
     Output,
+}
+
+context(resolver: ParsedClassesResolver)
+private fun PluginData.Type.containsPath(): Boolean = when(this) {
+    is PluginData.Type.ListType -> elementType.containsPath()
+    is PluginData.Type.MapType -> valueType.containsPath()
+    is PluginData.Type.ObjectType -> resolver.getClassData(this).properties.any { it.type.containsPath() }
+    is PluginData.Type.PathType -> true
+    else -> false
 }

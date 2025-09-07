@@ -216,15 +216,15 @@ fun /*{{*/overloaded/*}} [Amper Plugin Schema] Illegal overload for `$com.exampl
 /*{{*/suspend/*}} [Amper Plugin Schema] Suspending @TaskAction functions are not yet supported */ /*{{*/inline/*}} [Amper Plugin Schema] @TaskAction function cant be marked as inline */ fun /*{{*/<T>/*}} [Amper Plugin Schema] @TaskAction function cant be generic */ /*{{*/T/*}} [Amper Plugin Schema] @TaskAction function cant be an extension function */.invalidTaskAction(
   int: Int = 0,
   map: Map<String, String> = emptyMap(),
-  // FIXME: contains paths, should be marked
-  list: List<Path> = emptyList(),
+  /*{{*/list: List<Path> = emptyList()/*}} [Amper Plugin Schema] Parameter of a Path-referencing type must be annotated with either @Input or @Output */,
   @Input inputDir: Path? = /*{{*/null/*}} [Amper Plugin Schema] Nullable properties are already null by default, no need to specify this explicitly */,
   @Output outputDir: Path,
-  /*{{*/somePath: Path/*}} [Amper Plugin Schema] Path parameter must be annotated with either @Input or @Output */,
+  /*{{*/somePath: Path/*}} [Amper Plugin Schema] Parameter of a Path-referencing type must be annotated with either @Input or @Output */,
   /*{{*/@Input @Output anotherPath: Path/*}} [Amper Plugin Schema] Both @Input and @Output annotations cant be specified for a single parameter. File updates in-place are not supported. Use separate input/output instead. */,
   /*{{*/@[Input Output] crazyPath: Path/*}} [Amper Plugin Schema] Both @Input and @Output annotations cant be specified for a single parameter. File updates in-place are not supported. Use separate input/output instead. */,
-  // FIXME: contains paths, should be marked/forbidden/marked here?
-  config: Config,
+  /*{{*/config: Config/*}} [Amper Plugin Schema] Parameter of a Path-referencing type must be annotated with either @Input or @Output */,
+  @Input inputConfig: Config,
+  @Output outputList: Map<String, Path>,
 ): /*{{*/String/*}} [Amper Plugin Schema] @TaskAction function must return Unit */ {
   error("woof!")
 }
