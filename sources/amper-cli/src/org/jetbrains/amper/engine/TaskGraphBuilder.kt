@@ -43,7 +43,7 @@ class TaskGraphBuilder {
 
     fun build(): TaskGraph {
         autoWireTaskDependencies()
-        return TaskGraph(nameToTask = taskRegistry.toMap(), dependencies = dependencies.toMap())
+        return TaskGraph(nameToTask = taskRegistry.toMap(), initialDependencies = dependencies.toMap())
     }
 
     private fun autoWireTaskDependencies() {

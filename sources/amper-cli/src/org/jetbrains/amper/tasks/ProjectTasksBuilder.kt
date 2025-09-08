@@ -25,6 +25,7 @@ import org.jetbrains.amper.tasks.java.setupJavaAnnotationProcessingTasks
 import org.jetbrains.amper.tasks.js.setupJsTasks
 import org.jetbrains.amper.tasks.jvm.setupJvmTasks
 import org.jetbrains.amper.tasks.ksp.setupKspTasks
+import org.jetbrains.amper.tasks.maven.setupMavenCompatibilityTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
 import org.jetbrains.amper.tasks.wasm.setupWasmJsTasks
 import org.jetbrains.amper.tasks.wasm.setupWasmWasiTasks
@@ -86,6 +87,7 @@ class ProjectTasksBuilder(
     fun build(): TaskGraph {
         setupCommonTasks()
         setupJvmTasks()
+        setupMavenCompatibilityTasks()
         setupAndroidTasks()
         setupNativeTasks()
         setupWasmJsTasks()

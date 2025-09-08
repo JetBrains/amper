@@ -36,3 +36,11 @@ open class DependencyNodeHolder(
 
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
 }
+
+/**
+ * Convenience method for creating a root node.
+ */
+fun Context.RootDependencyNodeHolder(
+    children: List<DependencyNode>,
+    parentNodes: List<DependencyNode> = emptyList(),
+) = DependencyNodeHolder("root", children, this, parentNodes)

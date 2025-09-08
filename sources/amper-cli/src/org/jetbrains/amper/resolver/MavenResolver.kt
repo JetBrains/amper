@@ -17,6 +17,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.diagnostics.WithThrowable
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
@@ -40,8 +41,26 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         scope: ResolutionScope,
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
-    ): List<Path> = spanBuilder("mavenResolve")
-        .setAttribute("coordinates", coordinates.joinToString(" "))
+    ): List<Path> = resolveWithContext(repositories, scope, platform, resolveSourceMoniker) {
+        RootDependencyNodeHolder(
+            coordinates.map {
+                val (group, module, version) = it.split(":")
+                MavenDependencyNode(group, module, version, false)
+            },
+        )
+    }.dependencyPaths()
+
+    /**
+     * Create a [Context] and resolve dependencies on a passed [root].
+     * Also, create respective span.
+     */
+    suspend fun resolveWithContext(
+        repositories: List<Repository>,
+        scope: ResolutionScope,
+        platform: ResolutionPlatform,
+        resolveSourceMoniker: String,
+        root: Context.() -> DependencyNodeHolder,
+    ): DependencyNodeHolder = spanBuilder("mavenResolve")
         .setAttribute("repositories", repositories.joinToString(" "))
         .setAttribute("user-cache-root", userCacheRoot.path.pathString)
         .setAttribute("scope", scope.name)
@@ -57,20 +76,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 this.scope = scope
                 this.platforms = setOf(platform)
             }
-
-            val root = DependencyNodeHolder(
-                name = "root",
-                children = coordinates.map {
-                    val (group, module, version) = it.split(":")
-                    MavenDependencyNode(context, group, module, version, false)
-                },
-                context
-            )
-
-            resolve(root, resolveSourceMoniker)
-
-            val files = root.dependencyPaths()
-            files
+            root(context).apply { resolve(this, resolveSourceMoniker) }
         }
 
     suspend fun resolve(
@@ -118,7 +124,8 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                     }
                 }
 
-                else -> { /* do nothing */ }
+                else -> { /* do nothing */
+                }
             }
         }
 

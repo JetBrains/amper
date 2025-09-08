@@ -19,6 +19,11 @@ sealed interface SchemaOrigin {
     ) : SchemaOrigin
 
     /**
+     * Entity comes from the maven plugin.
+     */
+    data object MavenPlugin : SchemaOrigin
+    
+    /**
      * Entity comes from the builtin schema.
      */
     data object Builtin : SchemaOrigin

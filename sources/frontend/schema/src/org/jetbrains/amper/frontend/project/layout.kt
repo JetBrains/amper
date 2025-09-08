@@ -8,6 +8,14 @@ import org.jetbrains.amper.frontend.TaskName
 import java.nio.file.Path
 import kotlin.io.path.div
 
+val AmperProjectContext.projectLocalCacheDirectory: Path
+    get() = projectRootDir.toNioPath() / AMPER_PROJECT_LOCAL_CACHE_DIR_NAME
+
+val AmperProjectContext.mavenPluginXmlsDir: Path
+    get() = projectLocalCacheDirectory / "maven-plugins"
+
+private const val AMPER_PROJECT_LOCAL_CACHE_DIR_NAME = ".amper"
+
 fun AmperProjectContext.getTaskOutputRoot(taskName: TaskName): Path {
     return projectBuildDir / "tasks" / taskName.name.replace(":", "_")
 }

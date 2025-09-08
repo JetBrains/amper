@@ -43,6 +43,10 @@ class Refined(
     override val children = refinedChildren.values.toList()
 }
 
+fun TreeValue<Refined>.asMapLikeAndGet(property: String): TreeValue<Refined>? {
+    return (this as? Refined)?.single(property)?.value
+}
+
 /**
  * Utility copy method that is aware of `MapLikeValue` hierarchy.
  */

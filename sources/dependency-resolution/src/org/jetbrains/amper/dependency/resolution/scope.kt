@@ -36,6 +36,15 @@ enum class ResolutionScope(
         // in fact what is expected
         // (again it might, perhaps, have some questionable implications for Maven dependencies resolved from pom)
         fallback = { COMPILE }
+    ),
+    TEST(
+        variantMatcher = { it.getAttributeValue(Usage)?.isApi() == true || it.isScopeAgnostic() },
+        dependencyMatcher = { it.scope in setOf(null, "compile", "test") },
+        // 'org.gradle.usage' equal to 'kotlin-runtime' is somewhat artificial for Gradle module metadata,
+        // 'kotlin-runtime' value is never resolved in the wild for anything but sources, thus fallback to COMPILE is
+        // in fact what is expected
+        // (again it might, perhaps, have some questionable implications for Maven dependencies resolved from pom)
+        fallback = { COMPILE }
     );
 
     internal fun matches(variant: Variant) = variantMatcher(variant)

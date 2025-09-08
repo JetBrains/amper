@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.plugins.prepareMavenPlugins
 import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
@@ -56,6 +57,7 @@ internal suspend fun CliContext.preparePluginsAndReadModel(): Model {
     val pluginData = spanBuilder("Prepare plugins").use {
         preparePlugins(context = this@preparePluginsAndReadModel)
     }
+    prepareMavenPlugins(context = this@preparePluginsAndReadModel)
 
     val model = spanBuilder("Read model from Amper files").use {
         with(CliProblemReporter) {

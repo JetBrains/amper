@@ -6,9 +6,9 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.StringSemantics
+import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
@@ -88,6 +88,7 @@ class UnscopedModuleDependency : UnscopedDependency() {
 }
 
 class UnscopedCatalogDependency : UnscopedDependency() {
+    @Suppress("unused")
     @FromKeyAndTheRestIsNested
     val catalogKey by value<String>()
 }

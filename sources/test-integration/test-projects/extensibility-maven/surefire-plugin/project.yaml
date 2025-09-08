@@ -1,0 +1,5 @@
+modules:
+  - app1
+
+mavenPlugins:
+  - org.apache.maven.plugins:maven-surefire-plugin:3.5.3

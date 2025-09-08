@@ -87,6 +87,17 @@ import kotlin.reflect.KProperty
 private val logger = LoggerFactory.getLogger("maven.kt")
 
 /**
+ * Convenience constructor method.
+ */
+fun Context.MavenDependencyNode(
+    group: String,
+    module: String,
+    version: String?,
+    isBom: Boolean,
+    parentNodes: List<DependencyNode> = emptyList(),
+) = MavenDependencyNode(this, group, module, version, isBom, parentNodes)
+
+/**
  * Serves as a holder for a dependency defined by Maven coordinates, namely, group, module, and version.
  * While each node in a graph is expected to be unique, its [dependency] can be shared across other nodes
  * as long as their groups and modules match.
@@ -189,7 +200,7 @@ class MavenDependencyNode internal constructor(
 
     private fun DependencyNode.isDescendantOf(
         parent: DependencyNode,
-        visited: MutableSet<DependencyNode> = mutableSetOf()
+        visited: MutableSet<DependencyNode> = mutableSetOf(),
     ): Boolean {
         return (parents - visited)
             .let {
@@ -383,7 +394,7 @@ fun Context.createOrReuseDependency(
     group: String,
     module: String,
     version: String?,
-    isBom: Boolean = false
+    isBom: Boolean = false,
 ): MavenDependency =
     this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:${version.orUnspecified()}:$isBom")) {
         MavenDependency(this.settings, group, module, version, isBom)
@@ -392,7 +403,7 @@ fun Context.createOrReuseDependency(
 internal fun Context.createOrReuseDependencyConstraint(
     group: String,
     module: String,
-    version: Version
+    version: Version,
 ): MavenDependencyConstraint =
     this.resolutionCache.computeIfAbsent(Key<MavenDependencyConstraint>("$group:$module:$version")) {
         MavenDependencyConstraint(group, module, version)
@@ -401,7 +412,7 @@ internal fun Context.createOrReuseDependencyConstraint(
 data class MavenDependencyConstraint(
     val group: String,
     val module: String,
-    val version: Version
+    val version: Version,
 )
 
 internal fun shouldIgnoreDependency(group: String, module: String, context: Context): Boolean {
@@ -433,7 +444,7 @@ val KmpPlatforms = Key<Set<ResolutionPlatform>>("KmpPlatforms")
 class MavenDependency internal constructor(
     val settings: Settings,
     val coordinates: MavenCoordinates,
-    val isBom: Boolean
+    val isBom: Boolean,
 ) {
     internal constructor(
         settings: Settings,
@@ -714,7 +725,7 @@ class MavenDependency internal constructor(
     private suspend fun resolveUsingMetadata(
         context: Context,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ) {
         val moduleMetadata = parseModuleMetadata(context, level, diagnosticsReporter, true)
         this.moduleMetadata = moduleMetadata
@@ -929,7 +940,7 @@ class MavenDependency internal constructor(
         context: Context,
         moduleMetadata: Module,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ): Boolean {
         if (isSpecialKmpLibrary()) {
             moduleMetadata
@@ -971,7 +982,7 @@ class MavenDependency internal constructor(
 
     private fun Dependency.toMavenDependency(
         context: Context,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ): MavenDependency {
         val dependency = this
         return toMavenDependency(context) { reason ->
@@ -990,7 +1001,7 @@ class MavenDependency internal constructor(
     private suspend fun Variant.bomDependencyConstraints(
         context: Context,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ): List<MavenDependencyConstraint> =
         dependencies.mapNotNull {
             if (!it.isBom()) {
@@ -1012,7 +1023,7 @@ class MavenDependency internal constructor(
     private suspend fun Variant.dependencies(
         context: Context,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ): List<Dependency> =
         dependencies.filterNot { shouldIgnoreDependency(it.group, it.module, context) }.map {
             withResolvedVersion(it) { bomDependencyConstraints(context, level, diagnosticsReporter) }
@@ -1031,7 +1042,7 @@ class MavenDependency internal constructor(
      */
     private suspend fun Variant.withResolvedVersion(
         dep: Dependency,
-        bomDependencyConstraints: suspend () -> List<MavenDependencyConstraint> = { emptyList() }
+        bomDependencyConstraints: suspend () -> List<MavenDependencyConstraint> = { emptyList() },
     ): Dependency =
         if (dep.version != null) {
             dep
@@ -1067,7 +1078,7 @@ class MavenDependency internal constructor(
         context: Context,
         level: ResolutionLevel,
         diagnosticReporter: DiagnosticReporter,
-        skipIsDownloadedCheck: Boolean = false
+        skipIsDownloadedCheck: Boolean = false,
     ): Module? {
         if (skipIsDownloadedCheck || moduleFile.isDownloadedOrDownload(level, context, diagnosticReporter)) {
             try {
@@ -1103,7 +1114,7 @@ class MavenDependency internal constructor(
         platform: ResolutionPlatform,
         moduleMetadata: Module,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ): Pair<Variant, DependencyFile>? {
         val kotlinMetadataVariant =
             getKotlinMetadataVariant(moduleMetadata.variants, platform, context, diagnosticsReporter)
@@ -1139,7 +1150,7 @@ class MavenDependency internal constructor(
         moduleMetadata: Module,
         level: ResolutionLevel,
         kotlinMetadataVariant: Variant,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ) {
         val kmpMetadata = kmpMetadataFile.getPath()?.let {
             readJarEntry(it, "META-INF/kotlin-project-structure-metadata.json")
@@ -1238,7 +1249,7 @@ class MavenDependency internal constructor(
      */
     private fun resolveCinteropSourceSet(
         sourceSetNames: Set<String>,
-        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata
+        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata,
     ): String? {
         val sourceSetsWithCinterop = kotlinProjectStructureMetadata.projectStructure.sourceSets
             .filter { it.name in sourceSetNames && it.sourceSetCInteropMetadataDirectory != null }
@@ -1273,7 +1284,7 @@ class MavenDependency internal constructor(
         validVariants: List<Variant>,
         platform: ResolutionPlatform,
         context: Context,
-        diagnosticReporter: DiagnosticReporter
+        diagnosticReporter: DiagnosticReporter,
     ): Variant? {
         if (this.isKotlinTestAnnotationsCommon()) return null
         val metadataVariants = validVariants.filter { it.isKotlinMetadata(platform) }
@@ -1292,7 +1303,7 @@ class MavenDependency internal constructor(
 
     private fun getKotlinMetadataSourcesVariant(
         validVariants: List<Variant>,
-        platform: ResolutionPlatform
+        platform: ResolutionPlatform,
     ): Variant? {
         if (this.isKotlinTestAnnotationsCommon()) return null
         return validVariants.firstOrNull { it.isKotlinMetadataSources(platform) }
@@ -1307,7 +1318,7 @@ class MavenDependency internal constructor(
         kotlinProjectStructureMetadata: KotlinProjectStructureMetadata? = null, // is empty for sources only
         context: Context,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ): DependencyFile? {
         val group = kmpMetadataFile.dependency.group
         val module = kmpMetadataFile.dependency.module
@@ -1454,7 +1465,7 @@ class MavenDependency internal constructor(
         kotlinProjectStructureMetadata: KotlinProjectStructureMetadata?,
         moduleMetadata: Module,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ) = if (hasJarEntry(kmpMetadataFile.getPath()!!, sourceSetName) == true) {
         kmpMetadataFile.getPath()!!
     } else if (kotlinProjectStructureMetadata == null) {
@@ -1505,7 +1516,7 @@ class MavenDependency internal constructor(
     private fun resolveVariants(
         module: Module,
         settings: Settings,
-        platform: ResolutionPlatform
+        platform: ResolutionPlatform,
     ): List<Variant> {
         val initiallyFilteredVariants = module
             .variants
@@ -1526,7 +1537,7 @@ class MavenDependency internal constructor(
 
     private fun resolveBomVariants(
         module: Module,
-        settings: Settings
+        settings: Settings,
     ): List<Variant> = module.variants
         .filter { categoryMatches(it) }
         .filterWithFallbackScope(settings.scope)
@@ -1612,7 +1623,7 @@ class MavenDependency internal constructor(
         text: String,
         context: Context,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ) {
         val project = resolvePom(text, context, level, diagnosticsReporter) ?: return
 
@@ -1658,7 +1669,7 @@ class MavenDependency internal constructor(
     }
 
     private suspend fun resolvePom(
-        text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter
+        text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter,
     ): Project? {
         return try {
             parsePom(text).resolve(context, level, diagnosticsReporter)
@@ -1683,7 +1694,7 @@ class MavenDependency internal constructor(
     }
 
     private suspend fun resolveDependenciesConstraintsUsingPom(
-        text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter
+        text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter,
     ): List<MavenDependencyConstraint> = resolvePom(text, context, level, diagnosticsReporter)
         ?.resolveDependenciesConstraints(context)
         ?: emptyList()
@@ -1706,7 +1717,7 @@ class MavenDependency internal constructor(
         resolutionLevel: ResolutionLevel,
         diagnosticsReporter: DiagnosticReporter,
         depth: Int = 0,
-        origin: Project = this
+        origin: Project = this,
     ): Project {
         if (depth > 10) {
             diagnosticsReporter.addMessage(ProjectHasMoreThanTenAncestors.asMessage(origin))
@@ -1851,7 +1862,7 @@ class MavenDependency internal constructor(
     private suspend fun DependencyFile.isDownloadedOrDownload(
         level: ResolutionLevel,
         context: Context,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ) =
         isDownloadedWithVerification(level, context.settings, diagnosticsReporter)
                 || level == ResolutionLevel.NETWORK && download(context, diagnosticsReporter)
@@ -1893,7 +1904,7 @@ class MavenDependency internal constructor(
         context: Context,
         downloadSources: Boolean,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ) {
         repackageKmpLibrarySources(context, downloadSources, level, diagnosticsReporter)
     }
@@ -1902,7 +1913,7 @@ class MavenDependency internal constructor(
         context: Context,
         downloadSources: Boolean,
         level: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter
+        diagnosticsReporter: DiagnosticReporter,
     ) {
         if (context.settings.platforms.size > 1
             && downloadSources
@@ -1959,7 +1970,7 @@ data class MavenCoordinates(
     val artifactId: String,
     // todo (AB) : [AMPER-4112] Support unspecified version of direct dependencies (it could be resolved from BOM later)
     val version: String?,
-    val classifier: String? = null
+    val classifier: String? = null,
 ) {
     override fun toString(): String {
         return "$groupId:$artifactId:${version.orUnspecified()}${if (classifier != null) ":$classifier" else ""}"

@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDeclaration
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext.Companion.find
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Project
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
@@ -41,7 +42,8 @@ class StandaloneAmperProjectContext(
     override val projectRootDir: VirtualFile,
     projectBuildDir: Path?,
     override val amperModuleFiles: List<VirtualFile>,
-    override val pluginModuleFiles: List<VirtualFile>,
+    override val localPluginsModuleFiles: List<VirtualFile>,
+    override val externalPluginDependencies: List<UnscopedExternalMavenDependency>?,
 ) : AmperProjectContext {
 
     override val projectBuildDir: Path by lazy {
@@ -117,7 +119,8 @@ class StandaloneAmperProjectContext(
                     projectRootDir = result.startModuleFile.parent,
                     projectBuildDir = buildDir,
                     amperModuleFiles = listOf(result.startModuleFile),
-                    pluginModuleFiles = emptyList(), // no plugins for the single-module project.
+                    localPluginsModuleFiles = emptyList(), // no plugins for the single-module project.
+                    externalPluginDependencies = null, // no external plugins for the single-module project.
                 )
             }
             return potentialContext
@@ -177,7 +180,7 @@ class StandaloneAmperProjectContext(
                 )
             }
 
-            val pluginDependencies = amperProject?.plugins.orEmpty().mapNotNull { dependency ->
+            val localPluginDependencies = amperProject?.plugins.orEmpty().mapNotNull { dependency ->
                 val pluginModuleFile = frontendPathResolver.loadVirtualFileOrNull(dependency.value)
                     ?.findChildMatchingAnyOf(amperModuleFileNames)
                 when (pluginModuleFile) {
@@ -203,7 +206,8 @@ class StandaloneAmperProjectContext(
                 projectRootDir = rootDir,
                 projectBuildDir = buildDir,
                 amperModuleFiles = amperModuleFiles,
-                pluginModuleFiles = pluginDependencies,
+                localPluginsModuleFiles = localPluginDependencies,
+                externalPluginDependencies = amperProject?.mavenPlugins,
             )
         }
     }

@@ -5,6 +5,7 @@
 package org.jetbrains.amper.plugins
 
 import com.android.utils.associateNotNull
+import kotlinx.coroutines.coroutineScope
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.plugins.parsePluginManifestFromModuleFile
@@ -22,7 +23,7 @@ suspend fun preparePlugins(
     return spanBuilder("Prepare plugins").use {
         val projectContext = context.projectContext
         val seenPluginIds = hashSetOf<String>()
-        val pluginInfos = projectContext.pluginModuleFiles.associateNotNull { pluginModuleFile ->
+        val pluginInfos = projectContext.localPluginsModuleFiles.associateNotNull { pluginModuleFile ->
             val pluginManifest = spanBuilder("Read plugin manifest").use {
                 parsePluginManifestFromModuleFile(
                     frontendPathResolver = projectContext.frontendPathResolver,

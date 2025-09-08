@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.types
 
 import org.jetbrains.amper.frontend.contexts.MinimalModule
+import org.jetbrains.amper.frontend.plugins.MavenPluginXml
 import org.jetbrains.amper.frontend.plugins.MinimalPluginModule
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.TaskAction
@@ -12,6 +13,7 @@ import org.jetbrains.amper.frontend.plugins.generated.ShadowMaps
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
+import org.jetbrains.amper.frontend.types.maven.discoverMavenPluginXmlTypes
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import kotlin.reflect.KClass
 
@@ -20,6 +22,7 @@ import kotlin.reflect.KClass
  */
 fun SchemaTypingContext(
     pluginData: List<PluginData> = emptyList(),
+    mavenPlugins: List<MavenPluginXml> = emptyList(),
 ): SchemaTypingContext = object : ExtensibleBuiltInTypingContext(
     null,
     listOf(
@@ -32,6 +35,7 @@ fun SchemaTypingContext(
 ) {
     override fun discoverTypes() {
         discoverPluginTypes(pluginData)
+        discoverMavenPluginXmlTypes(mavenPlugins)
         super.discoverTypes()
     }
 }.apply { discoverTypes() }

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
+import org.jetbrains.amper.frontend.plugins.MavenPluginXml
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
@@ -106,6 +107,8 @@ interface AmperModule {
     val leafPlatforms: Set<Platform> get() = leafFragments.map { it.platform }.toSet()
 
     val tasksFromPlugins: List<TaskFromPluginDescription>
+    
+    val mavenPluginXmls: List<MavenPluginXml>
 }
 
 /**

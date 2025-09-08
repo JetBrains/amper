@@ -25,4 +25,6 @@ class Project : SchemaNode() {
 
     // TODO: doc
     var plugins by value<List<TraceablePath>>(default = emptyList())
+
+    var mavenPlugins by value<List<UnscopedExternalMavenDependency>>(default = emptyList())
 }

@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import java.nio.file.Path
 
 /**
@@ -47,5 +48,10 @@ interface AmperProjectContext {
     /**
      * Local plugin module files of this project. Subset of [amperModuleFiles].
      */
-    val pluginModuleFiles: List<VirtualFile>
+    val externalPluginDependencies: List<UnscopedExternalMavenDependency>?
+
+    /**
+     * Local plugin module files of this project. Subset of [amperModuleFiles].
+     */
+    val localPluginsModuleFiles: List<VirtualFile>
 }
