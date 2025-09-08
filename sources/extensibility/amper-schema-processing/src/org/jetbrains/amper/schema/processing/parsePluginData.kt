@@ -44,9 +44,7 @@ fun KaSession.parsePluginData(
     }
     val diagnosticCollector = object : DiagnosticsReporter {
         val diagnostics = mutableListOf<PluginDataResponse.Diagnostic>()
-        override fun report(
-            diagnostic: PluginDataResponse.Diagnostic,
-        ) {
+        override fun report(diagnostic: PluginDataResponse.Diagnostic) {
             diagnostics += diagnostic
         }
     }

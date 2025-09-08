@@ -46,11 +46,11 @@ private fun <T> Appendable.appendElement(element: T, transform: ((T) -> CharSequ
 }
 
 /**
- * Returns a sequence containing only elements from the given sequence
+ * Returns a list containing only elements from the given iterable
  * having distinct keys returned by the given [selector] function.
  *
- * Among elements of the given sequence with equal keys, only the first one will be present in the resulting sequence.
- * The elements in the resulting sequence are in the same order as they were in the source sequence.
+ * Among elements of the given iterable with equal keys, only the first one will be present in the resulting list.
+ * The elements in the resulting list are in the same order as they were in the source iterable.
  *
  * [onDuplicates] is invoked for each unique key, that has two or more corresponding elements.
  */

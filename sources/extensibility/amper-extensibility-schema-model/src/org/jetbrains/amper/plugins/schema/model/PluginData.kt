@@ -43,7 +43,7 @@ data class PluginData(
     data class EnumData(
         val schemaName: SchemaName,
         val entries: List<Entry>,
-        @Contextual
+        @Contextual // needed for tests
         val origin: SourceLocation,
     ) {
         @Serializable
@@ -51,7 +51,7 @@ data class PluginData(
             val name: String,
             val schemaName: String,
             val doc: String? = null,
-            @Contextual
+            @Contextual // needed for tests
             val origin: SourceLocation,
         )
     }
@@ -61,7 +61,7 @@ data class PluginData(
         val name: SchemaName,
         val properties: List<Property> = emptyList(),
         val doc: String? = null,
-        @Contextual
+        @Contextual // needed for tests
         val origin: SourceLocation,
     ) {
         @Serializable
@@ -70,7 +70,7 @@ data class PluginData(
             val type: Type,
             val default: Defaults? = null,
             val doc: String? = null,
-            @Contextual
+            @Contextual // needed for tests
             val origin: SourceLocation,
         )
     }

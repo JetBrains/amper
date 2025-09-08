@@ -83,7 +83,7 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
                 }
             )
 
-        val moduleExtensionSchemaDeclaration = pluginData.moduleExtensionSchemaName?.let { name ->
+        val moduleExtensionSchemaDeclaration = moduleExtensionSchemaName?.let { name ->
             pluginData.classTypes.find { it.name == name }
         }
         // Load custom properties for a [Settings] schema type.
@@ -140,7 +140,7 @@ private class ExternalObjectDeclaration(
                     default = Default.Static(false),
                     documentation = "Whether to enable the `${pluginId.value}` plugin",
                     hasShorthand = true,
-                    origin = SchemaOrigin.Builtin,
+                    origin = origin,
                 )
             }
         }

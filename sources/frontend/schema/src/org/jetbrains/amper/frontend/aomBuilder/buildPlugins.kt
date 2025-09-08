@@ -38,6 +38,7 @@ import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
+import org.jetbrains.amper.stdlib.collections.distinctBy
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -127,20 +128,35 @@ internal fun BuildCtx.buildPlugins(
             module = moduleBuildCtx,
         ) ?: continue
         for ((name, task) in appliedPlugin.tasks) {
-            val outputsToMarks = task.action.outputPropertyNames
-                .flatMap {
-                    buildSet { gatherPaths(paths = this, value = task.action[it]) }
-                }.associateWith { path ->
-                    task.markOutputsAs.find { it.path == path }
-                }.mapValues { (_, mark) ->
-                    mark ?: return@mapValues null
-                    TaskFromPluginDescription.OutputMark(
-                        kind = mark.kind,
-                        associateWith = moduleBuildCtx.module.fragments.first {
-                            it.isTest == mark.fragment.isTest && it.modifier == mark.fragment.modifier
-                        }
+            val allOutputPaths = task.action.outputPropertyNames.flatMap {
+                buildSet { gatherPaths(paths = this, value = task.action[it]) }
+            }
+            val outputMarks = task.markOutputsAs.distinctBy(
+                selector = { it.path },
+                onDuplicates = { path, duplicateMarks ->
+                    val source = MultipleLocationsBuildProblemSource(
+                        sources = duplicateMarks.mapNotNull { it.asBuildProblemSource() as? FileBuildProblemSource },
+                        groupingMessage = SchemaBundle.message("plugin.invalid.mark.output.as.duplicates.grouping"),
+                    )
+                    problemReporter.reportBundleError(source, "plugin.invalid.mark.output.as.duplicates", path)
+                }
+            ).associateBy { it.path }
+            outputMarks.forEach { (path, mark) ->
+                if (path !in allOutputPaths) {
+                    problemReporter.reportBundleError(
+                        mark.asBuildProblemSource(), "plugin.invalid.mark.output.as.no.such.path", path
                     )
                 }
+            }
+            val outputsToMarks = allOutputPaths.associateWith { path ->
+                val mark = outputMarks[path] ?: return@associateWith null
+                TaskFromPluginDescription.OutputMark(
+                    kind = mark.kind,
+                    associateWith = moduleBuildCtx.module.fragments.first {
+                        it.isTest == mark.fragment.isTest && it.modifier == mark.fragment.modifier
+                    }
+                )
+            }
             moduleBuildCtx.module.tasksFromPlugins += DefaultTaskFromPluginDescription(
                 name = pluginTaskNameFor(moduleBuildCtx.module, plugin.pluginData.id, name),
                 actionFunctionJvmName = task.action.jvmFunctionName,
