@@ -29,7 +29,7 @@ import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 import org.jetbrains.amper.frontend.toClassBasedSet
 
 private fun kotlinDependencyOf(artifactId: String, version: TraceableString, dependencyTrace: Trace) = MavenDependency(
-    coordinates = TraceableString("org.jetbrains.kotlin:$artifactId:$version", DefaultTrace),
+    coordinates = version.derived { "org.jetbrains.kotlin:$artifactId:$version" },
     trace = dependencyTrace,
 )
 
