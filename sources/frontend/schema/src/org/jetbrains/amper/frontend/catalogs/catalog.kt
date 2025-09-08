@@ -104,8 +104,11 @@ private class BuiltInCatalog(
             put("compose.html.testUtils", library("org.jetbrains.compose.html:html-test-utils", composeVersion))
             put("compose.material", library("org.jetbrains.compose.material:material", composeVersion))
             put("compose.material3", library("org.jetbrains.compose.material3:material3", composeVersion))
-            put("compose.materialIconsCore", library("org.jetbrains.compose.material:material-icons-core", materialIconsVersion(composeVersion)))
-            put("compose.materialIconsExtended", library("org.jetbrains.compose.material:material-icons-extended", materialIconsVersion(composeVersion)))
+            // material icons is no longer
+            if (ComparableVersion(composeVersion.value) < ComparableVersion("1.8.0")) {
+                put("compose.materialIconsCore", library("org.jetbrains.compose.material:material-icons-core", composeVersion))
+                put("compose.materialIconsExtended", library("org.jetbrains.compose.material:material-icons-extended", composeVersion))
+            }
             put("compose.preview", library("org.jetbrains.compose.ui:ui-tooling-preview", composeVersion))
             put("compose.preview", library("org.jetbrains.compose.ui:ui-tooling-preview", composeVersion))
             put("compose.runtime", library("org.jetbrains.compose.runtime:runtime", composeVersion))
@@ -331,10 +334,3 @@ private fun library(groupAndModule: String, version: TraceableString): Traceable
         value = "$groupAndModule:${version.value}",
         trace = BuiltinCatalogTrace(catalog, computedValueTrace = version),
     )
-
-private fun materialIconsVersion(composeVersion: TraceableString) =
-    when {
-        ComparableVersion(composeVersion.value) >= ComparableVersion("1.8.0") ->
-            TraceableString("1.7.3", DefaultTrace(computedValueTrace = composeVersion))
-        else -> composeVersion
-    }
