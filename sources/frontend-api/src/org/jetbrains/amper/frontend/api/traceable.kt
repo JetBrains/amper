@@ -38,9 +38,6 @@ open class DefaultTrace(
     override val precedingValue: TreeValue<*>? = null
 }
 
-val Trace.precedingValuesSequence get() =
-    generateSequence(precedingValue) { it.trace.precedingValue }
-
 /**
  * The Property with this trace originates from the node of a PSI tree, in most cases from the manifest file.
  */

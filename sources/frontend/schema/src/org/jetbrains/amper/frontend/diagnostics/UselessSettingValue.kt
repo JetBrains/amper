@@ -9,7 +9,6 @@ import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.precedingValuesSequence
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.collectScalarPropertiesWithOwners
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
@@ -46,8 +45,7 @@ class UselessSettingValue(
                 // Since there is at least one value assignment,
                 // we can safely assume that after refinement it is exactly single.
                 val refinedProp = refined.single(scalarProp.key)?.value ?: return@forEach
-                refinedProp.trace.precedingValuesSequence
-                    .firstOrNull()
+                refinedProp.trace.precedingValue
                     ?.takeIf { it.scalarValue<Any>() == refinedProp.scalarValue<Any>() }
                     ?.let {
                         problemReporter.reportMessage(
