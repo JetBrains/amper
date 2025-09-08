@@ -9,7 +9,7 @@ import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
-import org.jetbrains.amper.frontend.api.trace
+import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Context
 import org.jetbrains.amper.frontend.contexts.Contexts
@@ -52,7 +52,7 @@ internal fun BuildCtx.readTree(
                             type = type.toType(),
                         )
                     }
-                } ?: Owned(emptyList(), type, psiFile.trace, rootContexts)
+                } ?: Owned(emptyList(), type, psiFile.asTrace(), rootContexts)
             }
             else -> error("Unsupported language: ${psiFile.language}")
         }

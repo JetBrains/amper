@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.tree.reading
 
 import org.jetbrains.amper.frontend.api.asTrace
-import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
@@ -196,7 +195,7 @@ private fun parseObjectFromListShorthand(
             children = listOfNotNull(
                 MapLikeValue.Property(
                     value = parseList(psi, propertyType),
-                    kTrace = psi.trace,
+                    kTrace = psi.asTrace(),
                     pType = listShorthandProperty,
                 )
             ),

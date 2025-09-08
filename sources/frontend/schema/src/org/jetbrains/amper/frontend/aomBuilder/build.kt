@@ -16,8 +16,8 @@ import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.api.schemaDelegate
-import org.jetbrains.amper.frontend.api.trace
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
 import org.jetbrains.amper.frontend.contexts.MinimalModuleHolder
@@ -130,7 +130,7 @@ internal fun BuildCtx.readModuleMergedTree(
     projectVersionsCatalog: VersionCatalog?,
     templatesCache: MutableMap<Path, MapLikeValue<*>> = hashMapOf(),
 ): ModuleBuildCtx? {
-    val moduleCtx = PathCtx(moduleFile, moduleFile.asPsi().trace)
+    val moduleCtx = PathCtx(moduleFile, moduleFile.asPsi().asTrace())
 
     // Read the initial module file.
     val minimalModule = tryReadMinimalModule(moduleFile) ?: return null
@@ -193,7 +193,7 @@ internal fun BuildCtx.readWithTemplates(
         templatesCache.getOrPut(it) {
             val templateVirtual = it.asVirtualOrNull() ?: return@mapNotNull null
             val psiFile = pathResolver.toPsiFile(templateVirtual) ?: return@mapNotNull null
-            readTree(templateVirtual, templateAType, PathCtx(templateVirtual, psiFile.trace))
+            readTree(templateVirtual, templateAType, PathCtx(templateVirtual, psiFile.asTrace()))
         }
     }
 }

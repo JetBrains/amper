@@ -9,7 +9,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.readWithTemplates
-import org.jetbrains.amper.frontend.api.trace
+import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
@@ -125,7 +125,7 @@ internal fun readAndRefineModule(
 // Helper function read the module with templates and refine it with selected contexts.
 internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Contexts): BuildCtx.(VirtualFile) -> TreeValue<*> = {
     val minimalModule = tryReadMinimalModule(it)!!
-    val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().trace))
+    val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().asTrace()))
     val resultTree = treeMerger.mergeTrees(ownedTrees)
     resultTree.refineTree(contexts(it), minimalModule.combinedInheritance)
 }

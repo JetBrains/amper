@@ -47,8 +47,10 @@ data class PsiTrace(
     override val computedValueTrace: Traceable? = null,
 ) : Trace
 
-fun PsiElement.asTrace() = PsiTrace(this)
-val PsiElement.trace get() = PsiTrace(this)
+/**
+ * Creates a [PsiTrace] that points to this [PsiElement].
+ */
+fun PsiElement.asTrace(): PsiTrace = PsiTrace(this)
 
 /**
  * The Property with this trace originates from the version catalog provided by the toolchain.
