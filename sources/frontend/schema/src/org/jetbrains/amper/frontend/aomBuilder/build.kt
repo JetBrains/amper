@@ -147,8 +147,8 @@ internal fun BuildCtx.readModuleMergedTree(
 
     // Merge owned trees (see [TreeMerger]) and preprocess them.
     val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
-        .appendDefaultValues()
         .configurePluginDefaults(moduleName = moduleFile.parent.name, product = minimalModule.module.product)
+        .appendDefaultValues()
         .resolveReferences()
 
     // Choose catalogs.

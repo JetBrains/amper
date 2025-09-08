@@ -20,7 +20,9 @@ import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.project.customTaskName
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
+import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.BuildProblemImpl
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
@@ -51,6 +53,8 @@ internal fun BuildCtx.buildCustomTask(
     }
 
     val taskTree = readTree(customTaskFile, types.getDeclaration<CustomTaskNode>())
+        .appendDefaultValues()
+        .resolveReferences()
     val refined = TreeRefiner().refineTree(taskTree, EmptyContexts)
     
     // We can cast here only because no contexts are available inside the task definition.

@@ -72,7 +72,7 @@ internal fun BuildCtx.buildPlugins(
             }
         }
 
-        val pluginId = pluginModule.moduleCtxModule.plugin!!.id!! // safe - default is always set
+        val pluginId = pluginModule.moduleCtxModule.plugin!!.id // safe - default is always set
         if (pluginId.value in seenPluginIds) {
             seenPluginIds[pluginId.value]!!.add(pluginId)
             return@mapPlugins null // Skip the duplicate

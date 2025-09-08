@@ -4,7 +4,7 @@ Fragments:
       MavenDependency(coordinates=org.apache.commons:commons-math3:3.6.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, trace=DefaultTrace(computedValueTrace=SchemaValue(property = var org.jetbrains.amper.frontend.schema.SerializationSettings.format: kotlin.String?, value = json)), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=NullValue(trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -25,7 +25,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, trace=DefaultTrace(computedValueTrace=SchemaValue(property = var org.jetbrains.amper.frontend.schema.SerializationSettings.format: kotlin.String?, value = json)), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=NullValue(trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -45,7 +45,7 @@ Fragments:
       MavenDependency(coordinates=org.apache.commons:commons-math3:3.6.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, trace=DefaultTrace(computedValueTrace=SchemaValue(property = var org.jetbrains.amper.frontend.schema.SerializationSettings.format: kotlin.String?, value = json)), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=NullValue(trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -67,7 +67,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, trace=DefaultTrace(computedValueTrace=SchemaValue(property = var org.jetbrains.amper.frontend.schema.SerializationSettings.format: kotlin.String?, value = json)), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null, computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=NullValue(trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)

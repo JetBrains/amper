@@ -10,8 +10,10 @@ import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.contexts.defaultContextsInheritance
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
+import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.test.golden.GoldenTest
 import java.nio.file.Path
 
@@ -33,6 +35,8 @@ private class ConvertTestRun(
         val inputFile = pathResolver.loadVirtualFile(inputPath)
         with(BuildCtx(pathResolver, problemReporter)) {
             val tree = readTree(inputFile, moduleAType)
+                .appendDefaultValues()
+                .resolveReferences()
             val refined = tree.refineTree(EmptyContexts, defaultContextsInheritance)
             createSchemaNode<Module>(refined)
         }

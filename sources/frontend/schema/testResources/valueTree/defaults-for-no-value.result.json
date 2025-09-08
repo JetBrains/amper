@@ -22,6 +22,7 @@
       },
       "applicationId(DefaultCtx)" : "namespace(DefaultCtx)",
       "compileSdk(DefaultCtx)" : "VERSION_35(DefaultCtx)",
+      "maxSdk(DefaultCtx)" : "null(DefaultCtx)",
       "minSdk(DefaultCtx)" : "VERSION_21(DefaultCtx)",
       "namespace(DefaultCtx)" : "org.example.namespace(DefaultCtx)",
       "targetSdk(DefaultCtx)" : "compileSdk(DefaultCtx)",
@@ -50,7 +51,8 @@
       "framework" : {
         "basename(DefaultCtx)" : "kotlin(DefaultCtx)",
         "isStatic(DefaultCtx)" : "false(DefaultCtx)"
-      }
+      },
+      "teamId(DefaultCtx)" : "null(DefaultCtx)"
     },
     "java" : {
       "annotationProcessing" : {
@@ -65,13 +67,16 @@
         "freeJvmArgs(DefaultCtx)" : ,
         "junitPlatformVersion(DefaultCtx)" : "1.13.4(DefaultCtx)"
       },
+      "mainClass(DefaultCtx)" : "null(DefaultCtx)",
       "release(DefaultCtx)" : "VERSION_17(DefaultCtx)",
       "runtimeClasspathMode(DefaultCtx)" : "JARS(DefaultCtx)",
       "storeParameterNames(DefaultCtx)" : "false(DefaultCtx)"
     },
     "kotlin" : {
       "allOpen" : {
-        "enabled(DefaultCtx)" : "false(DefaultCtx)"
+        "annotations(DefaultCtx)" : "null(DefaultCtx)",
+        "enabled(DefaultCtx)" : "false(DefaultCtx)",
+        "presets(DefaultCtx)" : "null(DefaultCtx)"
       },
       "ksp" : {
         "processorOptions" : ,
@@ -79,8 +84,10 @@
         "version(DefaultCtx)" : "2.2.10-2.0.2(DefaultCtx)"
       },
       "noArg" : {
+        "annotations(DefaultCtx)" : "null(DefaultCtx)",
         "enabled(DefaultCtx)" : "false(DefaultCtx)",
-        "invokeInitializers(DefaultCtx)" : "false(DefaultCtx)"
+        "invokeInitializers(DefaultCtx)" : "false(DefaultCtx)",
+        "presets(DefaultCtx)" : "null(DefaultCtx)"
       },
       "powerAssert" : {
         "enabled(DefaultCtx)" : "false(DefaultCtx)",
@@ -89,10 +96,18 @@
         ]
       },
       "serialization" : {
+        "format(DefaultCtx)" : "null(DefaultCtx)",
         "version(DefaultCtx)" : "1.9.0(DefaultCtx)"
       },
       "allWarningsAsErrors(DefaultCtx)" : "false(DefaultCtx)",
       "apiVersion(DefaultCtx)" : "languageVersion(DefaultCtx)",
+      "debug(DefaultCtx)" : "null(DefaultCtx)",
+      "freeCompilerArgs(DefaultCtx)" : "null(DefaultCtx)",
+      "languageFeatures(DefaultCtx)" : "null(DefaultCtx)",
+      "languageVersion(DefaultCtx)" : "null(DefaultCtx)",
+      "linkerOptions(DefaultCtx)" : "null(DefaultCtx)",
+      "optIns(DefaultCtx)" : "null(DefaultCtx)",
+      "optimization(DefaultCtx)" : "null(DefaultCtx)",
       "progressiveMode(DefaultCtx)" : "false(DefaultCtx)",
       "suppressWarnings(DefaultCtx)" : "false(DefaultCtx)",
       "verbose(DefaultCtx)" : "false(DefaultCtx)",
@@ -108,13 +123,24 @@
       "version(DefaultCtx)" : "1.18.38(DefaultCtx)"
     },
     "publishing" : {
-      "enabled(DefaultCtx)" : "true(DefaultCtx)"
+      "enabled(DefaultCtx)" : "true(DefaultCtx)",
+      "group(DefaultCtx)" : "null(DefaultCtx)",
+      "name(DefaultCtx)" : "null(DefaultCtx)",
+      "version(DefaultCtx)" : "null(DefaultCtx)"
     },
     "springBoot" : {
       "applyBom(DefaultCtx)" : "true(DefaultCtx)",
       "enabled(DefaultCtx)" : "false(DefaultCtx)",
       "version(DefaultCtx)" : "3.5.5(DefaultCtx)"
     },
-    "junit(DefaultCtx)" : "JUNIT5(DefaultCtx)"
-  }
+    "junit(DefaultCtx)" : "JUNIT5(DefaultCtx)",
+    "kover(DefaultCtx)" : "null(DefaultCtx)",
+    "native(DefaultCtx)" : "null(DefaultCtx)"
+  },
+  "aliases(DefaultCtx)" : "null(DefaultCtx)",
+  "apply(DefaultCtx)" : "null(DefaultCtx)",
+  "plugin(DefaultCtx)" : "null(DefaultCtx)",
+  "dependencies(DefaultCtx)" : "null(DefaultCtx)",
+  "repositories(DefaultCtx)" : "null(DefaultCtx)",
+  "tasks(DefaultCtx)" : "null(DefaultCtx)"
 }

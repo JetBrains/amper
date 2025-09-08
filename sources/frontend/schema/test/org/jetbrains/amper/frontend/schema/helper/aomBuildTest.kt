@@ -43,7 +43,7 @@ open class BuildAomTestRun(
         val fioCtx = TestProjectContext(buildDirFile, listOf(inputFile), readCtx)
         fioCtx.adjustCtx()
 
-        val module = with(problemReporter) { doBuild(fioCtx, systemInfo)?.first() }
+        val module = with(problemReporter) { doBuild(fioCtx, systemInfo)?.firstOrNull() }
 
         // Check errors absence.
         if (expectedError == null) {

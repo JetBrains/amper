@@ -15,7 +15,7 @@ import org.jetbrains.amper.frontend.api.TraceableString
 class PluginDeclarationSchema : SchemaNode() {
     @SchemaDoc("Plugin id that is going to be used to refer to the plugin in the configuration files. " +
             "Module name is used by default.")
-    var id by nullableValue<TraceableString>() // Can't specify a default here, it's set imperatively later.
+    var id by value<TraceableString>() // Defaults to the module name, is set on the tree level later.
 
     @SchemaDoc("Plugin description. " +
             "Can be used by tooling to provide documentation on plugin references in configuration files.")

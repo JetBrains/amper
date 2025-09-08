@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.InternalTraceSetter
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
@@ -12,6 +13,7 @@ import org.jetbrains.amper.frontend.api.ValueHolder
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.ListValue
+import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.NullValue
 import org.jetbrains.amper.frontend.tree.Refined
@@ -141,6 +143,7 @@ private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valueP
     for (property in declaration.properties) {
         val propertyValuePath = valuePath + property.name
         val mapLikePropertyValue = value.refinedChildren[property.name]
+        propertyCheckDefaultIntegrity(property, mapLikePropertyValue)
         if (mapLikePropertyValue == null) {
             // Property is not mentioned at all
             if (property.isValueRequired()) {
@@ -210,5 +213,18 @@ interface MissingPropertiesHandler {
                 valuePath.last(),
             )
         }
+    }
+}
+
+private fun propertyCheckDefaultIntegrity(
+    pType: SchemaObjectDeclaration.Property,
+    pValue: MapLikeValue.Property<*>?,
+) {
+    val hasTraceableDefault = pType.default != null && pType.default !is Default.TransformedDependent<*, *>
+    check(!hasTraceableDefault || pValue != null) {
+        "A property ${pType.name} has a traceable default ${pType.default}, " +
+                "but the value is missing nevertheless. " +
+                "This is a sign that the default was not properly merged on the tree level. " +
+                "Please check that defaults are correctly appended for this tree."
     }
 }

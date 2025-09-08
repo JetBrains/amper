@@ -9,12 +9,15 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
+import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 
@@ -25,8 +28,15 @@ import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 class MinimalPluginModule : SchemaNode() {
     var product by value<ModuleProduct>()
 
-    val plugin: PluginDeclarationSchema by nested()
+    val plugin: MinimalPluginDeclarationSchema by nested()
 }
+
+class MinimalPluginDeclarationSchema : SchemaNode() {
+    val id by nullableValue<TraceableString>()
+    val description by nullableValue<String>()
+    val schemaExtensionClassName by nullableValue<TraceableString>()
+}
+
 
 interface PluginManifest {
     val id: String
@@ -50,7 +60,8 @@ fun parsePluginManifestFromModuleFile(
             type = types.getDeclaration<MinimalPluginModule>(),
             reportUnknowns = false,
             parseContexts = false,
-        )
+        ).appendDefaultValues()
+            .resolveReferences()
         val noContextsTree = TreeRefiner().refineTree(pluginModuleTree, EmptyContexts)
         val moduleHeader = createSchemaNode<MinimalPluginModule>(noContextsTree)
             ?: return null

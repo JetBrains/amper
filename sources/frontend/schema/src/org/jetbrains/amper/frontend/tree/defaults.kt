@@ -8,113 +8,170 @@ import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.DefaultCtxs
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
+import java.util.*
 
 context(buildCtx: BuildCtx)
-internal fun Merged.appendDefaultValues(): Merged =
-    DefaultsAppender.transform(this)?.let { buildCtx.treeMerger.mergeTrees(listOf(it as MapLikeValue<*>)) } ?: this
+internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
+    /*
+      "root for defaults" is a MapLike<*> value with a type (object value), that is:
+        a) the tree root
+        b) a value of a property that had a `null` default or has no default
+           (map entries also fall into this category)
+        c) a value that has a list parent.
+       -----------------------------------
+       Examples:
+       ```kotlin
+       class Foo {
+         val bar: Bar? get() = null
+         val foo-prop get() = "foo-default"
+       }
+       class Bar {
+         val baz: Baz get() = Baz()
+         val bar-prop get() = "bar-default"
+       }
+       class Baz {
+         val baz-prop get() = "baz-default"
+         val foos: List<Foo> get() = emptyList()
+       }
+       ```
+       -----------------------------------
+       Now, imagine we have a tree:
+       ```yaml
+       foo:                                  # root - true root (a)
+         bar:                                # root - null by default, but the value present (b)
+           baz:
+             baz-prop: "baz-overridden"
+             foos:
+               - foo-prop: "foo-overridden"  # root - list parent (c)
+       ```
+       We want to append the defaults like this:
+       ```yaml
+       foo:
+         foo-prop (default): "foo-default"
+         bar:
+           bar-prop (default): "bar-default"
+           baz (default):
+             baz-prop (default): "baz-default"
+             foos (default): []
+           baz:
+             baz-prop: "baz-overridden"
+             foos:
+               - foo-prop (default): "foo-default"
+                 foo-prop: "foo-overridden"
+       ```
+       For this we only append defaults to the "roots for defaults" values.
+       Appending defaults to every object value would bloat the tree (make the tree almost complete).
+       That would still work, but we want to avoid complete trees.
+     */
+    val rootsForDefaults = IdentityHashMap<MapLikeValue<*>, Unit>()
+    rootsForDefaults[this] = Unit  // (a)
+
+    fun TreeValue<*>.findRootsForDefaults(): Unit = when (this) {
+        is ListValue<*> -> children.forEach { value ->
+            if (value is MapLikeValue<*> && value.type != null) {
+                rootsForDefaults[value] = Unit  // (c)
+            }
+            value.findRootsForDefaults()
+        }
+        is MapLikeValue<*> -> for (child in children) {
+            child.value.findRootsForDefaults()
+            val value = child.value as? MapLikeValue<*>
+            if (value?.type == null) {
+                continue
+            }
+            val default = type?.getProperty(child.key)?.default
+            if (default == null || (default is Default.Static && default.value == null)) {
+                rootsForDefaults[value] = Unit  // (b)
+            }
+        }
+        else -> Unit
+    }
+
+    findRootsForDefaults()
+
+    val appender = DefaultsAppender(
+        rootsForDefaults = rootsForDefaults,
+    )
+    val withDefaults = appender.transform(this)!! as MapLikeValue<*>
+    return buildCtx.treeMerger.mergeTrees(listOf(withDefaults))
+}
+
 
 /**
- * Visitor that is adding default leaves with special [DefaultTrace] trace and default values to the tree.
+ * Visitor that is adding default values with special [DefaultTrace] trace and [DefaultCtxs] context to the tree.
  */
-private object DefaultsAppender : TreeTransformer<TreeState>() {
+private class DefaultsAppender(
+    val rootsForDefaults: IdentityHashMap<MapLikeValue<*>, Unit>,
+) : TreeTransformer<TreeState>() {
     override fun visitMapValue(value: MapLikeValue<TreeState>): TransformResult<MapLikeValue<TreeState>> {
-        val aObject = value.type ?: return super.visitMapValue(value)
+        val transformResult = super.visitMapValue(value)
 
-        // Note: We are using special [DefaultCtxs] that has the least possible priority during merge.
-        val toAddDefaults: MapLikeChildren<TreeState> =
-            aObject.properties.mapNotNull out@{
-                when (val default = it.default) {
-                    // Default as a direct reference creates a reference value to a referenced property.
-                    is Default.DirectDependent<*> -> ReferenceProperty(
-                        aProp = it,
-                        kTrace = DefaultTrace,
-                        referencedPath = default.property.name,
-                        trace = DefaultTrace,
-                        contexts = DefaultCtxs,
-                    )
-                    is Default.TransformedDependent<*, *> -> return@out null
+        val declaration = value.type
+        if (declaration == null || value !in rootsForDefaults)
+            return transformResult
 
-                    // Default as a static value creates a scalar value.
-                    is Default.Static<*> -> MapLikeValue.Property(
-                        it.name,
-                        DefaultTrace,
-                        defaultValueFrom(default.value ?: return@out null, it.type) ?: return@out null,
-                        it,
-                    )
+        val transformedValue = when (transformResult) {
+            is Changed -> transformResult.value
+            NotChanged -> value
+            Removed -> error("Unexpected remove")
+        }
 
-                    // In case if default is pointing to SchemaObject then we create an empty [MapProperty]
-                    // and it will be filled within [acceptAll] call.
-                    is Default.NestedObject<*> -> MapProperty(
-                        it,
-                        DefaultTrace,
-                        DefaultTrace,
-                        DefaultCtxs,
-                        (it.type as? SchemaType.ObjectType)?.declaration ?: return@out null,
-                    )
+        val defaultProperties = createDefaultProperties(declaration)
+        if (defaultProperties.isEmpty()) {
+            return transformResult
+        }
 
-                    // Other cases are unsupported.
-                    else -> return@out null
-                }
-            }
-
-        // These are default values that can have their own default children.
-        // Also, make a shortcut if no defaults were added.
-        var extendedDefaults = toAddDefaults.takeIf { it.isNotEmpty() } ?: return super.visitMapValue(value)
-        extendedDefaults = (extendedDefaults.visitAll() as? Changed)?.value ?: extendedDefaults
-
-        // If children visit had returned `null` - then there are no defaults in them - thus we are keeping originals.
-        val childrenWithDefaults = with(DefaultsRootsDiscoverer) { value.children.visitAll() as? Changed }?.value
-            ?: value.children
-
-        // We can't guarantee any tree contract here, so we have to create an Owned value.
-        return Changed(
-            Owned(
-                children = childrenWithDefaults + extendedDefaults,
-                type = value.type,
-                trace = value.trace,
-                contexts = value.contexts,
-            )
-        )
+        return Changed(transformedValue.copy(children = transformedValue.children + defaultProperties))
     }
 }
 
-private object DefaultsRootsDiscoverer : TreeTransformer<TreeState>() {
-    override fun visitListValue(value: ListValue<TreeState>) = DefaultsAppender.visitValue(value)
+private fun createDefaultProperties(declaration: SchemaObjectDeclaration): MapLikeChildren<TreeState> =
+    declaration.properties.mapNotNull { property ->
+        val value = property.default?.toTreeValue(
+            type = property.type,
+        ) ?: return@mapNotNull null
+        MapLikeValue.Property(property.name, DefaultTrace, value, property)
+    }
+
+private fun Default<*>.toTreeValue(type: SchemaType): TreeValue<TreeState>? = when (this) {
+    is Default.Static -> toTreeValue(type)
+    is Default.NestedObject -> {
+        check(type is SchemaType.ObjectType)
+        Owned(createDefaultProperties(type.declaration), null, DefaultTrace, DefaultCtxs)
+    }
+    is Default.DirectDependent -> ReferenceValue(property.name, DefaultTrace, DefaultCtxs, type = type)
+    is Default.TransformedDependent<*, *> -> {
+        // FIXME: Not yet supported! Need to rethink this default kind and implement it in another way
+        null
+    }
 }
 
-/**
- * Construct a default value tree from the passed value.
- */
-private fun defaultValueFrom(value: Any, type: SchemaType): TreeValue<TreeState>? = when {
-    type is SchemaType.MapType && value is Map<*, *> -> Owned(
-        children = value
-            .mapNotNull {
-                MapLikeValue.Property(
-                    key = it.key.toString(),
-                    kTrace = DefaultTrace,
-                    value = defaultValueFrom(it.value ?: return@mapNotNull null, type.valueType)
-                        ?: return@mapNotNull null,
-                    pType = null,
-                )
-            },
-        trace = DefaultTrace,
-        contexts = DefaultCtxs,
-        type = null,
-    )
-
-    type is SchemaType.ListType && value is List<*> -> ListValue(
-        children = value.mapNotNull { defaultValueFrom(it ?: return@mapNotNull null, type.elementType) },
-        trace = DefaultTrace,
-        contexts = DefaultCtxs,
-    )
-
-    type is SchemaType.ScalarType -> ScalarValue(
-        value = value,
-        trace = DefaultTrace,
-        contexts = DefaultCtxs,
-    )
-
-    // TODO AMPER-4516 Report.
-    else -> null
+private fun Default.Static<*>.toTreeValue(type: SchemaType): TreeValue<TreeState> {
+    val value = value
+    return if (value == null) {
+        check(type.isMarkedNullable)
+        NullValue(DefaultTrace, DefaultCtxs)
+    } else when (type) {
+        is SchemaType.ScalarType -> ScalarValue(value, DefaultTrace, DefaultCtxs)
+        is SchemaType.ListType -> {
+            check(value is List<*>)
+            check(value.isEmpty() || type.elementType is SchemaType.ScalarType) {
+                "Non-empty lists as defaults are allowed only for lists with scalar element types"
+            }
+            val children = value.map { Default.Static(it).toTreeValue(type.elementType) }
+            ListValue(children, DefaultTrace, DefaultCtxs)
+        }
+        is SchemaType.MapType -> {
+            check(value == emptyMap<Nothing, Nothing>()) {
+                "Only an empty map is permitted as a default for a map property. " +
+                        "If there are cases, you'll need to extend the implementation here"
+            }
+            Owned(emptyList(), null, DefaultTrace, DefaultCtxs)
+        }
+        is SchemaType.ObjectType, is SchemaType.VariantType -> {
+            error("Static defaults for object types are not supported")
+        }
+    }
 }

@@ -14,7 +14,9 @@ import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
+import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
@@ -27,6 +29,8 @@ context(problemReporter: ProblemReporter)
 fun AmperProjectContext.readEffectiveCatalogForTemplate(templateFile: VirtualFile): VersionCatalog =
     with(BuildCtx(pathResolver = frontendPathResolver, problemReporter = problemReporter)) {
         val templateTree = readTree(file = templateFile, type = templateAType)
+            .appendDefaultValues()
+            .resolveReferences()
         val mergedTemplateTree = treeMerger.mergeTrees(templateTree)
         val refiner = TreeRefiner()
         // We can cast here, since we are not merging templates for now.

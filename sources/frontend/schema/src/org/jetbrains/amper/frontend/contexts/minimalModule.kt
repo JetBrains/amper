@@ -44,7 +44,7 @@ class MinimalModule : SchemaNode() {
 val MinimalModule.unwrapAliases get() = aliases?.mapValues { it.value.leaves }.orEmpty()
 
 internal val defaultContextsInheritance by lazy {
-    PlatformsInheritance() + MainTestInheritance
+    PlatformsInheritance() + MainTestInheritance + DefaultInheritance
 }
 
 @OptIn(NonIdealDiagnostic::class)
@@ -58,7 +58,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
         )
 
         // We need to resolve defaults for the tree.
-        val moduleTree = treeMerger.mergeTrees(rawModuleTree)
+        val moduleTree = rawModuleTree
             .appendDefaultValues()
             .resolveReferences()
 

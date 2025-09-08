@@ -155,7 +155,9 @@ class SchemaValueDelegate<T>(
             if (valueGetter != null) {
                 return valueGetter.value
             }
-            if (default != null) {
+            if (default is Default.TransformedDependent<*, *>) {
+                // The only default that is taken into account on the delegate level
+                // other defaults are merged on the tree level to make them traceable and referencable.
                 return default.value
             }
             error("Required property '${property.name}' is not set")

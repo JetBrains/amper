@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.types
 
+import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaNode
 import kotlin.reflect.KClass
 
@@ -18,13 +19,14 @@ fun SchemaObjectDeclaration.toType() = SchemaType.ObjectType(this)
 fun SchemaVariantDeclaration.toType() = SchemaType.VariantType(this)
 
 /**
- * Whether this property must be specified explicitly. This is true for any property that doesn't have a default value.
+ * Whether the value for this property must be present in the tree.
+ * This is true for any property that has a traceable default value.
  *
  * Note that this is orthogonal to whether the property has a nullable type. Nullable properties don't necessarily have
  * a default value. If they do, the default is not necessarily null. If they don't, they are required despite being
  * nullable.
  */
-fun SchemaObjectDeclaration.Property.isValueRequired() = default == null
+fun SchemaObjectDeclaration.Property.isValueRequired() = default !is Default.TransformedDependent<*, *>
 
 fun SchemaType.render(
     includeSyntax: Boolean = true,
